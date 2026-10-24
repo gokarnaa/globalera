@@ -27,9 +27,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   Divider,
-  Avatar
+  Avatar,
+  InputAdornment,
+  Collapse
 } from '@mui/material';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -39,22 +41,85 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import DownloadIcon from '@mui/icons-material/Download';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
+import TimelineIcon from '@mui/icons-material/Timeline';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import SchoolIcon from '@mui/icons-material/School';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import BuildIcon from '@mui/icons-material/Build';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
+import SearchIcon from '@mui/icons-material/Search';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import SchoolIcon from '@mui/icons-material/School';
+import ShieldIcon from '@mui/icons-material/Shield';
+import BoltIcon from '@mui/icons-material/Bolt';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
 
+// Standard CTEVT 390-Hours Curriculum Presets
+const CTEVT_PRESETS = [
+  {
+    key: 'caregiver',
+    title: 'Caregiver (हेरचाह कार्यकर्ता) – ३९० घण्टा',
+    description: 'CTEVT मान्यता प्राप्त ३ महिने केयरगिभर पाठ्यक्रम (८०% प्रयोगात्मक, १० एकाइहरू)',
+    targetHours: 390,
+    units: [
+      { unitNo: 1, title: 'Orientation, Professional Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, learningOutcome: 'Understand institutional norms, personal safety, legal ethics and bio-hazard protocols.', toolsAndMaterials: 'Projector, Whiteboard, PPE Kit, Safety Guidelines' },
+      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master sponge bathing, bed making, oral hygiene, and sterile hand washing.', toolsAndMaterials: 'Hospital Bed, Linens, Basin, Sterile Gloves, Antiseptic' },
+      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, learningOutcome: 'Accurately measure Blood Pressure, Radial Pulse, Temperature and SpO2 levels.', toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Digital Thermometer, Pulse Oximeter' },
+      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, learningOutcome: 'Prepare diabetic/renal soft meals and assist dysphagia patients safely.', toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets, Measuring Cup, Apron' },
+      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, learningOutcome: 'Safely transfer patients bed-to-wheelchair, use walkers and crutches.', toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt, Crutches' },
+      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, learningOutcome: 'Perform high-quality CPR, manage choking (Heimlich), burns and bleeding.', toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box, Crepe Bandages' },
+      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, learningOutcome: 'Support Alzheimer/Dementia patients with patience, memory cues and sensory care.', toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock, Flashcards' },
+      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, learningOutcome: 'Administer oral medications following 5-Rights and maintain clinical records.', toolsAndMaterials: 'Pill Organizer, Medication Chart, Prescription Samples' },
+      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, learningOutcome: 'Prevent bedsore (pressure ulcers), reposition every 2 hours, and dignity care.', toolsAndMaterials: 'Air Mattress, Position Wedges, Barrier Creams' },
+      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, learningOutcome: 'Hospital & Care Home etiquette, client communication, and final skill exam.', toolsAndMaterials: 'Log Book, Uniform, Skill Rubric Sheet' }
+    ]
+  },
+  {
+    key: 'beautician',
+    title: 'Beautician & Skin Care (सौन्दर्यकर्मी) – ३९० घण्टा',
+    description: 'CTEVT लेभल-१ ब्यूटीशियन पाठ्यक्रम (८०% प्रयोगात्मक, ८ एकाइहरू)',
+    targetHours: 390,
+    units: [
+      { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, learningOutcome: 'Sterilization of salon tools, client consultation and safety standards.', toolsAndMaterials: 'Sterilizer, Sanitizer, Apron, Towels' },
+      { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, learningOutcome: 'Perform galvanic facial, ultrasonic scrubbing, fruit clean-up and skin analysis.', toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Facial Creams, Pack' },
+      { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, learningOutcome: 'Execute basic layers, feather cut, blow-dry styling and tong curls.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Curling Iron, Section Clips' },
+      { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Apply rebonding cream, neutralizer, straightening iron safely.', toolsAndMaterials: 'Ceramic Straightener, Chemical Bowls, Tint Brushes, Gloves' },
+      { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Base correction, contouring, eye makeup, false lashes and bridal draping.', toolsAndMaterials: 'Professional Makeup Palette, Brush Set, HD Foundations' },
+      { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, learningOutcome: 'Nail shaping, cuticle treatment, hand/foot massage and gel polish application.', toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Nail Lamp, Gel Polish' },
+      { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, learningOutcome: 'Eyebrow shaping, upper lip threading, and warm/cold wax application.', toolsAndMaterials: 'Cotton Thread, Wax Heater, Wax Strips, Soothing Lotion' },
+      { unitNo: 8, title: 'Salon Management, Client Care & Entrepreneurship', theoryHours: 12, practicalHours: 18, learningOutcome: 'Billing, appointment scheduling, inventory management and business setup.', toolsAndMaterials: 'Cash Book, Menu Cards, Client Records' }
+    ]
+  },
+  {
+    key: 'electrician',
+    title: 'Building Electrician (भवन विद्युतीकरण) – ३९० घण्टा',
+    description: 'CTEVT राष्ट्रिय सीप मानक भवन वायरिङ पाठ्यक्रम (८०% प्रयोगात्मक, ८ एकाइहरू)',
+    targetHours: 390,
+    units: [
+      { unitNo: 1, title: 'Electrical Safety, Tools & Basic Concepts', theoryHours: 12, practicalHours: 20, learningOutcome: 'Understand Ohm’s Law, earthing, electrical hazards and PPE usage.', toolsAndMaterials: 'Insulated Pliers, Multimeter, Screwdriver Set, Safety Helmet' },
+      { unitNo: 2, title: 'Conduit Piping & Domestic Surface Wiring', theoryHours: 10, practicalHours: 50, learningOutcome: 'Install PVC conduit pipes, junction boxes and 2-way switch control.', toolsAndMaterials: 'PVC Pipes, Bending Spring, Chisel, Hammer, Switches' },
+      { unitNo: 3, title: 'Distribution Board (DB), MCB & RCCB Installation', theoryHours: 10, practicalHours: 50, learningOutcome: 'Wire Main Switch, MCB, RCCB/ELCB, and load balancing.', toolsAndMaterials: 'DB Box, Single/Double Pole MCB, RCCB, Bus Bar' },
+      { unitNo: 4, title: 'Earthing Systems (Pipe & Plate Earthing)', theoryHours: 8, practicalHours: 42, learningOutcome: 'Excavate pit, install GI/Copper pipe, salt-charcoal earthing layer.', toolsAndMaterials: 'GI Pipe, Copper Strip, Earth Tester, Charcoal, Salt' },
+      { unitNo: 5, title: 'Lighting Fixtures, Inverter & UPS Integration', theoryHours: 10, practicalHours: 45, learningOutcome: 'Install LED panels, fans, chandeliers, and inverter backup wiring.', toolsAndMaterials: 'Inverter, Battery, Ceiling Fan, LED Downlights' },
+      { unitNo: 6, title: 'Motor & Water Pump Control Wiring', theoryHours: 8, practicalHours: 40, learningOutcome: 'Connect single-phase induction motor with automatic water level controller.', toolsAndMaterials: 'Water Pump Motor, Float Switch, Starter, Contactors' },
+      { unitNo: 7, title: 'Troubleshooting, Short Circuit & Insulation Testing', theoryHours: 10, practicalHours: 40, learningOutcome: 'Use Megger for insulation test, detect earth leakage and phase neutral reverse.', toolsAndMaterials: 'Megger (Insulation Tester), Test Lamp, Continuity Tester' },
+      { unitNo: 8, title: 'Cost Estimation, Single Line Diagram (SLD) & Rules', theoryHours: 10, practicalHours: 25, learningOutcome: 'Read architectural electrical plans, estimate cables and billing.', toolsAndMaterials: 'Blueprints, Estimation Sheet, NEA Wiring Regulations' }
+    ]
+  }
+];
+
 export default function SyllabusManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
-  const [selectedCourseId, setSelectedCourseId] = useState(db.courses[0]?.id || '');
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
+  const [selectedCourseId, setSelectedCourseId] = useState(db.courses?.[0]?.id || '');
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'timeline' | 'table'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState('ALL'); // 'ALL' | 'HIGH_PRACTICAL' | 'THEORY' | 'HAS_TOOLS'
 
   // Dialog States
   const [openSingleDialog, setOpenSingleDialog] = useState(false);
@@ -62,6 +127,7 @@ export default function SyllabusManager() {
 
   const [openBulkDialog, setOpenBulkDialog] = useState(false);
   const [openDocDialog, setOpenDocDialog] = useState(false);
+  const [openPresetDialog, setOpenPresetDialog] = useState(false);
 
   // Single Unit Form
   const [formData, setFormData] = useState({
@@ -80,12 +146,32 @@ export default function SyllabusManager() {
   const [bulkMode, setBulkMode] = useState('append'); // 'append' | 'replace'
   const [bulkError, setBulkError] = useState('');
 
-  const selectedCourse = db.courses.find((c) => c.id === selectedCourseId);
+  const selectedCourse = db.courses?.find((c) => c.id === selectedCourseId);
   const courseSyllabi = useMemo(() => {
     return (db.syllabi || [])
       .filter((s) => s.courseId === selectedCourseId)
       .sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
   }, [db.syllabi, selectedCourseId]);
+
+  // Filtered List based on Search and Filter Pills
+  const filteredSyllabi = useMemo(() => {
+    return courseSyllabi.filter((u) => {
+      const q = searchQuery.toLowerCase().trim();
+      const matchesSearch =
+        !q ||
+        u.title.toLowerCase().includes(q) ||
+        (u.learningOutcome || '').toLowerCase().includes(q) ||
+        (u.toolsAndMaterials || '').toLowerCase().includes(q) ||
+        `unit ${u.unitNo}`.includes(q);
+
+      let matchesFilter = true;
+      if (filterType === 'HIGH_PRACTICAL') matchesFilter = (Number(u.practicalHours) || 0) >= 30;
+      else if (filterType === 'THEORY') matchesFilter = (Number(u.theoryHours) || 0) >= 10;
+      else if (filterType === 'HAS_TOOLS') matchesFilter = Boolean(u.toolsAndMaterials?.trim());
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [courseSyllabi, searchQuery, filterType]);
 
   // Statistics & Hours Allocation
   const totalTheoryHours = courseSyllabi.reduce((sum, s) => sum + (Number(s.theoryHours) || 0), 0);
@@ -93,9 +179,11 @@ export default function SyllabusManager() {
   const totalSyllabusHours = totalTheoryHours + totalPracticalHours;
   const courseTargetHours = selectedCourse?.totalHours || 390;
   const hoursPercentage = Math.min(100, Math.round((totalSyllabusHours / courseTargetHours) * 100));
+  const remainingHours = Math.max(0, courseTargetHours - totalSyllabusHours);
 
   const practicalRatio = totalSyllabusHours > 0 ? Math.round((totalPracticalHours / totalSyllabusHours) * 100) : 80;
   const theoryRatio = 100 - practicalRatio;
+  const isCtevtBalanced = practicalRatio >= 75 && practicalRatio <= 85;
 
   // Single Add / Edit Handlers
   const handleOpenAdd = () => {
@@ -104,8 +192,8 @@ export default function SyllabusManager() {
       courseId: selectedCourseId,
       unitNo: courseSyllabi.length + 1,
       title: '',
-      theoryHours: 10,
-      practicalHours: 30,
+      theoryHours: 8,
+      practicalHours: 32,
       learningOutcome: '',
       toolsAndMaterials: '',
       keyTasks: ''
@@ -127,7 +215,7 @@ export default function SyllabusManager() {
 
   const handleSaveSingle = () => {
     if (!formData.title.trim()) {
-      alert('Syllabus unit title is required.');
+      alert('पाठ्यक्रम एकाइको शीर्षक आवश्यक छ (Syllabus unit title is required).');
       return;
     }
 
@@ -137,7 +225,7 @@ export default function SyllabusManager() {
       totalHours: calcTotal
     };
 
-    let updatedList = [...db.syllabi];
+    let updatedList = [...(db.syllabi || [])];
     if (editingItem) {
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...payload } : x
@@ -164,8 +252,8 @@ export default function SyllabusManager() {
 
   const handleDelete = (id) => {
     if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो पाठ्यक्रम एकाइ मेटिनेछ।')) {
-      const deletedItem = db.syllabi.find((x) => x.id === id);
-      let updatedList = db.syllabi.filter((x) => x.id !== id);
+      const deletedItem = (db.syllabi || []).find((x) => x.id === id);
+      let updatedList = (db.syllabi || []).filter((x) => x.id !== id);
       let nextDb = { ...db, syllabi: updatedList };
       nextDb = logAudit(
         nextDb,
@@ -180,20 +268,81 @@ export default function SyllabusManager() {
     }
   };
 
-  // ----------------------------------------------------
-  // BULK CSV / TEXT IMPORT LOGIC
-  // ----------------------------------------------------
+  // Reorder Units (Move Up / Down)
+  const handleMoveUnit = (unitId, direction) => {
+    const list = [...courseSyllabi];
+    const index = list.findIndex((u) => u.id === unitId);
+    if (index < 0) return;
+
+    if (direction === 'up' && index > 0) {
+      const temp = list[index];
+      list[index] = list[index - 1];
+      list[index - 1] = temp;
+    } else if (direction === 'down' && index < list.length - 1) {
+      const temp = list[index];
+      list[index] = list[index + 1];
+      list[index + 1] = temp;
+    } else {
+      return;
+    }
+
+    // Re-index unit numbers cleanly
+    const reindexedList = list.map((item, idx) => ({
+      ...item,
+      unitNo: idx + 1
+    }));
+
+    const otherSyllabi = (db.syllabi || []).filter((s) => s.courseId !== selectedCourseId);
+    const updatedSyllabi = [...otherSyllabi, ...reindexedList];
+
+    const nextDb = { ...db, syllabi: updatedSyllabi };
+    saveDB(nextDb);
+    setDb(nextDb);
+  };
+
+  // 1-Click Load CTEVT Preset Handler
+  const handleApplyPreset = (preset) => {
+    if (!window.confirm(`के तपाईं "${preset.title}" का ${preset.units.length} वटा आधिकारिक एकाइहरू लोड गर्न चाहनुहुन्छ?`)) {
+      return;
+    }
+
+    // Replace current course syllabi with preset
+    const otherSyllabi = (db.syllabi || []).filter((s) => s.courseId !== selectedCourseId);
+    const newUnits = preset.units.map((u, i) => ({
+      id: `SYL-${Date.now()}-${i}`,
+      courseId: selectedCourseId,
+      unitNo: u.unitNo,
+      title: u.title,
+      theoryHours: u.theoryHours,
+      practicalHours: u.practicalHours,
+      totalHours: u.theoryHours + u.practicalHours,
+      learningOutcome: u.learningOutcome,
+      toolsAndMaterials: u.toolsAndMaterials
+    }));
+
+    const nextDb = {
+      ...db,
+      syllabi: [...otherSyllabi, ...newUnits]
+    };
+
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenPresetDialog(false);
+
+    try {
+      confetti({ particleCount: 90, spread: 80, origin: { y: 0.6 } });
+    } catch (_) {}
+  };
+
+  // Bulk CSV Import logic
   const parsedBulkUnits = useMemo(() => {
     if (!bulkText.trim()) return [];
-
     const lines = bulkText.trim().split('\n');
     const results = [];
 
     lines.forEach((rawLine, index) => {
       const line = rawLine.trim();
       if (!line) return;
-
-      // Skip header lines
       if (
         index === 0 &&
         (line.toLowerCase().includes('unit no') ||
@@ -202,11 +351,8 @@ export default function SyllabusManager() {
       ) {
         return;
       }
-
-      // Support either CSV (comma-separated) or TSV (tab-separated from Excel)
       const delimiter = line.includes('\t') ? '\t' : ',';
       const parts = line.split(delimiter).map((p) => p.trim().replace(/^["']|["']$/g, ''));
-
       if (parts.length >= 2) {
         const unitNo = Number(parts[0]) || results.length + 1;
         const title = parts[1] || '';
@@ -214,7 +360,6 @@ export default function SyllabusManager() {
         const practicalHours = Number(parts[3]) || 0;
         const learningOutcome = parts[4] || '';
         const toolsAndMaterials = parts[5] || '';
-
         if (title) {
           results.push({
             unitNo,
@@ -228,18 +373,16 @@ export default function SyllabusManager() {
         }
       }
     });
-
     return results;
   }, [bulkText]);
 
   const handleDownloadSampleCSV = () => {
     const sampleData = `Unit No,Unit Title,Theory Hours,Practical Hours,Learning Outcomes,Tools & Materials
 1,Orientation & TVET Concepts,4,6,Understand institutional norms and safety protocols,Projector, Whiteboard, Notebook
-2,Fundamental Patient Care & Hygiene,10,30,Master bed making, sponge bathing and infection control,Hospital Bed, Linens, Basin, Gloves, Towels
-3,Vital Signs Monitoring,8,22,Measure and record Blood Pressure, Pulse, Temperature & SpO2,Sphygmomanometer, Stethoscope, Digital Thermometer, Oximeter
-4,Nutrition & Meal Assistance,6,24,Prepare special diets, feed dysphagia patients safely,Feeding Tray, Pureed Diet, Measuring Cup, Apron
-5,Emergency First Aid & CPR,8,22,Perform Adult CPR and manage choking, bleeding, burns,CPR Mannequin, First Aid Kit, Bandages, Splints
-6,Elderly Care & Assistive Devices,8,32,Transfer wheelchair patients, use walking frames and crutches,Wheelchair, Walker, Transfer Belt, Crutches`;
+2,Fundamental Patient Care & Hygiene,10,30,Master bed making and infection control,Hospital Bed, Linens, Basin, Gloves, Towels
+3,Vital Signs Monitoring,8,22,Measure and record Blood Pressure and Pulse,Sphygmomanometer, Stethoscope, Digital Thermometer
+4,Nutrition & Meal Assistance,6,24,Prepare special diets and assist feeding,Feeding Tray, Pureed Diet, Measuring Cup
+5,Emergency First Aid & CPR,8,22,Perform Adult CPR and manage choking,CPR Mannequin, First Aid Kit, Bandages`;
 
     const blob = new Blob(['\uFEFF' + sampleData], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -255,30 +398,26 @@ export default function SyllabusManager() {
   const handleFileUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (evt) => {
       const content = evt.target?.result;
-      if (typeof content === 'string') {
-        setBulkText(content);
-      }
+      if (typeof content === 'string') setBulkText(content);
     };
     reader.readAsText(file);
   };
 
   const handleConfirmBulkImport = () => {
     if (parsedBulkUnits.length === 0) {
-      setBulkError('कुनै मान्य एकाइ भेटिएन (No valid units found). Please check your file/text format.');
+      setBulkError('कुनै मान्य एकाइ भेटिएन (No valid units found). Format जाँच गर्नुहोस्।');
       return;
     }
 
-    let currentList = [...db.syllabi];
+    let currentList = [...(db.syllabi || [])];
     if (bulkMode === 'replace') {
       currentList = currentList.filter((x) => x.courseId !== selectedCourseId);
     }
 
     const startIdx = bulkMode === 'append' ? currentList.filter((x) => x.courseId === selectedCourseId).length : 0;
-
     const newEntries = parsedBulkUnits.map((u, i) => ({
       id: `SYL-${Date.now()}-${i}`,
       courseId: selectedCourseId,
@@ -291,29 +430,17 @@ export default function SyllabusManager() {
       toolsAndMaterials: u.toolsAndMaterials
     }));
 
-    const updatedList = [...currentList, ...newEntries];
-    let nextDb = { ...db, syllabi: updatedList };
-
-    nextDb = logAudit(
-      nextDb,
-      'CREATE',
-      'Syllabus',
-      selectedCourseId,
-      `Bulk imported ${newEntries.length} units to ${selectedCourse?.title} (Mode: ${bulkMode})`,
-      currentUser?.name || 'Admin'
-    );
-
+    const nextDb = { ...db, syllabi: [...currentList, ...newEntries] };
     saveDB(nextDb);
     setDb(nextDb);
     setOpenBulkDialog(false);
     setBulkText('');
-
     try {
-      confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.6 } });
     } catch (_) {}
   };
 
-  // WhatsApp Share Text Generator
+  // WhatsApp Share Text
   const generateWhatsAppShareText = () => {
     if (!selectedCourse) return '';
     let msg = `*ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)*\n`;
@@ -321,11 +448,9 @@ export default function SyllabusManager() {
     msg += `⏱ *कुल तालिम अवधि*: ${courseTargetHours} घण्टा (Practical: ${totalPracticalHours} hrs [${practicalRatio}%], Theory: ${totalTheoryHours} hrs [${theoryRatio}%])\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
     msg += `*मुख्य पाठ्यक्रम एकाइहरू (Curriculum Units)*:\n`;
-
     courseSyllabi.forEach((u) => {
       msg += `🔹 *Unit ${u.unitNo}:* ${u.title} (${u.totalHours} hrs - Practical: ${u.practicalHours}h, Theory: ${u.theoryHours}h)\n`;
     });
-
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
     msg += `📍 *ठेगाना*: मित्रपार्क, काठमाडौँ | 📞 *सम्पर्क*: ९८५१००००००\n`;
     msg += `🌐 *CTEVT मान्यता प्राप्त प्राविधिक तालिम*`;
@@ -333,154 +458,217 @@ export default function SyllabusManager() {
   };
 
   const handleShareWhatsApp = () => {
-    const text = generateWhatsAppShareText();
-    const url = getWhatsAppUrl('', text);
+    const url = getWhatsAppUrl('', generateWhatsAppShareText());
     window.open(url, '_blank');
   };
 
-  const handleCopyShareText = () => {
-    const text = generateWhatsAppShareText();
-    navigator.clipboard.writeText(text);
-    alert('पाठ्यक्रम रूपरेखा क्लिपबोर्डमा कपी भयो (Copied to Clipboard)!');
-  };
-
   return (
-    <Box sx={{ maxWidth: 1250, mx: 'auto', p: { xs: 0.5, sm: 1.5 } }}>
+    <Box sx={{ maxWidth: 1320, mx: 'auto', p: { xs: 1, sm: 2 } }}>
       {/* =======================================================
-          TOP BAR & ACTION BUTTONS
-          ======================================================= */}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          mb: 2.5,
-          flexWrap: 'wrap',
-          gap: 1.5
-        }}
-      >
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-            <MenuBookIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#152238' }}>
-              Curriculum &amp; Syllabus Studio (पाठ्यक्रम व्यवस्थापन)
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.3 }}>
-            CTEVT मापदण्ड अनुसारको एकाइ, प्रयोगात्मक र सैद्धान्तिक घण्टा, सिकाइ उपलब्धि तथा आवश्यक सामग्रीहरूको व्यवस्थापन।
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined"
-            startIcon={<PrintIcon />}
-            onClick={() => setOpenDocDialog(true)}
-            sx={{
-              fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 2.5,
-              borderColor: '#94a3b8',
-              color: '#1e293b'
-            }}
-          >
-            आधिकारिक ढाँचा (Print / PDF)
-          </Button>
-
-          <Button
-            variant="outlined"
-            startIcon={<WhatsAppIcon />}
-            onClick={handleShareWhatsApp}
-            sx={{
-              fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 2.5,
-              color: '#16a34a',
-              borderColor: '#86efac',
-              bgcolor: '#f0fdf4',
-              '&:hover': { bgcolor: '#dcfce7', borderColor: '#4ade80' }
-            }}
-          >
-            Share Curriculum
-          </Button>
-
-          <Button
-            variant="outlined"
-            startIcon={<FileUploadIcon />}
-            onClick={() => setOpenBulkDialog(true)}
-            sx={{
-              fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 2.5,
-              color: '#0284c7',
-              borderColor: '#7dd3fc',
-              bgcolor: '#f0f9ff',
-              '&:hover': { bgcolor: '#e0f2fe' }
-            }}
-          >
-            बल्क इम्पोर्ट (CSV)
-          </Button>
-
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={handleOpenAdd}
-            sx={{
-              fontWeight: 800,
-              textTransform: 'none',
-              borderRadius: 2.5,
-              bgcolor: '#1a56b0',
-              boxShadow: '0 4px 14px rgba(26,86,176,0.3)',
-              '&:hover': { bgcolor: '#0d3466' }
-            }}
-          >
-            + Add Unit
-          </Button>
-        </Box>
-      </Box>
-
-      {/* =======================================================
-          COURSE SELECTOR & CURRICULUM RATIO KPI BANNER
+          1. ULTRA-MODERN HERO CURRICULUM STUDIO HEADER
           ======================================================= */}
       <Card
         sx={{
-          p: { xs: 2, sm: 2.5 },
           mb: 3,
-          borderRadius: 3.5,
-          border: '1px solid #dce5f2',
-          boxShadow: '0 4px 20px rgba(13, 52, 102, 0.06)',
-          background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)'
+          p: { xs: 2.5, sm: 3.5 },
+          borderRadius: 4,
+          background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
+          color: '#FFFFFF',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 16px 40px -10px rgba(7, 25, 51, 0.4)',
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
-        <Grid container spacing={2.5} alignItems="center">
-          {/* Course Selector */}
-          <Grid item xs={12} md={4}>
-            <TextField
-              select
-              size="small"
-              label="पाठ्यक्रम चयन गर्नुहोस् (Select Course)"
-              fullWidth
-              value={selectedCourseId}
-              onChange={(e) => setSelectedCourseId(e.target.value)}
-              sx={{ bgcolor: '#fff' }}
+        <Grid container spacing={3} alignItems="center">
+          {/* Left Hero Overview */}
+          <Grid item xs={12} lg={7}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#FDE047 !important' }} />}
+                label="CTEVT Level 1 & NVQF Standards"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(254, 240, 138, 0.15)',
+                  color: '#FEF08A',
+                  fontWeight: 900,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(254, 240, 138, 0.3)'
+                }}
+              />
+              <Chip
+                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
+                label="८०% प्रयोगात्मक अनिवार्य"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(74, 222, 128, 0.15)',
+                  color: '#86EFAC',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(74, 222, 128, 0.25)'
+                }}
+              />
+              <Chip
+                label={`${courseSyllabi.length} Units Active`}
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.15)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: '0.72rem'
+                }}
+              />
+            </Box>
+
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 900,
+                fontSize: { xs: '1.45rem', sm: '1.9rem', md: '2.1rem' },
+                lineHeight: 1.2,
+                letterSpacing: '-0.02em',
+                mb: 1
+              }}
             >
-              {db.courses.map((crs) => (
-                <MenuItem key={crs.id} value={crs.id}>
-                  <b>{crs.title}</b> ({crs.totalHours || 390} Hours)
-                </MenuItem>
-              ))}
-            </TextField>
+              Curriculum &amp; Syllabus Studio
+            </Typography>
+
+            <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 640, mb: 2.5, lineHeight: 1.6 }}>
+              {selectedCourse?.title} का लागि एकाइगत सीप, सैद्धान्तिक र प्रयोगात्मक घण्टाको प्रत्यक्ष व्यवस्थापन गर्नुहोस्।
+              CTEVT मापदण्ड अनुसार ८०% सीप तालिम सुनिश्चित गरिन्छ।
+            </Typography>
+
+            {/* Top Quick Actions */}
+            <Stack direction="row" spacing={1.2} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAdd}
+                sx={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.85rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important'
+                  }
+                }}
+              >
+                + Add Unit (एकाइ थप्नुहोस्)
+              </Button>
+
+              <Button
+                variant="contained"
+                startIcon={<AutoAwesomeIcon sx={{ color: '#FDE047' }} />}
+                onClick={() => setOpenPresetDialog(true)}
+                sx={{
+                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}
+              >
+                1-Click CTEVT Presets
+              </Button>
+
+              <Button
+                variant="outlined"
+                startIcon={<FileUploadIcon />}
+                onClick={() => setOpenBulkDialog(true)}
+                sx={{
+                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.82rem',
+                  py: 1,
+                  px: 1.8,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                }}
+              >
+                CSV Import
+              </Button>
+
+              <Button
+                variant="outlined"
+                startIcon={<PrintIcon />}
+                onClick={() => setOpenDocDialog(true)}
+                sx={{
+                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.82rem',
+                  py: 1,
+                  px: 1.8,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                }}
+              >
+                Print PDF
+              </Button>
+
+              <IconButton
+                onClick={handleShareWhatsApp}
+                title="Share Curriculum on WhatsApp"
+                sx={{
+                  bgcolor: '#25D366',
+                  color: '#FFFFFF',
+                  p: 1.1,
+                  borderRadius: 2.5,
+                  '&:hover': { bgcolor: '#1EBE5D' }
+                }}
+              >
+                <WhatsAppIcon fontSize="small" />
+              </IconButton>
+            </Stack>
           </Grid>
 
-          {/* Practical vs Theory Ratio Visualization */}
-          <Grid item xs={12} md={5}>
-            <Box sx={{ bgcolor: '#fff', p: 1.8, borderRadius: 2.5, border: '1px solid #e2e8f0' }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>
-                  घण्टा विनियोजन (HOURS ALLOCATION):
+          {/* Right Live Hours Target Balancer Widget */}
+          <Grid item xs={12} lg={5}>
+            <Box
+              sx={{
+                bgcolor: 'rgba(15, 30, 60, 0.75)',
+                backdropFilter: 'blur(16px)',
+                p: { xs: 2.5, sm: 3 },
+                borderRadius: 3.5,
+                border: '1.5px solid rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.25)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="overline" sx={{ color: '#93C5FD', fontWeight: 900, letterSpacing: '0.08em' }}>
+                  ⚡ LIVE HOURS BALANCER
                 </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 900, color: '#1a56b0' }}>
-                  {totalSyllabusHours} / {courseTargetHours} Hours ({hoursPercentage}%)
+                <Chip
+                  size="small"
+                  label={isCtevtBalanced ? '✓ CTEVT 80:20 Compliant' : '⚠️ Adjust Ratio'}
+                  sx={{
+                    height: 20,
+                    fontSize: '0.68rem',
+                    fontWeight: 900,
+                    bgcolor: isCtevtBalanced ? '#10B981' : '#F59E0B',
+                    color: '#FFFFFF'
+                  }}
+                />
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>
+                  {totalSyllabusHours}
+                </Typography>
+                <Typography variant="subtitle1" sx={{ color: '#94A3B8', fontWeight: 700 }}>
+                  / {courseTargetHours} Hours ({hoursPercentage}%)
                 </Typography>
               </Box>
 
@@ -488,244 +676,522 @@ export default function SyllabusManager() {
                 variant="determinate"
                 value={hoursPercentage}
                 sx={{
-                  height: 9,
-                  borderRadius: 4.5,
-                  bgcolor: '#e2e8f0',
-                  mb: 1.2,
+                  height: 10,
+                  borderRadius: 5,
+                  bgcolor: 'rgba(255, 255, 255, 0.15)',
+                  mb: 1.5,
                   '& .MuiLinearProgress-bar': {
-                    bgcolor: hoursPercentage === 100 ? '#16834b' : '#1a56b0',
-                    borderRadius: 4.5
+                    bgcolor: hoursPercentage === 100 ? '#10B981' : '#3B82F6',
+                    borderRadius: 5
                   }
                 }}
               />
 
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Chip
-                  label={`Practical: ${totalPracticalHours} hrs (${practicalRatio}%)`}
-                  size="small"
-                  sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900, fontSize: '0.72rem' }}
-                />
-                <Chip
-                  label={`Theory: ${totalTheoryHours} hrs (${theoryRatio}%)`}
-                  size="small"
-                  sx={{ bgcolor: '#e0f2fe', color: '#0369a1', fontWeight: 900, fontSize: '0.72rem' }}
-                />
-                <Chip
-                  label={`Units: ${courseSyllabi.length}`}
-                  size="small"
-                  sx={{ bgcolor: '#f1f5f9', color: '#334155', fontWeight: 800, fontSize: '0.72rem' }}
-                />
-              </Box>
-            </Box>
-          </Grid>
+              {/* Status Note */}
+              {remainingHours > 0 ? (
+                <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, display: 'block', mb: 2 }}>
+                  ⏳ पाठ्यक्रम पूरा हुन अझै <b>{remainingHours} घण्टा</b> थप्न बाँकी छ।
+                </Typography>
+              ) : (
+                <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 700, display: 'block', mb: 2 }}>
+                  🎉 कुल तालिम अवधि ३९० घण्टा पूर्ण रूपमा विनियोजन भइसकेको छ।
+                </Typography>
+              )}
 
-          {/* View Mode Toggle & Quick Info */}
-          <Grid item xs={12} md={3} sx={{ display: 'flex', flexDirection: 'column', alignItems: { xs: 'flex-start', md: 'flex-end' }, gap: 1 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
-                दृश्य (View):
-              </Typography>
-              <ToggleButtonGroup
-                value={viewMode}
-                exclusive
-                onChange={(e, next) => next && setViewMode(next)}
-                size="small"
-                sx={{ bgcolor: '#fff' }}
-              >
-                <ToggleButton value="cards" sx={{ fontWeight: 700, px: 1.5 }}>
-                  <ViewModuleIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards
-                </ToggleButton>
-                <ToggleButton value="table" sx={{ fontWeight: 700, px: 1.5 }}>
-                  <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table
-                </ToggleButton>
-              </ToggleButtonGroup>
+              {/* Micro Ratio Metrics */}
+              <Grid container spacing={1.5}>
+                <Grid item xs={6}>
+                  <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', p: 1.2, borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 800, display: 'block' }}>
+                      PRACTICAL (सीप)
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
+                      {totalPracticalHours} hrs ({practicalRatio}%)
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', p: 1.2, borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800, display: 'block' }}>
+                      THEORY (सैद्धान्तिक)
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
+                      {totalTheoryHours} hrs ({theoryRatio}%)
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </Box>
-
-            <Typography variant="caption" sx={{ color: '#647089', fontStyle: 'italic' }}>
-              CTEVT Level 1 &amp; NSTB Competency Standard
-            </Typography>
           </Grid>
         </Grid>
       </Card>
 
       {/* =======================================================
-          VIEW MODE 1: VISUALLY APPEALING UNIT CARDS
+          2. COURSE SELECTOR, SEARCH BAR & 3-WAY VIEW SWITCHER
           ======================================================= */}
-      {viewMode === 'cards' ? (
+      <Card
+        sx={{
+          p: 2,
+          mb: 3,
+          borderRadius: 3.5,
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
+          bgcolor: '#FFFFFF'
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          {/* Select Course */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              select
+              size="small"
+              label="पाठ्यक्रम चयन (Select Course)"
+              fullWidth
+              value={selectedCourseId}
+              onChange={(e) => setSelectedCourseId(e.target.value)}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+            >
+              {(db.courses || []).map((crs) => (
+                <MenuItem key={crs.id} value={crs.id}>
+                  <b>{crs.title}</b> ({crs.totalHours || 390} Hours)
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Instant Search Bar */}
+          <Grid item xs={12} sm={6} md={4}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="एकाइ, सीप वा औजार खोज्नुहोस्..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: '#94A3B8' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 2.5 }
+              }}
+            />
+          </Grid>
+
+          {/* 3-Way View Switcher */}
+          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}>
+            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
+              दृश्य (View):
+            </Typography>
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(_, next) => next && setViewMode(next)}
+              size="small"
+            >
+              <ToggleButton value="cards" sx={{ fontWeight: 800, px: 1.5 }}>
+                <ViewModuleIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards
+              </ToggleButton>
+              <ToggleButton value="timeline" sx={{ fontWeight: 800, px: 1.5 }}>
+                <TimelineIcon fontSize="small" sx={{ mr: 0.5 }} /> Roadmap
+              </ToggleButton>
+              <ToggleButton value="table" sx={{ fontWeight: 800, px: 1.5 }}>
+                <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+        </Grid>
+
+        {/* Filter Pills */}
+        <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap', pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
+          <Chip
+            clickable
+            label={`सबै एकाइहरू (${courseSyllabi.length})`}
+            color={filterType === 'ALL' ? 'primary' : 'default'}
+            onClick={() => setFilterType('ALL')}
+            size="small"
+            sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+          />
+          <Chip
+            clickable
+            label="अधिक प्रयोगात्मक (≥३०h)"
+            color={filterType === 'HIGH_PRACTICAL' ? 'success' : 'default'}
+            onClick={() => setFilterType('HIGH_PRACTICAL')}
+            size="small"
+            sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+          />
+          <Chip
+            clickable
+            label="सैद्धान्तिक फोकस (≥१०h)"
+            color={filterType === 'THEORY' ? 'info' : 'default'}
+            onClick={() => setFilterType('THEORY')}
+            size="small"
+            sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+          />
+          <Chip
+            clickable
+            label="औजार/सामग्री उल्लेख भएका"
+            color={filterType === 'HAS_TOOLS' ? 'secondary' : 'default'}
+            onClick={() => setFilterType('HAS_TOOLS')}
+            size="small"
+            sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+          />
+        </Box>
+      </Card>
+
+      {/* =======================================================
+          VIEW 1: MODERN UNIT CARDS
+          ======================================================= */}
+      {viewMode === 'cards' && (
         <Grid container spacing={2.5}>
-          {courseSyllabi.map((syl) => (
-            <Grid item xs={12} sm={6} md={4} key={syl.id}>
-              <Card
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  borderRadius: 3.5,
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                  transition: 'all 0.2s',
-                  '&:hover': {
-                    transform: 'translateY(-3px)',
-                    boxShadow: '0 10px 28px rgba(13, 52, 102, 0.1)',
-                    borderColor: '#93c5fd'
-                  }
-                }}
-              >
-                {/* Card Header */}
-                <Box
+          {filteredSyllabi.map((syl, idx) => {
+            const practicalH = Number(syl.practicalHours) || 0;
+            const theoryH = Number(syl.theoryHours) || 0;
+            const totalH = syl.totalHours || practicalH + theoryH;
+            const pRatio = totalH > 0 ? Math.round((practicalH / totalH) * 100) : 80;
+
+            return (
+              <Grid item xs={12} sm={6} md={4} key={syl.id}>
+                <Card
                   sx={{
-                    p: 2,
-                    pb: 1.5,
-                    borderBottom: '1px solid #f1f5f9',
+                    height: '100%',
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    gap: 1
+                    flexDirection: 'column',
+                    borderRadius: 3.5,
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 14px rgba(15, 23, 42, 0.04)',
+                    transition: 'all 0.2s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 28px rgba(15, 44, 89, 0.1)',
+                      borderColor: '#93C5FD'
+                    }
                   }}
                 >
-                  <Box>
-                    <Chip
-                      label={`UNIT #${syl.unitNo}`}
-                      size="small"
-                      sx={{
-                        bgcolor: '#0d3466',
-                        color: '#fff',
-                        fontWeight: 900,
-                        fontSize: '0.72rem',
-                        mb: 0.8
-                      }}
-                    />
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
+                  {/* Top Color Accent Line */}
+                  <Box
+                    sx={{
+                      height: 4,
+                      background: pRatio >= 75
+                        ? 'linear-gradient(90deg, #10B981, #059669)'
+                        : 'linear-gradient(90deg, #3B82F6, #1D4ED8)'
+                    }}
+                  />
+
+                  {/* Header */}
+                  <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        label={`UNIT ०${syl.unitNo}`}
+                        size="small"
+                        sx={{
+                          bgcolor: '#0F2C59',
+                          color: '#FFFFFF',
+                          fontWeight: 900,
+                          fontSize: '0.72rem',
+                          height: 22
+                        }}
+                      />
+                      <Chip
+                        label={`${totalH} घण्टा`}
+                        size="small"
+                        sx={{
+                          bgcolor: '#F1F5F9',
+                          color: '#0F172A',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          height: 22
+                        }}
+                      />
+                    </Box>
+
+                    {/* Up / Down Reordering & Actions */}
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleMoveUnit(syl.id, 'up')}
+                        disabled={idx === 0}
+                        title="Move Up"
+                        sx={{ p: 0.4 }}
+                      >
+                        <ArrowUpwardIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleMoveUnit(syl.id, 'down')}
+                        disabled={idx === filteredSyllabi.length - 1}
+                        title="Move Down"
+                        sx={{ p: 0.4 }}
+                      >
+                        <ArrowDownwardIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenEdit(syl)}
+                        sx={{ color: '#1D4ED8', p: 0.4 }}
+                        title="Edit Unit"
+                      >
+                        <EditIcon sx={{ fontSize: 17 }} />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(syl.id)}
+                        sx={{ color: '#EF4444', p: 0.4 }}
+                        title="Delete Unit"
+                      >
+                        <DeleteOutlineIcon sx={{ fontSize: 17 }} />
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  {/* Title */}
+                  <Box sx={{ px: 2, pb: 1.5 }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.3 }}>
                       {syl.title}
                     </Typography>
                   </Box>
 
-                  <Box sx={{ display: 'flex', gap: 0.5 }}>
-                    <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1a56b0' }}>
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton size="small" onClick={() => handleDelete(syl.id)} sx={{ color: '#d5372f' }}>
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-                </Box>
-
-                {/* Card Body */}
-                <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                  {/* Hours Chips */}
-                  <Box sx={{ display: 'flex', gap: 1 }}>
-                    <Chip
-                      label={`Total: ${syl.totalHours || (Number(syl.theoryHours) || 0) + (Number(syl.practicalHours) || 0)}h`}
-                      size="small"
-                      sx={{ bgcolor: '#f1f5f9', color: '#1e293b', fontWeight: 900 }}
-                    />
-                    <Chip
-                      label={`Practical: ${syl.practicalHours || 0}h`}
-                      size="small"
-                      sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
-                    />
-                    <Chip
-                      label={`Theory: ${syl.theoryHours || 0}h`}
-                      size="small"
-                      sx={{ bgcolor: '#e0f2fe', color: '#0369a1', fontWeight: 800 }}
-                    />
+                  {/* Hours Distribution Bar */}
+                  <Box sx={{ px: 2, pb: 1.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
+                        Practical: <b>{practicalH}h ({pRatio}%)</b>
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 800 }}>
+                        Theory: <b>{theoryH}h</b>
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', bgcolor: '#E2E8F0' }}>
+                      <Box sx={{ width: `${pRatio}%`, bgcolor: '#10B981' }} />
+                      <Box sx={{ width: `${100 - pRatio}%`, bgcolor: '#3B82F6' }} />
+                    </Box>
                   </Box>
 
-                  {/* Learning Outcome Statement */}
-                  <Box sx={{ bgcolor: '#f8fafc', p: 1.5, borderRadius: 2, border: '1px solid #edf2f7' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.3 }}>
+                  {/* Learning Outcomes Box */}
+                  <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', mx: 2, borderRadius: 2.5, border: '1px solid #EDF2F7', mb: 1.5 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: '#475569', display: 'block', mb: 0.4 }}>
                       🎯 सिकाइ उपलब्धि (Learning Outcomes / NOS):
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#1e293b', fontSize: '0.85rem', lineHeight: 1.5 }}>
-                      {syl.learningOutcome || 'Practical competency skills and workplace protocols.'}
+                    <Typography variant="body2" sx={{ color: '#1E293B', fontSize: '0.82rem', lineHeight: 1.5 }}>
+                      {syl.learningOutcome || 'CTEVT कार्यथलो सीप तथा मापदण्ड अनुरुपका सीपहरु।'}
                     </Typography>
                   </Box>
 
                   {/* Tools and Materials */}
                   {syl.toolsAndMaterials && (
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, mt: 'auto', pt: 0.5 }}>
-                      <BuildIcon sx={{ fontSize: 16, color: '#94a3b8', mt: 0.3 }} />
-                      <Typography variant="caption" sx={{ color: '#647089', lineHeight: 1.4 }}>
+                    <Box sx={{ px: 2, pb: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                      <BuildIcon sx={{ fontSize: 16, color: '#94A3B8', mt: 0.2 }} />
+                      <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1.4 }}>
                         <b>औजार/सामग्री:</b> {syl.toolsAndMaterials}
                       </Typography>
                     </Box>
                   )}
-                </Box>
-              </Card>
-            </Grid>
-          ))}
 
-          {courseSyllabi.length === 0 && (
+                  {/* Footer Card Actions */}
+                  <Box sx={{ mt: 'auto', p: 1.5, px: 2, borderTop: '1px solid #F1F5F9', bgcolor: '#FAFAFA', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 700 }}>
+                      ID: {syl.id}
+                    </Typography>
+                    <Button
+                      size="small"
+                      startIcon={<AssignmentTurnedInIcon sx={{ fontSize: 16 }} />}
+                      onClick={() => alert(`"${syl.title}" को पाठयोजना तयार गर्न Lesson Plan खण्डमा जानुहोस्।`)}
+                      sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'none' }}
+                    >
+                      पाठयोजना बनाउनुहोस्
+                    </Button>
+                  </Box>
+                </Card>
+              </Grid>
+            );
+          })}
+
+          {filteredSyllabi.length === 0 && (
             <Grid item xs={12}>
-              <Paper sx={{ p: 8, textAlign: 'center', borderRadius: 3.5, border: '1px dashed #cbd5e1' }}>
-                <MenuBookIcon sx={{ fontSize: 48, color: '#94a3b8', mb: 1.5 }} />
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#334155' }}>
-                  यो कोर्समा कुनै पाठ्यक्रम एकाइ थपिएको छैन
+              <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
+                <MenuBookIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
+                <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
+                  कुनै पाठ्यक्रम एकाइ फेला परेन
                 </Typography>
-                <Typography variant="body2" sx={{ color: '#647089', mb: 2.5 }}>
-                  तपाईंले "+ Add Unit" मार्फत एकल एकाइ थप्न सक्नुहुन्छ वा "बल्क इम्पोर्ट (CSV)" बाट एकैपटक सम्पूर्ण सिलेबस लोड गर्न सक्नुहुन्छ।
+                <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
+                  तपाईंले नयाँ एकाइ थप्न वा एकै क्लिकमा CTEVT मानक टेम्प्लेट लोड गर्न सक्नुहुन्छ।
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'center' }}>
+                <Stack direction="row" spacing={1.5} justifyContent="center">
                   <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
                     + Add Unit
                   </Button>
-                  <Button variant="outlined" startIcon={<FileUploadIcon />} onClick={() => setOpenBulkDialog(true)}>
-                    बल्क इम्पोर्ट (CSV)
+                  <Button variant="outlined" startIcon={<AutoAwesomeIcon />} onClick={() => setOpenPresetDialog(true)}>
+                    Load CTEVT Presets
                   </Button>
-                </Box>
+                </Stack>
               </Paper>
             </Grid>
           )}
         </Grid>
-      ) : (
-        /* =======================================================
-            VIEW MODE 2: CTEVT STANDARD TABLE VIEW
-            ======================================================= */
-        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 18px rgba(0,0,0,0.05)' }}>
+      )}
+
+      {/* =======================================================
+          VIEW 2: VISUAL LEARNING ROADMAP / TIMELINE
+          ======================================================= */}
+      {viewMode === 'timeline' && (
+        <Box sx={{ position: 'relative', py: 2 }}>
+          {filteredSyllabi.map((syl, index) => {
+            const practicalH = Number(syl.practicalHours) || 0;
+            const theoryH = Number(syl.theoryHours) || 0;
+            const totalH = syl.totalHours || practicalH + theoryH;
+
+            return (
+              <Box
+                key={syl.id}
+                sx={{
+                  display: 'flex',
+                  gap: { xs: 2, sm: 3 },
+                  position: 'relative',
+                  mb: 3
+                }}
+              >
+                {/* Connecting Vertical Line */}
+                {index < filteredSyllabi.length - 1 && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      left: { xs: 20, sm: 24 },
+                      top: 48,
+                      bottom: -28,
+                      width: 3,
+                      bgcolor: '#CBD5E1',
+                      zIndex: 0
+                    }}
+                  />
+                )}
+
+                {/* Milestone Node Avatar */}
+                <Avatar
+                  sx={{
+                    width: { xs: 42, sm: 50 },
+                    height: { xs: 42, sm: 50 },
+                    bgcolor: index === 0 ? '#10B981' : index === filteredSyllabi.length - 1 ? '#F59E0B' : '#0F2C59',
+                    color: '#FFFFFF',
+                    fontWeight: 900,
+                    fontSize: { xs: '0.85rem', sm: '1rem' },
+                    boxShadow: '0 4px 14px rgba(15, 44, 89, 0.2)',
+                    zIndex: 1,
+                    border: '3px solid #FFFFFF'
+                  }}
+                >
+                  {syl.unitNo}
+                </Avatar>
+
+                {/* Milestone Content Card */}
+                <Card
+                  sx={{
+                    flexGrow: 1,
+                    p: 2.5,
+                    borderRadius: 3.5,
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
+                    bgcolor: '#FFFFFF'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexWrap: 'wrap', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A', fontSize: '1.05rem' }}>
+                        {syl.title}
+                      </Typography>
+                      <Chip
+                        label={`${totalH} Hours`}
+                        size="small"
+                        sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 900, height: 22 }}
+                      />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Chip
+                        label={`Practical: ${practicalH}h`}
+                        size="small"
+                        sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 800, height: 22 }}
+                      />
+                      <Chip
+                        label={`Theory: ${theoryH}h`}
+                        size="small"
+                        sx={{ bgcolor: '#EFF6FF', color: '#2563EB', fontWeight: 800, height: 22 }}
+                      />
+                      <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1D4ED8' }}>
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+
+                  <Typography variant="body2" sx={{ color: '#334155', mb: 1.5, lineHeight: 1.5 }}>
+                    <b>सिकाइ उपलब्धि:</b> {syl.learningOutcome || 'प्रयोगात्मक सीप तथा कार्यथलो सुरक्षा प्रोटोकलहरू।'}
+                  </Typography>
+
+                  {syl.toolsAndMaterials && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <BuildIcon sx={{ fontSize: 15, color: '#94A3B8' }} />
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        <b>आवश्यक सामग्री:</b> {syl.toolsAndMaterials}
+                      </Typography>
+                    </Box>
+                  )}
+                </Card>
+              </Box>
+            );
+          })}
+        </Box>
+      )}
+
+      {/* =======================================================
+          VIEW 3: CTEVT STANDARD MATRIX TABLE
+          ======================================================= */}
+      {viewMode === 'table' && (
+        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#0d3466' }}>
+              <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800, width: 70, textAlign: 'center' }}>Unit #</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800 }}>पाठ्यक्रम एकाइ शीर्षक (Unit Title)</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>Theory</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>Practical</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>Total Hours</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800 }}>औजार र सामग्रीहरू (Tools &amp; Equipment)</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, width: 70, textAlign: 'center' }}>एकाइ #</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>पाठ्यक्रम एकाइ शीर्षक (Unit Title)</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>औजार र सामग्री (Tools)</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {courseSyllabi.map((syl) => (
-                  <TableRow key={syl.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#fbfcfd' } }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#1a56b0', textAlign: 'center' }}>
+                {filteredSyllabi.map((syl) => (
+                  <TableRow key={syl.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                    <TableCell sx={{ fontWeight: 900, color: '#1D4ED8', textAlign: 'center' }}>
                       #{syl.unitNo}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, fontSize: '0.95rem' }}>
+                    <TableCell sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0F172A' }}>
                       {syl.title}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#0369a1' }}>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#2563EB' }}>
                       {syl.theoryHours}h
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#16834b' }}>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#059669' }}>
                       {syl.practicalHours}h
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#1e293b' }}>
+                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0F172A' }}>
                       {syl.totalHours || (Number(syl.theoryHours) || 0) + (Number(syl.practicalHours) || 0)}h
                     </TableCell>
-                    <TableCell sx={{ color: '#334155', fontSize: '0.85rem' }}>
+                    <TableCell sx={{ color: '#334155', fontSize: '0.82rem', maxWidth: 280 }}>
                       {syl.learningOutcome || 'Competency standard tasks.'}
                     </TableCell>
-                    <TableCell sx={{ color: '#647089', fontSize: '0.82rem' }}>
-                      {syl.toolsAndMaterials || 'Standard workshop tools.'}
+                    <TableCell sx={{ color: '#64748B', fontSize: '0.8rem', maxWidth: 220 }}>
+                      {syl.toolsAndMaterials || 'Standard tools.'}
                     </TableCell>
                     <TableCell sx={{ textAlign: 'right' }}>
                       <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1a56b0' }}>
+                        <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1D4ED8' }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(syl.id)} sx={{ color: '#d5372f' }}>
+                        <IconButton size="small" onClick={() => handleDelete(syl.id)} sx={{ color: '#EF4444' }}>
                           <DeleteOutlineIcon fontSize="small" />
                         </IconButton>
                       </Box>
@@ -733,10 +1199,10 @@ export default function SyllabusManager() {
                   </TableRow>
                 ))}
 
-                {courseSyllabi.length === 0 && (
+                {filteredSyllabi.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 6, color: '#94a3b8' }}>
-                      No syllabus units added yet for this course. Click "+ Add Unit" to start.
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                      कुनै एकाइ फेला परेन।
                     </TableCell>
                   </TableRow>
                 )}
@@ -752,303 +1218,296 @@ export default function SyllabusManager() {
       <Dialog
         open={openSingleDialog}
         onClose={() => setOpenSingleDialog(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5 } }}
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
       >
-        <DialogTitle sx={{ bgcolor: '#0d3466', color: '#fff', fontWeight: 800 }}>
-          {editingItem ? 'Edit Syllabus Unit' : `Add Unit to ${selectedCourse?.title}`}
+        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
+          {editingItem ? 'पाठ्यक्रम एकाइ सम्पादन गर्नुहोस् (Edit Unit)' : '+ नयाँ पाठ्यक्रम एकाइ थप्नुहोस् (Add Unit)'}
         </DialogTitle>
-        <DialogContent sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={3}>
-                <TextField
-                  type="number"
-                  label="Unit No"
-                  fullWidth
-                  size="small"
-                  value={formData.unitNo}
-                  onChange={(e) => setFormData({ ...formData, unitNo: Number(e.target.value) })}
-                  required
-                  sx={{ bgcolor: '#fff' }}
-                />
-              </Grid>
-              <Grid item xs={9}>
-                <TextField
-                  label="एकाइ शीर्षक (Unit Title)"
-                  fullWidth
-                  size="small"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="जस्तै: Vital Signs Monitoring / Facial Anatomy"
-                  required
-                  sx={{ bgcolor: '#fff' }}
-                />
-              </Grid>
+        <DialogContent dividers>
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={3}>
+              <TextField
+                label="एकाइ नम्बर (Unit No)"
+                type="number"
+                fullWidth
+                size="small"
+                value={formData.unitNo}
+                onChange={(e) => setFormData({ ...formData, unitNo: Number(e.target.value) })}
+              />
+            </Grid>
+            <Grid item xs={12} sm={9}>
+              <TextField
+                label="एकाइ शीर्षक (Unit Title) *"
+                fullWidth
+                size="small"
+                placeholder="उदा: Vital Signs Monitoring & Assessment"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
             </Grid>
 
-            <Grid container spacing={2}>
-              <Grid item xs={4}>
-                <TextField
-                  type="number"
-                  label="Theory Hours"
-                  fullWidth
-                  size="small"
-                  value={formData.theoryHours}
-                  onChange={(e) => setFormData({ ...formData, theoryHours: Number(e.target.value) })}
-                  sx={{ bgcolor: '#fff' }}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  type="number"
-                  label="Practical Hours"
-                  fullWidth
-                  size="small"
-                  value={formData.practicalHours}
-                  onChange={(e) => setFormData({ ...formData, practicalHours: Number(e.target.value) })}
-                  sx={{ bgcolor: '#fff' }}
-                />
-              </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  label="Total Hours"
-                  fullWidth
-                  size="small"
-                  disabled
-                  value={(Number(formData.theoryHours) || 0) + (Number(formData.practicalHours) || 0)}
-                  helperText="Auto Calculated"
-                  sx={{ bgcolor: '#f1f5f9' }}
-                />
-              </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="प्रयोगात्मक घण्टा (Practical Hours) *"
+                type="number"
+                fullWidth
+                size="small"
+                value={formData.practicalHours}
+                onChange={(e) => setFormData({ ...formData, practicalHours: Number(e.target.value) })}
+                helperText="८०% सीप मापदण्ड अनुरुप हुनुपर्ने"
+              />
+            </Grid>
+            <Grid item xs={12} sm={6}>
+              <TextField
+                label="सैद्धान्तिक घण्टा (Theory Hours) *"
+                type="number"
+                fullWidth
+                size="small"
+                value={formData.theoryHours}
+                onChange={(e) => setFormData({ ...formData, theoryHours: Number(e.target.value) })}
+                helperText="२०% सिद्धान्त मापदण्ड"
+              />
             </Grid>
 
-            <TextField
-              label="सिकाइ उपलब्धि / कार्यहरू (Learning Outcomes / Tasks)"
-              multiline
-              rows={3}
-              fullWidth
-              value={formData.learningOutcome}
-              onChange={(e) => setFormData({ ...formData, learningOutcome: e.target.value })}
-              placeholder="विद्यार्थीले यो एकाइ सकेपछि गर्न सक्ने मुख्य सीपहरू र उपलब्धि..."
-              sx={{ bgcolor: '#fff' }}
-            />
+            <Grid item xs={12}>
+              <TextField
+                label="सिकाइ उपलब्धि तथा मुख्य कार्यहरू (Learning Outcomes / NOS) *"
+                fullWidth
+                multiline
+                rows={3}
+                size="small"
+                placeholder="यस एकाइ पश्चात विद्यार्थीले के सीप प्रदर्शन गर्न सक्नेछन्..."
+                value={formData.learningOutcome}
+                onChange={(e) => setFormData({ ...formData, learningOutcome: e.target.value })}
+              />
+            </Grid>
 
-            <TextField
-              label="आवश्यक औजार र कच्चा सामग्रीहरू (Tools & Equipment)"
-              fullWidth
-              size="small"
-              value={formData.toolsAndMaterials}
-              onChange={(e) => setFormData({ ...formData, toolsAndMaterials: e.target.value })}
-              placeholder="जस्तै: Sphygmomanometer, First Aid Kit, Linens, Gloves"
-              sx={{ bgcolor: '#fff' }}
-            />
-          </Stack>
+            <Grid item xs={12}>
+              <TextField
+                label="आवश्यक औजार तथा तालिम सामग्री (Tools, Equipment & Materials)"
+                fullWidth
+                size="small"
+                placeholder="उदा: Sphygmomanometer, Stethoscope, PPE Kit, First Aid Box"
+                value={formData.toolsAndMaterials}
+                onChange={(e) => setFormData({ ...formData, toolsAndMaterials: e.target.value })}
+              />
+            </Grid>
+          </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2, bgcolor: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
-          <Button onClick={() => setOpenSingleDialog(false)} sx={{ fontWeight: 700 }}>Cancel</Button>
-          <Button variant="contained" onClick={handleSaveSingle} sx={{ fontWeight: 800, bgcolor: '#0d3466' }}>
-            Save Unit
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenSingleDialog(false)} sx={{ fontWeight: 700 }}>
+            रद्द गर्नुहोस्
+          </Button>
+          <Button variant="contained" onClick={handleSaveSingle} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+            सुरक्षित गर्नुहोस् (Save Unit)
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* =======================================================
-          MODAL 2: BULK IMPORT SYLLABUS (CSV / TEXT PASTE)
+          MODAL 2: 1-CLICK CTEVT OFFICIAL PRESETS
+          ======================================================= */}
+      <Dialog
+        open={openPresetDialog}
+        onClose={() => setOpenPresetDialog(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
+          ⚡ 1-Click CTEVT Official Curriculum Presets
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
+            नयाँ पाठ्यक्रम तुरुन्तै सेटअप गर्न आधिकारिक CTEVT ३९०-घण्टे मापदण्डका एकाइहरू छान्नुहोस्।
+            यसले ८०% प्रयोगात्मक र २०% सैद्धान्तिक अनुपातको साथ आवश्यक सम्पूर्ण एकाइहरू स्वतः लोड गरिदिन्छ।
+          </Typography>
+
+          <Grid container spacing={2}>
+            {CTEVT_PRESETS.map((preset) => (
+              <Grid item xs={12} key={preset.key}>
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    p: 2.5,
+                    borderRadius: 3,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    transition: 'all 0.15s ease',
+                    '&:hover': { bgcolor: '#F8FAFC', borderColor: '#2563EB' }
+                  }}
+                >
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>
+                        {preset.title}
+                      </Typography>
+                      <Chip
+                        label={`${preset.units.length} Units`}
+                        size="small"
+                        sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, height: 20 }}
+                      />
+                    </Box>
+                    <Typography variant="body2" sx={{ color: '#64748B' }}>
+                      {preset.description}
+                    </Typography>
+                  </Box>
+
+                  <Button
+                    variant="contained"
+                    startIcon={<AutoAwesomeIcon />}
+                    onClick={() => handleApplyPreset(preset)}
+                    sx={{
+                      fontWeight: 800,
+                      borderRadius: 2.5,
+                      bgcolor: '#0F2C59',
+                      whiteSpace: 'nowrap',
+                      ml: 2
+                    }}
+                  >
+                    Load Template
+                  </Button>
+                </Paper>
+              </Grid>
+            ))}
+          </Grid>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenPresetDialog(false)} sx={{ fontWeight: 700 }}>
+            बन्द गर्नुहोस्
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* =======================================================
+          MODAL 3: BULK CSV / EXCEL IMPORT
           ======================================================= */}
       <Dialog
         open={openBulkDialog}
         onClose={() => setOpenBulkDialog(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5 } }}
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
       >
-        <DialogTitle sx={{ bgcolor: '#0d3466', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <FileUploadIcon />
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              Bulk Import Syllabus Units to {selectedCourse?.title}
+        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
+          बल्क इम्पोर्ट (Bulk CSV / Excel Import)
+        </DialogTitle>
+        <DialogContent dividers>
+          <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="body2" sx={{ color: '#64748B' }}>
+              Excel वा CSV बाट सीधै पेस्ट गर्नुहोस् वा फाइल अपलोड गर्नुहोस्।
             </Typography>
+            <Button size="small" startIcon={<DownloadIcon />} onClick={handleDownloadSampleCSV}>
+              नमूना CSV डाउनलोड (Sample)
+            </Button>
           </Box>
 
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<DownloadIcon />}
-            onClick={handleDownloadSampleCSV}
-            sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.6)', fontWeight: 800, textTransform: 'none' }}
-          >
-            Download Sample CSV
-          </Button>
-        </DialogTitle>
+          <Box sx={{ mb: 2 }}>
+            <input
+              type="file"
+              accept=".csv,.txt"
+              style={{ display: 'none' }}
+              id="bulk-syllabus-file"
+              onChange={handleFileUpload}
+            />
+            <label htmlFor="bulk-syllabus-file">
+              <Button variant="outlined" component="span" startIcon={<FileUploadIcon />}>
+                फाइल छान्नुहोस् (.csv / .txt)
+              </Button>
+            </label>
+          </Box>
 
-        <DialogContent sx={{ p: 2.5, bgcolor: '#f8fafc' }}>
-          {bulkError && (
-            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }} onClose={() => setBulkError('')}>
-              {bulkError}
+          <TextField
+            multiline
+            rows={7}
+            fullWidth
+            placeholder="Unit No, Unit Title, Theory Hours, Practical Hours, Learning Outcomes, Tools"
+            value={bulkText}
+            onChange={(e) => setBulkText(e.target.value)}
+            sx={{ fontFamily: 'monospace', mb: 2 }}
+          />
+
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+              इम्पोर्ट विधि:
+            </Typography>
+            <Button
+              variant={bulkMode === 'append' ? 'contained' : 'outlined'}
+              size="small"
+              onClick={() => setBulkMode('append')}
+            >
+              हालकोमा थप्ने (Append)
+            </Button>
+            <Button
+              variant={bulkMode === 'replace' ? 'contained' : 'outlined'}
+              size="small"
+              color="error"
+              onClick={() => setBulkMode('replace')}
+            >
+              प्रतिस्थापन गर्ने (Replace All)
+            </Button>
+          </Box>
+
+          {parsedBulkUnits.length > 0 && (
+            <Alert severity="success" sx={{ mt: 2 }}>
+              <b>{parsedBulkUnits.length}</b> वटा पाठ्यक्रम एकाइ फेला पर्यो।
             </Alert>
           )}
 
-          <Grid container spacing={2} sx={{ mb: 2 }}>
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ border: '2px dashed #cbd5e1', p: 2, borderRadius: 2.5, bgcolor: '#fff', textAlign: 'center' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
-                  CSV फाइल अपलोड गर्नुहोस् (Upload CSV)
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 1.5 }}>
-                  एक्सलबाट सेभ गरिएको .csv फाइल सिधै छनोट गर्नुहोस्
-                </Typography>
-                <Button variant="outlined" component="label" size="small" startIcon={<FileUploadIcon />}>
-                  Choose CSV File
-                  <input type="file" accept=".csv" hidden onChange={handleFileUpload} />
-                </Button>
-              </Box>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <Box sx={{ bgcolor: '#fff', p: 2, borderRadius: 2.5, border: '1px solid #e2e8f0' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-                  इम्पोर्ट मोड (Import Mode):
-                </Typography>
-                <TextField
-                  select
-                  size="small"
-                  fullWidth
-                  value={bulkMode}
-                  onChange={(e) => setBulkMode(e.target.value)}
-                >
-                  <MenuItem value="append">थप्नुहोस् (Append to existing units)</MenuItem>
-                  <MenuItem value="replace">पुरानो हटाएर नयाँ राख्नुहोस् (Replace all course units)</MenuItem>
-                </TextField>
-                <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 1 }}>
-                  ढाँचा: <code>Unit No, Unit Title, Theory, Practical, Learning Outcomes, Tools</code>
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-
-          <TextField
-            label="अथवा यहाँ सिधै टेबल वा टेक्स्ट पेस्ट गर्नुहोस् (Paste Data from Excel/PDF):"
-            multiline
-            rows={5}
-            fullWidth
-            placeholder="1, Patient Hygiene, 10, 30, Bed bath protocol, Linens and basin&#10;2, Vital Signs, 8, 22, Blood pressure reading, Sphygmomanometer"
-            value={bulkText}
-            onChange={(e) => setBulkText(e.target.value)}
-            sx={{ bgcolor: '#fff', mb: 2 }}
-          />
-
-          {/* Live Preview Table */}
-          {parsedBulkUnits.length > 0 && (
-            <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, color: '#16834b' }}>
-                ✓ पूर्वावलोकन (Live Preview): {parsedBulkUnits.length} एकाइहरू पहिचान गरियो
-              </Typography>
-              <TableContainer sx={{ maxHeight: 220, border: '1px solid #e2e8f0', borderRadius: 2, bgcolor: '#fff' }}>
-                <Table size="small">
-                  <TableHead sx={{ bgcolor: '#f1f5f9' }}>
-                    <TableRow>
-                      <TableCell sx={{ fontWeight: 800 }}>#</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>Unit Title</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>Theory</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>Practical</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>Total</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>Outcomes</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {parsedBulkUnits.map((u, i) => (
-                      <TableRow key={i}>
-                        <TableCell sx={{ fontWeight: 800 }}>{u.unitNo}</TableCell>
-                        <TableCell sx={{ fontWeight: 700 }}>{u.title}</TableCell>
-                        <TableCell>{u.theoryHours}h</TableCell>
-                        <TableCell>{u.practicalHours}h</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: '#1a56b0' }}>{u.totalHours}h</TableCell>
-                        <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>{u.learningOutcome}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Box>
+          {bulkError && (
+            <Alert severity="error" sx={{ mt: 2 }}>
+              {bulkError}
+            </Alert>
           )}
         </DialogContent>
-
-        <DialogActions sx={{ p: 2.5, bgcolor: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenBulkDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस् (Cancel)
+            रद्द गर्नुहोस्
           </Button>
-          <Button
-            variant="contained"
-            disabled={parsedBulkUnits.length === 0}
-            onClick={handleConfirmBulkImport}
-            sx={{ fontWeight: 900, bgcolor: '#16834b', '&:hover': { bgcolor: '#116536' } }}
-          >
-            Confirm &amp; Import All ({parsedBulkUnits.length} Units)
+          <Button variant="contained" onClick={handleConfirmBulkImport} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+            इम्पोर्ट पुष्टि गर्नुहोस्
           </Button>
         </DialogActions>
       </Dialog>
 
       {/* =======================================================
-          MODAL 3: OFFICIAL PRINTABLE A4 CURRICULUM PROSPECTUS
+          MODAL 4: OFFICIAL DOCUMENT PRINT / PDF DIALOG
           ======================================================= */}
       <Dialog
         open={openDocDialog}
         onClose={() => setOpenDocDialog(false)}
-        maxWidth="md"
+        maxWidth="lg"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5 } }}
+        PaperProps={{ sx: { borderRadius: 3.5, p: 2 } }}
       >
-        <DialogTitle sx={{ bgcolor: '#0d3466', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 900 }}>
-            CTEVT आधिकारिक पाठ्यक्रम विवरण (Curriculum Prospectus)
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
+            आधिकारिक पाठ्यक्रम दस्तावेज (Official CTEVT Format)
           </Typography>
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <Button
-              variant="contained"
-              size="small"
-              startIcon={<PrintIcon />}
-              onClick={() => window.print()}
-              sx={{ bgcolor: '#fff', color: '#0d3466', fontWeight: 800 }}
-            >
-              Print / Save PDF
-            </Button>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<ContentCopyIcon />}
-              onClick={handleCopyShareText}
-              sx={{ color: '#fff', borderColor: 'rgba(255,255,255,0.6)', fontWeight: 800 }}
-            >
-              Copy Text
-            </Button>
-          </Box>
+          <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ fontWeight: 800 }}>
+            प्रिन्ट गर्नुहोस् (Print)
+          </Button>
         </DialogTitle>
-
-        <DialogContent sx={{ p: { xs: 2, sm: 4 }, bgcolor: '#fff' }}>
-          {/* Official Letterhead */}
-          <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px solid #0d3466', mb: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0d3466', letterSpacing: 0.5 }}>
-              ग्लोबल एरा प्राविधिक स्कुल
+        <DialogContent dividers>
+          {/* Institutional Header */}
+          <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px solid #0F2C59', mb: 3 }}>
+            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2C59' }}>
+              ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)
             </Typography>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1a56b0' }}>
-              GLOBAL ERA TECHNICAL SCHOOL &amp; RESEARCH CENTER
+            <Typography variant="subtitle2" sx={{ color: '#475569', fontWeight: 700 }}>
+              KITE CAREGIVER TRAINING CENTER • MitraPark, Kathmandu
             </Typography>
-            <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3 }}>
-              MitraPark, Chabahil, Kathmandu | Phone: +977-1-4488990 | CTEVT Affiliation Code: GETS-2081-TVET
+            <Typography variant="overline" sx={{ fontWeight: 900, color: '#166534', bgcolor: '#DCFCE7', px: 1.5, py: 0.3, borderRadius: 2 }}>
+              CTEVT RECOGNIZED VOCATIONAL TRAINING CURRICULUM
             </Typography>
-            <Chip
-              label="CTEVT COMPETENCY BASED CURRICULUM OUTLINE"
-              size="small"
-              sx={{ bgcolor: '#0d3466', color: '#fff', fontWeight: 900, mt: 1, px: 1 }}
-            />
           </Box>
 
-          {/* Course Details Block */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid container spacing={2} sx={{ mb: 3, p: 2, bgcolor: '#F8FAFC', borderRadius: 2 }}>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
                 पाठ्यक्रम (Course):
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
@@ -1056,7 +1515,7 @@ export default function SyllabusManager() {
               </Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
                 कुल तालिम अवधि:
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
@@ -1064,124 +1523,103 @@ export default function SyllabusManager() {
               </Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
                 सैद्धान्तिक (Theory):
               </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0284c7' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#2563EB' }}>
                 {totalTheoryHours} Hours ({theoryRatio}%)
               </Typography>
             </Grid>
             <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
                 प्रयोगात्मक (Practical):
               </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#16834b' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
                 {totalPracticalHours} Hours ({practicalRatio}%)
               </Typography>
             </Grid>
           </Grid>
 
-          {/* Curriculum Table */}
-          <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 1, color: '#0d3466' }}>
-            पाठ्यक्रम एकाइ तथा सीप विवरण (Curriculum Units &amp; Competencies):
-          </Typography>
-
-          <TableContainer sx={{ border: '1px solid #cbd5e1', borderRadius: 1.5, mb: 3 }}>
+          <TableContainer sx={{ border: '1px solid #CBD5E1', borderRadius: 2, mb: 3 }}>
             <Table size="small">
-              <TableHead sx={{ bgcolor: '#f1f5f9' }}>
+              <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, width: 50, textAlign: 'center' }}>Unit</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>सीप / एकाइ शीर्षक (Competency / Task Title)</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>Unit</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सीप / एकाइ शीर्षक (Competency / Task Title)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {courseSyllabi.map((u) => (
                   <TableRow key={u.id}>
-                    <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>{u.unitNo}</TableCell>
+                    <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>{u.unitNo}</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>{u.title}</TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{u.theoryHours}h</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>{u.practicalHours}h</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 900 }}>{u.totalHours}h</TableCell>
-                    <TableCell sx={{ fontSize: '0.8rem', color: '#475569' }}>{u.learningOutcome}</TableCell>
+                    <TableCell sx={{ fontSize: '0.82rem', color: '#334155' }}>{u.learningOutcome}</TableCell>
                   </TableRow>
                 ))}
-                {/* Total Row */}
-                <TableRow sx={{ bgcolor: '#f8fafc' }}>
+                <TableRow sx={{ bgcolor: '#F8FAFC' }}>
                   <TableCell colSpan={2} sx={{ fontWeight: 900, textAlign: 'right' }}>
                     कुल जम्मा (Total Allocated Hours):
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0284c7' }}>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#2563EB' }}>
                     {totalTheoryHours}h
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#16834b' }}>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#059669' }}>
                     {totalPracticalHours}h
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0d3466', fontSize: '0.95rem' }}>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0F2C59', fontSize: '0.95rem' }}>
                     {totalSyllabusHours}h
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 800, color: '#647089' }}>
-                    Target: {courseTargetHours} Hours ({hoursPercentage}% Met)
+                  <TableCell sx={{ fontWeight: 800, color: '#64748B' }}>
+                    लक्ष्य: {courseTargetHours} Hours ({hoursPercentage}% Met)
                   </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
 
-          {/* Assessment Criteria Note */}
-          <Box sx={{ bgcolor: '#f8fafc', p: 1.5, borderRadius: 1.5, border: '1px solid #e2e8f0', mb: 4 }}>
-            <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#334155' }}>
-              मूल्यांकन तथा प्रमाणीकरण मापदण्ड (Assessment &amp; Certification Criteria):
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 0.3 }}>
-              १. प्रयोगात्मक परीक्षामा कम्तीमा ८०% सीप दक्षता (Mastered) अनिवार्य हुनुपर्नेछ।<br />
-              २. नियमित हाजिरी न्यूनतम ८५% पूरा गरेका प्रशिक्षार्थी मात्र अन्तिम सीप परीक्षणमा समावेश हुन पाउनेछन्।
-            </Typography>
-          </Box>
-
-          {/* Signature Blocks */}
-          <Grid container spacing={4} sx={{ pt: 3 }}>
+          <Grid container spacing={4} sx={{ pt: 4 }}>
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #647089', pt: 1 }}>
+              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
                   पाठ्यक्रम संयोजक (Curriculum In-charge)
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Signature &amp; Date
                 </Typography>
               </Box>
             </Grid>
-
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #647089', pt: 1 }}>
+              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
                   प्रशिक्षक (Lead Instructor)
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Signature &amp; Date
                 </Typography>
               </Box>
             </Grid>
-
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #647089', pt: 1 }}>
+              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
                   प्रिन्सिपल / क्याम्पस प्रमुख (Principal)
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Official Stamp &amp; Signature
                 </Typography>
               </Box>
             </Grid>
           </Grid>
         </DialogContent>
-
-        <DialogActions sx={{ p: 2, bgcolor: '#f1f5f9', borderTop: '1px solid #e2e8f0' }}>
+        <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenDocDialog(false)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस् (Close)
+            बन्द गर्नुहोस्
           </Button>
         </DialogActions>
       </Dialog>
