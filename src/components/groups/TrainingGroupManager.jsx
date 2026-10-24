@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Card,
@@ -22,7 +22,14 @@ import {
   Grid,
   Avatar,
   Paper,
-  Alert
+  Alert,
+  InputAdornment,
+  ToggleButton,
+  ToggleButtonGroup,
+  TableSortLabel,
+  LinearProgress,
+  Tooltip,
+  Divider
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -30,14 +37,41 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import PeopleIcon from '@mui/icons-material/People';
-import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate } from '../../services/storage';
+import SearchIcon from '@mui/icons-material/Search';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import SchoolIcon from '@mui/icons-material/School';
+import ShieldIcon from '@mui/icons-material/Shield';
+import PhoneIcon from '@mui/icons-material/Phone';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import confetti from 'canvas-confetti';
+import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, logAudit } from '../../services/storage';
+import { useAuth } from '../../context/AuthContext';
 
 export default function TrainingGroupManager({ onNavigateToAttendance, onNavigateToStudents }) {
   const [db, setDb] = useState(loadDB());
+  const { currentUser, isTrainer } = useAuth();
+
+  // View, Search, Filter & Sort States
+  const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedShift, setSelectedShift] = useState('ALL');
+  const [selectedStatus, setSelectedStatus] = useState('ALL');
+  const [selectedCourseFilter, setSelectedCourseFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('groupCode'); // 'groupCode' | 'startDate' | 'students' | 'shift'
+  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
+
+  // Dialog States
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [rosterGroup, setRosterGroup] = useState(null);
+  const [rosterSearch, setRosterSearch] = useState('');
 
+  // Form State
   const [formData, setFormData] = useState({
     groupCode: '',
     courseId: '',
@@ -47,44 +81,135 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     endTime: '09:00 AM',
     startDate: new Date().toISOString().slice(0, 10),
     expectedEndDate: '',
+    capacity: 20,
     status: 'Running'
   });
 
-  const selectedCourse = db.courses.find((c) => c.id === formData.courseId);
-  const selectedOccupation = db.occupations.find((o) => o.id === selectedCourse?.occupationId);
-  const matchingTrainers = db.trainers.filter(
-    (t) => !selectedCourse || t.occupationId === selectedCourse.occupationId
+  // Real-time live active shift calculation
+  const currentHour = new Date().getHours();
+  let liveShiftCode = 'B';
+  if (currentHour < 10) liveShiftCode = 'A';
+  else if (currentHour >= 12 && currentHour < 14) liveShiftCode = 'C';
+  else if (currentHour >= 14 && currentHour < 16) liveShiftCode = 'D';
+  else if (currentHour >= 16) liveShiftCode = 'E';
+
+  // Available groups filtered by role
+  const baseGroups = useMemo(() => {
+    return isTrainer
+      ? (db.trainingGroups || []).filter((g) => g.trainerId === currentUser?.trainerId)
+      : db.trainingGroups || [];
+  }, [db.trainingGroups, isTrainer, currentUser]);
+
+  // Overall Statistics
+  const totalGroupsCount = baseGroups.length;
+  const runningGroupsCount = baseGroups.filter((g) => g.status === 'Running').length;
+  const ojtGroupsCount = baseGroups.filter((g) => g.status === 'OJT Phase').length;
+  const totalStudentsEnrolled = (db.students || []).filter((s) => baseGroups.some((g) => g.id === s.groupId)).length;
+
+  // Form Cascading Helpers
+  const selectedCourseInForm = (db.courses || []).find((c) => c.id === formData.courseId);
+  const selectedOccupationInForm = (db.occupations || []).find((o) => o.id === selectedCourseInForm?.occupationId);
+  const matchingTrainersInForm = (db.trainers || []).filter(
+    (t) => !selectedCourseInForm || t.occupationId === selectedCourseInForm.occupationId
   );
+
+  // Filtered and Sorted Training Groups
+  const filteredAndSortedGroups = useMemo(() => {
+    let list = baseGroups.filter((grp) => {
+      const course = (db.courses || []).find((c) => c.id === grp.courseId);
+      const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
+      const q = searchQuery.toLowerCase().trim();
+
+      const matchesSearch =
+        !q ||
+        grp.groupCode.toLowerCase().includes(q) ||
+        (course?.title || '').toLowerCase().includes(q) ||
+        (trainer?.name || '').toLowerCase().includes(q) ||
+        `shift ${grp.shift}`.toLowerCase().includes(q);
+
+      const matchesShift = selectedShift === 'ALL' || grp.shift === selectedShift;
+      const matchesStatus = selectedStatus === 'ALL' || grp.status === selectedStatus;
+      const matchesCourse = selectedCourseFilter === 'ALL' || grp.courseId === selectedCourseFilter;
+
+      return matchesSearch && matchesShift && matchesStatus && matchesCourse;
+    });
+
+    list.sort((a, b) => {
+      let valA = a[sortBy];
+      let valB = b[sortBy];
+
+      if (sortBy === 'students') {
+        valA = (db.students || []).filter((s) => s.groupId === a.id).length;
+        valB = (db.students || []).filter((s) => s.groupId === b.id).length;
+      } else if (sortBy === 'startDate') {
+        valA = new Date(valA || '').getTime();
+        valB = new Date(valB || '').getTime();
+      } else {
+        valA = (valA || '').toString().toLowerCase();
+        valB = (valB || '').toString().toLowerCase();
+      }
+
+      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return list;
+  }, [baseGroups, searchQuery, selectedShift, selectedStatus, selectedCourseFilter, sortBy, sortOrder, db.courses, db.trainers, db.students]);
+
+  const handleRequestSort = (property) => {
+    const isAsc = sortBy === property && sortOrder === 'asc';
+    setSortOrder(isAsc ? 'desc' : 'asc');
+    setSortBy(property);
+  };
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    const defaultCourse = db.courses[0];
+    const defaultCourse = db.courses?.[0];
     const defaultStart = new Date().toISOString().slice(0, 10);
     const calculatedEnd = defaultCourse
       ? calculateExpectedEndDate(defaultStart, defaultCourse.durationValue, defaultCourse.durationUnit)
       : '';
 
     setFormData({
-      groupCode: `GRP-${String(db.trainingGroups.length + 1).padStart(2, '0')}`,
+      groupCode: `GRP-${String((db.trainingGroups || []).length + 1).padStart(2, '0')}`,
       courseId: defaultCourse?.id || '',
-      trainerId: db.trainers.find((t) => t.occupationId === defaultCourse?.occupationId)?.id || db.trainers[0]?.id || '',
+      trainerId: (db.trainers || []).find((t) => t.occupationId === defaultCourse?.occupationId)?.id || db.trainers?.[0]?.id || '',
       shift: 'A',
       startTime: '07:00 AM',
       endTime: '09:00 AM',
       startDate: defaultStart,
       expectedEndDate: calculatedEnd,
+      capacity: 20,
       status: 'Running'
     });
     setOpenDialog(true);
   };
 
+  const handleOpenEdit = (grp) => {
+    setEditingItem(grp);
+    setFormData({
+      groupCode: grp.groupCode,
+      courseId: grp.courseId,
+      trainerId: grp.trainerId,
+      shift: grp.shift || 'A',
+      startTime: grp.startTime || '07:00 AM',
+      endTime: grp.endTime || '09:00 AM',
+      startDate: grp.startDate,
+      expectedEndDate: grp.expectedEndDate,
+      capacity: grp.capacity || 20,
+      status: grp.status || 'Running'
+    });
+    setOpenDialog(true);
+  };
+
   const handleCourseChange = (courseId) => {
-    const course = db.courses.find((c) => c.id === courseId);
+    const course = (db.courses || []).find((c) => c.id === courseId);
     const calcEnd = course
       ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit)
       : formData.expectedEndDate;
 
-    const matchedTrainer = db.trainers.find((t) => t.occupationId === course?.occupationId);
+    const matchedTrainer = (db.trainers || []).find((t) => t.occupationId === course?.occupationId);
 
     setFormData((prev) => ({
       ...prev,
@@ -108,7 +233,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   };
 
   const handleStartDateChange = (startDate) => {
-    const course = db.courses.find((c) => c.id === formData.courseId);
+    const course = (db.courses || []).find((c) => c.id === formData.courseId);
     const calcEnd = course
       ? calculateExpectedEndDate(startDate, course.durationValue, course.durationUnit)
       : '';
@@ -117,11 +242,11 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
   const handleSave = () => {
     if (!formData.groupCode.trim() || !formData.courseId || !formData.trainerId) {
-      alert('Group Code, Course, and Trainer are required.');
+      alert('समूह कोड, पाठ्यक्रम र प्रशिक्षक अनिवार्य छन्।');
       return;
     }
 
-    let updatedList = [...db.trainingGroups];
+    let updatedList = [...(db.trainingGroups || [])];
     if (editingItem) {
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...formData } : x
@@ -131,204 +256,846 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
       updatedList.push({ id: newId, ...formData });
     }
 
-    const nextDb = { ...db, trainingGroups: updatedList };
+    let nextDb = { ...db, trainingGroups: updatedList };
+    nextDb = logAudit(
+      nextDb,
+      editingItem ? 'UPDATE' : 'CREATE',
+      'TrainingGroup',
+      editingItem?.id || 'NEW',
+      `Training Group ${formData.groupCode} (${formData.shift}) ${editingItem ? 'updated' : 'created'}`,
+      currentUser?.name || 'Admin'
+    );
+
     saveDB(nextDb);
     setDb(nextDb);
     setOpenDialog(false);
+
+    try {
+      confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+    } catch (_) {}
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Delete this training group? Note: Enrolled students will need reassignment.')) {
-      const nextDb = {
+    const studentsInGroup = (db.students || []).filter((s) => s.groupId === id);
+    if (studentsInGroup.length > 0) {
+      alert(`यस समूहमा ${studentsInGroup.length} जना विद्यार्थी भर्ना भएका छन्। पहिले विद्यार्थीहरूलाई अर्को समूहमा स्थानान्तरण गर्नुहोस्।`);
+      return;
+    }
+
+    if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो तालिम समूह मेटिनेछ।')) {
+      let nextDb = {
         ...db,
-        trainingGroups: db.trainingGroups.filter((x) => x.id !== id)
+        trainingGroups: (db.trainingGroups || []).filter((x) => x.id !== id)
       };
+      nextDb = logAudit(
+        nextDb,
+        'DELETE',
+        'TrainingGroup',
+        id,
+        `Training group ${id} deleted`,
+        currentUser?.name || 'Admin'
+      );
       saveDB(nextDb);
       setDb(nextDb);
     }
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <GroupWorkIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Training Groups / Batches (सञ्चालन केन्द्र)
+    <Box sx={{ maxWidth: 1320, mx: 'auto', p: { xs: 1, sm: 2 } }}>
+      {/* =======================================================
+          1. EXECUTIVE HERO OPERATIONAL BANNER
+          ======================================================= */}
+      <Card
+        sx={{
+          mb: 3,
+          p: { xs: 2.5, sm: 3.5 },
+          borderRadius: 4,
+          background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
+          color: '#FFFFFF',
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 16px 40px -10px rgba(7, 25, 51, 0.4)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <Grid container spacing={3} alignItems="center">
+          {/* Left Title & Actions */}
+          <Grid item xs={12} lg={7}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#FDE047 !important' }} />}
+                label="CTEVT Institutional Operations Hub"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(254, 240, 138, 0.15)',
+                  color: '#FEF08A',
+                  fontWeight: 900,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(254, 240, 138, 0.3)'
+                }}
+              />
+              <Chip
+                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
+                label={`${runningGroupsCount} Groups Currently Running`}
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(74, 222, 128, 0.15)',
+                  color: '#86EFAC',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(74, 222, 128, 0.25)'
+                }}
+              />
+              <Chip
+                label={`Shift ${liveShiftCode} Live Now`}
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.15)',
+                  color: '#FFFFFF',
+                  fontWeight: 900,
+                  fontSize: '0.72rem'
+                }}
+              />
+            </Box>
+
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 900,
+                fontSize: { xs: '1.45rem', sm: '1.9rem', md: '2.1rem' },
+                lineHeight: 1.2,
+                letterSpacing: '-0.02em',
+                mb: 1
+              }}
+            >
+              Training Groups / Batches (तालिम समूह सञ्चालन केन्द्र)
             </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Operational core of the institution. Links Course + Matching Trainer + Shift + Auto End Date.
-          </Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-          + Create Training Group
-        </Button>
-      </Box>
 
-      <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
-        <TableContainer>
-          <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc' }}>
-              <TableRow>
-                <TableCell sx={{ fontWeight: 800 }}>Group Code</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Course & Occupation</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Assigned Trainer</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Shift & Timings</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Start → Expected End</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Students</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {db.trainingGroups.map((grp) => {
-                const course = db.courses.find((c) => c.id === grp.courseId);
-                const occ = db.occupations.find((o) => o.id === course?.occupationId);
-                const trainer = db.trainers.find((t) => t.id === grp.trainerId);
-                const studentsInGroup = (db.students || []).filter((s) => s.groupId === grp.id);
+            <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
+              संस्थाको सम्पूर्ण भौतिक तथा अनलाइन तालिम कक्षाहरूको प्रत्यक्ष सञ्चालन केन्द्र।
+              पाठ्यक्रम, तोकिएका मुख्य प्रशिक्षक, सिफ्ट समय र भर्ना भएका विद्यार्थीहरूको एकीकृत व्यवस्थापन।
+            </Typography>
 
-                return (
-                  <TableRow key={grp.id} hover>
-                    <TableCell>
+            <Stack direction="row" spacing={1.2} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleOpenAdd}
+                sx={{
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  py: 1,
+                  px: 2.2,
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important'
+                  }
+                }}
+              >
+                + Create Training Group (नयाँ समूह)
+              </Button>
+
+              <Button
+                variant="outlined"
+                startIcon={<FactCheckIcon />}
+                onClick={() => onNavigateToAttendance(baseGroups[0]?.id)}
+                sx={{
+                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.85rem',
+                  py: 1,
+                  px: 2,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                }}
+              >
+                दैनिक हाजिरी लिनुहोस्
+              </Button>
+            </Stack>
+          </Grid>
+
+          {/* Right Live Operational Stats */}
+          <Grid item xs={12} lg={5}>
+            <Grid container spacing={1.5}>
+              <Grid item xs={6}>
+                <Box
+                  sx={{
+                    bgcolor: 'rgba(15, 30, 60, 0.75)',
+                    backdropFilter: 'blur(16px)',
+                    p: 2,
+                    borderRadius: 3,
+                    border: '1px solid rgba(255, 255, 255, 0.15)'
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
+                    कुल समूहहरू (BATCHES)
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
+                    {totalGroupsCount}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#86EFAC' }}>
+                    {runningGroupsCount} सक्रिय कक्षा सञ्चालन
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={6}>
+                <Box
+                  sx={{
+                    bgcolor: 'rgba(15, 30, 60, 0.75)',
+                    backdropFilter: 'blur(16px)',
+                    p: 2,
+                    borderRadius: 3,
+                    border: '1px solid rgba(255, 255, 255, 0.15)'
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
+                    अध्ययनरत विद्यार्थी
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
+                    {totalStudentsEnrolled}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
+                    {ojtGroupsCount} समूह OJT इन्टर्नसिपमा
+                  </Typography>
+                </Box>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Box
+                  sx={{
+                    bgcolor: 'rgba(16, 185, 129, 0.15)',
+                    backdropFilter: 'blur(16px)',
+                    p: 1.8,
+                    borderRadius: 3,
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 900, display: 'block' }}>
+                      सक्रिय सिफ्ट (ACTIVE LIVE SHIFT)
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
+                      Shift {liveShiftCode} • MitraPark Central Hub
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="Active & Synchronized"
+                    size="small"
+                    sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 900, height: 22 }}
+                  />
+                </Box>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* =======================================================
+          2. SEARCH, MULTI-FILTER, SORT & VIEW SWITCHER
+          ======================================================= */}
+      <Card
+        sx={{
+          p: 2.5,
+          mb: 3,
+          borderRadius: 3.5,
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
+          bgcolor: '#FFFFFF'
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          {/* Instant Search Bar */}
+          <Grid item xs={12} sm={6} md={3.5}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="समूह कोड, कोर्स वा प्रशिक्षक खोज्नुहोस्..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: '#94A3B8' }} />
+                  </InputAdornment>
+                ),
+                sx: { borderRadius: 2.5 }
+              }}
+            />
+          </Grid>
+
+          {/* Filter by Shift */}
+          <Grid item xs={6} sm={6} md={2}>
+            <TextField
+              select
+              size="small"
+              label="सिफ्ट (Shift)"
+              fullWidth
+              value={selectedShift}
+              onChange={(e) => setSelectedShift(e.target.value)}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+            >
+              <MenuItem value="ALL">सबै सिफ्ट (All)</MenuItem>
+              {SHIFT_DEFINITIONS.map((sh) => (
+                <MenuItem key={sh.code} value={sh.code}>
+                  Shift {sh.code} ({sh.time})
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Filter by Status */}
+          <Grid item xs={6} sm={4} md={2}>
+            <TextField
+              select
+              size="small"
+              label="स्थिति (Status)"
+              fullWidth
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+            >
+              <MenuItem value="ALL">सबै स्थिति (All)</MenuItem>
+              <MenuItem value="Running">Running (सञ्चालनमा)</MenuItem>
+              <MenuItem value="OJT Phase">OJT Phase (इन्टर्नसिप)</MenuItem>
+              <MenuItem value="Upcoming">Upcoming (हुन बाँकी)</MenuItem>
+              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+            </TextField>
+          </Grid>
+
+          {/* Sort By */}
+          <Grid item xs={6} sm={4} md={2.5}>
+            <TextField
+              select
+              size="small"
+              label="क्रम (Sort By)"
+              fullWidth
+              value={`${sortBy}-${sortOrder}`}
+              onChange={(e) => {
+                const [sb, so] = e.target.value.split('-');
+                setSortBy(sb);
+                setSortOrder(so);
+              }}
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
+            >
+              <MenuItem value="groupCode-asc">Group Code (कम-बढी)</MenuItem>
+              <MenuItem value="startDate-asc">सुरु मिति (पहिले-पछि)</MenuItem>
+              <MenuItem value="students-desc">विद्यार्थी संख्या (धेरै-थोरै)</MenuItem>
+              <MenuItem value="shift-asc">सिफ्ट (A देखि E)</MenuItem>
+            </TextField>
+          </Grid>
+
+          {/* View Mode Switcher */}
+          <Grid item xs={6} sm={4} md={2} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(_, next) => next && setViewMode(next)}
+              size="small"
+            >
+              <ToggleButton value="cards" sx={{ fontWeight: 800, px: 1.5 }}>
+                <ViewModuleIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards
+              </ToggleButton>
+              <ToggleButton value="table" sx={{ fontWeight: 800, px: 1.5 }}>
+                <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* =======================================================
+          VIEW 1: RICH VISUAL CARDS VIEW
+          ======================================================= */}
+      {viewMode === 'cards' && (
+        <Grid container spacing={2.5}>
+          {filteredAndSortedGroups.map((grp) => {
+            const course = (db.courses || []).find((c) => c.id === grp.courseId);
+            const occ = (db.occupations || []).find((o) => o.id === course?.occupationId);
+            const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
+            const studentsInGroup = (db.students || []).filter((s) => s.groupId === grp.id);
+            const isLive = grp.shift === liveShiftCode && grp.status === 'Running';
+
+            return (
+              <Grid item xs={12} sm={6} md={4} key={grp.id}>
+                <Card
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderRadius: 3.5,
+                    border: '1px solid #E2E8F0',
+                    boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
+                    transition: 'all 0.2s ease',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    bgcolor: '#FFFFFF',
+                    '&:hover': {
+                      transform: 'translateY(-3px)',
+                      boxShadow: '0 12px 28px rgba(15, 44, 89, 0.1)',
+                      borderColor: '#93C5FD'
+                    }
+                  }}
+                >
+                  {/* Top Color Accent */}
+                  <Box
+                    sx={{
+                      height: 5,
+                      background: isLive
+                        ? 'linear-gradient(90deg, #10B981, #059669)'
+                        : grp.status === 'Running'
+                        ? 'linear-gradient(90deg, #3B82F6, #1D4ED8)'
+                        : '#94A3B8'
+                    }}
+                  />
+
+                  {/* Header: Code, Live beacon & Status */}
+                  <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Chip
                         label={grp.groupCode}
                         size="small"
-                        sx={{ fontWeight: 800, bgcolor: '#1a56b0', color: '#fff' }}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                        {course?.title || 'Course'}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>
-                        {occ?.name || 'Occupation'} • {course?.level || ''}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar src={trainer?.photo} sx={{ width: 28, height: 28, bgcolor: '#1a9c5c', fontSize: 13 }}>
-                          {trainer?.name?.[0] || 'T'}
-                        </Avatar>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                          {trainer?.name || 'Unassigned'}
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                        Shift {grp.shift}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>
-                        {grp.startTime} – {grp.endTime}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                        {grp.startDate}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#16834b', fontWeight: 700 }}>
-                        → {grp.expectedEndDate}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<PeopleIcon />}
-                        onClick={() => setRosterGroup(grp)}
-                        sx={{ borderRadius: 2, fontWeight: 700, py: 0.2 }}
-                      >
-                        {studentsInGroup.length} Students
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={grp.status}
-                        size="small"
                         sx={{
-                          bgcolor: grp.status === 'Running' ? '#e5f8ee' : '#e8f0fd',
-                          color: grp.status === 'Running' ? '#16834b' : '#1a56b0',
-                          fontWeight: 700
+                          bgcolor: '#0F2C59',
+                          color: '#FFFFFF',
+                          fontWeight: 900,
+                          fontSize: '0.75rem',
+                          height: 24
                         }}
                       />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Button
-                        variant="contained"
+                      {isLive && (
+                        <Chip
+                          label="LIVE NOW"
+                          size="small"
+                          sx={{
+                            bgcolor: '#ECFDF5',
+                            color: '#059669',
+                            border: '1px solid #A7F3D0',
+                            fontWeight: 900,
+                            fontSize: '0.65rem',
+                            height: 20
+                          }}
+                        />
+                      )}
+                    </Box>
+
+                    <Chip
+                      label={grp.status}
+                      size="small"
+                      sx={{
+                        bgcolor: grp.status === 'Running' ? '#ECFDF5' : grp.status === 'OJT Phase' ? '#EFF6FF' : '#F1F5F9',
+                        color: grp.status === 'Running' ? '#059669' : grp.status === 'OJT Phase' ? '#1D4ED8' : '#475569',
+                        fontWeight: 900,
+                        fontSize: '0.72rem',
+                        height: 22
+                      }}
+                    />
+                  </Box>
+
+                  {/* Course Title & Occupation */}
+                  <Box sx={{ px: 2, pb: 1 }}>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 900,
+                        color: '#0F172A',
+                        lineHeight: 1.25,
+                        fontSize: '1.05rem',
+                        mb: 0.3
+                      }}
+                    >
+                      {course?.title || 'Vocational Course'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                      {occ?.name || 'Technical'} • {course?.level || 'CTEVT Level 1'}
+                    </Typography>
+                  </Box>
+
+                  {/* Trainer Row */}
+                  <Box sx={{ px: 2, pb: 1.5, display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                    <Avatar
+                      src={trainer?.photo}
+                      sx={{
+                        width: 34,
+                        height: 34,
+                        bgcolor: '#0F2C59',
+                        color: '#FFFFFF',
+                        fontWeight: 800,
+                        fontSize: '0.82rem'
+                      }}
+                    >
+                      {trainer?.name?.[0] || 'T'}
+                    </Avatar>
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.1 }}>
+                        {trainer?.name || 'Unassigned Trainer'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        ToT Certified • {trainer?.phone || 'No Contact'}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Shift, Timing & Dates Metric Box */}
+                  <Box sx={{ px: 2, py: 1.5, mx: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #EDF2F7', mb: 1.5 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                        <AccessTimeIcon sx={{ fontSize: 16, color: '#1D4ED8' }} />
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E40AF' }}>
+                          Shift {grp.shift}: <b>{grp.startTime} – {grp.endTime}</b>
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={`${studentsInGroup.length} Trainees`}
                         size="small"
-                        startIcon={<FactCheckIcon />}
-                        onClick={() => onNavigateToAttendance(grp.id)}
-                        sx={{ mr: 1, fontWeight: 700, py: 0.4 }}
+                        sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 900, height: 20, fontSize: '0.68rem' }}
+                      />
+                    </Box>
+
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <CalendarMonthIcon sx={{ fontSize: 16, color: '#059669' }} />
+                      <Typography variant="caption" sx={{ color: '#334155', fontWeight: 700 }}>
+                        {grp.startDate} → <b style={{ color: '#059669' }}>{grp.expectedEndDate}</b>
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Footer Action Buttons */}
+                  <Box
+                    sx={{
+                      mt: 'auto',
+                      p: 1.5,
+                      px: 2,
+                      borderTop: '1px solid #F1F5F9',
+                      bgcolor: '#FAFAFA',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<FactCheckIcon />}
+                      onClick={() => onNavigateToAttendance(grp.id)}
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                        textTransform: 'none',
+                        bgcolor: '#0F2C59',
+                        borderRadius: 2
+                      }}
+                    >
+                      हाजिरी लिनुहोस्
+                    </Button>
+
+                    <Button
+                      size="small"
+                      startIcon={<PeopleIcon />}
+                      onClick={() => setRosterGroup(grp)}
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                        textTransform: 'none',
+                        color: '#1D4ED8'
+                      }}
+                    >
+                      रोस्टर ({studentsInGroup.length})
+                    </Button>
+
+                    <Box sx={{ display: 'flex', gap: 0.3 }}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenEdit(grp)}
+                        sx={{ color: '#1D4ED8', p: 0.5 }}
+                        title="Edit Group"
                       >
-                        Attendance
-                      </Button>
-                      <IconButton size="small" onClick={() => handleDelete(grp.id)} sx={{ color: '#d5372f' }}>
-                        <DeleteOutlineIcon fontSize="small" />
+                        <EditIcon sx={{ fontSize: 18 }} />
                       </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDelete(grp.id)}
+                        sx={{ color: '#EF4444', p: 0.5 }}
+                        title="Delete Group"
+                      >
+                        <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                </Card>
+              </Grid>
+            );
+          })}
+
+          {filteredAndSortedGroups.length === 0 && (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
+                <GroupWorkIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
+                <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
+                  कुनै तालिम समूह फेला परेन
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
+                  तपाईंको खोजी वा फिल्टर अनुसार कुनै समूह सूचीकृत छैन।
+                </Typography>
+                <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+                  + Create Training Group
+                </Button>
+              </Paper>
+            </Grid>
+          )}
+        </Grid>
+      )}
+
+      {/* =======================================================
+          VIEW 2: SORTABLE PRODUCTION TABLE VIEW
+          ======================================================= */}
+      {viewMode === 'table' && (
+        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+          <TableContainer>
+            <Table>
+              <TableHead sx={{ bgcolor: '#0F2C59' }}>
+                <TableRow>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 85 }}>
+                    <TableSortLabel
+                      active={sortBy === 'groupCode'}
+                      direction={sortBy === 'groupCode' ? sortOrder : 'asc'}
+                      onClick={() => handleRequestSort('groupCode')}
+                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                    >
+                      Group Code
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>पाठ्यक्रम र पेशा (Course & Occupation)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>प्रशिक्षक (Instructor)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>
+                    <TableSortLabel
+                      active={sortBy === 'shift'}
+                      direction={sortBy === 'shift' ? sortOrder : 'asc'}
+                      onClick={() => handleRequestSort('shift')}
+                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                    >
+                      सिफ्ट र समय (Shift)
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>
+                    <TableSortLabel
+                      active={sortBy === 'startDate'}
+                      direction={sortBy === 'startDate' ? sortOrder : 'asc'}
+                      onClick={() => handleRequestSort('startDate')}
+                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                    >
+                      मिति (Start → End)
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>
+                    <TableSortLabel
+                      active={sortBy === 'students'}
+                      direction={sortBy === 'students' ? sortOrder : 'asc'}
+                      onClick={() => handleRequestSort('students')}
+                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                    >
+                      विद्यार्थी (Students)
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredAndSortedGroups.map((grp) => {
+                  const course = (db.courses || []).find((c) => c.id === grp.courseId);
+                  const occ = (db.occupations || []).find((o) => o.id === course?.occupationId);
+                  const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
+                  const studentsInGroup = (db.students || []).filter((s) => s.groupId === grp.id);
+                  const isLive = grp.shift === liveShiftCode && grp.status === 'Running';
+
+                  return (
+                    <TableRow key={grp.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                      <TableCell sx={{ fontWeight: 900, color: '#1D4ED8' }}>
+                        <Chip
+                          label={grp.groupCode}
+                          size="small"
+                          sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', fontWeight: 900 }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                          {course?.title || 'Vocational Course'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          {occ?.name || 'Technical'} • {course?.level || ''}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar
+                            src={trainer?.photo}
+                            sx={{ width: 28, height: 28, bgcolor: '#0F2C59', fontSize: 12, fontWeight: 800 }}
+                          >
+                            {trainer?.name?.[0] || 'T'}
+                          </Avatar>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            {trainer?.name || 'Unassigned'}
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                            Shift {grp.shift}
+                          </Typography>
+                          {isLive && (
+                            <Chip
+                              label="Live"
+                              size="small"
+                              sx={{ height: 18, fontSize: '0.62rem', bgcolor: '#ECFDF5', color: '#059669', fontWeight: 900 }}
+                            />
+                          )}
+                        </Box>
+                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          {grp.startTime} – {grp.endTime}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                          {grp.startDate}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
+                          → {grp.expectedEndDate}
+                        </Typography>
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<PeopleIcon />}
+                          onClick={() => setRosterGroup(grp)}
+                          sx={{ borderRadius: 2, fontWeight: 800, py: 0.2, fontSize: '0.72rem' }}
+                        >
+                          {studentsInGroup.length} Trainees
+                        </Button>
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'center' }}>
+                        <Chip
+                          label={grp.status}
+                          size="small"
+                          sx={{
+                            bgcolor: grp.status === 'Running' ? '#ECFDF5' : '#EFF6FF',
+                            color: grp.status === 'Running' ? '#059669' : '#1D4ED8',
+                            fontWeight: 900,
+                            fontSize: '0.7rem'
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'right' }}>
+                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<FactCheckIcon />}
+                            onClick={() => onNavigateToAttendance(grp.id)}
+                            sx={{ fontWeight: 800, py: 0.3, px: 1.5, fontSize: '0.75rem', bgcolor: '#0F2C59' }}
+                          >
+                            हाजिरी
+                          </Button>
+                          <IconButton size="small" onClick={() => handleOpenEdit(grp)} sx={{ color: '#1D4ED8' }}>
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton size="small" onClick={() => handleDelete(grp.id)} sx={{ color: '#EF4444' }}>
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+
+                {filteredAndSortedGroups.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                      कुनै समूह फेला परेन।
                     </TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Card>
+      )}
 
-      {/* Add / Edit Training Group Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Training Group' : 'Create New Training Group (Class)'}
+      {/* =======================================================
+          MODAL 1: CREATE / EDIT TRAINING GROUP
+          ======================================================= */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
+          {editingItem ? 'तालिम समूह सम्पादन (Edit Training Group)' : '+ नयाँ तालिम समूह सिर्जना गर्नुहोस् (Create Batch)'}
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent dividers>
+          <Stack spacing={2.2}>
             <TextField
-              label="Group Code (e.g. BT-01, CG-02)"
+              label="समूह कोड (Group Code) *"
               fullWidth
+              size="small"
+              placeholder="उदा: GRP-01, BT-02, CG-03"
               value={formData.groupCode}
               onChange={(e) => setFormData({ ...formData, groupCode: e.target.value })}
               required
             />
 
-            {/* Course Selection -> Auto cascade Occupation */}
+            {/* Course Selector */}
             <TextField
               select
-              label="Select Course"
+              label="पाठ्यक्रम चयन (Select Course) *"
               fullWidth
+              size="small"
               value={formData.courseId}
               onChange={(e) => handleCourseChange(e.target.value)}
               required
             >
-              {db.courses.map((crs) => (
+              {(db.courses || []).map((crs) => (
                 <MenuItem key={crs.id} value={crs.id}>
-                  {crs.title} ({crs.durationValue} {crs.durationUnit})
+                  <b>{crs.title}</b> ({crs.durationValue} {crs.durationUnit} • {crs.totalHours || 390} hrs)
                 </MenuItem>
               ))}
             </TextField>
 
             {/* Auto Cascade Context Info Box */}
-            {selectedCourse && (
-              <Alert severity="info" sx={{ borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ fontWeight: 700, display: 'block' }}>
-                  AUTO-CASCADED CONTEXT:
+            {selectedCourseInForm && (
+              <Alert severity="info" sx={{ borderRadius: 2.5 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
+                  स्वचालित रूपमा जोडिएको विवरण (AUTO-CASCADED CONTEXT):
                 </Typography>
-                Occupation: <b>{selectedOccupation?.name}</b> • Curriculum Duration: <b>{selectedCourse.durationValue} {selectedCourse.durationUnit} ({selectedCourse.totalHours} hrs)</b>
+                पेशा: <b>{selectedOccupationInForm?.name}</b> • अवधि: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
               </Alert>
             )}
 
-            {/* Trainer selection filtered by matching occupation */}
+            {/* Assigned Trainer */}
             <TextField
               select
-              label="Assigned Trainer"
+              label="तोकिएको मुख्य प्रशिक्षक (Assigned Trainer) *"
               fullWidth
+              size="small"
               value={formData.trainerId}
               onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
               required
             >
-              {matchingTrainers.map((trn) => (
+              {matchingTrainersInForm.map((trn) => (
                 <MenuItem key={trn.id} value={trn.id}>
-                  {trn.name} ({trn.specialization || 'Trainer'})
+                  <b>{trn.name}</b> ({trn.specialization || 'Trainer'})
                 </MenuItem>
               ))}
             </TextField>
@@ -338,8 +1105,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={4}>
                 <TextField
                   select
-                  label="Shift"
+                  label="सिफ्ट (Shift)"
                   fullWidth
+                  size="small"
                   value={formData.shift}
                   onChange={(e) => handleShiftChange(e.target.value)}
                 >
@@ -352,29 +1120,32 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  label="Start Time"
+                  label="सुरु समय (Start Time)"
                   fullWidth
+                  size="small"
                   value={formData.startTime}
                   onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                 />
               </Grid>
               <Grid item xs={4}>
                 <TextField
-                  label="End Time"
+                  label="अन्त्य समय (End Time)"
                   fullWidth
+                  size="small"
                   value={formData.endTime}
                   onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                 />
               </Grid>
             </Grid>
 
-            {/* Date Selection -> Auto calculates Expected End Date */}
+            {/* Dates: Start & Auto End */}
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="Group Start Date"
+                  label="सुरु मिति (Start Date) *"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.startDate}
                   onChange={(e) => handleStartDateChange(e.target.value)}
@@ -384,65 +1155,151 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="Expected End Date (Auto)"
+                  label="अनुमानित सम्पन्न मिति (Auto End Date)"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.expectedEndDate}
                   onChange={(e) => setFormData({ ...formData, expectedEndDate: e.target.value })}
-                  helperText="Auto-computed from Course Duration"
+                  helperText="कोर्स अवधि अनुसार स्वतः हिसाब भएको"
                 />
               </Grid>
             </Grid>
 
-            <TextField
-              select
-              label="Group Status"
-              fullWidth
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <MenuItem value="Upcoming">Upcoming</MenuItem>
-              <MenuItem value="Running">Running</MenuItem>
-              <MenuItem value="OJT Phase">OJT Phase</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
-            </TextField>
+            {/* Capacity & Status */}
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  type="number"
+                  label="क्षमता (Trainee Capacity)"
+                  fullWidth
+                  size="small"
+                  value={formData.capacity}
+                  onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  label="समूह स्थिति (Status)"
+                  fullWidth
+                  size="small"
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                >
+                  <MenuItem value="Running">Running (सञ्चालनमा)</MenuItem>
+                  <MenuItem value="OJT Phase">OJT Phase (इन्टर्नसिप)</MenuItem>
+                  <MenuItem value="Upcoming">Upcoming (हुन बाँकी)</MenuItem>
+                  <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Save Training Group
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>
+            रद्द गर्नुहोस्
+          </Button>
+          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+            सुरक्षित गर्नुहोस् (Save Group)
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* View Student Roster Dialog */}
-      <Dialog open={Boolean(rosterGroup)} onClose={() => setRosterGroup(null)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          Group Roster: {rosterGroup?.groupCode}
+      {/* =======================================================
+          MODAL 2: STUDENT ROSTER PREVIEW MODAL
+          ======================================================= */}
+      <Dialog
+        open={Boolean(rosterGroup)}
+        onClose={() => setRosterGroup(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+              Group Roster: {rosterGroup?.groupCode}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#64748B' }}>
+              Shift {rosterGroup?.shift} ({rosterGroup?.startTime} – {rosterGroup?.endTime}) • Global Era TVET
+            </Typography>
+          </Box>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<PersonAddAlt1Icon />}
+            onClick={() => {
+              setRosterGroup(null);
+              if (onNavigateToStudents) onNavigateToStudents();
+            }}
+            sx={{ fontWeight: 800, borderRadius: 2 }}
+          >
+            + विद्यार्थी भर्ना गर्नुहोस्
+          </Button>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
+        <DialogContent dividers>
           {rosterGroup && (
             <Box>
-              <Typography variant="body2" sx={{ color: '#647089', mb: 2 }}>
-                Students currently enrolled in Shift {rosterGroup.shift} ({rosterGroup.startTime} – {rosterGroup.endTime})
-              </Typography>
-              <Stack spacing={1}>
-                {db.students.filter((s) => s.groupId === rosterGroup.id).map((std) => (
-                  <Paper key={std.id} variant="outlined" sx={{ p: 1.5, display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                    <Avatar src={std.photoUrl} sx={{ width: 34, height: 34, bgcolor: '#1a56b0' }}>
-                      {std.name[0]}
-                    </Avatar>
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>{std.name}</Typography>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>{std.tgid} • {std.phone}</Typography>
-                    </Box>
-                    <Chip label={std.status} size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 700 }} />
-                  </Paper>
-                ))}
-                {db.students.filter((s) => s.groupId === rosterGroup.id).length === 0 && (
-                  <Typography variant="body2" sx={{ color: '#94a3b8', textAlign: 'center', py: 3 }}>
-                    No students enrolled yet. Go to Students to enroll.
+              {/* Roster Search Bar */}
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="यस समूहका विद्यार्थी खोज्नुहोस्..."
+                value={rosterSearch}
+                onChange={(e) => setRosterSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" sx={{ color: '#94A3B8' }} />
+                    </InputAdornment>
+                  )
+                }}
+                sx={{ mb: 2 }}
+              />
+
+              <Stack spacing={1.2}>
+                {(db.students || [])
+                  .filter((s) => s.groupId === rosterGroup.id)
+                  .filter((s) => !rosterSearch || s.name.toLowerCase().includes(rosterSearch.toLowerCase()) || (s.phone || '').includes(rosterSearch))
+                  .map((std, idx) => (
+                    <Paper
+                      key={std.id}
+                      variant="outlined"
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1.5,
+                        '&:hover': { bgcolor: '#F8FAFC' }
+                      }}
+                    >
+                      <Avatar
+                        src={std.photoUrl}
+                        sx={{ width: 38, height: 38, bgcolor: '#0F2C59', fontWeight: 800, fontSize: '0.85rem' }}
+                      >
+                        {std.name[0]}
+                      </Avatar>
+                      <Box sx={{ flexGrow: 1 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                          {std.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 1 }}>
+                          ID: <b>{std.tgid || std.id}</b> • <PhoneIcon sx={{ fontSize: 13 }} /> {std.phone || 'No Phone'}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={std.status || 'Active'}
+                        size="small"
+                        sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 800, height: 22 }}
+                      />
+                    </Paper>
+                  ))}
+
+                {(db.students || []).filter((s) => s.groupId === rosterGroup.id).length === 0 && (
+                  <Typography variant="body2" sx={{ color: '#94A3B8', textAlign: 'center', py: 4 }}>
+                    यस समूहमा कुनै विद्यार्थी भर्ना गरिएको छैन।
                   </Typography>
                 )}
               </Stack>
@@ -450,7 +1307,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
           )}
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setRosterGroup(null)}>Close</Button>
+          <Button onClick={() => setRosterGroup(null)} sx={{ fontWeight: 700 }}>
+            बन्द गर्नुहोस्
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
