@@ -96,7 +96,7 @@ export default function LogBookManager() {
 
   // Calculate statistics
   const totalActualHours = groupLogBooks.reduce((sum, lb) => sum + (Number(lb.actualHours) || 0), 0);
-  const targetCourseHours = selectedCourse?.durationHours || 160;
+  const targetCourseHours = selectedCourse?.totalHours || selectedCourse?.durationHours || 390;
   const deliveryProgressPercent = Math.min(100, Math.round((totalActualHours / targetCourseHours) * 100));
 
   const handleOpenAdd = () => {

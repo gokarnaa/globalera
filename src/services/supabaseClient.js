@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-const ENV_URL = import.meta.env.VITE_SUPABASE_URL || '';
-const ENV_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const ENV_URL = import.meta.env.VITE_SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co';
+const ENV_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO';
 
 let cachedClient = null;
 

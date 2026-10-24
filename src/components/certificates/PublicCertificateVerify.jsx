@@ -27,6 +27,7 @@ export default function PublicCertificateVerify({
   student,
   course,
   group,
+  isCloudVerified,
   onOpenFullCertificate
 }) {
   if (!open) return null;
@@ -82,6 +83,13 @@ export default function PublicCertificateVerify({
                 <Typography variant="caption" sx={{ color: '#276749', display: 'block' }}>
                   This vocational training completion certificate is genuine and officially recorded.
                 </Typography>
+                {isCloudVerified && (
+                  <Chip
+                    label="⚡ Verified from Supabase PostgreSQL Cloud"
+                    size="small"
+                    sx={{ mt: 0.5, bgcolor: '#dcfce7', color: '#15803d', fontWeight: 800, fontSize: '0.7rem', height: 20 }}
+                  />
+                )}
               </Box>
             </Paper>
 

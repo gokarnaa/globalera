@@ -41,6 +41,7 @@ import SettingsManager from './components/settings/SettingsManager';
 import StudentPortal from './components/portal/StudentPortal';
 import EmployerPortal from './components/portal/EmployerPortal';
 import { loadDB } from './services/storage';
+import { verifyCertificateRemote } from './services/supabaseClient';
 import { useAuth } from './context/AuthContext';
 
 class ErrorBoundary extends React.Component {
@@ -116,10 +117,37 @@ export default function App() {
     return params.get('verify') || null;
   });
   const [fullCertModalOpen, setFullCertModalOpen] = useState(false);
+  const [remoteVerifyData, setRemoteVerifyData] = useState(null);
 
-  // Lookup verification record
+  React.useEffect(() => {
+    if (!verifyParam) return;
+    let isMounted = true;
+    verifyCertificateRemote(verifyParam).then((res) => {
+      if (isMounted && res?.found) {
+        setRemoteVerifyData(res);
+      }
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [verifyParam]);
+
+  // Lookup verification record (Cloud-first, Local-fallback)
   const verifyData = React.useMemo(() => {
     if (!verifyParam) return null;
+
+    if (remoteVerifyData?.certificate) {
+      return {
+        certId: verifyParam,
+        certificate: remoteVerifyData.certificate,
+        student: remoteVerifyData.student,
+        course: remoteVerifyData.course,
+        group: remoteVerifyData.group,
+        trainer: remoteVerifyData.group?.trainer || null,
+        isCloudVerified: true
+      };
+    }
+
     const db = loadDB();
     const cert = (db.certificates || []).find(
       (c) => c.certificateNo.toLowerCase() === verifyParam.trim().toLowerCase()
@@ -132,7 +160,7 @@ export default function App() {
     const trainer = (db.trainers || []).find((t) => t.id === group?.trainerId);
 
     return { certId: verifyParam, certificate: cert, student, course, group, trainer };
-  }, [verifyParam]);
+  }, [verifyParam, remoteVerifyData]);
 
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -279,6 +307,7 @@ export default function App() {
             student={verifyData.student}
             course={verifyData.course}
             group={verifyData.group}
+            isCloudVerified={verifyData.isCloudVerified}
             onOpenFullCertificate={() => setFullCertModalOpen(true)}
           />
 
