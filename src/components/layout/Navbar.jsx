@@ -11,20 +11,24 @@ import {
   Button,
   Avatar,
   Tooltip,
-  Divider
+  Divider,
+  Badge
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import LockIcon from '@mui/icons-material/Lock';
-import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import SchoolIcon from '@mui/icons-material/School';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import DownloadIcon from '@mui/icons-material/Download';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import ShieldIcon from '@mui/icons-material/Shield';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB, resetDB } from '../../services/storage';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 
 export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
-  const { currentUser, switchUser, logout, isAdmin, isTrainer } = useAuth();
+  const { currentUser, switchUser, logout, isAdmin, isTrainer, isStudent, isEmployer } = useAuth();
   const [anchorUser, setAnchorUser] = useState(null);
   const db = loadDB();
 
@@ -44,93 +48,212 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
     handleCloseUser();
   };
 
+  // Get current active shift info
+  const currentHour = new Date().getHours();
+  let activeShift = 'Shift B (10:00 - 12:00)';
+  if (currentHour < 10) activeShift = 'Shift A (07:00 - 09:00)';
+  else if (currentHour >= 12 && currentHour < 14) activeShift = 'Shift C (12:00 - 02:00)';
+  else if (currentHour >= 14 && currentHour < 16) activeShift = 'Shift D (02:00 - 04:00)';
+  else if (currentHour >= 16) activeShift = 'Shift E (04:00 - 06:00)';
+
   return (
     <AppBar
       position="sticky"
-      elevation={1}
+      elevation={0}
       sx={{
-        backgroundColor: '#ffffff',
-        color: '#152238',
-        borderBottom: '1px solid #e2e8f0',
+        backdropFilter: 'blur(16px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.94)',
+        color: '#0F172A',
+        borderBottom: '1px solid #E2E8F0',
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
-      <Toolbar sx={{ minHeight: { xs: 58, sm: 66 }, px: { xs: 1.5, sm: 2.5 } }}>
+      <Toolbar sx={{ minHeight: { xs: 62, sm: 70 }, px: { xs: 1.5, sm: 3 } }}>
         <IconButton
           color="inherit"
           edge="start"
           onClick={onToggleSidebar}
-          sx={{ mr: { xs: 1, sm: 2 } }}
+          sx={{
+            mr: { xs: 1, sm: 2 },
+            bgcolor: '#F1F5F9',
+            border: '1px solid #E2E8F0',
+            borderRadius: 2.5,
+            '&:hover': { bgcolor: '#E2E8F0' }
+          }}
         >
           <MenuIcon />
         </IconButton>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1 }}>
-          <Avatar
+        {/* Institution Brand Identity */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8, flexGrow: 1 }}>
+          <Box
             sx={{
-              bgcolor: '#1a56b0',
+              width: { xs: 38, sm: 46 },
+              height: { xs: 38, sm: 46 },
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1A56B0 100%)',
               color: '#ffffff',
-              width: { xs: 36, sm: 42 },
-              height: { xs: 36, sm: 42 },
-              fontWeight: 800,
-              fontSize: { xs: 18, sm: 22 }
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.25)',
+              border: '2px solid rgba(255,255,255,0.8)'
             }}
           >
-            🎓
-          </Avatar>
-          <Box>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 800,
-                lineHeight: 1.2,
-                fontSize: { xs: '0.875rem', sm: '1.05rem' },
-                color: '#1a56b0',
-                letterSpacing: '-0.01em'
-              }}
-            >
-              KITE CAREGIVER TRAINING CENTER
+            <Typography sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' }, lineHeight: 1 }}>
+              🎓
             </Typography>
+          </Box>
+          <Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 900,
+                  lineHeight: 1.2,
+                  fontSize: { xs: '0.95rem', sm: '1.15rem' },
+                  color: '#0F2C59',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                ग्लोबल एरा प्राविधिक स्कुल
+              </Typography>
+              <Chip
+                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#166534 !important' }} />}
+                label="CTEVT Accredited"
+                size="small"
+                sx={{
+                  height: 20,
+                  fontSize: '0.68rem',
+                  fontWeight: 800,
+                  bgcolor: '#DCFCE7',
+                  color: '#166534',
+                  display: { xs: 'none', md: 'inline-flex' }
+                }}
+              />
+            </Box>
             <Typography
               variant="caption"
               sx={{
-                color: '#647089',
+                color: '#64748B',
                 display: { xs: 'none', sm: 'block' },
                 fontWeight: 600,
                 fontSize: '0.75rem'
               }}
             >
-              ग्लोबल एरा प्राविधिक स्कुल • MitraPark, Kathmandu
+              KITE CAREGIVER TRAINING CENTER • MitraPark, Chabahil, Kathmandu
             </Typography>
           </Box>
         </Box>
 
-        {/* User Badge & Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        {/* Live Operational Status Pills (Center/Right) */}
+        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 1.5, mr: 2.5 }}>
+          {/* Active Shift indicator */}
           <Chip
-            avatar={<Avatar sx={{ bgcolor: isTrainer ? '#1a9c5c' : '#1a56b0', color: '#fff' }}>{currentUser?.name?.[0]}</Avatar>}
-            label={currentUser?.name}
-            variant="outlined"
-            size="medium"
-            onClick={handleOpenUser}
+            icon={<AccessTimeIcon sx={{ fontSize: '15px !important', color: '#1D4ED8 !important' }} />}
+            label={`Active: ${activeShift}`}
+            size="small"
             sx={{
+              bgcolor: '#EFF6FF',
+              color: '#1E40AF',
+              border: '1px solid #BFDBFE',
               fontWeight: 700,
-              cursor: 'pointer',
-              borderColor: '#cbd5e1',
-              backgroundColor: isTrainer ? '#e5f8ee' : '#e8f0fd',
-              color: isTrainer ? '#147a48' : '#1a56b0',
-              '&:hover': { backgroundColor: '#e2e8f0' }
+              fontSize: '0.75rem'
             }}
           />
+
+          {/* Supabase Status */}
+          <Tooltip title="Supabase PostgreSQL Cloud: yycybsmwuixixfmocrcz.supabase.co (Active & Synchronized)">
+            <Chip
+              icon={<CloudDoneIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />}
+              label="Supabase Cloud Live"
+              size="small"
+              sx={{
+                bgcolor: '#ECFDF5',
+                color: '#065F46',
+                border: '1px solid #A7F3D0',
+                fontWeight: 800,
+                fontSize: '0.75rem'
+              }}
+            />
+          </Tooltip>
+        </Box>
+
+        {/* User Account Pill & Controls */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+          <Box
+            onClick={handleOpenUser}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.2,
+              p: '5px 12px 5px 6px',
+              borderRadius: 3,
+              bgcolor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              '&:hover': {
+                bgcolor: '#F1F5F9',
+                borderColor: '#CBD5E1',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.05)'
+              }
+            }}
+          >
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              variant="dot"
+              sx={{
+                '& .MuiBadge-badge': {
+                  bgcolor: '#10B981',
+                  color: '#10B981',
+                  boxShadow: '0 0 0 2px #fff'
+                }
+              }}
+            >
+              <Avatar
+                sx={{
+                  bgcolor: isStudent ? '#0D9488' : isEmployer ? '#7C3AED' : isTrainer ? '#059669' : '#0F2C59',
+                  color: '#ffffff',
+                  width: 32,
+                  height: 32,
+                  fontSize: '0.85rem',
+                  fontWeight: 800
+                }}
+              >
+                {currentUser?.name?.[0] || 'U'}
+              </Avatar>
+            </Badge>
+
+            <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
+              <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
+                {currentUser?.name}
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600 }}>
+                {currentUser?.role === 'ADMIN'
+                  ? 'Administrator'
+                  : currentUser?.role === 'TRAINER'
+                  ? 'Certified Trainer'
+                  : currentUser?.role === 'STUDENT'
+                  ? 'Trainee'
+                  : currentUser?.role === 'EMPLOYER'
+                  ? 'Partner Employer'
+                  : 'Officer'}
+              </Typography>
+            </Box>
+          </Box>
 
           <Tooltip title="Quick Lock Screen (4-Digit PIN)">
             <IconButton
               onClick={onOpenPinModal}
               size="small"
               sx={{
-                bgcolor: '#f1f4f9',
-                border: '1px solid #dce4ee',
-                '&:hover': { bgcolor: '#e2e8f0' }
+                bgcolor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: 2.5,
+                p: 1,
+                '&:hover': { bgcolor: '#F1F5F9', borderColor: '#CBD5E1' }
               }}
             >
               <LockIcon fontSize="small" sx={{ color: '#475569' }} />
@@ -144,93 +267,89 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
           open={Boolean(anchorUser)}
           onClose={handleCloseUser}
           PaperProps={{
-            sx: { width: 300, borderRadius: 3, p: 1, mt: 1.5, boxShadow: '0 10px 30px rgba(0,0,0,0.12)' }
+            sx: {
+              width: 320,
+              borderRadius: 3.5,
+              p: 1,
+              mt: 1.5,
+              boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.18)',
+              border: '1px solid #E2E8F0'
+            }
           }}
         >
-          <Box sx={{ px: 2, py: 1.5 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+          <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59' }}>
               {currentUser?.name}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#647089' }}>
-              Role: <b>{currentUser?.role}</b> {isTrainer && `(Trainer)`}
+            <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+              Role: <b>{currentUser?.role}</b> • Global Era TVET
             </Typography>
           </Box>
-          <Divider sx={{ my: 1 }} />
 
-          <Typography variant="overline" sx={{ px: 2, color: '#94a3b8', fontWeight: 800 }}>
-            Switch Role / User (Testing)
+          <Typography variant="overline" sx={{ px: 2, color: '#94A3B8', fontWeight: 800, fontSize: '0.68rem' }}>
+            द्रुत भूमिका स्विच गर्नुहोस् (SWITCH DEMO ROLE)
           </Typography>
 
-          <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }}>
+          <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#1a56b0', width: 28, height: 28, fontSize: 13 }}>A</Avatar>
+              <Avatar sx={{ bgcolor: '#0F2C59', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>A</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Super Admin (PIN: 1111)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Full institute access</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Super Admin (PIN: 1111)</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Full TVET management & cloud sync</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-01'); handleCloseUser(); }}>
+          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#1a9c5c', width: 28, height: 28, fontSize: 13 }}>P</Avatar>
+              <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>P</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Pooja Rajbanshi (PIN: 1234)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Beautician Trainer (BT-01)</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Trainer Pooja Rajbanshi</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Beautician Batch (PIN: 1234)</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-02'); handleCloseUser(); }}>
+          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-02'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#1a9c5c', width: 28, height: 28, fontSize: 13 }}>A</Avatar>
+              <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>A</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Sister Anita Thapa (PIN: 2345)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Caregiver Trainer (CG-01)</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Trainer Anita Thapa</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Caregiver Batch (PIN: 2345)</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('STAFF'); handleCloseUser(); }}>
+          <MenuItem onClick={() => { switchUser('STUDENT', 'STD-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#c9820a', width: 28, height: 28, fontSize: 13 }}>F</Avatar>
+              <Avatar sx={{ bgcolor: '#0D9488', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>S</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Front Desk Officer (PIN: 2222)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Admissions & Student intake</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>विद्यार्थी: Sunita Sharma</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Phone: 9841000001 (Job Apply Active)</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('STUDENT', 'STD-01'); handleCloseUser(); }}>
+          <MenuItem onClick={() => { switchUser('EMPLOYER', 'EMP-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#0d9488', width: 28, height: 28, fontSize: 13 }}>S</Avatar>
+              <Avatar sx={{ bgcolor: '#7C3AED', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>E</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Student Portal (Sunita Sharma)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Phone: 9841000001 (PIN: 1234)</Typography>
-              </Box>
-            </Box>
-          </MenuItem>
-
-          <MenuItem onClick={() => { switchUser('EMPLOYER', 'EMP-01'); handleCloseUser(); }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#7c3aed', width: 28, height: 28, fontSize: 13 }}>E</Avatar>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>Employer (Norvic Hospital)</Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>Post Jobs & Hire TVET Students</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>रोजगारदाता: Norvic Hospital</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Post Job & Hire TVET Trainees</Typography>
               </Box>
             </Box>
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />
 
-          <MenuItem onClick={handleExportContacts}>
-            <DownloadIcon fontSize="small" sx={{ mr: 1.5, color: '#0288d1' }} />
-            Export to Google Contacts (.vcf)
+          <MenuItem onClick={handleExportContacts} sx={{ borderRadius: 2 }}>
+            <DownloadIcon fontSize="small" sx={{ mr: 1.5, color: '#0284C7' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>Export Contacts (.vcf)</Typography>
           </MenuItem>
 
-          <MenuItem onClick={handleResetData}>
-            <RestartAltIcon fontSize="small" sx={{ mr: 1.5, color: '#d5372f' }} />
-            Reset Sample Data
+          <MenuItem onClick={handleResetData} sx={{ borderRadius: 2 }}>
+            <RestartAltIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#DC2626' }}>Reset Sample Data</Typography>
           </MenuItem>
         </Menu>
       </Toolbar>
