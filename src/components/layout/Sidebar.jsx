@@ -292,7 +292,18 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
   );
 
   return (
-    <Box component="nav">
+    <Box
+      component="nav"
+      sx={{
+        width: isMobile ? 0 : (open ? 280 : 0),
+        flexShrink: isMobile ? 0 : 0,
+        transition: (theme) =>
+          theme.transitions.create('width', {
+            easing: theme.transitions.easing.sharp,
+            duration: theme.transitions.duration.standard
+          })
+      }}
+    >
       {isMobile ? (
         /* Mobile Drawer: Only rendered when on mobile breakpoint */
         <Drawer
@@ -329,12 +340,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
               borderRight: '1px solid #E2E8F0',
               top: '70px',
               height: 'calc(100vh - 70px)',
-              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)',
-              transition: (theme) =>
-                theme.transitions.create(['transform', 'visibility'], {
-                  easing: theme.transitions.easing.sharp,
-                  duration: theme.transitions.duration.standard
-                })
+              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
             }
           }}
         >
