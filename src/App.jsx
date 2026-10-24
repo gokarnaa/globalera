@@ -108,6 +108,16 @@ export default function App() {
     }
   }, [currentUser?.role, currentUser?.id]);
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+
+  // Keep sidebar state in sync with device screen size changes (e.g. mobile toggle mode)
+  React.useEffect(() => {
+    if (isMobile) {
+      setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
+    }
+  }, [isMobile]);
+
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [attendanceGroupId, setAttendanceGroupId] = useState(null);
 
@@ -246,7 +256,7 @@ export default function App() {
           onOpenPinModal={() => setPinModalOpen(true)}
         />
 
-        <Box sx={{ display: 'flex', flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative', overflowX: 'hidden' }}>
           {/* Sidebar Navigation */}
           <Sidebar
             currentTab={currentTab}
@@ -262,9 +272,11 @@ export default function App() {
             sx={{
               flexGrow: 1,
               p: { xs: 2, sm: 3, md: 4 },
-              width: { md: sidebarOpen ? 'calc(100% - 280px)' : '100%' },
-              ml: { md: sidebarOpen ? '280px' : 0 },
+              width: isMobile ? '100%' : (sidebarOpen ? 'calc(100% - 280px)' : '100%'),
+              ml: isMobile ? 0 : (sidebarOpen ? '280px' : 0),
               minHeight: 'calc(100vh - 70px)',
+              position: 'relative',
+              zIndex: 1,
               transition: theme.transitions.create(['margin', 'width'], {
                 easing: theme.transitions.easing.sharp,
                 duration: theme.transitions.duration.standard

@@ -293,40 +293,54 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
 
   return (
     <Box component="nav">
-      {/* Mobile Drawer */}
-      <Drawer
-        variant="temporary"
-        open={open}
-        onClose={onClose}
-        ModalProps={{ keepMounted: true }}
-        sx={{
-          display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 280, bgcolor: '#FFFFFF' }
-        }}
-      >
-        {drawerContent}
-      </Drawer>
-
-      {/* Desktop Persistent Drawer */}
-      <Drawer
-        variant="persistent"
-        anchor="left"
-        open={open}
-        sx={{
-          display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: 280,
-            bgcolor: '#FFFFFF',
-            borderRight: '1px solid #E2E8F0',
-            top: '70px',
-            height: 'calc(100vh - 70px)',
-            boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
-          }
-        }}
-      >
-        {drawerContent}
-      </Drawer>
+      {isMobile ? (
+        /* Mobile Drawer: Only rendered when on mobile breakpoint */
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={Boolean(open)}
+          onClose={onClose}
+          ModalProps={{ keepMounted: false }}
+          sx={{
+            zIndex: (theme) => theme.zIndex.drawer + 2,
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: 280,
+              bgcolor: '#FFFFFF',
+              boxShadow: '4px 0 24px rgba(15, 23, 42, 0.2)'
+            }
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        /* Desktop Persistent Drawer: Only rendered on desktop */
+        <Drawer
+          variant="persistent"
+          anchor="left"
+          open={Boolean(open)}
+          sx={{
+            width: open ? 280 : 0,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: 280,
+              bgcolor: '#FFFFFF',
+              borderRight: '1px solid #E2E8F0',
+              top: '70px',
+              height: 'calc(100vh - 70px)',
+              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)',
+              transition: (theme) =>
+                theme.transitions.create(['transform', 'visibility'], {
+                  easing: theme.transitions.easing.sharp,
+                  duration: theme.transitions.duration.standard
+                })
+            }
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
     </Box>
   );
 }
