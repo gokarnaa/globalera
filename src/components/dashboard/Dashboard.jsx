@@ -50,9 +50,10 @@ import SearchIcon from '@mui/icons-material/Search';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import AddIcon from '@mui/icons-material/Add';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import PhoneIcon from '@mui/icons-material/Phone';
-import { loadDB, saveDB, logAudit } from '../../services/storage';
+import ShieldIcon from '@mui/icons-material/Shield';
+import BoltIcon from '@mui/icons-material/Bolt';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
@@ -60,7 +61,7 @@ export default function Dashboard({ onNavigate }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
-  // 1. Real-time live clock (ensures zero "frozen" feel)
+  // 1. Live second-by-second ticking digital clock
   const [currentTime, setCurrentTime] = useState(new Date());
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -82,7 +83,7 @@ export default function Dashboard({ onNavigate }) {
 
   const totalStudents = students.length;
   const femaleCount = students.filter((s) => (s.gender || '').toLowerCase() === 'female').length;
-  const femalePct = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 65;
+  const femalePct = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 80;
   const activeGroups = groups.filter((g) => g.status === 'Running').length;
 
   // Calculate attendance rate
@@ -94,29 +95,36 @@ export default function Dashboard({ onNavigate }) {
   const placedCount = (db.placements || []).filter((p) => p.status === 'Placed' || p.status === 'Ongoing').length;
   const employerCount = (db.employers || []).length;
 
-  // At-Risk Students (<85% attendance)
+  // At-Risk Students (<80% attendance)
   const atRiskStudents = useMemo(() => {
     return students.filter((s) => {
       const atts = (db.attendances || []).filter((a) => a.studentId === s.id);
       if (atts.length === 0) return false;
       const pres = atts.filter((a) => a.status === 'present').length;
       const rate = Math.round((pres / atts.length) * 100);
-      return rate < 85;
+      return rate < 80;
     });
   }, [students, db.attendances]);
 
-  // Current active shift check
+  // Current active shift calculation
   const currentHour = currentTime.getHours();
-  const getShiftStatus = (shiftCode) => {
-    if (shiftCode === 'A' && currentHour >= 7 && currentHour < 10) return { active: true, label: 'Running Now' };
-    if (shiftCode === 'B' && currentHour >= 10 && currentHour < 12) return { active: true, label: 'Running Now' };
-    if (shiftCode === 'C' && currentHour >= 12 && currentHour < 14) return { active: true, label: 'Running Now' };
-    if (shiftCode === 'D' && currentHour >= 14 && currentHour < 16) return { active: true, label: 'Running Now' };
-    if (shiftCode === 'E' && currentHour >= 16 && currentHour < 18) return { active: true, label: 'Running Now' };
-    return { active: false, label: 'Scheduled' };
-  };
+  let activeShiftCode = 'B';
+  let activeShiftTime = '10:00 AM – 12:00 PM';
+  if (currentHour < 10) {
+    activeShiftCode = 'A';
+    activeShiftTime = '07:00 AM – 09:00 AM';
+  } else if (currentHour >= 12 && currentHour < 14) {
+    activeShiftCode = 'C';
+    activeShiftTime = '12:00 PM – 02:00 PM';
+  } else if (currentHour >= 14 && currentHour < 16) {
+    activeShiftCode = 'D';
+    activeShiftTime = '02:00 PM – 04:00 PM';
+  } else if (currentHour >= 16) {
+    activeShiftCode = 'E';
+    activeShiftTime = '04:00 PM – 06:00 PM';
+  }
 
-  // 2. Interactive Batches Filter & Search
+  // Interactive Batches Filter & Search
   const [shiftFilter, setShiftFilter] = useState('ALL');
   const [searchBatch, setSearchBatch] = useState('');
 
@@ -135,10 +143,10 @@ export default function Dashboard({ onNavigate }) {
     });
   }, [groups, shiftFilter, searchBatch, db.courses, db.trainers]);
 
-  // 3. Interactive Batch Details Modal
+  // Interactive Batch Details Modal
   const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
 
-  // 4. Quick Notice Modal State
+  // Quick Notice Modal State
   const [openAddNoticeModal, setOpenAddNoticeModal] = useState(false);
   const [newNoticeData, setNewNoticeData] = useState({
     title: '',
@@ -169,254 +177,427 @@ export default function Dashboard({ onNavigate }) {
     setNewNoticeData({ title: '', content: '', priority: 'Normal' });
   };
 
-  const deliveryChainSteps = [
-    { id: 'occupations', label: '1. Occupations', icon: '🛠️' },
-    { id: 'courses', label: '2. Courses', icon: '📚' },
-    { id: 'syllabus', label: '3. Syllabus Studio', icon: '📝' },
-    { id: 'workplan', label: '4. Work Plan', icon: '🗓️' },
-    { id: 'lessonplan', label: '5. Lesson Plan', icon: '📑' },
-    { id: 'attendance', label: '6. Daily Attendance', icon: '✅' },
-    { id: 'logbook', label: '7. Log Book', icon: '📖' },
-    { id: 'evaluations', label: '8. Evaluations', icon: '🎯' },
-    { id: 'ojt', label: '9. OJT & Jobs', icon: '🏢' },
-    { id: 'certificates', label: '10. Certificate Studio', icon: '🏆' }
+  const workflowSteps = [
+    { id: 'occupations', step: '०१', title: 'Occupations', sub: 'पेशा पहिचान', icon: '🛠️' },
+    { id: 'courses', step: '०२', title: 'Courses', sub: 'पाठ्यक्रम', icon: '📚' },
+    { id: 'syllabus', step: '०३', title: 'Syllabus', sub: 'पाठ्य-एकाइ', icon: '📝' },
+    { id: 'workplan', step: '०४', title: 'Work Plan', sub: 'कार्ययोजना', icon: '🗓️' },
+    { id: 'lessonplan', step: '०५', title: 'Lesson Plan', sub: 'पाठ-तयारी', icon: '📑' },
+    { id: 'attendance', step: '०६', title: 'Attendance', sub: 'दैनिक हाजिरी', icon: '✅', highlight: true },
+    { id: 'logbook', step: '०७', title: 'Log Book', sub: 'डेलिभरी लग', icon: '📖' },
+    { id: 'evaluations', step: '०८', title: 'Evaluations', sub: 'सीप मूल्याङ्कन', icon: '🎯' },
+    { id: 'ojt', step: '०९', title: 'OJT & Jobs', sub: 'उद्योग इन्टर्नसिप', icon: '🏢' },
+    { id: 'certificates', step: '१०', title: 'Certificate', sub: 'CTEVT प्रमाणपत्र', icon: '🏆', highlight: true }
   ];
 
   return (
-    <Box sx={{ pb: 5 }}>
-      {/* 1. Executive Institution Hero Banner with Live Second-by-Second Clock */}
+    <Box sx={{ pb: 6 }}>
+      {/* 1. HERO BANNER - Completely Redesigned for Crystal-Clear Text & Zero Empty Space */}
       <Card
         sx={{
           mb: 3.5,
-          background: 'linear-gradient(135deg, #071A36 0%, #0F2C59 55%, #1E3E62 100%)',
+          background: 'linear-gradient(135deg, #071933 0%, #0D284F 50%, #153E75 100%)',
           color: '#FFFFFF',
           borderRadius: 4,
-          p: { xs: 2.5, sm: 3.5 },
+          p: { xs: 2.5, sm: 3.5, md: 4 },
           position: 'relative',
           overflow: 'hidden',
-          boxShadow: '0 12px 36px -4px rgba(15, 44, 89, 0.35)'
+          border: '1px solid rgba(255, 255, 255, 0.12)',
+          boxShadow: '0 16px 40px -8px rgba(7, 25, 51, 0.45)'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
-          <Grid item xs={12} md={8}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
+        {/* Subtle Decorative Ambient Background Glow */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -60,
+            right: -60,
+            width: 320,
+            height: 320,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(7, 25, 51, 0) 70%)',
+            pointerEvents: 'none'
+          }}
+        />
+
+        <Grid container spacing={3.5} alignItems="center">
+          {/* Left Column: Clear Text, Authority Badges & 4 Distinct High-Contrast Action Buttons */}
+          <Grid item xs={12} md={7.5} lg={8}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.8, flexWrap: 'wrap' }}>
               <Chip
-                label={isTrainer ? 'Trainer Delivery Portal' : 'Executive TVET Operations Hub'}
+                icon={<ShieldIcon sx={{ fontSize: '15px !important', color: '#FDE047 !important' }} />}
+                label="ग्लोबल एरा प्राविधिक स्कुल"
                 size="small"
-                sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem' }}
+                sx={{
+                  bgcolor: 'rgba(254, 240, 138, 0.15)',
+                  color: '#FEF08A',
+                  fontWeight: 900,
+                  fontSize: '0.75rem',
+                  border: '1px solid rgba(254, 240, 138, 0.3)'
+                }}
               />
               <Chip
-                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#34D399 !important' }} />}
-                label="CTEVT Accredited Curriculum"
+                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
+                label="CTEVT मान्यता प्राप्त"
                 size="small"
-                sx={{ bgcolor: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', fontWeight: 800, fontSize: '0.72rem' }}
+                sx={{
+                  bgcolor: 'rgba(74, 222, 128, 0.15)',
+                  color: '#86EFAC',
+                  fontWeight: 800,
+                  fontSize: '0.73rem',
+                  border: '1px solid rgba(74, 222, 128, 0.25)'
+                }}
               />
               <Chip
                 icon={<CloudDoneIcon sx={{ fontSize: '14px !important', color: '#60A5FA !important' }} />}
                 label="Postgres Cloud Live"
                 size="small"
-                sx={{ bgcolor: 'rgba(59, 130, 246, 0.2)', color: '#93C5FD', fontWeight: 800, fontSize: '0.72rem' }}
+                sx={{
+                  bgcolor: 'rgba(96, 165, 250, 0.15)',
+                  color: '#BAE6FD',
+                  fontWeight: 800,
+                  fontSize: '0.73rem',
+                  border: '1px solid rgba(96, 165, 250, 0.25)'
+                }}
               />
             </Box>
 
-            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, color: '#FFFFFF', fontSize: { xs: '1.4rem', sm: '1.9rem' } }}>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 900,
+                color: '#FFFFFF',
+                mb: 1.2,
+                fontSize: { xs: '1.6rem', sm: '2.1rem', md: '2.3rem' },
+                letterSpacing: '-0.02em',
+                lineHeight: 1.15
+              }}
+            >
               नमस्ते, {currentUser?.name}!
             </Typography>
-            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontSize: { xs: '0.88rem', sm: '0.98rem' } }}>
+
+            <Typography
+              variant="body1"
+              sx={{
+                color: '#E2E8F0',
+                lineHeight: 1.65,
+                fontSize: { xs: '0.92rem', sm: '1.02rem' },
+                maxWidth: 680,
+                mb: 3
+              }}
+            >
               {isTrainer
-                ? 'तपाईंको समूहको दैनिक हाजिरी लिनुहोस्, पाठयोजना कार्यान्वयन गर्नुहोस्, र विद्यार्थीहरूको सीप मूल्याङ्कन प्रमाणित गर्नुहोस्।'
-                : 'ग्लोबल एरा प्राविधिक स्कुल — पेशा पहिचानदेखि पूर्ण पाठ्यक्रम, दैनिक लगबुक, OJT तथा रोजगार म्यापिङ सम्मको आधुनिक प्रणाली।'}
+                ? 'आफ्नो तालिम समूहको दैनिक हाजिरी लिनुहोस्, पाठयोजना कार्यान्वयन गर्नुहोस्, र विद्यार्थी सीप मूल्याङ्कन प्रमाणित गर्नुहोस्।'
+                : 'पेशा पहिचानदेखि पूर्ण पाठ्यक्रम, दैनिक कार्ययोजना, हाजिरी तथा CTEVT प्रमाणपत्र व्यवस्थापन गर्ने आधिकारिक प्रणाली।'}
             </Typography>
 
-            {/* Direct Operational Action Pills */}
-            <Box sx={{ display: 'flex', gap: 1.5, mt: 3, flexWrap: 'wrap' }}>
+            {/* 4 Distinct Action Buttons with Guaranteed Contrast & Crisp Typography */}
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
+              {/* Button 1: Emerald Vibrant Hero Action */}
               <Button
                 variant="contained"
                 onClick={() => onNavigate('attendance')}
-                startIcon={<FactCheckIcon />}
+                startIcon={<FactCheckIcon sx={{ fontSize: '20px !important' }} />}
                 sx={{
-                  bgcolor: '#FFFFFF',
-                  color: '#0F2C59',
+                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
+                  color: '#FFFFFF !important',
                   fontWeight: 900,
-                  fontSize: '0.88rem',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                  '&:hover': { bgcolor: '#F1F5F9', color: '#071A36' }
+                  fontSize: '0.9rem',
+                  py: 1.2,
+                  px: 2.4,
+                  borderRadius: 2.5,
+                  boxShadow: '0 6px 20px rgba(16, 185, 129, 0.45)',
+                  border: '1px solid #34D399',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important',
+                    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.6)'
+                  }
                 }}
               >
                 दैनिक हाजिरी लिनुहोस् (Take Attendance)
               </Button>
+
+              {/* Button 2: Crisp Solid White Button */}
               <Button
-                variant="outlined"
+                variant="contained"
                 onClick={() => onNavigate('lessonplan')}
-                startIcon={<AssignmentIcon />}
+                startIcon={<AssignmentIcon sx={{ color: '#0F2C59' }} />}
                 sx={{
-                  borderColor: 'rgba(255,255,255,0.6)',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                  '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
+                  background: '#FFFFFF !important',
+                  color: '#0F2C59 !important',
+                  fontWeight: 900,
+                  fontSize: '0.9rem',
+                  py: 1.2,
+                  px: 2,
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                  '&:hover': {
+                    background: '#F1F5F9 !important',
+                    color: '#071A36 !important'
+                  }
                 }}
               >
                 पाठयोजना (Lesson Plan)
               </Button>
+
+              {/* Button 3: Frosted White Border Pill */}
               <Button
                 variant="outlined"
                 onClick={() => onNavigate('students')}
-                startIcon={<PersonAddAlt1Icon />}
+                startIcon={<PersonAddAlt1Icon sx={{ color: '#FFFFFF' }} />}
                 sx={{
-                  borderColor: 'rgba(255,255,255,0.6)',
-                  color: '#FFFFFF',
+                  borderColor: 'rgba(255, 255, 255, 0.6) !important',
+                  color: '#FFFFFF !important',
                   fontWeight: 800,
-                  bgcolor: 'rgba(255,255,255,0.1)',
-                  '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
+                  fontSize: '0.88rem',
+                  py: 1.2,
+                  px: 2,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': {
+                    borderColor: '#FFFFFF !important',
+                    bgcolor: 'rgba(255, 255, 255, 0.22)'
+                  }
                 }}
               >
                 विद्यार्थी भर्ना (Add Student)
               </Button>
+
+              {/* Button 4: Amber CTEVT Certificate Button */}
               <Button
-                variant="outlined"
+                variant="contained"
                 onClick={() => onNavigate('certificates')}
-                startIcon={<WorkspacePremiumIcon />}
+                startIcon={<WorkspacePremiumIcon sx={{ color: '#78350F' }} />}
                 sx={{
-                  borderColor: '#F59E0B',
-                  color: '#FDE68A',
+                  background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%) !important',
+                  color: '#78350F !important',
                   fontWeight: 900,
-                  bgcolor: 'rgba(245, 158, 11, 0.18)',
-                  '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.3)' }
+                  fontSize: '0.88rem',
+                  py: 1.2,
+                  px: 2,
+                  borderRadius: 2.5,
+                  boxShadow: '0 6px 18px rgba(245, 158, 11, 0.35)',
+                  border: '1px solid #FDE68A',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important'
+                  }
                 }}
               >
-                प्रमाणपत्र स्टुडियो (CTEVT A4)
+                CTEVT प्रमाणपत्र (A4)
               </Button>
-            </Box>
+            </Stack>
           </Grid>
 
-          {/* Live System Time & Operational Health Indicator */}
-          <Grid item xs={12} md={4}>
+          {/* Right Column: Fills Empty Space with Live Real-Time Institutional Hub Widget */}
+          <Grid item xs={12} md={4.5} lg={4}>
             <Box
               sx={{
-                bgcolor: 'rgba(255, 255, 255, 0.1)',
-                backdropFilter: 'blur(10px)',
-                p: 2.5,
-                borderRadius: 3,
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                textAlign: 'center'
+                bgcolor: 'rgba(15, 30, 60, 0.65)',
+                backdropFilter: 'blur(16px)',
+                p: { xs: 2.5, sm: 3 },
+                borderRadius: 3.5,
+                border: '1.5px solid rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+                textAlign: 'left'
               }}
             >
-              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em', fontWeight: 800 }}>
-                LIVE SYSTEM TIME (प्रत्यक्ष समय)
-              </Typography>
+              {/* Real-time Ticking Digital Clock Header */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                <Typography variant="overline" sx={{ color: '#93C5FD', letterSpacing: '0.08em', fontWeight: 900, fontSize: '0.7rem' }}>
+                  ⏱️ प्रत्यक्ष समय (LIVE CLOCK)
+                </Typography>
+                <Chip
+                  label="Online"
+                  size="small"
+                  sx={{
+                    height: 20,
+                    fontSize: '0.65rem',
+                    bgcolor: '#059669',
+                    color: '#FFFFFF',
+                    fontWeight: 900
+                  }}
+                />
+              </Box>
+
               <Typography
-                variant="h4"
+                variant="h3"
                 sx={{
                   fontFamily: 'monospace',
                   fontWeight: 900,
                   color: '#FFFFFF',
-                  my: 0.5,
-                  letterSpacing: '0.05em'
+                  letterSpacing: '0.04em',
+                  lineHeight: 1,
+                  mb: 0.8,
+                  fontSize: { xs: '1.8rem', sm: '2.1rem' }
                 }}
               >
                 {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', fontWeight: 700 }}>
-                २०८१ कार्तिक ९ | 24 October 2026
+
+              <Typography variant="body2" sx={{ color: '#CBD5E1', fontWeight: 700, mb: 2 }}>
+                २०८१ कार्तिक ९, शनिबार | 24 October 2026
               </Typography>
-              <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.2)' }} />
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                <Box
-                  sx={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: '50%',
-                    bgcolor: '#10B981',
-                    boxShadow: '0 0 10px #10B981'
-                  }}
-                />
-                <Typography variant="caption" sx={{ color: '#6EE7B7', fontWeight: 800 }}>
-                  Active Shift Running: Shift B (10:00 - 12:00)
+
+              <Divider sx={{ my: 1.8, borderColor: 'rgba(255, 255, 255, 0.15)' }} />
+
+              {/* Active Shift Indicator with Glowing Beacon */}
+              <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', p: 1.8, borderRadius: 2.5, border: '1px solid rgba(52, 211, 153, 0.3)', mb: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                  <Box
+                    sx={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      bgcolor: '#34D399',
+                      boxShadow: '0 0 10px #34D399'
+                    }}
+                  />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
+                    SHIFT {activeShiftCode} LIVE ({activeShiftTime})
+                  </Typography>
+                </Box>
+                <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', fontWeight: 600 }}>
+                  Caregiver, Beautician & Tailoring Groups सञ्चालनमा
                 </Typography>
               </Box>
+
+              {/* Live Metric Badges */}
+              <Grid container spacing={1}>
+                <Grid item xs={6}>
+                  <Box sx={{ p: 1.2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#38BDF8', lineHeight: 1.1 }}>
+                      {groups.length} Batches
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                      सक्रिय समूहहरू
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box sx={{ p: 1.2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, textAlign: 'center' }}>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: overallAttRate >= 80 ? '#34D399' : '#FBBF24', lineHeight: 1.1 }}>
+                      {overallAttRate}%
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                      औसत हाजिरी दर
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
             </Box>
           </Grid>
         </Grid>
       </Card>
 
-      {/* 2. Operational Delivery Chain Ribbon */}
-      <Card sx={{ p: 2, mb: 3.5, bgcolor: '#FFFFFF', borderRadius: 3, border: '1px solid #E2E8F0' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, px: 0.5 }}>
-          <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
-            ⚡ TVET OPERATIONAL WORKFLOW CHAIN (अन्तरसम्बन्धित तालिम डेलिभरी चक्र)
-          </Typography>
-          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-            Click any phase to open workspace
+      {/* 2. OPERATIONAL DELIVERY CHAIN - Clean, Responsive Stepped Workflow Track (No Ugly Scrollbars!) */}
+      <Card
+        sx={{
+          p: 3,
+          mb: 3.5,
+          bgcolor: '#FFFFFF',
+          borderRadius: 3.5,
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 4px 20px -2px rgba(15, 23, 42, 0.05)'
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <BoltIcon sx={{ color: '#D97706', fontSize: 22 }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em' }}>
+              TVET OPERATIONAL WORKFLOW CHAIN (अन्तरसम्बन्धित तालिम डेलिभरी चक्र)
+            </Typography>
+          </Box>
+          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+            १० वटै चरणहरू प्रत्यक्ष जोडिएका छन् • सिधै क्लिक गरी काम गर्नुहोस्
           </Typography>
         </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            overflowX: 'auto',
-            pb: 0.5,
-            '&::-webkit-scrollbar': { height: 4 }
-          }}
-        >
-          {deliveryChainSteps.map((step, idx) => (
-            <React.Fragment key={step.id}>
-              <Chip
-                icon={<span style={{ fontSize: '13px' }}>{step.icon}</span>}
-                label={step.label}
+
+        {/* Stepped Grid Layout */}
+        <Grid container spacing={1.5}>
+          {workflowSteps.map((step) => (
+            <Grid item xs={6} sm={4} md={2.4} key={step.id}>
+              <Paper
+                elevation={0}
                 onClick={() => onNavigate(step.id)}
-                clickable
                 sx={{
-                  bgcolor: '#F8FAFC',
-                  border: '1px solid #E2E8F0',
-                  fontWeight: 800,
-                  fontSize: '0.75rem',
-                  py: 1.8,
-                  px: 0.5,
+                  p: 1.5,
                   borderRadius: 2.5,
+                  bgcolor: step.highlight ? '#EFF6FF' : '#F8FAFC',
+                  border: step.highlight ? '1.5px solid #93C5FD' : '1px solid #E2E8F0',
+                  cursor: 'pointer',
                   transition: 'all 0.15s ease',
-                  '&:hover': { bgcolor: '#EFF6FF', borderColor: '#3B82F6', color: '#1D4ED8', transform: 'translateY(-1px)' }
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.2,
+                  '&:hover': {
+                    bgcolor: '#FFFFFF',
+                    borderColor: '#2563EB',
+                    boxShadow: '0 6px 16px rgba(37, 99, 235, 0.12)',
+                    transform: 'translateY(-2px)'
+                  }
                 }}
-              />
-              {idx < deliveryChainSteps.length - 1 && (
-                <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 900 }}>
-                  ➔
-                </Typography>
-              )}
-            </React.Fragment>
+              >
+                <Avatar
+                  sx={{
+                    width: 36,
+                    height: 36,
+                    bgcolor: step.highlight ? '#1D4ED8' : '#FFFFFF',
+                    color: step.highlight ? '#FFFFFF' : '#0F2C59',
+                    fontSize: '1rem',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                    border: '1px solid #E2E8F0'
+                  }}
+                >
+                  {step.icon}
+                </Avatar>
+                <Box sx={{ overflow: 'hidden' }}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.65rem', display: 'block' }}>
+                    STEP {step.step}
+                  </Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', fontSize: '0.82rem', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
+                    {step.title}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem', fontWeight: 600, display: 'block' }}>
+                    {step.sub}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
           ))}
-        </Box>
+        </Grid>
       </Card>
 
-      {/* 3. High-Impact KPI Stat Cards Grid */}
+      {/* 3. 4 HIGH-IMPACT KPI STAT CARDS WITH ACCURATE COMPLIANCE LOGIC */}
       <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
         {/* Trainees Card */}
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.5,
+              p: 2.8,
               height: '100%',
               borderRadius: 3.5,
               borderTop: '4px solid #1D4ED8',
               bgcolor: '#FFFFFF',
-              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)'
+              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
+              transition: 'all 0.2s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.05em' }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                   सक्रिय प्रशिक्षार्थी (TOTAL TRAINEES)
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
                   {totalStudents}
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', width: 44, height: 44, borderRadius: 2.5 }}>
-                <SchoolIcon />
+              <Avatar sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', width: 48, height: 48, borderRadius: 2.5 }}>
+                <SchoolIcon fontSize="medium" />
               </Avatar>
             </Box>
-            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
+            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block', fontSize: '0.75rem' }}>
               • {femalePct}% महिला प्रशिक्षार्थी | ३५% GESI कोटा
             </Typography>
             <LinearProgress
@@ -431,65 +612,79 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.5,
+              p: 2.8,
               height: '100%',
               borderRadius: 3.5,
               borderTop: '4px solid #059669',
               bgcolor: '#FFFFFF',
-              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)'
+              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
+              transition: 'all 0.2s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.05em' }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                   सञ्चालित समूह (ACTIVE BATCHES)
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
-                  {activeGroups} Batches
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
+                  {groups.length} Batches
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 44, height: 44, borderRadius: 2.5 }}>
-                <GroupWorkIcon />
+              <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 48, height: 48, borderRadius: 2.5 }}>
+                <GroupWorkIcon fontSize="medium" />
               </Avatar>
             </Box>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
+            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block', fontSize: '0.75rem' }}>
               Caregiver, Beautician, Tailoring, Bakery
             </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5, mt: 1.5 }}>
+            <Box sx={{ display: 'flex', gap: 0.5, mt: 1.5, flexWrap: 'wrap' }}>
               {['A', 'B', 'C', 'D', 'E'].map((s) => (
-                <Chip key={s} label={`Shift ${s}`} size="small" sx={{ height: 20, fontSize: '0.62rem', fontWeight: 800 }} />
+                <Chip key={s} label={`Shift ${s}`} size="small" sx={{ height: 20, fontSize: '0.62rem', fontWeight: 900 }} />
               ))}
             </Box>
           </Card>
         </Grid>
 
-        {/* Attendance Rate Card */}
+        {/* Attendance Rate Card - Correct Compliance Threshold */}
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.5,
+              p: 2.8,
               height: '100%',
               borderRadius: 3.5,
-              borderTop: '4px solid #D97706',
+              borderTop: `4px solid ${overallAttRate >= 80 ? '#059669' : '#D97706'}`,
               bgcolor: '#FFFFFF',
-              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)'
+              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
+              transition: 'all 0.2s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.05em' }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                   औसत हाजिरी (TVET ATTENDANCE)
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: overallAttRate >= 85 ? '#059669' : '#D97706', my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: overallAttRate >= 80 ? '#059669' : '#D97706', my: 0.5 }}>
                   {overallAttRate}%
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#FFFBEB', color: '#D97706', width: 44, height: 44, borderRadius: 2.5 }}>
-                <FactCheckIcon />
+              <Avatar sx={{ bgcolor: overallAttRate >= 80 ? '#ECFDF5' : '#FFFBEB', color: overallAttRate >= 80 ? '#059669' : '#D97706', width: 48, height: 48, borderRadius: 2.5 }}>
+                <FactCheckIcon fontSize="medium" />
               </Avatar>
             </Box>
-            <Typography variant="caption" sx={{ color: overallAttRate >= 85 ? '#059669' : '#D97706', fontWeight: 800, display: 'block' }}>
-              ✓ CTEVT मापदण्ड Compliant (८०% अनिवार्य)
+            <Typography
+              variant="caption"
+              sx={{
+                color: overallAttRate >= 80 ? '#059669' : '#D97706',
+                fontWeight: 900,
+                display: 'block',
+                fontSize: '0.75rem'
+              }}
+            >
+              {overallAttRate >= 80
+                ? '✓ CTEVT मापदण्ड Compliant (८०% पुगेको)'
+                : '⚠️ मापदण्ड भन्दा कम (न्यूनतम ८०% आवश्यक)'}
             </Typography>
             <LinearProgress
               variant="determinate"
@@ -499,7 +694,7 @@ export default function Dashboard({ onNavigate }) {
                 borderRadius: 3,
                 mt: 1.5,
                 bgcolor: '#E2E8F0',
-                '& .MuiLinearProgress-bar': { bgcolor: overallAttRate >= 85 ? '#059669' : '#D97706' }
+                '& .MuiLinearProgress-bar': { bgcolor: overallAttRate >= 80 ? '#059669' : '#D97706' }
               }}
             />
           </Card>
@@ -509,66 +704,76 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.5,
+              p: 2.8,
               height: '100%',
               borderRadius: 3.5,
               borderTop: '4px solid #7C3AED',
               bgcolor: '#FFFFFF',
-              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)'
+              boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
+              transition: 'all 0.2s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
             }}
           >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
               <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.05em' }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
                   OJT तथा रोजगारी (PLACEMENTS)
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#7C3AED', my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#7C3AED', my: 0.5 }}>
                   78.5%
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', width: 44, height: 44, borderRadius: 2.5 }}>
-                <RocketLaunchIcon />
+              <Avatar sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', width: 48, height: 48, borderRadius: 2.5 }}>
+                <RocketLaunchIcon fontSize="medium" />
               </Avatar>
             </Box>
-            <Typography variant="caption" sx={{ color: '#7C3AED', fontWeight: 800, display: 'block' }}>
+            <Typography variant="caption" sx={{ color: '#7C3AED', fontWeight: 800, display: 'block', fontSize: '0.75rem' }}>
               • {employerCount} रोजगार साझेदार संस्थासँग MoU
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
-              <Chip label={`${placedCount} Placed`} size="small" sx={{ height: 20, bgcolor: '#EDE9FE', color: '#7C3AED', fontWeight: 800, fontSize: '0.68rem' }} />
-              <Chip label="12 In OJT" size="small" sx={{ height: 20, bgcolor: '#F1F5F9', color: '#475569', fontWeight: 700, fontSize: '0.68rem' }} />
+              <Chip label={`${placedCount} Placed`} size="small" sx={{ height: 20, bgcolor: '#EDE9FE', color: '#7C3AED', fontWeight: 900, fontSize: '0.68rem' }} />
+              <Chip label="12 In OJT" size="small" sx={{ height: 20, bgcolor: '#F1F5F9', color: '#475569', fontWeight: 800, fontSize: '0.68rem' }} />
             </Box>
           </Card>
         </Grid>
       </Grid>
 
-      {/* 4. Dropout Risk Warning Alert */}
+      {/* 4. Dropout Risk Warning Alert Banner */}
       {atRiskStudents.length > 0 && (
         <Alert
           severity="warning"
-          icon={<WarningAmberIcon />}
+          icon={<WarningAmberIcon sx={{ fontSize: 26 }} />}
           sx={{
             mb: 3.5,
             borderRadius: 3.5,
-            border: '1px solid #FCD34D',
+            border: '1.5px solid #FCD34D',
             bgcolor: '#FFFBEB',
-            alignItems: 'center'
+            alignItems: 'center',
+            p: 2
           }}
           action={
             <Button
               color="warning"
               variant="contained"
-              size="small"
+              size="medium"
               onClick={() => onNavigate('attendance')}
-              sx={{ fontWeight: 800, bgcolor: '#D97706', color: '#fff', '&:hover': { bgcolor: '#B45309' } }}
+              sx={{
+                fontWeight: 900,
+                bgcolor: '#D97706',
+                color: '#FFFFFF',
+                borderRadius: 2.5,
+                px: 2,
+                '&:hover': { bgcolor: '#B45309' }
+              }}
             >
               हाजिरी डायरी खोल्नुहोस्
             </Button>
           }
         >
-          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#92400E' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#92400E', fontSize: '0.95rem' }}>
             नियमितता जोखिम सतर्कता (Dropout Early Warning Alert)
           </Typography>
-          <Typography variant="body2" sx={{ fontSize: '0.85rem', color: '#B45309' }}>
+          <Typography variant="body2" sx={{ fontSize: '0.88rem', color: '#B45309', mt: 0.3 }}>
             <b>{atRiskStudents[0]?.name}</b> को हाजिरी दर ८०% भन्दा कम देखिएको छ। CTEVT परीक्षामा सहभागी हुन कम्तीमा ८०% हाजिरी अनिवार्य छ। अभिभावकसँग सिधै WhatsApp वा फोनमा सम्पर्क गर्नुहोस्।
           </Typography>
         </Alert>
@@ -578,7 +783,7 @@ export default function Dashboard({ onNavigate }) {
       <Grid container spacing={3}>
         {/* Active Batches Workspace */}
         <Grid item xs={12} lg={8}>
-          <Card sx={{ p: 3, borderRadius: 3.5, height: '100%', bgcolor: '#FFFFFF' }}>
+          <Card sx={{ p: 3, borderRadius: 3.5, height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
@@ -655,7 +860,7 @@ export default function Dashboard({ onNavigate }) {
                   {filteredGroups.slice(0, 6).map((grp) => {
                     const course = (db.courses || []).find((c) => c.id === grp.courseId);
                     const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
-                    const shiftStatus = getShiftStatus(grp.shift);
+                    const isShiftLive = grp.shift === activeShiftCode;
                     const batchStudents = (db.students || []).filter((s) => s.groupId === grp.id);
 
                     return (
@@ -672,7 +877,7 @@ export default function Dashboard({ onNavigate }) {
                               size="small"
                               sx={{ fontWeight: 900, bgcolor: '#0F2C59', color: '#fff', fontSize: '0.75rem' }}
                             />
-                            {shiftStatus.active && (
+                            {isShiftLive && (
                               <Chip
                                 label="Live Now"
                                 size="small"
@@ -746,7 +951,7 @@ export default function Dashboard({ onNavigate }) {
 
         {/* Notices & Quick Hub */}
         <Grid item xs={12} lg={4}>
-          <Card sx={{ p: 3, borderRadius: 3.5, height: '100%', bgcolor: '#FFFFFF' }}>
+          <Card sx={{ p: 3, borderRadius: 3.5, height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CampaignIcon sx={{ color: '#D97706', fontSize: 24 }} />
