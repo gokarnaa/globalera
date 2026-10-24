@@ -262,11 +262,12 @@ export default function App() {
             sx={{
               flexGrow: 1,
               p: { xs: 2, sm: 3, md: 4 },
-              width: '100%',
+              width: { md: sidebarOpen ? 'calc(100% - 280px)' : '100%' },
               ml: { md: sidebarOpen ? '280px' : 0 },
+              minHeight: 'calc(100vh - 70px)',
               transition: theme.transitions.create(['margin', 'width'], {
                 easing: theme.transitions.easing.sharp,
-                duration: theme.transitions.duration.leavingScreen
+                duration: theme.transitions.duration.standard
               }),
               pb: { xs: 12, md: 5 } // Padding for mobile bottom nav
             }}

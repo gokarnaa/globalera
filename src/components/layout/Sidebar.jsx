@@ -309,17 +309,21 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
 
       {/* Desktop Persistent Drawer */}
       <Drawer
-        variant="permanent"
+        variant="persistent"
+        anchor="left"
+        open={open}
         sx={{
           display: { xs: 'none', md: 'block' },
           '& .MuiDrawer-paper': {
             boxSizing: 'border-box',
             width: 280,
             bgcolor: '#FFFFFF',
-            borderRight: '1px solid #E2E8F0'
+            borderRight: '1px solid #E2E8F0',
+            top: '70px',
+            height: 'calc(100vh - 70px)',
+            boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
           }
         }}
-        open
       >
         {drawerContent}
       </Drawer>

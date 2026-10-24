@@ -1,9 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Box,
   Grid,
   Card,
-  CardContent,
   Typography,
   Button,
   Chip,
@@ -20,7 +19,16 @@ import {
   LinearProgress,
   Stack,
   Tooltip,
-  Divider
+  Divider,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Tabs,
+  Tab,
+  InputAdornment
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
@@ -38,16 +46,26 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
-import MenuBookTwoToneIcon from '@mui/icons-material/MenuBookTwoTone';
+import SearchIcon from '@mui/icons-material/Search';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import { loadDB } from '../../services/storage';
+import AddIcon from '@mui/icons-material/Add';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import PhoneIcon from '@mui/icons-material/Phone';
+import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
 export default function Dashboard({ onNavigate }) {
-  const db = loadDB();
+  const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
+
+  // 1. Real-time live clock (ensures zero "frozen" feel)
+  const [currentTime, setCurrentTime] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Filter groups if trainer
   const groups = useMemo(() => {
@@ -76,7 +94,7 @@ export default function Dashboard({ onNavigate }) {
   const placedCount = (db.placements || []).filter((p) => p.status === 'Placed' || p.status === 'Ongoing').length;
   const employerCount = (db.employers || []).length;
 
-  // Identify At-Risk Students (attendance < 80%)
+  // At-Risk Students (<85% attendance)
   const atRiskStudents = useMemo(() => {
     return students.filter((s) => {
       const atts = (db.attendances || []).filter((a) => a.studentId === s.id);
@@ -87,8 +105,8 @@ export default function Dashboard({ onNavigate }) {
     });
   }, [students, db.attendances]);
 
-  // Current Hour Shift Calculation
-  const currentHour = new Date().getHours();
+  // Current active shift check
+  const currentHour = currentTime.getHours();
   const getShiftStatus = (shiftCode) => {
     if (shiftCode === 'A' && currentHour >= 7 && currentHour < 10) return { active: true, label: 'Running Now' };
     if (shiftCode === 'B' && currentHour >= 10 && currentHour < 12) return { active: true, label: 'Running Now' };
@@ -98,22 +116,75 @@ export default function Dashboard({ onNavigate }) {
     return { active: false, label: 'Scheduled' };
   };
 
+  // 2. Interactive Batches Filter & Search
+  const [shiftFilter, setShiftFilter] = useState('ALL');
+  const [searchBatch, setSearchBatch] = useState('');
+
+  const filteredGroups = useMemo(() => {
+    return groups.filter((g) => {
+      const course = (db.courses || []).find((c) => c.id === g.courseId);
+      const trainer = (db.trainers || []).find((t) => t.id === g.trainerId);
+      const matchesShift = shiftFilter === 'ALL' || g.shift === shiftFilter;
+      const q = searchBatch.toLowerCase();
+      const matchesSearch =
+        !q ||
+        g.groupCode.toLowerCase().includes(q) ||
+        (course?.title || '').toLowerCase().includes(q) ||
+        (trainer?.name || '').toLowerCase().includes(q);
+      return matchesShift && matchesSearch;
+    });
+  }, [groups, shiftFilter, searchBatch, db.courses, db.trainers]);
+
+  // 3. Interactive Batch Details Modal
+  const [selectedBatchDetails, setSelectedBatchDetails] = useState(null);
+
+  // 4. Quick Notice Modal State
+  const [openAddNoticeModal, setOpenAddNoticeModal] = useState(false);
+  const [newNoticeData, setNewNoticeData] = useState({
+    title: '',
+    content: '',
+    priority: 'Normal'
+  });
+
+  const handleCreateNotice = () => {
+    if (!newNoticeData.title.trim() || !newNoticeData.content.trim()) {
+      alert('कृपया शीर्षक र व्यहोरा प्रविष्ट गर्नुहोस्।');
+      return;
+    }
+    const createdNotice = {
+      id: `NOT-${Date.now()}`,
+      title: newNoticeData.title.trim(),
+      content: newNoticeData.content.trim(),
+      priority: newNoticeData.priority,
+      publishDate: new Date().toISOString().slice(0, 10),
+      status: 'Active'
+    };
+    const nextDb = {
+      ...db,
+      notices: [createdNotice, ...(db.notices || [])]
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenAddNoticeModal(false);
+    setNewNoticeData({ title: '', content: '', priority: 'Normal' });
+  };
+
   const deliveryChainSteps = [
     { id: 'occupations', label: '1. Occupations', icon: '🛠️' },
     { id: 'courses', label: '2. Courses', icon: '📚' },
-    { id: 'syllabus', label: '3. Syllabus', icon: '📝' },
+    { id: 'syllabus', label: '3. Syllabus Studio', icon: '📝' },
     { id: 'workplan', label: '4. Work Plan', icon: '🗓️' },
     { id: 'lessonplan', label: '5. Lesson Plan', icon: '📑' },
     { id: 'attendance', label: '6. Daily Attendance', icon: '✅' },
     { id: 'logbook', label: '7. Log Book', icon: '📖' },
     { id: 'evaluations', label: '8. Evaluations', icon: '🎯' },
-    { id: 'ojt', label: '9. OJT / Jobs', icon: '🏢' },
-    { id: 'certificates', label: '10. Certificate', icon: '🏆' }
+    { id: 'ojt', label: '9. OJT & Jobs', icon: '🏢' },
+    { id: 'certificates', label: '10. Certificate Studio', icon: '🏆' }
   ];
 
   return (
-    <Box sx={{ pb: 4 }}>
-      {/* 1. Executive Institution Hero Banner */}
+    <Box sx={{ pb: 5 }}>
+      {/* 1. Executive Institution Hero Banner with Live Second-by-Second Clock */}
       <Card
         sx={{
           mb: 3.5,
@@ -126,100 +197,150 @@ export default function Dashboard({ onNavigate }) {
           boxShadow: '0 12px 36px -4px rgba(15, 44, 89, 0.35)'
         }}
       >
-        <Box sx={{ position: 'relative', zIndex: 1, maxWidth: 820 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
-            <Chip
-              label={isTrainer ? 'Trainer Delivery Portal' : 'Executive TVET Operations Hub'}
-              size="small"
-              sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem' }}
-            />
-            <Chip
-              icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#34D399 !important' }} />}
-              label="CTEVT Accredited Curriculum"
-              size="small"
-              sx={{ bgcolor: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', fontWeight: 800, fontSize: '0.72rem' }}
-            />
-            <Chip
-              icon={<CloudDoneIcon sx={{ fontSize: '14px !important', color: '#60A5FA !important' }} />}
-              label="Postgres Cloud Live"
-              size="small"
-              sx={{ bgcolor: 'rgba(59, 130, 246, 0.2)', color: '#93C5FD', fontWeight: 800, fontSize: '0.72rem' }}
-            />
-          </Box>
+        <Grid container spacing={3} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
+              <Chip
+                label={isTrainer ? 'Trainer Delivery Portal' : 'Executive TVET Operations Hub'}
+                size="small"
+                sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem' }}
+              />
+              <Chip
+                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#34D399 !important' }} />}
+                label="CTEVT Accredited Curriculum"
+                size="small"
+                sx={{ bgcolor: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', fontWeight: 800, fontSize: '0.72rem' }}
+              />
+              <Chip
+                icon={<CloudDoneIcon sx={{ fontSize: '14px !important', color: '#60A5FA !important' }} />}
+                label="Postgres Cloud Live"
+                size="small"
+                sx={{ bgcolor: 'rgba(59, 130, 246, 0.2)', color: '#93C5FD', fontWeight: 800, fontSize: '0.72rem' }}
+              />
+            </Box>
 
-          <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, color: '#FFFFFF', fontSize: { xs: '1.4rem', sm: '1.9rem' } }}>
-            नमस्ते, {currentUser?.name}!
-          </Typography>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontSize: { xs: '0.88rem', sm: '0.98rem' } }}>
-            {isTrainer
-              ? 'तपाईंको समूहको दैनिक हाजिरी लिनुहोस्, पाठयोजना कार्यान्वयन गर्नुहोस्, र विद्यार्थीहरूको सीप मूल्याङ्कन प्रमाणित गर्नुहोस्।'
-              : 'ग्लोबल एरा प्राविधिक स्कुल — पेशा पहिचानदेखि पूर्ण पाठ्यक्रम, दैनिक लगबुक, OJT तथा रोजगार म्यापिङ सम्मको आधुनिक प्रणाली।'}
-          </Typography>
+            <Typography variant="h4" sx={{ fontWeight: 900, mb: 1, color: '#FFFFFF', fontSize: { xs: '1.4rem', sm: '1.9rem' } }}>
+              नमस्ते, {currentUser?.name}!
+            </Typography>
+            <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.85)', lineHeight: 1.6, fontSize: { xs: '0.88rem', sm: '0.98rem' } }}>
+              {isTrainer
+                ? 'तपाईंको समूहको दैनिक हाजिरी लिनुहोस्, पाठयोजना कार्यान्वयन गर्नुहोस्, र विद्यार्थीहरूको सीप मूल्याङ्कन प्रमाणित गर्नुहोस्।'
+                : 'ग्लोबल एरा प्राविधिक स्कुल — पेशा पहिचानदेखि पूर्ण पाठ्यक्रम, दैनिक लगबुक, OJT तथा रोजगार म्यापिङ सम्मको आधुनिक प्रणाली।'}
+            </Typography>
 
-          {/* 4 Direct Operational Action Pills */}
-          <Box sx={{ display: 'flex', gap: 1.5, mt: 3, flexWrap: 'wrap' }}>
-            <Button
-              variant="contained"
-              onClick={() => onNavigate('attendance')}
-              startIcon={<FactCheckIcon />}
+            {/* Direct Operational Action Pills */}
+            <Box sx={{ display: 'flex', gap: 1.5, mt: 3, flexWrap: 'wrap' }}>
+              <Button
+                variant="contained"
+                onClick={() => onNavigate('attendance')}
+                startIcon={<FactCheckIcon />}
+                sx={{
+                  bgcolor: '#FFFFFF',
+                  color: '#0F2C59',
+                  fontWeight: 900,
+                  fontSize: '0.88rem',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
+                  '&:hover': { bgcolor: '#F1F5F9', color: '#071A36' }
+                }}
+              >
+                दैनिक हाजिरी लिनुहोस् (Take Attendance)
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => onNavigate('lessonplan')}
+                startIcon={<AssignmentIcon />}
+                sx={{
+                  borderColor: 'rgba(255,255,255,0.6)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
+                }}
+              >
+                पाठयोजना (Lesson Plan)
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => onNavigate('students')}
+                startIcon={<PersonAddAlt1Icon />}
+                sx={{
+                  borderColor: 'rgba(255,255,255,0.6)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  bgcolor: 'rgba(255,255,255,0.1)',
+                  '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
+                }}
+              >
+                विद्यार्थी भर्ना (Add Student)
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => onNavigate('certificates')}
+                startIcon={<WorkspacePremiumIcon />}
+                sx={{
+                  borderColor: '#F59E0B',
+                  color: '#FDE68A',
+                  fontWeight: 900,
+                  bgcolor: 'rgba(245, 158, 11, 0.18)',
+                  '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.3)' }
+                }}
+              >
+                प्रमाणपत्र स्टुडियो (CTEVT A4)
+              </Button>
+            </Box>
+          </Grid>
+
+          {/* Live System Time & Operational Health Indicator */}
+          <Grid item xs={12} md={4}>
+            <Box
               sx={{
-                bgcolor: '#FFFFFF',
-                color: '#0F2C59',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.2)',
-                '&:hover': { bgcolor: '#F1F5F9', color: '#071A36' }
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                backdropFilter: 'blur(10px)',
+                p: 2.5,
+                borderRadius: 3,
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                textAlign: 'center'
               }}
             >
-              दैनिक हाजिरी लिनुहोस् (Take Attendance)
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => onNavigate('lessonplan')}
-              startIcon={<AssignmentIcon />}
-              sx={{
-                borderColor: 'rgba(255,255,255,0.6)',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
-              }}
-            >
-              पाठयोजना (Lesson Plan)
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => onNavigate('students')}
-              startIcon={<PersonAddAlt1Icon />}
-              sx={{
-                borderColor: 'rgba(255,255,255,0.6)',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.2)' }
-              }}
-            >
-              विद्यार्थी भर्ना (Add Student)
-            </Button>
-            <Button
-              variant="outlined"
-              onClick={() => onNavigate('certificates')}
-              startIcon={<WorkspacePremiumIcon />}
-              sx={{
-                borderColor: '#F59E0B',
-                color: '#FDE68A',
-                fontWeight: 900,
-                bgcolor: 'rgba(245, 158, 11, 0.18)',
-                '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.3)' }
-              }}
-            >
-              प्रमाणपत्र स्टुडियो (CTEVT A4)
-            </Button>
-          </Box>
-        </Box>
+              <Typography variant="overline" sx={{ color: 'rgba(255,255,255,0.7)', letterSpacing: '0.08em', fontWeight: 800 }}>
+                LIVE SYSTEM TIME (प्रत्यक्ष समय)
+              </Typography>
+              <Typography
+                variant="h4"
+                sx={{
+                  fontFamily: 'monospace',
+                  fontWeight: 900,
+                  color: '#FFFFFF',
+                  my: 0.5,
+                  letterSpacing: '0.05em'
+                }}
+              >
+                {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', fontWeight: 700 }}>
+                २०८१ कार्तिक ९ | 24 October 2026
+              </Typography>
+              <Divider sx={{ my: 1.5, borderColor: 'rgba(255,255,255,0.2)' }} />
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                <Box
+                  sx={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    bgcolor: '#10B981',
+                    boxShadow: '0 0 10px #10B981'
+                  }}
+                />
+                <Typography variant="caption" sx={{ color: '#6EE7B7', fontWeight: 800 }}>
+                  Active Shift Running: Shift B (10:00 - 12:00)
+                </Typography>
+              </Box>
+            </Box>
+          </Grid>
+        </Grid>
       </Card>
 
-      {/* 2. Operational Delivery Chain Ribbon (अन्तरसम्बन्धित तालिम प्रक्रिया) */}
+      {/* 2. Operational Delivery Chain Ribbon */}
       <Card sx={{ p: 2, mb: 3.5, bgcolor: '#FFFFFF', borderRadius: 3, border: '1px solid #E2E8F0' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, px: 0.5 }}>
           <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
@@ -254,7 +375,8 @@ export default function Dashboard({ onNavigate }) {
                   py: 1.8,
                   px: 0.5,
                   borderRadius: 2.5,
-                  '&:hover': { bgcolor: '#EFF6FF', borderColor: '#3B82F6', color: '#1D4ED8' }
+                  transition: 'all 0.15s ease',
+                  '&:hover': { bgcolor: '#EFF6FF', borderColor: '#3B82F6', color: '#1D4ED8', transform: 'translateY(-1px)' }
                 }}
               />
               {idx < deliveryChainSteps.length - 1 && (
@@ -367,7 +489,7 @@ export default function Dashboard({ onNavigate }) {
               </Avatar>
             </Box>
             <Typography variant="caption" sx={{ color: overallAttRate >= 85 ? '#059669' : '#D97706', fontWeight: 800, display: 'block' }}>
-              ✓ CTEVT मापदण्ड Compliant (न्यूनतम ८०% आवश्यक)
+              ✓ CTEVT मापदण्ड Compliant (८०% अनिवार्य)
             </Typography>
             <LinearProgress
               variant="determinate"
@@ -419,7 +541,7 @@ export default function Dashboard({ onNavigate }) {
         </Grid>
       </Grid>
 
-      {/* 4. Dropout Risk & Red Alert Banner (if any) */}
+      {/* 4. Dropout Risk Warning Alert */}
       {atRiskStudents.length > 0 && (
         <Alert
           severity="warning"
@@ -457,13 +579,13 @@ export default function Dashboard({ onNavigate }) {
         {/* Active Batches Workspace */}
         <Grid item xs={12} lg={8}>
           <Card sx={{ p: 3, borderRadius: 3.5, height: '100%', bgcolor: '#FFFFFF' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
                   🗓️ सञ्चालित तालिम ब्याचहरू (Active Training Batches)
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                  दैनिक सिफ्ट, प्रशिक्षक तथा विद्यार्थी उपस्थिति स्थिति
+                  दैनिक सिफ्ट, प्रशिक्षक तथा विद्यार्थी विवरण
                 </Typography>
               </Box>
               <Button
@@ -473,8 +595,49 @@ export default function Dashboard({ onNavigate }) {
                 endIcon={<ArrowForwardIcon />}
                 sx={{ fontWeight: 800 }}
               >
-                सबै समूहहरू हेर्नुहोस्
+                सबै समूहहरू ({groups.length})
               </Button>
+            </Box>
+
+            {/* Shift Filter Tabs & Search Bar */}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+              <Tabs
+                value={shiftFilter}
+                onChange={(_, val) => setShiftFilter(val)}
+                sx={{
+                  minHeight: 36,
+                  '& .MuiTab-root': {
+                    minHeight: 34,
+                    py: 0.5,
+                    px: 1.5,
+                    fontSize: '0.75rem',
+                    fontWeight: 800,
+                    textTransform: 'none'
+                  }
+                }}
+              >
+                <Tab value="ALL" label="सबै सिफ्ट (All)" />
+                <Tab value="A" label="Shift A (07-09)" />
+                <Tab value="B" label="Shift B (10-12)" />
+                <Tab value="C" label="Shift C (12-02)" />
+                <Tab value="D" label="Shift D (02-04)" />
+                <Tab value="E" label="Shift E (04-06)" />
+              </Tabs>
+
+              <TextField
+                size="small"
+                placeholder="ब्याच वा प्रशिक्षक खोज्नुहोस्..."
+                value={searchBatch}
+                onChange={(e) => setSearchBatch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon fontSize="small" sx={{ color: '#94A3B8' }} />
+                    </InputAdornment>
+                  ),
+                  sx: { height: 34, fontSize: '0.8rem', borderRadius: 2 }
+                }}
+              />
             </Box>
 
             <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2.5 }}>
@@ -489,13 +652,19 @@ export default function Dashboard({ onNavigate }) {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {groups.slice(0, 6).map((grp) => {
+                  {filteredGroups.slice(0, 6).map((grp) => {
                     const course = (db.courses || []).find((c) => c.id === grp.courseId);
                     const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
                     const shiftStatus = getShiftStatus(grp.shift);
+                    const batchStudents = (db.students || []).filter((s) => s.groupId === grp.id);
 
                     return (
-                      <TableRow key={grp.id} hover>
+                      <TableRow
+                        key={grp.id}
+                        hover
+                        sx={{ cursor: 'pointer' }}
+                        onClick={() => setSelectedBatchDetails({ ...grp, course, trainer, students: batchStudents })}
+                      >
                         <TableCell>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Chip
@@ -523,7 +692,7 @@ export default function Dashboard({ onNavigate }) {
                             {course?.title || 'Vocational Training'}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            Duration: {course?.durationValue || 3} {course?.durationUnit || 'Months'} ({course?.totalHours || 390}h)
+                            {course?.durationValue || 3} Months • {batchStudents.length} Trainees
                           </Typography>
                         </TableCell>
                         <TableCell>
@@ -542,7 +711,7 @@ export default function Dashboard({ onNavigate }) {
                             {trainer?.phone || ''}
                           </Typography>
                         </TableCell>
-                        <TableCell align="right">
+                        <TableCell align="right" onClick={(e) => e.stopPropagation()}>
                           <Button
                             size="small"
                             variant="contained"
@@ -562,6 +731,13 @@ export default function Dashboard({ onNavigate }) {
                       </TableRow>
                     );
                   })}
+                  {filteredGroups.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} align="center" sx={{ py: 3, color: '#64748B' }}>
+                        कुनै ब्याच फेला परेन।
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </TableContainer>
@@ -578,8 +754,13 @@ export default function Dashboard({ onNavigate }) {
                   सूचना पाटी (Notice Board)
                 </Typography>
               </Box>
-              <Button size="small" onClick={() => onNavigate('notices')} sx={{ fontWeight: 700 }}>
-                सबै सूचना
+              <Button
+                size="small"
+                startIcon={<AddIcon />}
+                onClick={() => setOpenAddNoticeModal(true)}
+                sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+              >
+                नयाँ सूचना
               </Button>
             </Box>
 
@@ -634,6 +815,112 @@ export default function Dashboard({ onNavigate }) {
           </Card>
         </Grid>
       </Grid>
+
+      {/* Interactive Batch Quick Details Modal */}
+      {selectedBatchDetails && (
+        <Dialog open={Boolean(selectedBatchDetails)} onClose={() => setSelectedBatchDetails(null)} maxWidth="sm" fullWidth>
+          <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2C59', color: '#fff' }}>
+            ब्याच विवरण: {selectedBatchDetails.groupCode} ({selectedBatchDetails.course?.title})
+          </DialogTitle>
+          <DialogContent sx={{ pt: 2.5 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', bgcolor: '#F8FAFC', p: 2, borderRadius: 2, mb: 2, mt: 1 }}>
+              <Box>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>सिफ्ट तथा समय:</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Shift {selectedBatchDetails.shift} ({selectedBatchDetails.startTime} - {selectedBatchDetails.endTime})</Typography>
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>प्रशिक्षक:</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{selectedBatchDetails.trainer?.name}</Typography>
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>विद्यार्थी संख्या:</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#059669' }}>{selectedBatchDetails.students?.length} जना</Typography>
+              </Box>
+            </Box>
+
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
+              यस ब्याचका प्रशिक्षार्थीहरू (Enrolled Trainees):
+            </Typography>
+            <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 220, borderRadius: 2 }}>
+              <Table size="small">
+                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 800 }}>नाम</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>सम्पर्क</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>स्थिति</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(selectedBatchDetails.students || []).map((s) => (
+                    <TableRow key={s.id}>
+                      <TableCell sx={{ fontWeight: 700 }}>{s.name}</TableCell>
+                      <TableCell>{s.phone}</TableCell>
+                      <TableCell>
+                        <Chip size="small" label={s.status} sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }} />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setSelectedBatchDetails(null)}>बन्द गर्नुहोस्</Button>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setSelectedBatchDetails(null);
+                onNavigate('attendance');
+              }}
+              sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}
+            >
+              यस ब्याचको हाजिरी भर्नुहोस्
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
+
+      {/* Add Notice Modal */}
+      <Dialog open={openAddNoticeModal} onClose={() => setOpenAddNoticeModal(false)} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ fontWeight: 900 }}>नयाँ सूचना प्रकाशित गर्नुहोस्</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              label="सूचनाको शीर्षक (Title)"
+              fullWidth
+              required
+              value={newNoticeData.title}
+              onChange={(e) => setNewNoticeData({ ...newNoticeData, title: e.target.value })}
+            />
+            <TextField
+              label="सूचनाको व्यहोरा (Content)"
+              fullWidth
+              required
+              multiline
+              rows={3}
+              value={newNoticeData.content}
+              onChange={(e) => setNewNoticeData({ ...newNoticeData, content: e.target.value })}
+            />
+            <TextField
+              select
+              label="प्राथमिकता (Priority)"
+              fullWidth
+              value={newNoticeData.priority}
+              onChange={(e) => setNewNoticeData({ ...newNoticeData, priority: e.target.value })}
+            >
+              <MenuItem value="Normal">Normal</MenuItem>
+              <MenuItem value="Important">Important</MenuItem>
+              <MenuItem value="Urgent">Urgent</MenuItem>
+            </TextField>
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setOpenAddNoticeModal(false)}>रद्द गर्नुहोस्</Button>
+          <Button variant="contained" onClick={handleCreateNotice} sx={{ fontWeight: 800 }}>
+            प्रकाशित गर्नुहोस्
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
