@@ -574,37 +574,61 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.8,
+              p: 2.5,
               height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               borderRadius: 3.5,
+              border: '1px solid rgba(226, 232, 240, 0.9)',
               borderTop: '4px solid #1D4ED8',
               bgcolor: '#FFFFFF',
               boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
-              transition: 'all 0.2s ease',
-              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
+              transition: 'all 0.25s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 28px -4px rgba(15,23,42,0.12)', borderColor: '#CBD5E1' }
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
-                  सक्रिय प्रशिक्षार्थी (TOTAL TRAINEES)
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
+                  कुल प्रशिक्षार्थी (TOTAL TRAINEES)
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
+                <Avatar sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #DBEAFE' }}>
+                  <SchoolIcon fontSize="small" />
+                </Avatar>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', fontSize: '2.1rem', lineHeight: 1 }}>
                   {totalStudents}
                 </Typography>
+                <Chip
+                  label={`महिला ${femalePct}%`}
+                  size="small"
+                  sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
+                />
               </Box>
-              <Avatar sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', width: 48, height: 48, borderRadius: 2.5 }}>
-                <SchoolIcon fontSize="medium" />
-              </Avatar>
+
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                • GESI मापदण्ड: न्यूनतम ३५% कोटा सुनिश्चित
+              </Typography>
             </Box>
-            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block', fontSize: '0.75rem' }}>
-              • {femalePct}% महिला प्रशिक्षार्थी | ३५% GESI कोटा
-            </Typography>
-            <LinearProgress
-              variant="determinate"
-              value={femalePct}
-              sx={{ height: 6, borderRadius: 3, mt: 1.5, bgcolor: '#E2E8F0', '& .MuiLinearProgress-bar': { bgcolor: '#1D4ED8' } }}
-            />
+
+            <Box sx={{ mt: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={femalePct}
+                sx={{ height: 6, borderRadius: 3, bgcolor: '#F1F5F9', '& .MuiLinearProgress-bar': { bgcolor: '#1D4ED8' } }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
+                <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                  GESI सहभागिता
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#1D4ED8', fontSize: '0.68rem', fontWeight: 800 }}>
+                  {femaleCount} महिला / {totalStudents} जम्मा
+                </Typography>
+              </Box>
+            </Box>
           </Card>
         </Grid>
 
@@ -612,36 +636,60 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.8,
+              p: 2.5,
               height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               borderRadius: 3.5,
+              border: '1px solid rgba(226, 232, 240, 0.9)',
               borderTop: '4px solid #059669',
               bgcolor: '#FFFFFF',
               boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
-              transition: 'all 0.2s ease',
-              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
+              transition: 'all 0.25s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 28px -4px rgba(15,23,42,0.12)', borderColor: '#CBD5E1' }
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
                   सञ्चालित समूह (ACTIVE BATCHES)
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
-                  {groups.length} Batches
+                <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #D1FAE5' }}>
+                  <GroupWorkIcon fontSize="small" />
+                </Avatar>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#0F172A', fontSize: '2.1rem', lineHeight: 1 }}>
+                  {groups.length}
+                </Typography>
+                <Chip
+                  label={`${activeGroups || groups.length} Running`}
+                  size="small"
+                  sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
+                />
+              </Box>
+
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                • सिफ्ट A–E (हाल सक्रिय: सिफ्ट {activeShiftCode})
+              </Typography>
+            </Box>
+
+            <Box sx={{ mt: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={groups.length > 0 ? 100 : 0}
+                sx={{ height: 6, borderRadius: 3, bgcolor: '#F1F5F9', '& .MuiLinearProgress-bar': { bgcolor: '#059669' } }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
+                <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                  सञ्चालन क्षमता
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', fontWeight: 800 }}>
+                  ५ सिफ्ट सञ्चालनमा
                 </Typography>
               </Box>
-              <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 48, height: 48, borderRadius: 2.5 }}>
-                <GroupWorkIcon fontSize="medium" />
-              </Avatar>
-            </Box>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block', fontSize: '0.75rem' }}>
-              Caregiver, Beautician, Tailoring, Bakery
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 0.5, mt: 1.5, flexWrap: 'wrap' }}>
-              {['A', 'B', 'C', 'D', 'E'].map((s) => (
-                <Chip key={s} label={`Shift ${s}`} size="small" sx={{ height: 20, fontSize: '0.62rem', fontWeight: 900 }} />
-              ))}
             </Box>
           </Card>
         </Grid>
@@ -650,53 +698,106 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.8,
+              p: 2.5,
               height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               borderRadius: 3.5,
+              border: '1px solid rgba(226, 232, 240, 0.9)',
               borderTop: `4px solid ${overallAttRate >= 80 ? '#059669' : '#D97706'}`,
               bgcolor: '#FFFFFF',
               boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
-              transition: 'all 0.2s ease',
-              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
+              transition: 'all 0.25s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 28px -4px rgba(15,23,42,0.12)', borderColor: '#CBD5E1' }
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
                   औसत हाजिरी (TVET ATTENDANCE)
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: overallAttRate >= 80 ? '#059669' : '#D97706', my: 0.5 }}>
+                <Avatar
+                  sx={{
+                    bgcolor: overallAttRate >= 80 ? '#ECFDF5' : '#FFFBEB',
+                    color: overallAttRate >= 80 ? '#059669' : '#D97706',
+                    width: 44,
+                    height: 44,
+                    borderRadius: 2.5,
+                    border: `1px solid ${overallAttRate >= 80 ? '#D1FAE5' : '#FEF3C7'}`
+                  }}
+                >
+                  <FactCheckIcon fontSize="small" />
+                </Avatar>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, my: 0.5 }}>
+                <Typography
+                  variant="h3"
+                  sx={{
+                    fontWeight: 900,
+                    color: overallAttRate >= 80 ? '#059669' : '#D97706',
+                    fontSize: '2.1rem',
+                    lineHeight: 1
+                  }}
+                >
                   {overallAttRate}%
                 </Typography>
+                <Chip
+                  label={overallAttRate >= 80 ? '✓ Compliant' : '⚠️ Alert'}
+                  size="small"
+                  sx={{
+                    bgcolor: overallAttRate >= 80 ? '#ECFDF5' : '#FEF3C7',
+                    color: overallAttRate >= 80 ? '#059669' : '#B45309',
+                    fontWeight: 800,
+                    fontSize: '0.68rem',
+                    height: 22
+                  }}
+                />
               </Box>
-              <Avatar sx={{ bgcolor: overallAttRate >= 80 ? '#ECFDF5' : '#FFFBEB', color: overallAttRate >= 80 ? '#059669' : '#D97706', width: 48, height: 48, borderRadius: 2.5 }}>
-                <FactCheckIcon fontSize="medium" />
-              </Avatar>
+
+              <Typography
+                variant="caption"
+                sx={{
+                  color: overallAttRate >= 80 ? '#059669' : '#D97706',
+                  fontWeight: 700,
+                  display: 'block',
+                  fontSize: '0.74rem',
+                  minHeight: 20,
+                  whiteSpace: 'nowrap',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden'
+                }}
+              >
+                {overallAttRate >= 80
+                  ? '• CTEVT मापदण्ड पूरा (≥८०% उपस्थिति)'
+                  : '• न्यूनतम मापदण्ड भन्दा कम (<८०%)'}
+              </Typography>
             </Box>
-            <Typography
-              variant="caption"
-              sx={{
-                color: overallAttRate >= 80 ? '#059669' : '#D97706',
-                fontWeight: 900,
-                display: 'block',
-                fontSize: '0.75rem'
-              }}
-            >
-              {overallAttRate >= 80
-                ? '✓ CTEVT मापदण्ड Compliant (८०% पुगेको)'
-                : '⚠️ मापदण्ड भन्दा कम (न्यूनतम ८०% आवश्यक)'}
-            </Typography>
-            <LinearProgress
-              variant="determinate"
-              value={overallAttRate}
-              sx={{
-                height: 6,
-                borderRadius: 3,
-                mt: 1.5,
-                bgcolor: '#E2E8F0',
-                '& .MuiLinearProgress-bar': { bgcolor: overallAttRate >= 80 ? '#059669' : '#D97706' }
-              }}
-            />
+
+            <Box sx={{ mt: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={overallAttRate}
+                sx={{
+                  height: 6,
+                  borderRadius: 3,
+                  bgcolor: '#F1F5F9',
+                  '& .MuiLinearProgress-bar': { bgcolor: overallAttRate >= 80 ? '#059669' : '#D97706' }
+                }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
+                <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                  CTEVT लक्ष्य: ८०%
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ color: overallAttRate >= 80 ? '#059669' : '#D97706', fontSize: '0.68rem', fontWeight: 800 }}
+                >
+                  {atRiskStudents.length === 0 ? 'सबै मापदण्डभित्र' : `${atRiskStudents.length} जना सुधार आवश्यक`}
+                </Typography>
+              </Box>
+            </Box>
           </Card>
         </Grid>
 
@@ -704,35 +805,60 @@ export default function Dashboard({ onNavigate }) {
         <Grid item xs={12} sm={6} md={3}>
           <Card
             sx={{
-              p: 2.8,
+              p: 2.5,
               height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
               borderRadius: 3.5,
+              border: '1px solid rgba(226, 232, 240, 0.9)',
               borderTop: '4px solid #7C3AED',
               bgcolor: '#FFFFFF',
               boxShadow: '0 4px 20px -2px rgba(15,23,42,0.06)',
-              transition: 'all 0.2s ease',
-              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 10px 25px rgba(15,23,42,0.1)' }
+              transition: 'all 0.25s ease',
+              '&:hover': { transform: 'translateY(-3px)', boxShadow: '0 12px 28px -4px rgba(15,23,42,0.12)', borderColor: '#CBD5E1' }
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Box>
-                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.7rem', letterSpacing: '0.05em' }}>
+            <Box>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
                   OJT तथा रोजगारी (PLACEMENTS)
                 </Typography>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#7C3AED', my: 0.5 }}>
+                <Avatar sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #EDE9FE' }}>
+                  <RocketLaunchIcon fontSize="small" />
+                </Avatar>
+              </Box>
+
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, my: 0.5 }}>
+                <Typography variant="h3" sx={{ fontWeight: 900, color: '#7C3AED', fontSize: '2.1rem', lineHeight: 1 }}>
                   78.5%
                 </Typography>
+                <Chip
+                  label={`${placedCount} Placed`}
+                  size="small"
+                  sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
+                />
               </Box>
-              <Avatar sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', width: 48, height: 48, borderRadius: 2.5 }}>
-                <RocketLaunchIcon fontSize="medium" />
-              </Avatar>
+
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                • {employerCount} रोजगार साझेदार संस्थासँग MoU
+              </Typography>
             </Box>
-            <Typography variant="caption" sx={{ color: '#7C3AED', fontWeight: 800, display: 'block', fontSize: '0.75rem' }}>
-              • {employerCount} रोजगार साझेदार संस्थासँग MoU
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
-              <Chip label={`${placedCount} Placed`} size="small" sx={{ height: 20, bgcolor: '#EDE9FE', color: '#7C3AED', fontWeight: 900, fontSize: '0.68rem' }} />
-              <Chip label="12 In OJT" size="small" sx={{ height: 20, bgcolor: '#F1F5F9', color: '#475569', fontWeight: 800, fontSize: '0.68rem' }} />
+
+            <Box sx={{ mt: 2 }}>
+              <LinearProgress
+                variant="determinate"
+                value={78.5}
+                sx={{ height: 6, borderRadius: 3, bgcolor: '#F1F5F9', '& .MuiLinearProgress-bar': { bgcolor: '#7C3AED' } }}
+              />
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
+                <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                  १२ प्रशिक्षार्थी OJT मा
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#7C3AED', fontSize: '0.68rem', fontWeight: 800 }}>
+                  लक्ष्य: ८०%
+                </Typography>
+              </Box>
             </Box>
           </Card>
         </Grid>
