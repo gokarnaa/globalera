@@ -42,6 +42,7 @@ import PrintIcon from '@mui/icons-material/Print';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import CloseIcon from '@mui/icons-material/Close';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
@@ -110,11 +111,11 @@ export default function EvaluationManager() {
   const handleOpenAdd = () => {
     setFormData({
       groupId: selectedGroupId,
-      studentId: selectedStudentId !== 'ALL' ? selectedStudentId : groupStudents[0]?.id || '',
-      syllabusId: availableSyllabi[0]?.id || '',
+      studentId: selectedStudentId !== 'ALL' ? selectedStudentId : '',
+      syllabusId: '',
       mastered: true,
       areasToImprove: '',
-      trainerPlan: 'Provide supervised practice on operational precision.',
+      trainerPlan: '',
       evaluatorName: currentUser?.name || 'Trainer',
       evaluatedAt: new Date().toISOString().slice(0, 10)
     });
@@ -602,21 +603,83 @@ export default function EvaluationManager() {
       )}
 
       {/* Add Evaluation Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          Evaluate Student Competency (सीप तथा दक्षता मूल्यांकन)
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <AssessmentIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                सीप तथा दक्षता मूल्याङ्कन (Evaluate Student Skill)
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {selectedGroup?.groupCode} • CTEVT मानक सीप चेकलिस्ट तथा प्राविधिक दक्षता मूल्याङ्कन
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             {/* Student selection */}
             <TextField
               select
-              label="Select Student"
+              label="Select Student *"
               fullWidth
+              size="small"
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- विद्यार्थी छान्नुहोस् (Select Student) --
+              </MenuItem>
               {groupStudents.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   {s.name} ({s.tgid})
@@ -627,12 +690,16 @@ export default function EvaluationManager() {
             {/* Syllabus Skill selection */}
             <TextField
               select
-              label="Select Syllabus Skill / Task"
+              label="Select Syllabus Skill / Task *"
               fullWidth
+              size="small"
               value={formData.syllabusId}
               onChange={(e) => setFormData({ ...formData, syllabusId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- पाठ्यक्रम एकाइ / सीप छान्नुहोस् --
+              </MenuItem>
               {availableSyllabi.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   Unit {s.unitNo}: {s.title} ({s.learningOutcome})
@@ -658,9 +725,10 @@ export default function EvaluationManager() {
             <TextField
               label="Areas to Improve (सुधार गर्नुपर्ने पक्षहरू)"
               fullWidth
+              size="small"
               value={formData.areasToImprove}
               onChange={(e) => setFormData({ ...formData, areasToImprove: e.target.value })}
-              placeholder="e.g. Needs higher speed, better posture, precision in measurement"
+              placeholder="उदा: कार्यथलो गति, औजार सुरक्षा, परिशुद्धता तथा फिनिसिङ..."
             />
 
             <TextField
@@ -668,6 +736,8 @@ export default function EvaluationManager() {
               multiline
               rows={2}
               fullWidth
+              size="small"
+              placeholder="उदा: आगामी सत्रमा व्यक्तिगत सुपरिवेक्षण र अतिरिक्त अभ्यास समय उपलब्ध गराउने..."
               value={formData.trainerPlan}
               onChange={(e) => setFormData({ ...formData, trainerPlan: e.target.value })}
             />
@@ -677,6 +747,7 @@ export default function EvaluationManager() {
                 <TextField
                   label="Evaluator Name"
                   fullWidth
+                  size="small"
                   value={formData.evaluatorName}
                   onChange={(e) => setFormData({ ...formData, evaluatorName: e.target.value })}
                 />
@@ -686,6 +757,7 @@ export default function EvaluationManager() {
                   type="date"
                   label="Evaluation Date"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.evaluatedAt}
                   onChange={(e) => setFormData({ ...formData, evaluatedAt: e.target.value })}
@@ -694,10 +766,49 @@ export default function EvaluationManager() {
             </Grid>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800 }}>
-            Save Evaluation
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            सुरक्षित गर्नुहोस् (Save Evaluation)
           </Button>
         </DialogActions>
       </Dialog>

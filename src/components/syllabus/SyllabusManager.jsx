@@ -48,6 +48,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import CloseIcon from '@mui/icons-material/Close';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import SchoolIcon from '@mui/icons-material/School';
 import ShieldIcon from '@mui/icons-material/Shield';
@@ -192,8 +193,8 @@ export default function SyllabusManager() {
       courseId: selectedCourseId,
       unitNo: courseSyllabi.length + 1,
       title: '',
-      theoryHours: 8,
-      practicalHours: 32,
+      theoryHours: '',
+      practicalHours: '',
       learningOutcome: '',
       toolsAndMaterials: '',
       keyTasks: ''
@@ -1220,12 +1221,64 @@ export default function SyllabusManager() {
         onClose={() => setOpenSingleDialog(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          {editingItem ? 'पाठ्यक्रम एकाइ सम्पादन गर्नुहोस् (Edit Unit)' : '+ नयाँ पाठ्यक्रम एकाइ थप्नुहोस् (Add Unit)'}
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <MenuBookIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'पाठ्यक्रम एकाइ सम्पादन गर्नुहोस् (Edit Unit)' : 'नयाँ पाठ्यक्रम एकाइ दर्ता (Add Syllabus Unit)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {selectedCourse?.title} • एकाइ # {formData.unitNo} को सैद्धान्तिक र प्रयोगात्मक घण्टा विवरण
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenSingleDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           <Grid container spacing={2}>
             <Grid item xs={12} sm={3}>
               <TextField
@@ -1254,8 +1307,9 @@ export default function SyllabusManager() {
                 type="number"
                 fullWidth
                 size="small"
+                placeholder="उदा: 32"
                 value={formData.practicalHours}
-                onChange={(e) => setFormData({ ...formData, practicalHours: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, practicalHours: e.target.value === '' ? '' : Number(e.target.value) })}
                 helperText="८०% सीप मापदण्ड अनुरुप हुनुपर्ने"
               />
             </Grid>
@@ -1265,8 +1319,9 @@ export default function SyllabusManager() {
                 type="number"
                 fullWidth
                 size="small"
+                placeholder="उदा: 8"
                 value={formData.theoryHours}
-                onChange={(e) => setFormData({ ...formData, theoryHours: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, theoryHours: e.target.value === '' ? '' : Number(e.target.value) })}
                 helperText="२०% सिद्धान्त मापदण्ड"
               />
             </Grid>
@@ -1296,11 +1351,48 @@ export default function SyllabusManager() {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenSingleDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenSingleDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
           </Button>
-          <Button variant="contained" onClick={handleSaveSingle} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSaveSingle}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
             सुरक्षित गर्नुहोस् (Save Unit)
           </Button>
         </DialogActions>

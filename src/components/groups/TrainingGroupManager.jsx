@@ -48,6 +48,7 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import PhoneIcon from '@mui/icons-material/Phone';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
@@ -165,22 +166,16 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    const defaultCourse = db.courses?.[0];
-    const defaultStart = new Date().toISOString().slice(0, 10);
-    const calculatedEnd = defaultCourse
-      ? calculateExpectedEndDate(defaultStart, defaultCourse.durationValue, defaultCourse.durationUnit)
-      : '';
-
     setFormData({
-      groupCode: `GRP-${String((db.trainingGroups || []).length + 1).padStart(2, '0')}`,
-      courseId: defaultCourse?.id || '',
-      trainerId: (db.trainers || []).find((t) => t.occupationId === defaultCourse?.occupationId)?.id || db.trainers?.[0]?.id || '',
-      shift: 'A',
-      startTime: '07:00 AM',
-      endTime: '09:00 AM',
-      startDate: defaultStart,
-      expectedEndDate: calculatedEnd,
-      capacity: 20,
+      groupCode: '',
+      courseId: '',
+      trainerId: '',
+      shift: '',
+      startTime: '',
+      endTime: '',
+      startDate: '',
+      expectedEndDate: '',
+      capacity: '',
       status: 'Running'
     });
     setOpenDialog(true);
@@ -189,15 +184,15 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   const handleOpenEdit = (grp) => {
     setEditingItem(grp);
     setFormData({
-      groupCode: grp.groupCode,
-      courseId: grp.courseId,
-      trainerId: grp.trainerId,
-      shift: grp.shift || 'A',
-      startTime: grp.startTime || '07:00 AM',
-      endTime: grp.endTime || '09:00 AM',
-      startDate: grp.startDate,
-      expectedEndDate: grp.expectedEndDate,
-      capacity: grp.capacity || 20,
+      groupCode: grp.groupCode || '',
+      courseId: grp.courseId || '',
+      trainerId: grp.trainerId || '',
+      shift: grp.shift || '',
+      startTime: grp.startTime || '',
+      endTime: grp.endTime || '',
+      startDate: grp.startDate || '',
+      expectedEndDate: grp.expectedEndDate || '',
+      capacity: grp.capacity || '',
       status: grp.status || 'Running'
     });
     setOpenDialog(true);
@@ -205,16 +200,14 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
   const handleCourseChange = (courseId) => {
     const course = (db.courses || []).find((c) => c.id === courseId);
-    const calcEnd = course
+    const calcEnd = course && formData.startDate
       ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit)
-      : formData.expectedEndDate;
-
-    const matchedTrainer = (db.trainers || []).find((t) => t.occupationId === course?.occupationId);
+      : '';
 
     setFormData((prev) => ({
       ...prev,
       courseId,
-      trainerId: matchedTrainer ? matchedTrainer.id : prev.trainerId,
+      trainerId: prev.trainerId || '',
       expectedEndDate: calcEnd
     }));
   };
@@ -228,6 +221,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         shift: shiftCode,
         startTime: parts[0]?.trim() || '',
         endTime: parts[1]?.trim() || ''
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        shift: '',
+        startTime: '',
+        endTime: ''
       }));
     }
   };
@@ -1039,13 +1039,66 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          {editingItem ? 'तालिम समूह सम्पादन (Edit Training Group)' : '+ नयाँ तालिम समूह सिर्जना गर्नुहोस् (Create Batch)'}
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <GroupWorkIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'तालिम समूह सम्पादन (Edit Training Group)' : 'नयाँ तालिम समूह सिर्जना (Create New Batch)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {editingItem ? 'समूह विवरण र तालिका अद्यावधिक गर्नुहोस्' : 'कृपया नयाँ तालिम समूहको सम्पूर्ण विवरण प्रविष्ट गर्नुहोस्'}
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2.2}>
+
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <TextField
               label="समूह कोड (Group Code) *"
               fullWidth
@@ -1066,6 +1119,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               onChange={(e) => handleCourseChange(e.target.value)}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- पाठ्यक्रम चयन गर्नुहोस् (Select Course) --
+              </MenuItem>
               {(db.courses || []).map((crs) => (
                 <MenuItem key={crs.id} value={crs.id}>
                   <b>{crs.title}</b> ({crs.durationValue} {crs.durationUnit} • {crs.totalHours || 390} hrs)
@@ -1075,11 +1131,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
             {/* Auto Cascade Context Info Box */}
             {selectedCourseInForm && (
-              <Alert severity="info" sx={{ borderRadius: 2.5 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
+              <Alert severity="info" sx={{ borderRadius: 2.5, bgcolor: '#EFF6FF', border: '1px solid #DBEAFE' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E3A8A', display: 'block' }}>
                   स्वचालित रूपमा जोडिएको विवरण (AUTO-CASCADED CONTEXT):
                 </Typography>
-                पेशा: <b>{selectedOccupationInForm?.name}</b> • अवधि: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
+                <Typography variant="caption" sx={{ color: '#1E40AF' }}>
+                  पेशा: <b>{selectedOccupationInForm?.name || 'N/A'}</b> • अवधि: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
+                </Typography>
               </Alert>
             )}
 
@@ -1093,6 +1151,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- मुख्य प्रशिक्षक चयन गर्नुहोस् (Select Trainer) --
+              </MenuItem>
               {matchingTrainersInForm.map((trn) => (
                 <MenuItem key={trn.id} value={trn.id}>
                   <b>{trn.name}</b> ({trn.specialization || 'Trainer'})
@@ -1102,7 +1163,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
             {/* Shift Selection -> Auto fills Start and End Time */}
             <Grid container spacing={2}>
-              <Grid item xs={4}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   select
                   label="सिफ्ट (Shift)"
@@ -1111,27 +1172,32 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   value={formData.shift}
                   onChange={(e) => handleShiftChange(e.target.value)}
                 >
+                  <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                    -- सिफ्ट छान्नुहोस् --
+                  </MenuItem>
                   {SHIFT_DEFINITIONS.map((sh) => (
                     <MenuItem key={sh.code} value={sh.code}>
-                      Shift {sh.code}
+                      Shift {sh.code} ({sh.time})
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} sm={4}>
                 <TextField
                   label="सुरु समय (Start Time)"
                   fullWidth
                   size="small"
+                  placeholder="07:00 AM"
                   value={formData.startTime}
                   onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
                 />
               </Grid>
-              <Grid item xs={4}>
+              <Grid item xs={6} sm={4}>
                 <TextField
                   label="अन्त्य समय (End Time)"
                   fullWidth
                   size="small"
+                  placeholder="09:00 AM"
                   value={formData.endTime}
                   onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
                 />
@@ -1140,7 +1206,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
             {/* Dates: Start & Auto End */}
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   type="date"
                   label="सुरु मिति (Start Date) *"
@@ -1152,7 +1218,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   required
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   type="date"
                   label="अनुमानित सम्पन्न मिति (Auto End Date)"
@@ -1161,24 +1227,25 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   InputLabelProps={{ shrink: true }}
                   value={formData.expectedEndDate}
                   onChange={(e) => setFormData({ ...formData, expectedEndDate: e.target.value })}
-                  helperText="कोर्स अवधि अनुसार स्वतः हिसाब भएको"
+                  helperText={formData.expectedEndDate ? "कोर्स अवधि अनुसार स्वतः हिसाब भएको" : "सुरु मिति र कोर्स छानेपछि स्वतः हिसाब हुनेछ"}
                 />
               </Grid>
             </Grid>
 
             {/* Capacity & Status */}
             <Grid container spacing={2}>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   type="number"
                   label="क्षमता (Trainee Capacity)"
                   fullWidth
                   size="small"
+                  placeholder="उदा: 20"
                   value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: Number(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, capacity: e.target.value === '' ? '' : Number(e.target.value) })}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   select
                   label="समूह स्थिति (Status)"
@@ -1196,11 +1263,49 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             </Grid>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
           </Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
             सुरक्षित गर्नुहोस् (Save Group)
           </Button>
         </DialogActions>
@@ -1214,31 +1319,85 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         onClose={() => setRosterGroup(null)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              Group Roster: {rosterGroup?.groupCode}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B' }}>
-              Shift {rosterGroup?.shift} ({rosterGroup?.startTime} – {rosterGroup?.endTime}) • Global Era TVET
-            </Typography>
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <PeopleIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                Group Roster: {rosterGroup?.groupCode}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                Shift {rosterGroup?.shift} ({rosterGroup?.startTime} – {rosterGroup?.endTime}) • Global Era TVET System
+              </Typography>
+            </Box>
           </Box>
-          <Button
-            size="small"
-            variant="outlined"
-            startIcon={<PersonAddAlt1Icon />}
-            onClick={() => {
-              setRosterGroup(null);
-              if (onNavigateToStudents) onNavigateToStudents();
-            }}
-            sx={{ fontWeight: 800, borderRadius: 2 }}
-          >
-            + विद्यार्थी भर्ना गर्नुहोस्
-          </Button>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<PersonAddAlt1Icon />}
+              onClick={() => {
+                setRosterGroup(null);
+                if (onNavigateToStudents) onNavigateToStudents();
+              }}
+              sx={{
+                fontWeight: 800,
+                bgcolor: 'rgba(255, 255, 255, 0.2)',
+                color: '#FFFFFF',
+                borderRadius: 2,
+                textTransform: 'none',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' }
+              }}
+            >
+              + विद्यार्थी भर्ना गर्नुहोस्
+            </Button>
+            <IconButton
+              size="small"
+              onClick={() => setRosterGroup(null)}
+              sx={{
+                color: 'rgba(255, 255, 255, 0.8)',
+                bgcolor: 'rgba(255, 255, 255, 0.08)',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+              }}
+            >
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </Box>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           {rosterGroup && (
             <Box>
               {/* Roster Search Bar */}
@@ -1306,9 +1465,12 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             </Box>
           )}
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setRosterGroup(null)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस्
+        <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+          <Button
+            onClick={() => setRosterGroup(null)}
+            sx={{ fontWeight: 700, color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 2, px: 2.5, textTransform: 'none' }}
+          >
+            बन्द गर्नुहोस् (Close)
           </Button>
         </DialogActions>
       </Dialog>

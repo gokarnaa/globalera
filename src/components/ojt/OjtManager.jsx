@@ -38,6 +38,8 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import BusinessIcon from '@mui/icons-material/Business';
 import PhoneIcon from '@mui/icons-material/Phone';
 import PersonIcon from '@mui/icons-material/Person';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
@@ -62,19 +64,15 @@ export default function OjtManager() {
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    const today = new Date();
-    const end = new Date(today);
-    end.setMonth(end.getMonth() + 1);
-
     setFormData({
-      studentId: db.students[0]?.id || '',
-      employerId: db.employers[0]?.id || '',
-      startDate: today.toISOString().slice(0, 10),
-      endDate: end.toISOString().slice(0, 10),
-      relatedPerson: db.employers[0]?.contactPerson || 'Supervisor',
-      contactNumber: db.employers[0]?.phone || '',
+      studentId: '',
+      employerId: '',
+      startDate: '',
+      endDate: '',
+      relatedPerson: '',
+      contactNumber: '',
       status: 'Ongoing',
-      remarks: 'Hands-on practical apprenticeship.'
+      remarks: ''
     });
     setOpenDialog(true);
   };
@@ -571,20 +569,82 @@ export default function OjtManager() {
       )}
 
       {/* Add / Edit OJT Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit OJT Deployment Record' : 'Deploy Student to OJT'}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <WorkIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'OJT विवरण सम्पादन (Edit OJT Deployment)' : 'विद्यार्थी OJT तैनाथी (Deploy Student to OJT)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                कार्यथलो प्रयोगात्मक अभ्यासका लागि प्रशिक्षार्थी र रोजगार साझेदार आबद्धता
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <TextField
               select
-              label="Select Student"
+              label="Select Student *"
               fullWidth
+              size="small"
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- विद्यार्थी छान्नुहोस् (Select Student) --
+              </MenuItem>
               {db.students.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   {s.name} ({s.tgid})
@@ -594,12 +654,16 @@ export default function OjtManager() {
 
             <TextField
               select
-              label="Select Host Employer Partner"
+              label="Select Host Employer Partner *"
               fullWidth
+              size="small"
               value={formData.employerId}
               onChange={(e) => handleEmployerSelect(e.target.value)}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- रोजगारदाता संस्था छान्नुहोस् (Select Employer) --
+              </MenuItem>
               {db.employers.map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
                   {emp.name} ({emp.location})
@@ -611,8 +675,9 @@ export default function OjtManager() {
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="OJT Start Date"
+                  label="OJT Start Date *"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
@@ -624,10 +689,10 @@ export default function OjtManager() {
                   type="date"
                   label="OJT Completion Date"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  required
                 />
               </Grid>
             </Grid>
@@ -637,6 +702,8 @@ export default function OjtManager() {
                 <TextField
                   label="Site Supervisor Name"
                   fullWidth
+                  size="small"
+                  placeholder="सुपरभाइजरको नाम"
                   value={formData.relatedPerson}
                   onChange={(e) => setFormData({ ...formData, relatedPerson: e.target.value })}
                 />
@@ -645,6 +712,8 @@ export default function OjtManager() {
                 <TextField
                   label="Supervisor Contact Number"
                   fullWidth
+                  size="small"
+                  placeholder="98XXXXXXXX"
                   value={formData.contactNumber}
                   onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
                 />
@@ -655,13 +724,14 @@ export default function OjtManager() {
               select
               label="Status"
               fullWidth
+              size="small"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <MenuItem value="Planned">Planned</MenuItem>
-              <MenuItem value="Ongoing">Ongoing</MenuItem>
-              <MenuItem value="Completed">Completed</MenuItem>
-              <MenuItem value="Terminated">Terminated</MenuItem>
+              <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
+              <MenuItem value="Ongoing">Ongoing (हाल सञ्चालनमा)</MenuItem>
+              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+              <MenuItem value="Terminated">Terminated (रद्द गरिएको)</MenuItem>
             </TextField>
 
             <TextField
@@ -669,15 +739,56 @@ export default function OjtManager() {
               multiline
               rows={2}
               fullWidth
+              size="small"
+              placeholder="विभाग, कार्य विवरण वा विशेष टिप्पणी..."
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            {editingItem ? 'Update OJT Deployment' : 'Save OJT Deployment'}
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            {editingItem ? 'अद्यावधिक गर्नुहोस्' : 'सुरक्षित गर्नुहोस् (Save OJT)'}
           </Button>
         </DialogActions>
       </Dialog>

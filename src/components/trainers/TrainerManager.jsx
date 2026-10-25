@@ -37,6 +37,8 @@ import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import SchoolIcon from '@mui/icons-material/School';
 import BusinessIcon from '@mui/icons-material/Business';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CloseIcon from '@mui/icons-material/Close';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
@@ -64,8 +66,8 @@ export default function TrainerManager() {
     setFormData({
       name: '',
       phone: '',
-      occupationId: db.occupations[0]?.id || '',
-      pin: '1234',
+      occupationId: '',
+      pin: '',
       specialization: '',
       status: 'Active',
       photo: ''
@@ -251,34 +253,100 @@ export default function TrainerManager() {
       </Card>
 
       {/* Add / Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Trainer' : 'Add New Trainer'}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <SchoolIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'प्रशिक्षक विवरण सम्पादन (Edit Trainer)' : 'नयाँ मुख्य प्रशिक्षक दर्ता (Add New Trainer)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {editingItem ? 'प्रशिक्षक प्रोफाइल, मोबाइल PIN र विज्ञता अद्यावधिक गर्नुहोस्' : 'प्रशिक्षकको व्यक्तिगत विवरण, ४-अंकको सुरक्षा पिन र विषय दर्ता गर्नुहोस्'}
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <TextField
-              label="Trainer Full Name"
+              label="Trainer Full Name *"
               fullWidth
+              size="small"
+              placeholder="उदा: Pooja Rajbanshi"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
             />
             <TextField
-              label="Mobile Number (for WhatsApp/SMS)"
+              label="Mobile Number (for WhatsApp/SMS) *"
               fullWidth
+              size="small"
+              placeholder="98XXXXXXXX"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
             />
             <TextField
               select
-              label="Primary Occupation Specialization"
+              label="Primary Occupation Specialization *"
               fullWidth
+              size="small"
               value={formData.occupationId}
               onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- पेशा चयन गर्नुहोस् (Select Occupation) --
+              </MenuItem>
               {db.occupations.map((occ) => (
                 <MenuItem key={occ.id} value={occ.id}>
                   {occ.name}
@@ -286,25 +354,30 @@ export default function TrainerManager() {
               ))}
             </TextField>
             <TextField
-              label="4-Digit Security PIN (for mobile unlock)"
+              label="4-Digit Security PIN (for mobile unlock) *"
               fullWidth
+              size="small"
               type="password"
               inputProps={{ maxLength: 4 }}
+              placeholder="उदा: 1234"
               value={formData.pin}
               onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              helperText="Trainer will enter this 4-digit PIN to login instantly."
+              helperText="प्रशिक्षकले मोबाइलबाट लगइन गर्दा यो ४-अंकको PIN प्रयोग गर्नेछन्।"
               required
             />
             <TextField
               label="Specialization Details"
               fullWidth
+              size="small"
               value={formData.specialization}
               onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-              placeholder="e.g. Elderly Care & First Aid"
+              placeholder="उदा: Cosmetology & Hair Styling / Caregiver"
             />
             <TextField
               label="Photo URL (Optional)"
               fullWidth
+              size="small"
+              placeholder="https://example.com/trainer-photo.jpg"
               value={formData.photo}
               onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
             />
@@ -312,18 +385,58 @@ export default function TrainerManager() {
               select
               label="Status"
               fullWidth
+              size="small"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
+              <MenuItem value="Active">Active (सक्रिय)</MenuItem>
+              <MenuItem value="Inactive">Inactive (निष्क्रिय)</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Save Trainer
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            सुरक्षित गर्नुहोस् (Save Trainer)
           </Button>
         </DialogActions>
       </Dialog>

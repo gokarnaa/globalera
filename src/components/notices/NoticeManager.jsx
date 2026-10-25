@@ -24,7 +24,8 @@ import {
   InputAdornment,
   ToggleButton,
   ToggleButtonGroup,
-  Paper
+  Paper,
+  Avatar
 } from '@mui/material';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import AddIcon from '@mui/icons-material/Add';
@@ -36,6 +37,8 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import PriorityHighIcon from '@mui/icons-material/PriorityHigh';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import PrintIcon from '@mui/icons-material/Print';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 
 export default function NoticeManager() {
@@ -62,7 +65,7 @@ export default function NoticeManager() {
       content: '',
       targetRole: 'ALL',
       priority: 'Normal',
-      author: 'Principal / Admin'
+      author: ''
     });
     setOpenDialog(true);
   };
@@ -365,15 +368,75 @@ export default function NoticeManager() {
       )}
 
       {/* Add / Edit Notice Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Official Notice' : 'Broadcast New Official Notice'}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <CampaignIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'आधिकारिक सूचना सम्पादन (Edit Notice)' : 'नयाँ आधिकारिक सूचना जारी (Broadcast Notice)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                समस्त प्रशिक्षार्थी, प्रशिक्षक तथा कर्मचारी वर्गका लागि सूचना प्रसारण
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <TextField
-              label="Notice Title (e.g. Dashain Break / CTEVT Inspection)"
+              label="Notice Title (e.g. Dashain Break / CTEVT Inspection) *"
               fullWidth
+              size="small"
+              placeholder="उदा: बडादशैं बिदा सम्बन्धमा / CTEVT अनुगमन"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -385,12 +448,13 @@ export default function NoticeManager() {
                   select
                   label="Target Audience"
                   fullWidth
+                  size="small"
                   value={formData.targetRole}
                   onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
                 >
-                  <MenuItem value="ALL">Entire Institute (All)</MenuItem>
-                  <MenuItem value="TRAINERS">Trainers Only</MenuItem>
-                  <MenuItem value="STUDENTS">Students Only</MenuItem>
+                  <MenuItem value="ALL">Entire Institute (सबैका लागि)</MenuItem>
+                  <MenuItem value="TRAINERS">Trainers Only (प्रशिक्षकहरू)</MenuItem>
+                  <MenuItem value="STUDENTS">Students Only (प्रशिक्षार्थीहरू)</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={6}>
@@ -398,20 +462,23 @@ export default function NoticeManager() {
                   select
                   label="Priority Level"
                   fullWidth
+                  size="small"
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                 >
-                  <MenuItem value="Normal">Normal Notice</MenuItem>
-                  <MenuItem value="Urgent">Urgent / Immediate Action</MenuItem>
+                  <MenuItem value="Normal">Normal Notice (सामान्य)</MenuItem>
+                  <MenuItem value="Urgent">Urgent / Immediate Action (जरुरी)</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
 
             <TextField
-              label="Notice Content / Circular Directives"
+              label="Notice Content / Circular Directives *"
               multiline
               rows={4}
               fullWidth
+              size="small"
+              placeholder="सूचनाको सम्पूर्ण व्यहोरा, मिति तथा पालना गर्नुपर्ने निर्देशनहरू..."
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               required
@@ -420,15 +487,56 @@ export default function NoticeManager() {
             <TextField
               label="Author / Signing Authority"
               fullWidth
+              size="small"
+              placeholder="उदा: प्रिन्सिपल / प्रशासन शाखा"
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800 }}>
-            {editingItem ? 'Update Notice' : 'Broadcast Notice'}
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            {editingItem ? 'अद्यावधिक गर्नुहोस्' : 'सूचना जारी गर्नुहोस् (Broadcast)'}
           </Button>
         </DialogActions>
       </Dialog>

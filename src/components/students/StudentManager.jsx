@@ -43,6 +43,8 @@ import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import SearchIcon from '@mui/icons-material/Search';
+import CloseIcon from '@mui/icons-material/Close';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
@@ -109,26 +111,24 @@ export default function StudentManager() {
 
   const handleOpenAdd = () => {
     setEditingItem(null);
-    const nextNum = db.students.length + 101;
-    const defaultGroup = myGroups[0] || db.trainingGroups[0];
     setFormData({
-      tgid: `TGID-${nextNum}`,
+      tgid: '',
       name: '',
       phone: '',
       secondaryPhone: '',
       email: '',
-      gender: 'Female',
-      dateOfBirth: '2002-01-01',
+      gender: '',
+      dateOfBirth: '',
       citizenshipNumber: '',
-      citizenshipDistrict: 'Kathmandu',
+      citizenshipDistrict: '',
       permanentAddress: '',
       currentAddress: '',
       fatherName: '',
       motherName: '',
       guardianContact: '',
-      groupId: defaultGroup?.id || '',
-      admissionDate: new Date().toISOString().slice(0, 10),
-      expectedEndDate: defaultGroup?.expectedEndDate || '',
+      groupId: '',
+      admissionDate: '',
+      expectedEndDate: '',
       status: 'Active',
       photoUrl: ''
     });
@@ -548,17 +548,78 @@ export default function StudentManager() {
       )}
 
       {/* Enroll / Edit Student Dialog */}
-      <Dialog open={openAddDialog} onClose={() => setOpenAddDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Student Details' : 'Enroll New Student into Training Group'}
+      <Dialog
+        open={openAddDialog}
+        onClose={() => setOpenAddDialog(false)}
+        maxWidth="md"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <PersonAddAlt1Icon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'विद्यार्थी विवरण सम्पादन (Edit Student Details)' : 'नयाँ विद्यार्थी भर्ना (Enroll New Student)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {editingItem ? 'विद्यार्थीको व्यक्तिगत तथा शैक्षिक विवरण अद्यावधिक गर्नुहोस्' : 'प्रशिक्षार्थीको व्यक्तिगत विवरण र तालिम समूह आबद्धता भर्नुहोस्'}
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenAddDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <TextField
-                  label="Student TGID"
+                  label="Student TGID *"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: TGID-105"
                   value={formData.tgid}
                   onChange={(e) => setFormData({ ...formData, tgid: e.target.value })}
                   required
@@ -566,8 +627,10 @@ export default function StudentManager() {
               </Grid>
               <Grid item xs={12} sm={8}>
                 <TextField
-                  label="Full Name (देवनागरी / English)"
+                  label="Full Name (देवनागरी / English) *"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: सीता शर्मा / Sita Sharma"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -578,13 +641,17 @@ export default function StudentManager() {
             {/* Operational Training Group Selection */}
             <TextField
               select
-              label="Assign to Training Group (Class & Shift)"
+              label="Assign to Training Group (Class & Shift) *"
               fullWidth
+              size="small"
               value={formData.groupId}
               onChange={(e) => handleGroupSelect(e.target.value)}
-              helperText="Assigning group automatically binds the Student to the Course, Trainer, and Shift schedule."
+              helperText="समूह चयन गर्दा विद्यार्थी स्वतः सम्बन्धित पाठ्यक्रम, प्रशिक्षक र सिफ्टसँग आबद्ध हुन्छ।"
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- तालिम समूह चयन गर्नुहोस् (Select Group) --
+              </MenuItem>
               {myGroups.map((grp) => {
                 const crs = db.courses.find((c) => c.id === grp.courseId);
                 return (
@@ -598,8 +665,10 @@ export default function StudentManager() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Primary Mobile (WhatsApp Enabled)"
+                  label="Primary Mobile (WhatsApp Enabled) *"
                   fullWidth
+                  size="small"
+                  placeholder="98XXXXXXXX"
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   required
@@ -609,6 +678,8 @@ export default function StudentManager() {
                 <TextField
                   label="Secondary Phone / Guardian Contact"
                   fullWidth
+                  size="small"
+                  placeholder="98XXXXXXXX"
                   value={formData.secondaryPhone}
                   onChange={(e) => setFormData({ ...formData, secondaryPhone: e.target.value })}
                 />
@@ -621,12 +692,16 @@ export default function StudentManager() {
                   select
                   label="Gender"
                   fullWidth
+                  size="small"
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                 >
-                  <MenuItem value="Female">Female</MenuItem>
-                  <MenuItem value="Male">Male</MenuItem>
-                  <MenuItem value="Other">Other</MenuItem>
+                  <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                    -- लिंग चयन गर्नुहोस् --
+                  </MenuItem>
+                  <MenuItem value="Female">Female (महिला)</MenuItem>
+                  <MenuItem value="Male">Male (पुरुष)</MenuItem>
+                  <MenuItem value="Other">Other (अन्य)</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -634,6 +709,7 @@ export default function StudentManager() {
                   type="date"
                   label="Date of Birth"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.dateOfBirth}
                   onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
@@ -643,6 +719,8 @@ export default function StudentManager() {
                 <TextField
                   label="Citizenship Number"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: 27-01-75-XXXXX"
                   value={formData.citizenshipNumber}
                   onChange={(e) => setFormData({ ...formData, citizenshipNumber: e.target.value })}
                 />
@@ -654,14 +732,18 @@ export default function StudentManager() {
                 <TextField
                   label="Permanent Address"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: Pokhara-8, Kaski"
                   value={formData.permanentAddress}
                   onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Current Address (Kathmandu)"
+                  label="Current Address"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: Koteshwor, Kathmandu"
                   value={formData.currentAddress}
                   onChange={(e) => setFormData({ ...formData, currentAddress: e.target.value })}
                 />
@@ -673,6 +755,8 @@ export default function StudentManager() {
                 <TextField
                   label="Father Name"
                   fullWidth
+                  size="small"
+                  placeholder="बुबाको नाम"
                   value={formData.fatherName}
                   onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
                 />
@@ -681,6 +765,8 @@ export default function StudentManager() {
                 <TextField
                   label="Mother Name"
                   fullWidth
+                  size="small"
+                  placeholder="आमाको नाम"
                   value={formData.motherName}
                   onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
                 />
@@ -693,6 +779,7 @@ export default function StudentManager() {
                   type="date"
                   label="Admission Date"
                   fullWidth
+                  size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.admissionDate}
                   onChange={(e) => setFormData({ ...formData, admissionDate: e.target.value })}
@@ -703,14 +790,15 @@ export default function StudentManager() {
                   select
                   label="Status"
                   fullWidth
+                  size="small"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
-                  <MenuItem value="Active">Active</MenuItem>
-                  <MenuItem value="Completed">Completed</MenuItem>
-                  <MenuItem value="OJT">OJT Phase</MenuItem>
-                  <MenuItem value="Placed">Placed</MenuItem>
-                  <MenuItem value="Dropout">Dropout</MenuItem>
+                  <MenuItem value="Active">Active (सक्रिय)</MenuItem>
+                  <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+                  <MenuItem value="OJT">OJT Phase (इन्टर्नसिप)</MenuItem>
+                  <MenuItem value="Placed">Placed (रोजगारीमा)</MenuItem>
+                  <MenuItem value="Dropout">Dropout (छोडेको)</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -718,15 +806,56 @@ export default function StudentManager() {
             <TextField
               label="Photo URL (Optional)"
               fullWidth
+              size="small"
+              placeholder="https://example.com/photo.jpg"
               value={formData.photoUrl}
               onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            Save Student
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenAddDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            सुरक्षित गर्नुहोस् (Save Student)
           </Button>
         </DialogActions>
       </Dialog>

@@ -138,15 +138,14 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
   const handleOpenAdd = () => {
     setEditingItem(null);
     const today = new Date().toISOString().slice(0, 10);
-    const firstSyllabus = availableSyllabi[0];
     setFormData({
       groupId: selectedGroupId,
-      syllabusId: firstSyllabus?.id || '',
+      syllabusId: '',
       planDate: today,
       dayName: daysOfWeek[new Date(today).getDay()],
-      theoryAspect: firstSyllabus ? `सैद्धान्तिक ज्ञान: ${firstSyllabus.title} सम्बन्धी आधारभूत सिद्धान्त र सुरक्षा नियमहरू` : '',
-      practicalAspect: firstSyllabus ? `प्रयोगात्मक सीप: ${firstSyllabus.title} मा औजार ह्यान्डलिङ र प्रत्यक्ष कार्यथलो अभ्यास` : '',
-      plannedHours: 2,
+      theoryAspect: '',
+      practicalAspect: '',
+      plannedHours: '',
       status: 'Pending'
     });
     setOpenDialog(true);
@@ -1107,12 +1106,64 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
         onClose={() => setOpenDialog(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          {editingItem ? 'कार्ययोजना सम्पादन (Edit Work Plan)' : '+ नयाँ दैनिक कार्ययोजना सिर्जना गर्नुहोस् (Create Work Plan)'}
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <EventNoteIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'दैनिक कार्ययोजना सम्पादन (Edit Work Plan)' : 'नयाँ दैनिक कार्ययोजना सिर्जना (Create Work Plan)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {selectedGroup?.groupCode} • {selectedCourse?.title} को दैनिक कक्षा सञ्चालन योजना
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           <Grid container spacing={2}>
             {/* Syllabus Unit Selector */}
             <Grid item xs={12}>
@@ -1125,6 +1176,9 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 onChange={(e) => handleSyllabusSelect(e.target.value)}
                 required
               >
+                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                  -- पाठ्यक्रम एकाइ छान्नुहोस् (Select Syllabus Unit) --
+                </MenuItem>
                 {availableSyllabi.map((syl) => (
                   <MenuItem key={syl.id} value={syl.id}>
                     <b>Unit {syl.unitNo}: {syl.title}</b> ({syl.totalHours} hrs)
@@ -1164,8 +1218,9 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 label="घण्टा (Planned Hours) *"
                 fullWidth
                 size="small"
+                placeholder="उदा: 2"
                 value={formData.plannedHours}
-                onChange={(e) => setFormData({ ...formData, plannedHours: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, plannedHours: e.target.value === '' ? '' : Number(e.target.value) })}
               />
             </Grid>
 
@@ -1214,11 +1269,48 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
           </Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
             सुरक्षित गर्नुहोस् (Save Work Plan)
           </Button>
         </DialogActions>

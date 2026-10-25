@@ -126,21 +126,18 @@ export default function LessonPlanManager() {
   // Add / Edit Handlers
   const handleOpenAdd = () => {
     setEditingItem(null);
-    const unmappedWp = availableWorkPlans.find((wp) => !groupLessonPlans.some((lp) => lp.workPlanId === wp.id)) || availableWorkPlans[0];
-    const syl = unmappedWp ? (db.syllabi || []).find((s) => s.id === unmappedWp.syllabusId) : null;
-
     setFormData({
-      workPlanId: unmappedWp?.id || '',
+      workPlanId: '',
       groupId: selectedGroupId,
-      objectives: syl ? `प्रशिक्षार्थीहरूले ${syl.title} सम्बन्धी आधारभूत सिद्धान्त बुझी सुरक्षा प्रोटोकल पालना गर्दै कार्यथलोमा प्रत्यक्ष सीप प्रदर्शन गर्न सक्षम हुनेछन्।` : '',
-      materialsNeeded: syl?.toolsAndMaterials || 'मानक तालिम औजार, प्रदर्शन उपकरण, PPE किट, अभ्यास म्यानुअल तथा वर्कबुक।',
-      introStep: '१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन, सुरक्षा नियम तथा पाठको उद्देश्य परिचय।',
-      demoStep: `३० मिनेट: प्रशिक्षकद्वारा ${syl?.title || 'सीप'} को प्रत्यक्ष प्रयोगात्मक प्रदर्शन (Live Demonstration)।`,
-      practiceStep: '६० मिनेट: प्रशिक्षार्थीहरूद्वारा कार्यथलोमा प्रत्यक्ष सीप अभ्यास ड्रिल (Guided Hands-on Drill)।',
-      evalStep: '१५ मिनेट: सीप दक्षता परीक्षण, प्रश्नोत्तर, मूल्याङ्कन तथा निष्कर्ष।',
-      assessmentMethod: 'प्रत्यक्ष कार्यथलो अवलोकन, सीप चेकलिस्ट रेटिङ तथा मौखिक प्रश्नोत्तर।',
-      homework: 'सत्रको कार्यविधि अध्ययन गर्ने र दैनिक लगबुक (Log Book) अद्यावधिक गर्ने।',
-      notes: 'सुरक्षा मापदण्डको पूर्ण पालना, व्यक्तिगत सुरक्षा उपकरणको प्रयोग तथा सबै विद्यार्थीको समान सहभागिता सुनिश्चित गर्ने।'
+      objectives: '',
+      materialsNeeded: '',
+      introStep: '',
+      demoStep: '',
+      practiceStep: '',
+      evalStep: '',
+      assessmentMethod: '',
+      homework: '',
+      notes: ''
     });
     setOpenDialog(true);
   };
@@ -896,13 +893,65 @@ export default function LessonPlanManager() {
         onClose={() => setOpenDialog(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          {editingItem ? 'पाठयोजना सम्पादन (Edit Lesson Plan)' : '+ नयाँ दैनिक पाठयोजना सिर्जना गर्नुहोस् (Create Lesson Plan)'}
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <AssignmentIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'दैनिक पाठयोजना सम्पादन (Edit Lesson Plan)' : 'नयाँ दैनिक पाठयोजना सिर्जना (Create Lesson Plan)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {selectedGroup?.groupCode} • ४-चरणीय शिक्षण विधि र कार्यथलो अभ्यास योजना
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
-          <Stack spacing={2.2}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             {/* Work Plan Selector */}
             <TextField
               select
@@ -913,6 +962,9 @@ export default function LessonPlanManager() {
               onChange={(e) => handleWorkPlanSelect(e.target.value)}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- कार्ययोजना दिन छान्नुहोस् (Select Work Plan) --
+              </MenuItem>
               {availableWorkPlans.map((wp) => {
                 const syl = (db.syllabi || []).find((s) => s.id === wp.syllabusId);
                 return (
@@ -956,6 +1008,7 @@ export default function LessonPlanManager() {
                   label="१. परिचय तथा सुरक्षा (Intro & Safety - 15m)"
                   fullWidth
                   size="small"
+                  placeholder="१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन, सुरक्षा नियम तथा पाठको उद्देश्य परिचय।"
                   value={formData.introStep}
                   onChange={(e) => setFormData({ ...formData, introStep: e.target.value })}
                 />
@@ -965,6 +1018,7 @@ export default function LessonPlanManager() {
                   label="२. प्रशिक्षक प्रदर्शन (Trainer Demo - 30m)"
                   fullWidth
                   size="small"
+                  placeholder="३० मिनेट: प्रशिक्षकद्वारा प्रत्यक्ष प्रयोगात्मक प्रदर्शन (Live Demonstration)।"
                   value={formData.demoStep}
                   onChange={(e) => setFormData({ ...formData, demoStep: e.target.value })}
                 />
@@ -974,6 +1028,7 @@ export default function LessonPlanManager() {
                   label="३. विद्यार्थी अभ्यास (Trainee Practice - 60m)"
                   fullWidth
                   size="small"
+                  placeholder="६० मिनेट: प्रशिक्षार्थीहरूद्वारा कार्यथलोमा प्रत्यक्ष सीप अभ्यास ड्रिल।"
                   value={formData.practiceStep}
                   onChange={(e) => setFormData({ ...formData, practiceStep: e.target.value })}
                 />
@@ -983,6 +1038,7 @@ export default function LessonPlanManager() {
                   label="४. मूल्याङ्कन र समीक्षा (Review & Q&A - 15m)"
                   fullWidth
                   size="small"
+                  placeholder="१५ मिनेट: सीप दक्षता परीक्षण, प्रश्नोत्तर, मूल्याङ्कन तथा निष्कर्ष।"
                   value={formData.evalStep}
                   onChange={(e) => setFormData({ ...formData, evalStep: e.target.value })}
                 />
@@ -996,6 +1052,7 @@ export default function LessonPlanManager() {
                   label="सीप मूल्याङ्कन विधि (Assessment Method)"
                   fullWidth
                   size="small"
+                  placeholder="उदा: प्रत्यक्ष कार्यथलो अवलोकन, सीप चेकलिस्ट रेटिङ तथा मौखिक प्रश्नोत्तर।"
                   value={formData.assessmentMethod}
                   onChange={(e) => setFormData({ ...formData, assessmentMethod: e.target.value })}
                 />
@@ -1005,6 +1062,7 @@ export default function LessonPlanManager() {
                   label="गृहकार्य / अभ्यास (Homework / Drill)"
                   fullWidth
                   size="small"
+                  placeholder="उदा: दैनिक लगबुक (Log Book) अद्यावधिक गर्ने।"
                   value={formData.homework}
                   onChange={(e) => setFormData({ ...formData, homework: e.target.value })}
                 />
@@ -1016,16 +1074,54 @@ export default function LessonPlanManager() {
               label="विशेष निर्देशन तथा सुरक्षा सावधानी (Instructor Notes & Precautions)"
               fullWidth
               size="small"
+              placeholder="उदा: सुरक्षा मापदण्डको पूर्ण पालना र PPE किटको अनिवार्य प्रयोग।"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
           </Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
             सुरक्षित गर्नुहोस् (Save Lesson Plan)
           </Button>
         </DialogActions>

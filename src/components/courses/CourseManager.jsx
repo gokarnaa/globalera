@@ -47,6 +47,7 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
@@ -180,13 +181,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
   const handleOpenAdd = () => {
     setEditingItem(null);
     setFormData({
-      occupationId: db.occupations?.[0]?.id || '',
+      occupationId: '',
       title: '',
-      level: 'CTEVT Level 1',
-      durationValue: 3,
+      level: '',
+      durationValue: '',
       durationUnit: 'Months',
-      totalHours: 390,
-      price: 15000,
+      totalHours: '',
+      price: '',
       status: 'Active',
       description: ''
     });
@@ -937,17 +938,70 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         onClose={() => setOpenDialog(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          {editingItem ? 'पाठ्यक्रम सम्पादन गर्नुहोस् (Edit Course Master)' : '+ नयाँ पाठ्यक्रम सिर्जना गर्नुहोस् (Create Course Master)'}
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <MenuBookIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'पाठ्यक्रम सम्पादन गर्नुहोस् (Edit Course Master)' : 'नयाँ पाठ्यक्रम सिर्जना (Create New Course Master)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                {editingItem ? 'पाठ्यक्रम, अवधि र शुल्क विवरण अद्यावधिक गर्नुहोस्' : 'CTEVT पाठ्यक्रम मापदण्ड अनुसार नयाँ विषय दर्ता गर्नुहोस्'}
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           {/* Quick Preset Selector for instant prefill */}
           {!editingItem && (
-            <Box sx={{ mb: 2.5, p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                <AutoAwesomeIcon sx={{ fontSize: 17, color: '#F59E0B' }} />
+            <Box sx={{ mb: 2.5, p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.2 }}>
+                <AutoAwesomeIcon sx={{ fontSize: 18, color: '#F59E0B' }} />
                 <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59' }}>
                   द्रुत CTEVT टेम्प्लेटबाट भर्नुहोस् (1-Click Auto-Fill):
                 </Typography>
@@ -960,14 +1014,17 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                     variant="outlined"
                     onClick={() => handleApplyTemplate(tmpl)}
                     sx={{
-                      fontSize: '0.72rem',
+                      fontSize: '0.74rem',
                       fontWeight: 800,
                       textTransform: 'none',
                       borderRadius: 2,
-                      bgcolor: '#FFFFFF'
+                      bgcolor: '#FFFFFF',
+                      borderColor: '#CBD5E1',
+                      color: '#0F2C59',
+                      '&:hover': { bgcolor: '#EFF6FF', borderColor: '#2563EB' }
                     }}
                   >
-                    {tmpl.title}
+                    + {tmpl.title}
                   </Button>
                 ))}
               </Stack>
@@ -986,6 +1043,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
                 required
               >
+                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                  -- पेशा चयन गर्नुहोस् (Select Occupation) --
+                </MenuItem>
                 {(db.occupations || []).map((occ) => (
                   <MenuItem key={occ.id} value={occ.id}>
                     {occ.name} ({occ.id})
@@ -1017,6 +1077,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
               >
+                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                  -- स्तर चयन गर्नुहोस् --
+                </MenuItem>
                 <MenuItem value="CTEVT Level 1">CTEVT Level 1 (आधारभूत)</MenuItem>
                 <MenuItem value="CTEVT Level 2">CTEVT Level 2 (मध्यम)</MenuItem>
                 <MenuItem value="Short Term">छोटो अवधिको (Short Term)</MenuItem>
@@ -1031,9 +1094,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 label="कुल तालिम घण्टा (Total Hours) *"
                 fullWidth
                 size="small"
+                placeholder="390"
                 value={formData.totalHours}
-                onChange={(e) => setFormData({ ...formData, totalHours: Number(e.target.value) })}
-                helperText="CTEVT मापदण्ड: ३९० घण्टा"
+                onChange={(e) => setFormData({ ...formData, totalHours: e.target.value === '' ? '' : Number(e.target.value) })}
+                helperText="CTEVT मानक: ३९० घण्टा"
               />
             </Grid>
 
@@ -1044,8 +1108,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 label="तालिम शुल्क (Fee NPR) *"
                 fullWidth
                 size="small"
+                placeholder="15000"
                 value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, price: e.target.value === '' ? '' : Number(e.target.value) })}
               />
             </Grid>
 
@@ -1056,8 +1121,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 label="अवधि संख्या (Duration Value)"
                 fullWidth
                 size="small"
+                placeholder="3"
                 value={formData.durationValue}
-                onChange={(e) => setFormData({ ...formData, durationValue: Number(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, durationValue: e.target.value === '' ? '' : Number(e.target.value) })}
               />
             </Grid>
 
@@ -1107,11 +1173,48 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
           </Button>
-          <Button variant="contained" onClick={handleSave} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
             सुरक्षित गर्नुहोस् (Save Course)
           </Button>
         </DialogActions>
@@ -1126,28 +1229,75 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
           onClose={() => setSelectedCourseDetails(null)}
           maxWidth="md"
           fullWidth
-          PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+          BackdropProps={{
+            sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+          }}
+          PaperProps={{
+            sx: {
+              borderRadius: 4,
+              overflow: 'hidden',
+              boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+              border: '1px solid rgba(226, 232, 240, 0.8)'
+            }
+          }}
         >
-          <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box>
-              <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                {selectedCourseDetails.title}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B' }}>
-                Course Code: <b>{selectedCourseDetails.id}</b> • {selectedCourseDetails.level}
-              </Typography>
+          <DialogTitle
+            sx={{
+              p: 2.5,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+                <SchoolIcon />
+              </Avatar>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                  {selectedCourseDetails.title}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                  Course Code: <b>{selectedCourseDetails.id}</b> • {selectedCourseDetails.level}
+                </Typography>
+              </Box>
             </Box>
-            <Chip
-              label={selectedCourseDetails.status}
-              size="small"
-              sx={{
-                bgcolor: selectedCourseDetails.status === 'Active' ? '#ECFDF5' : '#FEE2E2',
-                color: selectedCourseDetails.status === 'Active' ? '#059669' : '#DC2626',
-                fontWeight: 900
-              }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Chip
+                label={selectedCourseDetails.status}
+                size="small"
+                sx={{
+                  bgcolor: selectedCourseDetails.status === 'Active' ? '#ECFDF5' : '#FEE2E2',
+                  color: selectedCourseDetails.status === 'Active' ? '#059669' : '#DC2626',
+                  fontWeight: 900
+                }}
+              />
+              <IconButton
+                size="small"
+                onClick={() => setSelectedCourseDetails(null)}
+                sx={{
+                  color: 'rgba(255, 255, 255, 0.8)',
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+                }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </DialogTitle>
-          <DialogContent dividers>
+          <DialogContent
+            dividers
+            sx={{
+              p: 3,
+              bgcolor: '#FFFFFF',
+              '&::-webkit-scrollbar': { width: 6 },
+              '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+              '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+              '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            }}
+          >
             <Grid container spacing={2} sx={{ mb: 2.5, p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5 }}>
               <Grid item xs={6} sm={3}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>

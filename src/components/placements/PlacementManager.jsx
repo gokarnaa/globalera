@@ -40,6 +40,7 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import WorkIcon from '@mui/icons-material/Work';
 import PersonIcon from '@mui/icons-material/Person';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import CloseIcon from '@mui/icons-material/Close';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
@@ -67,11 +68,11 @@ export default function PlacementManager() {
   const handleOpenAdd = () => {
     setEditingItem(null);
     setFormData({
-      studentId: db.students[0]?.id || '',
-      employerId: db.employers[0]?.id || '',
-      targetJob: 'Geriatric Caregiver Specialist',
-      preferredLocation: 'Kathmandu',
-      expectedSalary: 'NPR 25,000 / month',
+      studentId: '',
+      employerId: '',
+      targetJob: '',
+      preferredLocation: '',
+      expectedSalary: '',
       employmentType: 'Full-Time Employee',
       workSchedule: 'Day Shift',
       paymentType: 'Monthly Salary',
@@ -559,20 +560,82 @@ export default function PlacementManager() {
       )}
 
       {/* Add / Edit Dialog */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Career Placement Plan (EPP)' : 'Create Career Placement Plan (EPP)'}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 4,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            p: 2.5,
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            color: '#FFFFFF',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+              <RocketLaunchIcon />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                {editingItem ? 'रोजगार योजना सम्पादन (Edit Placement Plan)' : 'रोजगार कार्ययोजना दर्ता (Create Placement Plan)'}
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+                विद्यार्थीको रोजगारी पद, साझेदार संस्था, तलब तथा सम्झौता ट्र्याकिङ
+              </Typography>
+            </Box>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.8)',
+              bgcolor: 'rgba(255, 255, 255, 0.08)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ pt: 1 }}>
-          <Stack spacing={2.5} sx={{ mt: 1 }}>
+        <DialogContent
+          dividers
+          sx={{
+            p: 3,
+            bgcolor: '#FFFFFF',
+            '&::-webkit-scrollbar': { width: 6 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
+          <Stack spacing={2.5}>
             <TextField
               select
-              label="Select Student"
+              label="Select Student *"
               fullWidth
+              size="small"
               value={formData.studentId}
               onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
               required
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- विद्यार्थी छान्नुहोस् (Select Student) --
+              </MenuItem>
               {db.students.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   {s.name} ({s.tgid})
@@ -581,11 +644,12 @@ export default function PlacementManager() {
             </TextField>
 
             <TextField
-              label="Target Job / Trade Title"
+              label="Target Job / Trade Title *"
               fullWidth
+              size="small"
               value={formData.targetJob}
               onChange={(e) => setFormData({ ...formData, targetJob: e.target.value })}
-              placeholder="e.g. Senior Elderly Care Assistant"
+              placeholder="उदा: Senior Elderly Care Assistant / Head Beautician"
               required
             />
 
@@ -593,9 +657,13 @@ export default function PlacementManager() {
               select
               label="Partner Employer (or Self-Employed)"
               fullWidth
+              size="small"
               value={formData.employerId}
               onChange={(e) => setFormData({ ...formData, employerId: e.target.value })}
             >
+              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                -- रोजगार साझेदार छान्नुहोस् (Select Employer) --
+              </MenuItem>
               {db.employers.map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
                   {emp.name} ({emp.industry})
@@ -608,6 +676,8 @@ export default function PlacementManager() {
                 <TextField
                   label="Expected Salary / Monthly Remuneration"
                   fullWidth
+                  size="small"
+                  placeholder="उदा: NPR 25,000 / month"
                   value={formData.expectedSalary}
                   onChange={(e) => setFormData({ ...formData, expectedSalary: e.target.value })}
                 />
@@ -617,6 +687,7 @@ export default function PlacementManager() {
                   select
                   label="Employment Type"
                   fullWidth
+                  size="small"
                   value={formData.employmentType}
                   onChange={(e) => setFormData({ ...formData, employmentType: e.target.value })}
                 >
@@ -634,6 +705,7 @@ export default function PlacementManager() {
                   select
                   label="Work Schedule"
                   fullWidth
+                  size="small"
                   value={formData.workSchedule}
                   onChange={(e) => setFormData({ ...formData, workSchedule: e.target.value })}
                 >
@@ -647,13 +719,14 @@ export default function PlacementManager() {
                   select
                   label="Placement Status"
                   fullWidth
+                  size="small"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
-                  <MenuItem value="Planned">Planned</MenuItem>
-                  <MenuItem value="Placed">Placed (Employed)</MenuItem>
-                  <MenuItem value="Ongoing">Ongoing Trial</MenuItem>
-                  <MenuItem value="Cancelled">Cancelled</MenuItem>
+                  <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
+                  <MenuItem value="Placed">Placed (रोजगारीमा नियुक्त)</MenuItem>
+                  <MenuItem value="Ongoing">Ongoing Trial (परीक्षणमा)</MenuItem>
+                  <MenuItem value="Cancelled">Cancelled (रद्द)</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -663,15 +736,56 @@ export default function PlacementManager() {
               multiline
               rows={2}
               fullWidth
+              size="small"
+              placeholder="सम्झौता पत्र, नियुक्ति मिति वा थप निर्देशन..."
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleSave}>
-            {editingItem ? 'Update Placement Plan' : 'Save Placement Plan'}
+        <DialogActions
+          sx={{
+            p: 2.5,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            justifyContent: 'flex-end',
+            gap: 1.5
+          }}
+        >
+          <Button
+            onClick={() => setOpenDialog(false)}
+            sx={{
+              fontWeight: 700,
+              color: '#64748B',
+              border: '1px solid #E2E8F0',
+              borderRadius: 2,
+              px: 2.5,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+            }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<CheckCircleIcon />}
+            onClick={handleSave}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              textTransform: 'none',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+              }
+            }}
+          >
+            सुरक्षित गर्नुहोस् (Save Placement)
           </Button>
         </DialogActions>
       </Dialog>
