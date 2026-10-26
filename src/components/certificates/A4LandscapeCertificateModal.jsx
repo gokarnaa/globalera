@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   Box,
   Typography,
   Button,
-  Chip
+  Chip,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
@@ -25,7 +27,27 @@ export default function A4LandscapeCertificateModal({
   group,
   trainer
 }) {
+  const [printMode, setPrintMode] = useState(certificate?.templateId === 'preprinted' ? 'preprinted' : 'full');
+
   if (!open || !certificate || !student) return null;
+
+  const snapshot = certificate.snapshot || {};
+  const studentNameEn = snapshot.studentNameEn || student.name;
+  const studentNameNp = snapshot.studentNameNp || student.nameNp || '';
+  const guardianNameEn = snapshot.guardianNameEn || student.fatherName || student.guardianName || 'Guardian';
+  const guardianNameNp = snapshot.guardianNameNp || student.guardianNameNp || 'अभिभावक';
+  const courseTitle = snapshot.courseTitleEn || course?.title || 'Vocational Training';
+  const courseTitleNp = snapshot.courseTitleNp || course?.titleNp || 'व्यावसायिक तालिम';
+  const totalHours = snapshot.totalHours || course?.totalHours || 390;
+  const startDate = snapshot.startDate || group?.admissionDate || '2026-07-15';
+  const endDate = snapshot.endDate || group?.expectedEndDate || '2026-10-15';
+  const trainerName = snapshot.trainerName || trainer?.name || 'Assigned Instructor';
+  const signatoryName = snapshot.signatoryName || 'Authorized Director';
+  const signatoryDesignation = snapshot.signatoryDesignation || 'Managing Director';
+
+  const isFemale = (student.gender || snapshot.gender || '').toLowerCase() === 'female';
+  const relationNp = snapshot.relationNp || (isFemale ? 'सुपुत्री' : 'सुपुत्र');
+  const relationEn = isFemale ? 'Daughter of' : 'Son of';
 
   const handlePrint = () => {
     window.print();
@@ -47,8 +69,6 @@ export default function A4LandscapeCertificateModal({
     `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `🔗 *अनलाइन प्रमाणीकरण लिंक (Online Verification):*\n${verificationUrl}\n\n` +
     `_CTEVT सम्बन्धन प्राप्त संस्थाबाट जारी आधिकारिक सीप प्रमाणपत्र।_`;
-
-  const isFemale = (student.gender || '').toLowerCase() === 'female';
 
   return (
     <Dialog
@@ -83,6 +103,29 @@ export default function A4LandscapeCertificateModal({
           <Typography variant="body2" sx={{ color: '#cbd5e1', fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
             Certificate No: <b>{certificate.certificateNo}</b>
           </Typography>
+
+          {/* Toggle between full digital certificate and preprinted paper mode */}
+          <ToggleButtonGroup
+            value={printMode}
+            exclusive
+            onChange={(e, next) => next && setPrintMode(next)}
+            size="small"
+            sx={{
+              bgcolor: 'rgba(255,255,255,0.08)',
+              '& .MuiToggleButton-root': {
+                color: '#cbd5e1',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                border: 'none',
+                px: 1.5,
+                py: 0.3,
+                '&.Mui-selected': { bgcolor: '#c59b27', color: '#0f172a', fontWeight: 900 }
+              }
+            }}
+          >
+            <ToggleButton value="full">डिजिटल फुल प्रिन्ट</ToggleButton>
+            <ToggleButton value="preprinted">प्रि-प्रिन्टेड पेपर (Blanks)</ToggleButton>
+          </ToggleButtonGroup>
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -143,124 +186,130 @@ export default function A4LandscapeCertificateModal({
             fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
             color: '#111827',
             position: 'relative',
-            border: '6px double #0b2545',
-            outline: '3px solid #c59b27',
+            border: printMode === 'preprinted' ? 'none' : '6px double #0b2545',
+            outline: printMode === 'preprinted' ? 'none' : '3px solid #c59b27',
             outlineOffset: '-12px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+            boxShadow: printMode === 'preprinted' ? 'none' : '0 10px 30px rgba(0,0,0,0.15)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between'
           }}
         >
           {/* Subtle Background Watermark */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.04,
-              pointerEvents: 'none',
-              zIndex: 0
-            }}
-          >
-            <SchoolIcon sx={{ fontSize: 360, color: '#0b2545' }} />
-          </Box>
+          {printMode !== 'preprinted' && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                opacity: 0.04,
+                pointerEvents: 'none',
+                zIndex: 0
+              }}
+            >
+              <SchoolIcon sx={{ fontSize: 360, color: '#0b2545' }} />
+            </Box>
+          )}
 
           {/* 1. Institutional Letterhead Header */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: '1.5px solid #c59b27' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
-              {/* Left Logo / Emblem */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SchoolIcon sx={{ fontSize: 44, color: '#0b2545' }} />
-              </Box>
+          {printMode !== 'preprinted' && (
+            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: '1.5px solid #c59b27' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
+                {/* Left Logo / Emblem */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <SchoolIcon sx={{ fontSize: 44, color: '#0b2545' }} />
+                </Box>
 
-              {/* Center Institutional Name */}
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontFamily: "'Times New Roman', serif",
-                    fontWeight: 900,
-                    letterSpacing: '0.06em',
-                    color: '#0b2545',
-                    fontSize: '1.45rem',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  KITE CAREGIVER TRAINING CENTER
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 800,
-                    color: '#1e3a8a',
-                    fontSize: '1.1rem',
-                    letterSpacing: '0.02em',
-                    mt: 0.2
-                  }}
-                >
-                  ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: '#475569',
-                    display: 'block',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    mt: 0.3
-                  }}
-                >
-                  Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: '#64748b',
-                    display: 'block',
-                    fontSize: '0.74rem'
-                  }}
-                >
-                  Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Chabahil-07, Kathmandu, Nepal
-                </Typography>
-              </Box>
+                {/* Center Institutional Name */}
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontFamily: "'Times New Roman', serif",
+                      fontWeight: 900,
+                      letterSpacing: '0.06em',
+                      color: '#0b2545',
+                      fontSize: '1.45rem',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    KITE CAREGIVER TRAINING CENTER
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 800,
+                      color: '#1e3a8a',
+                      fontSize: '1.1rem',
+                      letterSpacing: '0.02em',
+                      mt: 0.2
+                    }}
+                  >
+                    ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#475569',
+                      display: 'block',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      mt: 0.3
+                    }}
+                  >
+                    Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#64748b',
+                      display: 'block',
+                      fontSize: '0.74rem'
+                    }}
+                  >
+                    Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Chabahil-07, Kathmandu, Nepal
+                  </Typography>
+                </Box>
 
-              {/* Right CTEVT Emblem */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <VerifiedIcon sx={{ fontSize: 44, color: '#c59b27' }} />
+                {/* Right CTEVT Emblem */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <VerifiedIcon sx={{ fontSize: 44, color: '#c59b27' }} />
+                </Box>
               </Box>
             </Box>
-          </Box>
+          )}
 
           {/* 2. Certificate Title Banner */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: 1 }}>
-            <Typography
-              variant="h5"
-              sx={{
-                fontFamily: "'Times New Roman', serif",
-                fontWeight: 900,
-                color: '#0b2545',
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                fontSize: '1.25rem',
-                mb: 0.2
-              }}
-            >
-              CERTIFICATE OF VOCATIONAL TRAINING COMPLETION
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 800,
-                color: '#c59b27',
-                fontSize: '1rem',
-                letterSpacing: '0.04em'
-              }}
-            >
-              (व्यावसायिक तालिम समापन प्रमाणपत्र)
-            </Typography>
-          </Box>
+          {printMode !== 'preprinted' && (
+            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: 1 }}>
+              <Typography
+                variant="h5"
+                sx={{
+                  fontFamily: "'Times New Roman', serif",
+                  fontWeight: 900,
+                  color: '#0b2545',
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  fontSize: '1.25rem',
+                  mb: 0.2
+                }}
+              >
+                CERTIFICATE OF VOCATIONAL TRAINING COMPLETION
+              </Typography>
+              <Typography
+                variant="subtitle1"
+                sx={{
+                  fontWeight: 800,
+                  color: '#c59b27',
+                  fontSize: '1rem',
+                  letterSpacing: '0.04em'
+                }}
+              >
+                (व्यावसायिक तालिम समापन प्रमाणपत्र)
+              </Typography>
+            </Box>
+          )}
 
           {/* 3. Reference Tracking Bar */}
           <Box
@@ -347,19 +396,32 @@ export default function A4LandscapeCertificateModal({
                   textTransform: 'uppercase'
                 }}
               >
-                {student.name}
+                {studentNameEn}
               </Typography>
+              {studentNameNp && (
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 800,
+                    color: '#1a56b0',
+                    fontSize: '1.05rem',
+                    mt: 0.2
+                  }}
+                >
+                  ({studentNameNp})
+                </Typography>
+              )}
               <Typography
                 variant="subtitle1"
                 sx={{
                   fontWeight: 800,
-                  color: '#1a56b0',
+                  color: '#059669',
                   fontSize: '0.98rem',
                   letterSpacing: '0.04em',
                   mt: 0.3
                 }}
               >
-                COURSE: {course?.title ? course.title.toUpperCase() : 'VOCATIONAL TRAINING'} ({course?.totalHours || 390} HOURS / {course?.durationValue || 3} {course?.durationUnit || 'MONTHS'})
+                COURSE: {courseTitle ? courseTitle.toUpperCase() : 'VOCATIONAL TRAINING'} ({totalHours} HOURS)
               </Typography>
             </Box>
 
@@ -437,7 +499,7 @@ export default function A4LandscapeCertificateModal({
                 color: '#1e293b'
               }}
             >
-              This is to certify that Mr./Ms. <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.fatherName || student.guardianName || 'Guardian'}</b>, permanent resident of <b>{student.permanentAddress || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational competency training course in <b>{course?.title || 'Vocational Training'}</b> conducted at this institute from <b>{group?.admissionDate || '2026-07-15'}</b> to <b>{group?.expectedEndDate || '2026-10-15'}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
+              This is to certify that Mr./Ms. <b>{studentNameEn}</b>, {relationEn} Mr./Mrs. <b>{guardianNameEn}</b>, permanent resident of <b>{snapshot.addressEn || student.permanentAddress || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{totalHours} Hours</b> vocational competency training course in <b>"{courseTitle}"</b> conducted at this institute from <b>{startDate}</b> to <b>{endDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
             </Typography>
             <Typography
               variant="body2"
@@ -481,7 +543,7 @@ export default function A4LandscapeCertificateModal({
                 color: '#1e293b'
               }}
             >
-              श्री/सुश्री <b>{student.name}</b>, बुबा/आमा श्री <b>{student.fatherName || student.guardianName || 'अभिभावक'}</b>, स्थायी ठेगाना <b>{student.permanentAddress || 'नेपाल'}</b>, ले यस शिक्षालयद्वारा प्राविधिक शिक्षा तथा व्यावसायिक तालिम परिषद् (CTEVT) को स्वीकृत पाठ्यक्रम मापदण्ड बमोजिम मिति <b>{group?.admissionDate || '२०८३/०४/०१'}</b> देखि <b>{group?.expectedEndDate || '२०८३/०७/०१'}</b> सम्म सञ्चालित <b>{course?.totalHours || 390} घन्टे</b> <b>{course?.title || 'व्यावसायिक'}</b> तालिम सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
+              श्री/सुश्री <b>{studentNameNp || studentNameEn}</b>, अभिभावक श्री <b>{guardianNameNp || guardianNameEn}</b>को <b>{relationNp}</b>, स्थायी ठेगाना <b>{snapshot.addressNp || student.permanentAddress || 'काठमाडौँ, नेपाल'}</b>, ले यस शिक्षालयद्वारा प्राविधिक शिक्षा तथा व्यावसायिक तालिम परिषद् (CTEVT) को स्वीकृत पाठ्यक्रम मापदण्ड बमोजिम मिति <b>{startDate}</b> देखि <b>{endDate}</b> सम्म सञ्चालित <b>{totalHours} घन्टे</b> <b>"{courseTitleNp || courseTitle}"</b> तालिम सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
             </Typography>
             <Typography
               variant="body2"
@@ -558,20 +620,20 @@ export default function A4LandscapeCertificateModal({
               <Box sx={{ textAlign: 'center', width: '130px' }}>
                 <Box sx={{ height: 34, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.8rem' }}>
-                  {trainer?.name || 'Lead Trainer'}
+                  {trainerName}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.7rem' }}>
                   प्रशिक्षक (Instructor)
                 </Typography>
               </Box>
 
               <Box sx={{ textAlign: 'center', width: '140px' }}>
-                <Box sx={{ height: 34, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
+                <Box sx={{ height: 34, borderBottom: '1.5px solid #0b2545', mb: 0.5 }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.8rem' }}>
-                  Principal / Director
+                  {signatoryName}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
-                  क्याम्पस प्रमुख (Principal)
+                <Typography variant="caption" sx={{ color: '#64748b', fontSize: '0.7rem' }}>
+                  {signatoryDesignation}
                 </Typography>
               </Box>
             </Box>
