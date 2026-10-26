@@ -327,6 +327,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               variant="h4"
               sx={{
                 fontWeight: 900,
+                color: '#FFFFFF',
                 fontSize: { xs: '1.5rem', sm: '1.9rem', md: '2.1rem' },
                 lineHeight: 1.2,
                 letterSpacing: '-0.02em',

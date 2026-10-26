@@ -55,17 +55,14 @@ export const theme = createTheme({
     h4: {
       fontWeight: 900,
       letterSpacing: '-0.03em',
-      color: '#0F172A',
     },
     h5: {
       fontWeight: 800,
       letterSpacing: '-0.02em',
-      color: '#0F172A',
     },
     h6: {
       fontWeight: 800,
       letterSpacing: '-0.01em',
-      color: '#0F172A',
     },
     subtitle1: {
       fontWeight: 700,

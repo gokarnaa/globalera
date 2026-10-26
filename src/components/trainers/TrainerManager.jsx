@@ -285,7 +285,7 @@ export default function TrainerManager() {
               <SchoolIcon />
             </Avatar>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
                 {editingItem ? 'प्रशिक्षक विवरण सम्पादन (Edit Trainer)' : 'नयाँ मुख्य प्रशिक्षक दर्ता (Add New Trainer)'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>

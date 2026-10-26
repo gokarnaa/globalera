@@ -432,7 +432,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
           <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
               <FactCheckIcon sx={{ fontSize: 28, color: '#93c5fd' }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.3 }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.3, color: '#FFFFFF' }}>
                 Attendance Management (हाजिरी व्यवस्थापन)
               </Typography>
             </Box>
