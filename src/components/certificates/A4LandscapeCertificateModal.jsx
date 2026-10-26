@@ -135,16 +135,29 @@ export default function A4LandscapeCertificateModal({
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
   const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
-  const instituteNameEnglish = design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
-  const instituteNameNepali = design.instituteNameNepali || 'ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)';
+  const instituteName = design.instituteName || design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
   const accreditationText = design.accreditationText || 'Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)';
   const affiliationCodeText = design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal';
   const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
   const certificateTitleNp = design.certificateTitleNp || '(व्यावसायिक तालिम समापन प्रमाणपत्र)';
-  const signatory1Name = design.signatory1Name || trainer?.name || 'Lead Instructor';
-  const signatory1Title = design.signatory1Title || 'प्रशिक्षक (Lead Instructor)';
-  const signatory2Name = design.signatory2Name || 'Gokarna Thapa';
-  const signatory2Title = design.signatory2Title || 'क्याम्पस प्रमुख / निर्देशक (Director)';
+
+  // Dynamic Signatories fallback
+  const signatories = (design.signatories && design.signatories.length > 0)
+    ? design.signatories
+    : [
+        {
+          id: 'sig-1',
+          name: design.signatory1Name || trainer?.name || 'Lead Instructor',
+          title: design.signatory1Title || 'प्रशिक्षक (Lead Instructor)',
+          lineStyle: 'dashed'
+        },
+        {
+          id: 'sig-2',
+          name: design.signatory2Name || 'Gokarna Thapa',
+          title: design.signatory2Title || 'क्याम्पस प्रमुख / निर्देशक (Director)',
+          lineStyle: 'solid'
+        }
+      ];
 
   const getBackgroundStyle = () => {
     if (design.preprintedTextOnly) {
@@ -281,7 +294,7 @@ export default function A4LandscapeCertificateModal({
   )}`;
 
   const shareText =
-    `*${instituteNameEnglish}*\n` +
+    `*${instituteName}*\n` +
     `🎓 *VOCATIONAL TRAINING COMPLETION CERTIFICATE (तालिम समापन प्रमाणपत्र)*\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *प्रशिक्षार्थी (Trainee):* ${student.name} (${student.tgid})\n` +
@@ -380,8 +393,8 @@ export default function A4LandscapeCertificateModal({
         <Box
           id="printableLandscapeCertificate"
           sx={{
-            width: isPortrait ? '740px' : '1040px',
-            minHeight: isPortrait ? '1040px' : '740px',
+            width: isPortrait ? '760px' : '1040px',
+            minHeight: isPortrait ? '1060px' : '740px',
             p: `${borderMargin}mm`,
             boxSizing: 'border-box',
             fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
@@ -418,93 +431,104 @@ export default function A4LandscapeCertificateModal({
                 zIndex: 0
               }}
             >
-              <SchoolIcon sx={{ fontSize: isPortrait ? 380 : 360, color: primaryColor }} />
+              <SchoolIcon sx={{ fontSize: isPortrait ? 380 : 340, color: primaryColor }} />
             </Box>
           )}
 
-          {/* 1. Institutional Letterhead Header (Movable via Canva Styles) */}
+          {/* 1. Institutional Letterhead Header: Individual Movable Layers */}
           {showHeader && (
-            <Box
-              sx={{
-                position: 'relative',
-                zIndex: 2,
-                textAlign: elStyles.header?.align || 'center',
-                pb: 1,
-                borderBottom: `1.5px solid ${accentColor}`,
-                transform: `translate(${elStyles.header?.x || 0}px, ${elStyles.header?.y || 0}px)`
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
-                {/* Left Logo / Emblem */}
-                <Box sx={{ display: 'flex', alignItems: 'center', width: 64 }}>
-                  {showLeftLogo && <SchoolIcon sx={{ fontSize: 44, color: primaryColor }} />}
+            <Box sx={{ position: 'relative', zIndex: 3, pb: 1, borderBottom: `1.5px solid ${accentColor}` }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', px: 2 }}>
+                {/* Left Logo / Emblem (Independently Movable) */}
+                <Box
+                  sx={{
+                    width: `${design.leftLogoWidth || 46}px`,
+                    position: 'relative',
+                    zIndex: 2,
+                    transform: `translate(${elStyles.leftLogo?.x || 0}px, ${elStyles.leftLogo?.y || 0}px)`
+                  }}
+                >
+                  {showLeftLogo && (
+                    design.leftLogoUrl ? (
+                      <img src={design.leftLogoUrl} alt="Logo" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    ) : (
+                      <SchoolIcon sx={{ fontSize: design.leftLogoWidth || 46, color: primaryColor }} />
+                    )
+                  )}
                 </Box>
 
-                {/* Center Institutional Name */}
-                <Box sx={{ textAlign: elStyles.header?.align || 'center', flexGrow: 1 }}>
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontFamily: elStyles.header?.fontFamily || "'Times New Roman', serif",
-                      fontWeight: elStyles.header?.fontWeight || 900,
-                      fontStyle: elStyles.header?.fontStyle || 'normal',
-                      letterSpacing: '0.06em',
-                      color: elStyles.header?.color || primaryColor,
-                      fontSize: elStyles.header?.fontSize ? `${elStyles.header.fontSize}px` : (isPortrait ? '1.25rem' : '1.45rem'),
-                      textTransform: 'uppercase'
-                    }}
-                  >
-                    {instituteNameEnglish}
-                  </Typography>
+                {/* Center Institutional Name Lines (Independently Movable) */}
+                <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
+                  {/* Line 1: Main Title */}
+                  <Box sx={{ transform: `translate(${elStyles.headerTitle?.x || 0}px, ${elStyles.headerTitle?.y || 0}px)` }}>
+                    <Typography
+                      variant="h5"
+                      sx={{
+                        fontFamily: elStyles.headerTitle?.fontFamily || "'Times New Roman', serif",
+                        fontWeight: elStyles.headerTitle?.fontWeight || 900,
+                        fontStyle: elStyles.headerTitle?.fontStyle || 'normal',
+                        letterSpacing: '0.04em',
+                        color: elStyles.headerTitle?.color || primaryColor,
+                        fontSize: elStyles.headerTitle?.fontSize ? `${elStyles.headerTitle.fontSize}px` : (isPortrait ? '1.25rem' : '1.4rem'),
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      {instituteName}
+                    </Typography>
+                  </Box>
 
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 800,
-                      color: accentColor,
-                      fontSize: isPortrait ? '0.98rem' : '1.15rem',
-                      letterSpacing: '0.03em',
-                      mt: 0.2
-                    }}
-                  >
-                    {instituteNameNepali}
-                  </Typography>
-
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      color: '#475569',
-                      fontWeight: 600,
-                      fontSize: '0.72rem',
-                      mt: 0.3
-                    }}
-                  >
-                    {accreditationText}
-                  </Typography>
-
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      display: 'block',
-                      color: '#64748b',
-                      fontSize: '0.68rem',
-                      mt: 0.1
-                    }}
-                  >
-                    {affiliationCodeText}
-                  </Typography>
-                </Box>
-
-                {/* Right CTEVT Affiliation Badge */}
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: 64 }}>
-                  {showRightLogo && (
-                    <Box sx={{ textAlign: 'center' }}>
-                      <VerifiedIcon sx={{ fontSize: 40, color: accentColor }} />
-                      <Typography variant="caption" sx={{ display: 'block', fontSize: '0.58rem', fontWeight: 800, color: primaryColor }}>
-                        CTEVT 4208
+                  {/* Line 2: Accreditation */}
+                  {design.showAccreditation !== false && (
+                    <Box sx={{ transform: `translate(${elStyles.headerSub?.x || 0}px, ${elStyles.headerSub?.y || 0}px)`, mt: 0.3 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: 'block',
+                          fontSize: elStyles.headerSub?.fontSize ? `${elStyles.headerSub.fontSize}px` : '0.72rem',
+                          fontWeight: elStyles.headerSub?.fontWeight || 600,
+                          color: elStyles.headerSub?.color || '#475569'
+                        }}
+                      >
+                        {accreditationText}
                       </Typography>
                     </Box>
+                  )}
+
+                  {/* Line 3: Registration & Location */}
+                  {design.showAffiliation !== false && (
+                    <Box sx={{ transform: `translate(${elStyles.headerAddress?.x || 0}px, ${elStyles.headerAddress?.y || 0}px)`, mt: 0.2 }}>
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          display: 'block',
+                          fontSize: elStyles.headerAddress?.fontSize ? `${elStyles.headerAddress.fontSize}px` : '0.68rem',
+                          color: elStyles.headerAddress?.color || '#64748b'
+                        }}
+                      >
+                        {affiliationCodeText}
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+
+                {/* Right Logo / CTEVT Badge (Independently Movable) */}
+                <Box
+                  sx={{
+                    width: `${design.rightLogoWidth || 46}px`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    position: 'relative',
+                    zIndex: 2,
+                    transform: `translate(${elStyles.rightLogo?.x || 0}px, ${elStyles.rightLogo?.y || 0}px)`
+                  }}
+                >
+                  {showRightLogo && (
+                    design.rightLogoUrl ? (
+                      <img src={design.rightLogoUrl} alt="Right Badge" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    ) : (
+                      <VerifiedIcon sx={{ fontSize: design.rightLogoWidth || 46, color: accentColor }} />
+                    )
                   )}
                 </Box>
               </Box>
@@ -801,7 +825,7 @@ export default function A4LandscapeCertificateModal({
             </Typography>
           </Box>
 
-          {/* 6. Footer: QR Code + Golden Seal + Dual Signatures (Movable) */}
+          {/* 6. Footer: Dynamic QR + Official Seal (4 Modes) + Dynamic Signatories (Movable) */}
           <Box
             sx={{
               position: 'relative',
@@ -812,14 +836,21 @@ export default function A4LandscapeCertificateModal({
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-end',
-              px: 2,
-              transform: `translate(${elStyles.footer?.x || 0}px, ${elStyles.footer?.y || 0}px)`
+              px: 2
             }}
           >
             {/* Left: Dynamic QR Code */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, width: '28%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1.2,
+                width: '26%',
+                transform: `translate(${elStyles.qrCode?.x || 0}px, ${elStyles.qrCode?.y || 0}px)`
+              }}
+            >
               <Box sx={{ p: 0.5, bgcolor: '#ffffff', border: `1.5px solid ${primaryColor}`, borderRadius: 1 }}>
-                <QRCodeSVG value={verificationUrl} size={elStyles.footer?.qrSize || 54} level="M" />
+                <QRCodeSVG value={verificationUrl} size={elStyles.qrCode?.qrSize || 54} level="M" />
               </Box>
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: primaryColor, display: 'block', fontSize: '0.7rem' }}>
@@ -834,51 +865,100 @@ export default function A4LandscapeCertificateModal({
               </Box>
             </Box>
 
-            {/* Center: Golden Institutional Seal Rosette */}
-            <Box sx={{ textAlign: 'center', width: '32%' }}>
+            {/* Center: Official Seal Zone (4 Modes) */}
+            {design.sealMode !== 'none' && (
               <Box
                 sx={{
-                  display: 'inline-block',
-                  p: '6px 14px',
-                  border: `1.5px solid ${accentColor}`,
-                  borderRadius: 2,
-                  bgcolor: '#fdfbf7',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  width: '32%',
+                  transform: `translate(${elStyles.seal?.x || 0}px, ${elStyles.seal?.y || 0}px)`
                 }}
               >
-                <Typography variant="caption" sx={{ fontWeight: 900, color: primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.72rem' }}>
-                  ★ OFFICIAL SEAL ★
-                </Typography>
-                <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.66rem', display: 'block' }}>
-                  GLOBAL ERA TECHNICAL SCHOOL
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.62rem', display: 'block' }}>
-                  CTEVT ACCREDITED • KATHMANDU
-                </Typography>
-              </Box>
-            </Box>
+                {/* MODE 1: Scanned Real Stamp Upload */}
+                {design.sealMode === 'scanned' && design.customSealUrl && (
+                  <Box
+                    component="img"
+                    src={design.customSealUrl}
+                    alt="Official Stamp"
+                    sx={{
+                      width: `${design.sealWidth || 84}px`,
+                      height: 'auto',
+                      transform: `rotate(${design.sealTilt || 0}deg)`,
+                      display: 'inline-block'
+                    }}
+                  />
+                )}
 
-            {/* Right: Dual Official Signatures */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 3, width: '38%' }}>
-              <Box sx={{ textAlign: 'center', width: '130px' }}>
-                <Box sx={{ height: 32, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
-                  {signatory1Name}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
-                  {signatory1Title}
-                </Typography>
-              </Box>
+                {/* MODE 2: Reserved Blank Space for Hand Rubber Stamp (Wet Stamp) */}
+                {design.sealMode === 'blank' && (
+                  <Box
+                    sx={{
+                      width: '100px',
+                      height: '60px',
+                      margin: '0 auto',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1px dashed rgba(203, 213, 225, 0.4)',
+                      borderRadius: '50%',
+                      bgcolor: 'transparent'
+                    }}
+                  />
+                )}
 
-              <Box sx={{ textAlign: 'center', width: '140px' }}>
-                <Box sx={{ height: 32, borderBottom: `1.5px solid ${primaryColor}`, mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
-                  {signatory2Name}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
-                  {signatory2Title}
-                </Typography>
+                {/* MODE 3: Built-in Graphic Seal */}
+                {design.sealMode === 'digital' && (
+                  <Box
+                    sx={{
+                      display: 'inline-block',
+                      p: '6px 14px',
+                      border: `1.5px solid ${accentColor}`,
+                      borderRadius: 2,
+                      bgcolor: '#fdfbf7',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.72rem' }}>
+                      ★ OFFICIAL SEAL ★
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.66rem', display: 'block' }}>
+                      GLOBAL ERA TECHNICAL SCHOOL
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.62rem', display: 'block' }}>
+                      CTEVT ACCREDITED • KATHMANDU
+                    </Typography>
+                  </Box>
+                )}
               </Box>
+            )}
+
+            {/* Right: Dynamic Signatories List (Independently Movable) */}
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: 2.5,
+                width: design.sealMode === 'none' ? '68%' : '42%',
+                transform: `translate(${elStyles.signatories?.x || 0}px, ${elStyles.signatories?.y || 0}px)`
+              }}
+            >
+              {signatories.map((sig) => (
+                <Box key={sig.id} sx={{ textAlign: 'center', minWidth: '110px' }}>
+                  <Box
+                    sx={{
+                      height: 32,
+                      borderBottom: sig.lineStyle === 'dashed' ? '1px dashed #64748b' : sig.lineStyle === 'none' ? 'none' : `1.5px solid ${primaryColor}`,
+                      mb: 0.5
+                    }}
+                  />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
+                    {sig.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
+                    {sig.title}
+                  </Typography>
+                </Box>
+              ))}
             </Box>
           </Box>
         </Box>
