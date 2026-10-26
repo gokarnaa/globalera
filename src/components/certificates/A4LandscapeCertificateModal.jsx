@@ -116,6 +116,7 @@ export default function A4LandscapeCertificateModal({
 
   const db = loadDB();
   const design = db.settings?.certificateDesign || {};
+  const elStyles = design.elementStyles || {};
 
   const isPortrait = design.orientation === 'portrait';
   const primaryColor = design.primaryColor || '#0B2545';
@@ -421,9 +422,18 @@ export default function A4LandscapeCertificateModal({
             </Box>
           )}
 
-          {/* 1. Institutional Letterhead Header */}
+          {/* 1. Institutional Letterhead Header (Movable via Canva Styles) */}
           {showHeader && (
-            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: `1.5px solid ${accentColor}` }}>
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 2,
+                textAlign: elStyles.header?.align || 'center',
+                pb: 1,
+                borderBottom: `1.5px solid ${accentColor}`,
+                transform: `translate(${elStyles.header?.x || 0}px, ${elStyles.header?.y || 0}px)`
+              }}
+            >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
                 {/* Left Logo / Emblem */}
                 <Box sx={{ display: 'flex', alignItems: 'center', width: 64 }}>
@@ -431,15 +441,16 @@ export default function A4LandscapeCertificateModal({
                 </Box>
 
                 {/* Center Institutional Name */}
-                <Box sx={{ textAlign: 'center', flexGrow: 1 }}>
+                <Box sx={{ textAlign: elStyles.header?.align || 'center', flexGrow: 1 }}>
                   <Typography
                     variant="h5"
                     sx={{
-                      fontFamily: "'Times New Roman', serif",
-                      fontWeight: 900,
+                      fontFamily: elStyles.header?.fontFamily || "'Times New Roman', serif",
+                      fontWeight: elStyles.header?.fontWeight || 900,
+                      fontStyle: elStyles.header?.fontStyle || 'normal',
                       letterSpacing: '0.06em',
-                      color: primaryColor,
-                      fontSize: isPortrait ? '1.25rem' : '1.45rem',
+                      color: elStyles.header?.color || primaryColor,
+                      fontSize: elStyles.header?.fontSize ? `${elStyles.header.fontSize}px` : (isPortrait ? '1.25rem' : '1.45rem'),
                       textTransform: 'uppercase'
                     }}
                   >
@@ -500,17 +511,26 @@ export default function A4LandscapeCertificateModal({
             </Box>
           )}
 
-          {/* 2. Certificate Title Banner */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: isPortrait ? 2 : 1 }}>
+          {/* 2. Certificate Title Banner (Movable) */}
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 2,
+              textAlign: elStyles.title?.align || 'center',
+              my: isPortrait ? 1.5 : 0.8,
+              transform: `translate(${elStyles.title?.x || 0}px, ${elStyles.title?.y || 0}px)`
+            }}
+          >
             <Typography
               variant="h5"
               sx={{
-                fontFamily: "'Times New Roman', serif",
-                fontWeight: 900,
-                color: primaryColor,
+                fontFamily: elStyles.title?.fontFamily || "'Times New Roman', serif",
+                fontWeight: elStyles.title?.fontWeight || 900,
+                fontStyle: elStyles.title?.fontStyle || 'normal',
+                color: elStyles.title?.color || primaryColor,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
-                fontSize: isPortrait ? '1.2rem' : '1.35rem',
+                fontSize: elStyles.title?.fontSize ? `${elStyles.title.fontSize}px` : (isPortrait ? '1.2rem' : '1.35rem'),
                 mb: 0.2
               }}
             >
@@ -537,7 +557,7 @@ export default function A4LandscapeCertificateModal({
               display: 'flex',
               justifyContent: 'space-between',
               px: 3,
-              py: 0.6,
+              py: 0.5,
               bgcolor: '#f8fafc',
               borderTop: '1px solid #e2e8f0',
               borderBottom: '1px solid #e2e8f0',
@@ -557,53 +577,103 @@ export default function A4LandscapeCertificateModal({
             </Box>
           </Box>
 
-          {/* 4. Trainee Centerpiece & Photo Frame */}
+          {/* 4. Trainee Centerpiece & Photo Frame (Movable) */}
           <Box
             sx={{
               position: 'relative',
-              zIndex: 1,
+              zIndex: 2,
               display: 'flex',
+              flexDirection: elStyles.photo?.preset === 'center' ? 'column' : 'row',
               alignItems: 'center',
               justifyContent: 'space-between',
               px: 3,
-              my: isPortrait ? 2 : 1.2
+              my: isPortrait ? 1.5 : 1
             }}
           >
-            {/* Left Competency Badge */}
-            <Box sx={{ width: '96px' }}>
-              {showCompetencyBadge && (
+            {/* Photo if placed on LEFT */}
+            {elStyles.photo?.preset === 'left' && (
+              <Box
+                sx={{
+                  width: `${elStyles.photo?.width || 92}px`,
+                  height: `${Math.round((elStyles.photo?.width || 92) * 1.25)}px`,
+                  position: 'relative',
+                  transform: `translate(${elStyles.photo?.x || 0}px, ${elStyles.photo?.y || 0}px)`
+                }}
+              >
                 <Box
                   sx={{
-                    border: `1.5px dashed ${accentColor}`,
-                    borderRadius: 1,
-                    p: '4px 8px',
-                    textAlign: 'center',
-                    bgcolor: '#fffbf0'
+                    width: '100%',
+                    height: '100%',
+                    border: `2px solid ${elStyles.photo?.borderColor || accentColor}`,
+                    borderRadius: `${elStyles.photo?.borderRadius || 4}px`,
+                    p: '2px',
+                    bgcolor: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
                   }}
                 >
-                  <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 900, color: primaryColor, display: 'block' }}>
-                    CTEVT LEVEL 1
-                  </Typography>
-                  <Typography variant="caption" sx={{ fontSize: '0.58rem', color: '#64748b', display: 'block' }}>
-                    {course?.totalHours || 390} HRS
-                  </Typography>
+                  {student.photoUrl ? (
+                    <img
+                      src={student.photoUrl}
+                      alt={student.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <PersonIcon sx={{ fontSize: 36, color: '#94a3b8' }} />
+                  )}
                 </Box>
-              )}
-            </Box>
+              </Box>
+            )}
 
-            {/* Center Trainee Name Highlight */}
-            <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
+            {/* Left Competency Badge (if photo not on left) */}
+            {elStyles.photo?.preset !== 'left' && (
+              <Box sx={{ width: '96px' }}>
+                {showCompetencyBadge && (
+                  <Box
+                    sx={{
+                      border: `1.5px dashed ${accentColor}`,
+                      borderRadius: 1,
+                      p: '4px 8px',
+                      textAlign: 'center',
+                      bgcolor: '#fffbf0'
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 900, color: primaryColor, display: 'block' }}>
+                      CTEVT LEVEL 1
+                    </Typography>
+                    <Typography variant="caption" sx={{ fontSize: '0.58rem', color: '#64748b', display: 'block' }}>
+                      {course?.totalHours || 390} HRS
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+            )}
+
+            {/* Center Trainee Name Highlight (Movable) */}
+            <Box
+              sx={{
+                textAlign: elStyles.student?.align || 'center',
+                flexGrow: 1,
+                px: 2,
+                transform: `translate(${elStyles.student?.x || 0}px, ${elStyles.student?.y || 0}px)`
+              }}
+            >
               <Typography variant="caption" sx={{ color: '#64748b', letterSpacing: '0.04em', display: 'block' }}>
                 यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
               </Typography>
               <Typography
                 variant="h4"
                 sx={{
-                  fontFamily: "'Times New Roman', serif",
-                  fontWeight: 900,
-                  color: primaryColor,
+                  fontFamily: elStyles.student?.fontFamily || "'Times New Roman', serif",
+                  fontWeight: elStyles.student?.fontWeight || 900,
+                  fontStyle: elStyles.student?.fontStyle || 'normal',
+                  color: elStyles.student?.color || primaryColor,
                   letterSpacing: '0.04em',
-                  fontSize: isPortrait ? '1.9rem' : '1.85rem',
+                  fontSize: elStyles.student?.fontSize ? `${elStyles.student.fontSize}px` : (isPortrait ? '1.9rem' : '1.85rem'),
                   mt: 0.3
                 }}
               >
@@ -637,47 +707,76 @@ export default function A4LandscapeCertificateModal({
               </Typography>
             </Box>
 
-            {/* Right Student Photo Frame */}
-            <Box sx={{ width: '92px', height: '112px' }}>
-              {showStudentPhoto && (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    border: `2px solid ${accentColor}`,
-                    borderRadius: '4px',
-                    p: '2px',
-                    bgcolor: '#ffffff',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {student.photoUrl ? (
-                    <img
-                      src={student.photoUrl}
-                      alt={student.name}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                  ) : (
-                    <>
-                      <PersonIcon sx={{ fontSize: 36, color: '#94a3b8' }} />
-                      <Typography variant="caption" sx={{ fontSize: '0.55rem', color: '#64748b', textAlign: 'center', lineHeight: 1 }}>
-                        PHOTO<br />(35×45mm)
-                      </Typography>
-                    </>
-                  )}
-                </Box>
-              )}
-            </Box>
+            {/* Photo if placed on RIGHT (Default) */}
+            {elStyles.photo?.preset !== 'left' && (
+              <Box
+                sx={{
+                  width: `${elStyles.photo?.width || 92}px`,
+                  height: `${Math.round((elStyles.photo?.width || 92) * 1.25)}px`,
+                  position: 'relative',
+                  transform: `translate(${elStyles.photo?.x || 0}px, ${elStyles.photo?.y || 0}px)`
+                }}
+              >
+                {showStudentPhoto && (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      border: `2px solid ${elStyles.photo?.borderColor || accentColor}`,
+                      borderRadius: `${elStyles.photo?.borderRadius || 4}px`,
+                      p: '2px',
+                      bgcolor: '#ffffff',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    {student.photoUrl ? (
+                      <img
+                        src={student.photoUrl}
+                        alt={student.name}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <>
+                        <PersonIcon sx={{ fontSize: 36, color: '#94a3b8' }} />
+                        <Typography variant="caption" sx={{ fontSize: '0.55rem', color: '#64748b', textAlign: 'center', lineHeight: 1 }}>
+                          PHOTO<br />(35×45mm)
+                        </Typography>
+                      </>
+                    )}
+                  </Box>
+                )}
+              </Box>
+            )}
           </Box>
 
-          {/* 5. English & Nepali Wording Paragraphs */}
-          <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify', my: isPortrait ? 2 : 0.5 }}>
-            <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.86rem', lineHeight: isPortrait ? 1.6 : 1.45, color: '#1e293b', mb: 0.8 }}>
+          {/* 5. English & Nepali Wording Paragraphs (Movable) */}
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 2,
+              px: 3,
+              textAlign: elStyles.body?.align || 'justify',
+              my: isPortrait ? 1.5 : 0.5,
+              transform: `translate(${elStyles.body?.x || 0}px, ${elStyles.body?.y || 0}px)`
+            }}
+          >
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: elStyles.body?.fontFamily || "'Times New Roman', serif",
+                fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.88rem' : '0.86rem'),
+                lineHeight: elStyles.body?.lineHeight || 1.45,
+                color: elStyles.body?.color || '#1e293b',
+                fontWeight: elStyles.body?.fontWeight || 'normal',
+                fontStyle: elStyles.body?.fontStyle || 'normal',
+                mb: 0.8
+              }}
+            >
               This is to certify that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, permanent resident of <b>{student.address || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational skills training course in <b>"{course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || certificate.issueDate}</b> to <b>{group?.endDate || certificate.issueDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
             </Typography>
 
@@ -687,29 +786,40 @@ export default function A4LandscapeCertificateModal({
               <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
             </Box>
 
-            <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.86rem', lineHeight: isPortrait ? 1.6 : 1.5, color: '#1e293b' }}>
+            <Typography
+              variant="body2"
+              sx={{
+                fontFamily: "'Noto Sans Devanagari', sans-serif",
+                fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.88rem' : '0.86rem'),
+                lineHeight: elStyles.body?.lineHeight || 1.5,
+                color: elStyles.body?.color || '#1e293b',
+                fontWeight: elStyles.body?.fontWeight || 'normal',
+                fontStyle: elStyles.body?.fontStyle || 'normal'
+              }}
+            >
               प्रमाणित गरिन्छ कि {student.address || 'काठमाडौँ'} निवासी श्री {student.guardianName || student.fatherName || 'अभिभावक'}को {isFemale ? 'सुपुत्री' : 'सुपुत्र'} {isFemale ? 'सुश्री' : 'श्री'} <b>{student.nameNepali || student.name}</b>ले यस संस्थाद्वारा मिति <b>{group?.startDate || certificate.issueDate}</b> देखि <b>{group?.endDate || certificate.issueDate}</b> सम्म सञ्चालित <b>{course?.totalHours || 390} घन्टे</b> <b>"{course?.titleNepali || course?.title || 'व्यावसायिक तालिम'}"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
             </Typography>
           </Box>
 
-          {/* 6. Footer: QR Code + Golden Seal + Dual Signatures */}
+          {/* 6. Footer: QR Code + Golden Seal + Dual Signatures (Movable) */}
           <Box
             sx={{
               position: 'relative',
-              zIndex: 1,
-              mt: isPortrait ? 3 : 1.5,
-              pt: 1.5,
+              zIndex: 2,
+              mt: isPortrait ? 2.5 : 1.2,
+              pt: 1.2,
               borderTop: '1px solid #cbd5e1',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-end',
-              px: 2
+              px: 2,
+              transform: `translate(${elStyles.footer?.x || 0}px, ${elStyles.footer?.y || 0}px)`
             }}
           >
             {/* Left: Dynamic QR Code */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, width: '28%' }}>
               <Box sx={{ p: 0.5, bgcolor: '#ffffff', border: `1.5px solid ${primaryColor}`, borderRadius: 1 }}>
-                <QRCodeSVG value={verificationUrl} size={54} level="M" />
+                <QRCodeSVG value={verificationUrl} size={elStyles.footer?.qrSize || 54} level="M" />
               </Box>
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: primaryColor, display: 'block', fontSize: '0.7rem' }}>

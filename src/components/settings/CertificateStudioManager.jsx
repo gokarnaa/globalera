@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Typography,
@@ -19,7 +19,11 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   IconButton,
-  Tooltip
+  Tooltip,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
@@ -42,6 +46,19 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
 import CropPortraitIcon from '@mui/icons-material/CropPortrait';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
+import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import FormatAlignRightIcon from '@mui/icons-material/FormatAlignRight';
+import FormatAlignJustifyIcon from '@mui/icons-material/FormatAlignJustify';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import CloseIcon from '@mui/icons-material/Close';
+import PanToolIcon from '@mui/icons-material/PanTool';
+import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB } from '../../services/storage';
@@ -104,21 +121,31 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   preprintedTextOnly: false,
   offsetY: 0, // -25mm to +25mm
   offsetX: 0, // -25mm to +25mm
-  fontScale: 100 // 85% to 115%
+  fontScale: 100, // 85% to 115%
+
+  // 9. Canva-Style Movable & Stylable Elements
+  elementStyles: {
+    header: { x: 0, y: 0, fontSize: 21, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman' },
+    title: { x: 0, y: 0, fontSize: 20, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman' },
+    student: { x: 0, y: 0, fontSize: 28, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman', align: 'center' },
+    photo: { x: 0, y: 0, width: 88, height: 108, borderRadius: 4, borderColor: '', preset: 'right' },
+    body: { x: 0, y: 0, fontSize: 13.5, lineHeight: 1.5, align: 'justify', color: '', fontFamily: 'Times New Roman' },
+    footer: { x: 0, y: 0, qrSize: 54, sealScale: 100 }
+  }
 };
 
 // 10 Background Presets Definitions
 const BACKGROUND_PRESETS = [
-  { id: 'clean-white', label: 'सादा सेतो (Pure White)', desc: 'सफा, तीव्र र मसी-मैत्री' },
-  { id: 'ivory-parchment', label: 'क्लासिक आइभोरी (Ivory Parchment)', desc: 'न्यानो क्रिम शास्त्रीय विश्वविद्यालय कागज' },
-  { id: 'guilloche-security', label: 'सेक्युरिटी वेभ (Guilloche Wave)', desc: 'बैंक नोट/राहदानी जस्तो जालीदार' },
-  { id: 'royal-navy-gold', label: 'शाही नेभी-गोल्डेन (Navy & Gold Glow)', desc: 'कर्पोरेट लक्जरी आभा' },
-  { id: 'modern-geometric', label: 'आधुनिक ज्यामितीय (Modern Mesh)', desc: 'कम्प्युटर, आइटी र प्राविधिक' },
-  { id: 'damask-floral', label: 'दमास्क फ्लोरल (Damask Floral)', desc: 'ब्युटिसियन, फेसन र कलात्मक' },
-  { id: 'emerald-aristocrat', label: 'मरकत हरियो (Emerald Aristocrat)', desc: 'सिटिइभिटी हरियो र गोल्डेन' },
-  { id: 'maroon-sovereign', label: 'मरुन सार्वभौम (Maroon Sovereign)', desc: 'दीक्षान्त तथा विशेष सम्मान' },
-  { id: 'technical-grid', label: 'टेक्निकल ग्रिड (Technical Blueprint)', desc: 'इन्जिनियरिङ र अटोमोबाइल' },
-  { id: 'marble-veins', label: 'फाइन मार्बल (Italian Marble)', desc: 'लक्जरी स्पा र ब्युटी एकेडेमी' }
+  { id: 'clean-white', label: 'सादा सेतो (Pure White)' },
+  { id: 'ivory-parchment', label: 'क्लासिक आइभोरी (Ivory Parchment)' },
+  { id: 'guilloche-security', label: 'सेक्युरिटी वेभ (Guilloche Wave)' },
+  { id: 'royal-navy-gold', label: 'शाही नेभी-गोल्डेन (Navy & Gold Glow)' },
+  { id: 'modern-geometric', label: 'आधुनिक ज्यामितीय (Modern Mesh)' },
+  { id: 'damask-floral', label: 'दमास्क फ्लोरल (Damask Floral)' },
+  { id: 'emerald-aristocrat', label: 'मरकत हरियो (Emerald Aristocrat)' },
+  { id: 'maroon-sovereign', label: 'मरुन सार्वभौम (Maroon Sovereign)' },
+  { id: 'technical-grid', label: 'टेक्निकल ग्रिड (Technical Blueprint)' },
+  { id: 'marble-veins', label: 'फाइन मार्बल (Italian Marble)' }
 ];
 
 // 7 Border Styles Definitions
@@ -150,6 +177,26 @@ const LUXURY_PALETTES = [
   { name: 'Charcoal & Silver', primary: '#1F2937', accent: '#94A3B8', corner: '#94A3B8' },
   { name: 'Midnight & 24K Gold', primary: '#111827', accent: '#F59E0B', corner: '#F59E0B' }
 ];
+
+// Available Fonts List
+const FONT_OPTIONS = [
+  { id: 'Times New Roman', label: 'Times New Roman (औपचारिक)' },
+  { id: 'Cinzel', label: 'Cinzel (रोयल सेरिफ)' },
+  { id: 'Playfair Display', label: 'Playfair Display (लक्जरी)' },
+  { id: 'Noto Sans Devanagari', label: 'Noto Sans (नेपाली स्पष्ट)' },
+  { id: 'Georgia', label: 'Georgia (शास्त्रीय)' },
+  { id: 'Inter', label: 'Inter (आधुनिक Sans)' }
+];
+
+// Element Human Labels
+const ELEMENT_LABELS = {
+  header: '१. संस्थागत लेटरहेड र लोगो (Header)',
+  title: '२. प्रमाणपत्र शीर्षक (Certificate Title)',
+  student: '३. विद्यार्थी नाम तथा कोर्स (Trainee Centerpiece)',
+  photo: '४. विद्यार्थी फोटो फ्रेम (Photo Frame)',
+  body: '५. व्यहोरा अनुच्छेद (Body Text)',
+  footer: '६. क्युआर, छाप र हस्ताक्षर (Footer Signatures)'
+};
 
 // Corner Ornament SVG Renderer
 function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' }) {
@@ -239,12 +286,25 @@ function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' 
 
 export default function CertificateStudioManager({ onSaveSuccess }) {
   const [db, setDb] = useState(loadDB());
-  const [design, setDesign] = useState({
-    ...DEFAULT_CERTIFICATE_DESIGN,
-    ...(db.settings?.certificateDesign || {})
+  const [design, setDesign] = useState(() => {
+    const loaded = db.settings?.certificateDesign || {};
+    return {
+      ...DEFAULT_CERTIFICATE_DESIGN,
+      ...loaded,
+      elementStyles: {
+        ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
+        ...(loaded.elementStyles || {})
+      }
+    };
   });
+
   const [savedAlert, setSavedAlert] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.85);
+
+  // Canva-Style Selected Element & Dragging State
+  const [selectedElement, setSelectedElement] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragRef = useRef({ startX: 0, startY: 0, initElX: 0, initElY: 0, elKey: null });
 
   const isPortrait = design.orientation === 'portrait';
 
@@ -254,6 +314,103 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       [field]: value
     }));
   };
+
+  const handleElementStyleUpdate = (elKey, prop, val) => {
+    setDesign((prev) => ({
+      ...prev,
+      elementStyles: {
+        ...(prev.elementStyles || {}),
+        [elKey]: {
+          ...(prev.elementStyles?.[elKey] || {}),
+          [prop]: val
+        }
+      }
+    }));
+  };
+
+  const handleNudgeElement = (elKey, dx, dy) => {
+    const curX = design.elementStyles?.[elKey]?.x || 0;
+    const curY = design.elementStyles?.[elKey]?.y || 0;
+    handleElementStyleUpdate(elKey, 'x', curX + dx);
+    handleElementStyleUpdate(elKey, 'y', curY + dy);
+  };
+
+  const handleResetElement = (elKey) => {
+    const def = DEFAULT_CERTIFICATE_DESIGN.elementStyles[elKey];
+    setDesign((prev) => ({
+      ...prev,
+      elementStyles: {
+        ...(prev.elementStyles || {}),
+        [elKey]: { ...def }
+      }
+    }));
+  };
+
+  // Mouse Drag Handlers
+  const handleMouseDownOnElement = (e, elKey) => {
+    e.stopPropagation();
+    setSelectedElement(elKey);
+    setIsDragging(true);
+
+    const curX = design.elementStyles?.[elKey]?.x || 0;
+    const curY = design.elementStyles?.[elKey]?.y || 0;
+
+    dragRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initElX: curX,
+      initElY: curY,
+      elKey
+    };
+  };
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging || !dragRef.current.elKey) return;
+      const { startX, startY, initElX, initElY, elKey } = dragRef.current;
+      const dx = (e.clientX - startX) / previewScale;
+      const dy = (e.clientY - startY) / previewScale;
+
+      handleElementStyleUpdate(elKey, 'x', Math.round(initElX + dx));
+      handleElementStyleUpdate(elKey, 'y', Math.round(initElY + dy));
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if (!selectedElement) return;
+      const step = e.shiftKey ? 5 : 1;
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handleNudgeElement(selectedElement, -step, 0);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNudgeElement(selectedElement, step, 0);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        handleNudgeElement(selectedElement, 0, -step);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        handleNudgeElement(selectedElement, 0, step);
+      } else if (e.key === 'Escape') {
+        setSelectedElement(null);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isDragging, previewScale, selectedElement, design.elementStyles]);
 
   const handleApplyPalette = (palette) => {
     setDesign((prev) => ({
@@ -456,18 +613,21 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     };
   };
 
+  // Current active element styles
+  const activeStyle = selectedElement ? design.elementStyles?.[selectedElement] || {} : null;
+
   return (
-    <Box>
+    <Box onClick={() => setSelectedElement(null)}>
       {/* Top Header Bar */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <WorkspacePremiumIcon sx={{ color: '#C59B27', fontSize: 40 }} />
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              Certificate Studio & Template Designer (प्रमाणपत्र स्टुडियो)
+              Certificate Studio & Template Designer (क्यानभास स्टुडियो)
             </Typography>
             <Typography variant="body2" sx={{ color: '#64748B' }}>
-              संस्थाको प्रमाणपत्रको पृष्ठभूमिका १० प्रिसेट, ७ बोर्डर, कुनाका बुट्टा, कलर पिकर तथा ल्यान्डस्केप/पोर्ट्रेट ओरिएन्टेसन अनुकूलन गर्नुहोस्।
+              Canva-शैलीमा क्यानभासमा क्लिक गरी माउसले सीधै तान्नुहोस् (Drag & Move), फन्ट, साइज, बोल्ड, इटालिक र रङ अनुकूलन गर्नुहोस्।
             </Typography>
           </Box>
         </Box>
@@ -498,7 +658,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             onClick={handleResetDefaults}
             sx={{ fontWeight: 700 }}
           >
-            डिफल्टमा फर्काउनुहोस्
+            डिफल्ट
           </Button>
 
           <Button
@@ -521,23 +681,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               boxShadow: '0 4px 14px rgba(5, 150, 105, 0.35)'
             }}
           >
-            डिजाइन सुरक्षित गर्नुहोस् (Save Design)
+            डिजाइन सुरक्षित गर्नुहोस्
           </Button>
         </Stack>
       </Box>
 
       {savedAlert && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2, fontWeight: 700 }}>
-          ✓ प्रमाणपत्रको डिजाइन सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्र यसै ढाँचा र ओरिएन्टेसनमा प्रिन्ट हुनेछन्।
+        <Alert severity="success" sx={{ mb: 2.5, borderRadius: 2, fontWeight: 700 }}>
+          ✓ प्रमाणपत्रको डिजाइन सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्र यसै सरेको स्थिति र फन्टमा प्रिन्ट हुनेछन्।
         </Alert>
       )}
 
-      {/* Main Studio Grid: Left Controls (5 cols) & Right Live WYSIWYG Preview (7 cols) */}
-      <Grid container spacing={3}>
+      {/* Main Studio Grid: Left Controls (4.5 cols) & Right Live WYSIWYG Preview (7.5 cols) */}
+      <Grid container spacing={2.5}>
         {/* ============================================================== */}
         {/* LEFT COLUMN: CUSTOMIZATION CONTROLS ACCORDIONS                 */}
         {/* ============================================================== */}
-        <Grid item xs={12} lg={5}>
+        <Grid item xs={12} lg={4.5}>
           <Stack spacing={2}>
             {/* 1. BACKGROUND & WATERMARK (10 PRESETS) */}
             <Accordion defaultExpanded sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
@@ -545,15 +705,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <WallpaperIcon sx={{ color: '#0F2E5A', fontSize: 22 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    १. पृष्ठभूमि तथा वाटरमार्क (१० लक्जरी प्रिसेटहरू)
+                    १. पृष्ठभूमि तथा वाटरमार्क (१० प्रिसेटहरू)
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5 }}>
-                  १० आधुनिक तथा विश्वविद्यालय स्तरका पृष्ठभूमि प्रिसेटहरू मध्येबाट रोज्नुहोस्:
-                </Typography>
-
                 <Grid container spacing={1} sx={{ mb: 2 }}>
                   {BACKGROUND_PRESETS.map((bg) => (
                     <Grid item xs={6} key={bg.id}>
@@ -564,8 +720,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         onClick={() => handleUpdate('backgroundType', bg.id)}
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.68rem',
-                          py: 0.8,
+                          fontSize: '0.67rem',
+                          py: 0.7,
                           textAlign: 'left',
                           justifyContent: 'flex-start',
                           bgcolor: design.backgroundType === bg.id ? '#0F2E5A' : '#FFFFFF',
@@ -580,9 +736,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </Grid>
 
                 {/* Custom Background Upload */}
-                <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1', mb: 2 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                    आफ्नै पृष्ठभूमि फोटो अपलोड गर्नुहोस् (Custom Background Blank):
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1', mb: 1.5 }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                    कस्टम पृष्ठभूमि फोटो (Upload Custom Image):
                   </Typography>
                   <Stack direction="row" spacing={1.5} alignItems="center">
                     <Button
@@ -590,7 +746,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       size="small"
                       component="label"
                       startIcon={<UploadFileIcon />}
-                      sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                      sx={{ fontWeight: 700, fontSize: '0.72rem' }}
                     >
                       फोटो छान्नुहोस्
                       <input type="file" hidden accept="image/*" onChange={handleImageUpload} />
@@ -614,8 +770,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </Box>
 
                 {/* Watermark Controls */}
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block', mb: 0.5 }}>
-                  वाटरमार्क गाढापन (Watermark Opacity: {design.watermarkOpacity}%)
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block' }}>
+                  वाटरमार्क गाढापन ({design.watermarkOpacity}%)
                 </Typography>
                 <Slider
                   value={design.watermarkOpacity}
@@ -629,19 +785,19 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             </Accordion>
 
             {/* 2. BORDER DESIGN, CORNER ORNAMENTS & COLOR PICKERS */}
-            <Accordion defaultExpanded sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
+            <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <BorderStyleIcon sx={{ color: '#C59B27', fontSize: 22 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    २. बोर्डर, कुनाका बुट्टा तथा पूर्ण कलर पिकर
+                    २. बोर्डर, कुनाका बुट्टा तथा कलर पिकर
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
                 {/* 7 Border Styles */}
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                  क) बोर्डरको ढाँचा (७ Border Styles):
+                  बोर्डरको ढाँचा (Border Styles):
                 </Typography>
                 <Grid container spacing={1} sx={{ mb: 2 }}>
                   {BORDER_STYLES.map((b) => (
@@ -653,8 +809,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         onClick={() => handleUpdate('borderStyle', b.id)}
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.68rem',
-                          py: 0.7,
+                          fontSize: '0.67rem',
+                          py: 0.6,
                           bgcolor: design.borderStyle === b.id ? '#C59B27' : '#FFFFFF',
                           borderColor: '#CBD5E1',
                           color: design.borderStyle === b.id ? '#0F172A' : '#334155'
@@ -666,41 +822,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ))}
                 </Grid>
 
-                {/* Border Margin & Width Sliders */}
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
-                      बोर्डर मोटाइ ({design.borderWidth}px)
-                    </Typography>
-                    <Slider
-                      value={design.borderWidth}
-                      min={2}
-                      max={14}
-                      step={1}
-                      onChange={(e, val) => handleUpdate('borderWidth', val)}
-                      sx={{ color: '#C59B27' }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
-                      कागज किनारा मार्जिन ({design.borderMargin}mm)
-                    </Typography>
-                    <Slider
-                      value={design.borderMargin}
-                      min={6}
-                      max={22}
-                      step={1}
-                      onChange={(e, val) => handleUpdate('borderMargin', val)}
-                      sx={{ color: '#0F2E5A' }}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 1.5 }} />
-
                 {/* Corner Ornaments */}
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 1 }}>
-                  ख) कुनाका बुट्टाहरू (Corner Ornaments / Flourishes):
+                  कुनाका बुट्टाहरू (Corner Ornaments):
                 </Typography>
                 <Grid container spacing={1} sx={{ mb: 1.5 }}>
                   {CORNER_STYLES.map((c) => (
@@ -725,46 +849,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ))}
                 </Grid>
 
-                <Grid container spacing={2} sx={{ mb: 2 }}>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
-                      कुनाको साइज ({design.cornerSize}px)
-                    </Typography>
-                    <Slider
-                      value={design.cornerSize}
-                      min={16}
-                      max={55}
-                      step={1}
-                      onChange={(e, val) => handleUpdate('cornerSize', val)}
-                      sx={{ color: '#C59B27' }}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block', mb: 0.5 }}>
-                      कुनाको रङ्ग (Corner Color):
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <input
-                        type="color"
-                        value={design.cornerColor}
-                        onChange={(e) => handleUpdate('cornerColor', e.target.value)}
-                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
-                      />
-                      <TextField
-                        size="small"
-                        value={design.cornerColor}
-                        onChange={(e) => handleUpdate('cornerColor', e.target.value)}
-                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
-                      />
-                    </Box>
-                  </Grid>
-                </Grid>
-
-                <Divider sx={{ my: 1.5 }} />
-
                 {/* 1-Click Luxury Palettes */}
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                  ग) १-क्लिक लक्जरी कलर प्यालेटहरू (Matching Palettes):
+                  १-क्लिक लक्जरी कलर प्यालेटहरू:
                 </Typography>
                 <Stack spacing={0.8} sx={{ mb: 2 }}>
                   {LUXURY_PALETTES.map((pal) => (
@@ -786,18 +873,15 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         {pal.name}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 0.8 }}>
-                        <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: pal.primary, border: '1px solid #FFF' }} />
-                        <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: pal.accent, border: '1px solid #FFF' }} />
+                        <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: pal.primary, border: '1px solid #FFF' }} />
+                        <Box sx={{ width: 18, height: 18, borderRadius: '50%', bgcolor: pal.accent, border: '1px solid #FFF' }} />
                       </Box>
                     </Box>
                   ))}
                 </Stack>
 
-                {/* Interactive Color Pickers */}
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                  घ) पूर्ण कलर पिकर (Interactive HTML5 Color Wheel):
-                </Typography>
-                <Grid container spacing={2}>
+                {/* Color Pickers */}
+                <Grid container spacing={1.5}>
                   <Grid item xs={6}>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block', mb: 0.5 }}>
                       प्राथमिक रङ्ग (Primary):
@@ -807,13 +891,13 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         type="color"
                         value={design.primaryColor}
                         onChange={(e) => handleUpdate('primaryColor', e.target.value)}
-                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                        style={{ width: 34, height: 30, border: 'none', cursor: 'pointer', borderRadius: 4 }}
                       />
                       <TextField
                         size="small"
                         value={design.primaryColor}
                         onChange={(e) => handleUpdate('primaryColor', e.target.value)}
-                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
+                        sx={{ '& input': { p: '4px 6px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
                       />
                     </Box>
                   </Grid>
@@ -827,13 +911,13 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         type="color"
                         value={design.accentColor}
                         onChange={(e) => handleUpdate('accentColor', e.target.value)}
-                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                        style={{ width: 34, height: 30, border: 'none', cursor: 'pointer', borderRadius: 4 }}
                       />
                       <TextField
                         size="small"
                         value={design.accentColor}
                         onChange={(e) => handleUpdate('accentColor', e.target.value)}
-                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
+                        sx={{ '& input': { p: '4px 6px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
                       />
                     </Box>
                   </Grid>
@@ -841,230 +925,42 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </AccordionDetails>
             </Accordion>
 
-            {/* 3. INSTITUTIONAL LETTERHEAD & LOGOS */}
-            <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                  <BrandingWatermarkIcon sx={{ color: '#1E40AF', fontSize: 22 }} />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    ३. संस्थागत लेटरहेड र लोगो (Header & Logos)
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ pt: 0 }}>
-                <FormControlLabel
-                  control={<Switch checked={design.showHeader} onChange={(e) => handleUpdate('showHeader', e.target.checked)} />}
-                  label={<Typography variant="caption" sx={{ fontWeight: 800 }}>शीर्ष लेटरहेड देखाउनुहोस् (Show Header)</Typography>}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="संस्थाको नाम (नेपाली)"
-                  value={design.instituteNameNepali}
-                  onChange={(e) => handleUpdate('instituteNameNepali', e.target.value)}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="संस्थाको नाम (English)"
-                  value={design.instituteNameEnglish}
-                  onChange={(e) => handleUpdate('instituteNameEnglish', e.target.value)}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="सम्बन्धन / दर्ता विवरण (Registration Details)"
-                  value={design.affiliationCodeText}
-                  onChange={(e) => handleUpdate('affiliationCodeText', e.target.value)}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <Stack direction="row" spacing={2}>
-                  <FormControlLabel
-                    control={<Switch checked={design.showLeftLogo} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">बायाँ संस्था लोगो</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Switch checked={design.showRightLogo} onChange={(e) => handleUpdate('showRightLogo', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">दायाँ CTEVT लोगो</Typography>}
-                  />
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* 4. TITLE & TYPOGRAPHY */}
-            <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                  <FormatSizeIcon sx={{ color: '#059669', fontSize: 22 }} />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    ४. शीर्षक तथा ब्यहोरा (Title & Typography)
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ pt: 0 }}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="प्रमाणपत्र मुख्य शीर्षक (English)"
-                  value={design.certificateTitleEn}
-                  onChange={(e) => handleUpdate('certificateTitleEn', e.target.value)}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="प्रमाणपत्र उप-शीर्षक (नेपाली)"
-                  value={design.certificateTitleNp}
-                  onChange={(e) => handleUpdate('certificateTitleNp', e.target.value)}
-                  sx={{ mb: 1.5 }}
-                />
-
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block', mb: 0.8 }}>
-                  अनुच्छेदको भाषा (Paragraph Language):
-                </Typography>
-                <ToggleButtonGroup
-                  value={design.bodyLayoutMode}
-                  exclusive
-                  onChange={(e, next) => next && handleUpdate('bodyLayoutMode', next)}
-                  size="small"
-                  fullWidth
-                  sx={{ mb: 2 }}
-                >
-                  <ToggleButton value="bilingual">द्विभाषी (Bilingual)</ToggleButton>
-                  <ToggleButton value="english-only">English मात्र</ToggleButton>
-                  <ToggleButton value="nepali-only">नेपाली मात्र</ToggleButton>
-                </ToggleButtonGroup>
-
-                <Stack direction="row" spacing={2}>
-                  <FormControlLabel
-                    control={<Switch checked={design.showStudentPhoto} onChange={(e) => handleUpdate('showStudentPhoto', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">फोटो फ्रेम देखाउने (PP Photo)</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Switch checked={design.showCompetencyBadge} onChange={(e) => handleUpdate('showCompetencyBadge', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">घण्टा ब्याच ({design.hoursBadgeText})</Typography>}
-                  />
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* 5. SIGNATURES & OFFICIAL SEALS */}
-            <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                  <EditNoteIcon sx={{ color: '#DC2626', fontSize: 22 }} />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    ५. हस्ताक्षर तथा आधिकारिक छाप (Signatures & Stamp)
-                  </Typography>
-                </Box>
-              </AccordionSummary>
-              <AccordionDetails sx={{ pt: 0 }}>
-                <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="प्रशिक्षक पद (Signatory 1 Title)"
-                      value={design.signatory1Title}
-                      onChange={(e) => handleUpdate('signatory1Title', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="प्रशिक्षक नाम (Signatory 1 Name)"
-                      value={design.signatory1Name}
-                      onChange={(e) => handleUpdate('signatory1Name', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="प्रमुख पद (Signatory 2 Title)"
-                      value={design.signatory2Title}
-                      onChange={(e) => handleUpdate('signatory2Title', e.target.value)}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="प्रमुख नाम (Signatory 2 Name)"
-                      value={design.signatory2Name}
-                      onChange={(e) => handleUpdate('signatory2Name', e.target.value)}
-                    />
-                  </Grid>
-                </Grid>
-
-                <Stack direction="row" spacing={2} sx={{ mb: 1.5 }}>
-                  <FormControlLabel
-                    control={<Switch checked={design.showOfficialSeal} onChange={(e) => handleUpdate('showOfficialSeal', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">आधिकारिक गोल्डेन/रेड सिल</Typography>}
-                  />
-                  <FormControlLabel
-                    control={<Switch checked={design.showQrVerification} onChange={(e) => handleUpdate('showQrVerification', e.target.checked)} size="small" />}
-                    label={<Typography variant="caption">QR भेरिफिकेसन कोड</Typography>}
-                  />
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* 6. PRE-PRINTED PAPER OFFSETS & TEXT-ONLY PRINT */}
+            {/* 3. PRE-PRINTED PAPER OFFSETS & TEXT-ONLY PRINT */}
             <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <TuneIcon sx={{ color: '#D97706', fontSize: 22 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    ६. प्रि-प्रिन्टेड क्यालिब्रेसन (Pre-printed Paper Offsets)
+                    ३. प्रि-प्रिन्टेड क्यालिब्रेसन (Offset & Text-Only)
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
-                {/* 1-Click Text Only Mode */}
-                <Box sx={{ p: 1.5, bgcolor: '#FFFBEB', borderRadius: 2, border: '1px solid #FCD34D', mb: 2 }}>
+                <Box sx={{ p: 1.2, bgcolor: '#FFFBEB', borderRadius: 2, border: '1px solid #FCD34D', mb: 1.5 }}>
                   <FormControlLabel
                     control={
                       <Switch
                         checked={design.preprintedTextOnly}
                         onChange={(e) => handleUpdate('preprintedTextOnly', e.target.checked)}
                         color="warning"
+                        size="small"
                       />
                     }
                     label={
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
-                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode: बजारको बोर्डर भएको कागजमा प्रिन्ट गर्न)
+                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode)
                       </Typography>
                     }
                   />
                 </Box>
 
-                <Typography variant="caption">माथि/तल सर्ने (Y-Offset: {design.offsetY} mm)</Typography>
+                <Typography variant="caption">समग्र माथि/तल सर्ने (Y-Offset: {design.offsetY} mm)</Typography>
                 <Slider
                   value={design.offsetY}
                   min={-20}
                   max={20}
                   step={1}
                   onChange={(e, val) => handleUpdate('offsetY', val)}
-                  sx={{ color: '#D97706', mb: 1 }}
-                />
-
-                <Typography variant="caption">दायाँ/बायाँ सर्ने (X-Offset: {design.offsetX} mm)</Typography>
-                <Slider
-                  value={design.offsetX}
-                  min={-20}
-                  max={20}
-                  step={1}
-                  onChange={(e, val) => handleUpdate('offsetX', val)}
                   sx={{ color: '#D97706' }}
                 />
               </AccordionDetails>
@@ -1073,41 +969,230 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         </Grid>
 
         {/* ============================================================== */}
-        {/* RIGHT COLUMN: LIVE WYSIWYG INTERACTIVE PREVIEW CANVAS          */}
+        {/* RIGHT COLUMN: CANVA-STYLE INTERACTIVE PREVIEW CANVAS           */}
         {/* ============================================================== */}
-        <Grid item xs={12} lg={7}>
-          <Box sx={{ position: 'sticky', top: 20 }}>
-            {/* Preview Control Header */}
+        <Grid item xs={12} lg={7.5}>
+          <Box sx={{ position: 'sticky', top: 15 }}>
+            {/* Canva-Style Floating Element Inspector Bar */}
             <Paper
-              elevation={0}
+              elevation={2}
               sx={{
-                p: 1.5,
-                mb: 2,
-                border: '1px solid #CBD5E1',
-                borderRadius: 2,
-                bgcolor: '#FFFFFF',
+                p: 1.2,
+                mb: 1.5,
+                border: '1.5px solid #0284c7',
+                borderRadius: 2.5,
+                bgcolor: selectedElement ? '#F0F9FF' : '#FFFFFF',
+                boxShadow: selectedElement ? '0 4px 16px rgba(2, 132, 199, 0.15)' : '0 2px 6px rgba(0,0,0,0.05)',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center'
+                flexDirection: 'column',
+                gap: 1
               }}
+              onClick={(e) => e.stopPropagation()}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  label="LIVE PREVIEW"
-                  size="small"
-                  sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 900, fontSize: '0.68rem' }}
-                />
-                <Typography variant="caption" sx={{ color: '#0F2E5A', fontWeight: 800 }}>
-                  {isPortrait ? 'A4 Portrait (ठाडो - २१० × २९७ मिमी)' : 'A4 Landscape (तेर्सो - २९७ × २१० मिमी)'}
-                </Typography>
-              </Box>
+              {selectedElement ? (
+                <>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Chip
+                        icon={<PanToolIcon fontSize="small" />}
+                        label={ELEMENT_LABELS[selectedElement] || selectedElement}
+                        size="small"
+                        sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 900, fontSize: '0.72rem' }}
+                      />
+                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#0369A1' }}>
+                        X: {activeStyle?.x > 0 ? `+${activeStyle?.x}` : activeStyle?.x || 0}px, Y: {activeStyle?.y > 0 ? `+${activeStyle?.y}` : activeStyle?.y || 0}px
+                      </Typography>
+                    </Box>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>प्रिभ्यु जुम:</Typography>
-                <Button size="small" onClick={() => setPreviewScale((p) => Math.max(0.55, p - 0.05))}>-</Button>
-                <Typography variant="caption" sx={{ fontWeight: 800 }}>{Math.round(previewScale * 100)}%</Typography>
-                <Button size="small" onClick={() => setPreviewScale((p) => Math.min(1.05, p + 0.05))}>+</Button>
-              </Box>
+                    {/* Precision Nudge Arrow Buttons */}
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Tooltip title="बायाँ सार्नुहोस् (-1px, Shift थिचेर -5px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, -1, 0)} sx={{ bgcolor: '#E0F2FE' }}>
+                          <ArrowBackIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="माथि सार्नुहोस् (-1px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, -1)} sx={{ bgcolor: '#E0F2FE' }}>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="तल सार्नुहोस् (+1px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, 1)} sx={{ bgcolor: '#E0F2FE' }}>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="दायाँ सार्नुहोस् (+1px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 1, 0)} sx={{ bgcolor: '#E0F2FE' }}>
+                          <ArrowForwardIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+
+                      <Button
+                        size="small"
+                        color="inherit"
+                        onClick={() => handleResetElement(selectedElement)}
+                        sx={{ fontSize: '0.68rem', fontWeight: 700, ml: 1 }}
+                      >
+                        सुरुवाती स्थिति (Reset)
+                      </Button>
+
+                      <IconButton size="small" onClick={() => setSelectedElement(null)} sx={{ ml: 0.5 }}>
+                        <CloseIcon fontSize="small" />
+                      </IconButton>
+                    </Stack>
+                  </Box>
+
+                  {/* Rich Typography Controls for Selected Text / Photo Elements */}
+                  <Divider sx={{ my: 0.3 }} />
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+                    {/* If it's a text element */}
+                    {['header', 'title', 'student', 'body'].includes(selectedElement) && (
+                      <>
+                        {/* Font Size Stepper */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#FFFFFF', p: '2px 6px', borderRadius: 1.5, border: '1px solid #CBD5E1' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', mr: 0.5 }}>🗚 साइज:</Typography>
+                          <Button size="small" sx={{ minWidth: 24, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.max(10, (activeStyle?.fontSize || 20) - 1))}>-</Button>
+                          <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace' }}>{activeStyle?.fontSize || 20}px</Typography>
+                          <Button size="small" sx={{ minWidth: 24, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.min(50, (activeStyle?.fontSize || 20) + 1))}>+</Button>
+                        </Box>
+
+                        {/* Bold & Italic Toggles */}
+                        <Stack direction="row" spacing={0.5}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleElementStyleUpdate(selectedElement, 'fontWeight', activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? 'normal' : '900')}
+                            sx={{
+                              bgcolor: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#0284C7' : '#FFFFFF',
+                              color: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#FFFFFF' : '#334155',
+                              border: '1px solid #CBD5E1'
+                            }}
+                          >
+                            <FormatBoldIcon fontSize="small" />
+                          </IconButton>
+
+                          <IconButton
+                            size="small"
+                            onClick={() => handleElementStyleUpdate(selectedElement, 'fontStyle', activeStyle?.fontStyle === 'italic' ? 'normal' : 'italic')}
+                            sx={{
+                              bgcolor: activeStyle?.fontStyle === 'italic' ? '#0284C7' : '#FFFFFF',
+                              color: activeStyle?.fontStyle === 'italic' ? '#FFFFFF' : '#334155',
+                              border: '1px solid #CBD5E1'
+                            }}
+                          >
+                            <FormatItalicIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
+
+                        {/* Text Alignment */}
+                        <Stack direction="row" spacing={0.5}>
+                          {['left', 'center', 'right', 'justify'].map((align) => (
+                            <IconButton
+                              key={align}
+                              size="small"
+                              onClick={() => handleElementStyleUpdate(selectedElement, 'align', align)}
+                              sx={{
+                                bgcolor: activeStyle?.align === align ? '#0284C7' : '#FFFFFF',
+                                color: activeStyle?.align === align ? '#FFFFFF' : '#334155',
+                                border: '1px solid #CBD5E1'
+                              }}
+                            >
+                              {align === 'left' && <FormatAlignLeftIcon fontSize="small" />}
+                              {align === 'center' && <FormatAlignCenterIcon fontSize="small" />}
+                              {align === 'right' && <FormatAlignRightIcon fontSize="small" />}
+                              {align === 'justify' && <FormatAlignJustifyIcon fontSize="small" />}
+                            </IconButton>
+                          ))}
+                        </Stack>
+
+                        {/* Text Color Picker */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>अक्षर रङ:</Typography>
+                          <input
+                            type="color"
+                            value={activeStyle?.color || design.primaryColor}
+                            onChange={(e) => handleElementStyleUpdate(selectedElement, 'color', e.target.value)}
+                            style={{ width: 30, height: 26, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                          />
+                        </Box>
+
+                        {/* Font Family Selector */}
+                        <FormControl size="small" sx={{ minWidth: 140 }}>
+                          <Select
+                            value={activeStyle?.fontFamily || 'Times New Roman'}
+                            onChange={(e) => handleElementStyleUpdate(selectedElement, 'fontFamily', e.target.value)}
+                            sx={{ height: 30, fontSize: '0.74rem' }}
+                          >
+                            {FONT_OPTIONS.map((f) => (
+                              <MenuItem key={f.id} value={f.id} sx={{ fontSize: '0.75rem' }}>{f.label}</MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      </>
+                    )}
+
+                    {/* If it's Photo Frame */}
+                    {selectedElement === 'photo' && (
+                      <>
+                        <Typography variant="caption" sx={{ fontWeight: 800 }}>फोटो स्थिति:</Typography>
+                        <ToggleButtonGroup
+                          value={activeStyle?.preset || 'right'}
+                          exclusive
+                          onChange={(e, next) => next && handleElementStyleUpdate('photo', 'preset', next)}
+                          size="small"
+                        >
+                          <ToggleButton value="right" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>दायाँ कुना (Right)</ToggleButton>
+                          <ToggleButton value="center" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>बीचमा (Center)</ToggleButton>
+                          <ToggleButton value="left" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>बायाँ (Left)</ToggleButton>
+                        </ToggleButtonGroup>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800 }}>साइज:</Typography>
+                          <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.max(60, (activeStyle?.width || 88) - 4))}>-</Button>
+                          <Typography variant="caption" sx={{ fontWeight: 900 }}>{activeStyle?.width || 88}px</Typography>
+                          <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.min(140, (activeStyle?.width || 88) + 4))}>+</Button>
+                        </Box>
+
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800 }}>बोर्डर रङ:</Typography>
+                          <input
+                            type="color"
+                            value={activeStyle?.borderColor || design.accentColor}
+                            onChange={(e) => handleElementStyleUpdate('photo', 'borderColor', e.target.value)}
+                            style={{ width: 28, height: 24, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                          />
+                        </Box>
+                      </>
+                    )}
+
+                    {/* If it's Footer */}
+                    {selectedElement === 'footer' && (
+                      <>
+                        <Typography variant="caption" sx={{ fontWeight: 800 }}>QR कोड साइज:</Typography>
+                        <Button size="small" onClick={() => handleElementStyleUpdate('footer', 'qrSize', Math.max(38, (activeStyle?.qrSize || 54) - 4))}>-</Button>
+                        <Typography variant="caption" sx={{ fontWeight: 900 }}>{activeStyle?.qrSize || 54}px</Typography>
+                        <Button size="small" onClick={() => handleElementStyleUpdate('footer', 'qrSize', Math.min(80, (activeStyle?.qrSize || 54) + 4))}>+</Button>
+                      </>
+                    )}
+                  </Box>
+                </>
+              ) : (
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <DragIndicatorIcon sx={{ color: '#0284C7' }} />
+                    <Typography variant="caption" sx={{ color: '#0369A1', fontWeight: 800 }}>
+                      💡 Canva Move & Edit: क्यानभास भित्रको कुनै पनि भागमा क्लिक गर्नुहोस् वा माउसले सिधै तान्नुहोस् (Click & Drag)!
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B' }}>जुम:</Typography>
+                    <Button size="small" onClick={() => setPreviewScale((p) => Math.max(0.55, p - 0.05))}>-</Button>
+                    <Typography variant="caption" sx={{ fontWeight: 800 }}>{Math.round(previewScale * 100)}%</Typography>
+                    <Button size="small" onClick={() => setPreviewScale((p) => Math.min(1.05, p + 0.05))}>+</Button>
+                  </Box>
+                </Box>
+              )}
             </Paper>
 
             {/* Scaled Certificate Wrapper */}
@@ -1120,7 +1205,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 display: 'flex',
                 justifyContent: 'center',
                 boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.25)',
-                minHeight: '750px'
+                minHeight: '750px',
+                userSelect: isDragging ? 'none' : 'auto'
               }}
             >
               {/* The Live Certificate Canvas */}
@@ -1139,7 +1225,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   justifyContent: 'space-between',
                   transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
                   transformOrigin: 'top center',
-                  transition: 'all 0.2s ease',
+                  transition: isDragging ? 'none' : 'all 0.15s ease',
                   boxShadow: '0 12px 36px rgba(0,0,0,0.25)',
                   ...getBorderStyle(),
                   ...getBackgroundStyle()
@@ -1172,9 +1258,29 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   </Box>
                 )}
 
-                {/* 1. Institutional Letterhead Header */}
+                {/* ============================================================== */}
+                {/* 1. INSTITUTIONAL LETTERHEAD & LOGOS (MOVABLE)                  */}
+                {/* ============================================================== */}
                 {design.showHeader && (
-                  <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: `1.5px solid ${design.accentColor}` }}>
+                  <Box
+                    onClick={(e) => { e.stopPropagation(); setSelectedElement('header'); }}
+                    onMouseDown={(e) => handleMouseDownOnElement(e, 'header')}
+                    sx={{
+                      position: 'relative',
+                      zIndex: selectedElement === 'header' ? 10 : 2,
+                      textAlign: design.elementStyles?.header?.align || 'center',
+                      pb: 1,
+                      borderBottom: `1.5px solid ${design.accentColor}`,
+                      transform: `translate(${design.elementStyles?.header?.x || 0}px, ${design.elementStyles?.header?.y || 0}px)`,
+                      cursor: isDragging && selectedElement === 'header' ? 'grabbing' : 'grab',
+                      outline: selectedElement === 'header' ? '2px dashed #0284c7' : '1px dashed transparent',
+                      outlineOffset: '4px',
+                      borderRadius: '4px',
+                      '&:hover': {
+                        outline: selectedElement === 'header' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                      }
+                    }}
+                  >
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
                       {/* Left Logo */}
                       <Box sx={{ display: 'flex', alignItems: 'center', width: 64 }}>
@@ -1182,15 +1288,16 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       </Box>
 
                       {/* Center Institute Titles */}
-                      <Box sx={{ textAlign: 'center', flexGrow: 1 }}>
+                      <Box sx={{ textAlign: design.elementStyles?.header?.align || 'center', flexGrow: 1 }}>
                         <Typography
                           variant="h5"
                           sx={{
-                            fontFamily: "'Times New Roman', serif",
-                            fontWeight: 900,
+                            fontFamily: design.elementStyles?.header?.fontFamily || "'Times New Roman', serif",
+                            fontWeight: design.elementStyles?.header?.fontWeight || 900,
+                            fontStyle: design.elementStyles?.header?.fontStyle || 'normal',
                             letterSpacing: '0.04em',
-                            color: design.primaryColor,
-                            fontSize: isPortrait ? '1.25rem' : '1.35rem',
+                            color: design.elementStyles?.header?.color || design.primaryColor,
+                            fontSize: `${design.elementStyles?.header?.fontSize || (isPortrait ? 20 : 21)}px`,
                             textTransform: 'uppercase'
                           }}
                         >
@@ -1225,16 +1332,37 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   </Box>
                 )}
 
-                {/* 2. Certificate Title Banner */}
-                <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: isPortrait ? 2 : 1 }}>
+                {/* ============================================================== */}
+                {/* 2. CERTIFICATE TITLE BANNER (MOVABLE)                          */}
+                {/* ============================================================== */}
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('title'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'title')}
+                  sx={{
+                    position: 'relative',
+                    zIndex: selectedElement === 'title' ? 10 : 2,
+                    textAlign: design.elementStyles?.title?.align || 'center',
+                    my: isPortrait ? 1.5 : 0.8,
+                    transform: `translate(${design.elementStyles?.title?.x || 0}px, ${design.elementStyles?.title?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'title' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'title' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      outline: selectedElement === 'title' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                    }
+                  }}
+                >
                   <Typography
                     variant="h5"
                     sx={{
-                      fontWeight: 900,
-                      color: design.primaryColor,
+                      fontFamily: design.elementStyles?.title?.fontFamily || "'Times New Roman', serif",
+                      fontWeight: design.elementStyles?.title?.fontWeight || 900,
+                      fontStyle: design.elementStyles?.title?.fontStyle || 'normal',
+                      color: design.elementStyles?.title?.color || design.primaryColor,
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
-                      fontSize: isPortrait ? '1.18rem' : '1.25rem',
+                      fontSize: `${design.elementStyles?.title?.fontSize || (isPortrait ? 19 : 20)}px`,
                       mb: 0.2
                     }}
                   >
@@ -1262,7 +1390,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     display: 'flex',
                     justifyContent: 'space-between',
                     px: 3,
-                    py: 0.6,
+                    py: 0.5,
                     bgcolor: '#F8FAFC',
                     borderTop: '1px solid #E2E8F0',
                     borderBottom: '1px solid #E2E8F0',
@@ -1276,35 +1404,109 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   <Box>Issue Date: <b>2026-09-01</b></Box>
                 </Box>
 
-                {/* 4. Trainee Centerpiece & Photo Frame */}
-                <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, my: isPortrait ? 2 : 1.2 }}>
-                  {/* Left Competency Badge */}
-                  <Box sx={{ width: '92px' }}>
-                    {design.showCompetencyBadge && (
-                      <Box sx={{ border: `1.5px dashed ${design.accentColor}`, borderRadius: 1, p: '4px 8px', textAlign: 'center', bgcolor: '#FFFBF0' }}>
-                        <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 900, color: design.primaryColor, display: 'block' }}>
-                          CTEVT LEVEL 1
-                        </Typography>
-                        <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748B', display: 'block' }}>
-                          {design.hoursBadgeText}
+                {/* ============================================================== */}
+                {/* 4. TRAINEE CENTERPIECE & PHOTO FRAME (MOVABLE)                 */}
+                {/* ============================================================== */}
+                <Box
+                  sx={{
+                    position: 'relative',
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: design.elementStyles?.photo?.preset === 'center' ? 'column' : 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    px: 3,
+                    my: isPortrait ? 1.5 : 1
+                  }}
+                >
+                  {/* Photo if placed on LEFT */}
+                  {design.elementStyles?.photo?.preset === 'left' && (
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
+                      sx={{
+                        width: `${design.elementStyles?.photo?.width || 88}px`,
+                        height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
+                        position: 'relative',
+                        zIndex: selectedElement === 'photo' ? 10 : 3,
+                        transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '4px',
+                        borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
+                          borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
+                          p: '2px',
+                          bgcolor: '#FFFFFF',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
+                        <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
+                          PP PHOTO<br />(35×45mm)
                         </Typography>
                       </Box>
-                    )}
-                  </Box>
+                    </Box>
+                  )}
 
-                  {/* Center Trainee Name Highlight */}
-                  <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
+                  {/* Left Competency Badge (if photo not on left) */}
+                  {design.elementStyles?.photo?.preset !== 'left' && (
+                    <Box sx={{ width: '92px' }}>
+                      {design.showCompetencyBadge && (
+                        <Box sx={{ border: `1.5px dashed ${design.accentColor}`, borderRadius: 1, p: '4px 8px', textAlign: 'center', bgcolor: '#FFFBF0' }}>
+                          <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 900, color: design.primaryColor, display: 'block' }}>
+                            CTEVT LEVEL 1
+                          </Typography>
+                          <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748B', display: 'block' }}>
+                            {design.hoursBadgeText}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
+
+                  {/* Center Trainee Name Highlight (MOVABLE) */}
+                  <Box
+                    onClick={(e) => { e.stopPropagation(); setSelectedElement('student'); }}
+                    onMouseDown={(e) => handleMouseDownOnElement(e, 'student')}
+                    sx={{
+                      textAlign: design.elementStyles?.student?.align || 'center',
+                      flexGrow: 1,
+                      px: 2,
+                      position: 'relative',
+                      zIndex: selectedElement === 'student' ? 10 : 2,
+                      transform: `translate(${design.elementStyles?.student?.x || 0}px, ${design.elementStyles?.student?.y || 0}px)`,
+                      cursor: isDragging && selectedElement === 'student' ? 'grabbing' : 'grab',
+                      outline: selectedElement === 'student' ? '2px dashed #0284c7' : '1px dashed transparent',
+                      outlineOffset: '4px',
+                      borderRadius: '4px',
+                      '&:hover': {
+                        outline: selectedElement === 'student' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                      }
+                    }}
+                  >
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
                       यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
                     </Typography>
                     <Typography
                       variant="h4"
                       sx={{
-                        fontWeight: 900,
-                        color: design.primaryColor,
-                        fontFamily: 'serif',
+                        fontFamily: design.elementStyles?.student?.fontFamily || "'Times New Roman', serif",
+                        fontWeight: design.elementStyles?.student?.fontWeight || 900,
+                        fontStyle: design.elementStyles?.student?.fontStyle || 'normal',
+                        color: design.elementStyles?.student?.color || design.primaryColor,
                         letterSpacing: '0.04em',
-                        fontSize: isPortrait ? '1.85rem' : '1.75rem',
+                        fontSize: `${design.elementStyles?.student?.fontSize || (isPortrait ? 29 : 28)}px`,
                         mt: 0.3
                       }}
                     >
@@ -1336,37 +1538,87 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     </Typography>
                   </Box>
 
-                  {/* Right Student Photo Frame */}
-                  <Box sx={{ width: '88px', height: '108px' }}>
-                    {design.showStudentPhoto && (
-                      <Box
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          border: `2px solid ${design.accentColor}`,
-                          borderRadius: '4px',
-                          p: '2px',
-                          bgcolor: '#FFFFFF',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}
-                      >
-                        <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
-                        <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
-                          PP PHOTO<br />(35×45mm)
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
+                  {/* Photo if placed on RIGHT (Default) */}
+                  {design.elementStyles?.photo?.preset !== 'left' && (
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
+                      sx={{
+                        width: `${design.elementStyles?.photo?.width || 88}px`,
+                        height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
+                        position: 'relative',
+                        zIndex: selectedElement === 'photo' ? 10 : 3,
+                        transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '4px',
+                        borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
+                        '&:hover': {
+                          outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                        }
+                      }}
+                    >
+                      {design.showStudentPhoto && (
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
+                            borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
+                            p: '2px',
+                            bgcolor: '#FFFFFF',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                        >
+                          <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
+                          <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
+                            PP PHOTO<br />(35×45mm)
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+                  )}
                 </Box>
 
-                {/* 5. English & Nepali Wording Paragraphs */}
-                <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify', my: isPortrait ? 2 : 0.5 }}>
+                {/* ============================================================== */}
+                {/* 5. ENGLISH & NEPALI WORDING PARAGRAPHS (MOVABLE)               */}
+                {/* ============================================================== */}
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('body'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'body')}
+                  sx={{
+                    position: 'relative',
+                    zIndex: selectedElement === 'body' ? 10 : 2,
+                    px: 3,
+                    textAlign: design.elementStyles?.body?.align || 'justify',
+                    my: isPortrait ? 1.5 : 0.5,
+                    transform: `translate(${design.elementStyles?.body?.x || 0}px, ${design.elementStyles?.body?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'body' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'body' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      outline: selectedElement === 'body' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                    }
+                  }}
+                >
                   {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'english-only') && (
-                    <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.85rem', lineHeight: isPortrait ? 1.6 : 1.45, color: '#1E293B', mb: 0.8 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: design.elementStyles?.body?.fontFamily || "'Times New Roman', serif",
+                        fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
+                        fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
+                        fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
+                        lineHeight: design.elementStyles?.body?.lineHeight || 1.45,
+                        color: design.elementStyles?.body?.color || '#1E293B',
+                        mb: 0.8
+                      }}
+                    >
                       This is to certify that Ms. <b>Sunita Sharma</b>, Daughter of Mr./Mrs. <b>Hari Sharma</b>, permanent resident of <b>Gokarneshwor-05, Kathmandu</b>, has successfully completed the <b>390 Hours</b> vocational skills training course in <b>"Basic Beautician Training"</b> conducted from <b>2026-06-01</b> to <b>2026-09-01</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
                     </Typography>
                   )}
@@ -1380,24 +1632,46 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   )}
 
                   {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'nepali-only') && (
-                    <Typography variant="body2" sx={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontSize: isPortrait ? '0.88rem' : '0.85rem', lineHeight: isPortrait ? 1.6 : 1.5, color: '#1E293B' }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontFamily: "'Noto Sans Devanagari', sans-serif",
+                        fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
+                        fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
+                        fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
+                        lineHeight: design.elementStyles?.body?.lineHeight || 1.5,
+                        color: design.elementStyles?.body?.color || '#1E293B'
+                      }}
+                    >
                       प्रमाणित गरिन्छ कि गोकर्णेश्वर-०५, काठमाडौँ निवासी श्री हरि शर्माको सुपुत्री सुश्री <b>सुनिता शर्मा</b>ले यस संस्थाद्वारा मिति <b>२०८३/०२/१८</b> देखि <b>२०८३/०५/१८</b> सम्म सञ्चालित <b>३९० घन्टे</b> <b>"आधारभूत ब्युटिसियन तालिम"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
                     </Typography>
                   )}
                 </Box>
 
-                {/* 6. Footer: QR Code + Golden Seal + Dual Signatures */}
+                {/* ============================================================== */}
+                {/* 6. FOOTER: QR + SEAL + DUAL SIGNATURES (MOVABLE)               */}
+                {/* ============================================================== */}
                 <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('footer'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'footer')}
                   sx={{
                     position: 'relative',
-                    zIndex: 1,
-                    mt: isPortrait ? 3 : 1.5,
-                    pt: 1.5,
+                    zIndex: selectedElement === 'footer' ? 10 : 2,
+                    mt: isPortrait ? 2.5 : 1.2,
+                    pt: 1.2,
                     borderTop: '1px solid #CBD5E1',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'flex-end',
-                    px: 2
+                    px: 2,
+                    transform: `translate(${design.elementStyles?.footer?.x || 0}px, ${design.elementStyles?.footer?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'footer' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'footer' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px',
+                    '&:hover': {
+                      outline: selectedElement === 'footer' ? '2px dashed #0284c7' : '1.5px dashed rgba(2, 132, 199, 0.45)'
+                    }
                   }}
                 >
                   {/* Left QR Code */}
@@ -1405,7 +1679,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     {design.showQrVerification && (
                       <>
                         <Box sx={{ p: 0.5, bgcolor: '#FFFFFF', border: `1.5px solid ${design.primaryColor}`, borderRadius: 1 }}>
-                          <QRCodeSVG value="https://globalera.edu.np/verify?cert=GE-2081-000101" size={54} level="M" />
+                          <QRCodeSVG value="https://globalera.edu.np/verify?cert=GE-2081-000101" size={design.elementStyles?.footer?.qrSize || 54} level="M" />
                         </Box>
                         <Box>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: design.primaryColor, display: 'block', fontSize: '0.68rem' }}>
