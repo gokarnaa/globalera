@@ -69,11 +69,17 @@ import StorefrontIcon from '@mui/icons-material/Storefront';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedIcon from '@mui/icons-material/Verified';
 
-export default function AccountsManager() {
+export default function AccountsManager({ initialTab = 0 }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
 
-  const [activeTab, setActiveTab] = useState(0); // 0: Overview, 1: Students, 2: Trainers, 3: Transactions
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  React.useEffect(() => {
+    if (initialTab !== undefined) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab]);
 
   // Modals state
   const [openCollectModal, setOpenCollectModal] = useState(false);

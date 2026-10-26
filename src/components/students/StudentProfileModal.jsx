@@ -36,8 +36,14 @@ import BusinessIcon from '@mui/icons-material/Business';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import PrintIcon from '@mui/icons-material/Print';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import ReceiptModal from '../accounts/ReceiptModal';
-import { saveDB, logAudit } from '../../services/storage';
+import RecordPaymentModal from '../accounts/RecordPaymentModal';
+import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
+import StudentPaymentTimelineModal from '../accounts/StudentPaymentTimelineModal';
+import { saveDB, logAudit, postDoubleEntryJournal } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
 export default function StudentProfileModal({
@@ -85,6 +91,39 @@ export default function StudentProfileModal({
 
   // Fee & Receipt Dialog State
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
+  const [openCollectFeeModal, setOpenCollectFeeModal] = useState(false);
+  const [openTimelineModal, setOpenTimelineModal] = useState(false);
+  const [openClearanceModal, setOpenClearanceModal] = useState(false);
+
+  const handleSaveFeePayment = (newPayment) => {
+    const isDigital = newPayment.paymentMethod !== 'Cash';
+    const debitAcc = isDigital ? '1020' : '1010';
+    const payAmt = Number(newPayment.amount) || 0;
+
+    let dbToUpdate = db;
+    try {
+      const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
+        narration: `विद्यार्थी ${newPayment.studentName} शुल्क संकलन (${newPayment.receiptNo})`,
+        lines: [
+          { accountCode: debitAcc, debit: payAmt, credit: 0, lineNarration: `Receipt ${newPayment.receiptNo}` },
+          { accountCode: '4010', debit: 0, credit: payAmt, lineNarration: 'Fee Collection' }
+        ],
+        sourceModule: 'STUDENT_FEE',
+        sourceId: newPayment.receiptNo,
+        entryDate: newPayment.paymentDate
+      });
+      dbToUpdate = nextDb;
+    } catch (e) {
+      console.warn('Auto journal post warning:', e);
+    }
+
+    const updatedPayments = [newPayment, ...(dbToUpdate.payments || [])];
+    const nextDb = { ...dbToUpdate, payments: updatedPayments };
+    saveDB(nextDb);
+    if (setDb) setDb(nextDb);
+    setSelectedReceiptPayment(newPayment);
+    setOpenCollectFeeModal(false);
+  };
 
   if (!student) return null;
 
@@ -816,15 +855,48 @@ export default function StudentProfileModal({
                 <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
                   💰 Fee & Ledger Overview (शुल्क तथा खाता विवरण)
                 </Typography>
-                <Chip
-                  label={dueBalance === 0 ? 'Fully Paid (सम्पूर्ण चुक्ता)' : isOverdue ? 'Overdue (>30 Days)' : totalPaid > 0 ? 'Partial Payment (आंशिक)' : 'Unpaid (बाँकी)'}
-                  size="small"
-                  sx={{
-                    fontWeight: 800,
-                    bgcolor: dueBalance === 0 ? '#e5f8ee' : isOverdue ? '#fee2e2' : totalPaid > 0 ? '#fef3c7' : '#fee2e2',
-                    color: dueBalance === 0 ? '#16834b' : isOverdue ? '#dc2626' : totalPaid > 0 ? '#b45309' : '#dc2626'
-                  }}
-                />
+                <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                  <Chip
+                    label={dueBalance === 0 ? 'Fully Paid (सम्पूर्ण चुक्ता)' : isOverdue ? 'Overdue (>30 Days)' : totalPaid > 0 ? 'Partial Payment (आंशिक)' : 'Unpaid (बाँकी)'}
+                    size="small"
+                    sx={{
+                      fontWeight: 800,
+                      bgcolor: dueBalance === 0 ? '#e5f8ee' : isOverdue ? '#fee2e2' : totalPaid > 0 ? '#fef3c7' : '#fee2e2',
+                      color: dueBalance === 0 ? '#16834b' : isOverdue ? '#dc2626' : totalPaid > 0 ? '#b45309' : '#dc2626'
+                    }}
+                  />
+                  {dueBalance > 0 && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<PointOfSaleIcon />}
+                      onClick={() => setOpenCollectFeeModal(true)}
+                      sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
+                    >
+                      शुल्क बुझ्नुहोस्
+                    </Button>
+                  )}
+                  {dueBalance === 0 && (
+                    <Button
+                      size="small"
+                      variant="contained"
+                      startIcon={<VerifiedIcon />}
+                      onClick={() => setOpenClearanceModal(true)}
+                      sx={{ fontWeight: 900, textTransform: 'none', bgcolor: '#f59e0b', color: '#0f2e5a', '&:hover': { bgcolor: '#d97706', color: '#ffffff' } }}
+                    >
+                      चुक्ता प्रमाणपत्र
+                    </Button>
+                  )}
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<AccessTimeIcon />}
+                    onClick={() => setOpenTimelineModal(true)}
+                    sx={{ fontWeight: 800, textTransform: 'none' }}
+                  >
+                    टाइमलाइन
+                  </Button>
+                </Stack>
               </Box>
 
               {/* Fee Stats */}
@@ -1772,6 +1844,53 @@ export default function StudentProfileModal({
           settings={db.settings}
         />
       )}
+
+      {/* 1. Fast Fee Payment Modal */}
+      <RecordPaymentModal
+        open={openCollectFeeModal}
+        onClose={() => setOpenCollectFeeModal(false)}
+        onSavePayment={handleSaveFeePayment}
+        db={db}
+        preselectedStudentId={student?.id}
+      />
+
+      {/* 2. Official Fee Clearance Certificate Modal */}
+      <FeeClearanceReceiptModal
+        open={openClearanceModal}
+        onClose={() => setOpenClearanceModal(false)}
+        student={student}
+        ledger={{
+          courseTitle: course?.title || 'व्यावसायिक तालिम',
+          groupCode: grp?.name || 'Batch',
+          lockedFee: lockedFee,
+          discountAmount: student.discountAmount || 0,
+          totalPaid: totalPaid,
+          due: dueBalance,
+          dueDateStr: student.expectedEndDate || '२०८१/०९/३०',
+          paymentStatus: dueBalance === 0 ? 'Paid' : isOverdue ? 'Overdue' : totalPaid > 0 ? 'Partial' : 'Unpaid'
+        }}
+        payments={db.payments || []}
+      />
+
+      {/* 3. Student Payment Timeline Modal */}
+      <StudentPaymentTimelineModal
+        open={openTimelineModal}
+        onClose={() => setOpenTimelineModal(false)}
+        student={student}
+        ledger={{
+          courseTitle: course?.title || 'व्यावसायिक तालिम',
+          groupCode: grp?.name || 'Batch',
+          lockedFee: lockedFee,
+          discountAmount: student.discountAmount || 0,
+          totalPaid: totalPaid,
+          due: dueBalance,
+          dueDateStr: student.expectedEndDate || '२०८१/०९/३०',
+          paymentStatus: dueBalance === 0 ? 'Paid' : isOverdue ? 'Overdue' : totalPaid > 0 ? 'Partial' : 'Unpaid'
+        }}
+        payments={db.payments || []}
+        onCollectDue={() => setOpenCollectFeeModal(true)}
+        onOpenClearanceCertificate={() => setOpenClearanceModal(true)}
+      />
     </Dialog>
   );
 }

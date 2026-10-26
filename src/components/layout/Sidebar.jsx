@@ -38,6 +38,7 @@ import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -58,7 +59,8 @@ const NAV_ITEMS = [
   { id: 'admission', label: 'Admission (भर्ना सम्झौता)', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
   { id: 'groups', label: 'Training Batches (समूह)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, countBadge: '8' },
   { id: 'students', label: 'Trainees CRM (विद्यार्थी)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
-  { id: 'accounts', label: 'Accounts & Fees (शुल्क तथा लेखा)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
+  { id: 'fees', label: 'Fee Management (शुल्क व्यवस्थापन)', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Fee' },
+  { id: 'accounts', label: 'Accounts & Finance (लेखा तथा वित्त)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
   { id: 'workplan', label: 'Work Plan (कार्ययोजना)', icon: <EventNoteIcon />, roles: ['ADMIN', 'TRAINER'] },
   { id: 'lessonplan', label: 'Lesson Plan (पाठ-तयारी)', icon: <AssignmentIcon />, roles: ['ADMIN', 'TRAINER'] },
   { id: 'attendance', label: 'Daily Attendance (हाजिरी)', icon: <FactCheckIcon />, roles: ['ADMIN', 'TRAINER'], highlight: true, countBadge: 'Live' },

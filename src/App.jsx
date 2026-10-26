@@ -213,8 +213,10 @@ export default function App() {
         return <AdmissionManager />;
       case 'students':
         return <StudentManager />;
+      case 'fees':
+        return <AccountsManager initialTab={1} />;
       case 'accounts':
-        return <AccountsManager />;
+        return <AccountsManager initialTab={0} />;
       case 'workplan':
         return <WorkPlanManager />;
       case 'lessonplan':
