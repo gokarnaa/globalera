@@ -37,6 +37,8 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   const [phone, setPhone] = useState('');
   const [secondaryPhone, setSecondaryPhone] = useState('');
   const [gender, setGender] = useState('Female');
+  const [bloodGroup, setBloodGroup] = useState('O+ve');
+  const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80');
   const [citizenshipNumber, setCitizenshipNumber] = useState('');
   const [currentAddress, setCurrentAddress] = useState('Gokarneshwor, Kathmandu');
   const [permanentAddress, setPermanentAddress] = useState('');
@@ -164,6 +166,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       phone: phone.trim(),
       secondaryPhone: secondaryPhone.trim(),
       gender,
+      bloodGroup,
+      photoUrl,
+      expectedEndDate: endDate,
       citizenshipNumber: citizenshipNumber.trim(),
       citizenshipDistrict: 'Kathmandu',
       currentAddress: currentAddress.trim(),
@@ -173,9 +178,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       guardianContact: guardianContact.trim() || phone.trim(),
       groupId: groupObj.id || 'GRP-01',
       admissionDate,
-      expectedEndDate: endDate,
-      status: 'Active',
-      photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+      status: 'Active'
     };
 
     // 2. Create Receipt & Payment Record (50% Advance)
@@ -205,6 +208,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       phone: phone.trim(),
       secondaryPhone: secondaryPhone.trim(),
       gender,
+      bloodGroup,
+      photoUrl,
+      expectedEndDate: endDate,
       citizenshipNumber: citizenshipNumber.trim(),
       currentAddress: currentAddress.trim(),
       permanentAddress: permanentAddress.trim() || currentAddress.trim(),
@@ -407,7 +413,28 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={12} sm={3}>
+                <TextField
+                  select
+                  fullWidth
+                  label="रक्त समूह (Blood Group)"
+                  value={bloodGroup}
+                  onChange={(e) => setBloodGroup(e.target.value)}
+                  size="small"
+                >
+                  <MenuItem value="O+ve">O +ve (O Positive)</MenuItem>
+                  <MenuItem value="A+ve">A +ve (A Positive)</MenuItem>
+                  <MenuItem value="B+ve">B +ve (B Positive)</MenuItem>
+                  <MenuItem value="AB+ve">AB +ve (AB Positive)</MenuItem>
+                  <MenuItem value="O-ve">O -ve (O Negative)</MenuItem>
+                  <MenuItem value="A-ve">A -ve (A Negative)</MenuItem>
+                  <MenuItem value="B-ve">B -ve (B Negative)</MenuItem>
+                  <MenuItem value="AB-ve">AB -ve (AB Negative)</MenuItem>
+                  <MenuItem value="Unknown">थाहा छैन (Unknown)</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={3}>
                 <TextField
                   fullWidth
                   label="नागरिकता / परिचयपत्र नं"
@@ -418,7 +445,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 />
               </Grid>
 
-              <Grid item xs={12} sm={5}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="हालको ठेगाना (Current Address)"

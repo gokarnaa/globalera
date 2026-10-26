@@ -50,6 +50,7 @@ import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
 import StudentProfileModal from './StudentProfileModal';
+import StudentIdCardModal from '../admission/StudentIdCardModal';
 
 export default function StudentManager() {
   const [db, setDb] = useState(loadDB());
@@ -932,104 +933,15 @@ export default function StudentManager() {
         }}
       />
 
-      {/* Printable Digital ID Card with QR Dialog */}
-      <Dialog open={Boolean(idCardStudent)} onClose={() => setIdCardStudent(null)} maxWidth="xs" fullWidth>
-        {idCardStudent && (() => {
-          const grp = db.trainingGroups.find((g) => g.id === idCardStudent.groupId);
-          const course = db.courses.find((c) => c.id === grp?.courseId);
-
-          return (
-            <>
-              <DialogContent sx={{ p: 2, textAlign: 'center' }}>
-                {/* ID Card Outer Container */}
-                <Card
-                  id="printableIdCard"
-                  sx={{
-                    borderRadius: 4,
-                    border: '2px solid #1a56b0',
-                    boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {/* Card Header */}
-                  <Box sx={{ bgcolor: '#1a56b0', color: '#fff', py: 1.8, px: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 900, lineHeight: 1.2 }}>
-                      KITE CAREGIVER TRAINING CENTER
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '0.7rem', opacity: 0.9 }}>
-                      ग्लोबल एरा प्राविधिक स्कुल • MitraPark, Kathmandu
-                    </Typography>
-                  </Box>
-
-                  {/* Card Body */}
-                  <Box sx={{ p: 2.5 }}>
-                    <Avatar
-                      src={idCardStudent.photoUrl}
-                      sx={{
-                        width: 80,
-                        height: 80,
-                        mx: 'auto',
-                        mb: 1.5,
-                        border: '3px solid #1a56b0',
-                        fontWeight: 900,
-                        fontSize: '1.8rem',
-                        bgcolor: '#e8f0fd',
-                        color: '#1a56b0'
-                      }}
-                    >
-                      {idCardStudent.name[0]}
-                    </Avatar>
-
-                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#152238', lineHeight: 1.2 }}>
-                      {idCardStudent.name}
-                    </Typography>
-                    <Chip
-                      label={`ID: ${idCardStudent.tgid}`}
-                      size="small"
-                      sx={{ bgcolor: '#1a56b0', color: '#fff', fontWeight: 800, my: 1 }}
-                    />
-
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
-                      {course?.title}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                      Shift {grp?.shift} ({grp?.startTime} – {grp?.endTime})
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 2 }}>
-                      Validity: {idCardStudent.admissionDate} to {idCardStudent.expectedEndDate}
-                    </Typography>
-
-                    {/* QR Code */}
-                    <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 3, display: 'inline-block', border: '1px solid #e2e8f0' }}>
-                      <QRCodeSVG
-                        value={`KITE-STUDENT-VERIFY:${idCardStudent.tgid}:${idCardStudent.name}:${course?.title}`}
-                        size={120}
-                        level="H"
-                      />
-                    </Box>
-                    <Typography variant="caption" sx={{ display: 'block', color: '#94a3b8', mt: 1 }}>
-                      Scan to verify digital student record
-                    </Typography>
-                  </Box>
-                </Card>
-              </DialogContent>
-              <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
-                <Button variant="outlined" onClick={() => setIdCardStudent(null)}>
-                  Close
-                </Button>
-                <Button
-                  variant="contained"
-                  onClick={() => {
-                    window.print();
-                  }}
-                >
-                  Print ID Card
-                </Button>
-              </DialogActions>
-            </>
-          );
-        })()}
-      </Dialog>
+      {/* Official Epson L8050 Printable Student ID Card Modal */}
+      {idCardStudent && (
+        <StudentIdCardModal
+          open={Boolean(idCardStudent)}
+          onClose={() => setIdCardStudent(null)}
+          student={idCardStudent}
+          admission={(db.admissions || []).find((a) => a.studentId === idCardStudent.id || a.tgid === idCardStudent.tgid)}
+        />
+      )}
     </Box>
   );
 }

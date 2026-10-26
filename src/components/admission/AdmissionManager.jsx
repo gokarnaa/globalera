@@ -30,10 +30,12 @@ import PaymentsIcon from '@mui/icons-material/Payments';
 import WorkIcon from '@mui/icons-material/Work';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import BadgeIcon from '@mui/icons-material/Badge';
 
 import { loadDB, saveDB } from '../../services/storage';
 import NewAdmissionModal from './NewAdmissionModal';
 import AdmissionAgreementPrintModal from './AdmissionAgreementPrintModal';
+import StudentIdCardModal from './StudentIdCardModal';
 
 export default function AdmissionManager() {
   const [db, setDb] = useState(() => loadDB());
@@ -45,6 +47,8 @@ export default function AdmissionManager() {
   const [newAdmissionOpen, setNewAdmissionOpen] = useState(false);
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedAdmission, setSelectedAdmission] = useState(null);
+  const [idCardModalOpen, setIdCardModalOpen] = useState(false);
+  const [selectedForIdCard, setSelectedForIdCard] = useState(null);
 
   const [toastMsg, setToastMsg] = useState('');
   const [toastSeverity, setToastSeverity] = useState('success');
@@ -171,6 +175,11 @@ export default function AdmissionManager() {
   const handleOpenPrint = (admission) => {
     setSelectedAdmission(admission);
     setPrintModalOpen(true);
+  };
+
+  const handleOpenIdCard = (admission) => {
+    setSelectedForIdCard(admission);
+    setIdCardModalOpen(true);
   };
 
   const handleDelete = (admissionId, name) => {
@@ -590,6 +599,19 @@ export default function AdmissionManager() {
                     {/* Action Buttons */}
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
+                        <Tooltip title="Epson L8050 CR-80 प्लास्टिक ID कार्ड प्रिन्ट गर्नुहोस्">
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="warning"
+                            startIcon={<BadgeIcon />}
+                            onClick={() => handleOpenIdCard(adm)}
+                            sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6, bgcolor: '#f59e0b', color: '#0f2e5a', '&:hover': { bgcolor: '#d97706', color: '#ffffff' } }}
+                          >
+                            ID कार्ड
+                          </Button>
+                        </Tooltip>
+
                         <Tooltip title="A4 सम्झौता पत्र प्रिन्ट गर्नुहोस् (Print 2-Copy Agreement)">
                           <Button
                             variant="contained"
@@ -599,7 +621,7 @@ export default function AdmissionManager() {
                             onClick={() => handleOpenPrint(adm)}
                             sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6 }}
                           >
-                            सम्झौता प्रिन्ट
+                            सम्झौता
                           </Button>
                         </Tooltip>
 
@@ -640,6 +662,13 @@ export default function AdmissionManager() {
         open={printModalOpen}
         onClose={() => setPrintModalOpen(false)}
         admission={selectedAdmission}
+      />
+
+      {/* Epson L8050 Printable Student ID Card Modal */}
+      <StudentIdCardModal
+        open={idCardModalOpen}
+        onClose={() => setIdCardModalOpen(false)}
+        admission={selectedForIdCard}
       />
     </Box>
   );
