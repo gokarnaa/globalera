@@ -34,6 +34,7 @@ import OjtManager from './components/ojt/OjtManager';
 import PlacementManager from './components/placements/PlacementManager';
 import ReportsManager from './components/reports/ReportsManager';
 import CertificateManager from './components/certificates/CertificateManager';
+import CertificateStudioManager from './components/settings/CertificateStudioManager';
 import PublicCertificateVerify from './components/certificates/PublicCertificateVerify';
 import A4LandscapeCertificateModal from './components/certificates/A4LandscapeCertificateModal';
 import HolidayManager from './components/holidays/HolidayManager';
@@ -236,6 +237,8 @@ export default function App() {
         return <PlacementManager />;
       case 'certificates':
         return <CertificateManager />;
+      case 'certificate_studio':
+        return <CertificateStudioManager />;
       case 'communication':
         return <CommunicationManager />;
       case 'notices':

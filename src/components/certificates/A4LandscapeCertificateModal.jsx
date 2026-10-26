@@ -17,6 +17,92 @@ import { QRCodeSVG } from 'qrcode.react';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { loadDB } from '../../services/storage';
 
+// Corner Ornament SVG Helper
+function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' }) {
+  if (!style || style === 'none') return null;
+
+  let transformStyle = '';
+  let positionStyle = {};
+
+  if (position === 'top-left') {
+    positionStyle = { top: 0, left: 0 };
+    transformStyle = 'none';
+  } else if (position === 'top-right') {
+    positionStyle = { top: 0, right: 0 };
+    transformStyle = 'scaleX(-1)';
+  } else if (position === 'bottom-left') {
+    positionStyle = { bottom: 0, left: 0 };
+    transformStyle = 'scaleY(-1)';
+  } else if (position === 'bottom-right') {
+    positionStyle = { bottom: 0, right: 0 };
+    transformStyle = 'scale(-1, -1)';
+  }
+
+  return (
+    <Box
+      sx={{
+        position: 'absolute',
+        ...positionStyle,
+        transform: transformStyle,
+        transformOrigin: 'center center',
+        width: size,
+        height: size,
+        pointerEvents: 'none',
+        zIndex: 2
+      }}
+    >
+      {style === 'victorian-flourish' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 C 30 4, 60 15, 80 40 C 95 60, 96 85, 96 96 C 85 96, 60 95, 40 80 C 15 60, 4 30, 4 4 Z" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M12 12 C 35 12, 55 24, 70 45 C 80 60, 84 75, 84 84 C 75 84, 60 80, 45 70 C 24 55, 12 35, 12 12 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="1.5" />
+          <circle cx="20" cy="20" r="5" fill={color} />
+          <path d="M4 25 C 10 25, 25 10, 25 4" stroke={color} strokeWidth="2.5" />
+          <circle cx="4" cy="4" r="3" fill={color} />
+        </svg>
+      )}
+
+      {style === 'acanthus-leaf' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M6 6 Q 40 6 70 25 Q 94 45 94 94 Q 45 94 25 70 Q 6 40 6 6 Z" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M6 6 C 25 30 40 45 60 60 C 45 40 30 25 6 6 Z" fill={color} fillOpacity="0.25" stroke={color} strokeWidth="1.5" />
+          <circle cx="6" cy="6" r="4" fill={color} />
+          <path d="M18 6 Q 30 18 18 30 Q 6 18 18 6 Z" fill={color} />
+        </svg>
+      )}
+
+      {style === 'art-deco-bracket' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 L 96 4 L 96 16 L 16 16 L 16 96 L 4 96 Z" fill={color} fillOpacity="0.9" />
+          <path d="M24 24 L 80 24 L 80 32 L 32 32 L 32 80 L 24 80 Z" fill={color} fillOpacity="0.6" />
+          <path d="M40 40 L 64 40 L 64 46 L 46 46 L 46 64 L 40 64 Z" fill={color} fillOpacity="0.4" />
+          <polygon points="10,10 18,4 26,10 18,16" fill={color} />
+        </svg>
+      )}
+
+      {style === 'celtic-knot' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <rect x="6" y="6" width="88" height="88" rx="8" stroke={color} strokeWidth="2.5" fill="none" />
+          <path d="M6 35 C 35 35 35 6 35 6" stroke={color} strokeWidth="3" />
+          <path d="M6 65 C 65 65 65 6 65 6" stroke={color} strokeWidth="2.5" />
+          <circle cx="20" cy="20" r="7" stroke={color} strokeWidth="2" fill={color} fillOpacity="0.2" />
+          <circle cx="6" cy="6" r="4" fill={color} />
+        </svg>
+      )}
+
+      {style === 'clean-l-bracket' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 L 96 4" stroke={color} strokeWidth="5" strokeLinecap="square" />
+          <path d="M4 4 L 4 96" stroke={color} strokeWidth="5" strokeLinecap="square" />
+          <path d="M12 12 L 75 12" stroke={color} strokeWidth="2" />
+          <path d="M12 12 L 12 75" stroke={color} strokeWidth="2" />
+          <polygon points="4,4 12,4 12,12 4,12" fill={color} />
+          <polygon points="20,20 28,14 36,20 28,26" fill={color} />
+        </svg>
+      )}
+    </Box>
+  );
+}
+
 export default function A4LandscapeCertificateModal({
   open,
   onClose,
@@ -31,9 +117,15 @@ export default function A4LandscapeCertificateModal({
   const db = loadDB();
   const design = db.settings?.certificateDesign || {};
 
+  const isPortrait = design.orientation === 'portrait';
   const primaryColor = design.primaryColor || '#0B2545';
   const accentColor = design.accentColor || '#C59B27';
+  const cornerColor = design.cornerColor || accentColor;
   const borderStyle = design.borderStyle || 'royal-double';
+  const borderWidth = design.borderWidth || 6;
+  const borderMargin = design.borderMargin || 12;
+  const cornerStyle = design.cornerStyle || 'victorian-flourish';
+  const cornerSize = design.cornerSize || 32;
   const backgroundType = design.backgroundType || 'clean-white';
   const customBackgroundUrl = design.customBackgroundUrl || '';
   const watermarkOpacity = design.watermarkOpacity !== undefined ? design.watermarkOpacity : 4;
@@ -42,16 +134,21 @@ export default function A4LandscapeCertificateModal({
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
   const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
-  const instituteNameEnglish = design.instituteNameEnglish || 'KITE CAREGIVER TRAINING CENTER';
+  const instituteNameEnglish = design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
   const instituteNameNepali = design.instituteNameNepali || 'ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)';
+  const accreditationText = design.accreditationText || 'Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)';
+  const affiliationCodeText = design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal';
   const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
   const certificateTitleNp = design.certificateTitleNp || '(व्यावसायिक तालिम समापन प्रमाणपत्र)';
-  const signatory1Name = design.signatory1Name || trainer?.name || 'Lead Trainer';
-  const signatory1Title = design.signatory1Title || 'प्रशिक्षक (Instructor)';
-  const signatory2Name = design.signatory2Name || 'Principal / Director';
-  const signatory2Title = design.signatory2Title || 'क्याम्पस प्रमुख (Principal)';
+  const signatory1Name = design.signatory1Name || trainer?.name || 'Lead Instructor';
+  const signatory1Title = design.signatory1Title || 'प्रशिक्षक (Lead Instructor)';
+  const signatory2Name = design.signatory2Name || 'Gokarna Thapa';
+  const signatory2Title = design.signatory2Title || 'क्याम्पस प्रमुख / निर्देशक (Director)';
 
   const getBackgroundStyle = () => {
+    if (design.preprintedTextOnly) {
+      return { backgroundColor: 'transparent' };
+    }
     if (backgroundType === 'custom' && customBackgroundUrl) {
       return {
         backgroundImage: `url(${customBackgroundUrl})`,
@@ -62,26 +159,116 @@ export default function A4LandscapeCertificateModal({
     }
     if (backgroundType === 'ivory-parchment') {
       return {
-        background: 'linear-gradient(135deg, #fdfbf7 0%, #fbf6ec 50%, #f7f0e1 100%)'
+        background: 'linear-gradient(135deg, #fdfbf7 0%, #faf4e8 50%, #f6ede0 100%)'
       };
     }
     if (backgroundType === 'guilloche-security') {
       return {
         backgroundColor: '#FFFFFF',
-        backgroundImage: `radial-gradient(${primaryColor}0D 1.5px, transparent 1.5px), radial-gradient(${accentColor}0D 1.5px, #FFFFFF 1.5px)`,
+        backgroundImage: `radial-gradient(${primaryColor}14 1.5px, transparent 1.5px), radial-gradient(${accentColor}14 1.5px, #FFFFFF 1.5px)`,
         backgroundSize: '24px 24px',
         backgroundPosition: '0 0, 12px 12px'
       };
     }
-    if (backgroundType === 'damask-classic') {
+    if (backgroundType === 'royal-navy-gold') {
+      return {
+        background: `radial-gradient(ellipse at center, #ffffff 40%, #fbf9f4 75%, ${primaryColor}12 100%)`
+      };
+    }
+    if (backgroundType === 'modern-geometric') {
       return {
         backgroundColor: '#FFFFFF',
-        backgroundImage: `repeating-linear-gradient(45deg, ${accentColor}08, ${accentColor}08 10px, transparent 10px, transparent 20px)`
+        backgroundImage: `linear-gradient(30deg, ${primaryColor}06 12%, transparent 12.5%, transparent 87%, ${primaryColor}06 87.5%, ${primaryColor}06), linear-gradient(150deg, ${primaryColor}06 12%, transparent 12.5%, transparent 87%, ${primaryColor}06 87.5%, ${primaryColor}06), linear-gradient(60deg, ${accentColor}0a 25%, transparent 25.5%, transparent 75%, ${accentColor}0a 75%, ${accentColor}0a)`,
+        backgroundSize: '40px 70px',
+        backgroundPosition: '0 0, 0 0, 20px 35px'
+      };
+    }
+    if (backgroundType === 'damask-floral' || backgroundType === 'damask-classic') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `repeating-linear-gradient(45deg, ${accentColor}0a, ${accentColor}0a 12px, transparent 12px, transparent 24px), repeating-linear-gradient(-45deg, ${accentColor}08, ${accentColor}08 12px, transparent 12px, transparent 24px)`
+      };
+    }
+    if (backgroundType === 'emerald-aristocrat') {
+      return {
+        background: `radial-gradient(circle at center, #ffffff 45%, #f6fcf8 75%, #064e3b12 100%)`
+      };
+    }
+    if (backgroundType === 'maroon-sovereign') {
+      return {
+        background: `radial-gradient(circle at center, #ffffff 45%, #fdf6f7 75%, #88133714 100%)`
+      };
+    }
+    if (backgroundType === 'technical-grid') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `linear-gradient(to right, ${primaryColor}0a 1px, transparent 1px), linear-gradient(to bottom, ${primaryColor}0a 1px, transparent 1px)`,
+        backgroundSize: '20px 20px'
+      };
+    }
+    if (backgroundType === 'marble-veins') {
+      return {
+        background: 'linear-gradient(125deg, #ffffff 0%, #f9fafb 25%, #f3f4f6 50%, #fafafa 75%, #ffffff 100%)'
       };
     }
     return {
       backgroundColor: '#FFFFFF'
     };
+  };
+
+  const getBorderStyle = () => {
+    if (design.preprintedTextOnly || borderStyle === 'none') {
+      return { border: 'none', outline: 'none', boxShadow: 'none' };
+    }
+    if (borderStyle === 'royal-double') {
+      return {
+        border: `${borderWidth}px double ${primaryColor}`,
+        outline: `${Math.max(1, Math.round(borderWidth / 2.5))}px solid ${accentColor}`,
+        outlineOffset: '-10px',
+        borderRadius: '2px'
+      };
+    }
+    if (borderStyle === 'vintage-filigree') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `${Math.max(1, Math.round(borderWidth / 3))}px dashed ${accentColor}`,
+        outlineOffset: '-8px',
+        borderRadius: '3px'
+      };
+    }
+    if (borderStyle === 'modern-executive' || borderStyle === 'modern-gold') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `2px solid ${accentColor}`,
+        outlineOffset: '4px',
+        borderRadius: '6px'
+      };
+    }
+    if (borderStyle === 'greek-key') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `3px double ${accentColor}`,
+        outlineOffset: '-12px',
+        borderRadius: '1px'
+      };
+    }
+    if (borderStyle === 'security-guilloche') {
+      return {
+        border: `${borderWidth}px ridge ${accentColor}`,
+        outline: `2px solid ${primaryColor}`,
+        outlineOffset: '-6px',
+        borderRadius: '4px'
+      };
+    }
+    if (borderStyle === 'art-deco') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `1.5px solid ${accentColor}`,
+        outlineOffset: '-8px',
+        boxShadow: `inset 0 0 0 10px #ffffff, inset 0 0 0 12px ${accentColor}`
+      };
+    }
+    return { border: 'none' };
   };
 
   const handlePrint = () => {
@@ -93,7 +280,7 @@ export default function A4LandscapeCertificateModal({
   )}`;
 
   const shareText =
-    `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n` +
+    `*${instituteNameEnglish}*\n` +
     `🎓 *VOCATIONAL TRAINING COMPLETION CERTIFICATE (तालिम समापन प्रमाणपत्र)*\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
     `• *प्रशिक्षार्थी (Trainee):* ${student.name} (${student.tgid})\n` +
@@ -115,7 +302,7 @@ export default function A4LandscapeCertificateModal({
       fullWidth
       sx={{
         '& .MuiDialog-paper': {
-          maxWidth: '1150px',
+          maxWidth: isPortrait ? '840px' : '1160px',
           bgcolor: '#f8fafc'
         }
       }}
@@ -134,11 +321,11 @@ export default function A4LandscapeCertificateModal({
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Chip
-            label="A4 Landscape Official CTEVT Format"
+            label={isPortrait ? 'A4 Portrait Official Format' : 'A4 Landscape Official CTEVT Format'}
             sx={{ bgcolor: '#c59b27', color: '#0f172a', fontWeight: 900, fontSize: '0.78rem' }}
           />
           <Typography variant="body2" sx={{ color: '#cbd5e1', fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
-            Certificate No: <b>{certificate.certificateNo}</b>
+            Cert No: <b>{certificate.certificateNo}</b>
           </Typography>
         </Box>
 
@@ -155,7 +342,7 @@ export default function A4LandscapeCertificateModal({
               '&:hover': { bgcolor: '#123e80' }
             }}
           >
-            Print / Save PDF (A4 Landscape)
+            प्रिन्ट गर्नुहोस् (A4 {isPortrait ? 'Portrait' : 'Landscape'})
           </Button>
 
           <Button
@@ -173,7 +360,7 @@ export default function A4LandscapeCertificateModal({
               '&:hover': { borderColor: '#25D366', bgcolor: 'rgba(37, 211, 102, 0.2)' }
             }}
           >
-            WhatsApp Dispatch
+            WhatsApp
           </Button>
 
           <Button
@@ -187,43 +374,38 @@ export default function A4LandscapeCertificateModal({
         </Box>
       </Box>
 
-      {/* Printable A4 Landscape Certificate Canvas */}
+      {/* Printable Certificate Canvas */}
       <DialogContent sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#e2e8f0', display: 'flex', justifyContent: 'center' }}>
         <Box
           id="printableLandscapeCertificate"
           sx={{
-            width: '1060px',
-            minHeight: '740px',
-            p: '28px 36px',
+            width: isPortrait ? '740px' : '1040px',
+            minHeight: isPortrait ? '1040px' : '740px',
+            p: `${borderMargin}mm`,
             boxSizing: 'border-box',
             fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
             color: '#111827',
             position: 'relative',
-            border:
-              borderStyle === 'royal-double'
-                ? `6px double ${primaryColor}`
-                : borderStyle === 'ornate-vintage'
-                ? `4px solid ${primaryColor}`
-                : borderStyle === 'modern-gold'
-                ? `2.5px solid ${accentColor}`
-                : 'none',
-            outline:
-              borderStyle === 'royal-double'
-                ? `3px solid ${accentColor}`
-                : borderStyle === 'modern-gold'
-                ? `1px solid ${primaryColor}`
-                : 'none',
-            outlineOffset: '-12px',
-            borderRadius: borderStyle === 'modern-gold' ? '8px' : '2px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+            ...getBorderStyle(),
             ...getBackgroundStyle()
           }}
         >
+          {/* 4 Corner Ornaments */}
+          {!design.preprintedTextOnly && cornerStyle !== 'none' && (
+            <>
+              <CornerSvg style={cornerStyle} size={cornerSize} color={cornerColor} position="top-left" />
+              <CornerSvg style={cornerStyle} size={cornerSize} color={cornerColor} position="top-right" />
+              <CornerSvg style={cornerStyle} size={cornerSize} color={cornerColor} position="bottom-left" />
+              <CornerSvg style={cornerStyle} size={cornerSize} color={cornerColor} position="bottom-right" />
+            </>
+          )}
+
           {/* Subtle Background Watermark */}
-          {watermarkOpacity > 0 && (
+          {!design.preprintedTextOnly && watermarkOpacity > 0 && (
             <Box
               sx={{
                 position: 'absolute',
@@ -235,7 +417,7 @@ export default function A4LandscapeCertificateModal({
                 zIndex: 0
               }}
             >
-              <SchoolIcon sx={{ fontSize: 360, color: primaryColor }} />
+              <SchoolIcon sx={{ fontSize: isPortrait ? 380 : 360, color: primaryColor }} />
             </Box>
           )}
 
@@ -244,12 +426,12 @@ export default function A4LandscapeCertificateModal({
             <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: `1.5px solid ${accentColor}` }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
                 {/* Left Logo / Emblem */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', width: 64 }}>
                   {showLeftLogo && <SchoolIcon sx={{ fontSize: 44, color: primaryColor }} />}
                 </Box>
 
                 {/* Center Institutional Name */}
-                <Box sx={{ textAlign: 'center' }}>
+                <Box sx={{ textAlign: 'center', flexGrow: 1 }}>
                   <Typography
                     variant="h5"
                     sx={{
@@ -257,58 +439,69 @@ export default function A4LandscapeCertificateModal({
                       fontWeight: 900,
                       letterSpacing: '0.06em',
                       color: primaryColor,
-                      fontSize: '1.45rem',
+                      fontSize: isPortrait ? '1.25rem' : '1.45rem',
                       textTransform: 'uppercase'
                     }}
                   >
                     {instituteNameEnglish}
                   </Typography>
+
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: 800,
                       color: accentColor,
-                      fontSize: '1.1rem',
-                      letterSpacing: '0.02em',
+                      fontSize: isPortrait ? '0.98rem' : '1.15rem',
+                      letterSpacing: '0.03em',
                       mt: 0.2
                     }}
                   >
                     {instituteNameNepali}
                   </Typography>
+
                   <Typography
                     variant="caption"
                     sx={{
-                      color: '#475569',
                       display: 'block',
-                      fontSize: '0.78rem',
-                      fontWeight: 700,
+                      color: '#475569',
+                      fontWeight: 600,
+                      fontSize: '0.72rem',
                       mt: 0.3
                     }}
                   >
-                    Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)
+                    {accreditationText}
                   </Typography>
+
                   <Typography
                     variant="caption"
                     sx={{
-                      color: '#64748b',
                       display: 'block',
-                      fontSize: '0.74rem'
+                      color: '#64748b',
+                      fontSize: '0.68rem',
+                      mt: 0.1
                     }}
                   >
-                    Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Chabahil-07, Kathmandu, Nepal
+                    {affiliationCodeText}
                   </Typography>
                 </Box>
 
-                {/* Right CTEVT Emblem */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {showRightLogo && <VerifiedIcon sx={{ fontSize: 44, color: accentColor }} />}
+                {/* Right CTEVT Affiliation Badge */}
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: 64 }}>
+                  {showRightLogo && (
+                    <Box sx={{ textAlign: 'center' }}>
+                      <VerifiedIcon sx={{ fontSize: 40, color: accentColor }} />
+                      <Typography variant="caption" sx={{ display: 'block', fontSize: '0.58rem', fontWeight: 800, color: primaryColor }}>
+                        CTEVT 4208
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
               </Box>
             </Box>
           )}
 
           {/* 2. Certificate Title Banner */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: 1 }}>
+          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: isPortrait ? 2 : 1 }}>
             <Typography
               variant="h5"
               sx={{
@@ -317,7 +510,7 @@ export default function A4LandscapeCertificateModal({
                 color: primaryColor,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
-                fontSize: '1.25rem',
+                fontSize: isPortrait ? '1.2rem' : '1.35rem',
                 mb: 0.2
               }}
             >
@@ -344,27 +537,27 @@ export default function A4LandscapeCertificateModal({
               display: 'flex',
               justifyContent: 'space-between',
               px: 3,
-              py: 0.5,
+              py: 0.6,
               bgcolor: '#f8fafc',
               borderTop: '1px solid #e2e8f0',
               borderBottom: '1px solid #e2e8f0',
-              fontSize: '0.8rem',
+              fontSize: '0.78rem',
               fontWeight: 700,
               color: '#334155'
             }}
           >
             <Box>
-              Certificate No: <b style={{ color: '#0b2545' }}>{certificate.certificateNo}</b>
+              Certificate No: <b style={{ color: primaryColor }}>{certificate.certificateNo}</b>
             </Box>
             <Box>
-              Registration / TGID: <b style={{ color: '#0b2545' }}>{student.tgid}</b>
+              Registration / TGID: <b style={{ color: primaryColor }}>{student.tgid}</b>
             </Box>
             <Box>
               Issue Date: <b>{certificate.issueDate}</b>
             </Box>
           </Box>
 
-          {/* 4. Student & Course Centerpiece Highlight with PP Size Photo */}
+          {/* 4. Trainee Centerpiece & Photo Frame */}
           <Box
             sx={{
               position: 'relative',
@@ -373,211 +566,139 @@ export default function A4LandscapeCertificateModal({
               alignItems: 'center',
               justifyContent: 'space-between',
               px: 3,
-              my: 1.2
+              my: isPortrait ? 2 : 1.2
             }}
           >
-            {/* Left Symmetry Spacer / Institutional Credential Stamp */}
-            <Box
-              sx={{
-                width: '92px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                opacity: 0.85
-              }}
-            >
-              <Box
-                sx={{
-                  border: '1.5px dashed #c59b27',
-                  borderRadius: '4px',
-                  p: '5px 8px',
-                  textAlign: 'center',
-                  bgcolor: '#fffbf0'
-                }}
-              >
-                <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 900, color: '#0b2545', display: 'block' }}>
-                  CTEVT
-                </Typography>
-                <Typography variant="caption" sx={{ fontSize: '0.58rem', fontWeight: 800, color: '#854d0e', display: 'block' }}>
-                  STANDARDS
-                </Typography>
-                <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748b', display: 'block' }}>
-                  {course?.totalHours || 390} HRS
-                </Typography>
-              </Box>
+            {/* Left Competency Badge */}
+            <Box sx={{ width: '96px' }}>
+              {showCompetencyBadge && (
+                <Box
+                  sx={{
+                    border: `1.5px dashed ${accentColor}`,
+                    borderRadius: 1,
+                    p: '4px 8px',
+                    textAlign: 'center',
+                    bgcolor: '#fffbf0'
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 900, color: primaryColor, display: 'block' }}>
+                    CTEVT LEVEL 1
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: '0.58rem', color: '#64748b', display: 'block' }}>
+                    {course?.totalHours || 390} HRS
+                  </Typography>
+                </Box>
+              )}
             </Box>
 
-            {/* Centerpiece: Trainee Full Name & Course */}
+            {/* Center Trainee Name Highlight */}
             <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
+              <Typography variant="caption" sx={{ color: '#64748b', letterSpacing: '0.04em', display: 'block' }}>
+                यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
+              </Typography>
               <Typography
                 variant="h4"
                 sx={{
                   fontFamily: "'Times New Roman', serif",
                   fontWeight: 900,
-                  color: '#0b2545',
-                  letterSpacing: '0.05em',
-                  fontSize: '1.65rem',
-                  textTransform: 'uppercase'
+                  color: primaryColor,
+                  letterSpacing: '0.04em',
+                  fontSize: isPortrait ? '1.9rem' : '1.85rem',
+                  mt: 0.3
                 }}
               >
                 {student.name}
               </Typography>
+              {student.nameNepali && (
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontWeight: 800,
+                    color: accentColor,
+                    fontSize: '1.1rem',
+                    letterSpacing: '0.02em',
+                    mt: 0.2
+                  }}
+                >
+                  ({student.nameNepali})
+                </Typography>
+              )}
               <Typography
-                variant="subtitle1"
+                variant="subtitle2"
                 sx={{
                   fontWeight: 800,
-                  color: '#1a56b0',
-                  fontSize: '0.98rem',
-                  letterSpacing: '0.04em',
+                  color: '#059669',
+                  fontSize: '0.94rem',
+                  letterSpacing: '0.05em',
                   mt: 0.3
                 }}
               >
-                COURSE: {course?.title ? course.title.toUpperCase() : 'VOCATIONAL TRAINING'} ({course?.totalHours || 390} HOURS / {course?.durationValue || 3} {course?.durationUnit || 'MONTHS'})
+                COURSE: {(course?.title || 'Vocational Training').toUpperCase()} ({course?.totalHours || 390} HOURS)
               </Typography>
             </Box>
 
-            {/* Right: Trainee Passport Size Photo (35mm x 45mm official frame) */}
-            <Box
-              sx={{
-                width: '88px',
-                height: '110px',
-                border: '2px solid #c59b27',
-                borderRadius: '4px',
-                p: '2px',
-                bgcolor: '#ffffff',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                flexShrink: 0
-              }}
-            >
-              {student.photoUrl ? (
-                <Box
-                  component="img"
-                  src={student.photoUrl}
-                  alt={student.name}
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    borderRadius: '2px',
-                    display: 'block'
-                  }}
-                />
-              ) : (
+            {/* Right Student Photo Frame */}
+            <Box sx={{ width: '92px', height: '112px' }}>
+              {showStudentPhoto && (
                 <Box
                   sx={{
                     width: '100%',
                     height: '100%',
-                    bgcolor: '#f8fafc',
+                    border: `2px solid ${accentColor}`,
+                    borderRadius: '4px',
+                    p: '2px',
+                    bgcolor: '#ffffff',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    p: 0.5
+                    overflow: 'hidden'
                   }}
                 >
-                  <PersonIcon sx={{ fontSize: 38, color: '#94a3b8' }} />
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontSize: '0.56rem',
-                      fontWeight: 800,
-                      color: '#64748b',
-                      textAlign: 'center',
-                      lineHeight: 1.1,
-                      mt: 0.3
-                    }}
-                  >
-                    PP PHOTO<br />(35×45mm)
-                  </Typography>
+                  {student.photoUrl ? (
+                    <img
+                      src={student.photoUrl}
+                      alt={student.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <>
+                      <PersonIcon sx={{ fontSize: 36, color: '#94a3b8' }} />
+                      <Typography variant="caption" sx={{ fontSize: '0.55rem', color: '#64748b', textAlign: 'center', lineHeight: 1 }}>
+                        PHOTO<br />(35×45mm)
+                      </Typography>
+                    </>
+                  )}
                 </Box>
               )}
             </Box>
           </Box>
 
-          {/* 5. Pure English Content Paragraph (No meta label) */}
-          <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify' }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "'Times New Roman', serif",
-                fontSize: '0.92rem',
-                lineHeight: 1.45,
-                color: '#1e293b'
-              }}
-            >
-              This is to certify that Mr./Ms. <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.fatherName || student.guardianName || 'Guardian'}</b>, permanent resident of <b>{student.permanentAddress || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational competency training course in <b>{course?.title || 'Vocational Training'}</b> conducted at this institute from <b>{group?.admissionDate || '2026-07-15'}</b> to <b>{group?.expectedEndDate || '2026-10-15'}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
+          {/* 5. English & Nepali Wording Paragraphs */}
+          <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify', my: isPortrait ? 2 : 0.5 }}>
+            <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.86rem', lineHeight: isPortrait ? 1.6 : 1.45, color: '#1e293b', mb: 0.8 }}>
+              This is to certify that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, permanent resident of <b>{student.address || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational skills training course in <b>"{course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || certificate.issueDate}</b> to <b>{group?.endDate || certificate.issueDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
             </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "'Times New Roman', serif",
-                fontSize: '0.92rem',
-                lineHeight: 1.4,
-                color: '#1e293b',
-                mt: 0.4
-              }}
-            >
-              During the training period, {isFemale ? 'her' : 'his'} attendance, practical workshop performance, and conduct were found satisfactory.
+
+            <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
+              <Box sx={{ color: accentColor, fontSize: '0.75rem' }}>❖</Box>
+              <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
+            </Box>
+
+            <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.86rem', lineHeight: isPortrait ? 1.6 : 1.5, color: '#1e293b' }}>
+              प्रमाणित गरिन्छ कि {student.address || 'काठमाडौँ'} निवासी श्री {student.guardianName || student.fatherName || 'अभिभावक'}को {isFemale ? 'सुपुत्री' : 'सुपुत्र'} {isFemale ? 'सुश्री' : 'श्री'} <b>{student.nameNepali || student.name}</b>ले यस संस्थाद्वारा मिति <b>{group?.startDate || certificate.issueDate}</b> देखि <b>{group?.endDate || certificate.issueDate}</b> सम्म सञ्चालित <b>{course?.totalHours || 390} घन्टे</b> <b>"{course?.titleNepali || course?.title || 'व्यावसायिक तालिम'}"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
             </Typography>
           </Box>
 
-          {/* Delicate Ornate Gold Divider */}
+          {/* 6. Footer: QR Code + Golden Seal + Dual Signatures */}
           <Box
             sx={{
               position: 'relative',
               zIndex: 1,
-              my: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 1.5
-            }}
-          >
-            <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
-            <Box sx={{ color: '#c59b27', fontSize: '0.85rem' }}>❖</Box>
-            <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
-          </Box>
-
-          {/* 6. Pure Nepali Content Paragraph (No meta label) */}
-          <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify' }}>
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "'Noto Sans Devanagari', sans-serif",
-                fontSize: '0.92rem',
-                lineHeight: 1.5,
-                color: '#1e293b'
-              }}
-            >
-              श्री/सुश्री <b>{student.name}</b>, बुबा/आमा श्री <b>{student.fatherName || student.guardianName || 'अभिभावक'}</b>, स्थायी ठेगाना <b>{student.permanentAddress || 'नेपाल'}</b>, ले यस शिक्षालयद्वारा प्राविधिक शिक्षा तथा व्यावसायिक तालिम परिषद् (CTEVT) को स्वीकृत पाठ्यक्रम मापदण्ड बमोजिम मिति <b>{group?.admissionDate || '२०८३/०४/०१'}</b> देखि <b>{group?.expectedEndDate || '२०८३/०७/०१'}</b> सम्म सञ्चालित <b>{course?.totalHours || 390} घन्टे</b> <b>{course?.title || 'व्यावसायिक'}</b> तालिम सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "'Noto Sans Devanagari', sans-serif",
-                fontSize: '0.92rem',
-                lineHeight: 1.45,
-                color: '#1e293b',
-                mt: 0.4
-              }}
-            >
-              तालिम अवधिभर निजको उपस्थिति, प्रयोगात्मक सीप सिकाइ र आचरण सन्तोषजनक रहेको व्यहोरा प्रमाणित गरिन्छ।
-            </Typography>
-          </Box>
-
-          {/* 7. Footer: QR Code + Golden Seal + Dual Signatures */}
-          <Box
-            sx={{
-              position: 'relative',
-              zIndex: 1,
-              mt: 1.5,
-              pt: 1.2,
+              mt: isPortrait ? 3 : 1.5,
+              pt: 1.5,
               borderTop: '1px solid #cbd5e1',
               display: 'flex',
               justifyContent: 'space-between',
@@ -585,19 +706,19 @@ export default function A4LandscapeCertificateModal({
               px: 2
             }}
           >
-            {/* Left: Dynamic QR Code for Instant Verification */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '28%' }}>
-              <Box sx={{ p: 0.6, bgcolor: '#ffffff', border: '1.5px solid #0b2545', borderRadius: 1 }}>
-                <QRCodeSVG value={verificationUrl} size={76} level="M" />
+            {/* Left: Dynamic QR Code */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, width: '28%' }}>
+              <Box sx={{ p: 0.5, bgcolor: '#ffffff', border: `1.5px solid ${primaryColor}`, borderRadius: 1 }}>
+                <QRCodeSVG value={verificationUrl} size={54} level="M" />
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0b2545', display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: primaryColor, display: 'block', fontSize: '0.7rem' }}>
                   SCAN TO VERIFY
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.68rem', lineHeight: 1.2 }}>
-                  Official CTEVT Record Verification
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.62rem' }}>
+                  CTEVT Accredited
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#1a56b0', fontWeight: 700, fontSize: '0.66rem' }}>
+                <Typography variant="caption" sx={{ color: '#1a56b0', fontWeight: 700, fontSize: '0.64rem' }}>
                   {certificate.certificateNo}
                 </Typography>
               </Box>
@@ -609,7 +730,7 @@ export default function A4LandscapeCertificateModal({
                 sx={{
                   display: 'inline-block',
                   p: '6px 14px',
-                  border: '1.5px solid #c59b27',
+                  border: `1.5px solid ${accentColor}`,
                   borderRadius: 2,
                   bgcolor: '#fdfbf7',
                   textAlign: 'center'
@@ -618,33 +739,33 @@ export default function A4LandscapeCertificateModal({
                 <Typography variant="caption" sx={{ fontWeight: 900, color: primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.72rem' }}>
                   ★ OFFICIAL SEAL ★
                 </Typography>
-                <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.68rem', display: 'block' }}>
+                <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.66rem', display: 'block' }}>
                   GLOBAL ERA TECHNICAL SCHOOL
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.65rem', display: 'block' }}>
+                <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.62rem', display: 'block' }}>
                   CTEVT ACCREDITED • KATHMANDU
                 </Typography>
               </Box>
             </Box>
 
             {/* Right: Dual Official Signatures */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 4, width: '38%' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 3, width: '38%' }}>
               <Box sx={{ textAlign: 'center', width: '130px' }}>
-                <Box sx={{ height: 34, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.8rem' }}>
+                <Box sx={{ height: 32, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
                   {signatory1Name}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
                   {signatory1Title}
                 </Typography>
               </Box>
 
               <Box sx={{ textAlign: 'center', width: '140px' }}>
-                <Box sx={{ height: 34, borderBottom: `1.5px solid ${primaryColor}`, mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.8rem' }}>
+                <Box sx={{ height: 32, borderBottom: `1.5px solid ${primaryColor}`, mb: 0.5 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
                   {signatory2Name}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
                   {signatory2Title}
                 </Typography>
               </Box>
@@ -653,10 +774,10 @@ export default function A4LandscapeCertificateModal({
         </Box>
       </DialogContent>
 
-      {/* Printable CSS Helper injected for exact A4 Landscape Output */}
+      {/* Printable CSS Helper injected for exact A4 Orientation Output */}
       <style>{`
         @page {
-          size: A4 landscape;
+          size: A4 ${isPortrait ? 'portrait' : 'landscape'};
           margin: 6mm 6mm;
         }
         @media print {
@@ -680,12 +801,7 @@ export default function A4LandscapeCertificateModal({
             width: 100% !important;
             height: 98vh !important;
             margin: 0 !important;
-            border: 5px double #0b2545 !important;
-            outline: 2px solid #c59b27 !important;
-            outline-offset: -8px !important;
-            padding: 20px 28px !important;
             box-shadow: none !important;
-            background: #ffffff !important;
           }
           .no-print {
             display: none !important;

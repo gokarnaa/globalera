@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Box,
-  Card,
   Typography,
   Button,
   TextField,
@@ -40,31 +39,41 @@ import SchoolIcon from '@mui/icons-material/School';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PersonIcon from '@mui/icons-material/Person';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import CropLandscapeIcon from '@mui/icons-material/CropLandscape';
+import CropPortraitIcon from '@mui/icons-material/CropPortrait';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB } from '../../services/storage';
 
 // Default Design Configuration
 export const DEFAULT_CERTIFICATE_DESIGN = {
-  // 1. Template Identity
-  templateName: 'आधिकारिक ३ महिने तालिम समापन ढाँचा',
-  templateCategory: 'vocational-standard',
+  // 1. Orientation & Dimensions
+  orientation: 'landscape', // 'landscape' | 'portrait'
+  templateName: 'आधिकारिक ३ महिने व्यावसायिक तालिम ढाँचा',
 
-  // 2. Background
-  backgroundType: 'clean-white', // 'clean-white' | 'ivory-parchment' | 'guilloche-security' | 'damask-classic' | 'custom'
+  // 2. 10 Background Presets
+  backgroundType: 'clean-white', // 'clean-white' | 'ivory-parchment' | 'guilloche-security' | 'royal-navy-gold' | 'modern-geometric' | 'damask-floral' | 'emerald-aristocrat' | 'maroon-sovereign' | 'technical-grid' | 'marble-veins' | 'custom'
   customBackgroundUrl: '',
-  watermarkType: 'school-crest', // 'school-crest' | 'ctevt' | 'custom' | 'none'
+  watermarkType: 'school-crest',
   watermarkOpacity: 4, // 0 to 30 %
   watermarkScale: 100, // 50 to 150 %
 
-  // 3. Borders & Colors
-  borderStyle: 'royal-double', // 'royal-double' | 'ornate-vintage' | 'modern-gold' | 'certificate-filigree' | 'none'
+  // 3. 7 Border Styles & Corner Ornaments
+  borderStyle: 'royal-double', // 'royal-double' | 'vintage-filigree' | 'modern-executive' | 'greek-key' | 'security-guilloche' | 'art-deco' | 'none'
+  borderWidth: 6, // 2 to 14 px
+  borderMargin: 12, // 6 to 22 mm
+  cornerStyle: 'victorian-flourish', // 'victorian-flourish' | 'acanthus-leaf' | 'art-deco-bracket' | 'celtic-knot' | 'clean-l-bracket' | 'none'
+  cornerSize: 32, // 15 to 55 px
+  cornerColor: '#C59B27',
+
+  // 4. Color Palette & Pickers
   primaryColor: '#0B2545', // Deep Navy
   accentColor: '#C59B27', // Metallic Gold
-  borderMargin: 12, // mm
-  borderWidth: 6, // px
+  backgroundColor: '#FFFFFF', // Paper Tint
+  textColor: '#0F172A',
 
-  // 4. Header & Branding
+  // 5. Header & Branding
   showHeader: true,
   instituteNameNepali: 'ग्लोबल एरा प्राविधिक स्कुल',
   instituteNameEnglish: 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE',
@@ -73,7 +82,7 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   showLeftLogo: true,
   showRightLogo: true,
 
-  // 5. Title & Body Typography
+  // 6. Title & Body Typography
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
   certificateTitleNp: '(व्यावसायिक तालिम समापन प्रमाणपत्र)',
   bodyLayoutMode: 'bilingual', // 'bilingual' | 'english-only' | 'nepali-only'
@@ -81,25 +90,152 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   showCompetencyBadge: true,
   hoursBadgeText: '390 HRS • LEVEL 1',
 
-  // 6. Signatures & Official Seals
+  // 7. Signatures & Official Seals
   showDualSignatures: true,
   signatory1Title: 'प्रशिक्षक (Lead Instructor)',
   signatory1Name: 'सुमन थापा (Suman Thapa)',
   signatory2Title: 'क्याम्पस प्रमुख / निर्देशक (Director)',
   signatory2Name: 'गोकर्ण थापा (Gokarna Thapa)',
   showOfficialSeal: true,
-  sealColor: '#0B2545', // '#0B2545' | '#DC2626' | '#C59B27'
+  sealColor: '#0B2545',
   showQrVerification: true,
 
-  // 7. Pre-printed Offset Calibration
+  // 8. Pre-printed Calibration & Text-Only Print Mode
+  preprintedTextOnly: false,
   offsetY: 0, // -25mm to +25mm
   offsetX: 0, // -25mm to +25mm
   fontScale: 100 // 85% to 115%
 };
 
-// Preset Swatches
-const PRIMARY_PALETTE = ['#0B2545', '#0F2E5A', '#1E3A8A', '#1E293B', '#991B1B', '#065F46', '#581C87', '#312E81'];
-const ACCENT_PALETTE = ['#C59B27', '#F59E0B', '#D97706', '#E2E8F0', '#94A3B8', '#FBBF24', '#FEF08A', '#A16207'];
+// 10 Background Presets Definitions
+const BACKGROUND_PRESETS = [
+  { id: 'clean-white', label: 'सादा सेतो (Pure White)', desc: 'सफा, तीव्र र मसी-मैत्री' },
+  { id: 'ivory-parchment', label: 'क्लासिक आइभोरी (Ivory Parchment)', desc: 'न्यानो क्रिम शास्त्रीय विश्वविद्यालय कागज' },
+  { id: 'guilloche-security', label: 'सेक्युरिटी वेभ (Guilloche Wave)', desc: 'बैंक नोट/राहदानी जस्तो जालीदार' },
+  { id: 'royal-navy-gold', label: 'शाही नेभी-गोल्डेन (Navy & Gold Glow)', desc: 'कर्पोरेट लक्जरी आभा' },
+  { id: 'modern-geometric', label: 'आधुनिक ज्यामितीय (Modern Mesh)', desc: 'कम्प्युटर, आइटी र प्राविधिक' },
+  { id: 'damask-floral', label: 'दमास्क फ्लोरल (Damask Floral)', desc: 'ब्युटिसियन, फेसन र कलात्मक' },
+  { id: 'emerald-aristocrat', label: 'मरकत हरियो (Emerald Aristocrat)', desc: 'सिटिइभिटी हरियो र गोल्डेन' },
+  { id: 'maroon-sovereign', label: 'मरुन सार्वभौम (Maroon Sovereign)', desc: 'दीक्षान्त तथा विशेष सम्मान' },
+  { id: 'technical-grid', label: 'टेक्निकल ग्रिड (Technical Blueprint)', desc: 'इन्जिनियरिङ र अटोमोबाइल' },
+  { id: 'marble-veins', label: 'फाइन मार्बल (Italian Marble)', desc: 'लक्जरी स्पा र ब्युटी एकेडेमी' }
+];
+
+// 7 Border Styles Definitions
+const BORDER_STYLES = [
+  { id: 'royal-double', label: 'शाही डबल रेखा (Royal Double Gold)' },
+  { id: 'vintage-filigree', label: 'भिन्टेज ओर्नेट (Vintage Filigree)' },
+  { id: 'modern-executive', label: 'आधुनिक स्लीक (Modern Executive)' },
+  { id: 'greek-key', label: 'ग्रीक मियान्डर (Greek Key Classic)' },
+  { id: 'security-guilloche', label: 'सेक्युरिटी घेरा (Security Frame)' },
+  { id: 'art-deco', label: 'आर्ट डेको (Art Deco Lines)' },
+  { id: 'none', label: 'बोर्डर नराख्ने (None - Preprinted)' }
+];
+
+// Corner Ornaments Definitions
+const CORNER_STYLES = [
+  { id: 'victorian-flourish', label: 'भिक्टोरियन शाही फूलबुट्टा' },
+  { id: 'acanthus-leaf', label: 'रोयल अकान्थस पात' },
+  { id: 'art-deco-bracket', label: 'आर्ट डेको ३-तले कुना' },
+  { id: 'celtic-knot', label: 'सेल्टिक सुनौलो नट' },
+  { id: 'clean-l-bracket', label: 'लक्जरी एल-ब्र्याकेट' },
+  { id: 'none', label: 'कुना नराख्ने (None)' }
+];
+
+// 5 Curated Luxury Palettes
+const LUXURY_PALETTES = [
+  { name: 'Navy & Gold (आधिकारिक)', primary: '#0B2545', accent: '#C59B27', corner: '#C59B27' },
+  { name: 'Burgundy & Champagne', primary: '#6B1D2F', accent: '#D4AF37', corner: '#D4AF37' },
+  { name: 'Emerald & Brass (CTEVT)', primary: '#0D472D', accent: '#C59B27', corner: '#C59B27' },
+  { name: 'Charcoal & Silver', primary: '#1F2937', accent: '#94A3B8', corner: '#94A3B8' },
+  { name: 'Midnight & 24K Gold', primary: '#111827', accent: '#F59E0B', corner: '#F59E0B' }
+];
+
+// Corner Ornament SVG Renderer
+function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' }) {
+  if (!style || style === 'none') return null;
+
+  let transformStyle = '';
+  let positionStyle = {};
+
+  if (position === 'top-left') {
+    positionStyle = { top: 0, left: 0 };
+    transformStyle = 'none';
+  } else if (position === 'top-right') {
+    positionStyle = { top: 0, right: 0 };
+    transformStyle = 'scaleX(-1)';
+  } else if (position === 'bottom-left') {
+    positionStyle = { bottom: 0, left: 0 };
+    transformStyle = 'scaleY(-1)';
+  } else if (position === 'bottom-right') {
+    positionStyle = { bottom: 0, right: 0 };
+    transformStyle = 'scale(-1, -1)';
+  }
+
+  return (
+    <Box
+      sx={{
+        position: 'absolute',
+        ...positionStyle,
+        transform: transformStyle,
+        transformOrigin: 'center center',
+        width: size,
+        height: size,
+        pointerEvents: 'none',
+        zIndex: 2
+      }}
+    >
+      {style === 'victorian-flourish' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 C 30 4, 60 15, 80 40 C 95 60, 96 85, 96 96 C 85 96, 60 95, 40 80 C 15 60, 4 30, 4 4 Z" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M12 12 C 35 12, 55 24, 70 45 C 80 60, 84 75, 84 84 C 75 84, 60 80, 45 70 C 24 55, 12 35, 12 12 Z" fill={color} fillOpacity="0.2" stroke={color} strokeWidth="1.5" />
+          <circle cx="20" cy="20" r="5" fill={color} />
+          <path d="M4 25 C 10 25, 25 10, 25 4" stroke={color} strokeWidth="2.5" />
+          <circle cx="4" cy="4" r="3" fill={color} />
+        </svg>
+      )}
+
+      {style === 'acanthus-leaf' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M6 6 Q 40 6 70 25 Q 94 45 94 94 Q 45 94 25 70 Q 6 40 6 6 Z" stroke={color} strokeWidth="3" fill="none" />
+          <path d="M6 6 C 25 30 40 45 60 60 C 45 40 30 25 6 6 Z" fill={color} fillOpacity="0.25" stroke={color} strokeWidth="1.5" />
+          <circle cx="6" cy="6" r="4" fill={color} />
+          <path d="M18 6 Q 30 18 18 30 Q 6 18 18 6 Z" fill={color} />
+        </svg>
+      )}
+
+      {style === 'art-deco-bracket' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 L 96 4 L 96 16 L 16 16 L 16 96 L 4 96 Z" fill={color} fillOpacity="0.9" />
+          <path d="M24 24 L 80 24 L 80 32 L 32 32 L 32 80 L 24 80 Z" fill={color} fillOpacity="0.6" />
+          <path d="M40 40 L 64 40 L 64 46 L 46 46 L 46 64 L 40 64 Z" fill={color} fillOpacity="0.4" />
+          <polygon points="10,10 18,4 26,10 18,16" fill={color} />
+        </svg>
+      )}
+
+      {style === 'celtic-knot' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <rect x="6" y="6" width="88" height="88" rx="8" stroke={color} strokeWidth="2.5" fill="none" />
+          <path d="M6 35 C 35 35 35 6 35 6" stroke={color} strokeWidth="3" />
+          <path d="M6 65 C 65 65 65 6 65 6" stroke={color} strokeWidth="2.5" />
+          <circle cx="20" cy="20" r="7" stroke={color} strokeWidth="2" fill={color} fillOpacity="0.2" />
+          <circle cx="6" cy="6" r="4" fill={color} />
+        </svg>
+      )}
+
+      {style === 'clean-l-bracket' && (
+        <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+          <path d="M4 4 L 96 4" stroke={color} strokeWidth="5" strokeLinecap="square" />
+          <path d="M4 4 L 4 96" stroke={color} strokeWidth="5" strokeLinecap="square" />
+          <path d="M12 12 L 75 12" stroke={color} strokeWidth="2" />
+          <path d="M12 12 L 12 75" stroke={color} strokeWidth="2" />
+          <polygon points="4,4 12,4 12,12 4,12" fill={color} />
+          <polygon points="20,20 28,14 36,20 28,26" fill={color} />
+        </svg>
+      )}
+    </Box>
+  );
+}
 
 export default function CertificateStudioManager({ onSaveSuccess }) {
   const [db, setDb] = useState(loadDB());
@@ -108,12 +244,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     ...(db.settings?.certificateDesign || {})
   });
   const [savedAlert, setSavedAlert] = useState(false);
-  const [previewScale, setPreviewScale] = useState(0.85); // Preview zoom scale
+  const [previewScale, setPreviewScale] = useState(0.85);
+
+  const isPortrait = design.orientation === 'portrait';
 
   const handleUpdate = (field, value) => {
     setDesign((prev) => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const handleApplyPalette = (palette) => {
+    setDesign((prev) => ({
+      ...prev,
+      primaryColor: palette.primary,
+      accentColor: palette.accent,
+      cornerColor: palette.corner
     }));
   };
 
@@ -169,37 +316,143 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     window.print();
   };
 
-  // Compute background CSS
+  // 10 Background CSS Styles Generator
   const getBackgroundStyle = () => {
-    if (design.backgroundType === 'custom' && design.customBackgroundUrl) {
+    if (design.preprintedTextOnly) {
+      return { backgroundColor: 'transparent' };
+    }
+
+    const { backgroundType, customBackgroundUrl, primaryColor, accentColor } = design;
+
+    if (backgroundType === 'custom' && customBackgroundUrl) {
       return {
-        backgroundImage: `url(${design.customBackgroundUrl})`,
+        backgroundImage: `url(${customBackgroundUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
       };
     }
-    if (design.backgroundType === 'ivory-parchment') {
+    if (backgroundType === 'ivory-parchment') {
       return {
-        background: 'linear-gradient(135deg, #fdfbf7 0%, #fbf6ec 50%, #f7f0e1 100%)'
+        background: 'linear-gradient(135deg, #fdfbf7 0%, #faf4e8 50%, #f6ede0 100%)'
       };
     }
-    if (design.backgroundType === 'guilloche-security') {
+    if (backgroundType === 'guilloche-security') {
       return {
         backgroundColor: '#FFFFFF',
-        backgroundImage: `radial-gradient(${design.primaryColor}0D 1.5px, transparent 1.5px), radial-gradient(${design.accentColor}0D 1.5px, #FFFFFF 1.5px)`,
+        backgroundImage: `radial-gradient(${primaryColor}14 1.5px, transparent 1.5px), radial-gradient(${accentColor}14 1.5px, #FFFFFF 1.5px)`,
         backgroundSize: '24px 24px',
         backgroundPosition: '0 0, 12px 12px'
       };
     }
-    if (design.backgroundType === 'damask-classic') {
+    if (backgroundType === 'royal-navy-gold') {
+      return {
+        background: `radial-gradient(ellipse at center, #ffffff 40%, #fbf9f4 75%, ${primaryColor}12 100%)`
+      };
+    }
+    if (backgroundType === 'modern-geometric') {
       return {
         backgroundColor: '#FFFFFF',
-        backgroundImage: `repeating-linear-gradient(45deg, ${design.accentColor}08, ${design.accentColor}08 10px, transparent 10px, transparent 20px)`
+        backgroundImage: `linear-gradient(30deg, ${primaryColor}06 12%, transparent 12.5%, transparent 87%, ${primaryColor}06 87.5%, ${primaryColor}06), linear-gradient(150deg, ${primaryColor}06 12%, transparent 12.5%, transparent 87%, ${primaryColor}06 87.5%, ${primaryColor}06), linear-gradient(60deg, ${accentColor}0a 25%, transparent 25.5%, transparent 75%, ${accentColor}0a 75%, ${accentColor}0a)`,
+        backgroundSize: '40px 70px',
+        backgroundPosition: '0 0, 0 0, 20px 35px'
+      };
+    }
+    if (backgroundType === 'damask-floral') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `repeating-linear-gradient(45deg, ${accentColor}0a, ${accentColor}0a 12px, transparent 12px, transparent 24px), repeating-linear-gradient(-45deg, ${accentColor}08, ${accentColor}08 12px, transparent 12px, transparent 24px)`
+      };
+    }
+    if (backgroundType === 'emerald-aristocrat') {
+      return {
+        background: `radial-gradient(circle at center, #ffffff 45%, #f6fcf8 75%, #064e3b12 100%)`
+      };
+    }
+    if (backgroundType === 'maroon-sovereign') {
+      return {
+        background: `radial-gradient(circle at center, #ffffff 45%, #fdf6f7 75%, #88133714 100%)`
+      };
+    }
+    if (backgroundType === 'technical-grid') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `linear-gradient(to right, ${primaryColor}0a 1px, transparent 1px), linear-gradient(to bottom, ${primaryColor}0a 1px, transparent 1px)`,
+        backgroundSize: '20px 20px'
+      };
+    }
+    if (backgroundType === 'marble-veins') {
+      return {
+        background: 'linear-gradient(125deg, #ffffff 0%, #f9fafb 25%, #f3f4f6 50%, #fafafa 75%, #ffffff 100%)'
       };
     }
     return {
       backgroundColor: '#FFFFFF'
+    };
+  };
+
+  // 7 Border Styles Generator
+  const getBorderStyle = () => {
+    if (design.preprintedTextOnly || design.borderStyle === 'none') {
+      return {
+        border: 'none',
+        outline: 'none',
+        boxShadow: 'none'
+      };
+    }
+
+    const { borderStyle, borderWidth, primaryColor, accentColor } = design;
+
+    if (borderStyle === 'royal-double') {
+      return {
+        border: `${borderWidth}px double ${primaryColor}`,
+        outline: `${Math.max(1, Math.round(borderWidth / 2.5))}px solid ${accentColor}`,
+        outlineOffset: '-10px',
+        borderRadius: '2px'
+      };
+    }
+    if (borderStyle === 'vintage-filigree') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `${Math.max(1, Math.round(borderWidth / 3))}px dashed ${accentColor}`,
+        outlineOffset: '-8px',
+        borderRadius: '3px'
+      };
+    }
+    if (borderStyle === 'modern-executive') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `2px solid ${accentColor}`,
+        outlineOffset: '4px',
+        borderRadius: '6px'
+      };
+    }
+    if (borderStyle === 'greek-key') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `3px double ${accentColor}`,
+        outlineOffset: '-12px',
+        borderRadius: '1px'
+      };
+    }
+    if (borderStyle === 'security-guilloche') {
+      return {
+        border: `${borderWidth}px ridge ${accentColor}`,
+        outline: `2px solid ${primaryColor}`,
+        outlineOffset: '-6px',
+        borderRadius: '4px'
+      };
+    }
+    if (borderStyle === 'art-deco') {
+      return {
+        border: `${borderWidth}px solid ${primaryColor}`,
+        outline: `1.5px solid ${accentColor}`,
+        outlineOffset: '-8px',
+        boxShadow: `inset 0 0 0 10px #ffffff, inset 0 0 0 12px ${accentColor}`
+      };
+    }
+    return {
+      border: 'none'
     };
   };
 
@@ -208,18 +461,36 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       {/* Top Header Bar */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <WorkspacePremiumIcon sx={{ color: '#C59B27', fontSize: 36 }} />
+          <WorkspacePremiumIcon sx={{ color: '#C59B27', fontSize: 40 }} />
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              Certificate Studio & Template Settings (प्रमाणपत्र स्टुडियो)
+              Certificate Studio & Template Designer (प्रमाणपत्र स्टुडियो)
             </Typography>
             <Typography variant="body2" sx={{ color: '#64748B' }}>
-              संस्थाको प्रमाणपत्रको पृष्ठभूमि, बोर्डर डिजाइन, रङ्ग, लोगो, ब्यहोरा र क्यालिब्रेसन अनुकूलन गर्नुहोस्।
+              संस्थाको प्रमाणपत्रको पृष्ठभूमिका १० प्रिसेट, ७ बोर्डर, कुनाका बुट्टा, कलर पिकर तथा ल्यान्डस्केप/पोर्ट्रेट ओरिएन्टेसन अनुकूलन गर्नुहोस्।
             </Typography>
           </Box>
         </Box>
 
-        <Stack direction="row" spacing={1.5}>
+        <Stack direction="row" spacing={1.5} alignItems="center">
+          {/* Orientation Toggle Button */}
+          <ToggleButtonGroup
+            value={design.orientation}
+            exclusive
+            onChange={(e, next) => next && handleUpdate('orientation', next)}
+            size="small"
+            sx={{ bgcolor: '#FFFFFF', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
+          >
+            <ToggleButton value="landscape" sx={{ fontWeight: 800, px: 2, gap: 0.8 }}>
+              <CropLandscapeIcon fontSize="small" />
+              तेर्सो (Landscape)
+            </ToggleButton>
+            <ToggleButton value="portrait" sx={{ fontWeight: 800, px: 2, gap: 0.8 }}>
+              <CropPortraitIcon fontSize="small" />
+              ठाडो (Portrait)
+            </ToggleButton>
+          </ToggleButtonGroup>
+
           <Button
             variant="outlined"
             color="inherit"
@@ -257,7 +528,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
       {savedAlert && (
         <Alert severity="success" sx={{ mb: 3, borderRadius: 2, fontWeight: 700 }}>
-          ✓ प्रमाणपत्रको डिजाइन सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्र यसै नयाँ ढाँचामा प्रिन्ट हुनेछन्।
+          ✓ प्रमाणपत्रको डिजाइन सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्र यसै ढाँचा र ओरिएन्टेसनमा प्रिन्ट हुनेछन्।
         </Alert>
       )}
 
@@ -268,28 +539,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         {/* ============================================================== */}
         <Grid item xs={12} lg={5}>
           <Stack spacing={2}>
-            {/* 1. BACKGROUND & WATERMARK */}
+            {/* 1. BACKGROUND & WATERMARK (10 PRESETS) */}
             <Accordion defaultExpanded sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <WallpaperIcon sx={{ color: '#0F2E5A', fontSize: 22 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    १. पृष्ठभूमि तथा वाटरमार्क (Background & Watermark)
+                    १. पृष्ठभूमि तथा वाटरमार्क (१० लक्जरी प्रिसेटहरू)
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5 }}>
-                  प्रमाणपत्रको पृष्ठभूमि प्रकार छान्नुहोस् वा आफ्नै फोटो/ब्याकग्राउन्ड अपलोड गर्नुहोस्:
+                  १० आधुनिक तथा विश्वविद्यालय स्तरका पृष्ठभूमि प्रिसेटहरू मध्येबाट रोज्नुहोस्:
                 </Typography>
 
                 <Grid container spacing={1} sx={{ mb: 2 }}>
-                  {[
-                    { id: 'clean-white', label: 'सादा सेतो (White)' },
-                    { id: 'ivory-parchment', label: 'आइभोरी (Ivory Parchment)' },
-                    { id: 'guilloche-security', label: 'सेक्युरिटी वेभ (Guilloche)' },
-                    { id: 'damask-classic', label: 'क्लासिक दमास्क (Damask)' }
-                  ].map((bg) => (
+                  {BACKGROUND_PRESETS.map((bg) => (
                     <Grid item xs={6} key={bg.id}>
                       <Button
                         fullWidth
@@ -298,8 +564,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         onClick={() => handleUpdate('backgroundType', bg.id)}
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.72rem',
+                          fontSize: '0.68rem',
                           py: 0.8,
+                          textAlign: 'left',
+                          justifyContent: 'flex-start',
                           bgcolor: design.backgroundType === bg.id ? '#0F2E5A' : '#FFFFFF',
                           borderColor: '#CBD5E1',
                           color: design.backgroundType === bg.id ? '#FFFFFF' : '#334155'
@@ -360,28 +628,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </AccordionDetails>
             </Accordion>
 
-            {/* 2. BORDER DESIGN & COLOR PALETTE */}
-            <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
+            {/* 2. BORDER DESIGN, CORNER ORNAMENTS & COLOR PICKERS */}
+            <Accordion defaultExpanded sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                   <BorderStyleIcon sx={{ color: '#C59B27', fontSize: 22 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                    २. बोर्डर डिजाइन तथा रङ्ग (Border Style & Colors)
+                    २. बोर्डर, कुनाका बुट्टा तथा पूर्ण कलर पिकर
                   </Typography>
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
-                {/* Border Style */}
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block', mb: 1 }}>
-                  बोर्डरको ढाँचा (Border Style):
+                {/* 7 Border Styles */}
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                  क) बोर्डरको ढाँचा (७ Border Styles):
                 </Typography>
                 <Grid container spacing={1} sx={{ mb: 2 }}>
-                  {[
-                    { id: 'royal-double', label: 'शाही डबल लाइन (Royal Double)' },
-                    { id: 'ornate-vintage', label: 'ओर्नेट कुना (Vintage Ornate)' },
-                    { id: 'modern-gold', label: 'आधुनिक स्लीक (Modern Sleek)' },
-                    { id: 'none', label: 'बोर्डर नराख्ने (None - Preprinted)' }
-                  ].map((b) => (
+                  {BORDER_STYLES.map((b) => (
                     <Grid item xs={6} key={b.id}>
                       <Button
                         fullWidth
@@ -390,8 +653,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         onClick={() => handleUpdate('borderStyle', b.id)}
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.7rem',
-                          py: 0.8,
+                          fontSize: '0.68rem',
+                          py: 0.7,
                           bgcolor: design.borderStyle === b.id ? '#C59B27' : '#FFFFFF',
                           borderColor: '#CBD5E1',
                           color: design.borderStyle === b.id ? '#0F172A' : '#334155'
@@ -403,61 +666,178 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ))}
                 </Grid>
 
-                {/* Primary Border Color */}
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                  मुख्य बोर्डर रङ्ग (Primary Frame Color):
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, mb: 2, flexWrap: 'wrap', alignItems: 'center' }}>
-                  {PRIMARY_PALETTE.map((color) => (
-                    <Box
-                      key={color}
-                      onClick={() => handleUpdate('primaryColor', color)}
-                      sx={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: '50%',
-                        bgcolor: color,
-                        cursor: 'pointer',
-                        border: design.primaryColor === color ? '3px solid #F59E0B' : '2px solid #FFFFFF',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-                      }}
+                {/* Border Margin & Width Sliders */}
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
+                      बोर्डर मोटाइ ({design.borderWidth}px)
+                    </Typography>
+                    <Slider
+                      value={design.borderWidth}
+                      min={2}
+                      max={14}
+                      step={1}
+                      onChange={(e, val) => handleUpdate('borderWidth', val)}
+                      sx={{ color: '#C59B27' }}
                     />
-                  ))}
-                  <TextField
-                    size="small"
-                    value={design.primaryColor}
-                    onChange={(e) => handleUpdate('primaryColor', e.target.value)}
-                    sx={{ width: 100, ml: 1, '& input': { p: '4px 8px', fontSize: '0.78rem' } }}
-                  />
-                </Box>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
+                      कागज किनारा मार्जिन ({design.borderMargin}mm)
+                    </Typography>
+                    <Slider
+                      value={design.borderMargin}
+                      min={6}
+                      max={22}
+                      step={1}
+                      onChange={(e, val) => handleUpdate('borderMargin', val)}
+                      sx={{ color: '#0F2E5A' }}
+                    />
+                  </Grid>
+                </Grid>
 
-                {/* Accent/Gold Border Color */}
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 0.8 }}>
-                  सहायक सुनौलो रङ्ग (Accent / Inlay Color):
+                <Divider sx={{ my: 1.5 }} />
+
+                {/* Corner Ornaments */}
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 1 }}>
+                  ख) कुनाका बुट्टाहरू (Corner Ornaments / Flourishes):
                 </Typography>
-                <Box sx={{ display: 'flex', gap: 1, mb: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-                  {ACCENT_PALETTE.map((color) => (
-                    <Box
-                      key={color}
-                      onClick={() => handleUpdate('accentColor', color)}
-                      sx={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: '50%',
-                        bgcolor: color,
-                        cursor: 'pointer',
-                        border: design.accentColor === color ? '3px solid #0F2E5A' : '2px solid #FFFFFF',
-                        boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-                      }}
-                    />
+                <Grid container spacing={1} sx={{ mb: 1.5 }}>
+                  {CORNER_STYLES.map((c) => (
+                    <Grid item xs={6} key={c.id}>
+                      <Button
+                        fullWidth
+                        size="small"
+                        variant={design.cornerStyle === c.id ? 'contained' : 'outlined'}
+                        onClick={() => handleUpdate('cornerStyle', c.id)}
+                        sx={{
+                          fontWeight: 700,
+                          fontSize: '0.67rem',
+                          py: 0.6,
+                          bgcolor: design.cornerStyle === c.id ? '#0F2E5A' : '#FFFFFF',
+                          borderColor: '#CBD5E1',
+                          color: design.cornerStyle === c.id ? '#FFFFFF' : '#334155'
+                        }}
+                      >
+                        {c.label}
+                      </Button>
+                    </Grid>
                   ))}
-                  <TextField
-                    size="small"
-                    value={design.accentColor}
-                    onChange={(e) => handleUpdate('accentColor', e.target.value)}
-                    sx={{ width: 100, ml: 1, '& input': { p: '4px 8px', fontSize: '0.78rem' } }}
-                  />
-                </Box>
+                </Grid>
+
+                <Grid container spacing={2} sx={{ mb: 2 }}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block' }}>
+                      कुनाको साइज ({design.cornerSize}px)
+                    </Typography>
+                    <Slider
+                      value={design.cornerSize}
+                      min={16}
+                      max={55}
+                      step={1}
+                      onChange={(e, val) => handleUpdate('cornerSize', val)}
+                      sx={{ color: '#C59B27' }}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block', mb: 0.5 }}>
+                      कुनाको रङ्ग (Corner Color):
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <input
+                        type="color"
+                        value={design.cornerColor}
+                        onChange={(e) => handleUpdate('cornerColor', e.target.value)}
+                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                      />
+                      <TextField
+                        size="small"
+                        value={design.cornerColor}
+                        onChange={(e) => handleUpdate('cornerColor', e.target.value)}
+                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Divider sx={{ my: 1.5 }} />
+
+                {/* 1-Click Luxury Palettes */}
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                  ग) १-क्लिक लक्जरी कलर प्यालेटहरू (Matching Palettes):
+                </Typography>
+                <Stack spacing={0.8} sx={{ mb: 2 }}>
+                  {LUXURY_PALETTES.map((pal) => (
+                    <Box
+                      key={pal.name}
+                      onClick={() => handleApplyPalette(pal)}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        p: 0.8,
+                        borderRadius: 1.5,
+                        border: '1px solid #E2E8F0',
+                        cursor: 'pointer',
+                        '&:hover': { bgcolor: '#F8FAFC', borderColor: '#CBD5E1' }
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E293B' }}>
+                        {pal.name}
+                      </Typography>
+                      <Box sx={{ display: 'flex', gap: 0.8 }}>
+                        <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: pal.primary, border: '1px solid #FFF' }} />
+                        <Box sx={{ width: 20, height: 20, borderRadius: '50%', bgcolor: pal.accent, border: '1px solid #FFF' }} />
+                      </Box>
+                    </Box>
+                  ))}
+                </Stack>
+
+                {/* Interactive Color Pickers */}
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                  घ) पूर्ण कलर पिकर (Interactive HTML5 Color Wheel):
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block', mb: 0.5 }}>
+                      प्राथमिक रङ्ग (Primary):
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <input
+                        type="color"
+                        value={design.primaryColor}
+                        onChange={(e) => handleUpdate('primaryColor', e.target.value)}
+                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                      />
+                      <TextField
+                        size="small"
+                        value={design.primaryColor}
+                        onChange={(e) => handleUpdate('primaryColor', e.target.value)}
+                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
+                      />
+                    </Box>
+                  </Grid>
+
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#C59B27', display: 'block', mb: 0.5 }}>
+                      सुनौलो एक्सेन्ट (Accent):
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <input
+                        type="color"
+                        value={design.accentColor}
+                        onChange={(e) => handleUpdate('accentColor', e.target.value)}
+                        style={{ width: 36, height: 32, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                      />
+                      <TextField
+                        size="small"
+                        value={design.accentColor}
+                        onChange={(e) => handleUpdate('accentColor', e.target.value)}
+                        sx={{ '& input': { p: '4px 8px', fontSize: '0.75rem', fontFamily: 'monospace' } }}
+                      />
+                    </Box>
+                  </Grid>
+                </Grid>
               </AccordionDetails>
             </Accordion>
 
@@ -639,7 +1019,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </AccordionDetails>
             </Accordion>
 
-            {/* 6. PRE-PRINTED PAPER OFFSETS */}
+            {/* 6. PRE-PRINTED PAPER OFFSETS & TEXT-ONLY PRINT */}
             <Accordion sx={{ borderRadius: '10px !important', border: '1px solid #CBD5E1', boxShadow: 'none' }}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
@@ -650,9 +1030,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0 }}>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1 }}>
-                  छापाखानाबाट छापिएका खाली कागजमा नाम र मिति ठ्याक्कै खाली ठाउँमा बस्ने गरी मिलान गर्नुहोस्:
-                </Typography>
+                {/* 1-Click Text Only Mode */}
+                <Box sx={{ p: 1.5, bgcolor: '#FFFBEB', borderRadius: 2, border: '1px solid #FCD34D', mb: 2 }}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={design.preprintedTextOnly}
+                        onChange={(e) => handleUpdate('preprintedTextOnly', e.target.checked)}
+                        color="warning"
+                      />
+                    }
+                    label={
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
+                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode: बजारको बोर्डर भएको कागजमा प्रिन्ट गर्न)
+                      </Typography>
+                    }
+                  />
+                </Box>
 
                 <Typography variant="caption">माथि/तल सर्ने (Y-Offset: {design.offsetY} mm)</Typography>
                 <Slider
@@ -703,14 +1097,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   size="small"
                   sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 900, fontSize: '0.68rem' }}
                 />
-                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                  A4 Landscape (वास्तविक प्रिन्ट अनुपात)
+                <Typography variant="caption" sx={{ color: '#0F2E5A', fontWeight: 800 }}>
+                  {isPortrait ? 'A4 Portrait (ठाडो - २१० × २९७ मिमी)' : 'A4 Landscape (तेर्सो - २९७ × २१० मिमी)'}
                 </Typography>
               </Box>
 
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>प्रिभ्यु जुम:</Typography>
-                <Button size="small" onClick={() => setPreviewScale((p) => Math.max(0.65, p - 0.05))}>-</Button>
+                <Button size="small" onClick={() => setPreviewScale((p) => Math.max(0.55, p - 0.05))}>-</Button>
                 <Typography variant="caption" sx={{ fontWeight: 800 }}>{Math.round(previewScale * 100)}%</Typography>
                 <Button size="small" onClick={() => setPreviewScale((p) => Math.min(1.05, p + 0.05))}>+</Button>
               </Box>
@@ -720,56 +1114,53 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             <Box
               sx={{
                 overflow: 'auto',
-                p: 1.5,
-                bgcolor: '#475569',
+                p: 2,
+                bgcolor: '#334155',
                 borderRadius: 2.5,
                 display: 'flex',
                 justifyContent: 'center',
-                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.2)'
+                boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.25)',
+                minHeight: '750px'
               }}
             >
               {/* The Live Certificate Canvas */}
               <Box
                 id="liveCertificateStudioCanvas"
                 sx={{
-                  width: '980px',
-                  minHeight: '680px',
+                  width: isPortrait ? '740px' : '1020px',
+                  minHeight: isPortrait ? '1040px' : '720px',
                   p: `${design.borderMargin}mm`,
                   boxSizing: 'border-box',
                   fontFamily: "'Times New Roman', serif",
                   color: '#0F172A',
                   position: 'relative',
-                  border:
-                    design.borderStyle === 'royal-double'
-                      ? `${design.borderWidth}px double ${design.primaryColor}`
-                      : design.borderStyle === 'ornate-vintage'
-                      ? `4px solid ${design.primaryColor}`
-                      : design.borderStyle === 'modern-gold'
-                      ? `2.5px solid ${design.accentColor}`
-                      : 'none',
-                  outline:
-                    design.borderStyle === 'royal-double'
-                      ? `2.5px solid ${design.accentColor}`
-                      : design.borderStyle === 'modern-gold'
-                      ? `1px solid ${design.primaryColor}`
-                      : 'none',
-                  outlineOffset: '-10px',
-                  borderRadius: design.borderStyle === 'modern-gold' ? '8px' : '2px',
                   display: 'flex',
                   flexDirection: 'column',
                   justifyContent: 'space-between',
                   transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
                   transformOrigin: 'top center',
-                  transition: 'all 0.15s ease',
+                  transition: 'all 0.2s ease',
+                  boxShadow: '0 12px 36px rgba(0,0,0,0.25)',
+                  ...getBorderStyle(),
                   ...getBackgroundStyle()
                 }}
               >
+                {/* 4 Corner Ornaments */}
+                {!design.preprintedTextOnly && design.cornerStyle !== 'none' && (
+                  <>
+                    <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-left" />
+                    <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-right" />
+                    <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-left" />
+                    <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-right" />
+                  </>
+                )}
+
                 {/* Subtle Watermark Logo */}
-                {design.watermarkOpacity > 0 && (
+                {!design.preprintedTextOnly && design.watermarkOpacity > 0 && (
                   <Box
                     sx={{
                       position: 'absolute',
-                      top: '52%',
+                      top: '50%',
                       left: '50%',
                       transform: 'translate(-50%, -50%)',
                       opacity: design.watermarkOpacity / 100,
@@ -777,7 +1168,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       zIndex: 0
                     }}
                   >
-                    <SchoolIcon sx={{ fontSize: 320 * (design.watermarkScale / 100), color: design.primaryColor }} />
+                    <SchoolIcon sx={{ fontSize: (isPortrait ? 360 : 320) * (design.watermarkScale / 100), color: design.primaryColor }} />
                   </Box>
                 )}
 
@@ -786,7 +1177,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: `1.5px solid ${design.accentColor}` }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
                       {/* Left Logo */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', width: 60 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', width: 64 }}>
                         {design.showLeftLogo && <SchoolIcon sx={{ fontSize: 44, color: design.primaryColor }} />}
                       </Box>
 
@@ -799,7 +1190,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                             fontWeight: 900,
                             letterSpacing: '0.04em',
                             color: design.primaryColor,
-                            fontSize: '1.35rem',
+                            fontSize: isPortrait ? '1.25rem' : '1.35rem',
                             textTransform: 'uppercase'
                           }}
                         >
@@ -811,23 +1202,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                             fontFamily: "'Noto Sans Devanagari', sans-serif",
                             fontWeight: 800,
                             color: design.accentColor,
-                            fontSize: '1.05rem',
+                            fontSize: isPortrait ? '0.98rem' : '1.05rem',
                             letterSpacing: '0.02em',
                             mt: 0.2
                           }}
                         >
                           {design.instituteNameNepali}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#475569', display: 'block', fontSize: '0.74rem', fontWeight: 600, mt: 0.3 }}>
+                        <Typography variant="caption" sx={{ color: '#475569', display: 'block', fontSize: '0.72rem', fontWeight: 600, mt: 0.3 }}>
                           {design.accreditationText}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.7rem' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
                           {design.affiliationCodeText}
                         </Typography>
                       </Box>
 
                       {/* Right Logo */}
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: 60 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: 64 }}>
                         {design.showRightLogo && <VerifiedIcon sx={{ fontSize: 44, color: design.accentColor }} />}
                       </Box>
                     </Box>
@@ -835,7 +1226,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 )}
 
                 {/* 2. Certificate Title Banner */}
-                <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: 1 }}>
+                <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: isPortrait ? 2 : 1 }}>
                   <Typography
                     variant="h5"
                     sx={{
@@ -843,7 +1234,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       color: design.primaryColor,
                       letterSpacing: '0.08em',
                       textTransform: 'uppercase',
-                      fontSize: '1.25rem',
+                      fontSize: isPortrait ? '1.18rem' : '1.25rem',
                       mb: 0.2
                     }}
                   >
@@ -871,11 +1262,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     display: 'flex',
                     justifyContent: 'space-between',
                     px: 3,
-                    py: 0.5,
+                    py: 0.6,
                     bgcolor: '#F8FAFC',
                     borderTop: '1px solid #E2E8F0',
                     borderBottom: '1px solid #E2E8F0',
-                    fontSize: '0.78rem',
+                    fontSize: '0.76rem',
                     fontWeight: 700,
                     color: '#334155'
                   }}
@@ -886,7 +1277,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </Box>
 
                 {/* 4. Trainee Centerpiece & Photo Frame */}
-                <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, my: 1.2 }}>
+                <Box sx={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', px: 3, my: isPortrait ? 2 : 1.2 }}>
                   {/* Left Competency Badge */}
                   <Box sx={{ width: '92px' }}>
                     {design.showCompetencyBadge && (
@@ -913,7 +1304,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         color: design.primaryColor,
                         fontFamily: 'serif',
                         letterSpacing: '0.04em',
-                        fontSize: '1.75rem',
+                        fontSize: isPortrait ? '1.85rem' : '1.75rem',
                         mt: 0.3
                       }}
                     >
@@ -973,9 +1364,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </Box>
 
                 {/* 5. English & Nepali Wording Paragraphs */}
-                <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify' }}>
+                <Box sx={{ position: 'relative', zIndex: 1, px: 3, textAlign: 'justify', my: isPortrait ? 2 : 0.5 }}>
                   {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'english-only') && (
-                    <Typography variant="body2" sx={{ fontSize: '0.86rem', lineHeight: 1.45, color: '#1E293B', mb: 0.8 }}>
+                    <Typography variant="body2" sx={{ fontSize: isPortrait ? '0.88rem' : '0.85rem', lineHeight: isPortrait ? 1.6 : 1.45, color: '#1E293B', mb: 0.8 }}>
                       This is to certify that Ms. <b>Sunita Sharma</b>, Daughter of Mr./Mrs. <b>Hari Sharma</b>, permanent resident of <b>Gokarneshwor-05, Kathmandu</b>, has successfully completed the <b>390 Hours</b> vocational skills training course in <b>"Basic Beautician Training"</b> conducted from <b>2026-06-01</b> to <b>2026-09-01</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
                     </Typography>
                   )}
@@ -989,7 +1380,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   )}
 
                   {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'nepali-only') && (
-                    <Typography variant="body2" sx={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontSize: '0.86rem', lineHeight: 1.5, color: '#1E293B' }}>
+                    <Typography variant="body2" sx={{ fontFamily: "'Noto Sans Devanagari', sans-serif", fontSize: isPortrait ? '0.88rem' : '0.85rem', lineHeight: isPortrait ? 1.6 : 1.5, color: '#1E293B' }}>
                       प्रमाणित गरिन्छ कि गोकर्णेश्वर-०५, काठमाडौँ निवासी श्री हरि शर्माको सुपुत्री सुश्री <b>सुनिता शर्मा</b>ले यस संस्थाद्वारा मिति <b>२०८३/०२/१८</b> देखि <b>२०८३/०५/१८</b> सम्म सञ्चालित <b>३९० घन्टे</b> <b>"आधारभूत ब्युटिसियन तालिम"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
                     </Typography>
                   )}
@@ -1000,8 +1391,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   sx={{
                     position: 'relative',
                     zIndex: 1,
-                    mt: 1.5,
-                    pt: 1.2,
+                    mt: isPortrait ? 3 : 1.5,
+                    pt: 1.5,
                     borderTop: '1px solid #CBD5E1',
                     display: 'flex',
                     justifyContent: 'space-between',
@@ -1014,7 +1405,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     {design.showQrVerification && (
                       <>
                         <Box sx={{ p: 0.5, bgcolor: '#FFFFFF', border: `1.5px solid ${design.primaryColor}`, borderRadius: 1 }}>
-                          <QRCodeSVG value="https://globalera.edu.np/verify?cert=GE-2081-000101" size={56} level="M" />
+                          <QRCodeSVG value="https://globalera.edu.np/verify?cert=GE-2081-000101" size={54} level="M" />
                         </Box>
                         <Box>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: design.primaryColor, display: 'block', fontSize: '0.68rem' }}>
@@ -1070,6 +1461,32 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           </Box>
         </Grid>
       </Grid>
+
+      {/* Dynamic Print CSS for Studio Test Prints */}
+      <style>{`
+        @page {
+          size: A4 ${design.orientation || 'landscape'};
+          margin: 6mm;
+        }
+        @media print {
+          body * {
+            visibility: hidden !important;
+          }
+          #liveCertificateStudioCanvas, #liveCertificateStudioCanvas * {
+            visibility: visible !important;
+          }
+          #liveCertificateStudioCanvas {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 98vh !important;
+            margin: 0 !important;
+            box-shadow: none !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
     </Box>
   );
 }

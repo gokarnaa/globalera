@@ -39,6 +39,7 @@ import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -72,6 +73,7 @@ const NAV_ITEMS = [
   { id: 'ojt', label: 'OJT Records (उद्योग तालिम)', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'placements', label: 'Placements & EPP (रोजगारी)', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'certificates', label: 'Official Certificates (प्रमाणपत्र)', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, badge: 'A4 QR' },
+  { id: 'certificate_studio', label: 'Certificate Studio (डिजाइन स्टुडियो)', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
 
   // --- 4. Self-Service Portals ---
   { section: '4. SELF-SERVICE PORTALS' },
