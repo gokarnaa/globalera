@@ -329,7 +329,7 @@ export default function LeadManager() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3.5 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* Page Title & Breadcrumb Header */}
       <Box
         sx={{

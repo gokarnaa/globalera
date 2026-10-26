@@ -404,7 +404,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
   const lCount = Object.values(sessionRecords).filter((r) => r.status === 'L').length;
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', p: { xs: 0.5, sm: 1.5 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* =======================================================
           TOP BAR & NAVIGATION TABS (MATCHING USER SCREENSHOT)
           ======================================================= */}

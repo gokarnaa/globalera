@@ -322,7 +322,7 @@ export default function AccountsManager() {
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 3.5 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* Page Title & Action Bar */}
       <Box
         sx={{

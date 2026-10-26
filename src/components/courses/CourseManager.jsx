@@ -276,7 +276,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
   };
 
   return (
-    <Box sx={{ maxWidth: 1320, mx: 'auto', p: { xs: 1, sm: 2 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* =======================================================
           1. HERO KPI BANNER - COURSE MASTER STUDIO
           ======================================================= */}

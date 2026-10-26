@@ -123,7 +123,11 @@ export default function ConvertToStudentModal({
       expectedEndDate: expectedEndDate || calculateExpectedEndDate(admissionDate, 3, 'Months'),
       status: 'Active',
       photoUrl: '',
-      convertedFromLeadId: lead.id
+      convertedFromLeadId: lead.id,
+      originalFee: Number(lead.price) || 15000,
+      lockedCourseFee: Number(lead.price) || 15000,
+      admissionFee: 0,
+      discountAmount: 0
     };
 
     // Update lead status to Converted and append to timeline

@@ -35,6 +35,8 @@ import WorkIcon from '@mui/icons-material/Work';
 import BusinessIcon from '@mui/icons-material/Business';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
+import PrintIcon from '@mui/icons-material/Print';
+import ReceiptModal from '../accounts/ReceiptModal';
 import { saveDB, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
@@ -81,6 +83,9 @@ export default function StudentProfileModal({
   // Employer Quick Details Dialog
   const [viewEmployerDetails, setViewEmployerDetails] = useState(null);
 
+  // Fee & Receipt Dialog State
+  const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
+
   if (!student) return null;
 
   // Find associated group, course, trainer, syllabi
@@ -112,6 +117,14 @@ export default function StudentProfileModal({
 
   // Timeline events
   const timelines = (db.studentTimelines || []).filter((t) => t.studentId === student.id);
+
+  // Fee & Ledger Calculations
+  const studentPayments = (db.payments || []).filter((p) => p.studentId === student.id);
+  const lockedFee = student.lockedCourseFee || course?.price || 15000;
+  const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const dueBalance = Math.max(0, lockedFee - totalPaid);
+  const daysSinceAdmission = Math.round((new Date() - new Date(student.admissionDate || Date.now())) / (1000 * 60 * 60 * 24));
+  const isOverdue = dueBalance > 0 && daysSinceAdmission > 30;
 
   // Course Progress Calculation (Days Completed vs Days Remaining)
   const admissionDateStr = student.admissionDate || grp?.startDate || '2026-09-01';
@@ -336,7 +349,7 @@ export default function StudentProfileModal({
   };
 
 
-  const tabsList = ['Profile', 'Attendance', 'Evaluation', 'OJT', 'EPP', 'Notes'];
+  const tabsList = ['Profile', 'Fees', 'Attendance', 'Evaluation', 'OJT', 'EPP', 'Notes'];
 
   return (
     <Dialog
@@ -785,6 +798,126 @@ export default function StudentProfileModal({
                   )}
                 </Box>
               </Paper>
+            </Card>
+          )}
+
+          {/* TAB: Fees & Accounts */}
+          {activeTab === 'Fees' && (
+            <Card
+              sx={{
+                p: 2.5,
+                borderRadius: 3.5,
+                bgcolor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                  💰 Fee & Ledger Overview (शुल्क तथा खाता विवरण)
+                </Typography>
+                <Chip
+                  label={dueBalance === 0 ? 'Fully Paid (सम्पूर्ण चुक्ता)' : isOverdue ? 'Overdue (>30 Days)' : totalPaid > 0 ? 'Partial Payment (आंशिक)' : 'Unpaid (बाँकी)'}
+                  size="small"
+                  sx={{
+                    fontWeight: 800,
+                    bgcolor: dueBalance === 0 ? '#e5f8ee' : isOverdue ? '#fee2e2' : totalPaid > 0 ? '#fef3c7' : '#fee2e2',
+                    color: dueBalance === 0 ? '#16834b' : isOverdue ? '#dc2626' : totalPaid > 0 ? '#b45309' : '#dc2626'
+                  }}
+                />
+              </Box>
+
+              {/* Fee Stats */}
+              <Grid container spacing={2} sx={{ mb: 2.5 }}>
+                <Grid item xs={12} sm={4}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #e2e8f0' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>Total Course Fee (कुल शुल्क)</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f172a', mt: 0.5 }}>
+                      Rs. {lockedFee.toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748b' }}>Course Package Fee</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#e5f8ee', borderRadius: 2.5, border: '1px solid #bbf7d0' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#16834b' }}>Total Paid (बुझाएको रकम)</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: '#16834b', mt: 0.5 }}>
+                      Rs. {totalPaid.toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#16834b' }}>
+                      {Math.round((totalPaid / (lockedFee || 1)) * 100)}% Cleared
+                    </Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Paper sx={{ p: 2, textAlign: 'center', bgcolor: dueBalance > 0 ? '#fef2f2' : '#f8fafc', borderRadius: 2.5, border: dueBalance > 0 ? '1px solid #fecaca' : '1px solid #e2e8f0' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: dueBalance > 0 ? '#dc2626' : '#64748b' }}>Due Balance (बाँकी रकम)</Typography>
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: dueBalance > 0 ? '#dc2626' : '#16834b', mt: 0.5 }}>
+                      Rs. {dueBalance.toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: dueBalance > 0 ? '#dc2626' : '#16834b' }}>
+                      {dueBalance === 0 ? 'No pending balance' : isOverdue ? 'Overdue pending (>30D)' : 'Installment active'}
+                    </Typography>
+                  </Paper>
+                </Grid>
+              </Grid>
+
+              {/* Transactions / Receipts List */}
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 1.5 }}>
+                🧾 Payment Receipts & Audit Trail (रसिदहरू):
+              </Typography>
+              {studentPayments.length === 0 ? (
+                <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #cbd5e1' }}>
+                  <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>
+                    कुनै भुक्तानी रसिद फेला परेन (No payment receipts recorded yet for this student).
+                  </Typography>
+                </Paper>
+              ) : (
+                <Stack spacing={1.5}>
+                  {studentPayments.map((p) => (
+                    <Paper
+                      key={p.id}
+                      variant="outlined"
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 1
+                      }}
+                    >
+                      <Box>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
+                            {p.receiptNo || p.id}
+                          </Typography>
+                          <Chip label={p.paymentMethod || 'Cash'} size="small" sx={{ height: 20, fontSize: '0.7rem', fontWeight: 700 }} />
+                          <Chip label={p.installmentType || 'Installment'} size="small" sx={{ height: 20, fontSize: '0.7rem' }} />
+                        </Box>
+                        <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.3 }}>
+                          Date: {p.date} • Collected By: {p.collectedBy || 'Finance Desk'} {p.remarks ? `• ${p.remarks}` : ''}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 800, color: '#16834b' }}>
+                          Rs. {Number(p.amount).toLocaleString()}
+                        </Typography>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<PrintIcon />}
+                          onClick={() => setSelectedReceiptPayment(p)}
+                          sx={{ textTransform: 'none', fontWeight: 700 }}
+                        >
+                          Print Receipt
+                        </Button>
+                      </Box>
+                    </Paper>
+                  ))}
+                </Stack>
+              )}
             </Card>
           )}
 
@@ -1626,6 +1759,19 @@ export default function StudentProfileModal({
           </>
         )}
       </Dialog>
+
+      {/* Official Dual-Format Receipt Modal (A4 & Thermal 80mm) */}
+      {selectedReceiptPayment && (
+        <ReceiptModal
+          open={Boolean(selectedReceiptPayment)}
+          onClose={() => setSelectedReceiptPayment(null)}
+          payment={selectedReceiptPayment}
+          student={student}
+          group={grp}
+          course={course}
+          settings={db.settings}
+        />
+      )}
     </Dialog>
   );
 }

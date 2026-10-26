@@ -156,8 +156,8 @@ export default function StudentManager() {
       return;
     }
 
-    let updatedList = [...db.students];
-    let updatedTimeline = [...db.studentTimelines];
+    let updatedList = [...(db.students || [])];
+    let updatedTimeline = [...(db.studentTimelines || [])];
 
     if (editingItem) {
       updatedList = updatedList.map((x) =>
@@ -255,8 +255,20 @@ export default function StudentManager() {
     };
   };
 
+  // Helper for Student Fee & Accounts Summary
+  const getStudentFeeSummary = (std) => {
+    const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+    const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+    const lockedFee = std.lockedCourseFee || crs?.price || 15000;
+    const studentPayments = (db.payments || []).filter((p) => p.studentId === std.id);
+    const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const due = Math.max(0, lockedFee - totalPaid);
+    const status = due === 0 ? 'Paid' : totalPaid > 0 ? 'Partial' : 'Unpaid';
+    return { lockedFee, totalPaid, due, status };
+  };
+
   return (
-    <Box>
+    <Box sx={{ width: '100%', pb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
         <Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -348,6 +360,7 @@ export default function StudentManager() {
                   <TableCell sx={{ fontWeight: 800 }}>Student</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Training Group & Shift</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Contact & WhatsApp</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Fee Status (शुल्क)</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Admission Date</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
@@ -403,6 +416,30 @@ export default function StudentManager() {
                             <WhatsAppIcon fontSize="small" />
                           </IconButton>
                         </Box>
+                      </TableCell>
+                      <TableCell>
+                        {(() => {
+                          const fee = getStudentFeeSummary(std);
+                          const isPaid = fee.status === 'Paid';
+                          const isPartial = fee.status === 'Partial';
+                          return (
+                            <Box>
+                              <Chip
+                                label={fee.status}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  bgcolor: isPaid ? '#e5f8ee' : isPartial ? '#fef3c7' : '#fee2e2',
+                                  color: isPaid ? '#16834b' : isPartial ? '#b45309' : '#dc2626',
+                                  mb: 0.3
+                                }}
+                              />
+                              <Typography variant="caption" sx={{ display: 'block', color: fee.due > 0 ? '#dc2626' : '#16834b', fontWeight: 700 }}>
+                                {fee.due > 0 ? `Due: Rs. ${fee.due.toLocaleString()}` : `Paid in Full`}
+                              </Typography>
+                            </Box>
+                          );
+                        })()}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 600 }}>
                         {std.admissionDate}
@@ -498,9 +535,29 @@ export default function StudentManager() {
                     </Box>
 
                     <Paper variant="outlined" sx={{ p: 1.2, borderRadius: 2, bgcolor: '#f8fafc', mb: 1.5 }}>
-                      <Typography variant="caption" sx={{ color: '#1a56b0', fontWeight: 800, display: 'block' }}>
-                        Group {grp?.groupCode || 'Unassigned'} • Shift {grp?.shift || ''}
-                      </Typography>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.5 }}>
+                        <Typography variant="caption" sx={{ color: '#1a56b0', fontWeight: 800, display: 'block' }}>
+                          Group {grp?.groupCode || 'Unassigned'} • Shift {grp?.shift || ''}
+                        </Typography>
+                        {(() => {
+                          const fee = getStudentFeeSummary(std);
+                          const isPaid = fee.status === 'Paid';
+                          const isPartial = fee.status === 'Partial';
+                          return (
+                            <Chip
+                              label={fee.status}
+                              size="small"
+                              sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
+                                fontWeight: 800,
+                                bgcolor: isPaid ? '#e5f8ee' : isPartial ? '#fef3c7' : '#fee2e2',
+                                color: isPaid ? '#16834b' : isPartial ? '#b45309' : '#dc2626'
+                              }}
+                            />
+                          );
+                        })()}
+                      </Box>
                       <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.85rem' }}>
                         {course?.title || 'Vocational Training'}
                       </Typography>

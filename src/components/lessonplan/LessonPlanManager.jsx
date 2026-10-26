@@ -310,7 +310,7 @@ export default function LessonPlanManager() {
   };
 
   return (
-    <Box sx={{ maxWidth: 1320, mx: 'auto', p: { xs: 1, sm: 2 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* =======================================================
           1. EXECUTIVE LESSON PLAN HERO STUDIO BANNER
           ======================================================= */}

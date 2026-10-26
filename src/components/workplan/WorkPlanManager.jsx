@@ -341,7 +341,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
   };
 
   return (
-    <Box sx={{ maxWidth: 1320, mx: 'auto', p: { xs: 1, sm: 2 } }}>
+    <Box sx={{ width: '100%', pb: 4 }}>
       {/* =======================================================
           1. EXECUTIVE WORK PLAN HERO BANNER
           ======================================================= */}

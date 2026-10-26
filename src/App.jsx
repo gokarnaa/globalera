@@ -278,18 +278,18 @@ export default function App() {
             sx={{
               flexGrow: 1,
               minWidth: 0,
-              p: { xs: 2, sm: 3, md: 4 },
+              p: { xs: 1.5, sm: 2.5, md: 3 },
               minHeight: 'calc(100vh - 70px)',
               position: 'relative',
               zIndex: 1,
               pb: { xs: 12, md: 5 } // Padding for mobile bottom nav
             }}
           >
-            <Container maxWidth="xl" sx={{ px: { xs: 0, sm: 2 } }}>
+            <Box sx={{ width: '100%', maxWidth: '1720px', mx: 'auto', px: { xs: 0, sm: 1 } }}>
               <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('dashboard')}>
                 {renderContent()}
               </ErrorBoundary>
-            </Container>
+            </Box>
           </Box>
         </Box>
       </Box>
