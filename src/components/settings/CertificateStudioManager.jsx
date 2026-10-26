@@ -321,10 +321,31 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const [db, setDb] = useState(loadDB());
   const [design, setDesign] = useState(() => {
     const loaded = db.settings?.certificateDesign || {};
+    const company = db.settings?.companyProfile || {};
+    const defaultSignatories = [
+      {
+        id: 'sig-1',
+        name: company.leadInstructorName || 'सुमन थापा (Suman Thapa)',
+        title: company.leadInstructorTitle || 'प्रशिक्षक (Lead Instructor)',
+        lineStyle: 'dashed',
+        signatureUrl: ''
+      },
+      {
+        id: 'sig-2',
+        name: company.directorName || 'गोकर्ण थापा (Gokarna Thapa)',
+        title: company.directorTitle || 'क्याम्पस प्रमुख / निर्देशक (Managing Director)',
+        lineStyle: 'solid',
+        signatureUrl: ''
+      }
+    ];
+
     return {
       ...DEFAULT_CERTIFICATE_DESIGN,
+      instituteName: loaded.instituteName || company.companyNameEn || DEFAULT_CERTIFICATE_DESIGN.instituteName,
+      customSealUrl: loaded.customSealUrl || company.stampImage || '',
+      leftLogoUrl: loaded.leftLogoUrl || company.logoImage || '',
       ...loaded,
-      signatories: loaded.signatories || DEFAULT_CERTIFICATE_DESIGN.signatories,
+      signatories: loaded.signatories && loaded.signatories.length > 0 ? loaded.signatories : defaultSignatories,
       elementStyles: {
         ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
         ...(loaded.elementStyles || {})

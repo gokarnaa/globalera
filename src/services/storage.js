@@ -1248,16 +1248,38 @@ export const INITIAL_SEED_DATA = {
   ],
 
   settings: {
-    instituteName: 'KITE CAREGIVER TRAINING CENTER',
+    instituteName: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
     instituteSub: 'ग्लोबल एरा प्राविधिक स्कुल',
-    location: 'MitraPark, Chabahil, Kathmandu, Nepal',
-    contactPhone: '+977-1-4488990 / 9851000000',
+    location: 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
+    contactPhone: '+977-1-4915678 / 9851234567',
     email: 'info@globalera.edu.np',
     aakashSmsToken: '',
     enableAutoSmsOnAbsent: true,
     enableWhatsAppDirect: true,
     supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co',
-    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO'
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO',
+    companyProfile: {
+      companyNameEnglish: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
+      companyNameNepali: 'ग्लोबल एरा प्राविधिक स्कुल',
+      address: 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
+      contactPhone: '+977-1-4915678 / 9851234567',
+      email: 'info@globalera.edu.np',
+      website: 'https://globalera.edu.np',
+      companyRegNo: '184920/078/079',
+      ctevtCode: '4208',
+      panNo: '609823412',
+      directorName: 'गोकर्ण थापा (Gokarna Thapa)',
+      directorTitle: 'क्याम्पस प्रमुख / निर्देशक (Managing Director)',
+      logoUrl: '',
+      stampUrl: ''
+    },
+    certificateNumberFormat: {
+      formatStyle: 'year_seq',
+      prefix: 'GEMS',
+      yearMode: 'AD',
+      seqDigits: 3,
+      startSeq: 1
+    }
   }
 };
 
@@ -1296,6 +1318,14 @@ export function loadDB() {
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
+        companyProfile: {
+          ...INITIAL_SEED_DATA.settings.companyProfile,
+          ...(parsed.settings?.companyProfile || {})
+        },
+        certificateNumberFormat: {
+          ...INITIAL_SEED_DATA.settings.certificateNumberFormat,
+          ...(parsed.settings?.certificateNumberFormat || {})
+        },
         supabaseUrl: parsed.settings?.supabaseUrl || INITIAL_SEED_DATA.settings.supabaseUrl,
         supabaseAnonKey: parsed.settings?.supabaseAnonKey || INITIAL_SEED_DATA.settings.supabaseAnonKey
       }

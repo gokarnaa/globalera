@@ -49,6 +49,7 @@ import { getWhatsAppUrl } from '../../services/exportUtils';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
 import CertificateStudioManager from '../settings/CertificateStudioManager';
+import { computeNextCertificateNumber } from '../settings/CompanyProfileSettings';
 
 export default function CertificateManager() {
   const [db, setDb] = useState(loadDB());
@@ -133,9 +134,10 @@ export default function CertificateManager() {
   // Issue Certificate for single student
   const handleIssueCertificate = (student) => {
     const existingList = db.certificates || [];
-    const year = new Date().getFullYear();
-    const nextSeq = String(existingList.length + 1).padStart(4, '0');
-    const newCertNo = `GETS-${year}-${nextSeq}`;
+    const newCertNo = computeNextCertificateNumber(db, 0, {
+      courseCode: selectedCourse?.code,
+      batchCode: selectedGroup?.code || selectedGroup?.name
+    });
 
     const newCertificate = {
       id: `CERT-${Date.now()}`,
@@ -188,12 +190,13 @@ export default function CertificateManager() {
     }
 
     let existingList = [...(db.certificates || [])];
-    const year = new Date().getFullYear();
     const today = new Date().toISOString().slice(0, 10);
 
     eligibleStudents.forEach((item, index) => {
-      const nextSeq = String(existingList.length + 1).padStart(4, '0');
-      const newCertNo = `GETS-${year}-${nextSeq}`;
+      const newCertNo = computeNextCertificateNumber(db, index, {
+        courseCode: selectedCourse?.code,
+        batchCode: selectedGroup?.code || selectedGroup?.name
+      });
 
       existingList.unshift({
         id: `CERT-${Date.now()}-${index}`,

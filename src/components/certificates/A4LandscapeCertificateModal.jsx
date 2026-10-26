@@ -135,26 +135,57 @@ export default function A4LandscapeCertificateModal({
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
   const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
-  const instituteName = design.instituteName || design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
+
+  const companyProfile = db.settings?.companyProfile || {};
+  const instituteName = companyProfile.companyNameEn || design.instituteName || design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
   const accreditationText = design.accreditationText || 'Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)';
-  const affiliationCodeText = design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal';
+  const affiliationCodeText = (companyProfile.regNo || companyProfile.ctevtCode)
+    ? `Government Regd. No: ${companyProfile.regNo || '184920/078/079'} • CTEVT Affiliation Code: ${companyProfile.ctevtCode || '4208'} • ${companyProfile.address || 'MitraPark, Kathmandu, Nepal'}`
+    : (design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal');
   const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
   const certificateTitleNp = design.certificateTitleNp || '(व्यावसायिक तालिम समापन प्रमाणपत्र)';
 
-  // Dynamic Signatories fallback
+  // Default values from Batch trainer and Company Profile
+  const defaultTrainerName = trainer?.name && trainer.name !== 'Assigned Instructor' 
+    ? trainer.name 
+    : (companyProfile.leadInstructorName || 'सुमन थापा (Suman Thapa)');
+  const defaultTrainerTitle = trainer?.specialization 
+    ? `प्रशिक्षक (${trainer.specialization})` 
+    : (companyProfile.leadInstructorTitle || 'प्रशिक्षक (Lead Instructor)');
+
+  const defaultDirectorName = companyProfile.directorName || 'गोकर्ण थापा (Gokarna Thapa)';
+  const defaultDirectorTitle = companyProfile.directorTitle || 'क्याम्पस प्रमुख / निर्देशक (Managing Director)';
+
+  // Dynamic Signatories fallback with automatic batch trainer & company director binding
   const signatories = (design.signatories && design.signatories.length > 0)
-    ? design.signatories
+    ? design.signatories.map((sig, idx) => {
+        if (sig.id === 'sig-1' || idx === 0) {
+          return {
+            ...sig,
+            name: (sig.name && sig.name !== 'Lead Instructor' && sig.name !== 'सुमन थापा (Suman Thapa)') ? sig.name : defaultTrainerName,
+            title: sig.title || defaultTrainerTitle
+          };
+        }
+        if (sig.id === 'sig-2' || idx === 1) {
+          return {
+            ...sig,
+            name: (sig.name && sig.name !== 'Director' && sig.name !== 'Gokarna Thapa') ? sig.name : defaultDirectorName,
+            title: sig.title || defaultDirectorTitle
+          };
+        }
+        return sig;
+      })
     : [
         {
           id: 'sig-1',
-          name: design.signatory1Name || trainer?.name || 'Lead Instructor',
-          title: design.signatory1Title || 'प्रशिक्षक (Lead Instructor)',
+          name: defaultTrainerName,
+          title: defaultTrainerTitle,
           lineStyle: 'dashed'
         },
         {
           id: 'sig-2',
-          name: design.signatory2Name || 'Gokarna Thapa',
-          title: design.signatory2Title || 'क्याम्पस प्रमुख / निर्देशक (Director)',
+          name: defaultDirectorName,
+          title: defaultDirectorTitle,
           lineStyle: 'solid'
         }
       ];
@@ -449,8 +480,8 @@ export default function A4LandscapeCertificateModal({
                   }}
                 >
                   {showLeftLogo && (
-                    design.leftLogoUrl ? (
-                      <img src={design.leftLogoUrl} alt="Logo" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                    (design.leftLogoUrl || companyProfile.logoImage) ? (
+                      <img src={design.leftLogoUrl || companyProfile.logoImage} alt="Logo" style={{ width: '100%', height: 'auto', display: 'block' }} />
                     ) : (
                       <SchoolIcon sx={{ fontSize: design.leftLogoWidth || 46, color: primaryColor }} />
                     )
@@ -875,10 +906,10 @@ export default function A4LandscapeCertificateModal({
                 }}
               >
                 {/* MODE 1: Scanned Real Stamp Upload */}
-                {design.sealMode === 'scanned' && design.customSealUrl && (
+                {design.sealMode === 'scanned' && (design.customSealUrl || companyProfile.stampImage) && (
                   <Box
                     component="img"
-                    src={design.customSealUrl}
+                    src={design.customSealUrl || companyProfile.stampImage}
                     alt="Official Stamp"
                     sx={{
                       width: `${design.sealWidth || 84}px`,
@@ -922,7 +953,7 @@ export default function A4LandscapeCertificateModal({
                       ★ OFFICIAL SEAL ★
                     </Typography>
                     <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.66rem', display: 'block' }}>
-                      GLOBAL ERA TECHNICAL SCHOOL
+                      {companyProfile.companyNameEn || 'GLOBAL ERA TECHNICAL SCHOOL'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.62rem', display: 'block' }}>
                       CTEVT ACCREDITED • KATHMANDU

@@ -28,7 +28,9 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import BusinessIcon from '@mui/icons-material/Business';
 import CertificateStudioManager from './CertificateStudioManager';
+import CompanyProfileSettings from './CompanyProfileSettings';
 import { loadDB, saveDB, resetDB } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
@@ -159,6 +161,11 @@ export default function SettingsManager() {
           }}
         >
           <Tab
+            icon={<BusinessIcon sx={{ mr: 1, fontSize: 20 }} />}
+            iconPosition="start"
+            label="संस्थागत प्रोफाइल र जारी नम्बर (Company Profile & Numbering)"
+          />
+          <Tab
             icon={<WorkspacePremiumIcon sx={{ mr: 1, fontSize: 20 }} />}
             iconPosition="start"
             label="प्रमाणपत्र स्टुडियो तथा टेम्प्लेट (Certificate Studio)"
@@ -171,11 +178,14 @@ export default function SettingsManager() {
         </Tabs>
       </Paper>
 
-      {/* TAB 0: CERTIFICATE STUDIO & TEMPLATE DESIGNER */}
-      {activeTab === 0 && <CertificateStudioManager onSaveSuccess={() => setDb(loadDB())} />}
+      {/* TAB 0: COMPANY PROFILE & CERTIFICATE NUMBERING */}
+      {activeTab === 0 && <CompanyProfileSettings onSaveSuccess={() => setDb(loadDB())} />}
 
-      {/* TAB 1: CLOUD & INTEGRATION SETTINGS */}
-      {activeTab === 1 && (
+      {/* TAB 1: CERTIFICATE STUDIO & TEMPLATE DESIGNER */}
+      {activeTab === 1 && <CertificateStudioManager onSaveSuccess={() => setDb(loadDB())} />}
+
+      {/* TAB 2: CLOUD & INTEGRATION SETTINGS */}
+      {activeTab === 2 && (
         <Grid container spacing={3}>
         {/* 1. Supabase PostgreSQL Card */}
         <Grid item xs={12} md={7}>
