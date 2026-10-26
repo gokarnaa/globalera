@@ -1285,6 +1285,7 @@ export function loadDB() {
       studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
       leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
       admissions: parsed.admissions || INITIAL_SEED_DATA.admissions || [],
+      parties: parsed.parties || INITIAL_SEED_DATA.parties || [],
       payments: parsed.payments || INITIAL_SEED_DATA.payments || [],
       trainerPayouts: parsed.trainerPayouts || INITIAL_SEED_DATA.trainerPayouts || [],
       chartOfAccounts: parsed.chartOfAccounts || INITIAL_SEED_DATA.chartOfAccounts || [],

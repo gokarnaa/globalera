@@ -57,11 +57,17 @@ import FinancialReportsView from './FinancialReportsView';
 import ExpenseManagerView from './ExpenseManagerView';
 import ProjectAccountingView from './ProjectAccountingView';
 import DailyCashClosingModal from './DailyCashClosingModal';
+import PartyManagerView from './PartyManagerView';
+import FeeClearanceReceiptModal from './FeeClearanceReceiptModal';
+import StudentPaymentTimelineModal from './StudentPaymentTimelineModal';
 
 import LockIcon from '@mui/icons-material/Lock';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BalanceIcon from '@mui/icons-material/Balance';
 import BusinessIcon from '@mui/icons-material/Business';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import VerifiedIcon from '@mui/icons-material/Verified';
 
 export default function AccountsManager() {
   const [db, setDb] = useState(loadDB());
@@ -76,6 +82,9 @@ export default function AccountsManager() {
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
   const [preselectedStudentId, setPreselectedStudentId] = useState(null);
   const [preselectedTrainerId, setPreselectedTrainerId] = useState(null);
+  const [timelineStudent, setTimelineStudent] = useState(null);
+  const [clearanceStudent, setClearanceStudent] = useState(null);
+  const [clearanceLedger, setClearanceLedger] = useState(null);
 
   // Search & Filters for Student Ledger
   const [searchQuery, setSearchQuery] = useState('');
@@ -646,9 +655,10 @@ export default function AccountsManager() {
           <Tab icon={<TrendingUpIcon />} iconPosition="start" label="वित्तीय ड्यासबोर्ड (Overview)" />
           <Tab icon={<SchoolIcon />} iconPosition="start" label={`विद्यार्थी किस्ता शुल्क खाता (${students.length})`} />
           <Tab icon={<PersonIcon />} iconPosition="start" label={`प्रशिक्षक पारिश्रमिक (${trainers.length})`} />
+          <Tab icon={<StorefrontIcon />} iconPosition="start" label={`पार्टी खाता तथा उधारो (${(db.parties || []).length})`} />
+          <Tab icon={<PaymentsIcon />} iconPosition="start" label={`खर्च तथा घरभाडा (${(db.expenses || []).length})`} />
           <Tab icon={<ReceiptLongIcon />} iconPosition="start" label="दोहोरो लेखा जर्नल (Journals)" />
           <Tab icon={<AccountTreeIcon />} iconPosition="start" label="खाता सूची (COA)" />
-          <Tab icon={<PaymentsIcon />} iconPosition="start" label={`खर्च तथा आपूर्तिकर्ता (${(db.expenses || []).length})`} />
           <Tab icon={<BusinessIcon />} iconPosition="start" label={`नगरपालिका प्रोजेक्ट (${(db.projectContracts || []).length})`} />
           <Tab icon={<BalanceIcon />} iconPosition="start" label="वित्तीय विवरणहरू (Statements)" />
           <Tab icon={<ReceiptLongIcon />} iconPosition="start" label={`कारोबार अडिट (${payments.length + trainerPayouts.length})`} />
@@ -1025,8 +1035,44 @@ export default function AccountsManager() {
                               </Button>
                             )}
 
+                            {l.due === 0 && (
+                              <Tooltip title="आधिकारिक शुल्क चुक्ता प्रमाणपत्र रसिद प्रिन्ट गर्नुहोस्">
+                                <Button
+                                  size="small"
+                                  variant="contained"
+                                  color="warning"
+                                  startIcon={<VerifiedIcon sx={{ fontSize: '1rem !important' }} />}
+                                  onClick={() => {
+                                    setClearanceStudent(st);
+                                    setClearanceLedger(l);
+                                  }}
+                                  sx={{
+                                    bgcolor: '#F59E0B',
+                                    color: '#0F2E5A',
+                                    fontWeight: 900,
+                                    fontSize: '0.74rem',
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
+                                  }}
+                                >
+                                  शुल्क चुक्ता
+                                </Button>
+                              </Tooltip>
+                            )}
+
+                            <Tooltip title="किस्ता टाइमलाइन र इतिहास हेर्नुहोस्">
+                              <IconButton
+                                size="small"
+                                onClick={() => setTimelineStudent({ student: st, ledger: l })}
+                                sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                              >
+                                <AccessTimeIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+
                             {l.paymentCount > 0 && (
-                              <Tooltip title="रसिद हेर्नुहोस् र प्रिन्ट गर्नुहोस्">
+                              <Tooltip title="पछिल्लो रसिद हेर्नुहोस्">
                                 <IconButton
                                   size="small"
                                   onClick={() => {
@@ -1157,44 +1203,51 @@ export default function AccountsManager() {
       )}
 
       {/* ======================================================== */}
-      {/* TAB 3: DOUBLE-ENTRY GENERAL JOURNAL & DAYBOOK            */}
+      {/* TAB 3: PARTY DIRECTORY & CREDIT PURCHASES                 */}
       {/* ======================================================== */}
       {activeTab === 3 && (
-        <DoubleEntryJournalView db={db} setDb={setDb} showToast={showToast} />
+        <PartyManagerView db={db} setDb={setDb} showToast={showToast} />
       )}
 
       {/* ======================================================== */}
-      {/* TAB 4: CHART OF ACCOUNTS (COA)                           */}
+      {/* TAB 4: OPERATING EXPENSES & RENT FACILITIES               */}
       {/* ======================================================== */}
       {activeTab === 4 && (
-        <ChartOfAccountsView db={db} />
-      )}
-
-      {/* ======================================================== */}
-      {/* TAB 5: OPERATING EXPENSES & VENDORS                      */}
-      {/* ======================================================== */}
-      {activeTab === 5 && (
         <ExpenseManagerView db={db} setDb={setDb} showToast={showToast} />
       )}
 
       {/* ======================================================== */}
-      {/* TAB 6: MUNICIPAL & WARD PROJECT ACCOUNTING               */}
+      {/* TAB 5: DOUBLE-ENTRY GENERAL JOURNAL & DAYBOOK            */}
+      {/* ======================================================== */}
+      {activeTab === 5 && (
+        <DoubleEntryJournalView db={db} setDb={setDb} showToast={showToast} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 6: CHART OF ACCOUNTS (COA)                           */}
       {/* ======================================================== */}
       {activeTab === 6 && (
+        <ChartOfAccountsView db={db} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 7: MUNICIPAL & WARD PROJECT ACCOUNTING               */}
+      {/* ======================================================== */}
+      {activeTab === 7 && (
         <ProjectAccountingView db={db} setDb={setDb} showToast={showToast} />
       )}
 
       {/* ======================================================== */}
-      {/* TAB 7: FINANCIAL STATEMENTS (TB, P&L, BALANCE SHEET)     */}
+      {/* TAB 8: FINANCIAL STATEMENTS (TB, P&L, BALANCE SHEET)     */}
       {/* ======================================================== */}
-      {activeTab === 7 && (
+      {activeTab === 8 && (
         <FinancialReportsView db={db} />
       )}
 
       {/* ======================================================== */}
-      {/* TAB 8: ALL TRANSACTIONS AUDIT LOG                        */}
+      {/* TAB 9: ALL TRANSACTIONS AUDIT LOG                        */}
       {/* ======================================================== */}
-      {activeTab === 8 && (
+      {activeTab === 9 && (
         <Card
           elevation={0}
           sx={{
@@ -1364,6 +1417,35 @@ export default function AccountsManager() {
         db={db}
         setDb={setDb}
         showToast={showToast}
+      />
+
+      {/* 5. Official Fee Clearance Certificate Receipt Modal */}
+      <FeeClearanceReceiptModal
+        open={Boolean(clearanceStudent && clearanceLedger)}
+        onClose={() => {
+          setClearanceStudent(null);
+          setClearanceLedger(null);
+        }}
+        student={clearanceStudent}
+        ledger={clearanceLedger}
+        payments={payments}
+      />
+
+      {/* 6. Student Payment Timeline Modal */}
+      <StudentPaymentTimelineModal
+        open={Boolean(timelineStudent)}
+        onClose={() => setTimelineStudent(null)}
+        student={timelineStudent?.student}
+        ledger={timelineStudent?.ledger}
+        payments={payments}
+        onCollectDue={(stdId) => {
+          setPreselectedStudentId(stdId);
+          setOpenCollectModal(true);
+        }}
+        onOpenClearanceCertificate={(st, l) => {
+          setClearanceStudent(st);
+          setClearanceLedger(l);
+        }}
       />
 
       {/* Snackbar Feedback */}
