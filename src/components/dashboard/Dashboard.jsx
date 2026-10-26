@@ -53,6 +53,7 @@ import AddIcon from '@mui/icons-material/Add';
 import ShieldIcon from '@mui/icons-material/Shield';
 import BoltIcon from '@mui/icons-material/Bolt';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
@@ -340,7 +341,31 @@ export default function Dashboard({ onNavigate }) {
                 पाठयोजना (Lesson Plan)
               </Button>
 
-              {/* Button 3: Frosted White Border Pill */}
+              {/* Button 3: Leads CRM Button */}
+              <Button
+                variant="outlined"
+                onClick={() => onNavigate('leads')}
+                startIcon={<ContactPhoneIcon sx={{ color: '#93C5FD' }} />}
+                sx={{
+                  borderColor: 'rgba(147, 197, 253, 0.6) !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  py: 1.2,
+                  px: 2,
+                  borderRadius: 2.5,
+                  bgcolor: 'rgba(30, 64, 175, 0.35)',
+                  backdropFilter: 'blur(8px)',
+                  '&:hover': {
+                    borderColor: '#93C5FD !important',
+                    bgcolor: 'rgba(30, 64, 175, 0.55)'
+                  }
+                }}
+              >
+                सोधपुछ CRM ({db.leads?.length || 0})
+              </Button>
+
+              {/* Button 4: Frosted White Border Pill */}
               <Button
                 variant="outlined"
                 onClick={() => onNavigate('students')}

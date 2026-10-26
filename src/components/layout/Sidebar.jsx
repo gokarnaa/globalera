@@ -35,6 +35,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -51,6 +52,7 @@ const NAV_ITEMS = [
 
   // --- 2. Operational Delivery Chain ---
   { section: '2. OPERATIONS & TRAINING CHAIN' },
+  { id: 'leads', label: 'Lead CRM (सोधपुछ / इन्क्वायरी)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
   { id: 'groups', label: 'Training Batches (समूह)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, countBadge: '8' },
   { id: 'students', label: 'Trainees CRM (विद्यार्थी)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
   { id: 'workplan', label: 'Work Plan (कार्ययोजना)', icon: <EventNoteIcon />, roles: ['ADMIN', 'TRAINER'] },

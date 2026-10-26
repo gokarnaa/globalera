@@ -810,6 +810,107 @@ export const INITIAL_SEED_DATA = {
     }
   ],
 
+  leads: [
+    {
+      id: 'L0001',
+      name: 'Anjali Shrestha',
+      phone: '9841876543',
+      address: 'Jorpati, Kathmandu',
+      subject: 'Beautician',
+      course: 'Basic Beautician',
+      duration: '3 Months (390 hrs)',
+      price: 15000,
+      source: 'Facebook',
+      priority: 'High',
+      stage: 'Interested',
+      notes: 'Interested in morning shift 7-9 AM. Wants to open salon.',
+      followUpDate: '2026-10-27',
+      timeline: [
+        { date: '2026-10-20T10:30:00Z', note: 'Inquiry via Facebook Ad. Sent course syllabus.', staffName: 'Counselor Rita' },
+        { date: '2026-10-22T14:15:00Z', note: 'Phone call discussion. Visited center with mother. Confirmed interest in Morning Shift.', staffName: 'Counselor Rita' }
+      ],
+      createdAt: '2026-10-20T10:30:00Z'
+    },
+    {
+      id: 'L0002',
+      name: 'Ramesh BK',
+      phone: '9801234567',
+      address: 'Boudha, Kathmandu',
+      subject: 'Mobile Repair',
+      course: 'Smartphone Hardware & Software',
+      duration: '2 Months (260 hrs)',
+      price: 18000,
+      source: 'Walk-in',
+      priority: 'High',
+      stage: 'Follow-up',
+      notes: 'Needs practical lab training. Wants installment payment option.',
+      followUpDate: '2026-10-26',
+      timeline: [
+        { date: '2026-10-24T11:00:00Z', note: 'Walk-in inquiry. Inspected repair lab. Informed about 2 installment scheme.', staffName: 'Admin' }
+      ],
+      createdAt: '2026-10-24T11:00:00Z'
+    },
+    {
+      id: 'L0003',
+      name: 'Sarita Karki',
+      phone: '9843112233',
+      address: 'Chabahil, Kathmandu',
+      subject: 'Care Giver',
+      course: 'Professional Caregiver (Home & Geriatric)',
+      duration: '3 Months (420 hrs)',
+      price: 25000,
+      source: 'Referral',
+      priority: 'High',
+      stage: 'Converted',
+      notes: 'Referred by Sunita Sharma. Admitted and paid registration fee.',
+      followUpDate: '',
+      convertedToStudentId: 'STD-01',
+      timeline: [
+        { date: '2026-10-15T09:00:00Z', note: 'Referred by alumni student. Wants Israel/Japan caregiver orientation.', staffName: 'Counselor Rita' },
+        { date: '2026-10-18T13:00:00Z', note: 'Admission confirmed. Converted to Batch CG-01.', staffName: 'Admin' }
+      ],
+      createdAt: '2026-10-15T09:00:00Z'
+    },
+    {
+      id: 'L0004',
+      name: 'Bikash Tamang',
+      phone: '9860998877',
+      address: 'Sankhu, Kathmandu',
+      subject: 'Bakery & Confectionery',
+      course: 'Commercial Bakery & Pastry Production',
+      duration: '2 Months (260 hrs)',
+      price: 22000,
+      source: 'Instagram',
+      priority: 'Medium',
+      stage: 'Contacted',
+      notes: 'Asked for evening shift or weekend batch.',
+      followUpDate: '2026-10-28',
+      timeline: [
+        { date: '2026-10-25T16:20:00Z', note: 'Sent prospectus via WhatsApp. Waiting for schedule confirmation.', staffName: 'Admin' }
+      ],
+      createdAt: '2026-10-25T16:20:00Z'
+    },
+    {
+      id: 'L0005',
+      name: 'Pooja Thapa',
+      phone: '9812445566',
+      address: 'Kapan, Kathmandu',
+      subject: 'Tailoring & Garment',
+      course: 'Basic Tailoring & Dress Making',
+      duration: '3 Months (390 hrs)',
+      price: 16000,
+      source: 'Website',
+      priority: 'Low',
+      stage: 'New Lead',
+      notes: 'Online website form submission.',
+      followUpDate: '2026-10-26',
+      timeline: [
+        { date: '2026-10-26T08:00:00Z', note: 'Lead captured from Website Inquiry Form.', staffName: 'System' }
+      ],
+      createdAt: '2026-10-26T08:00:00Z'
+    }
+  ],
+
   settings: {
     instituteName: 'KITE CAREGIVER TRAINING CENTER',
     instituteSub: 'ग्लोबल एरा प्राविधिक स्कुल',
@@ -846,6 +947,7 @@ export function loadDB() {
       snapshots: parsed.snapshots || INITIAL_SEED_DATA.snapshots,
       auditLogs: parsed.auditLogs || INITIAL_SEED_DATA.auditLogs,
       studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
+      leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
