@@ -41,8 +41,6 @@ import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
-import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
-import CertificateWizardModal from './CertificateWizardModal';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
 
@@ -60,7 +58,6 @@ export default function CertificateManager() {
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
 
   // Modal State
-  const [wizardOpen, setWizardOpen] = useState(false);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
   const [activeCertificateItem, setActiveCertificateItem] = useState(null);
 
@@ -248,27 +245,13 @@ export default function CertificateManager() {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            startIcon={<AutoFixHighIcon />}
-            onClick={() => setWizardOpen(true)}
-            sx={{
-              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-              fontWeight: 900,
-              px: 2.5,
-              borderRadius: 2,
-              boxShadow: '0 4px 14px rgba(15, 46, 90, 0.3)'
-            }}
-          >
-            नयाँ प्रमाणपत्र विसार्ड (Certificate Wizard)
-          </Button>
-
           {eligiblePendingCount > 0 && (
             <Button
-              variant="outlined"
+              variant="contained"
+              color="primary"
               startIcon={<VerifiedIcon />}
               onClick={handleBulkIssueEligible}
-              sx={{ fontWeight: 800, borderColor: '#0B2545', color: '#0B2545' }}
+              sx={{ fontWeight: 800, bgcolor: '#0b2545' }}
             >
               Bulk Issue ({eligiblePendingCount} Eligible)
             </Button>
@@ -713,19 +696,6 @@ export default function CertificateManager() {
           })}
         </Grid>
       )}
-
-      {/* Certificate Wizard Suite V2.0 */}
-      <CertificateWizardModal
-        open={wizardOpen}
-        onClose={() => {
-          setWizardOpen(false);
-          setDb(loadDB());
-        }}
-        initialGroupId={selectedGroupId}
-        onIssued={() => {
-          setDb(loadDB());
-        }}
-      />
 
       {/* Official A4 Landscape Printable Modal */}
       {activeCertificateItem && (

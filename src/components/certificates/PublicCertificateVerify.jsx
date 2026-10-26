@@ -33,21 +33,10 @@ export default function PublicCertificateVerify({
   if (!open) return null;
 
   const isValid = Boolean(certificate && student);
-  const snapshot = certificate?.snapshot || {};
-  const isRevoked = certificate?.status === 'REVOKED';
-
-  const studentName = snapshot.studentNameEn || student?.name;
-  const studentNameNp = snapshot.studentNameNp || student?.nameNp;
-  const courseTitle = snapshot.courseTitleEn || course?.title || 'Vocational Training';
-  const totalHours = snapshot.totalHours || course?.totalHours || 390;
-  const guardianName = snapshot.guardianNameEn || student?.fatherName || student?.guardianName || '—';
-  const address = snapshot.addressEn || student?.permanentAddress || 'Nepal';
-  const startDate = snapshot.startDate || group?.admissionDate || '2026-07-15';
-  const endDate = snapshot.endDate || group?.expectedEndDate || '2026-10-15';
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <Box sx={{ bgcolor: isRevoked ? '#7f1d1d' : '#0b2545', color: '#ffffff', p: 2.5, textAlign: 'center', position: 'relative' }}>
+      <Box sx={{ bgcolor: '#0b2545', color: '#ffffff', p: 2.5, textAlign: 'center', position: 'relative' }}>
         <IconButton
           onClick={onClose}
           sx={{ position: 'absolute', top: 12, right: 12, color: '#94a3b8' }}
@@ -56,13 +45,13 @@ export default function PublicCertificateVerify({
         </IconButton>
 
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
-          <Avatar sx={{ bgcolor: isRevoked ? '#dc2626' : '#16834b', width: 56, height: 56 }}>
+          <Avatar sx={{ bgcolor: '#16834b', width: 56, height: 56 }}>
             <VerifiedIcon sx={{ fontSize: 36, color: '#ffffff' }} />
           </Avatar>
         </Box>
 
         <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.04em' }}>
-          {isRevoked ? 'CERTIFICATE REVOKED' : 'OFFICIAL CREDENTIAL VERIFICATION'}
+          OFFICIAL CREDENTIAL VERIFICATION
         </Typography>
         <Typography variant="caption" sx={{ color: '#cbd5e1', display: 'block' }}>
           प्रमाणीकरण पोर्टल • CTEVT Accredited Institution
@@ -78,25 +67,21 @@ export default function PublicCertificateVerify({
               sx={{
                 p: 2,
                 mb: 2.5,
-                bgcolor: isRevoked ? '#fef2f2' : '#e5f8ee',
-                border: `1.5px solid ${isRevoked ? '#dc2626' : '#16834b'}`,
+                bgcolor: '#e5f8ee',
+                border: '1.5px solid #16834b',
                 borderRadius: 2,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1.5
               }}
             >
-              <CheckCircleIcon sx={{ color: isRevoked ? '#dc2626' : '#16834b', fontSize: 30 }} />
+              <CheckCircleIcon sx={{ color: '#16834b', fontSize: 30 }} />
               <Box>
-                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: isRevoked ? '#dc2626' : '#16834b' }}>
-                  {isRevoked
-                    ? '⚠️ CERTIFICATE HAS BEEN REVOKED (रद्द गरिएको प्रमाणपत्र)'
-                    : 'CERTIFIED AUTHENTIC & VALID (सक्कल अभिलेख प्रमाणित)'}
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#16834b' }}>
+                  CERTIFIED AUTHENTIC & VALID (सक्कल अभिलेख प्रमाणित)
                 </Typography>
-                <Typography variant="caption" sx={{ color: isRevoked ? '#991b1b' : '#276749', display: 'block' }}>
-                  {isRevoked
-                    ? 'This certificate has been revoked and is no longer valid for official purposes.'
-                    : 'This vocational training completion certificate is genuine and officially recorded.'}
+                <Typography variant="caption" sx={{ color: '#276749', display: 'block' }}>
+                  This vocational training completion certificate is genuine and officially recorded.
                 </Typography>
                 {isCloudVerified && (
                   <Chip
@@ -112,17 +97,17 @@ export default function PublicCertificateVerify({
             <Card sx={{ p: 2, mb: 2, borderRadius: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 1.5 }}>
                 <Avatar
-                  src={student?.photoUrl}
+                  src={student.photoUrl}
                   sx={{ width: 52, height: 52, bgcolor: '#1a56b0', fontWeight: 900 }}
                 >
-                  {studentName?.[0]}
+                  {student.name?.[0]}
                 </Avatar>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: '#0f172a', fontSize: '1.15rem' }}>
-                    {studentName} {studentNameNp ? `(${studentNameNp})` : ''}
+                    {student.name}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontWeight: 700 }}>
-                    TGID / Reg: <b>{student?.tgid}</b> • Gender: {student?.gender || '—'}
+                    TGID / Reg: <b>{student.tgid}</b> • Gender: {student.gender || '—'}
                   </Typography>
                 </Box>
               </Box>
@@ -153,7 +138,7 @@ export default function PublicCertificateVerify({
                     COURSE / PROGRAM (पाठ्यक्रम):
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
-                    {courseTitle} ({totalHours} Hours)
+                    {course?.title || 'Vocational Training'} ({course?.totalHours || 390} Hours)
                   </Typography>
                 </Grid>
 
@@ -162,7 +147,7 @@ export default function PublicCertificateVerify({
                     FATHER / GUARDIAN:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {guardianName}
+                    {student.fatherName || student.guardianName || '—'}
                   </Typography>
                 </Grid>
 
@@ -171,7 +156,7 @@ export default function PublicCertificateVerify({
                     PERMANENT ADDRESS:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {address}
+                    {student.permanentAddress || 'Nepal'}
                   </Typography>
                 </Grid>
 
@@ -180,7 +165,7 @@ export default function PublicCertificateVerify({
                     TRAINING PERIOD (तालिम अवधि):
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                    {startDate} → {endDate}
+                    {group?.admissionDate || '2026-07-15'} → {group?.expectedEndDate || '2026-10-15'}
                   </Typography>
                 </Grid>
               </Grid>

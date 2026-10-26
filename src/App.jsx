@@ -214,7 +214,6 @@ export default function App() {
       case 'students':
         return <StudentManager />;
       case 'fees':
-        return <AccountsManager initialTab={1} />;
       case 'accounts':
         return <AccountsManager initialTab={0} />;
       case 'workplan':
