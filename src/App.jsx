@@ -22,6 +22,7 @@ import TrainingGroupManager from './components/groups/TrainingGroupManager';
 import SyllabusManager from './components/syllabus/SyllabusManager';
 import StudentManager from './components/students/StudentManager';
 import LeadManager from './components/leads/LeadManager';
+import AccountsManager from './components/accounts/AccountsManager';
 import WorkPlanManager from './components/workplan/WorkPlanManager';
 import LessonPlanManager from './components/lessonplan/LessonPlanManager';
 import AttendanceManager from './components/attendance/AttendanceManager';
@@ -209,6 +210,8 @@ export default function App() {
         return <LeadManager />;
       case 'students':
         return <StudentManager />;
+      case 'accounts':
+        return <AccountsManager />;
       case 'workplan':
         return <WorkPlanManager />;
       case 'lessonplan':

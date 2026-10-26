@@ -36,6 +36,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -55,6 +56,7 @@ const NAV_ITEMS = [
   { id: 'leads', label: 'Lead CRM (सोधपुछ / इन्क्वायरी)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
   { id: 'groups', label: 'Training Batches (समूह)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, countBadge: '8' },
   { id: 'students', label: 'Trainees CRM (विद्यार्थी)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
+  { id: 'accounts', label: 'Accounts & Fees (शुल्क तथा लेखा)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
   { id: 'workplan', label: 'Work Plan (कार्ययोजना)', icon: <EventNoteIcon />, roles: ['ADMIN', 'TRAINER'] },
   { id: 'lessonplan', label: 'Lesson Plan (पाठ-तयारी)', icon: <AssignmentIcon />, roles: ['ADMIN', 'TRAINER'] },
   { id: 'attendance', label: 'Daily Attendance (हाजिरी)', icon: <FactCheckIcon />, roles: ['ADMIN', 'TRAINER'], highlight: true, countBadge: 'Live' },

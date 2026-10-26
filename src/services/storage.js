@@ -95,6 +95,8 @@ export const INITIAL_SEED_DATA = {
       pin: '1234',
       status: 'Active',
       specialization: 'Cosmetology & Hair Styling',
+      remunerationType: 'COMMISSION',
+      monthlySalary: 0,
       photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
     },
     {
@@ -105,6 +107,8 @@ export const INITIAL_SEED_DATA = {
       pin: '2345',
       status: 'Active',
       specialization: 'Senior Care & Nursing Fundamentals',
+      remunerationType: 'SALARY',
+      monthlySalary: 25000,
       photo: 'https://images.unsplash.com/photo-1594824813576-9658f86f780e?w=150&auto=format&fit=crop&q=80'
     },
     {
@@ -115,6 +119,8 @@ export const INITIAL_SEED_DATA = {
       pin: '3456',
       status: 'Active',
       specialization: 'Fashion Drafting & Pattern Cutting',
+      remunerationType: 'COMMISSION',
+      monthlySalary: 0,
       photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'
     },
     {
@@ -125,6 +131,8 @@ export const INITIAL_SEED_DATA = {
       pin: '4567',
       status: 'Active',
       specialization: 'Pastry Arts & Baking Science',
+      remunerationType: 'BOTH',
+      monthlySalary: 15000,
       photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'
     }
   ],
@@ -140,6 +148,7 @@ export const INITIAL_SEED_DATA = {
       endTime: '09:00 AM',
       startDate: '2026-09-01',
       expectedEndDate: '2026-12-01',
+      trainerCommissionPercent: 25,
       status: 'Running'
     },
     {
@@ -152,6 +161,7 @@ export const INITIAL_SEED_DATA = {
       endTime: '12:00 PM',
       startDate: '2026-09-15',
       expectedEndDate: '2026-12-15',
+      trainerCommissionPercent: 20,
       status: 'Running'
     },
     {
@@ -164,6 +174,7 @@ export const INITIAL_SEED_DATA = {
       endTime: '02:00 PM',
       startDate: '2026-08-01',
       expectedEndDate: '2026-11-01',
+      trainerCommissionPercent: 30,
       status: 'OJT Phase'
     }
   ],
@@ -911,6 +922,132 @@ export const INITIAL_SEED_DATA = {
     }
   ],
 
+  payments: [
+    {
+      id: 'PAY-0001',
+      receiptNo: 'REC-2026-0001',
+      studentId: 'STD-01',
+      studentName: 'Sunita Sharma',
+      tgid: 'TGID-101',
+      groupId: 'GRP-01',
+      courseName: 'Basic Beautician',
+      originalFee: 30000,
+      discountPercent: 60,
+      discountAmount: 18000,
+      admissionFee: 1700,
+      lockedCourseFee: 11865,
+      amount: 6000,
+      paymentDate: '2026-09-01',
+      paymentMonth: '2026-09',
+      paymentMethod: 'Fonepay / QR',
+      installmentNo: 1,
+      remarks: 'पहिलो किस्ता (50% upfront admission)',
+      receivedBy: 'Admin / Cashier',
+      createdAt: '2026-09-01T10:30:00Z'
+    },
+    {
+      id: 'PAY-0002',
+      receiptNo: 'REC-2026-0002',
+      studentId: 'STD-01',
+      studentName: 'Sunita Sharma',
+      tgid: 'TGID-101',
+      groupId: 'GRP-01',
+      courseName: 'Basic Beautician',
+      originalFee: 30000,
+      discountPercent: 60,
+      discountAmount: 18000,
+      admissionFee: 1700,
+      lockedCourseFee: 11865,
+      amount: 5865,
+      paymentDate: '2026-10-01',
+      paymentMonth: '2026-10',
+      paymentMethod: 'Cash',
+      installmentNo: 2,
+      remarks: 'दोस्रो किस्ता (Remaining 50% cleared)',
+      receivedBy: 'Admin / Cashier',
+      createdAt: '2026-10-01T11:15:00Z'
+    },
+    {
+      id: 'PAY-0003',
+      receiptNo: 'REC-2026-0003',
+      studentId: 'STD-02',
+      studentName: 'Aarati Chaudhary',
+      tgid: 'TGID-102',
+      groupId: 'GRP-01',
+      courseName: 'Basic Beautician',
+      originalFee: 30000,
+      discountPercent: 60,
+      discountAmount: 18000,
+      admissionFee: 1700,
+      lockedCourseFee: 11865,
+      amount: 6000,
+      paymentDate: '2026-09-01',
+      paymentMonth: '2026-09',
+      paymentMethod: 'eSewa',
+      installmentNo: 1,
+      remarks: 'पहिलो किस्ता भर्ना शुल्क',
+      receivedBy: 'Accountant',
+      createdAt: '2026-09-01T14:00:00Z'
+    },
+    {
+      id: 'PAY-0004',
+      receiptNo: 'REC-2026-0004',
+      studentId: 'STD-03',
+      studentName: 'Manish Adhikari',
+      tgid: 'TGID-103',
+      groupId: 'GRP-02',
+      courseName: 'Professional Caregiver (Home & Geriatric)',
+      originalFee: 35000,
+      discountPercent: 40,
+      discountAmount: 14000,
+      admissionFee: 2000,
+      lockedCourseFee: 23000,
+      amount: 12000,
+      paymentDate: '2026-09-15',
+      paymentMonth: '2026-09',
+      paymentMethod: 'Bank Transfer',
+      installmentNo: 1,
+      remarks: 'पहिलो किस्ता (50% Deposit)',
+      receivedBy: 'Accountant',
+      createdAt: '2026-09-15T09:30:00Z'
+    }
+  ],
+
+  trainerPayouts: [
+    {
+      id: 'TRP-0001',
+      voucherNo: 'VCH-2026-0001',
+      trainerId: 'TRN-01',
+      trainerName: 'Pooja Rajbanshi',
+      payoutType: 'COMMISSION',
+      groupId: 'GRP-01',
+      groupName: 'BT-01 (Basic Beautician)',
+      amount: 4466,
+      payoutDate: '2026-10-05',
+      payoutMonth: '2026-10',
+      paymentMethod: 'Bank Transfer',
+      remarks: 'ब्याच BT-01 संकलित शुल्कबाट २५% कमिसन निकासा',
+      disbursedBy: 'Admin',
+      createdAt: '2026-10-05T15:00:00Z'
+    },
+    {
+      id: 'TRP-0002',
+      voucherNo: 'VCH-2026-0002',
+      trainerId: 'TRN-02',
+      trainerName: 'Dr. Anita Joshi',
+      payoutType: 'SALARY',
+      groupId: '',
+      groupName: '',
+      amount: 25000,
+      payoutDate: '2026-10-01',
+      payoutMonth: '2026-09',
+      paymentMethod: 'Bank Transfer',
+      remarks: 'असोज महिनाको मासिक तलब (September Salary)',
+      disbursedBy: 'Admin',
+      createdAt: '2026-10-01T12:00:00Z'
+    }
+  ],
+
   settings: {
     instituteName: 'KITE CAREGIVER TRAINING CENTER',
     instituteSub: 'ग्लोबल एरा प्राविधिक स्कुल',
@@ -948,6 +1085,8 @@ export function loadDB() {
       auditLogs: parsed.auditLogs || INITIAL_SEED_DATA.auditLogs,
       studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
       leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
+      payments: parsed.payments || INITIAL_SEED_DATA.payments || [],
+      trainerPayouts: parsed.trainerPayouts || INITIAL_SEED_DATA.trainerPayouts || [],
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
