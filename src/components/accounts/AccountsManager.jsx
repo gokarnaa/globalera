@@ -47,9 +47,21 @@ import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
+import { postDoubleEntryJournal } from '../../services/storage';
 import RecordPaymentModal from './RecordPaymentModal';
 import TrainerPayoutModal from './TrainerPayoutModal';
 import ReceiptModal from './ReceiptModal';
+import DoubleEntryJournalView from './DoubleEntryJournalView';
+import ChartOfAccountsView from './ChartOfAccountsView';
+import FinancialReportsView from './FinancialReportsView';
+import ExpenseManagerView from './ExpenseManagerView';
+import ProjectAccountingView from './ProjectAccountingView';
+import DailyCashClosingModal from './DailyCashClosingModal';
+
+import LockIcon from '@mui/icons-material/Lock';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import BalanceIcon from '@mui/icons-material/Balance';
+import BusinessIcon from '@mui/icons-material/Business';
 
 export default function AccountsManager() {
   const [db, setDb] = useState(loadDB());
@@ -60,6 +72,7 @@ export default function AccountsManager() {
   // Modals state
   const [openCollectModal, setOpenCollectModal] = useState(false);
   const [openPayoutModal, setOpenPayoutModal] = useState(false);
+  const [openCashClosingModal, setOpenCashClosingModal] = useState(false);
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
   const [preselectedStudentId, setPreselectedStudentId] = useState(null);
   const [preselectedTrainerId, setPreselectedTrainerId] = useState(null);
@@ -277,21 +290,64 @@ export default function AccountsManager() {
       .sort((a, b) => new Date(b.date) - new Date(a.date));
   }, [payments, trainerPayouts, txTypeFilter, txSearch]);
 
-  // Save new Student Payment
+  // Save new Student Payment with Auto Double-Entry Posting
   const handleSavePayment = (newPayment) => {
-    const updatedPayments = [newPayment, ...payments];
-    const nextDb = { ...db, payments: updatedPayments };
+    const isDigital = newPayment.paymentMethod !== 'Cash';
+    const debitAcc = isDigital ? '1020' : '1010';
+    const payAmt = Number(newPayment.amount) || 0;
+
+    let dbToUpdate = db;
+    try {
+      const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
+        narration: `विद्यार्थी ${newPayment.studentName} शुल्क संकलन (${newPayment.receiptNo})`,
+        lines: [
+          { accountCode: debitAcc, debit: payAmt, credit: 0, lineNarration: `Receipt ${newPayment.receiptNo} via ${newPayment.paymentMethod}` },
+          { accountCode: '4100', debit: 0, credit: payAmt, lineNarration: `${newPayment.courseName || 'Training'} Fee Collection` }
+        ],
+        sourceModule: 'STUDENT_FEE',
+        sourceId: newPayment.receiptNo,
+        entryDate: newPayment.paymentDate
+      });
+      dbToUpdate = nextDb;
+    } catch (e) {
+      console.warn('Auto journal post warning:', e);
+    }
+
+    const updatedPayments = [newPayment, ...(dbToUpdate.payments || [])];
+    const nextDb = { ...dbToUpdate, payments: updatedPayments };
     saveDB(nextDb);
     setDb(nextDb);
     showToast(`रसिद ${newPayment.receiptNo} जारी भयो (Payment Rs. ${newPayment.amount.toLocaleString()} recorded).`);
-    // Prompt receipt modal right away!
     setSelectedReceiptPayment(newPayment);
   };
 
-  // Save new Trainer Payout
+  // Save new Trainer Payout with Auto Double-Entry Posting
   const handleSavePayout = (newPayout) => {
-    const updatedPayouts = [newPayout, ...trainerPayouts];
-    const nextDb = { ...db, trainerPayouts: updatedPayouts };
+    const isDigital = newPayout.paymentMethod !== 'Cash';
+    const creditAcc = isDigital ? '1020' : '1010';
+    const payoutAmt = Number(newPayout.amount) || 0;
+    const isSalary = newPayout.payoutType === 'SALARY';
+    const debitAcc = isSalary ? '5110' : '5100';
+
+    let dbToUpdate = db;
+    try {
+      const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
+        narration: `प्रशिक्षक ${newPayout.trainerName} पारिश्रमिक निकासा (${newPayout.voucherNo})`,
+        lines: [
+          { accountCode: debitAcc, debit: payoutAmt, credit: 0, lineNarration: newPayout.remarks || 'Trainer remuneration' },
+          { accountCode: creditAcc, debit: 0, credit: payoutAmt, lineNarration: `Paid via ${newPayout.paymentMethod}` }
+        ],
+        sourceModule: 'TRAINER_PAYOUT',
+        sourceId: newPayout.voucherNo,
+        entryDate: newPayout.payoutDate
+      });
+      dbToUpdate = nextDb;
+    } catch (e) {
+      console.warn('Auto journal payout warning:', e);
+    }
+
+    const updatedPayouts = [newPayout, ...(dbToUpdate.trainerPayouts || [])];
+    const nextDb = { ...dbToUpdate, trainerPayouts: updatedPayouts };
     saveDB(nextDb);
     setDb(nextDb);
     showToast(`भौचर ${newPayout.voucherNo} जारी भयो (Payout Rs. ${newPayout.amount.toLocaleString()} disbursed).`);
@@ -361,6 +417,23 @@ export default function AccountsManager() {
         </Box>
 
         <Stack direction="row" spacing={1.5} flexWrap="wrap">
+          <Button
+            variant="outlined"
+            onClick={() => setOpenCashClosingModal(true)}
+            startIcon={<LockIcon />}
+            sx={{
+              fontWeight: 700,
+              borderRadius: 2.5,
+              borderColor: '#CBD5E1',
+              color: '#1E293B',
+              bgcolor: '#FFFFFF',
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#F8FAFC' }
+            }}
+          >
+            🔒 दैनिक नगद क्लोजिङ (Cash Closing)
+          </Button>
+
           <Button
             variant="outlined"
             onClick={handleExportExcel}
@@ -558,6 +631,8 @@ export default function AccountsManager() {
         <Tabs
           value={activeTab}
           onChange={(e, next) => setActiveTab(next)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
             px: 2,
             '& .MuiTab-root': {
@@ -568,10 +643,15 @@ export default function AccountsManager() {
             }
           }}
         >
-          <Tab icon={<TrendingUpIcon />} iconPosition="start" label="वित्तीय ड्यासबोर्ड (Financial Overview)" />
+          <Tab icon={<TrendingUpIcon />} iconPosition="start" label="वित्तीय ड्यासबोर्ड (Overview)" />
           <Tab icon={<SchoolIcon />} iconPosition="start" label={`विद्यार्थी किस्ता शुल्क खाता (${students.length})`} />
-          <Tab icon={<PersonIcon />} iconPosition="start" label={`प्रशिक्षक पारिश्रमिक तथा कमिसन (${trainers.length})`} />
-          <Tab icon={<ReceiptLongIcon />} iconPosition="start" label={`सम्पूर्ण कारोबार लेजर (${payments.length + trainerPayouts.length})`} />
+          <Tab icon={<PersonIcon />} iconPosition="start" label={`प्रशिक्षक पारिश्रमिक (${trainers.length})`} />
+          <Tab icon={<ReceiptLongIcon />} iconPosition="start" label="दोहोरो लेखा जर्नल (Journals)" />
+          <Tab icon={<AccountTreeIcon />} iconPosition="start" label="खाता सूची (COA)" />
+          <Tab icon={<PaymentsIcon />} iconPosition="start" label={`खर्च तथा आपूर्तिकर्ता (${(db.expenses || []).length})`} />
+          <Tab icon={<BusinessIcon />} iconPosition="start" label={`नगरपालिका प्रोजेक्ट (${(db.projectContracts || []).length})`} />
+          <Tab icon={<BalanceIcon />} iconPosition="start" label="वित्तीय विवरणहरू (Statements)" />
+          <Tab icon={<ReceiptLongIcon />} iconPosition="start" label={`कारोबार अडिट (${payments.length + trainerPayouts.length})`} />
         </Tabs>
       </Paper>
 
@@ -1077,9 +1157,44 @@ export default function AccountsManager() {
       )}
 
       {/* ======================================================== */}
-      {/* TAB 3: ALL TRANSACTIONS AUDIT LOG                        */}
+      {/* TAB 3: DOUBLE-ENTRY GENERAL JOURNAL & DAYBOOK            */}
       {/* ======================================================== */}
       {activeTab === 3 && (
+        <DoubleEntryJournalView db={db} setDb={setDb} showToast={showToast} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 4: CHART OF ACCOUNTS (COA)                           */}
+      {/* ======================================================== */}
+      {activeTab === 4 && (
+        <ChartOfAccountsView db={db} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 5: OPERATING EXPENSES & VENDORS                      */}
+      {/* ======================================================== */}
+      {activeTab === 5 && (
+        <ExpenseManagerView db={db} setDb={setDb} showToast={showToast} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 6: MUNICIPAL & WARD PROJECT ACCOUNTING               */}
+      {/* ======================================================== */}
+      {activeTab === 6 && (
+        <ProjectAccountingView db={db} setDb={setDb} showToast={showToast} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 7: FINANCIAL STATEMENTS (TB, P&L, BALANCE SHEET)     */}
+      {/* ======================================================== */}
+      {activeTab === 7 && (
+        <FinancialReportsView db={db} />
+      )}
+
+      {/* ======================================================== */}
+      {/* TAB 8: ALL TRANSACTIONS AUDIT LOG                        */}
+      {/* ======================================================== */}
+      {activeTab === 8 && (
         <Card
           elevation={0}
           sx={{
@@ -1240,6 +1355,15 @@ export default function AccountsManager() {
         group={groups.find((g) => g.id === selectedReceiptPayment?.groupId)}
         course={courses.find((c) => c.title === selectedReceiptPayment?.courseName)}
         settings={db.settings}
+      />
+
+      {/* 4. Daily Counter Cash Closing Modal */}
+      <DailyCashClosingModal
+        open={openCashClosingModal}
+        onClose={() => setOpenCashClosingModal(false)}
+        db={db}
+        setDb={setDb}
+        showToast={showToast}
       />
 
       {/* Snackbar Feedback */}

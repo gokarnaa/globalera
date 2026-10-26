@@ -1048,6 +1048,205 @@ export const INITIAL_SEED_DATA = {
     }
   ],
 
+  // -------------------------------------------------------------
+  // CENTRAL DOUBLE-ENTRY ACCOUNTING & FINANCIAL MANAGEMENT MODULE
+  // -------------------------------------------------------------
+  chartOfAccounts: [
+    { code: '1010', name: 'Cash on Hand (Counter Petty Cash)', type: 'ASSET', normalBalance: 'DEBIT', balance: 44000 },
+    { code: '1020', name: 'Bank & Digital QR (Fonepay / eSewa)', type: 'ASSET', normalBalance: 'DEBIT', balance: 135000 },
+    { code: '1200', name: 'Student Accounts Receivable', type: 'ASSET', normalBalance: 'DEBIT', balance: 18500 },
+    { code: '1250', name: 'Municipal & Institutional Project Receivables', type: 'ASSET', normalBalance: 'DEBIT', balance: 0 },
+    { code: '1500', name: 'Vocational Training Equipment & Assets', type: 'ASSET', normalBalance: 'DEBIT', balance: 120000 },
+    { code: '2010', name: 'Accounts Payable (Suppliers / Vendors)', type: 'LIABILITY', normalBalance: 'CREDIT', balance: 0 },
+    { code: '2110', name: 'Trainer Commission Payable', type: 'LIABILITY', normalBalance: 'CREDIT', balance: 1500 },
+    { code: '2120', name: 'Staff Salary Payable', type: 'LIABILITY', normalBalance: 'CREDIT', balance: 0 },
+    { code: '2200', name: 'Advance / Unearned Student Fees', type: 'LIABILITY', normalBalance: 'CREDIT', balance: 0 },
+    { code: '2300', name: 'TDS & Tax Withholding Payable', type: 'LIABILITY', normalBalance: 'CREDIT', balance: 0 },
+    { code: '3010', name: "Owner's Capital", type: 'EQUITY', normalBalance: 'CREDIT', balance: 250000 },
+    { code: '3020', name: 'Retained Earnings', type: 'EQUITY', normalBalance: 'CREDIT', balance: 19135 },
+    { code: '4100', name: 'Vocational Course Training Revenue', type: 'REVENUE', normalBalance: 'CREDIT', balance: 35730 },
+    { code: '4110', name: 'Student Admission Fees', type: 'REVENUE', normalBalance: 'CREDIT', balance: 5100 },
+    { code: '4200', name: 'Municipality & Ward Project Revenue', type: 'REVENUE', normalBalance: 'CREDIT', balance: 0 },
+    { code: '4300', name: 'Certificate & Skill Testing Fees', type: 'REVENUE', normalBalance: 'CREDIT', balance: 2500 },
+    { code: '5100', name: 'Trainer Commission Expense', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 5966 },
+    { code: '5110', name: 'Trainer Fixed Salary Expense', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 25000 },
+    { code: '5200', name: 'Staff Payroll & Office Wages', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 20000 },
+    { code: '5300', name: 'Practical Raw Materials & Supplies', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 14200 },
+    { code: '5400', name: 'Center Rent & Electricity / Water', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 37200 },
+    { code: '5500', name: 'Marketing, Counseling & Social Ads', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 6500 },
+    { code: '5600', name: 'Repairs, Equipment Maintenance & IT', type: 'EXPENSE', normalBalance: 'DEBIT', balance: 3000 }
+  ],
+
+  journalEntries: [
+    {
+      id: 'JV-2026-0001',
+      entryNumber: 'JV-2026-0001',
+      entryDate: '2026-09-01',
+      narration: 'संस्था स्थापना पुँजी दाखिला (Owner Capital Injection into Cash & Bank)',
+      sourceModule: 'CAPITAL',
+      sourceId: 'CAP-01',
+      status: 'POSTED',
+      postedBy: 'Super Admin',
+      createdAt: '2026-09-01T08:00:00Z',
+      lines: [
+        { accountCode: '1010', accountName: 'Cash on Hand', debit: 50000, credit: 0, lineNarration: 'Initial petty cash' },
+        { accountCode: '1020', accountName: 'Bank & Digital QR', debit: 200000, credit: 0, lineNarration: 'Nabil Bank opening balance' },
+        { accountCode: '3010', accountName: "Owner's Capital", debit: 0, credit: 250000, lineNarration: 'Founder equity contribution' }
+      ]
+    },
+    {
+      id: 'JV-2026-0002',
+      entryNumber: 'JV-2026-0002',
+      entryDate: '2026-09-01',
+      narration: 'विद्यार्थी Sunita Sharma भर्ना किस्ता संकलन (REC-2026-0001)',
+      sourceModule: 'STUDENT_FEE',
+      sourceId: 'REC-2026-0001',
+      status: 'POSTED',
+      postedBy: 'Cashier',
+      createdAt: '2026-09-01T10:30:00Z',
+      lines: [
+        { accountCode: '1020', accountName: 'Bank & Digital QR', debit: 6000, credit: 0, lineNarration: 'Fonepay QR Collection' },
+        { accountCode: '4100', accountName: 'Vocational Course Training Revenue', debit: 0, credit: 6000, lineNarration: 'Basic Beautician 1st Installment' }
+      ]
+    },
+    {
+      id: 'JV-2026-0003',
+      entryNumber: 'JV-2026-0003',
+      entryDate: '2026-09-01',
+      narration: 'प्रशिक्षक Pooja Rajbanshi २५% कमिसन दायित्व खर्च (Accrual on REC-0001)',
+      sourceModule: 'TRAINER_COMMISSION',
+      sourceId: 'REC-2026-0001',
+      status: 'POSTED',
+      postedBy: 'System',
+      createdAt: '2026-09-01T10:30:00Z',
+      lines: [
+        { accountCode: '5100', accountName: 'Trainer Commission Expense', debit: 1500, credit: 0, lineNarration: '25% on Rs. 6000 cash collection' },
+        { accountCode: '2110', accountName: 'Trainer Commission Payable', debit: 0, credit: 1500, lineNarration: 'Liability payable to Pooja Rajbanshi' }
+      ]
+    },
+    {
+      id: 'JV-2026-0004',
+      entryNumber: 'JV-2026-0004',
+      entryDate: '2026-09-05',
+      narration: 'जोरपाटी तालिम केन्द्र भवन भाडा तथा बत्ती भुक्तानी',
+      sourceModule: 'EXPENSE',
+      sourceId: 'EXP-001',
+      status: 'POSTED',
+      postedBy: 'Admin',
+      createdAt: '2026-09-05T14:00:00Z',
+      lines: [
+        { accountCode: '5400', accountName: 'Center Rent & Electricity', debit: 35000, credit: 0, lineNarration: 'Rent & Electricity September' },
+        { accountCode: '1020', accountName: 'Bank & Digital QR', debit: 0, credit: 35000, lineNarration: 'Bank cheque payment' }
+      ]
+    },
+    {
+      id: 'JV-2026-0005',
+      entryNumber: 'JV-2026-0005',
+      entryDate: '2026-09-10',
+      narration: 'सिलाई तथा ब्युटिसियन प्रयोगात्मक कच्चा सामग्री खरिद',
+      sourceModule: 'EXPENSE',
+      sourceId: 'EXP-002',
+      status: 'POSTED',
+      postedBy: 'Admin',
+      createdAt: '2026-09-10T16:00:00Z',
+      lines: [
+        { accountCode: '5300', accountName: 'Practical Raw Materials & Supplies', debit: 12000, credit: 0, lineNarration: 'Fabrics, thread, facial creams' },
+        { accountCode: '1010', accountName: 'Cash on Hand', debit: 0, credit: 12000, lineNarration: 'Counter cash paid' }
+      ]
+    }
+  ],
+
+  expenses: [
+    {
+      id: 'EXP-001',
+      voucherNo: 'EXP-2026-0001',
+      date: '2026-09-05',
+      category: 'Rent & Facilities',
+      payee: 'Gokarneshwor Building Owner',
+      amount: 35000,
+      paymentMethod: 'Bank Transfer',
+      accountCode: '5400',
+      description: 'Prabidhik School Jorpati 3rd floor training center rent and water charges',
+      status: 'Paid',
+      recordedBy: 'Admin'
+    },
+    {
+      id: 'EXP-002',
+      voucherNo: 'EXP-2026-0002',
+      date: '2026-09-10',
+      category: 'Training Materials',
+      payee: 'Newroad Wholesale Fabrics & Beauty Supplies',
+      amount: 12000,
+      paymentMethod: 'Cash',
+      accountCode: '5300',
+      description: 'Kurtha-suruwal fabrics, sewing machine needles, bleaching creams, and makeup sponges',
+      status: 'Paid',
+      recordedBy: 'Admin'
+    },
+    {
+      id: 'EXP-003',
+      voucherNo: 'EXP-2026-0003',
+      date: '2026-09-20',
+      category: 'Utilities & Internet',
+      payee: 'WorldLink Communications',
+      amount: 2200,
+      paymentMethod: 'Fonepay / QR',
+      accountCode: '5400',
+      description: 'High-speed fiber internet subscription for computer lab and office',
+      status: 'Paid',
+      recordedBy: 'Cashier'
+    },
+    {
+      id: 'EXP-004',
+      voucherNo: 'EXP-2026-0004',
+      date: '2026-10-02',
+      category: 'Marketing & Counseling',
+      payee: 'Facebook Ads / Creative Media',
+      amount: 6500,
+      paymentMethod: 'Bank Transfer',
+      accountCode: '5500',
+      description: 'Social media campaign for Autumn Caregiver and Beautician admissions',
+      status: 'Paid',
+      recordedBy: 'Admin'
+    }
+  ],
+
+  projectContracts: [
+    {
+      id: 'PRJ-001',
+      code: 'PRJ-GOKARNA-05',
+      name: 'गोकर्णेश्वर नगरपालिका वडा नं. ५ महिला सीपमूलक तालिम (सिलाई तथा ब्युटिसियन)',
+      fundingAgency: 'Gokarneshwor Municipality Ward 5 Office',
+      contractValue: 450000,
+      targetTrainees: 40,
+      startDate: '2026-08-15',
+      endDate: '2026-11-15',
+      status: 'Ongoing',
+      invoicedAmount: 225000,
+      receivedAmount: 225000,
+      pendingReceivable: 0,
+      milestones: [
+        { name: 'पहिलो किस्ता (तालिम सम्झौता तथा विद्यार्थी छनोट - ५०%)', amount: 225000, status: 'Received', date: '2026-08-20' },
+        { name: 'दोस्रो किस्ता (अन्तिम परीक्षा तथा प्रमाणपत्र वितरण - ५०%)', amount: 225000, status: 'Pending', date: '2026-11-20' }
+      ]
+    }
+  ],
+
+  cashClosings: [
+    {
+      id: 'CSH-CLOSE-001',
+      closingDate: '2026-10-25',
+      openingBalance: 32000,
+      cashReceived: 18000,
+      cashPaid: 6000,
+      expectedClosing: 44000,
+      physicalCount: 44000,
+      variance: 0,
+      notes: 'दैनिक काउन्टर नगद मिलान पूर्ण रूपमा मिलेको (Matched)',
+      closedBy: 'Cashier Staff'
+    }
+  ],
+
   settings: {
     instituteName: 'KITE CAREGIVER TRAINING CENTER',
     instituteSub: 'ग्लोबल एरा प्राविधिक स्कुल',
@@ -1087,6 +1286,11 @@ export function loadDB() {
       leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
       payments: parsed.payments || INITIAL_SEED_DATA.payments || [],
       trainerPayouts: parsed.trainerPayouts || INITIAL_SEED_DATA.trainerPayouts || [],
+      chartOfAccounts: parsed.chartOfAccounts || INITIAL_SEED_DATA.chartOfAccounts || [],
+      journalEntries: parsed.journalEntries || INITIAL_SEED_DATA.journalEntries || [],
+      expenses: parsed.expenses || INITIAL_SEED_DATA.expenses || [],
+      projectContracts: parsed.projectContracts || INITIAL_SEED_DATA.projectContracts || [],
+      cashClosings: parsed.cashClosings || INITIAL_SEED_DATA.cashClosings || [],
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
@@ -1206,4 +1410,130 @@ export function logCommunication(db, { recipientType, recipientId, recipientName
   const nextDb = { ...db, communicationLogs: updatedComm };
   saveDB(nextDb);
   return nextDb;
+}
+
+// =====================================================================
+// DOUBLE-ENTRY POSTING ENGINE & FINANCIAL REPORTING (INTEGRATED)
+// =====================================================================
+
+export function postDoubleEntryJournal(db, { narration, lines, sourceModule = 'MANUAL', sourceId = '', postedBy = 'Admin', entryDate = null }) {
+  if (!lines || lines.length < 2) {
+    throw new Error('Double-entry journal requires at least two lines (Debit and Credit).');
+  }
+
+  let totalDebit = 0;
+  let totalCredit = 0;
+  const processedLines = lines.map((l) => {
+    const dr = Math.round((Number(l.debit) || 0) * 100) / 100;
+    const cr = Math.round((Number(l.credit) || 0) * 100) / 100;
+    totalDebit += dr;
+    totalCredit += cr;
+    return {
+      accountCode: l.accountCode,
+      accountName: l.accountName || '',
+      debit: dr,
+      credit: cr,
+      lineNarration: l.lineNarration || narration
+    };
+  });
+
+  if (Math.abs(totalDebit - totalCredit) > 0.01) {
+    throw new Error(`Double-entry imbalance! Total Debit (Rs. ${totalDebit}) != Total Credit (Rs. ${totalCredit})`);
+  }
+
+  const existingJournals = db.journalEntries || [];
+  const entryNumber = `JV-2026-${String(existingJournals.length + 1).padStart(4, '0')}`;
+
+  const newEntry = {
+    id: `JV-${Date.now()}`,
+    entryNumber,
+    entryDate: entryDate || new Date().toISOString().slice(0, 10),
+    narration,
+    sourceModule,
+    sourceId,
+    status: 'POSTED',
+    postedBy,
+    createdAt: new Date().toISOString(),
+    lines: processedLines
+  };
+
+  // Update Account running balances
+  const updatedCOA = (db.chartOfAccounts || []).map((acc) => {
+    let bal = Number(acc.balance) || 0;
+    processedLines.forEach((l) => {
+      if (l.accountCode === acc.code) {
+        if (acc.normalBalance === 'DEBIT') {
+          bal += l.debit - l.credit;
+        } else {
+          bal += l.credit - l.debit;
+        }
+      }
+    });
+    return { ...acc, balance: bal };
+  });
+
+  const nextDb = {
+    ...db,
+    journalEntries: [newEntry, ...existingJournals],
+    chartOfAccounts: updatedCOA
+  };
+
+  saveDB(nextDb);
+  return { nextDb, newEntry };
+}
+
+export function reverseDoubleEntryJournal(db, entryId, reason, reversedBy = 'Admin') {
+  const existing = (db.journalEntries || []).find((j) => j.id === entryId || j.entryNumber === entryId);
+  if (!existing) throw new Error(`Journal entry ${entryId} not found.`);
+  if (existing.status === 'REVERSED') throw new Error(`Journal entry ${existing.entryNumber} is already reversed.`);
+
+  const inverseLines = existing.lines.map((l) => ({
+    accountCode: l.accountCode,
+    accountName: l.accountName,
+    debit: l.credit, // swap
+    credit: l.debit, // swap
+    lineNarration: `Reversal of ${existing.entryNumber}: ${reason}`
+  }));
+
+  const { nextDb } = postDoubleEntryJournal(db, {
+    narration: `REVERSAL OF ${existing.entryNumber}: ${reason}`,
+    lines: inverseLines,
+    sourceModule: existing.sourceModule,
+    sourceId: `REV-${existing.entryNumber}`,
+    postedBy: reversedBy
+  });
+
+  // Mark original as reversed
+  const finalJournals = nextDb.journalEntries.map((j) => (j.id === existing.id ? { ...j, status: 'REVERSED' } : j));
+  const finalDb = { ...nextDb, journalEntries: finalJournals };
+  saveDB(finalDb);
+  return finalDb;
+}
+
+export function getTrialBalanceReport(db) {
+  const coa = db.chartOfAccounts || [];
+  const lines = coa.map((acc) => {
+    const bal = Number(acc.balance) || 0;
+    return {
+      code: acc.code,
+      name: acc.name,
+      type: acc.type,
+      normalBalance: acc.normalBalance,
+      debit: acc.normalBalance === 'DEBIT' ? Math.max(0, bal) : 0,
+      credit: acc.normalBalance === 'CREDIT' ? Math.max(0, bal) : 0
+    };
+  });
+
+  const totalDebit = lines.reduce((sum, l) => sum + l.debit, 0);
+  const totalCredit = lines.reduce((sum, l) => sum + l.credit, 0);
+  const isBalanced = Math.abs(totalDebit - totalCredit) < 1;
+
+  return {
+    asOfDate: new Date().toISOString().slice(0, 10),
+    lines,
+    totalDebit,
+    totalCredit,
+    isBalanced,
+    difference: Math.abs(totalDebit - totalCredit)
+  };
 }
