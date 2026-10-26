@@ -13,7 +13,9 @@ import {
   Divider,
   Paper,
   CircularProgress,
-  Chip
+  Chip,
+  Tabs,
+  Tab
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -25,6 +27,8 @@ import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import CertificateStudioManager from './CertificateStudioManager';
 import { loadDB, saveDB, resetDB } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
@@ -38,6 +42,7 @@ export default function SettingsManager() {
   const [settings, setSettings] = useState(db.settings || {});
   const [copiedSql, setCopiedSql] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   // Supabase test and sync state
   const [testingConnection, setTestingConnection] = useState(false);
@@ -130,7 +135,48 @@ export default function SettingsManager() {
         </Alert>
       )}
 
-      <Grid container spacing={3}>
+      {/* Settings Navigation Tabs */}
+      <Paper elevation={0} sx={{ p: 0.5, mb: 3, bgcolor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 2 }}>
+        <Tabs
+          value={activeTab}
+          onChange={(e, next) => setActiveTab(next)}
+          sx={{
+            '& .MuiTab-root': {
+              fontWeight: 800,
+              fontSize: '0.88rem',
+              textTransform: 'none',
+              minHeight: 46,
+              borderRadius: 1.5
+            },
+            '& .Mui-selected': {
+              color: '#0F2E5A !important'
+            },
+            '& .MuiTabs-indicator': {
+              bgcolor: '#0F2E5A',
+              height: 3,
+              borderRadius: 3
+            }
+          }}
+        >
+          <Tab
+            icon={<WorkspacePremiumIcon sx={{ mr: 1, fontSize: 20 }} />}
+            iconPosition="start"
+            label="प्रमाणपत्र स्टुडियो तथा टेम्प्लेट (Certificate Studio)"
+          />
+          <Tab
+            icon={<CloudUploadIcon sx={{ mr: 1, fontSize: 20 }} />}
+            iconPosition="start"
+            label="क्लाउड तथा प्रणाली एकीकरण (Cloud & Integrations)"
+          />
+        </Tabs>
+      </Paper>
+
+      {/* TAB 0: CERTIFICATE STUDIO & TEMPLATE DESIGNER */}
+      {activeTab === 0 && <CertificateStudioManager onSaveSuccess={() => setDb(loadDB())} />}
+
+      {/* TAB 1: CLOUD & INTEGRATION SETTINGS */}
+      {activeTab === 1 && (
+        <Grid container spacing={3}>
         {/* 1. Supabase PostgreSQL Card */}
         <Grid item xs={12} md={7}>
           <Card sx={{ p: 3, height: '100%' }}>
@@ -352,6 +398,7 @@ export default function SettingsManager() {
           </Card>
         </Grid>
       </Grid>
+      )}
     </Box>
   );
 }

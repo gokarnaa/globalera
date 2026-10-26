@@ -22,7 +22,10 @@ import {
   Tooltip,
   Avatar,
   Paper,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent
 } from '@mui/material';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AddIcon from '@mui/icons-material/Add';
@@ -37,12 +40,15 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LinkIcon from '@mui/icons-material/Link';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
+import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
+import CertificateStudioManager from '../settings/CertificateStudioManager';
 
 export default function CertificateManager() {
   const [db, setDb] = useState(loadDB());
@@ -58,6 +64,7 @@ export default function CertificateManager() {
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
 
   // Modal State
+  const [studioModalOpen, setStudioModalOpen] = useState(false);
   const [certificateModalOpen, setCertificateModalOpen] = useState(false);
   const [activeCertificateItem, setActiveCertificateItem] = useState(null);
 
@@ -245,6 +252,21 @@ export default function CertificateManager() {
         </Box>
 
         <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+          <Button
+            variant="outlined"
+            startIcon={<ColorLensIcon />}
+            onClick={() => setStudioModalOpen(true)}
+            sx={{
+              fontWeight: 800,
+              borderColor: '#C59B27',
+              color: '#854D0E',
+              bgcolor: '#FEFCE8',
+              '&:hover': { bgcolor: '#FEF9C3', borderColor: '#B45309' }
+            }}
+          >
+            ढाँचा तथा डिजाइन सेटिङ (Certificate Studio)
+          </Button>
+
           {eligiblePendingCount > 0 && (
             <Button
               variant="contained"
@@ -696,6 +718,50 @@ export default function CertificateManager() {
           })}
         </Grid>
       )}
+
+      {/* Certificate Studio & Design Customizer Modal */}
+      <Dialog
+        open={studioModalOpen}
+        onClose={() => setStudioModalOpen(false)}
+        maxWidth="xl"
+        fullWidth
+        scroll="paper"
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            bgcolor: '#F8FAFC'
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            bgcolor: '#0F2E5A',
+            color: '#FFFFFF',
+            p: 2,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <ColorLensIcon sx={{ color: '#F59E0B', fontSize: 28 }} />
+            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+              प्रमाणपत्र ढाँचा तथा डिजाइन सेटिङ (Certificate Studio & Designer)
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setStudioModalOpen(false)} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: { xs: 1.5, sm: 3 } }}>
+          <CertificateStudioManager
+            onSaveSuccess={() => {
+              setDb(loadDB());
+              setStudioModalOpen(false);
+            }}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Official A4 Landscape Printable Modal */}
       {activeCertificateItem && (

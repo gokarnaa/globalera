@@ -15,6 +15,7 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import PersonIcon from '@mui/icons-material/Person';
 import { QRCodeSVG } from 'qrcode.react';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { loadDB } from '../../services/storage';
 
 export default function A4LandscapeCertificateModal({
   open,
@@ -26,6 +27,62 @@ export default function A4LandscapeCertificateModal({
   trainer
 }) {
   if (!open || !certificate || !student) return null;
+
+  const db = loadDB();
+  const design = db.settings?.certificateDesign || {};
+
+  const primaryColor = design.primaryColor || '#0B2545';
+  const accentColor = design.accentColor || '#C59B27';
+  const borderStyle = design.borderStyle || 'royal-double';
+  const backgroundType = design.backgroundType || 'clean-white';
+  const customBackgroundUrl = design.customBackgroundUrl || '';
+  const watermarkOpacity = design.watermarkOpacity !== undefined ? design.watermarkOpacity : 4;
+  const showStudentPhoto = design.showStudentPhoto !== undefined ? design.showStudentPhoto : true;
+  const showCompetencyBadge = design.showCompetencyBadge !== undefined ? design.showCompetencyBadge : true;
+  const showHeader = design.showHeader !== undefined ? design.showHeader : true;
+  const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
+  const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
+  const instituteNameEnglish = design.instituteNameEnglish || 'KITE CAREGIVER TRAINING CENTER';
+  const instituteNameNepali = design.instituteNameNepali || 'ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)';
+  const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
+  const certificateTitleNp = design.certificateTitleNp || '(व्यावसायिक तालिम समापन प्रमाणपत्र)';
+  const signatory1Name = design.signatory1Name || trainer?.name || 'Lead Trainer';
+  const signatory1Title = design.signatory1Title || 'प्रशिक्षक (Instructor)';
+  const signatory2Name = design.signatory2Name || 'Principal / Director';
+  const signatory2Title = design.signatory2Title || 'क्याम्पस प्रमुख (Principal)';
+
+  const getBackgroundStyle = () => {
+    if (backgroundType === 'custom' && customBackgroundUrl) {
+      return {
+        backgroundImage: `url(${customBackgroundUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      };
+    }
+    if (backgroundType === 'ivory-parchment') {
+      return {
+        background: 'linear-gradient(135deg, #fdfbf7 0%, #fbf6ec 50%, #f7f0e1 100%)'
+      };
+    }
+    if (backgroundType === 'guilloche-security') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `radial-gradient(${primaryColor}0D 1.5px, transparent 1.5px), radial-gradient(${accentColor}0D 1.5px, #FFFFFF 1.5px)`,
+        backgroundSize: '24px 24px',
+        backgroundPosition: '0 0, 12px 12px'
+      };
+    }
+    if (backgroundType === 'damask-classic') {
+      return {
+        backgroundColor: '#FFFFFF',
+        backgroundImage: `repeating-linear-gradient(45deg, ${accentColor}08, ${accentColor}08 10px, transparent 10px, transparent 20px)`
+      };
+    }
+    return {
+      backgroundColor: '#FFFFFF'
+    };
+  };
 
   const handlePrint = () => {
     window.print();
@@ -137,101 +194,118 @@ export default function A4LandscapeCertificateModal({
           sx={{
             width: '1060px',
             minHeight: '740px',
-            bgcolor: '#ffffff',
             p: '28px 36px',
             boxSizing: 'border-box',
             fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
             color: '#111827',
             position: 'relative',
-            border: '6px double #0b2545',
-            outline: '3px solid #c59b27',
+            border:
+              borderStyle === 'royal-double'
+                ? `6px double ${primaryColor}`
+                : borderStyle === 'ornate-vintage'
+                ? `4px solid ${primaryColor}`
+                : borderStyle === 'modern-gold'
+                ? `2.5px solid ${accentColor}`
+                : 'none',
+            outline:
+              borderStyle === 'royal-double'
+                ? `3px solid ${accentColor}`
+                : borderStyle === 'modern-gold'
+                ? `1px solid ${primaryColor}`
+                : 'none',
             outlineOffset: '-12px',
+            borderRadius: borderStyle === 'modern-gold' ? '8px' : '2px',
             boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            ...getBackgroundStyle()
           }}
         >
           {/* Subtle Background Watermark */}
-          <Box
-            sx={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              opacity: 0.04,
-              pointerEvents: 'none',
-              zIndex: 0
-            }}
-          >
-            <SchoolIcon sx={{ fontSize: 360, color: '#0b2545' }} />
-          </Box>
+          {watermarkOpacity > 0 && (
+            <Box
+              sx={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                opacity: watermarkOpacity / 100,
+                pointerEvents: 'none',
+                zIndex: 0
+              }}
+            >
+              <SchoolIcon sx={{ fontSize: 360, color: primaryColor }} />
+            </Box>
+          )}
 
           {/* 1. Institutional Letterhead Header */}
-          <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: '1.5px solid #c59b27' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
-              {/* Left Logo / Emblem */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <SchoolIcon sx={{ fontSize: 44, color: '#0b2545' }} />
-              </Box>
+          {showHeader && (
+            <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', pb: 1, borderBottom: `1.5px solid ${accentColor}` }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
+                {/* Left Logo / Emblem */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {showLeftLogo && <SchoolIcon sx={{ fontSize: 44, color: primaryColor }} />}
+                </Box>
 
-              {/* Center Institutional Name */}
-              <Box sx={{ textAlign: 'center' }}>
-                <Typography
-                  variant="h5"
-                  sx={{
-                    fontFamily: "'Times New Roman', serif",
-                    fontWeight: 900,
-                    letterSpacing: '0.06em',
-                    color: '#0b2545',
-                    fontSize: '1.45rem',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  KITE CAREGIVER TRAINING CENTER
-                </Typography>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 800,
-                    color: '#1e3a8a',
-                    fontSize: '1.1rem',
-                    letterSpacing: '0.02em',
-                    mt: 0.2
-                  }}
-                >
-                  ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: '#475569',
-                    display: 'block',
-                    fontSize: '0.78rem',
-                    fontWeight: 700,
-                    mt: 0.3
-                  }}
-                >
-                  Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: '#64748b',
-                    display: 'block',
-                    fontSize: '0.74rem'
-                  }}
-                >
-                  Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Chabahil-07, Kathmandu, Nepal
-                </Typography>
-              </Box>
+                {/* Center Institutional Name */}
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography
+                    variant="h5"
+                    sx={{
+                      fontFamily: "'Times New Roman', serif",
+                      fontWeight: 900,
+                      letterSpacing: '0.06em',
+                      color: primaryColor,
+                      fontSize: '1.45rem',
+                      textTransform: 'uppercase'
+                    }}
+                  >
+                    {instituteNameEnglish}
+                  </Typography>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: 800,
+                      color: accentColor,
+                      fontSize: '1.1rem',
+                      letterSpacing: '0.02em',
+                      mt: 0.2
+                    }}
+                  >
+                    {instituteNameNepali}
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#475569',
+                      display: 'block',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      mt: 0.3
+                    }}
+                  >
+                    Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)
+                  </Typography>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: '#64748b',
+                      display: 'block',
+                      fontSize: '0.74rem'
+                    }}
+                  >
+                    Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Chabahil-07, Kathmandu, Nepal
+                  </Typography>
+                </Box>
 
-              {/* Right CTEVT Emblem */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <VerifiedIcon sx={{ fontSize: 44, color: '#c59b27' }} />
+                {/* Right CTEVT Emblem */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {showRightLogo && <VerifiedIcon sx={{ fontSize: 44, color: accentColor }} />}
+                </Box>
               </Box>
             </Box>
-          </Box>
+          )}
 
           {/* 2. Certificate Title Banner */}
           <Box sx={{ position: 'relative', zIndex: 1, textAlign: 'center', my: 1 }}>
@@ -240,25 +314,25 @@ export default function A4LandscapeCertificateModal({
               sx={{
                 fontFamily: "'Times New Roman', serif",
                 fontWeight: 900,
-                color: '#0b2545',
+                color: primaryColor,
                 letterSpacing: '0.08em',
                 textTransform: 'uppercase',
                 fontSize: '1.25rem',
                 mb: 0.2
               }}
             >
-              CERTIFICATE OF VOCATIONAL TRAINING COMPLETION
+              {certificateTitleEn}
             </Typography>
             <Typography
               variant="subtitle1"
               sx={{
                 fontWeight: 800,
-                color: '#c59b27',
+                color: accentColor,
                 fontSize: '1rem',
                 letterSpacing: '0.04em'
               }}
             >
-              (व्यावसायिक तालिम समापन प्रमाणपत्र)
+              {certificateTitleNp}
             </Typography>
           </Box>
 
@@ -541,10 +615,10 @@ export default function A4LandscapeCertificateModal({
                   textAlign: 'center'
                 }}
               >
-                <Typography variant="caption" sx={{ fontWeight: 900, color: '#0b2545', display: 'block', letterSpacing: '0.06em', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ fontWeight: 900, color: primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.72rem' }}>
                   ★ OFFICIAL SEAL ★
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#c59b27', fontWeight: 800, fontSize: '0.68rem', display: 'block' }}>
+                <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.68rem', display: 'block' }}>
                   GLOBAL ERA TECHNICAL SCHOOL
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.65rem', display: 'block' }}>
@@ -557,21 +631,21 @@ export default function A4LandscapeCertificateModal({
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 4, width: '38%' }}>
               <Box sx={{ textAlign: 'center', width: '130px' }}>
                 <Box sx={{ height: 34, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.8rem' }}>
-                  {trainer?.name || 'Lead Trainer'}
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.8rem' }}>
+                  {signatory1Name}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
-                  प्रशिक्षक (Instructor)
+                  {signatory1Title}
                 </Typography>
               </Box>
 
               <Box sx={{ textAlign: 'center', width: '140px' }}>
-                <Box sx={{ height: 34, borderBottom: '1px dashed #64748b', mb: 0.5 }} />
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.8rem' }}>
-                  Principal / Director
+                <Box sx={{ height: 34, borderBottom: `1.5px solid ${primaryColor}`, mb: 0.5 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.8rem' }}>
+                  {signatory2Name}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
-                  क्याम्पस प्रमुख (Principal)
+                  {signatory2Title}
                 </Typography>
               </Box>
             </Box>
