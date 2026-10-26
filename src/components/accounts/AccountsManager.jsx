@@ -148,6 +148,7 @@ export default function AccountsManager({ initialTab = 0 }) {
       discountPercent,
       admissionFee,
       lockedFee,
+      netFee: lockedFee,
       totalPaid,
       due,
       paymentStatus,

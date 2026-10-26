@@ -104,7 +104,7 @@ export default function StudentPaymentTimelineModal({
                 खुद सम्झौता शुल्क:
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#0f2e5a' }}>
-                रु. {ledger.netFee.toLocaleString()}
+                रु. {(Number(ledger?.netFee ?? ledger?.lockedFee) || 0).toLocaleString()}
               </Typography>
             </Box>
 
@@ -113,7 +113,7 @@ export default function StudentPaymentTimelineModal({
                 भुक्तानी भएको:
               </Typography>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#059669' }}>
-                रु. {ledger.totalPaid.toLocaleString()}
+                रु. {(Number(ledger?.totalPaid) || 0).toLocaleString()}
               </Typography>
             </Box>
 
@@ -121,8 +121,8 @@ export default function StudentPaymentTimelineModal({
               <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>
                 बाँकी बक्यौता:
               </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: ledger.due > 0 ? '#dc2626' : '#059669' }}>
-                रु. {ledger.due.toLocaleString()}
+              <Typography variant="h6" sx={{ fontWeight: 900, color: (Number(ledger?.due) || 0) > 0 ? '#dc2626' : '#059669' }}>
+                रु. {(Number(ledger?.due) || 0).toLocaleString()}
               </Typography>
             </Box>
           </Box>
@@ -218,7 +218,7 @@ export default function StudentPaymentTimelineModal({
               ) : (
                 <Box sx={{ bgcolor: isDueCritical ? '#fef2f2' : '#fffbeb', p: 1.5, border: `1.5px solid ${isDueCritical ? '#f87171' : '#fde68a'}`, borderRadius: 1.5, mb: 1.5 }}>
                   <Typography variant="body2" sx={{ fontWeight: 900, color: isDueCritical ? '#dc2626' : '#b45309' }}>
-                    बाँकी रकम: रु. {ledger.due.toLocaleString()}
+                    बाँकी रकम: रु. {(Number(ledger?.due) || 0).toLocaleString()}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
                     अन्तिम म्याद (Due Date): <strong>{dueDate}</strong>
@@ -230,11 +230,11 @@ export default function StudentPaymentTimelineModal({
                     startIcon={<PointOfSaleIcon />}
                     onClick={() => {
                       onClose();
-                      if (onCollectDue) onCollectDue(student.id, ledger.due);
+                      if (onCollectDue) onCollectDue(student.id, ledger?.due);
                     }}
                     sx={{ mt: 1, fontWeight: 800 }}
                   >
-                    बाँकी रु. {ledger.due.toLocaleString()} अहिले बुझ्नुहोस् (Collect Due)
+                    बाँकी रु. {(Number(ledger?.due) || 0).toLocaleString()} अहिले बुझ्नुहोस् (Collect Due)
                   </Button>
                 </Box>
               )}

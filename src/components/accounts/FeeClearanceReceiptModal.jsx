@@ -242,17 +242,17 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
                     <td style={{ padding: '8px 12px', color: '#64748b' }}>-</td>
                     <td style={{ padding: '8px 12px', color: '#64748b' }}>नियमित दर</td>
                     <td style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 600 }}>
-                      रु. {ledger.lockedFee.toLocaleString()}
+                      रु. {(Number(ledger?.lockedFee) || 0).toLocaleString()}
                     </td>
                   </tr>
-                  {ledger.discountAmount > 0 && (
+                  {(Number(ledger?.discountAmount) || 0) > 0 && (
                     <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fefce8' }}>
                       <td style={{ padding: '8px 12px', color: '#b45309' }}>स्वीकृत छुट / छात्रवृत्ति</td>
                       <td style={{ padding: '8px 12px', color: '#b45309' }}>-</td>
                       <td style={{ padding: '8px 12px', color: '#b45309' }}>-</td>
                       <td style={{ padding: '8px 12px', color: '#b45309' }}>संस्था स्वीकृति</td>
                       <td style={{ padding: '8px 12px', textAlign: 'right', color: '#b45309', fontWeight: 600 }}>
-                        - रु. {ledger.discountAmount.toLocaleString()}
+                        - रु. {(Number(ledger?.discountAmount) || 0).toLocaleString()}
                       </td>
                     </tr>
                   )}
@@ -276,7 +276,7 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
                       कुल चुक्ता भुक्तानी रकम (Total Paid)
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'right', fontWeight: 900, color: '#065f46', fontSize: '0.95rem' }}>
-                      रु. {ledger.totalPaid.toLocaleString()}
+                      रु. {(Number(ledger?.totalPaid) || 0).toLocaleString()}
                     </td>
                   </tr>
                   {/* Remaining Due Row */}
