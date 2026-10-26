@@ -37,6 +37,7 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -54,6 +55,7 @@ const NAV_ITEMS = [
   // --- 2. Operational Delivery Chain ---
   { section: '2. OPERATIONS & TRAINING CHAIN' },
   { id: 'leads', label: 'Lead CRM (सोधपुछ / इन्क्वायरी)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
+  { id: 'admission', label: 'Admission (भर्ना सम्झौता)', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
   { id: 'groups', label: 'Training Batches (समूह)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, countBadge: '8' },
   { id: 'students', label: 'Trainees CRM (विद्यार्थी)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
   { id: 'accounts', label: 'Accounts & Fees (शुल्क तथा लेखा)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
