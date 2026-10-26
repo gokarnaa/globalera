@@ -149,19 +149,24 @@ export default function LeadImportModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      scroll="paper"
       PaperProps={{
         sx: {
           borderRadius: 3.5,
-          overflow: 'hidden',
+          maxHeight: '92vh',
+          display: 'flex',
+          flexDirection: 'column',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          overflow: 'hidden'
         }
       }}
     >
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
+          p: 2.2,
+          flexShrink: 0,
           background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
           color: '#FFFFFF',
           display: 'flex',
@@ -198,7 +203,19 @@ export default function LeadImportModal({
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <DialogContent
+        dividers
+        sx={{
+          p: { xs: 2, sm: 3 },
+          bgcolor: '#F8FAFC',
+          flex: 1,
+          overflowY: 'auto',
+          '&::-webkit-scrollbar': { width: 7 },
+          '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+          '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
+          '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+        }}
+      >
         {errorMsg && (
           <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
             {errorMsg}

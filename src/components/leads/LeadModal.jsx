@@ -185,12 +185,16 @@ export default function LeadModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      scroll="paper"
       PaperProps={{
         sx: {
           borderRadius: 3.5,
-          overflow: 'hidden',
-          boxShadow: '0 24px 60px rgba(15, 23, 42, 0.22)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          maxHeight: '92vh',
+          display: 'flex',
+          flexDirection: 'column',
+          boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          overflow: 'hidden'
         }
       }}
     >
@@ -198,7 +202,8 @@ export default function LeadModal({
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
+          p: 2.2,
+          flexShrink: 0,
           background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
           color: '#FFFFFF',
           display: 'flex',
@@ -242,9 +247,31 @@ export default function LeadModal({
         </IconButton>
       </DialogTitle>
 
-      {/* Dialog Form Content */}
-      <form onSubmit={handleSubmit}>
-        <DialogContent sx={{ p: { xs: 2.5, sm: 3.5 }, bgcolor: '#F8FAFC' }}>
+      {/* Dialog Form Container */}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden'
+        }}
+      >
+        <DialogContent
+          dividers
+          sx={{
+            p: { xs: 2.2, sm: 3 },
+            bgcolor: '#F8FAFC',
+            flex: 1,
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': { width: 7 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           {validationError && (
             <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
               {validationError}
@@ -523,7 +550,20 @@ export default function LeadModal({
           </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            bgcolor: '#FFFFFF',
+            borderTop: '1px solid #E2E8F0',
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: '0 -4px 12px rgba(0,0,0,0.03)',
+            zIndex: 10
+          }}
+        >
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
             रद्द गर्नुहोस् (Cancel)
           </Button>
@@ -539,10 +579,10 @@ export default function LeadModal({
               boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)'
             }}
           >
-            {editingLead ? 'अपडेट गर्नुहोस् (Update Lead)' : 'सुरक्षित गर्नुहोस् (Save Lead)'}
+            {editingLead ? 'अपडेट गर्नुहोस् (Update Lead)' : 'सोधपुछ दर्ता गर्नुहोस् (Save Lead)'}
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }

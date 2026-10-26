@@ -185,19 +185,24 @@ export default function ConvertToStudentModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      scroll="paper"
       PaperProps={{
         sx: {
           borderRadius: 3.5,
-          overflow: 'hidden',
+          maxHeight: '92vh',
+          display: 'flex',
+          flexDirection: 'column',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          overflow: 'hidden'
         }
       }}
     >
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
+          p: 2.2,
+          flexShrink: 0,
           background: 'linear-gradient(135deg, #065F46 0%, #047857 100%)',
           color: '#FFFFFF',
           display: 'flex',
@@ -237,8 +242,30 @@ export default function ConvertToStudentModal({
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleConvert}>
-        <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <Box
+        component="form"
+        onSubmit={handleConvert}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden'
+        }}
+      >
+        <DialogContent
+          dividers
+          sx={{
+            p: { xs: 2, sm: 3 },
+            bgcolor: '#F8FAFC',
+            flex: 1,
+            overflowY: 'auto',
+            '&::-webkit-scrollbar': { width: 7 },
+            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
+            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          }}
+        >
           {errorMsg && (
             <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
               {errorMsg}
@@ -373,7 +400,20 @@ export default function ConvertToStudentModal({
           </Grid>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+        <DialogActions
+          sx={{
+            px: 3,
+            py: 2,
+            bgcolor: '#FFFFFF',
+            borderTop: '1px solid #E2E8F0',
+            flexShrink: 0,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            boxShadow: '0 -4px 12px rgba(0,0,0,0.03)',
+            zIndex: 10
+          }}
+        >
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
             रद्द गर्नुहोस् (Cancel)
           </Button>
@@ -393,7 +433,7 @@ export default function ConvertToStudentModal({
             भर्ना निश्चित गर्नुहोस् (Confirm Admission)
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }
