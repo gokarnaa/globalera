@@ -1336,6 +1336,76 @@ export const INITIAL_SEED_DATA = {
       startSeq: 1
     }
   },
+  parties: [
+    {
+      id: 'PRT-LANDLORD-01',
+      name: 'राम कुमार श्रेष्ठ (घरधनी - मुख्य भवन)',
+      category: 'LANDLORD',
+      contactPerson: 'राम कुमार श्रेष्ठ',
+      phone: '9851011122',
+      panNumber: '302918273',
+      address: 'Jorpati-05, Gokarneshwor, Kathmandu',
+      bankName: 'Global IME Bank',
+      accountNumber: '01201010049281',
+      accountHolderName: 'Ram Kumar Shrestha',
+      monthlyRent: 50000,
+      securityDeposit: 150000,
+      tdsPercent: 10,
+      advanceRentBalance: 50000,
+      totalPurchases: 600000,
+      totalPaid: 550000,
+      currentDue: 50000,
+      notes: 'मुख्य इन्स्टिच्युट भवन भाडा सम्झौता (साउन-असार). हरेक महिना १ गते भाडा बिल आउने।'
+    },
+    {
+      id: 'PRT-SUPPLIER-01',
+      name: 'न्यू महालक्ष्मी हार्डवेयर तथा मेसिनरी स्टोर',
+      category: 'TECHNICAL_SUPPLIER',
+      contactPerson: 'महेश महर्जन',
+      phone: '9841887766',
+      panNumber: '601928374',
+      address: 'Chabahil, Kathmandu',
+      bankName: 'Nabil Bank',
+      accountNumber: '0010009281928',
+      accountHolderName: 'New Mahalaxmi Hardware Store',
+      totalPurchases: 85000,
+      totalPaid: 65000,
+      currentDue: 20000,
+      notes: 'वेल्डिङ, प्लम्बिङ र इलेक्ट्रिकल प्राविधिक तालिमका औजार तथा कच्चा पदार्थ आपूर्तिकर्ता'
+    },
+    {
+      id: 'PRT-UTILITY-01',
+      name: 'वर्ल्डलिङ्क कम्युनिकेशन्स प्रा.लि. (इन्टरनेट)',
+      category: 'UTILITY_SERVICE',
+      contactPerson: 'ग्राहक सेवा (Customer Support)',
+      phone: '01-4911222',
+      panNumber: '300182910',
+      address: 'Jawalakhel, Lalitpur',
+      bankName: 'ConnectIPS / eSewa Online',
+      accountNumber: 'WLINK-CORP-4820',
+      accountHolderName: 'WorldLink Communications Ltd.',
+      totalPurchases: 42000,
+      totalPaid: 38500,
+      currentDue: 3500,
+      notes: 'कम्प्युटर ल्याब तथा कार्यालय २०० Mbps डेडिकेटेड फाइबर इन्टरनेट (मासिक बिल रु. ३,५००)'
+    },
+    {
+      id: 'PRT-STATIONERY-01',
+      name: 'क्रिएटिभ प्रिन्टिङ तथा स्टेशनरी सप्लायर्स',
+      category: 'STATIONERY_MEDIA',
+      contactPerson: 'दिनेश कार्की',
+      phone: '9851098765',
+      panNumber: '601293847',
+      address: 'Bagbazar, Kathmandu',
+      bankName: 'NIC Asia Bank',
+      accountNumber: '2450091827364',
+      accountHolderName: 'Creative Printing & Stationery',
+      totalPurchases: 35000,
+      totalPaid: 28000,
+      currentDue: 7000,
+      notes: 'विद्यार्थी परिचयपत्र, पाठ्यक्रम नोटबही र फ्लेक्स ब्यानर मुद्रण'
+    }
+  ],
   users: []
 };
 
@@ -1371,7 +1441,7 @@ export function loadDB() {
       studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
       leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
       admissions: parsed.admissions || INITIAL_SEED_DATA.admissions || [],
-      parties: parsed.parties || INITIAL_SEED_DATA.parties || [],
+      parties: (parsed.parties && parsed.parties.length > 0) ? parsed.parties : INITIAL_SEED_DATA.parties || [],
       payments: parsed.payments || INITIAL_SEED_DATA.payments || [],
       trainerPayouts: parsed.trainerPayouts || INITIAL_SEED_DATA.trainerPayouts || [],
       chartOfAccounts: parsed.chartOfAccounts || INITIAL_SEED_DATA.chartOfAccounts || [],

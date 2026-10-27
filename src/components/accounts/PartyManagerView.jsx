@@ -36,19 +36,28 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import PaymentIcon from '@mui/icons-material/Payment';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ArticleIcon from '@mui/icons-material/Article';
 
 import { postDoubleEntryJournal, saveDB } from '../../services/storage';
+import { getWhatsAppUrl } from '../../services/exportUtils';
+import { useDialog } from '../../context/DialogContext';
+import ConnectIpsPayoutModal from './ConnectIpsPayoutModal';
+import UniversalStatementModal from './UniversalStatementModal';
 
 export const PARTY_CATEGORIES = [
-  { code: 'LANDLORD', label: 'घरधनी (Landlord / Office Rent)', icon: '🏠' },
-  { code: 'TAILORING_SUPPLIER', label: 'सिलाई कच्चा पदार्थ (Fabric/Thread)', icon: '🧵' },
+  { code: 'LANDLORD', label: 'घरबेटी / भवन धनी (Landlord)', icon: '🏠' },
+  { code: 'TECHNICAL_SUPPLIER', label: 'प्राविधिक औजार तथा कच्चा पदार्थ', icon: '🛠️' },
+  { code: 'TAILORING_SUPPLIER', label: 'सिलाई कच्चा पदार्थ (कपडा/धागो)', icon: '🧵' },
   { code: 'BEAUTICIAN_SUPPLIER', label: 'ब्युटिसियन तथा कस्मेटिक्स सामग्री', icon: '💄' },
-  { code: 'BAKERY_SUPPLIER', label: 'बेकरी तथा खाद्य कच्चा पदार्थ', icon: '🎂' },
-  { code: 'TECHNICAL_SUPPLIER', label: 'मोबाइल तथा इलेक्ट्रिकल स्पेयर पार्ट्स', icon: '🔧' },
-  { code: 'UTILITY_SERVICE', label: 'इन्टरनेट, स्टेशनरी तथा कार्यालय सेवा', icon: '🌐' }
+  { code: 'BAKERY_SUPPLIER', label: 'बेकरी तथा खाद्य सामग्री', icon: '🎂' },
+  { code: 'UTILITY_SERVICE', label: 'युटिलिटी (इन्टरनेट, बिजुली तथा सेवा)', icon: '💡' },
+  { code: 'STATIONERY_MEDIA', label: 'स्टेशनरी, मुद्रण तथा ब्राण्डिङ', icon: '📚' }
 ];
 
 export default function PartyManagerView({ db, setDb, showToast }) {
+  const { confirm, alert } = useDialog();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [dueFilter, setDueFilter] = useState('ALL');
@@ -56,17 +65,29 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   // Modals
   const [addPartyOpen, setAddPartyOpen] = useState(false);
   const [recordPurchaseOpen, setRecordPurchaseOpen] = useState(false);
-  const [payDueOpen, setPayDueOpen] = useState(false);
-  const [selectedPartyForPay, setSelectedPartyForPay] = useState(null);
-  const [viewLedgerParty, setViewLedgerParty] = useState(null);
+
+  // ConnectIPS Payout Modal
+  const [connectIpsModalOpen, setConnectIpsModalOpen] = useState(false);
+  const [selectedPartyForConnectIps, setSelectedPartyForConnectIps] = useState(null);
+
+  // Universal Statement Modal
+  const [universalStatementOpen, setUniversalStatementOpen] = useState(false);
+  const [statementPartyId, setStatementPartyId] = useState(null);
+  const [statementPartyType, setStatementPartyType] = useState('LANDLORD');
 
   // Form states: Add Party
   const [partyName, setPartyName] = useState('');
-  const [partyCategory, setPartyCategory] = useState('TAILORING_SUPPLIER');
+  const [partyCategory, setPartyCategory] = useState('LANDLORD');
   const [contactPerson, setContactPerson] = useState('');
   const [phone, setPhone] = useState('');
   const [panNumber, setPanNumber] = useState('');
-  const [address, setAddress] = useState('Kathmandu');
+  const [address, setAddress] = useState('Jorpati-05, Kathmandu');
+  const [bankName, setBankName] = useState('Global IME Bank');
+  const [accountNumber, setAccountNumber] = useState('');
+  const [accountHolderName, setAccountHolderName] = useState('');
+  const [monthlyRent, setMonthlyRent] = useState('');
+  const [securityDeposit, setSecurityDeposit] = useState('');
+  const [tdsPercent, setTdsPercent] = useState('10');
   const [notes, setNotes] = useState('');
 
   // Form states: Record Purchase
@@ -75,13 +96,8 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   const [billDate, setBillDate] = useState(new Date().toISOString().slice(0, 10));
   const [purchaseAmount, setPurchaseAmount] = useState('');
   const [purchaseDescription, setPurchaseDescription] = useState('');
-  const [isCreditPurchase, setIsCreditPurchase] = useState(false);
-  const [purchasePayMethod, setPurchasePayMethod] = useState('Cash');
-
-  // Form states: Pay Due
-  const [payDueAmount, setPayDueAmount] = useState('');
-  const [payDueMethod, setPayDueMethod] = useState('Cash');
-  const [payDueRemarks, setPayDueRemarks] = useState('पार्टी बक्यौता भुक्तानी');
+  const [isCreditPurchase, setIsCreditPurchase] = useState(true);
+  const [purchasePayMethod, setPurchasePayMethod] = useState('ConnectIPS');
 
   // Resolve Parties & ensure seed data if empty
   const parties = useMemo(() => {
@@ -94,55 +110,70 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       const initialParties = [
         {
           id: 'PRT-001',
-          name: 'गोकर्णेश्वर घरधनी (Gokarneshwor Building Rent)',
+          name: 'राम कुमार श्रेष्ठ (घरधनी - मुख्य भवन)',
           category: 'LANDLORD',
           contactPerson: 'राम कुमार श्रेष्ठ',
           phone: '9851011122',
           panNumber: '302918273',
           address: 'Jorpati-05, Kathmandu',
-          totalPurchases: 70000,
-          totalPaid: 35000,
-          currentDue: 35000,
-          notes: '३० दिनको घरभाडा सम्झौता'
+          bankName: 'Global IME Bank',
+          accountNumber: '01201010049281',
+          accountHolderName: 'Ram Kumar Shrestha',
+          monthlyRent: 50000,
+          securityDeposit: 150000,
+          tdsPercent: 10,
+          totalPurchases: 600000,
+          totalPaid: 550000,
+          currentDue: 50000,
+          notes: 'मुख्य इन्स्टिच्युट भवन भाडा सम्झौता (साउन-असार). हरेक महिना १ गते भाडा बिल आउने।'
         },
         {
           id: 'PRT-002',
+          name: 'न्यू महालक्ष्मी हार्डवेयर तथा मेसिनरी स्टोर',
+          category: 'TECHNICAL_SUPPLIER',
+          contactPerson: 'महेश महर्जन',
+          phone: '9841887766',
+          panNumber: '601928374',
+          address: 'Chabahil, Kathmandu',
+          bankName: 'Nabil Bank',
+          accountNumber: '0010009281928',
+          accountHolderName: 'New Mahalaxmi Hardware Store',
+          totalPurchases: 85000,
+          totalPaid: 65000,
+          currentDue: 20000,
+          notes: 'वेल्डिङ, प्लम्बिङ र इलेक्ट्रिकल प्राविधिक तालिमका औजार तथा कच्चा पदार्थ आपूर्तिकर्ता'
+        },
+        {
+          id: 'PRT-003',
+          name: 'वर्ल्डलिङ्क कम्युनिकेशन्स प्रा.लि. (इन्टरनेट)',
+          category: 'UTILITY_SERVICE',
+          contactPerson: 'ग्राहक सेवा (Customer Support)',
+          phone: '01-4911222',
+          panNumber: '300182910',
+          address: 'Jawalakhel, Lalitpur',
+          bankName: 'ConnectIPS / eSewa Online',
+          accountNumber: 'WLINK-CORP-4820',
+          accountHolderName: 'WorldLink Communications Ltd.',
+          totalPurchases: 42000,
+          totalPaid: 38500,
+          currentDue: 3500,
+          notes: 'कम्प्युटर ल्याब तथा कार्यालय २०० Mbps डेडिकेटेड फाइबर इन्टरनेट (मासिक बिल रु. ३,५००)'
+        },
+        {
+          id: 'PRT-004',
           name: 'न्युरोड फेब्रिक तथा सिलाई सामग्री स्टोर',
           category: 'TAILORING_SUPPLIER',
           contactPerson: 'सुनिल बज्राचार्य',
           phone: '9841887766',
           panNumber: '601928374',
           address: 'New Road, Kathmandu',
-          totalPurchases: 25000,
-          totalPaid: 15000,
-          currentDue: 10000,
+          bankName: 'NIC Asia Bank',
+          accountNumber: '0420019283746',
+          accountHolderName: 'New Road Fabric Store',
+          totalPurchases: 32000,
+          totalPaid: 25000,
+          currentDue: 7000,
           notes: 'सिलाई तालिमका लागि कपडा, धागो, मेसिन सुई सप्लायर'
-        },
-        {
-          id: 'PRT-003',
-          name: 'ग्लोबल कस्मेटिक्स तथा ब्युटी सप्लायर्स',
-          category: 'BEAUTICIAN_SUPPLIER',
-          contactPerson: 'अनिता महर्जन',
-          phone: '9818223344',
-          panNumber: '602819201',
-          address: 'Chabahil, Kathmandu',
-          totalPurchases: 18000,
-          totalPaid: 18000,
-          currentDue: 0,
-          notes: 'ब्युटिसियन फेसिअल किट, क्रिम र नेल आर्ट सामग्री'
-        },
-        {
-          id: 'PRT-004',
-          name: 'वर्ल्डलिङ्क कम्युनिकेशन्स प्रा.लि.',
-          category: 'UTILITY_SERVICE',
-          contactPerson: 'Customer Service',
-          phone: '01-4911222',
-          panNumber: '600012345',
-          address: 'Jorpati, Kathmandu',
-          totalPurchases: 4400,
-          totalPaid: 4400,
-          currentDue: 0,
-          notes: 'इन्टरनेट तथा नेटवर्क सेवा'
         }
       ];
 
@@ -150,31 +181,28 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       saveDB(nextDb);
       setDb(nextDb);
     }
-  }, [db]);
+  }, [db, setDb]);
 
-  // KPI Computations
+  // Financial Metrics
   const totalPartiesCount = parties.length;
-  const totalPurchasesBilled = parties.reduce((sum, p) => sum + (Number(p.totalPurchases) || 0), 0);
-  const totalPaidToParties = parties.reduce((sum, p) => sum + (Number(p.totalPaid) || 0), 0);
-  const totalCreditDue = parties.reduce((sum, p) => sum + (Number(p.currentDue) || 0), 0);
+  const totalPurchasesSum = parties.reduce((acc, p) => acc + (Number(p.totalPurchases) || 0), 0);
+  const totalPaidSum = parties.reduce((acc, p) => acc + (Number(p.totalPaid) || 0), 0);
+  const totalDueSum = parties.reduce((acc, p) => acc + (Number(p.currentDue) || 0), 0);
 
-  // Filtered Parties
+  // Filter logic
   const filteredParties = useMemo(() => {
     return parties.filter((p) => {
-      if (search.trim()) {
-        const q = search.toLowerCase();
-        const matchName = (p.name || '').toLowerCase().includes(q);
-        const matchPhone = (p.phone || '').includes(q);
-        const matchPan = (p.panNumber || '').includes(q);
-        const matchContact = (p.contactPerson || '').toLowerCase().includes(q);
-        if (!matchName && !matchPhone && !matchPan && !matchContact) return false;
-      }
+      const matchSearch =
+        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.contactPerson || '').toLowerCase().includes(search.toLowerCase()) ||
+        (p.phone || '').includes(search) ||
+        (p.panNumber || '').includes(search);
 
-      if (categoryFilter !== 'ALL' && p.category !== categoryFilter) return false;
-      if (dueFilter === 'DUE' && (Number(p.currentDue) || 0) <= 0) return false;
-      if (dueFilter === 'CLEARED' && (Number(p.currentDue) || 0) > 0) return false;
+      const matchCat = categoryFilter === 'ALL' || p.category === categoryFilter;
+      const isDue = (Number(p.currentDue) || 0) > 0;
+      const matchDue = dueFilter === 'ALL' || (dueFilter === 'DUE' && isDue) || (dueFilter === 'PAID' && !isDue);
 
-      return true;
+      return matchSearch && matchCat && matchDue;
     });
   }, [parties, search, categoryFilter, dueFilter]);
 
@@ -191,6 +219,12 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       phone: phone.trim(),
       panNumber: panNumber.trim(),
       address: address.trim(),
+      bankName: bankName.trim(),
+      accountNumber: accountNumber.trim(),
+      accountHolderName: accountHolderName.trim() || partyName.trim(),
+      monthlyRent: partyCategory === 'LANDLORD' ? Number(monthlyRent) || 50000 : null,
+      securityDeposit: partyCategory === 'LANDLORD' ? Number(securityDeposit) || 0 : null,
+      tdsPercent: partyCategory === 'LANDLORD' ? Number(tdsPercent) || 10 : null,
       totalPurchases: 0,
       totalPaid: 0,
       currentDue: 0,
@@ -208,6 +242,8 @@ export default function PartyManagerView({ db, setDb, showToast }) {
     setPartyName('');
     setPhone('');
     setPanNumber('');
+    setAccountNumber('');
+    setMonthlyRent('');
     setNotes('');
   };
 
@@ -239,59 +275,46 @@ export default function PartyManagerView({ db, setDb, showToast }) {
     // Also record into db.expenses
     const newExpense = {
       id: `EXP-${Date.now()}`,
-      voucherNo: `PUR-${Date.now().toString().slice(-5)}`,
-      billNumber: billNo,
+      voucherNo: `VCH-${Date.now().toString().slice(-6)}`,
       date: billDate,
-      category: targetParty.category === 'LANDLORD' ? 'Rent & Facilities' : 'Training Materials',
+      category: targetParty.category === 'LANDLORD' ? 'Rent & Facilities' : 'Practical Raw Materials',
       payee: targetParty.name,
-      partyId: targetParty.id,
       amount: amt,
       paymentMethod: isCredit ? 'Credit (उधारो)' : purchasePayMethod,
       accountCode: targetParty.category === 'LANDLORD' ? '5400' : '5300',
-      description: `${purchaseDescription || 'सामग्री खरिद'} (बिल नं: ${billNo})`,
-      status: isCredit ? 'Pending (उधारो)' : 'Paid',
-      recordedBy: 'Accounts'
+      description: `बिल नं ${billNo}: ${purchaseDescription || 'सामान खरिद'}`,
+      status: isCredit ? 'Pending' : 'Paid',
+      billNumber: billNo
     };
 
-    const updatedExpenses = [newExpense, ...(db.expenses || [])];
-    const nextDb = { ...db, parties: updatedParties, expenses: updatedExpenses };
+    let nextDb = {
+      ...db,
+      parties: updatedParties,
+      expenses: [newExpense, ...(db.expenses || [])]
+    };
 
-    // Post double-entry journal
+    // Double Entry Journal Entry
     try {
-      postDoubleEntryJournal(
-        nextDb,
-        {
-          date: billDate,
-          voucherType: 'PURCHASE',
-          referenceNo: billNo,
-          narration: `खरिद/खर्च: ${targetParty.name} - ${purchaseDescription || 'कच्चा पदार्थ खरिद'}`,
-          createdBy: 'Accounts',
-          lines: [
-            {
-              accountCode: targetParty.category === 'LANDLORD' ? '5400' : '5300', // Expense
-              description: `खर्च: ${targetParty.name}`,
-              debit: amt,
-              credit: 0
-            },
-            {
-              accountCode: isCredit ? '2010' : (purchasePayMethod === 'Bank' ? '1020' : '1010'), // A/P or Cash/Bank
-              description: isCredit ? `साहु बक्यौता (A/P): ${targetParty.name}` : `भुक्तानी (${purchasePayMethod})`,
-              debit: 0,
-              credit: amt
-            }
-          ]
-        },
-        () => {}
-      );
-    } catch (err) {
-      console.warn('Journal purchase notice:', err);
-    }
+      const creditAcc = isCredit ? '2010' : '1010';
+      const debitAcc = targetParty.category === 'LANDLORD' ? '5400' : '5300';
+      const journalRes = postDoubleEntryJournal(nextDb, {
+        entryDate: billDate,
+        narration: `पार्टी ${targetParty.name} बाट खरिद/खर्च (Bill #${billNo})`,
+        sourceModule: 'VENDOR_BILL',
+        sourceId: billNo,
+        lines: [
+          { accountCode: debitAcc, debit: amt, credit: 0, lineNarration: purchaseDescription },
+          { accountCode: creditAcc, debit: 0, credit: amt, lineNarration: `Bill #${billNo}` }
+        ]
+      });
+      nextDb = journalRes.nextDb;
+    } catch (_) {}
 
     saveDB(nextDb);
     setDb(nextDb);
 
     if (showToast) {
-      showToast(`खरिद बिल (रु. ${amt.toLocaleString()}) सफलतापूर्वक सुरक्षित भयो।`, 'success');
+      showToast(`बिल नं ${billNo} मार्फत रु. ${amt.toLocaleString()} को खरिद प्रविष्टि भयो।`, 'success');
     }
     setRecordPurchaseOpen(false);
     setPurchaseAmount('');
@@ -299,100 +322,34 @@ export default function PartyManagerView({ db, setDb, showToast }) {
     setPurchaseDescription('');
   };
 
-  // Handler: Pay Due to Party
-  const handlePayDue = (e) => {
-    e.preventDefault();
-    const amt = Number(payDueAmount) || 0;
-    if (amt <= 0 || !selectedPartyForPay) return;
-
-    const targetParty = parties.find((p) => p.id === selectedPartyForPay.id);
-    if (!targetParty) return;
-
-    const receiptNo = `PAY-PRT-${Date.now().toString().slice(-6)}`;
-    const today = new Date().toISOString().slice(0, 10);
-
-    // Update Party Balance
-    const updatedParties = parties.map((p) => {
-      if (p.id === selectedPartyForPay.id) {
-        const nextDue = Math.max(0, (p.currentDue || 0) - amt);
-        return {
-          ...p,
-          totalPaid: (p.totalPaid || 0) + amt,
-          currentDue: nextDue
-        };
-      }
-      return p;
+  const handleDeleteParty = async (partyId, name) => {
+    const ok = await confirm({
+      type: 'danger',
+      title: 'पार्टी हटाउने निश्चित गर्नुहोस् (Delete Party)',
+      message: `के तपाईं पार्टी "${name}" लाई सूचीबाट हटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो कार्यपछि पार्टीको बैंक र बक्यौता विवरण हट्नेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
+      confirmText: 'हो, हटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
     });
 
-    // Record into expenses as settlement
-    const settlementExp = {
-      id: `EXP-SETTLE-${Date.now()}`,
-      voucherNo: receiptNo,
-      date: today,
-      category: 'Party Due Settlement',
-      payee: targetParty.name,
-      partyId: targetParty.id,
-      amount: amt,
-      paymentMethod: payDueMethod,
-      accountCode: '2010', // Accounts Payable
-      description: `${payDueRemarks} (रसिद नं: ${receiptNo})`,
-      status: 'Paid',
-      recordedBy: 'Accounts'
-    };
-
-    const updatedExpenses = [settlementExp, ...(db.expenses || [])];
-    const nextDb = { ...db, parties: updatedParties, expenses: updatedExpenses };
-
-    // Post double entry journal
-    try {
-      postDoubleEntryJournal(
-        nextDb,
-        {
-          date: today,
-          voucherType: 'PAYMENT',
-          referenceNo: receiptNo,
-          narration: `पार्टी बक्यौता भुक्तानी: ${targetParty.name}`,
-          createdBy: 'Accounts',
-          lines: [
-            {
-              accountCode: '2010', // Accounts Payable
-              description: `बक्यौता कट्टी: ${targetParty.name}`,
-              debit: amt,
-              credit: 0
-            },
-            {
-              accountCode: payDueMethod === 'Bank' ? '1020' : '1010', // Cash / Bank
-              description: `भुक्तानी माध्यम: ${payDueMethod}`,
-              debit: 0,
-              credit: amt
-            }
-          ]
-        },
-        () => {}
-      );
-    } catch (err) {
-      console.warn('Journal settlement notice:', err);
-    }
-
-    saveDB(nextDb);
-    setDb(nextDb);
-
-    if (showToast) {
-      showToast(`${targetParty.name} लाई रु. ${amt.toLocaleString()} भुक्तानी गरियो।`, 'success');
-    }
-    setPayDueOpen(false);
-    setSelectedPartyForPay(null);
-    setPayDueAmount('');
-  };
-
-  const handleDeleteParty = (partyId, name) => {
-    if (window.confirm(`के तपाईं पार्टी '${name}' लाई सूचीबाट हटाउन चाहनुहुन्छ?`)) {
+    if (ok) {
       const updated = parties.filter((p) => p.id !== partyId);
       const nextDb = { ...db, parties: updated };
       saveDB(nextDb);
       setDb(nextDb);
       if (showToast) showToast('पार्टी हटाइयो।', 'info');
     }
+  };
+
+  const handleOpenPayout = (party) => {
+    setSelectedPartyForConnectIps(party);
+    setConnectIpsModalOpen(true);
+  };
+
+  const handleOpenStatement = (party) => {
+    setStatementPartyId(party.id);
+    setStatementPartyType(party.category === 'LANDLORD' ? 'LANDLORD' : 'SUPPLIER');
+    setUniversalStatementOpen(true);
   };
 
   return (
@@ -410,7 +367,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   {totalPartiesCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
-                  घरधनी र सप्लायरहरू
+                  घरबेटी, बिक्रेता तथा युटिलिटी
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
@@ -425,16 +382,16 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  कुल खरिद / बिल रकम
+                  कुल खरिद तथा भाडा बिल
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
-                  रु. {totalPurchasesBilled.toLocaleString()}
+                  रु. {totalPurchasesSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600 }}>
-                  कच्चा पदार्थ र सेवा
+                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                  वार्षिक दर्ता कुल दायित्व
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#eff6ff', borderRadius: 2, color: '#1e40af' }}>
+              <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, color: '#0f2e5a' }}>
                 <ShoppingBagIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
@@ -446,53 +403,52 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  पार्टीलाई भुक्तान रकम
+                  हालसम्म चुक्ता रकम
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
-                  रु. {totalPaidToParties.toLocaleString()}
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#16a34a', mt: 0.5 }}>
+                  रु. {totalPaidSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                  नगद तथा बैंक चुक्ता
+                <Typography variant="caption" sx={{ color: '#16a34a', fontWeight: 700 }}>
+                  ConnectIPS तथा बैंक मार्फत भुक्तानी
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#ecfdf5', borderRadius: 2, color: '#059669' }}>
-                <PaymentIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, color: '#16a34a' }}>
+                <ReceiptLongIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        {/* Outstanding Credit Due */}
         <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1.5px solid #fecdd3', bgcolor: '#fff1f2' }}>
+          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#9f1239' }}>
-                  तिर्न बाँकी उधारो बक्यौता
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
+                  कुल तिर्न बाँकी बक्यौता
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#be123c', mt: 0.5 }}>
-                  रु. {totalCreditDue.toLocaleString()}
+                <Typography variant="h5" sx={{ fontWeight: 900, color: totalDueSum > 0 ? '#dc2626' : '#16a34a', mt: 0.5 }}>
+                  रु. {totalDueSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#e11d48', fontWeight: 700 }}>
-                  साहु/पार्टीलाई तिर्नुपर्ने
+                <Typography variant="caption" sx={{ color: totalDueSum > 0 ? '#dc2626' : '#16a34a', fontWeight: 700 }}>
+                  {totalDueSum > 0 ? 'दायित्व चुक्ता गर्न बाँकी' : 'सबै चुक्ता'}
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#ffe4e6', borderRadius: 2, color: '#e11d48' }}>
-                <ReceiptLongIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ p: 1.5, bgcolor: totalDueSum > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: 2, color: totalDueSum > 0 ? '#dc2626' : '#16a34a' }}>
+                <PaymentIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Action Bar & Filters */}
-      <Card elevation={0} sx={{ p: 2.5, mb: 3, borderRadius: 2, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
+      {/* Action Bar & Filter Controls */}
+      <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff', mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={3.5}>
             <TextField
               fullWidth
               size="small"
-              placeholder="पार्टीको नाम, फोन वा प्यान नं खोजी गर्नुहोस्..."
+              placeholder="पार्टीको नाम, फोन वा प्यान नम्बर खोज्नुहोस्..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               InputProps={{
@@ -510,11 +466,11 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               select
               fullWidth
               size="small"
-              label="पार्टी वर्ग (Category)"
+              label="पार्टीको प्रकार"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै प्रकारका पार्टीहरू</MenuItem>
+              <MenuItem value="ALL">सबै प्रकार (All Parties)</MenuItem>
               {PARTY_CATEGORIES.map((c) => (
                 <MenuItem key={c.code} value={c.code}>
                   {c.icon} {c.label}
@@ -532,65 +488,95 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               value={dueFilter}
               onChange={(e) => setDueFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै (All)</MenuItem>
-              <MenuItem value="DUE">उधारो बाँकी (Due)</MenuItem>
-              <MenuItem value="CLEARED">चुक्ता (Cleared)</MenuItem>
+              <MenuItem value="ALL">सबै (All Status)</MenuItem>
+              <MenuItem value="DUE">🔴 बक्यौता बाँकी मात्र</MenuItem>
+              <MenuItem value="PAID">🟢 पूर्ण चुक्ता मात्र</MenuItem>
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={3.5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+          <Grid item xs={12} md={4} sx={{ textAlign: { md: 'right' } }}>
+            <Stack direction="row" spacing={1.5} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
               <Button
                 variant="outlined"
+                startIcon={<ArticleIcon />}
+                onClick={() => {
+                  setStatementPartyId(parties[0]?.id || null);
+                  setStatementPartyType('LANDLORD');
+                  setUniversalStatementOpen(true);
+                }}
+                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+              >
+                वार्षिक स्टेटमेन्ट हब
+              </Button>
+              <Button
+                variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setAddPartyOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none' }}
+                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a', borderRadius: 2, '&:hover': { bgcolor: '#174276' } }}
               >
                 + पार्टी थप्नुहोस्
               </Button>
               <Button
                 variant="contained"
-                color="primary"
                 startIcon={<PointOfSaleIcon />}
                 onClick={() => setRecordPurchaseOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a' }}
+                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', borderRadius: 2, '&:hover': { bgcolor: '#047857' } }}
               >
-                + खरिद/खर्च इन्ट्री
+                + खरिद/खर्च
               </Button>
             </Stack>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Party Table */}
-      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      {/* Party Table with Model 1 Styling */}
+      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.84rem',
+                  py: 1.5,
+                  borderBottom: '2px solid #F59E0B'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>पार्टीको नाम / वर्ग</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>सम्पर्क व्यक्ति / फोन</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>प्यान नं / ठेगाना</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="right">कुल खरिद / बिल</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="right">हालसम्म भुक्तानी</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="right">तिर्न बाँकी बक्यौता</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="center">कार्यहरू</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
+                  क्र.सं. (S.N.)
+                </TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पार्टीको नाम / वर्ग</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क व्यक्ति / फोन</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ConnectIPS बैंक विवरण</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">कुल खरिद / भाडा</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">हालसम्म भुक्तानी</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">तिर्न बाँकी बक्यौता</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">कार्यहरू (Actions)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredParties.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} align="center" sx={{ py: 6, color: '#64748b' }}>
+                  <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#64748b' }}>
                     कुनै पार्टी फेला परेन। '+ पार्टी थप्नुहोस्' थिचेर घरधनी वा सप्लायर दर्ता गर्नुहोस्।
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredParties.map((p) => {
+                filteredParties.map((p, idx) => {
                   const catObj = PARTY_CATEGORIES.find((c) => c.code === p.category) || {};
                   const isDue = (Number(p.currentDue) || 0) > 0;
 
                   return (
                     <TableRow key={p.id} hover>
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                        {idx + 1}
+                      </TableCell>
+
                       <TableCell>
                         <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
                           {catObj.icon} {p.name}
@@ -600,31 +586,54 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                           size="small"
                           sx={{ height: '20px', fontSize: '0.68rem', fontWeight: 700, mt: 0.5, bgcolor: '#f1f5f9' }}
                         />
+                        {p.monthlyRent && (
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.3 }}>
+                            मासिक सम्झौता: रु. {p.monthlyRent.toLocaleString()} (TDS: {p.tdsPercent || 10}%)
+                          </Typography>
+                        )}
                       </TableCell>
 
                       <TableCell>
                         <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
                           {p.contactPerson || '-'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
-                          फोन: {p.phone || '-'}
-                        </Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="caption" sx={{ color: '#64748b' }}>
+                            {p.phone || '-'}
+                          </Typography>
+                          {p.phone && (
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={getWhatsAppUrl(p.phone, `नमस्ते ${p.name} ज्यू, ग्लोबल एरा प्राविधिक स्कुलबाट सम्पर्क गर्दैछौं।`)}
+                              target="_blank"
+                              sx={{ color: '#25D366', p: 0.2 }}
+                            >
+                              <WhatsAppIcon sx={{ fontSize: 16 }} />
+                            </IconButton>
+                          )}
+                        </Box>
                       </TableCell>
 
                       <TableCell>
-                        <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#475569' }}>
-                          PAN: {p.panNumber || 'N/A'}
+                        <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#0F2E5A' }}>
+                          {p.bankName || 'Global IME Bank'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748b' }}>
-                          {p.address}
+                        <Typography variant="caption" sx={{ color: '#475569', fontFamily: 'monospace', display: 'block' }}>
+                          A/C: {p.accountNumber || '०१२०००१२३४५'}
                         </Typography>
+                        {p.panNumber && (
+                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            PAN: {p.panNumber}
+                          </Typography>
+                        )}
                       </TableCell>
 
-                      <TableCell align="right" sx={{ fontWeight: 700, color: '#0f2e5a' }}>
+                      <TableCell align="right" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
                         रु. {(Number(p.totalPurchases) || 0).toLocaleString()}
                       </TableCell>
 
-                      <TableCell align="right" sx={{ fontWeight: 700, color: '#059669' }}>
+                      <TableCell align="right" sx={{ fontWeight: 800, color: '#059669' }}>
                         रु. {(Number(p.totalPaid) || 0).toLocaleString()}
                       </TableCell>
 
@@ -650,31 +659,45 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                       </TableCell>
 
                       <TableCell align="center">
-                        <Stack direction="row" spacing={1} justifyContent="center">
-                          {isDue && (
-                            <Tooltip title="बक्यौता भुक्तानी गर्नुहोस्">
-                              <Button
-                                variant="contained"
-                                size="small"
-                                color="error"
-                                startIcon={<PaymentIcon />}
-                                onClick={() => {
-                                  setSelectedPartyForPay(p);
-                                  setPayDueAmount(p.currentDue || '');
-                                  setPayDueOpen(true);
-                                }}
-                                sx={{ fontWeight: 800, fontSize: '0.75rem', py: 0.5 }}
-                              >
-                                बक्यौता तिर्नुहोस्
-                              </Button>
-                            </Tooltip>
-                          )}
+                        <Stack direction="row" spacing={0.8} justifyContent="center">
+                          <Tooltip title="ConnectIPS / बैंक भुक्तानी गर्नुहोस्">
+                            <Button
+                              variant="contained"
+                              size="small"
+                              startIcon={<AccountBalanceIcon sx={{ fontSize: '0.9rem !important' }} />}
+                              onClick={() => handleOpenPayout(p)}
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.74rem',
+                                py: 0.4,
+                                px: 1.2,
+                                bgcolor: isDue ? '#DC2626' : '#0F2E5A',
+                                borderRadius: 1.8,
+                                textTransform: 'none',
+                                '&:hover': { bgcolor: isDue ? '#B91C1C' : '#174276' }
+                              }}
+                            >
+                              भुक्तानी
+                            </Button>
+                          </Tooltip>
+
+                          <Tooltip title="१२-महिने खातापाना / स्टेटमेन्ट">
+                            <Button
+                              variant="outlined"
+                              size="small"
+                              startIcon={<ArticleIcon sx={{ fontSize: '0.9rem !important' }} />}
+                              onClick={() => handleOpenStatement(p)}
+                              sx={{ fontWeight: 800, fontSize: '0.74rem', py: 0.4, px: 1.2, borderRadius: 1.8, textTransform: 'none' }}
+                            >
+                              स्टेटमेन्ट
+                            </Button>
+                          </Tooltip>
 
                           <Tooltip title="पार्टी मेटाउनुहोस्">
                             <IconButton
                               size="small"
-                              color="error"
                               onClick={() => handleDeleteParty(p.id, p.name)}
+                              sx={{ color: '#EF4444', bgcolor: '#FEF2F2', borderRadius: 1.8 }}
                             >
                               <DeleteOutlineIcon fontSize="small" />
                             </IconButton>
@@ -728,10 +751,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="पार्टी / पसलको नाम"
+                  label="पार्टी / पसल / घरबेटीको नाम"
                   value={partyName}
                   onChange={(e) => setPartyName(e.target.value)}
-                  placeholder="उदा: न्युरोड फेब्रिक स्टोर"
+                  placeholder="उदा: राम कुमार श्रेष्ठ (घरधनी)"
                 />
               </Grid>
 
@@ -750,10 +773,22 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="मोबाइल नम्बर"
+                  label="सम्पर्क फोन / WhatsApp"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="98XXXXXXXX"
+                  placeholder="९८४१xxxxxx"
+                />
+              </Grid>
+
+              {/* ConnectIPS Bank Account Details */}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="ConnectIPS बैंकको नाम"
+                  value={bankName}
+                  onChange={(e) => setBankName(e.target.value)}
+                  placeholder="उदा: Global IME Bank"
                 />
               </Grid>
 
@@ -761,13 +796,67 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="प्यान नम्बर (PAN / VAT No.)"
+                  label="बैंक खाता नम्बर (A/C No)"
+                  value={accountNumber}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  placeholder="०१२०००१२३४५"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="खातावालाको नाम (A/C Holder Name)"
+                  value={accountHolderName}
+                  onChange={(e) => setAccountHolderName(e.target.value)}
+                  placeholder="Ram Kumar Shrestha"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="प्यान / भ्याट नम्बर (PAN/VAT)"
                   value={panNumber}
                   onChange={(e) => setPanNumber(e.target.value)}
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              {/* Landlord Specific Fields */}
+              {partyCategory === 'LANDLORD' && (
+                <>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="मासिक सम्झौता भाडा (रु.)"
+                      value={monthlyRent}
+                      onChange={(e) => setMonthlyRent(e.target.value)}
+                      placeholder="५०,०००"
+                      InputProps={{
+                        startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                      }}
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      type="number"
+                      label="फिर्तायोग्य अग्रिम धरौटी (Deposit)"
+                      value={securityDeposit}
+                      onChange={(e) => setSecurityDeposit(e.target.value)}
+                      placeholder="१,५०,०००"
+                    />
+                  </Grid>
+                </>
+              )}
+
+              <Grid item xs={12}>
                 <TextField
                   fullWidth
                   size="small"
@@ -780,10 +869,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               <Grid item xs={12}>
                 <TextField
                   fullWidth
+                  size="small"
+                  label="कैफियत / सम्झौता विवरण (Notes)"
                   multiline
                   rows={2}
-                  size="small"
-                  label="थप कैफियत / सम्झौता नोट"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                 />
@@ -794,7 +883,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               <Button onClick={() => setAddPartyOpen(false)} color="inherit">
                 रद्द गर्नुहोस्
               </Button>
-              <Button type="submit" variant="contained" color="primary" sx={{ fontWeight: 800, bgcolor: '#0f2e5a' }}>
+              <Button type="submit" variant="contained" sx={{ bgcolor: '#0f2e5a', fontWeight: 800 }}>
                 पार्टी सुरक्षित गर्नुहोस्
               </Button>
             </DialogActions>
@@ -802,12 +891,12 @@ export default function PartyManagerView({ db, setDb, showToast }) {
         </DialogContent>
       </Dialog>
 
-      {/* Dialog: Record Purchase / Expense */}
+      {/* Dialog: Record Purchase */}
       <Dialog open={recordPurchaseOpen} onClose={() => setRecordPurchaseOpen(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ bgcolor: '#0f2e5a', color: '#ffffff', py: 2 }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              + खरिद तथा खर्च बिल इन्ट्री (Purchase / Expense Entry)
+              + नयाँ खरिद / खर्च बिल प्रविष्टि गर्नुहोस्
             </Typography>
             <IconButton onClick={() => setRecordPurchaseOpen(false)} sx={{ color: '#ffffff' }}>
               <CloseIcon />
@@ -823,18 +912,15 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="पार्टी छनोट गर्नुहोस् (Select Party)"
+                  label="सम्बन्धित पार्टी छान्नुहोस्"
                   value={purchasePartyId}
                   onChange={(e) => setPurchasePartyId(e.target.value)}
                 >
-                  {parties.map((p) => {
-                    const cat = PARTY_CATEGORIES.find((c) => c.code === p.category);
-                    return (
-                      <MenuItem key={p.id} value={p.id}>
-                        {cat?.icon} {p.name} — बक्यौता: रु. {(p.currentDue || 0).toLocaleString()}
-                      </MenuItem>
-                    );
-                  })}
+                  {parties.map((p) => (
+                    <MenuItem key={p.id} value={p.id}>
+                      {p.name} ({p.category})
+                    </MenuItem>
+                  ))}
                 </TextField>
               </Grid>
 
@@ -842,19 +928,19 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="बिल / इनभ्वाइस नम्बर"
+                  label="बिल नम्बर (Invoice / Bill No)"
                   value={billNumber}
                   onChange={(e) => setBillNumber(e.target.value)}
-                  placeholder="उदा: INV-102"
+                  placeholder="उदा: INV-1042"
                 />
               </Grid>
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  type="date"
                   fullWidth
                   size="small"
-                  label="बिल मिति"
+                  type="date"
+                  label="बिल मिति (Date)"
                   value={billDate}
                   onChange={(e) => setBillDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -878,62 +964,25 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   select
                   fullWidth
                   size="small"
-                  label="भुक्तानी माध्यम"
-                  value={purchasePayMethod}
-                  disabled={isCreditPurchase}
-                  onChange={(e) => setPurchasePayMethod(e.target.value)}
+                  label="भुक्तानी प्रकार"
+                  value={isCreditPurchase ? 'CREDIT' : 'CASH'}
+                  onChange={(e) => setIsCreditPurchase(e.target.value === 'CREDIT')}
                 >
-                  <MenuItem value="Cash">नगद (Cash)</MenuItem>
-                  <MenuItem value="Bank">बैंक ट्रान्सफर (Bank)</MenuItem>
-                  <MenuItem value="Fonepay">Fonepay / QR</MenuItem>
-                  <MenuItem value="eSewa">eSewa</MenuItem>
+                  <MenuItem value="CREDIT">🔴 उधारो बिल (Accounts Payable)</MenuItem>
+                  <MenuItem value="CASH">🟢 तुरुन्तै चुक्ता (Instant Paid)</MenuItem>
                 </TextField>
-              </Grid>
-
-              {/* Credit Purchase Checkbox Toggle */}
-              <Grid item xs={12}>
-                <Paper
-                  sx={{
-                    p: 1.5,
-                    bgcolor: isCreditPurchase ? '#fff1f2' : '#f0fdf4',
-                    border: `1.5px solid ${isCreditPurchase ? '#f43f5e' : '#10b981'}`,
-                    borderRadius: 1.5
-                  }}
-                >
-                  <Stack direction="row" justifyContent="space-between" alignItems="center">
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isCreditPurchase ? '#9f1239' : '#065f46' }}>
-                        {isCreditPurchase ? '⚠️ उधारो खरिद (Credit Purchase - Payable)' : '✓ तुरुन्त भुक्तानी (Paid Immediately)'}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b' }}>
-                        {isCreditPurchase
-                          ? 'यो रकम पार्टीको नाममा बक्यौता भएर बस्नेछ, पछि भुक्तानी गर्न सकिनेछ।'
-                          : 'यो रकम तुरुन्तै क्यास वा बैंक खाताबाट घट्नेछ।'}
-                      </Typography>
-                    </Box>
-                    <Button
-                      size="small"
-                      variant={isCreditPurchase ? 'contained' : 'outlined'}
-                      color={isCreditPurchase ? 'error' : 'success'}
-                      onClick={() => setIsCreditPurchase(!isCreditPurchase)}
-                      sx={{ fontWeight: 800 }}
-                    >
-                      {isCreditPurchase ? 'उधारो' : 'नगद भुक्तान'}
-                    </Button>
-                  </Stack>
-                </Paper>
               </Grid>
 
               <Grid item xs={12}>
                 <TextField
                   fullWidth
+                  size="small"
+                  label="सामानको विवरण (Description)"
                   multiline
                   rows={2}
-                  size="small"
-                  label="सामग्री विवरण / के के ल्याएको?"
                   value={purchaseDescription}
                   onChange={(e) => setPurchaseDescription(e.target.value)}
-                  placeholder="उदा: सिलाई तालिमका लागि २० मिटर सुती कपडा, १० वटा धागो र मेसिन सुई..."
+                  placeholder="उदा: वेल्डिङ तालिमका लागि ५ बन्डल रड र ग्राइन्डिङ ह्विल"
                 />
               </Grid>
             </Grid>
@@ -942,84 +991,34 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               <Button onClick={() => setRecordPurchaseOpen(false)} color="inherit">
                 रद्द गर्नुहोस्
               </Button>
-              <Button type="submit" variant="contained" color="primary" sx={{ fontWeight: 800, bgcolor: '#0f2e5a' }}>
-                खरिद सुरक्षित गर्नुहोस्
+              <Button type="submit" variant="contained" sx={{ bgcolor: '#0f2e5a', fontWeight: 800 }}>
+                खरिद बिल दाखिला गर्नुहोस्
               </Button>
             </DialogActions>
           </Box>
         </DialogContent>
       </Dialog>
 
-      {/* Dialog: Pay Party Due */}
-      <Dialog open={payDueOpen} onClose={() => setPayDueOpen(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ bgcolor: '#dc2626', color: '#ffffff', py: 2 }}>
-          <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
-              पार्टी बक्यौता भुक्तानी
-            </Typography>
-            <IconButton onClick={() => setPayDueOpen(false)} sx={{ color: '#ffffff' }}>
-              <CloseIcon />
-            </IconButton>
-          </Stack>
-        </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          {selectedPartyForPay && (
-            <Box component="form" onSubmit={handlePayDue} sx={{ mt: 1 }}>
-              <Box sx={{ mb: 2, p: 1.5, bgcolor: '#fef2f2', borderRadius: 1.5, border: '1px solid #fecdd3' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#991b1b' }}>
-                  {selectedPartyForPay.name}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#b91c1c', display: 'block' }}>
-                  कुल तिर्न बाँकी बक्यौता: <strong>रु. {(selectedPartyForPay.currentDue || 0).toLocaleString()}</strong>
-                </Typography>
-              </Box>
+      {/* ConnectIPS Fast Payout Modal */}
+      <ConnectIpsPayoutModal
+        open={connectIpsModalOpen}
+        onClose={() => setConnectIpsModalOpen(false)}
+        party={selectedPartyForConnectIps}
+        db={db}
+        setDb={setDb}
+        onSuccess={() => {
+          if (showToast) showToast('ConnectIPS भुक्तानी सफलतापूर्वक सम्पन्न भयो!', 'success');
+        }}
+      />
 
-              <TextField
-                fullWidth
-                required
-                type="number"
-                size="small"
-                label="भुक्तानी गर्न लागेको रकम (रु.)"
-                value={payDueAmount}
-                onChange={(e) => setPayDueAmount(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-
-              <TextField
-                select
-                fullWidth
-                size="small"
-                label="भुक्तानी माध्यम"
-                value={payDueMethod}
-                onChange={(e) => setPayDueMethod(e.target.value)}
-                sx={{ mb: 2 }}
-              >
-                <MenuItem value="Cash">नगद (Cash)</MenuItem>
-                <MenuItem value="Bank">बैंक ट्रान्सफर / चेक (Bank Transfer / Cheque)</MenuItem>
-                <MenuItem value="Fonepay">Fonepay / QR</MenuItem>
-                <MenuItem value="eSewa">eSewa</MenuItem>
-              </TextField>
-
-              <TextField
-                fullWidth
-                size="small"
-                label="कैफियत (Remarks)"
-                value={payDueRemarks}
-                onChange={(e) => setPayDueRemarks(e.target.value)}
-              />
-
-              <DialogActions sx={{ px: 0, pt: 3 }}>
-                <Button onClick={() => setPayDueOpen(false)} color="inherit">
-                  रद्द गर्नुहोस्
-                </Button>
-                <Button type="submit" variant="contained" color="error" sx={{ fontWeight: 800 }}>
-                  भुक्तानी भौचर जारी गर्नुहोस्
-                </Button>
-              </DialogActions>
-            </Box>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Universal Statement Modal */}
+      <UniversalStatementModal
+        open={universalStatementOpen}
+        onClose={() => setUniversalStatementOpen(false)}
+        db={db}
+        initialEntityType={statementPartyType}
+        initialEntityId={statementPartyId}
+      />
     </Box>
   );
 }

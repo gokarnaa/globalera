@@ -60,6 +60,7 @@ import DailyCashClosingModal from './DailyCashClosingModal';
 import PartyManagerView from './PartyManagerView';
 import FeeClearanceReceiptModal from './FeeClearanceReceiptModal';
 import StudentPaymentTimelineModal from './StudentPaymentTimelineModal';
+import UniversalStatementModal from './UniversalStatementModal';
 
 import LockIcon from '@mui/icons-material/Lock';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
@@ -68,6 +69,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import ArticleIcon from '@mui/icons-material/Article';
 
 export default function AccountsManager({ initialTab = 0 }) {
   const [db, setDb] = useState(loadDB());
@@ -91,6 +93,11 @@ export default function AccountsManager({ initialTab = 0 }) {
   const [timelineStudent, setTimelineStudent] = useState(null);
   const [clearanceStudent, setClearanceStudent] = useState(null);
   const [clearanceLedger, setClearanceLedger] = useState(null);
+
+  // Universal Statement Modal State
+  const [universalStatementOpen, setUniversalStatementOpen] = useState(false);
+  const [statementType, setStatementType] = useState('LANDLORD');
+  const [statementTargetId, setStatementTargetId] = useState(null);
 
   // Search & Filters for Student Ledger
   const [searchQuery, setSearchQuery] = useState('');
@@ -465,6 +472,24 @@ export default function AccountsManager({ initialTab = 0 }) {
             }}
           >
             एक्सेल रिपोर्ट (Export)
+          </Button>
+
+          <Button
+            variant="contained"
+            onClick={() => {
+              setStatementType('LANDLORD');
+              setUniversalStatementOpen(true);
+            }}
+            startIcon={<ArticleIcon />}
+            sx={{
+              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+              fontWeight: 800,
+              borderRadius: 2.5,
+              boxShadow: '0 4px 14px rgba(15, 46, 90, 0.35)',
+              textTransform: 'none'
+            }}
+          >
+            📜 एकीकृत स्टेटमेन्ट हब
           </Button>
 
           <Button
@@ -1102,6 +1127,20 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </Tooltip>
                             )}
 
+                            <Tooltip title="१२-महिने लेजर स्टेटमेन्ट हेर्नुहोस्">
+                              <IconButton
+                                size="small"
+                                onClick={() => {
+                                  setStatementType('STUDENT');
+                                  setStatementTargetId(st.id);
+                                  setUniversalStatementOpen(true);
+                                }}
+                                sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                              >
+                                <ArticleIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+
                             <Tooltip title="किस्ता टाइमलाइन र इतिहास हेर्नुहोस्">
                               <IconButton
                                 size="small"
@@ -1505,6 +1544,15 @@ export default function AccountsManager({ initialTab = 0 }) {
           setClearanceStudent(st);
           setClearanceLedger(l);
         }}
+      />
+
+      {/* 7. Universal 12-Month Financial Statement Modal */}
+      <UniversalStatementModal
+        open={universalStatementOpen}
+        onClose={() => setUniversalStatementOpen(false)}
+        db={db}
+        initialEntityType={statementType}
+        initialEntityId={statementTargetId}
       />
 
       {/* Snackbar Feedback */}
