@@ -23,6 +23,7 @@ import SyllabusManager from './components/syllabus/SyllabusManager';
 import StudentManager from './components/students/StudentManager';
 import LeadManager from './components/leads/LeadManager';
 import AdmissionManager from './components/admission/AdmissionManager';
+import CourseFeeManager from './components/courses/CourseFeeManager';
 import AccountsManager from './components/accounts/AccountsManager';
 import WorkPlanManager from './components/workplan/WorkPlanManager';
 import LessonPlanManager from './components/lessonplan/LessonPlanManager';
@@ -223,6 +224,8 @@ export default function App() {
       case 'fees':
       case 'accounts':
         return <AccountsManager initialTab={0} />;
+      case 'course_fees':
+        return <CourseFeeManager />;
       case 'workplan':
         return <WorkPlanManager />;
       case 'lessonplan':

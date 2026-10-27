@@ -79,6 +79,7 @@ const NAV_ITEMS = [
   // --- 5. आर्थिक तथा लेखा ---
   { section: '५. आर्थिक तथा लेखा (FINANCE & ACCOUNTS)' },
   { id: 'accounts', label: 'लेखा तथा बिलिङ (Finance & Billing)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
+  { id: 'course_fees', label: 'कोर्स शुल्क संरचना (Course Fee Setup)', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'VAT' },
 
   // --- 6. प्रणाली र प्रयोगकर्ता ---
   { section: '६. प्रणाली र प्रयोगकर्ता (SYSTEM & SETTINGS)' },

@@ -79,6 +79,8 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   // Net payable fee
   const netPayableFee = Math.max(0, (Number(totalCourseFee) || 0) - (Number(discountAmount) || 0));
   const dueAmount50 = Math.max(0, netPayableFee - (Number(advancePaid) || 0));
+  const selectedCourseObj = (db.courses || []).find((c) => c.id === selectedCourseId);
+  const isFullOnlyCourse = selectedCourseObj?.feeStructure?.paymentMode === 'FULL_ONLY';
 
   // Auto-select first course on open
   useEffect(() => {
@@ -87,9 +89,16 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     if (db.courses && db.courses.length > 0 && !selectedCourseId) {
       const firstCourse = db.courses[0];
       setSelectedCourseId(firstCourse.id);
-      setTotalCourseFee(firstCourse.price || 15000);
+      const fs = firstCourse.feeStructure;
+      const price = firstCourse.price || 15000;
+      setTotalCourseFee(price);
       setKeySkills(firstCourse.description || '');
-      setAdvancePaid(Math.round((firstCourse.price || 15000) * 0.5));
+      if (fs?.paymentMode === 'FULL_ONLY') {
+        setDiscountAmount(0);
+        setAdvancePaid(price);
+      } else {
+        setAdvancePaid(Math.round(price * 0.5));
+      }
     }
   }, [open, db.courses]);
 
@@ -98,11 +107,17 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     setSelectedCourseId(courseId);
     const crs = (db.courses || []).find((c) => c.id === courseId);
     if (crs) {
+      const fs = crs.feeStructure;
       const price = crs.price || 15000;
       setTotalCourseFee(price);
       setKeySkills(crs.description || '');
-      const net = Math.max(0, price - discountAmount);
-      setAdvancePaid(Math.round(net * 0.5));
+      if (fs?.paymentMode === 'FULL_ONLY') {
+        setDiscountAmount(0);
+        setAdvancePaid(price);
+      } else {
+        const net = Math.max(0, price - discountAmount);
+        setAdvancePaid(Math.round(net * 0.5));
+      }
 
       // Find matching group
       const matchingGroup = (db.trainingGroups || []).find((g) => g.courseId === courseId);
@@ -629,11 +644,11 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 </Box>
               </Grid>
 
-              {/* 50% Advance Box */}
+              {/* Advance Payment Box (50% or 100% Full Upfront for Basic Course) */}
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 2, bgcolor: '#ecfdf5', border: '1.5px solid #10b981', borderRadius: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#065f46', mb: 1 }}>
-                    पहिलो किस्ता (भर्नाको समयमा ५०% अग्रिम रकम):
+                <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse ? '#eff6ff' : '#ecfdf5', border: `1.5px solid ${isFullOnlyCourse ? '#3b82f6' : '#10b981'}`, borderRadius: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse ? '#1d4ed8' : '#065f46', mb: 1 }}>
+                    {isFullOnlyCourse ? '⚡ एकमुष्ट भुक्तानी (१००% भर्नामै तिर्नुपर्ने):' : 'पहिलो किस्ता (भर्नाको समयमा ५०% अग्रिम रकम):'}
                   </Typography>
                   <TextField
                     fullWidth
@@ -644,28 +659,38 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                     size="small"
                     sx={{ bgcolor: '#ffffff', borderRadius: 1 }}
                   />
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block', mt: 0.8 }}>
-                    * विद्यार्थीले ५०% (रु. {Math.round(netPayableFee * 0.5).toLocaleString()}) वा सोभन्दा बढी रकम बुझाउनुपर्नेछ।
+                  <Typography variant="caption" sx={{ color: isFullOnlyCourse ? '#1e40af' : '#047857', display: 'block', mt: 0.8, fontWeight: 700 }}>
+                    {isFullOnlyCourse
+                      ? '⚡ यो बेसिक कोर्समा किस्ता सुविधा छैन, भर्नाकै समयमा पूरा रकम चुक्ता हुन्छ।'
+                      : `* विद्यार्थीले ५०% (रु. ${Math.round(netPayableFee * 0.5).toLocaleString()}) वा सोभन्दा बढी रकम बुझाउनुपर्नेछ।`}
                   </Typography>
                 </Paper>
               </Grid>
 
-              {/* Remaining 50% Due Box */}
+              {/* Remaining Due Box */}
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 2, bgcolor: '#fff1f2', border: '1.5px solid #f43f5e', borderRadius: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#9f1239', mb: 1 }}>
-                    दोस्रो किस्ता (बाँकी ५०% रकम):
+                <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse && dueAmount50 === 0 ? '#f0fdf4' : '#fff1f2', border: `1.5px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#22c55e' : '#f43f5e'}`, borderRadius: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#9f1239', mb: 1 }}>
+                    {isFullOnlyCourse ? 'बाँकी बक्यौता (बेसिक कोर्स):' : 'दोस्रो किस्ता (बाँकी ५०% रकम):'}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#be123c', mb: 0.5 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#be123c', mb: 0.5 }}>
                     रु. {dueAmount50.toLocaleString()}
                   </Typography>
-                  <Box sx={{ bgcolor: '#ffffff', p: 0.8, borderRadius: 1, border: '1px solid #fecdd3' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#9f1239', display: 'block' }}>
-                      भुक्तानी गरिसक्नुपर्ने अन्तिम मिति: {calculatedDueDate}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#e11d48' }}>
-                      (तालिम सुरु भएको ३० दिन / १ महिना भित्र अनिवार्य)
-                    </Typography>
+                  <Box sx={{ bgcolor: '#ffffff', p: 0.8, borderRadius: 1, border: `1px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#bbf7d0' : '#fecdd3'}` }}>
+                    {isFullOnlyCourse && dueAmount50 === 0 ? (
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#16a34a', display: 'block' }}>
+                        ✓ सम्पूर्ण शुल्क चुक्ता (Full Paid at Admission)
+                      </Typography>
+                    ) : (
+                      <>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#9f1239', display: 'block' }}>
+                          भुक्तानी गरिसक्नुपर्ने अन्तिम मिति: {calculatedDueDate}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#e11d48' }}>
+                          (तालिम सुरु भएको ३० दिन / १ महिना भित्र अनिवार्य)
+                        </Typography>
+                      </>
+                    )}
                   </Box>
                 </Paper>
               </Grid>

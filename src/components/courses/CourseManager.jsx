@@ -1153,17 +1153,19 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               />
             </Grid>
 
-            {/* Fee */}
+            {/* Fee Structure Overview */}
             <Grid item xs={12} sm={4}>
-              <TextField
-                type="number"
-                label="तालिम शुल्क (Fee NPR) *"
-                fullWidth
-                size="small"
-                placeholder="15000"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value === '' ? '' : Number(e.target.value) })}
-              />
+              <Box sx={{ p: 1, bgcolor: '#F0FDF4', borderRadius: 1.5, border: '1px solid #A7F3D0' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block', mb: 0.3 }}>
+                  कुल खुद शुल्क (१३% भ्याट सहित):
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#065F46' }}>
+                  रु. {(formData.price || 0).toLocaleString()}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', display: 'block' }}>
+                  💡 विस्तृत ब्रेकडाउन, अभियान छुट र किस्ता नीति "कोर्स शुल्क संरचना" मोड्युलमा व्यवस्थित छ।
+                </Typography>
+              </Box>
             </Grid>
 
             {/* Duration Value */}
