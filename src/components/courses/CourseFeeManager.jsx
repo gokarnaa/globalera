@@ -49,6 +49,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SchoolIcon from '@mui/icons-material/School';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
@@ -94,10 +95,30 @@ export default function CourseFeeManager() {
 
   // Modal State
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [openAddModal, setOpenAddModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
   const [openHistoryModal, setOpenHistoryModal] = useState(false);
   const [openPrintModal, setOpenPrintModal] = useState(false);
   const [saveSuccessAlert, setSaveSuccessAlert] = useState(false);
+
+  // Form State for Adding New Course & Fee
+  const [newCourseData, setNewCourseData] = useState({
+    title: '',
+    occupationId: 'OCC-01',
+    level: 'Level 1',
+    durationValue: 3,
+    durationUnit: 'Months',
+    totalHours: 390,
+    description: '',
+    basePrice: 30000,
+    discountPercent: 70,
+    admissionFee: 1500,
+    vatPercent: 13,
+    paymentMode: 'TWO_INSTALLMENTS',
+    fullPayDiscount: 1000,
+    revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+    effectiveDate: new Date().toISOString().split('T')[0]
+  });
 
   // Form State for Fee Editing
   const [formData, setFormData] = useState({
@@ -201,6 +222,91 @@ export default function CourseFeeManager() {
     setOpenEditModal(true);
   };
 
+  // Open Add Course & Fee Modal
+  const handleOpenAddCourse = () => {
+    setNewCourseData({
+      title: '',
+      occupationId: db.occupations?.[0]?.id || 'OCC-01',
+      level: 'Level 1',
+      durationValue: 3,
+      durationUnit: 'Months',
+      totalHours: 390,
+      description: '',
+      basePrice: 30000,
+      discountPercent: 70,
+      admissionFee: 1500,
+      vatPercent: 13,
+      paymentMode: 'TWO_INSTALLMENTS',
+      fullPayDiscount: 1000,
+      revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+      effectiveDate: new Date().toISOString().split('T')[0]
+    });
+    setOpenAddModal(true);
+  };
+
+  // Save New Course & Fee
+  const handleSaveNewCourse = (e) => {
+    e.preventDefault();
+    if (!newCourseData.title.trim()) {
+      alert('कृपया कोर्सको शीर्षक/नाम लेख्नुहोस्।');
+      return;
+    }
+
+    const calc = calculateFeeBreakdown(newCourseData);
+    const newCourseId = `CRS-${String((db.courses?.length || 0) + 1).padStart(2, '0')}`;
+
+    const newFeeStructure = {
+      basePrice: Number(newCourseData.basePrice) || 0,
+      discountPercent: Number(newCourseData.discountPercent) || 0,
+      admissionFee: Number(newCourseData.admissionFee) || 0,
+      vatPercent: Number(newCourseData.vatPercent) || 13,
+      paymentMode: newCourseData.paymentMode,
+      fullPayDiscount: Number(newCourseData.fullPayDiscount) || 0,
+      effectiveDate: newCourseData.effectiveDate,
+      revisionReason: newCourseData.revisionReason || 'प्रारम्भिक शुल्क दर',
+      revisionHistory: [
+        {
+          id: `rev-${Date.now()}`,
+          date: newCourseData.effectiveDate,
+          changedBy: 'Super Admin',
+          basePrice: Number(newCourseData.basePrice) || 0,
+          discountPercent: Number(newCourseData.discountPercent) || 0,
+          admissionFee: Number(newCourseData.admissionFee) || 0,
+          vatPercent: Number(newCourseData.vatPercent) || 13,
+          totalEffectiveFee: calc.totalEffectiveFee,
+          paymentMode: newCourseData.paymentMode,
+          reason: newCourseData.revisionReason || 'प्रारम्भिक शुल्क दर'
+        }
+      ]
+    };
+
+    const newCourseObj = {
+      id: newCourseId,
+      occupationId: newCourseData.occupationId,
+      title: newCourseData.title.trim(),
+      level: newCourseData.level,
+      durationValue: Number(newCourseData.durationValue) || 3,
+      durationUnit: newCourseData.durationUnit,
+      totalHours: Number(newCourseData.totalHours) || 390,
+      price: calc.totalEffectiveFee,
+      status: 'Active',
+      description: newCourseData.description.trim() || `${newCourseData.title} व्यावसायिक सीप तालिम।`,
+      feeStructure: newFeeStructure
+    };
+
+    const nextCourses = [...(db.courses || []), newCourseObj];
+    const nextDb = {
+      ...db,
+      courses: nextCourses
+    };
+
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenAddModal(false);
+    setSaveSuccessAlert(true);
+    setTimeout(() => setSaveSuccessAlert(false), 3500);
+  };
+
   // Open History Modal
   const handleOpenHistory = (crs) => {
     setSelectedCourse(crs);
@@ -292,6 +398,11 @@ export default function CourseFeeManager() {
     return calculateFeeBreakdown(formData);
   }, [formData]);
 
+  // Preview breakdown inside Add New Course Modal
+  const newCourseLivePreview = useMemo(() => {
+    return calculateFeeBreakdown(newCourseData);
+  }, [newCourseData]);
+
   return (
     <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
       {/* 1. Header & Title Banner */}
@@ -325,6 +436,26 @@ export default function CourseFeeManager() {
         </Box>
 
         <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
+          {/* Option requested by user: Short button "+ कोर्स शुल्क" */}
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<AddCircleOutlineIcon />}
+            onClick={handleOpenAddCourse}
+            sx={{
+              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+              fontWeight: 900,
+              px: 2,
+              fontSize: '0.8rem',
+              boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)'
+              }
+            }}
+          >
+            + कोर्स शुल्क
+          </Button>
+
           <Button
             variant="outlined"
             size="small"
@@ -332,7 +463,7 @@ export default function CourseFeeManager() {
             onClick={() => setOpenPrintModal(true)}
             sx={{ fontWeight: 800, borderColor: '#0F2E5A', color: '#0F2E5A' }}
           >
-            आधिकारिक शुल्क पत्र प्रिन्ट
+            शुल्क पत्र प्रिन्ट
           </Button>
 
           <Button
@@ -614,29 +745,33 @@ export default function CourseFeeManager() {
         </Grid>
       ) : (
         /* TABLE VIEW (EXCEL STYLE) */
-        <TableContainer component={Paper} elevation={1} sx={{ borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
+        <TableContainer component={Paper} elevation={1} sx={{ borderRadius: 2.5, border: '1px solid #CBD5E1', overflow: 'hidden' }}>
           <Table size="small">
-            <TableHead>
-              <TableRow sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)' }}>
-                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, py: 1.5 }}>कोर्स विवरण</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 900 }}>मूल शुल्क</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF', fontWeight: 900 }}>छुट (%)</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 900 }}>खुद तालिम</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 900 }}>भर्ना शुल्क</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF', fontWeight: 900 }}>करयोग्य रकम</TableCell>
-                <TableCell align="right" sx={{ color: '#FCD34D', fontWeight: 900 }}>१३% भ्याट</TableCell>
-                <TableCell align="right" sx={{ color: '#34D399', fontWeight: 900 }}>अन्तिम खुद शुल्क</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF', fontWeight: 900 }}>भुक्तानी मोडल</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF', fontWeight: 900 }}>कार्य</TableCell>
+            <TableHead sx={{ '& th': { bgcolor: '#0F2E5A !important', color: '#FFFFFF !important', borderBottom: '3px solid #F59E0B !important', py: 1.3 } }}>
+              <TableRow>
+                <TableCell align="center" sx={{ width: 65, fontWeight: 900, color: '#FFFFFF !important' }}># क्र.सं.</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कोर्स विवरण</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मूल शुल्क</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>छुट (%)</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>खुद तालिम</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भर्ना शुल्क</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>करयोग्य रकम</TableCell>
+                <TableCell align="right" sx={{ color: '#FCD34D !important', fontWeight: 900 }}>१३% भ्याट</TableCell>
+                <TableCell align="right" sx={{ color: '#34D399 !important', fontWeight: 900 }}>अन्तिम खुद शुल्क</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भुक्तानी मोडल</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्य</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredCourses.map((crs) => {
+              {filteredCourses.map((crs, index) => {
                 const { feeCalc, feeStructure: fs } = crs;
                 const isFullOnly = fs?.paymentMode === 'FULL_ONLY';
 
                 return (
                   <TableRow key={crs.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#64748B', fontSize: '0.82rem' }}>
+                      {index + 1}
+                    </TableCell>
                     <TableCell>
                       <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
                         {crs.title}
@@ -972,6 +1107,400 @@ export default function CourseFeeManager() {
               }}
             >
               नयाँ शुल्क दर सुरक्षित गर्नुहोस् (Save Rate)
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* ============================================================== */}
+      {/* 5.1 MODAL: ADD NEW COURSE & FEE STRUCTURE                      */}
+      {/* ============================================================== */}
+      <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)} maxWidth="md" fullWidth>
+        <form onSubmit={handleSaveNewCourse}>
+          <DialogTitle
+            sx={{
+              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+              color: '#FFFFFF',
+              fontWeight: 900,
+              py: 2,
+              px: 3,
+              borderBottom: '3px solid #F59E0B',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <AddCircleOutlineIcon sx={{ color: '#FCD34D' }} />
+              <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem' }}>
+                नयाँ कोर्स तथा शुल्क संरचना थप्नुहोस् (Add New Course & Fee)
+              </Typography>
+            </Box>
+            <IconButton onClick={() => setOpenAddModal(false)} sx={{ color: '#FFFFFF' }}>
+              <CloseIcon />
+            </IconButton>
+          </DialogTitle>
+
+          <DialogContent sx={{ p: 3 }}>
+            <Grid container spacing={3} sx={{ mt: 0.2 }}>
+              {/* Left Column: Course Profile & Fee Details */}
+              <Grid item xs={12} md={6}>
+                <Stack spacing={2}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', borderBottom: '2px solid #E2E8F0', pb: 0.5 }}>
+                    १. कोर्सको आधारभूत विवरण (Course Info)
+                  </Typography>
+
+                  {/* Course Title */}
+                  <TextField
+                    label="कोर्सको नाम (Course Title) *"
+                    fullWidth
+                    size="small"
+                    required
+                    placeholder="उदा: सिलाई कटाई / ब्युटिसियन एड्भान्स"
+                    value={newCourseData.title}
+                    onChange={(e) => setNewCourseData({ ...newCourseData, title: e.target.value })}
+                  />
+
+                  {/* Occupation & Level */}
+                  <Grid container spacing={1.5}>
+                    <Grid item xs={6}>
+                      <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        label="क्षेत्र/ट्रेड (Occupation)"
+                        value={newCourseData.occupationId}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, occupationId: e.target.value })}
+                      >
+                        {(db.occupations || []).map((occ) => (
+                          <MenuItem key={occ.id} value={occ.id}>
+                            {occ.name}
+                          </MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        label="तह (Level)"
+                        value={newCourseData.level}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, level: e.target.value })}
+                      >
+                        <MenuItem value="Level 1">Level 1 (CTEVT)</MenuItem>
+                        <MenuItem value="Level 2">Level 2</MenuItem>
+                        <MenuItem value="Level 3">Level 3</MenuItem>
+                        <MenuItem value="Basic">Basic (आधारभूत)</MenuItem>
+                        <MenuItem value="Short Term">Short Term</MenuItem>
+                      </TextField>
+                    </Grid>
+                  </Grid>
+
+                  {/* Duration & Unit & Hours */}
+                  <Grid container spacing={1.5}>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="अवधि (Duration)"
+                        type="number"
+                        size="small"
+                        fullWidth
+                        value={newCourseData.durationValue}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, durationValue: Number(e.target.value) || 1 })}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        select
+                        size="small"
+                        fullWidth
+                        label="एकाइ (Unit)"
+                        value={newCourseData.durationUnit}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, durationUnit: e.target.value })}
+                      >
+                        <MenuItem value="Months">महिना (Months)</MenuItem>
+                        <MenuItem value="Weeks">हप्ता (Weeks)</MenuItem>
+                        <MenuItem value="Days">दिन (Days)</MenuItem>
+                        <MenuItem value="Hours">घण्टा (Hours)</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="कुल घण्टा (Hours)"
+                        type="number"
+                        size="small"
+                        fullWidth
+                        value={newCourseData.totalHours}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, totalHours: Number(e.target.value) || 0 })}
+                        helperText="उदा: ३९०"
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', borderBottom: '2px solid #E2E8F0', pb: 0.5, mt: 1 }}>
+                    २. शुल्क दर तथा किस्ताबन्दी नीति (Fee & Policy)
+                  </Typography>
+
+                  {/* Payment Mode Selector */}
+                  <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                      भुक्तानी मोडल (Payment Policy):
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={newCourseData.paymentMode}
+                      exclusive
+                      onChange={(e, next) => next && setNewCourseData({ ...newCourseData, paymentMode: next })}
+                      size="small"
+                      fullWidth
+                    >
+                      <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
+                        📅 २ किस्ता (५०% + ५०%)
+                      </ToggleButton>
+                      <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
+                        ⚡ एकमुष्ट मात्र (बेसिक)
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
+
+                  {/* Base Price */}
+                  <TextField
+                    label="मूल ब्रोसर शुल्क (Base Price)"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    value={newCourseData.basePrice}
+                    onChange={(e) => setNewCourseData({ ...newCourseData, basePrice: Number(e.target.value) || 0 })}
+                    helperText={newCourseData.paymentMode === 'FULL_ONLY' ? 'बेसिक कोर्समा तालिम शुल्क नभए ० राख्नुहोस्।' : 'ब्रोसरमा छापिएको मूल शुल्क (उदा: ३०,०००)'}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                    }}
+                  />
+
+                  {/* Campaign Discount % */}
+                  <Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                        अभियान छुट प्रतिशत (Discount %):
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 900, color: '#DC2626' }}>
+                        {newCourseData.discountPercent}% छुट (रु. {newCourseLivePreview.discountAmount.toLocaleString()})
+                      </Typography>
+                    </Box>
+                    <Stack direction="row" spacing={1.5} alignItems="center">
+                      <Slider
+                        value={newCourseData.discountPercent}
+                        min={0}
+                        max={100}
+                        step={5}
+                        onChange={(e, val) => setNewCourseData({ ...newCourseData, discountPercent: val })}
+                        sx={{ color: '#DC2626' }}
+                      />
+                      <TextField
+                        size="small"
+                        type="number"
+                        value={newCourseData.discountPercent}
+                        onChange={(e) => setNewCourseData({ ...newCourseData, discountPercent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
+                        sx={{ width: 80, '& input': { textAlign: 'center', py: 0.5 } }}
+                        InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
+                      />
+                    </Stack>
+                  </Box>
+
+                  {/* Admission Charge */}
+                  <TextField
+                    label="भर्ना तथा दर्ता शुल्क (Admission Fee)"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    value={newCourseData.admissionFee}
+                    onChange={(e) => setNewCourseData({ ...newCourseData, admissionFee: Number(e.target.value) || 0 })}
+                    helperText="भर्ना हुँदा लाग्ने शुल्क (जस्तै: १५०० वा बेसिकमा १७००)"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                    }}
+                  />
+
+                  {/* VAT % */}
+                  <TextField
+                    label="मूल्य अभिवृद्धि कर (VAT %)"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    value={newCourseData.vatPercent}
+                    onChange={(e) => setNewCourseData({ ...newCourseData, vatPercent: Number(e.target.value) || 0 })}
+                    helperText="नेपाल सरकारको नियम अनुसार अनिवार्य १३% भ्याट"
+                    InputProps={{
+                      endAdornment: <InputAdornment position="end">%</InputAdornment>
+                    }}
+                  />
+
+                  {/* Note / Revision Reason */}
+                  <TextField
+                    label="प्रारम्भिक अफर वा कैफियत"
+                    fullWidth
+                    size="small"
+                    value={newCourseData.revisionReason}
+                    onChange={(e) => setNewCourseData({ ...newCourseData, revisionReason: e.target.value })}
+                  />
+                </Stack>
+              </Grid>
+
+              {/* Right Column: Live Real-time Calculation Summary Card */}
+              <Grid item xs={12} md={6}>
+                <Paper
+                  elevation={2}
+                  sx={{
+                    p: 2.5,
+                    bgcolor: '#F0FDF4',
+                    borderRadius: 2.5,
+                    border: '2px solid #059669',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between'
+                  }}
+                >
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                      <ReceiptLongIcon sx={{ color: '#059669' }} />
+                      <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
+                        नयाँ कोर्स शुल्क हिसाब सारांश (Live Summary)
+                      </Typography>
+                    </Box>
+
+                    <Divider sx={{ mb: 2 }} />
+
+                    <Stack spacing={1.2}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">मूल ब्रोसर शुल्क:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          रु. {newCourseLivePreview.basePrice.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      {newCourseLivePreview.discountPercent > 0 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#DC2626' }}>
+                          <Typography variant="body2">
+                            विशेष छुट ({newCourseLivePreview.discountPercent}%):
+                          </Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            (-) रु. {newCourseLivePreview.discountAmount.toLocaleString()}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0F2E5A' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>खुद तालिम शुल्क (Net Tuition):</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                          रु. {newCourseLivePreview.netTuition.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <Typography variant="body2" color="text.secondary">भर्ना तथा दर्ता शुल्क:</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          (+) रु. {newCourseLivePreview.admissionFee.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      <Divider sx={{ my: 0.5 }} />
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0369A1' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>करयोग्य रकम (Subtotal):</Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
+                          रु. {newCourseLivePreview.subtotal.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#D97706' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>१३% भ्याट (VAT 13%):</Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
+                          (+) रु. {newCourseLivePreview.vatAmount.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      <Box
+                        sx={{
+                          p: 1.5,
+                          mt: 1,
+                          bgcolor: '#FFFFFF',
+                          borderRadius: 2,
+                          border: '2px solid #059669',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <Box>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#059669', display: 'block' }}>
+                            विद्यार्थीले तिर्ने कुल खुद शुल्क
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            (१३% भ्याट तथा भर्ना शुल्क समावेश)
+                          </Typography>
+                        </Box>
+                        <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669' }}>
+                          रु. {newCourseLivePreview.totalEffectiveFee.toLocaleString()}
+                        </Typography>
+                      </Box>
+
+                      {/* Payment Schedule Breakdown */}
+                      <Box sx={{ mt: 1.5, p: 1.5, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                          📌 किस्ताबन्दी तालिका (Schedule Breakdown):
+                        </Typography>
+                        {newCourseData.paymentMode === 'FULL_ONLY' ? (
+                          <Box sx={{ p: 1, bgcolor: '#FEF3C7', borderRadius: 1.5, textAlign: 'center' }}>
+                            <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
+                              ⚡ एकमुष्ट भुक्तानी: भर्नाकै समयमा रु. {newCourseLivePreview.totalEffectiveFee.toLocaleString()} (१००%)
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Grid container spacing={1}>
+                            <Grid item xs={6}>
+                              <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>१. भर्नामा (५०%)</Typography>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
+                                  रु. {newCourseLivePreview.installment1.toLocaleString()}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                            <Grid item xs={6}>
+                              <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>२. १ महिनापछि (५०%)</Typography>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
+                                  रु. {newCourseLivePreview.installment2.toLocaleString()}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          </Grid>
+                        )}
+                      </Box>
+                    </Stack>
+                  </Box>
+
+                  <Alert severity="success" sx={{ mt: 2, fontSize: '0.72rem', py: 0.5 }}>
+                    ✓ यो नयाँ कोर्स सुरक्षित भएपछि कोर्स सूची तथा भर्ना फारममा तुरुन्त उपलब्ध हुनेछ।
+                  </Alert>
+                </Paper>
+              </Grid>
+            </Grid>
+          </DialogContent>
+
+          <DialogActions sx={{ p: 2.5, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+            <Button onClick={() => setOpenAddModal(false)} color="inherit" sx={{ fontWeight: 700 }}>
+              रद्द गर्नुहोस्
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                fontWeight: 900,
+                px: 3
+              }}
+            >
+              कोर्स तथा शुल्क सुरक्षित गर्नुहोस् (Save Course & Fee)
             </Button>
           </DialogActions>
         </form>
