@@ -101,15 +101,9 @@ export default function CourseFeeManager() {
   const [openPrintModal, setOpenPrintModal] = useState(false);
   const [saveSuccessAlert, setSaveSuccessAlert] = useState(false);
 
-  // Form State for Adding New Course & Fee
-  const [newCourseData, setNewCourseData] = useState({
-    title: '',
-    occupationId: 'OCC-01',
-    level: 'Level 1',
-    durationValue: 3,
-    durationUnit: 'Months',
-    totalHours: 390,
-    description: '',
+  // Form State for Setting Course Fee (Course selected from dropdown)
+  const [newCourseFeeData, setNewCourseFeeData] = useState({
+    courseId: '',
     basePrice: 30000,
     discountPercent: 70,
     admissionFee: 1500,
@@ -222,79 +216,106 @@ export default function CourseFeeManager() {
     setOpenEditModal(true);
   };
 
-  // Open Add Course & Fee Modal
-  const handleOpenAddCourse = () => {
-    setNewCourseData({
-      title: '',
-      occupationId: db.occupations?.[0]?.id || 'OCC-01',
-      level: 'Level 1',
-      durationValue: 3,
-      durationUnit: 'Months',
-      totalHours: 390,
-      description: '',
-      basePrice: 30000,
-      discountPercent: 70,
-      admissionFee: 1500,
-      vatPercent: 13,
-      paymentMode: 'TWO_INSTALLMENTS',
-      fullPayDiscount: 1000,
-      revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+  // Helper to get Occupation name
+  const getOccupationName = (occId) => {
+    const occ = (db.occupations || []).find((o) => o.id === occId);
+    return occ ? occ.name : 'सामान्य प्राविधिक सीप';
+  };
+
+  // When a course is selected in the dropdown
+  const handleCourseSelect = (courseId) => {
+    const crs = (db.courses || []).find((c) => c.id === courseId);
+    if (!crs) return;
+    const fs = crs.feeStructure || {};
+    const isBasic = (crs.title || '').toLowerCase().includes('basic') && (crs.price || 0) <= 2000;
+
+    setNewCourseFeeData({
+      courseId: crs.id,
+      basePrice: fs.basePrice !== undefined ? fs.basePrice : (isBasic ? 0 : (crs.price || 30000)),
+      discountPercent: fs.discountPercent !== undefined ? fs.discountPercent : (isBasic ? 0 : 70),
+      admissionFee: fs.admissionFee !== undefined ? fs.admissionFee : (isBasic ? 1700 : 1500),
+      vatPercent: fs.vatPercent !== undefined ? fs.vatPercent : 13,
+      paymentMode: fs.paymentMode || (isBasic ? 'FULL_ONLY' : 'TWO_INSTALLMENTS'),
+      fullPayDiscount: fs.fullPayDiscount || 1000,
+      revisionReason: fs.revisionReason || 'कोर्स शुल्क संरचना निर्धारण',
       effectiveDate: new Date().toISOString().split('T')[0]
     });
+  };
+
+  // Open Add Course Fee Modal (Defaults to first course from Course Section)
+  const handleOpenAddCourse = () => {
+    const firstCourse = db.courses?.[0];
+    if (firstCourse) {
+      handleCourseSelect(firstCourse.id);
+    } else {
+      setNewCourseFeeData({
+        courseId: '',
+        basePrice: 30000,
+        discountPercent: 70,
+        admissionFee: 1500,
+        vatPercent: 13,
+        paymentMode: 'TWO_INSTALLMENTS',
+        fullPayDiscount: 1000,
+        revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+        effectiveDate: new Date().toISOString().split('T')[0]
+      });
+    }
     setOpenAddModal(true);
   };
 
-  // Save New Course & Fee
-  const handleSaveNewCourse = (e) => {
+  // Save Course Fee Configuration
+  const handleSaveCourseFee = (e) => {
     e.preventDefault();
-    if (!newCourseData.title.trim()) {
-      alert('कृपया कोर्सको शीर्षक/नाम लेख्नुहोस्।');
+    if (!newCourseFeeData.courseId) {
+      alert('कृपया पहिले कोर्स सेक्सनबाट कोर्स छनोट गर्नुहोस्।');
       return;
     }
 
-    const calc = calculateFeeBreakdown(newCourseData);
-    const newCourseId = `CRS-${String((db.courses?.length || 0) + 1).padStart(2, '0')}`;
+    const targetCourse = (db.courses || []).find((c) => c.id === newCourseFeeData.courseId);
+    if (!targetCourse) {
+      alert('छनोट गरिएको कोर्स फेला परेन।');
+      return;
+    }
+
+    const calc = calculateFeeBreakdown(newCourseFeeData);
+    const existingHistory = targetCourse.feeStructure?.revisionHistory || [];
+
+    const newRevisionEntry = {
+      id: `rev-${Date.now()}`,
+      date: newCourseFeeData.effectiveDate,
+      changedBy: 'Super Admin',
+      basePrice: Number(newCourseFeeData.basePrice) || 0,
+      discountPercent: Number(newCourseFeeData.discountPercent) || 0,
+      admissionFee: Number(newCourseFeeData.admissionFee) || 0,
+      vatPercent: Number(newCourseFeeData.vatPercent) || 13,
+      totalEffectiveFee: calc.totalEffectiveFee,
+      paymentMode: newCourseFeeData.paymentMode,
+      reason: newCourseFeeData.revisionReason || 'कोर्स शुल्क संरचना दर्ता/परिमार्जन'
+    };
 
     const newFeeStructure = {
-      basePrice: Number(newCourseData.basePrice) || 0,
-      discountPercent: Number(newCourseData.discountPercent) || 0,
-      admissionFee: Number(newCourseData.admissionFee) || 0,
-      vatPercent: Number(newCourseData.vatPercent) || 13,
-      paymentMode: newCourseData.paymentMode,
-      fullPayDiscount: Number(newCourseData.fullPayDiscount) || 0,
-      effectiveDate: newCourseData.effectiveDate,
-      revisionReason: newCourseData.revisionReason || 'प्रारम्भिक शुल्क दर',
-      revisionHistory: [
-        {
-          id: `rev-${Date.now()}`,
-          date: newCourseData.effectiveDate,
-          changedBy: 'Super Admin',
-          basePrice: Number(newCourseData.basePrice) || 0,
-          discountPercent: Number(newCourseData.discountPercent) || 0,
-          admissionFee: Number(newCourseData.admissionFee) || 0,
-          vatPercent: Number(newCourseData.vatPercent) || 13,
-          totalEffectiveFee: calc.totalEffectiveFee,
-          paymentMode: newCourseData.paymentMode,
-          reason: newCourseData.revisionReason || 'प्रारम्भिक शुल्क दर'
-        }
-      ]
+      basePrice: Number(newCourseFeeData.basePrice) || 0,
+      discountPercent: Number(newCourseFeeData.discountPercent) || 0,
+      admissionFee: Number(newCourseFeeData.admissionFee) || 0,
+      vatPercent: Number(newCourseFeeData.vatPercent) || 13,
+      paymentMode: newCourseFeeData.paymentMode,
+      fullPayDiscount: Number(newCourseFeeData.fullPayDiscount) || 0,
+      effectiveDate: newCourseFeeData.effectiveDate,
+      revisionReason: newCourseFeeData.revisionReason || 'कोर्स शुल्क संरचना दर्ता/परिमार्जन',
+      revisionHistory: [newRevisionEntry, ...existingHistory]
     };
 
-    const newCourseObj = {
-      id: newCourseId,
-      occupationId: newCourseData.occupationId,
-      title: newCourseData.title.trim(),
-      level: newCourseData.level,
-      durationValue: Number(newCourseData.durationValue) || 3,
-      durationUnit: newCourseData.durationUnit,
-      totalHours: Number(newCourseData.totalHours) || 390,
-      price: calc.totalEffectiveFee,
-      status: 'Active',
-      description: newCourseData.description.trim() || `${newCourseData.title} व्यावसायिक सीप तालिम।`,
-      feeStructure: newFeeStructure
-    };
+    const nextCourses = (db.courses || []).map((crs) => {
+      if (crs.id === newCourseFeeData.courseId) {
+        return {
+          ...crs,
+          price: calc.totalEffectiveFee,
+          feeStructure: newFeeStructure
+        };
+      }
+      return crs;
+    });
 
-    const nextCourses = [...(db.courses || []), newCourseObj];
     const nextDb = {
       ...db,
       courses: nextCourses
@@ -400,8 +421,13 @@ export default function CourseFeeManager() {
 
   // Preview breakdown inside Add New Course Modal
   const newCourseLivePreview = useMemo(() => {
-    return calculateFeeBreakdown(newCourseData);
-  }, [newCourseData]);
+    return calculateFeeBreakdown(newCourseFeeData);
+  }, [newCourseFeeData]);
+
+  // Selected Course Info for Course Profile Card inside Add Modal
+  const selectedCourseInfo = useMemo(() => {
+    return (db.courses || []).find((c) => c.id === newCourseFeeData.courseId);
+  }, [db.courses, newCourseFeeData.courseId]);
 
   return (
     <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
@@ -1113,10 +1139,10 @@ export default function CourseFeeManager() {
       </Dialog>
 
       {/* ============================================================== */}
-      {/* 5.1 MODAL: ADD NEW COURSE & FEE STRUCTURE                      */}
+      {/* 5.1 MODAL: CONFIGURE COURSE FEE STRUCTURE (DROPDOWN SELECTION)  */}
       {/* ============================================================== */}
       <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)} maxWidth="md" fullWidth>
-        <form onSubmit={handleSaveNewCourse}>
+        <form onSubmit={handleSaveCourseFee}>
           <DialogTitle
             sx={{
               background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
@@ -1133,7 +1159,7 @@ export default function CourseFeeManager() {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <AddCircleOutlineIcon sx={{ color: '#FCD34D' }} />
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem' }}>
-                नयाँ कोर्स तथा शुल्क संरचना थप्नुहोस् (Add New Course & Fee)
+                कोर्स शुल्क संरचना निर्धारण (Course Fee Setup)
               </Typography>
             </Box>
             <IconButton onClick={() => setOpenAddModal(false)} sx={{ color: '#FFFFFF' }}>
@@ -1143,102 +1169,88 @@ export default function CourseFeeManager() {
 
           <DialogContent sx={{ p: 3 }}>
             <Grid container spacing={3} sx={{ mt: 0.2 }}>
-              {/* Left Column: Course Profile & Fee Details */}
+              {/* Left Column: Course Dropdown & Fee Details */}
               <Grid item xs={12} md={6}>
                 <Stack spacing={2}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', borderBottom: '2px solid #E2E8F0', pb: 0.5 }}>
-                    १. कोर्सको आधारभूत विवरण (Course Info)
-                  </Typography>
+                  {/* 1. Course Selection Dropdown from Course Section */}
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 1, display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                      <SchoolIcon fontSize="small" sx={{ color: '#059669' }} />
+                      १. कोर्स छनोट (कोर्स सेक्सनबाट स्वतः आउने):
+                    </Typography>
 
-                  {/* Course Title */}
-                  <TextField
-                    label="कोर्सको नाम (Course Title) *"
-                    fullWidth
-                    size="small"
-                    required
-                    placeholder="उदा: सिलाई कटाई / ब्युटिसियन एड्भान्स"
-                    value={newCourseData.title}
-                    onChange={(e) => setNewCourseData({ ...newCourseData, title: e.target.value })}
-                  />
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="कोर्स छनोट गर्नुहोस् (Choose Course) *"
+                      value={newCourseFeeData.courseId}
+                      onChange={(e) => handleCourseSelect(e.target.value)}
+                      helperText="शुल्क तोक्नको लागि कोर्स सेक्सनमा दर्ता भएका कोर्सहरूबाट छनोट गर्नुहोस्"
+                      SelectProps={{
+                        MenuProps: { PaperProps: { sx: { maxHeight: 320 } } }
+                      }}
+                    >
+                      {(db.courses || []).map((crs) => (
+                        <MenuItem key={crs.id} value={crs.id}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                            <span style={{ fontWeight: 700 }}>{crs.title}</span>
+                            <Chip
+                              label={`${crs.level || 'Level 1'} • ${crs.durationValue} ${crs.durationUnit}`}
+                              size="small"
+                              sx={{ ml: 1, fontSize: '0.65rem', height: 20, bgcolor: '#F1F5F9' }}
+                            />
+                          </Box>
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  </Box>
 
-                  {/* Occupation & Level */}
-                  <Grid container spacing={1.5}>
-                    <Grid item xs={6}>
-                      <TextField
-                        select
-                        fullWidth
-                        size="small"
-                        label="क्षेत्र/ट्रेड (Occupation)"
-                        value={newCourseData.occupationId}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, occupationId: e.target.value })}
-                      >
-                        {(db.occupations || []).map((occ) => (
-                          <MenuItem key={occ.id} value={occ.id}>
-                            {occ.name}
-                          </MenuItem>
-                        ))}
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField
-                        select
-                        fullWidth
-                        size="small"
-                        label="तह (Level)"
-                        value={newCourseData.level}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, level: e.target.value })}
-                      >
-                        <MenuItem value="Level 1">Level 1 (CTEVT)</MenuItem>
-                        <MenuItem value="Level 2">Level 2</MenuItem>
-                        <MenuItem value="Level 3">Level 3</MenuItem>
-                        <MenuItem value="Basic">Basic (आधारभूत)</MenuItem>
-                        <MenuItem value="Short Term">Short Term</MenuItem>
-                      </TextField>
-                    </Grid>
-                  </Grid>
-
-                  {/* Duration & Unit & Hours */}
-                  <Grid container spacing={1.5}>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="अवधि (Duration)"
-                        type="number"
-                        size="small"
-                        fullWidth
-                        value={newCourseData.durationValue}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, durationValue: Number(e.target.value) || 1 })}
-                      />
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        select
-                        size="small"
-                        fullWidth
-                        label="एकाइ (Unit)"
-                        value={newCourseData.durationUnit}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, durationUnit: e.target.value })}
-                      >
-                        <MenuItem value="Months">महिना (Months)</MenuItem>
-                        <MenuItem value="Weeks">हप्ता (Weeks)</MenuItem>
-                        <MenuItem value="Days">दिन (Days)</MenuItem>
-                        <MenuItem value="Hours">घण्टा (Hours)</MenuItem>
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={4}>
-                      <TextField
-                        label="कुल घण्टा (Hours)"
-                        type="number"
-                        size="small"
-                        fullWidth
-                        value={newCourseData.totalHours}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, totalHours: Number(e.target.value) || 0 })}
-                        helperText="उदा: ३९०"
-                      />
-                    </Grid>
-                  </Grid>
+                  {/* Course Details Read-only Card (auto-loaded from Course Section) */}
+                  {selectedCourseInfo && (
+                    <Paper
+                      variant="outlined"
+                      sx={{
+                        p: 1.5,
+                        bgcolor: '#F0F9FF',
+                        borderColor: '#BAE6FD',
+                        borderRadius: 2
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.8 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0369A1' }}>
+                          📌 {selectedCourseInfo.title}
+                        </Typography>
+                        <Chip
+                          label={selectedCourseInfo.level || 'Level 1'}
+                          size="small"
+                          sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 800, fontSize: '0.68rem', height: 20 }}
+                        />
+                      </Box>
+                      <Grid container spacing={1}>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>क्षेत्र/ट्रेड:</Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                            {getOccupationName(selectedCourseInfo.occupationId)}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={6}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>अवधि / कुल घण्टा:</Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                            {selectedCourseInfo.durationValue} {selectedCourseInfo.durationUnit} ({selectedCourseInfo.totalHours || 390} घण्टा)
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      {selectedCourseInfo.description && (
+                        <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.8, fontStyle: 'italic', borderTop: '1px dashed #CBD5E1', pt: 0.5 }}>
+                          {selectedCourseInfo.description}
+                        </Typography>
+                      )}
+                    </Paper>
+                  )}
 
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', borderBottom: '2px solid #E2E8F0', pb: 0.5, mt: 1 }}>
-                    २. शुल्क दर तथा किस्ताबन्दी नीति (Fee & Policy)
+                    २. शुल्क दर तथा किस्ताबन्दी नीति (Fee & Policy Setup)
                   </Typography>
 
                   {/* Payment Mode Selector */}
@@ -1247,9 +1259,9 @@ export default function CourseFeeManager() {
                       भुक्तानी मोडल (Payment Policy):
                     </Typography>
                     <ToggleButtonGroup
-                      value={newCourseData.paymentMode}
+                      value={newCourseFeeData.paymentMode}
                       exclusive
-                      onChange={(e, next) => next && setNewCourseData({ ...newCourseData, paymentMode: next })}
+                      onChange={(e, next) => next && setNewCourseFeeData({ ...newCourseFeeData, paymentMode: next })}
                       size="small"
                       fullWidth
                     >
@@ -1264,13 +1276,13 @@ export default function CourseFeeManager() {
 
                   {/* Base Price */}
                   <TextField
-                    label="मूल ब्रोसर शुल्क (Base Price)"
+                    label="मूल ब्रोसर शुल्क (Base / Brochure Price)"
                     type="number"
                     fullWidth
                     size="small"
-                    value={newCourseData.basePrice}
-                    onChange={(e) => setNewCourseData({ ...newCourseData, basePrice: Number(e.target.value) || 0 })}
-                    helperText={newCourseData.paymentMode === 'FULL_ONLY' ? 'बेसिक कोर्समा तालिम शुल्क नभए ० राख्नुहोस्।' : 'ब्रोसरमा छापिएको मूल शुल्क (उदा: ३०,०००)'}
+                    value={newCourseFeeData.basePrice}
+                    onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, basePrice: Number(e.target.value) || 0 })}
+                    helperText={newCourseFeeData.paymentMode === 'FULL_ONLY' ? 'बेसिक कोर्समा तालिम शुल्क नभए ० राख्नुहोस्।' : 'ब्रोसरमा छापिएको मूल शुल्क (उदा: ३०,०००)'}
                     InputProps={{
                       startAdornment: <InputAdornment position="start">रु.</InputAdornment>
                     }}
@@ -1283,23 +1295,23 @@ export default function CourseFeeManager() {
                         अभियान छुट प्रतिशत (Discount %):
                       </Typography>
                       <Typography variant="caption" sx={{ fontWeight: 900, color: '#DC2626' }}>
-                        {newCourseData.discountPercent}% छुट (रु. {newCourseLivePreview.discountAmount.toLocaleString()})
+                        {newCourseFeeData.discountPercent}% छुट (रु. {newCourseLivePreview.discountAmount.toLocaleString()})
                       </Typography>
                     </Box>
                     <Stack direction="row" spacing={1.5} alignItems="center">
                       <Slider
-                        value={newCourseData.discountPercent}
+                        value={newCourseFeeData.discountPercent}
                         min={0}
                         max={100}
                         step={5}
-                        onChange={(e, val) => setNewCourseData({ ...newCourseData, discountPercent: val })}
+                        onChange={(e, val) => setNewCourseFeeData({ ...newCourseFeeData, discountPercent: val })}
                         sx={{ color: '#DC2626' }}
                       />
                       <TextField
                         size="small"
                         type="number"
-                        value={newCourseData.discountPercent}
-                        onChange={(e) => setNewCourseData({ ...newCourseData, discountPercent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
+                        value={newCourseFeeData.discountPercent}
+                        onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, discountPercent: Math.min(100, Math.max(0, Number(e.target.value) || 0)) })}
                         sx={{ width: 80, '& input': { textAlign: 'center', py: 0.5 } }}
                         InputProps={{ endAdornment: <InputAdornment position="end">%</InputAdornment> }}
                       />
@@ -1312,9 +1324,9 @@ export default function CourseFeeManager() {
                     type="number"
                     fullWidth
                     size="small"
-                    value={newCourseData.admissionFee}
-                    onChange={(e) => setNewCourseData({ ...newCourseData, admissionFee: Number(e.target.value) || 0 })}
-                    helperText="भर्ना हुँदा लाग्ने शुल्क (जस्तै: १५०० वा बेसिकमा १७००)"
+                    value={newCourseFeeData.admissionFee}
+                    onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, admissionFee: Number(e.target.value) || 0 })}
+                    helperText="भर्ना हुँदा लाग्ने शुल्क (उदा: १५०० वा बेसिकमा १७००)"
                     InputProps={{
                       startAdornment: <InputAdornment position="start">रु.</InputAdornment>
                     }}
@@ -1326,21 +1338,33 @@ export default function CourseFeeManager() {
                     type="number"
                     fullWidth
                     size="small"
-                    value={newCourseData.vatPercent}
-                    onChange={(e) => setNewCourseData({ ...newCourseData, vatPercent: Number(e.target.value) || 0 })}
+                    value={newCourseFeeData.vatPercent}
+                    onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, vatPercent: Number(e.target.value) || 0 })}
                     helperText="नेपाल सरकारको नियम अनुसार अनिवार्य १३% भ्याट"
                     InputProps={{
                       endAdornment: <InputAdornment position="end">%</InputAdornment>
                     }}
                   />
 
-                  {/* Note / Revision Reason */}
+                  {/* Reason / Offer Note */}
                   <TextField
-                    label="प्रारम्भिक अफर वा कैफियत"
+                    label="अफर कैफियत / परिमार्जनको कारण (Offer / Note)"
                     fullWidth
                     size="small"
-                    value={newCourseData.revisionReason}
-                    onChange={(e) => setNewCourseData({ ...newCourseData, revisionReason: e.target.value })}
+                    placeholder="उदा: विशेष ७०% छुट अफर वा ५०% नयाँ अफर"
+                    value={newCourseFeeData.revisionReason}
+                    onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, revisionReason: e.target.value })}
+                  />
+
+                  {/* Effective Date */}
+                  <TextField
+                    label="लागू हुने मिति (Effective Date)"
+                    type="date"
+                    fullWidth
+                    size="small"
+                    value={newCourseFeeData.effectiveDate}
+                    onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, effectiveDate: e.target.value })}
+                    InputLabelProps={{ shrink: true }}
                   />
                 </Stack>
               </Grid>
@@ -1364,7 +1388,7 @@ export default function CourseFeeManager() {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                       <ReceiptLongIcon sx={{ color: '#059669' }} />
                       <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                        नयाँ कोर्स शुल्क हिसाब सारांश (Live Summary)
+                        शुल्क हिसाब सारांश (Live Summary)
                       </Typography>
                     </Box>
 
@@ -1449,7 +1473,7 @@ export default function CourseFeeManager() {
                         <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
                           📌 किस्ताबन्दी तालिका (Schedule Breakdown):
                         </Typography>
-                        {newCourseData.paymentMode === 'FULL_ONLY' ? (
+                        {newCourseFeeData.paymentMode === 'FULL_ONLY' ? (
                           <Box sx={{ p: 1, bgcolor: '#FEF3C7', borderRadius: 1.5, textAlign: 'center' }}>
                             <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
                               ⚡ एकमुष्ट भुक्तानी: भर्नाकै समयमा रु. {newCourseLivePreview.totalEffectiveFee.toLocaleString()} (१००%)
@@ -1480,7 +1504,7 @@ export default function CourseFeeManager() {
                   </Box>
 
                   <Alert severity="success" sx={{ mt: 2, fontSize: '0.72rem', py: 0.5 }}>
-                    ✓ यो नयाँ कोर्स सुरक्षित भएपछि कोर्स सूची तथा भर्ना फारममा तुरुन्त उपलब्ध हुनेछ।
+                    ✓ शुल्क संरचना सुरक्षित भएपछि यो कोर्सको नयाँ भर्नाहरूमा सोही दर लागू हुनेछ।
                   </Alert>
                 </Paper>
               </Grid>
@@ -1500,7 +1524,7 @@ export default function CourseFeeManager() {
                 px: 3
               }}
             >
-              कोर्स तथा शुल्क सुरक्षित गर्नुहोस् (Save Course & Fee)
+              शुल्क संरचना सुरक्षित गर्नुहोस् (Save Fee Setup)
             </Button>
           </DialogActions>
         </form>
