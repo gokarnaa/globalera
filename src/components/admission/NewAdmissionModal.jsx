@@ -20,7 +20,8 @@ import {
   Radio,
   Stack,
   FormControl,
-  FormLabel
+  FormLabel,
+  Avatar
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
