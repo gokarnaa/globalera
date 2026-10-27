@@ -194,12 +194,9 @@ export default function A4LandscapeCertificateModal({
     if (design.preprintedTextOnly) {
       return { backgroundColor: 'transparent' };
     }
-    if (backgroundType === 'custom' && customBackgroundUrl) {
+    if (backgroundType === 'custom') {
       return {
-        backgroundImage: `url(${customBackgroundUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundColor: '#FFFFFF'
       };
     }
     if (backgroundType === 'ivory-parchment') {
@@ -439,6 +436,23 @@ export default function A4LandscapeCertificateModal({
             ...getBackgroundStyle()
           }}
         >
+          {/* Custom Uploaded Background Layer with Opacity & Fit */}
+          {!design.preprintedTextOnly && backgroundType === 'custom' && customBackgroundUrl && (
+            <Box
+              sx={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${customBackgroundUrl})`,
+                backgroundSize: design.customBgFit || 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat',
+                opacity: (design.customBgOpacity !== undefined ? Number(design.customBgOpacity) : 100) / 100,
+                pointerEvents: 'none',
+                zIndex: 0
+              }}
+            />
+          )}
+
           {/* 4 Corner Ornaments */}
           {!design.preprintedTextOnly && cornerStyle !== 'none' && (
             <>

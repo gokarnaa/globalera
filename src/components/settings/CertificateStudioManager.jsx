@@ -75,9 +75,12 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   orientation: 'landscape', // 'landscape' | 'portrait'
   templateName: 'आधिकारिक ३ महिने व्यावसायिक तालिम ढाँचा',
 
-  // 2. 10 Background Presets
+  // 2. 10 Background Presets & Custom Backgrounds
   backgroundType: 'clean-white',
   customBackgroundUrl: '',
+  customBackgrounds: [],
+  customBgOpacity: 100,
+  customBgFit: 'cover',
   watermarkType: 'school-crest',
   watermarkOpacity: 4,
   watermarkScale: 100,
@@ -608,6 +611,75 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     reader.readAsDataURL(file);
   };
 
+  const handleUploadCustomBg = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('पृष्ठभूमि फोटोको साइज ५MB भन्दा सानो हुनुपर्छ।');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result;
+      const cleanFileName = file.name
+        ? file.name.replace(/\.[^/.]+$/, '')
+        : `कस्टम पृष्ठभूमि ${((design.customBackgrounds || []).length + 1)}`;
+      const newPreset = {
+        id: `custom-bg-${Date.now()}`,
+        name: cleanFileName.slice(0, 24),
+        url: dataUrl,
+        createdAt: new Date().toLocaleDateString('ne-NP')
+      };
+
+      const existingList = design.customBackgrounds || [];
+      const updatedList = [newPreset, ...existingList];
+
+      setDesign((prev) => ({
+        ...prev,
+        backgroundType: 'custom',
+        customBackgroundUrl: dataUrl,
+        customBackgrounds: updatedList
+      }));
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
+  const handleSelectCustomBg = (bgItem) => {
+    setDesign((prev) => ({
+      ...prev,
+      backgroundType: 'custom',
+      customBackgroundUrl: bgItem.url
+    }));
+  };
+
+  const handleDeleteCustomBg = (bgId, e) => {
+    if (e) e.stopPropagation();
+    const existingList = design.customBackgrounds || [];
+    const updatedList = existingList.filter((item) => item.id !== bgId);
+
+    let nextUrl = design.customBackgroundUrl;
+    let nextBgType = design.backgroundType;
+    if (design.customBackgroundUrl && !updatedList.some((item) => item.url === design.customBackgroundUrl)) {
+      if (updatedList.length > 0) {
+        nextUrl = updatedList[0].url;
+        nextBgType = 'custom';
+      } else {
+        nextUrl = '';
+        nextBgType = 'clean-white';
+      }
+    }
+
+    setDesign((prev) => ({
+      ...prev,
+      customBackgrounds: updatedList,
+      customBackgroundUrl: nextUrl,
+      backgroundType: nextBgType
+    }));
+  };
+
   const handleSaveDesign = () => {
     const nextDb = {
       ...db,
@@ -651,12 +723,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
     const { backgroundType, customBackgroundUrl, primaryColor, accentColor } = design;
 
-    if (backgroundType === 'custom' && customBackgroundUrl) {
+    if (backgroundType === 'custom') {
       return {
-        backgroundImage: `url(${customBackgroundUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat'
+        backgroundColor: '#FFFFFF'
       };
     }
     if (backgroundType === 'ivory-parchment') {
@@ -1098,59 +1167,238 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </Stack>
             )}
 
-            {/* TAB 1: BACKGROUND PRESETS */}
+            {/* TAB 1: BACKGROUND PRESETS & CUSTOM GALLERY */}
             {activeLeftTab === 1 && (
-              <Stack spacing={1.5}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block' }}>
-                  १० आधुनिक पृष्ठभूमि प्रिसेटहरू:
-                </Typography>
-                <Grid container spacing={0.8}>
-                  {BACKGROUND_PRESETS.map((bg) => (
-                    <Grid item xs={6} key={bg.id}>
-                      <Button
-                        fullWidth
-                        size="small"
-                        variant={design.backgroundType === bg.id ? 'contained' : 'outlined'}
-                        onClick={() => handleUpdate('backgroundType', bg.id)}
-                        sx={{
-                          fontWeight: 700,
-                          fontSize: '0.64rem',
-                          py: 0.6,
-                          justifyContent: 'flex-start',
-                          textAlign: 'left',
-                          bgcolor: design.backgroundType === bg.id ? '#0F2E5A' : '#FFFFFF',
-                          borderColor: '#CBD5E1',
-                          color: design.backgroundType === bg.id ? '#FFFFFF' : '#334155'
-                        }}
-                      >
-                        {bg.label}
-                      </Button>
-                    </Grid>
-                  ))}
-                </Grid>
+              <Stack spacing={2}>
+                {/* 1. Default Built-in Presets */}
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                    🏛️ प्रणालीका १० आधारभूत पृष्ठभूमि प्रिसेटहरू:
+                  </Typography>
+                  <Grid container spacing={0.8}>
+                    {BACKGROUND_PRESETS.map((bg) => {
+                      const isSelected = design.backgroundType === bg.id;
+                      return (
+                        <Grid item xs={6} key={bg.id}>
+                          <Button
+                            fullWidth
+                            size="small"
+                            variant={isSelected ? 'contained' : 'outlined'}
+                            onClick={() => handleUpdate('backgroundType', bg.id)}
+                            sx={{
+                              fontWeight: 700,
+                              fontSize: '0.64rem',
+                              py: 0.6,
+                              justifyContent: 'flex-start',
+                              textAlign: 'left',
+                              bgcolor: isSelected ? '#0F2E5A' : '#FFFFFF',
+                              borderColor: isSelected ? '#0F2E5A' : '#CBD5E1',
+                              color: isSelected ? '#FFFFFF' : '#334155',
+                              '&:hover': {
+                                bgcolor: isSelected ? '#0B2545' : '#F1F5F9'
+                              }
+                            }}
+                          >
+                            {bg.label}
+                          </Button>
+                        </Grid>
+                      );
+                    })}
+                  </Grid>
+                </Box>
 
                 <Divider sx={{ my: 0.5 }} />
 
-                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    कस्टम पृष्ठभूमि छवि:
-                  </Typography>
-                  <Stack direction="row" spacing={1} alignItems="center">
-                    <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.7rem', fontWeight: 700, flex: 1 }}>
-                      फोटो अपलोड
-                      <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('customBackgroundUrl', e)} />
-                    </Button>
-                    {design.customBackgroundUrl && (
-                      <Button size="small" color="error" onClick={() => handleUpdate('customBackgroundUrl', '')} sx={{ fontSize: '0.68rem' }}>
-                        हटाउनुहोस्
-                      </Button>
+                {/* 2. Custom Uploaded Presets Library */}
+                <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      🖼️ मेरो आफ्ना पृष्ठभूमिहरू (Custom Presets):
+                    </Typography>
+                    {design.backgroundType === 'custom' && (
+                      <Chip
+                        label="✓ सक्रिय (Active)"
+                        size="small"
+                        sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 900, fontSize: '0.65rem', height: 20 }}
+                      />
                     )}
-                  </Stack>
+                  </Box>
+
+                  {/* Upload New Background Button */}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="small"
+                    component="label"
+                    startIcon={<UploadFileIcon />}
+                    sx={{
+                      background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 0.8,
+                      mb: 1.5,
+                      boxShadow: '0 2px 6px rgba(5,150,105,0.25)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)'
+                      }
+                    }}
+                  >
+                    + नयाँ पृष्ठभूमि फोटो अपलोड गर्नुहोस् (PNG / JPEG)
+                    <input type="file" hidden accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleUploadCustomBg} />
+                  </Button>
+
+                  {/* Custom Presets Grid / Thumbnails */}
+                  {(design.customBackgrounds || []).length > 0 ? (
+                    <Grid container spacing={1} sx={{ mb: 1.5 }}>
+                      {(design.customBackgrounds || []).map((bgItem) => {
+                        const isCurrentActive = design.backgroundType === 'custom' && design.customBackgroundUrl === bgItem.url;
+                        return (
+                          <Grid item xs={6} key={bgItem.id}>
+                            <Paper
+                              onClick={() => handleSelectCustomBg(bgItem)}
+                              elevation={isCurrentActive ? 2 : 0}
+                              sx={{
+                                p: 0.8,
+                                cursor: 'pointer',
+                                borderRadius: 1.8,
+                                border: isCurrentActive ? '2px solid #F59E0B' : '1px solid #CBD5E1',
+                                bgcolor: isCurrentActive ? '#FEFCE8' : '#FFFFFF',
+                                position: 'relative',
+                                transition: 'all 0.15s ease',
+                                '&:hover': {
+                                  borderColor: '#F59E0B',
+                                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                                }
+                              }}
+                            >
+                              {/* Thumbnail preview image */}
+                              <Box
+                                sx={{
+                                  height: 60,
+                                  borderRadius: 1,
+                                  backgroundImage: `url(${bgItem.url})`,
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  bgcolor: '#F1F5F9',
+                                  position: 'relative',
+                                  overflow: 'hidden',
+                                  border: '1px solid #E2E8F0'
+                                }}
+                              >
+                                {isCurrentActive && (
+                                  <Box
+                                    sx={{
+                                      position: 'absolute',
+                                      top: 4,
+                                      left: 4,
+                                      bgcolor: '#059669',
+                                      color: '#FFFFFF',
+                                      borderRadius: '50%',
+                                      width: 18,
+                                      height: 18,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      fontSize: '0.7rem',
+                                      fontWeight: 900
+                                    }}
+                                  >
+                                    ✓
+                                  </Box>
+                                )}
+                              </Box>
+
+                              {/* Title and Delete Action */}
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.6 }}>
+                                <Typography
+                                  variant="caption"
+                                  sx={{
+                                    fontWeight: isCurrentActive ? 900 : 700,
+                                    color: isCurrentActive ? '#0F2E5A' : '#475569',
+                                    fontSize: '0.65rem',
+                                    overflow: 'hidden',
+                                    textOverflow: 'ellipsis',
+                                    whiteSpace: 'nowrap',
+                                    maxWidth: 90
+                                  }}
+                                  title={bgItem.name}
+                                >
+                                  {bgItem.name}
+                                </Typography>
+                                <Tooltip title="यो पृष्ठभूमि हटाउनुहोस्">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => handleDeleteCustomBg(bgItem.id, e)}
+                                    sx={{ p: 0.2, color: '#DC2626', '&:hover': { bgcolor: '#FEE2E2' } }}
+                                  >
+                                    <CloseIcon sx={{ fontSize: 14 }} />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            </Paper>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  ) : (
+                    <Box sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FFFFFF', borderRadius: 1.5, border: '1px dashed #CBD5E1', mb: 1 }}>
+                      <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.7rem' }}>
+                        हालसम्म कुनै कस्टम पृष्ठभूमि फोटो अपलोड गरिएको छैन। माथिको बटनबाट फोटो छनोट गर्नुहोस्।
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {/* Controls when custom background is active */}
+                  {design.backgroundType === 'custom' && (
+                    <Box sx={{ pt: 1, borderTop: '1px dashed #CBD5E1', mt: 1 }}>
+                      {/* Opacity Slider */}
+                      <Box sx={{ mb: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.3 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.7rem' }}>
+                            पृष्ठभूमि स्पष्टता / गाढापन:
+                          </Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#059669', fontSize: '0.75rem' }}>
+                            {design.customBgOpacity !== undefined ? design.customBgOpacity : 100}%
+                          </Typography>
+                        </Box>
+                        <Slider
+                          value={design.customBgOpacity !== undefined ? design.customBgOpacity : 100}
+                          min={15}
+                          max={100}
+                          step={5}
+                          onChange={(e, val) => handleUpdate('customBgOpacity', val)}
+                          sx={{ color: '#059669', py: 0.5 }}
+                        />
+                      </Box>
+
+                      {/* Display Mode / Fit */}
+                      <Box>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
+                          प्रदर्शन ढाँचा (Fit Mode):
+                        </Typography>
+                        <ToggleButtonGroup
+                          value={design.customBgFit || 'cover'}
+                          exclusive
+                          onChange={(e, val) => val && handleUpdate('customBgFit', val)}
+                          size="small"
+                          fullWidth
+                        >
+                          <ToggleButton value="cover" sx={{ fontSize: '0.65rem', fontWeight: 800, py: 0.4 }}>
+                            पूर्ण पाना (Cover)
+                          </ToggleButton>
+                          <ToggleButton value="contain" sx={{ fontSize: '0.65rem', fontWeight: 800, py: 0.4 }}>
+                            अनुपात मिलाउने (Contain)
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
 
+                {/* 3. Watermark Opacity (Global) */}
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                    वाटरमार्क गाढापन ({design.watermarkOpacity}%):
+                    लोगो वाटरमार्क गाढापन ({design.watermarkOpacity}%):
                   </Typography>
                   <Slider
                     value={design.watermarkOpacity}
@@ -1611,6 +1859,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 ...getBackgroundStyle()
               }}
             >
+              {/* Custom Uploaded Background Layer with Opacity & Fit */}
+              {!design.preprintedTextOnly && design.backgroundType === 'custom' && design.customBackgroundUrl && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    inset: 0,
+                    backgroundImage: `url(${design.customBackgroundUrl})`,
+                    backgroundSize: design.customBgFit || 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    opacity: (design.customBgOpacity !== undefined ? Number(design.customBgOpacity) : 100) / 100,
+                    pointerEvents: 'none',
+                    zIndex: 0
+                  }}
+                />
+              )}
+
               {/* 4 Corner Ornaments */}
               {!design.preprintedTextOnly && design.cornerStyle !== 'none' && (
                 <>
