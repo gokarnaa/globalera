@@ -25,22 +25,36 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShieldIcon from '@mui/icons-material/Shield';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 import { loadDB, resetDB } from '../../services/storage';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 
 export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
   const { currentUser, switchUser, logout, isAdmin, isTrainer, isStudent, isEmployer } = useAuth();
+  const { confirm, alert } = useDialog();
   const [anchorUser, setAnchorUser] = useState(null);
   const db = loadDB();
 
   const handleOpenUser = (e) => setAnchorUser(e.currentTarget);
   const handleCloseUser = () => setAnchorUser(null);
 
-  const handleResetData = () => {
-    if (window.confirm('Reset all sample data back to default initial state?')) {
+  const handleResetData = async () => {
+    handleCloseUser();
+    const ok = await confirm({
+      type: 'warning',
+      title: 'डाटा रिसेट निश्चित गर्नुहोस् (Reset Data)',
+      message: 'के तपाईं सम्पूर्ण नमूना डाटा सुरुवाती अवस्थामा फर्काउन चाहनुहुन्छ?',
+      detail: 'यो कार्यपछि हालै प्रविष्टि गरिएका नयाँ डाटाहरू हट्नेछन् र सुरुवाती डेमो डाटा लोड हुनेछ।',
+      confirmText: 'हो, रिसेट गर्नुहोस् (Reset)',
+      confirmColor: '#DC2626'
+    });
+    if (ok) {
       resetDB();
-      handleCloseUser();
-      alert('Data reset to default.');
+      await alert({
+        type: 'success',
+        title: 'सफलतापूर्वक सम्पन्न (Success)',
+        message: 'डाटा पूर्ववत अवस्थामा रिसेट गरिएको छ।'
+      });
     }
   };
 
@@ -356,9 +370,18 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
           <Divider sx={{ my: 1 }} />
 
           <MenuItem
-            onClick={() => {
+            onClick={async () => {
               handleCloseUser();
-              if (window.confirm('के तपाईं लगआउट (Logout) गर्न चाहनुहुन्छ?')) {
+              const ok = await confirm({
+                type: 'logout',
+                title: 'लगआउट निश्चित गर्नुहोस् (Confirm Logout)',
+                message: 'के तपाईं प्रणालीबाट बाहिरिन (Logout) चाहनुहुन्छ?',
+                detail: 'तपाईंको सेसन सुरक्षित रूपमा समाप्त हुनेछ र पुनः प्रवेश गर्न पिन आवश्यक पर्नेछ।',
+                confirmText: 'हो, लगआउट गर्नुहोस्',
+                cancelText: 'रद्द गर्नुहोस्',
+                confirmColor: '#EF4444'
+              });
+              if (ok) {
                 logout();
               }
             }}

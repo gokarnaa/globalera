@@ -49,12 +49,14 @@ import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 import StudentProfileModal from './StudentProfileModal';
 import StudentIdCardModal from '../admission/StudentIdCardModal';
 
 export default function StudentManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
+  const { confirm, alert } = useDialog();
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -186,8 +188,18 @@ export default function StudentManager() {
     setOpenAddDialog(false);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this student record?')) {
+  const handleDelete = async (id) => {
+    const std = (db.students || []).find((s) => s.id === id);
+    const ok = await confirm({
+      type: 'danger',
+      title: 'प्रशिक्षार्थी अभिलेख मेटाउने निश्चित गर्नुहोस् (Delete Trainee)',
+      message: `के तपाईं प्रशिक्षार्थी "${std?.name || id}" (${std?.tgid || ''}) को सम्पूर्ण विवरण मेटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो कार्यपछि प्रशिक्षार्थीको हाजिरी, शुल्क लेजर र मूल्याङ्कन रेकर्ड प्रभावित हुन सक्नेछ।',
+      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
+    });
+
+    if (ok) {
       const nextDb = {
         ...db,
         students: db.students.filter((x) => x.id !== id)

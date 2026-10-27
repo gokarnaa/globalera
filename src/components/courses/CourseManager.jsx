@@ -51,6 +51,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 
 // Quick Template presets for new vocational courses
 const COURSE_TEMPLATES = [
@@ -95,6 +96,7 @@ const COURSE_TEMPLATES = [
 export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
+  const { confirm, alert } = useDialog();
 
   // View & Filter States
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
@@ -248,16 +250,30 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
     } catch (_) {}
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const crs = (db.courses || []).find((x) => x.id === id);
     const hasBatches = (db.trainingGroups || []).some((g) => g.courseId === id);
 
     if (hasBatches) {
-      alert(`यो पाठ्यक्रम (${crs?.title}) सँग सम्बन्धित तालिम समूह (Batches) रहेकाले मेट्न मिल्दैन। पहिले सम्बन्धित समूह हटाउनुहोस्।`);
+      await alert({
+        type: 'warning',
+        title: 'पाठ्यक्रम मेटाउन नमिल्ने (Course Restricted)',
+        message: `यो पाठ्यक्रम (${crs?.title}) सँग सम्बन्धित तालिम समूह (Batches) रहेका छन्।`,
+        detail: 'पहिले सम्बन्धित तालिम समूह हटाउनुहोस् वा अर्को पाठ्यक्रममा स्थानान्तरण गर्नुहोस्।'
+      });
       return;
     }
 
-    if (window.confirm(`के तपाईं निश्चित हुनुहुन्छ? पाठ्यक्रम "${crs?.title || id}" प्रणालीबाट हटाइनेछ।`)) {
+    const ok = await confirm({
+      type: 'danger',
+      title: 'पाठ्यक्रम मेटाउने निश्चित गर्नुहोस् (Delete Course)',
+      message: `के तपाईं पाठ्यक्रम "${crs?.title || id}" लाई प्रणालीबाट हटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो कार्यपछि सम्बन्धित पाठ्यक्रम र एकाइ विवरण हट्नेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
+      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
+    });
+
+    if (ok) {
       let nextDb = {
         ...db,
         courses: (db.courses || []).filter((x) => x.id !== id)

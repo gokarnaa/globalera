@@ -48,11 +48,13 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import confetti from 'canvas-confetti';
 
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 
 export default function TrainerPortal() {
   const { currentUser, logout } = useAuth();
+  const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
 
@@ -359,8 +361,17 @@ export default function TrainerPortal() {
                 variant="outlined"
                 color="inherit"
                 startIcon={<LogoutIcon />}
-                onClick={() => {
-                  if (window.confirm('के तपाईं पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?')) {
+                onClick={async () => {
+                  const ok = await confirm({
+                    type: 'logout',
+                    title: 'लगआउट निश्चित गर्नुहोस् (Confirm Logout)',
+                    message: 'के तपाईं प्रशिक्षक पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?',
+                    detail: 'तपाईंको सेसन सुरक्षित बन्द हुनेछ र पुनः लगइन गर्न प्रयोगकर्ता आईडी र पिन आवश्यक पर्नेछ।',
+                    confirmText: 'हो, बाहिरिनुहोस् (Logout)',
+                    cancelText: 'रद्द गर्नुहोस् (Cancel)',
+                    confirmColor: '#EF4444'
+                  });
+                  if (ok) {
                     logout();
                   }
                 }}

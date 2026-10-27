@@ -52,8 +52,10 @@ import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB, generateDefaultUsers } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { useDialog } from '../../context/DialogContext';
 
 export default function UserManager() {
+  const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState('ALL'); // 'ALL' | 'ADMIN' | 'TRAINER' | 'STUDENT' | 'STAFF'
@@ -115,11 +117,23 @@ export default function UserManager() {
   };
 
   // 1-Click Suspend / Activate Toggle
-  const handleToggleStatus = (user) => {
+  const handleToggleStatus = async (user) => {
     const nextStatus = user.status === 'Suspended' ? 'Active' : 'Suspended';
-    const actionLabel = nextStatus === 'Suspended' ? 'निलम्बन (Suspend)' : 'सक्रिय (Activate)';
+    const isSuspending = nextStatus === 'Suspended';
+    const actionLabel = isSuspending ? 'खाता निलम्बन (Suspend Account)' : 'खाता सक्रिय (Activate Account)';
 
-    if (window.confirm(`के तपाईं प्रयोगकर्ता "${user.name}" लाई ${actionLabel} गर्न निश्चित हुनुहुन्छ?`)) {
+    const ok = await confirm({
+      type: isSuspending ? 'danger' : 'info',
+      title: `${actionLabel} निश्चित गर्नुहोस्`,
+      message: `के तपाईं प्रयोगकर्ता "${user.name}" को खाता ${isSuspending ? 'निलम्बन' : 'सक्रिय'} गर्न निश्चित हुनुहुन्छ?`,
+      detail: isSuspending
+        ? 'निलम्बित प्रयोगकर्ताले प्रणालीमा लगइन गर्न पाउने छैनन्।'
+        : 'सक्रिय भएपछि प्रयोगकर्ताले आफ्नो पिन प्रयोग गरी तत्काल लगइन गर्न सक्नेछन्।',
+      confirmText: isSuspending ? 'हो, निलम्बन गर्नुहोस्' : 'हो, सक्रिय गर्नुहोस्',
+      confirmColor: isSuspending ? '#DC2626' : '#2563EB'
+    });
+
+    if (ok) {
       const nextUsers = usersList.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u));
       const nextDb = { ...db, users: nextUsers };
       saveDB(nextDb);
@@ -203,8 +217,17 @@ export default function UserManager() {
   };
 
   // Delete User
-  const handleDeleteUser = (userId) => {
-    if (window.confirm('के तपाईं यस प्रयोगकर्तालाई स्थायी रूपमा मेटाउन निश्चित हुनुहुन्छ?')) {
+  const handleDeleteUser = async (userId) => {
+    const targetUser = usersList.find((u) => u.id === userId);
+    const ok = await confirm({
+      type: 'danger',
+      title: 'प्रयोगकर्ता मेटाउने निश्चित गर्नुहोस् (Delete User)',
+      message: `के तपाईं प्रयोगकर्ता "${targetUser?.name || userId}" लाई स्थायी रूपमा मेटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो प्रयोगकर्ता प्रणालीबाट हट्नेछ र लगइन गर्न असमर्थ हुनेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
+      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
+    });
+    if (ok) {
       const nextUsers = usersList.filter((u) => u.id !== userId);
       const nextDb = { ...db, users: nextUsers };
       saveDB(nextDb);

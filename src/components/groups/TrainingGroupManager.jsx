@@ -52,10 +52,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 
 export default function TrainingGroupManager({ onNavigateToAttendance, onNavigateToStudents }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
+  const { confirm, alert } = useDialog();
 
   // View, Search, Filter & Sort States
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
@@ -275,14 +277,29 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     } catch (_) {}
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     const studentsInGroup = (db.students || []).filter((s) => s.groupId === id);
     if (studentsInGroup.length > 0) {
-      alert(`यस समूहमा ${studentsInGroup.length} जना विद्यार्थी भर्ना भएका छन्। पहिले विद्यार्थीहरूलाई अर्को समूहमा स्थानान्तरण गर्नुहोस्।`);
+      await alert({
+        type: 'warning',
+        title: 'समूह मेटाउन नमिल्ने (Batch Restricted)',
+        message: `यस समूहमा ${studentsInGroup.length} जना विद्यार्थी भर्ना भएका छन्।`,
+        detail: 'पहिले विद्यार्थीहरूलाई अर्को तालिम समूहमा स्थानान्तरण गर्नुहोस् वा हटाउनुहोस्।'
+      });
       return;
     }
 
-    if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो तालिम समूह मेटिनेछ।')) {
+    const grp = (db.trainingGroups || []).find((g) => g.id === id);
+    const ok = await confirm({
+      type: 'danger',
+      title: 'तालिम समूह मेटाउने निश्चित गर्नुहोस् (Delete Batch)',
+      message: `के तपाईं समूह "${grp?.groupCode || id}" लाई मेटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो कार्यपछि समूह विवरण स्थायी रूपमा प्रणालीबाट हट्नेछ।',
+      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
+    });
+
+    if (ok) {
       let nextDb = {
         ...db,
         trainingGroups: (db.trainingGroups || []).filter((x) => x.id !== id)

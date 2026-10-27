@@ -42,8 +42,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { useDialog } from '../../context/DialogContext';
 
 export default function TrainerManager() {
+  const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -107,8 +109,30 @@ export default function TrainerManager() {
     setOpenDialog(false);
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm('Are you sure you want to delete this trainer?')) {
+  const handleDelete = async (id) => {
+    const trn = (db.trainers || []).find((x) => x.id === id);
+    const assignedBatches = (db.trainingGroups || []).filter((g) => g.trainerId === id);
+
+    if (assignedBatches.length > 0) {
+      await alert({
+        type: 'warning',
+        title: 'प्रशिक्षक मेटाउन नमिल्ने (Trainer Assigned)',
+        message: `प्रशिक्षक "${trn?.name || id}" हाल ${assignedBatches.length} वटा तालिम ब्याचहरूमा तोकिएका छन्।`,
+        detail: 'पहिले सम्बन्धित समूहहरूबाट प्रशिक्षक परिवर्तन गर्नुहोस् वा ब्याच हटाउनुहोस्।'
+      });
+      return;
+    }
+
+    const ok = await confirm({
+      type: 'danger',
+      title: 'प्रशिक्षक मेटाउने निश्चित गर्नुहोस् (Delete Trainer)',
+      message: `के तपाईं प्रशिक्षक "${trn?.name || id}" लाई प्रणालीबाट हटाउन निश्चित हुनुहुन्छ?`,
+      detail: 'यो कार्यपछि प्रशिक्षकको प्रोफाइल र लगइन विवरण हट्नेछ।',
+      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      confirmColor: '#DC2626'
+    });
+
+    if (ok) {
       const nextDb = {
         ...db,
         trainers: db.trainers.filter((x) => x.id !== id)

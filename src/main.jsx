@@ -3,14 +3,17 @@ import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
 import { AuthProvider } from './context/AuthContext';
+import { DialogProvider } from './context/DialogContext';
 import App from './App';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
+      <DialogProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
+      </DialogProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

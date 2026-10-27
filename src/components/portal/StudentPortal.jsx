@@ -41,12 +41,14 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
+import { useDialog } from '../../context/DialogContext';
 import { loadDB, saveDB } from '../../services/storage';
 import A4LandscapeCertificateModal from '../certificates/A4LandscapeCertificateModal';
 import PublicCertificateVerify from '../certificates/PublicCertificateVerify';
 
 export default function StudentPortal() {
   const { currentUser, logout } = useAuth();
+  const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
 
@@ -246,8 +248,17 @@ export default function StudentPortal() {
                 variant="outlined"
                 color="inherit"
                 startIcon={<LogoutIcon />}
-                onClick={() => {
-                  if (window.confirm('के तपाईं विद्यार्थी पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?')) {
+                onClick={async () => {
+                  const ok = await confirm({
+                    type: 'logout',
+                    title: 'लगआउट निश्चित गर्नुहोस् (Confirm Logout)',
+                    message: 'के तपाईं विद्यार्थी पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?',
+                    detail: 'तपाईंको सेसन सुरक्षित बन्द हुनेछ र पुनः हेर्न फोन नम्बर तथा पिन आवश्यक पर्नेछ।',
+                    confirmText: 'हो, बाहिरिनुहोस् (Logout)',
+                    cancelText: 'रद्द गर्नुहोस् (Cancel)',
+                    confirmColor: '#EF4444'
+                  });
+                  if (ok) {
                     logout();
                   }
                 }}
@@ -255,6 +266,7 @@ export default function StudentPortal() {
                   color: '#ffffff',
                   borderColor: 'rgba(255,255,255,0.4)',
                   fontWeight: 800,
+                  borderRadius: 2,
                   '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.2)', borderColor: '#EF4444' }
                 }}
               >
