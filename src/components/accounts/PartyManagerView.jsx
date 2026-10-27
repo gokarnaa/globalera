@@ -681,7 +681,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             </Button>
                           </Tooltip>
 
-                          <Tooltip title="१२-महिने खातापाना / स्टेटमेन्ट">
+                          <Tooltip title={p.category === 'LANDLORD' ? "आर्थिक वर्ष १२-महिने घरभाडा स्टेटमेन्ट (साउन–असार)" : "पार्टी खाता तथा खरिद लेजर"}>
                             <Button
                               variant="outlined"
                               size="small"

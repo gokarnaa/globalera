@@ -273,6 +273,38 @@ export default function UniversalStatementModal({
     return `नमस्ते ${currentEntity.name || 'महानुभाव'} ज्यू,\n\nग्लोबल एरा प्राविधिक स्कुलबाट तपाईंको आधिकारिक खातापाना (Statement) पठाइएको छ। धन्यवाद!`;
   };
 
+  const entityTitle = useMemo(() => {
+    switch (entityType) {
+      case 'STUDENT':
+        return {
+          title: 'विद्यार्थी किस्ता लेजर तथा शुल्क स्टेटमेन्ट (Student Fee Passbook)',
+          subtitle: 'कोर्स शुल्क, किस्ता भुक्तानी रसिद तथा बाँकी बक्यौता विवरण'
+        };
+      case 'LANDLORD':
+        return {
+          title: 'आर्थिक वर्ष १२-महिने घरभाडा स्टेटमेन्ट (साउन–असार FY Rent Ledger)',
+          subtitle: 'मासिक भाडा भुक्तानी, १०% TDS कट्टी र ConnectIPS दाखिला ट्रान्ज्याक्सन'
+        };
+      case 'TRAINER':
+        return {
+          title: 'प्रशिक्षक पारिश्रमिक तथा कमिसन स्टेटमेन्ट (Trainer Payroll Ledger)',
+          subtitle: 'ब्याच कमिसन, मासिक तलब तथा निकासा भौचर विवरण'
+        };
+      case 'SUPPLIER':
+      case 'UTILITY':
+        return {
+          title: 'पार्टी खाता तथा खरिद स्टेटमेन्ट (Party & Supplier Ledger)',
+          subtitle: 'खरिद बिल, उधारो दायित्व र बैंक भुक्तानी विवरण'
+        };
+      case 'BANK':
+      default:
+        return {
+          title: 'बैंक तथा काउन्टर क्यास पासबुक (Day-Book & Bank Ledger)',
+          subtitle: 'नबिल बैंक, ग्लोबल आइएमई र काउन्टर नगद खातापाना'
+        };
+    }
+  }, [entityType]);
+
   return (
     <Dialog
       open={open}
@@ -305,10 +337,10 @@ export default function UniversalStatementModal({
           <AccountBalanceIcon sx={{ color: '#F59E0B', fontSize: 28 }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2 }}>
-              एकीकृत वित्तीय स्टेटमेन्ट तथा लेजर हब (Universal Statement Hub)
+              {entityTitle.title}
             </Typography>
             <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-              विद्यार्थी, घरबेटी, आपूर्तिकर्ता तथा बैंकको आधिकारिक १२-महिने खातापाना
+              {entityTitle.subtitle}
             </Typography>
           </Box>
         </Box>
