@@ -62,8 +62,11 @@ import FeeClearanceReceiptModal from './FeeClearanceReceiptModal';
 import StudentPaymentTimelineModal from './StudentPaymentTimelineModal';
 import UniversalStatementModal from './UniversalStatementModal';
 import ConnectIpsPayoutModal from './ConnectIpsPayoutModal';
+import DayOpenModal from './DayOpenModal';
+import CashToBankModal from './CashToBankModal';
 
 import LockIcon from '@mui/icons-material/Lock';
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import BalanceIcon from '@mui/icons-material/Balance';
 import BusinessIcon from '@mui/icons-material/Business';
@@ -90,9 +93,12 @@ export default function AccountsManager({ initialTab = 0 }) {
   }, [initialTab]);
 
   // Modals state
+  const [openDayOpenModal, setOpenDayOpenModal] = useState(false);
+  const [openCashToBankModal, setOpenCashToBankModal] = useState(false);
   const [openCollectModal, setOpenCollectModal] = useState(false);
   const [openPayoutModal, setOpenPayoutModal] = useState(false);
   const [openCashClosingModal, setOpenCashClosingModal] = useState(false);
+  const [selectedClosingToView, setSelectedClosingToView] = useState(null);
   const [connectIpsModalOpen, setConnectIpsModalOpen] = useState(false);
   const [connectIpsParty, setConnectIpsParty] = useState(null);
   const [selectedReceiptPayment, setSelectedReceiptPayment] = useState(null);
@@ -313,6 +319,45 @@ export default function AccountsManager({ initialTab = 0 }) {
 
     return { totalExpenses, bankBalance, cashInHand, journalCount, projectTotal };
   }, [db.expenses, db.chartOfAccounts, db.journalEntries, db.projectContracts]);
+
+  // Live Cash in Hand and Live Bank Balance Calculation
+  const { liveCashInHand, liveBankBalance } = useMemo(() => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const opening = db?.counterStatus?.openingCash ?? 44000;
+
+    // Today's physical cash inflows
+    const cashIn = (db.payments || [])
+      .filter((p) => (p.paymentDate === todayStr || (p.createdAt || '').slice(0, 10) === todayStr) && p.paymentMethod?.toLowerCase().includes('cash'))
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    // Today's physical cash outflows
+    const cashOut = (db.expenses || [])
+      .filter((e) => e.date === todayStr && e.paymentMethod?.toLowerCase().includes('cash'))
+      .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+
+    // Today's cash deposited to bank (contra)
+    const bankDeposits = (db.transactions || [])
+      .filter((t) => (t.date === todayStr || (t.createdAt || '').slice(0, 10) === todayStr) && t.type === 'BANK_DEPOSIT')
+      .reduce((sum, t) => sum + (Number(t.amount) || 0), 0);
+
+    const liveCash = Math.max(0, opening + cashIn - cashOut - bankDeposits);
+
+    // Live bank balance
+    const bankAcc = (db.chartOfAccounts || []).find((a) => a.code === '1020');
+    const baseBank = bankAcc?.balance || 1425000;
+
+    const digitalIn = (db.payments || [])
+      .filter((p) => p.paymentMethod && !p.paymentMethod.toLowerCase().includes('cash'))
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    const digitalOut = (db.trainerPayouts || [])
+      .filter((tp) => tp.paymentMethod && !tp.paymentMethod.toLowerCase().includes('cash'))
+      .reduce((sum, tp) => sum + (Number(tp.amount) || 0), 0);
+
+    const liveBank = baseBank + digitalIn - digitalOut + bankDeposits;
+
+    return { liveCashInHand: liveCash, liveBankBalance: liveBank };
+  }, [db.counterStatus, db.payments, db.expenses, db.transactions, db.chartOfAccounts, db.trainerPayouts]);
 
   // Dynamic Context-Aware KPI Cards for the Active Tab
   const currentKpis = useMemo(() => {
@@ -746,18 +791,73 @@ export default function AccountsManager({ initialTab = 0 }) {
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>
                 Accounts & Fee Management
               </Typography>
-              <Chip
-                label="🟢 काउन्टर खुल्ला • FY 2081/82"
-                size="small"
-                sx={{
-                  bgcolor: '#ECFDF5',
-                  color: '#065F46',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  border: '1px solid #A7F3D0',
-                  height: 24
-                }}
-              />
+              
+              {/* Counter Open / Closed Status Badge */}
+              {db?.counterStatus?.isOpen !== false ? (
+                <Tooltip title={`काउन्टर सुरु मिति: ${db?.counterStatus?.openedDate || 'आज'} • क्यासियर: ${db?.counterStatus?.openedBy || 'सुनिता शर्मा'}`}>
+                  <Chip
+                    label="🟢 काउन्टर खुल्ला • FY 2081/82"
+                    size="small"
+                    sx={{
+                      bgcolor: '#ECFDF5',
+                      color: '#065F46',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      border: '1px solid #A7F3D0',
+                      height: 24
+                    }}
+                  />
+                </Tooltip>
+              ) : (
+                <Tooltip title="काउन्टर अहिले बन्द छ। नयाँ कारोबारका लागि पहिले दिन सुरु गर्नुहोस्।">
+                  <Chip
+                    label="🔴 काउन्टर बन्द • FY 2081/82"
+                    size="small"
+                    sx={{
+                      bgcolor: '#FEF2F2',
+                      color: '#991B1B',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      border: '1px solid #FECACA',
+                      height: 24
+                    }}
+                  />
+                </Tooltip>
+              )}
+
+              {/* Live Physical Cash in Hand Badge */}
+              <Tooltip title="काउन्टर दराजमा रहेको वास्तविक नगद मौज्दात (A/C 1010)">
+                <Chip
+                  icon={<PointOfSaleIcon sx={{ fontSize: '0.88rem !important', color: '#059669 !important' }} />}
+                  label={`दराज नगद: Rs. ${liveCashInHand.toLocaleString()}`}
+                  size="small"
+                  sx={{
+                    bgcolor: '#F0FDF4',
+                    color: '#065F46',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    border: '1px solid #BBF7D0',
+                    height: 24
+                  }}
+                />
+              </Tooltip>
+
+              {/* Live Bank Balance Badge */}
+              <Tooltip title="ग्लोबल आइएमई तथा नबिल बैंक खाता मौज्दात (A/C 1020)">
+                <Chip
+                  icon={<AccountBalanceIcon sx={{ fontSize: '0.88rem !important', color: '#1E40AF !important' }} />}
+                  label={`बैंक मौज्दात: Rs. ${liveBankBalance.toLocaleString()}`}
+                  size="small"
+                  sx={{
+                    bgcolor: '#EFF6FF',
+                    color: '#1E40AF',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    border: '1px solid #BFDBFE',
+                    height: 24
+                  }}
+                />
+              </Tooltip>
             </Box>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block' }}>
               ग्लोबल एरा वित्तीय तथा शुल्क व्यवस्थापन • किस्ता संकलन, ConnectIPS भुक्तानी, घरबेटी/पार्टी लेजर तथा अडिट हब
@@ -775,94 +875,168 @@ export default function AccountsManager({ initialTab = 0 }) {
             justifyContent: { xs: 'flex-start', lg: 'flex-end' }
           }}
         >
-          {/* 3 Primary Action Triggers */}
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => {
-              setPreselectedStudentId(null);
-              setOpenCollectModal(true);
-            }}
-            startIcon={<PointOfSaleIcon sx={{ fontSize: '1.05rem !important' }} />}
-            sx={{
-              background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              borderRadius: 2.2,
-              px: 1.8,
-              py: 0.75,
-              boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
-              textTransform: 'none',
-              fontSize: '0.82rem',
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
-              }
-            }}
-          >
-            + शुल्क संकलन
-          </Button>
+          {/* Day Open Button when Counter is Closed */}
+          {db?.counterStatus?.isOpen === false ? (
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => setOpenDayOpenModal(true)}
+              startIcon={<LockOpenIcon sx={{ fontSize: '1.05rem !important' }} />}
+              sx={{
+                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                color: '#FFFFFF',
+                fontWeight: 900,
+                borderRadius: 2.2,
+                px: 2,
+                py: 0.8,
+                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
+                textTransform: 'none',
+                fontSize: '0.85rem',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              🔓 दिन सुरु (Day Open)
+            </Button>
+          ) : (
+            <>
+              {/* Primary Actions when Counter is Open */}
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setPreselectedStudentId(null);
+                  setOpenCollectModal(true);
+                }}
+                startIcon={<PointOfSaleIcon sx={{ fontSize: '1.05rem !important' }} />}
+                sx={{
+                  background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  borderRadius: 2.2,
+                  px: 1.8,
+                  py: 0.75,
+                  boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
+                  textTransform: 'none',
+                  fontSize: '0.82rem',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
+                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
+                  }
+                }}
+              >
+                + शुल्क संकलन
+              </Button>
 
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => {
-              const defaultParty = (db.parties || []).find((p) => p.type === 'LANDLORD') || (db.parties || [])[0];
-              setConnectIpsParty(defaultParty || null);
-              setConnectIpsModalOpen(true);
-            }}
-            startIcon={<AccountBalanceIcon sx={{ fontSize: '1.05rem !important' }} />}
-            sx={{
-              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              borderRadius: 2.2,
-              px: 1.8,
-              py: 0.75,
-              boxShadow: '0 3px 10px rgba(15, 46, 90, 0.3)',
-              textTransform: 'none',
-              fontSize: '0.82rem',
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #0A1E3B 0%, #0F2E5A 100%)',
-                boxShadow: '0 4px 14px rgba(15, 46, 90, 0.4)'
-              }
-            }}
-          >
-            + भुक्तानी
-          </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  const defaultParty = (db.parties || []).find((p) => p.type === 'LANDLORD') || (db.parties || [])[0];
+                  setConnectIpsParty(defaultParty || null);
+                  setConnectIpsModalOpen(true);
+                }}
+                startIcon={<AccountBalanceIcon sx={{ fontSize: '1.05rem !important' }} />}
+                sx={{
+                  background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  borderRadius: 2.2,
+                  px: 1.8,
+                  py: 0.75,
+                  boxShadow: '0 3px 10px rgba(15, 46, 90, 0.3)',
+                  textTransform: 'none',
+                  fontSize: '0.82rem',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #0A1E3B 0%, #0F2E5A 100%)',
+                    boxShadow: '0 4px 14px rgba(15, 46, 90, 0.4)'
+                  }
+                }}
+              >
+                + भुक्तानी
+              </Button>
 
-          <Button
-            variant="contained"
-            size="small"
-            onClick={() => {
-              setPreselectedTrainerId(null);
-              setOpenPayoutModal(true);
-            }}
-            startIcon={<PaymentsIcon sx={{ fontSize: '1.05rem !important' }} />}
-            sx={{
-              background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
-              color: '#FFFFFF',
-              fontWeight: 800,
-              borderRadius: 2.2,
-              px: 1.8,
-              py: 0.75,
-              boxShadow: '0 3px 10px rgba(180, 83, 9, 0.3)',
-              textTransform: 'none',
-              fontSize: '0.82rem',
-              whiteSpace: 'nowrap',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #592507 0%, #78350F 100%)'
-              }
-            }}
-          >
-            + निकासा
-          </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setPreselectedTrainerId(null);
+                  setOpenPayoutModal(true);
+                }}
+                startIcon={<PaymentsIcon sx={{ fontSize: '1.05rem !important' }} />}
+                sx={{
+                  background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  borderRadius: 2.2,
+                  px: 1.8,
+                  py: 0.75,
+                  boxShadow: '0 3px 10px rgba(180, 83, 9, 0.3)',
+                  textTransform: 'none',
+                  fontSize: '0.82rem',
+                  whiteSpace: 'nowrap',
+                  '&:hover': {
+                    background: 'linear-gradient(135deg, #592507 0%, #78350F 100%)'
+                  }
+                }}
+              >
+                + निकासा
+              </Button>
 
-          <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' }, my: 0.5, borderColor: '#CBD5E1' }} />
+              {/* Bank Deposit Contra Button */}
+              <Tooltip title="काउन्टरको नगद बैंकमा दाखिला गर्नुहोस् (Contra Entry)">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => setOpenCashToBankModal(true)}
+                  startIcon={<AccountBalanceIcon sx={{ fontSize: '0.95rem !important', color: '#1E40AF' }} />}
+                  sx={{
+                    fontWeight: 800,
+                    borderRadius: 2,
+                    borderColor: '#93C5FD',
+                    color: '#1E40AF',
+                    bgcolor: '#EFF6FF',
+                    textTransform: 'none',
+                    fontSize: '0.78rem',
+                    py: 0.65,
+                    px: 1.4,
+                    whiteSpace: 'nowrap',
+                    '&:hover': { bgcolor: '#DBEAFE', borderColor: '#3B82F6' }
+                  }}
+                >
+                  🏦 बैंक दाखिला
+                </Button>
+              </Tooltip>
 
-          {/* 3 Secondary Utility Tools */}
+              <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' }, my: 0.5, borderColor: '#CBD5E1' }} />
+
+              {/* Cash Closing */}
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={() => setOpenCashClosingModal(true)}
+                startIcon={<LockIcon sx={{ fontSize: '0.95rem !important' }} />}
+                sx={{
+                  fontWeight: 800,
+                  borderRadius: 2,
+                  borderColor: '#CBD5E1',
+                  color: '#334155',
+                  bgcolor: '#F8FAFC',
+                  textTransform: 'none',
+                  fontSize: '0.78rem',
+                  py: 0.65,
+                  px: 1.4,
+                  whiteSpace: 'nowrap',
+                  '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
+                }}
+              >
+                🔒 क्यास क्लोजिङ
+              </Button>
+            </>
+          )}
+
+          {/* 2 Utility Tools (Always Available) */}
           <Button
             size="small"
             variant="outlined"
@@ -886,28 +1060,6 @@ export default function AccountsManager({ initialTab = 0 }) {
             }}
           >
             📜 स्टेटमेन्ट
-          </Button>
-
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => setOpenCashClosingModal(true)}
-            startIcon={<LockIcon sx={{ fontSize: '0.95rem !important' }} />}
-            sx={{
-              fontWeight: 700,
-              borderRadius: 2,
-              borderColor: '#CBD5E1',
-              color: '#334155',
-              bgcolor: '#F8FAFC',
-              textTransform: 'none',
-              fontSize: '0.78rem',
-              py: 0.65,
-              px: 1.4,
-              whiteSpace: 'nowrap',
-              '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
-            }}
-          >
-            🔒 क्यास क्लोजिङ
           </Button>
 
           <Button
@@ -1705,7 +1857,8 @@ export default function AccountsManager({ initialTab = 0 }) {
               { label: 'खाता सूची (COA)', icon: <AccountTreeIcon fontSize="small" /> },
               { label: `प्रोजेक्ट एकाउन्टिङ (${(db.projectContracts || []).length})`, icon: <BusinessIcon fontSize="small" /> },
               { label: 'वित्तीय विवरणहरू (Statements)', icon: <BalanceIcon fontSize="small" /> },
-              { label: `कारोबार अडिट लग (${payments.length + trainerPayouts.length})`, icon: <ArticleIcon fontSize="small" /> }
+              { label: `कारोबार अडिट लग (${payments.length + trainerPayouts.length})`, icon: <ArticleIcon fontSize="small" /> },
+              { label: `दैनिक क्लोजिङ लग (${(db.cashClosings || []).length})`, icon: <LockIcon fontSize="small" /> }
             ].map((sub, idx) => (
               <Button
                 key={idx}
@@ -1905,12 +2058,197 @@ export default function AccountsManager({ initialTab = 0 }) {
               </TableContainer>
             </Card>
           )}
+
+          {/* Sub-view 6: Daily Cash Closing & Denomination Audit History */}
+          {accountingSubTab === 6 && (
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 3.5,
+                border: '1px solid #E2E8F0',
+                overflow: 'hidden',
+                bgcolor: '#FFFFFF'
+              }}
+            >
+              <Box
+                sx={{
+                  p: 2.2,
+                  borderBottom: '1px solid #E2E8F0',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  bgcolor: '#F8FAFC'
+                }}
+              >
+                <Box>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>
+                    दैनिक काउन्टर नगद क्लोजिङ तथा नोट अडिट लग (Daily Cash Closings History)
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>
+                    दैनिक दराज नगद गन्ती, नोट विवरण (Denominations) तथा रुजु स्थिति
+                  </Typography>
+                </Box>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => setOpenCashClosingModal(true)}
+                  startIcon={<LockIcon />}
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    fontWeight: 800,
+                    textTransform: 'none',
+                    borderRadius: 2
+                  }}
+                >
+                  🔒 आजको क्यास क्लोजिङ गर्नुहोस्
+                </Button>
+              </Box>
+
+              <TableContainer sx={{ maxHeight: 620 }}>
+                <Table stickyHeader size="small">
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 900,
+                        fontSize: '0.84rem',
+                        py: 1.5,
+                        borderBottom: '2px solid #F59E0B'
+                      }
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                        क्र.सं. (S.N.)
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>क्लोजिङ मिति / समय</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुरु मौज्दात</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नगद संकलन (+)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नगद खर्च (-)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>हुनुपर्ने अन्तिम</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भौतिक नगद (Count)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नोट गणना (Denominations)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रुजु स्थिति</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>क्यासियर</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्लिप</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {(db.cashClosings || []).length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={11} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                          अहिलेसम्म कुनै दैनिक क्यास क्लोजिङ रेकर्ड फेला परेन।
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      (db.cashClosings || []).map((c, idx) => {
+                        const den = c.denominations || {};
+                        const denText = [
+                          den['1000'] ? `1000×${den['1000']}` : null,
+                          den['500'] ? `500×${den['500']}` : null,
+                          den['100'] ? `100×${den['100']}` : null,
+                          den['50'] ? `50×${den['50']}` : null,
+                          den['20'] ? `20×${den['20']}` : null,
+                          den['10'] ? `10×${den['10']}` : null,
+                          den['5'] ? `5×${den['5']}` : null,
+                          den['coins'] ? `खुद्रा:${den['coins']}` : null
+                        ].filter(Boolean).join(', ') || '-';
+
+                        return (
+                          <TableRow key={c.id || idx} hover>
+                            <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                              {c.closingDate} {c.closingTime ? `(${c.closingTime})` : ''}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#64748B' }}>
+                              Rs. {Number(c.openingBalance || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
+                              +Rs. {Number(c.cashReceived || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#DC2626' }}>
+                              -Rs. {Number(c.cashPaid || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#1E40AF' }}>
+                              Rs. {Number(c.expectedClosing || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.92rem' }}>
+                              Rs. {Number(c.physicalCount || 0).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#475569', maxWidth: 180 }}>
+                              <Tooltip title={denText}>
+                                <Typography variant="caption" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {denText}
+                                </Typography>
+                              </Tooltip>
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={c.variance === 0 ? '✓ मिलेको' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  fontSize: '0.68rem',
+                                  bgcolor: c.variance === 0 ? '#ECFDF5' : c.variance > 0 ? '#EFF6FF' : '#FEF2F2',
+                                  color: c.variance === 0 ? '#065F46' : c.variance > 0 ? '#1D4ED8' : '#DC2626'
+                                }}
+                              />
+                            </TableCell>
+                            <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                              {c.closedBy || 'Cashier'}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="क्लोजिङ स्लिप हेर्नुहोस्">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => setOpenCashClosingModal(true)}
+                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                                >
+                                  <ArticleIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Card>
+          )}
         </Box>
       )}
 
       {/* ======================================================== */}
       {/* MODALS                                                   */}
       {/* ======================================================== */}
+
+      {/* 0. Day Open Counter Modal */}
+      <DayOpenModal
+        open={openDayOpenModal}
+        onClose={() => setOpenDayOpenModal(false)}
+        db={db}
+        setDb={setDb}
+        showToast={showToast}
+        onDayOpened={() => {
+          setDb(loadDB());
+        }}
+      />
+
+      {/* 0.1 Cash To Bank Deposit Contra Modal */}
+      <CashToBankModal
+        open={openCashToBankModal}
+        onClose={() => setOpenCashToBankModal(false)}
+        db={db}
+        setDb={setDb}
+        showToast={showToast}
+        currentCashInHand={liveCashInHand}
+      />
 
       {/* 1. Record Student Payment Modal */}
       <RecordPaymentModal
@@ -1941,13 +2279,16 @@ export default function AccountsManager({ initialTab = 0 }) {
         settings={db.settings}
       />
 
-      {/* 4. Daily Counter Cash Closing Modal */}
+      {/* 4. Daily Counter Cash Closing Modal with Denomination & Print */}
       <DailyCashClosingModal
         open={openCashClosingModal}
         onClose={() => setOpenCashClosingModal(false)}
         db={db}
         setDb={setDb}
         showToast={showToast}
+        onDayClosed={() => {
+          setDb(loadDB());
+        }}
       />
 
       {/* 5. Official Fee Clearance Certificate Receipt Modal */}
