@@ -36,6 +36,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import KeyIcon from '@mui/icons-material/Key';
