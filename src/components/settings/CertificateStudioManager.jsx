@@ -413,6 +413,34 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   // Left Tools Active Category Tab: 0=Header, 1=Background, 2=Borders, 3=Stamp/Signatures, 4=Calibration, 5=Layers
   const [activeLeftTab, setActiveLeftTab] = useState(0);
 
+  // Panel Visibility Toggles (Option 3: Simple Top Bar Toggles)
+  const [showLeftPanel, setShowLeftPanel] = useState(true);
+  const [showRightPanel, setShowRightPanel] = useState(true);
+
+  const handleToggleLeftPanel = () => {
+    setShowLeftPanel((prev) => {
+      const next = !prev;
+      if (!next && !showRightPanel) {
+        setPreviewScale(0.95);
+      } else if (next && previewScale > 0.8) {
+        setPreviewScale(0.75);
+      }
+      return next;
+    });
+  };
+
+  const handleToggleRightPanel = () => {
+    setShowRightPanel((prev) => {
+      const next = !prev;
+      if (!showLeftPanel && !next) {
+        setPreviewScale(0.95);
+      } else if (next && previewScale > 0.8) {
+        setPreviewScale(0.75);
+      }
+      return next;
+    });
+  };
+
   // Sample Student Switcher
   const [sampleStudentIndex, setSampleStudentIndex] = useState(0);
   const currentSample = SAMPLE_STUDENTS[sampleStudentIndex] || SAMPLE_STUDENTS[0];
@@ -786,8 +814,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             </Box>
           </Box>
 
-          {/* Center: True Aspect Ratio Switcher */}
-          <Stack direction="row" spacing={1.5} alignItems="center">
+          {/* Center: True Aspect Ratio Switcher & Panel Toggles */}
+          <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
             <ToggleButtonGroup
               value={design.orientation}
               exclusive
@@ -795,15 +823,68 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               size="small"
               sx={{ bgcolor: '#F8FAFC', border: '1.5px solid #0F2E5A' }}
             >
-              <ToggleButton value="landscape" sx={{ fontWeight: 900, px: 2, gap: 0.8, color: '#0F2E5A' }}>
+              <ToggleButton value="landscape" sx={{ fontWeight: 900, px: 1.8, gap: 0.8, color: '#0F2E5A' }}>
                 <CropLandscapeIcon fontSize="small" />
                 🖥️ A4 Landscape (तेर्सो)
               </ToggleButton>
-              <ToggleButton value="portrait" sx={{ fontWeight: 900, px: 2, gap: 0.8, color: '#0F2E5A' }}>
+              <ToggleButton value="portrait" sx={{ fontWeight: 900, px: 1.8, gap: 0.8, color: '#0F2E5A' }}>
                 <CropPortraitIcon fontSize="small" />
                 📄 A4 Portrait (ठाडो)
               </ToggleButton>
             </ToggleButtonGroup>
+
+            {/* Option 3: Top Bar Simple Panel Toggles (Tools & Inspector) */}
+            <Stack direction="row" spacing={0.8} alignItems="center">
+              <Tooltip title={showLeftPanel ? 'बायाँ टूल्स प्यानल लुकाउनुहोस्' : 'बायाँ टूल्स प्यानल देखाउनुहोस्'}>
+                <Button
+                  size="small"
+                  variant={showLeftPanel ? 'contained' : 'outlined'}
+                  onClick={handleToggleLeftPanel}
+                  startIcon={<TuneIcon fontSize="small" />}
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.74rem',
+                    borderRadius: 2,
+                    py: 0.5,
+                    px: 1.2,
+                    bgcolor: showLeftPanel ? '#0F2E5A' : '#FFFFFF',
+                    color: showLeftPanel ? '#FFFFFF' : '#0F2E5A',
+                    borderColor: '#0F2E5A',
+                    boxShadow: showLeftPanel ? '0 2px 6px rgba(15, 46, 90, 0.25)' : 'none',
+                    '&:hover': {
+                      bgcolor: showLeftPanel ? '#0B2545' : '#F1F5F9'
+                    }
+                  }}
+                >
+                  🛠️ टूल्स {showLeftPanel ? '✓' : '✗'}
+                </Button>
+              </Tooltip>
+
+              <Tooltip title={showRightPanel ? 'दायाँ इन्स्पेक्टर लुकाउनुहोस्' : 'दायाँ इन्स्पेक्टर देखाउनुहोस्'}>
+                <Button
+                  size="small"
+                  variant={showRightPanel ? 'contained' : 'outlined'}
+                  onClick={handleToggleRightPanel}
+                  startIcon={<AutoAwesomeIcon fontSize="small" />}
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.74rem',
+                    borderRadius: 2,
+                    py: 0.5,
+                    px: 1.2,
+                    bgcolor: showRightPanel ? '#0284C7' : '#FFFFFF',
+                    color: showRightPanel ? '#FFFFFF' : '#0284C7',
+                    borderColor: '#0284C7',
+                    boxShadow: showRightPanel ? '0 2px 6px rgba(2, 132, 199, 0.25)' : 'none',
+                    '&:hover': {
+                      bgcolor: showRightPanel ? '#0369A1' : '#F1F5F9'
+                    }
+                  }}
+                >
+                  🎨 इन्स्पेक्टर {showRightPanel ? '✓' : '✗'}
+                </Button>
+              </Tooltip>
+            </Stack>
 
             <Button
               variant="outlined"
@@ -866,27 +947,33 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         {/* ========================================================== */}
         {/* COLUMN 1: LEFT TOOLS & SETTINGS PANEL (~330px)             */}
         {/* ========================================================== */}
-        <Paper
-          elevation={1}
-          sx={{
-            width: { xs: '100%', lg: 330 },
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            borderRadius: 2.5,
-            border: '1px solid #E2E8F0',
-            bgcolor: '#FFFFFF',
-            overflow: 'hidden'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header of Left Panel */}
-          <Box sx={{ p: 1.2, bgcolor: '#0F2E5A', color: '#FFFFFF', borderBottom: '2px solid #F59E0B' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
-              <TuneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-              स्टुडियो टूल्स र विकल्पहरू (Tools)
-            </Typography>
-          </Box>
+        {showLeftPanel && (
+          <Paper
+            elevation={1}
+            sx={{
+              width: { xs: '100%', lg: 330 },
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              borderRadius: 2.5,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF',
+              overflow: 'hidden'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header of Left Panel with Close Button */}
+            <Box sx={{ p: 1.2, bgcolor: '#0F2E5A', color: '#FFFFFF', borderBottom: '2px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <TuneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
+                स्टुडियो टूल्स र विकल्पहरू (Tools)
+              </Typography>
+              <Tooltip title="बायाँ टूल्स लुकाउनुहोस् (Hide Tools)">
+                <IconButton size="small" onClick={handleToggleLeftPanel} sx={{ color: '#FFFFFF', p: 0.2 }}>
+                  <CloseIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            </Box>
 
           {/* Left Vertical Tabs Navigation Buttons */}
           <Box sx={{ p: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
@@ -1354,6 +1441,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             )}
           </Box>
         </Paper>
+        )}
 
         {/* ========================================================== */}
         {/* COLUMN 2: CENTER LIVE CANVAS WORKSPACE (Interactive)        */}
@@ -1386,8 +1474,41 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag hint badge */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {/* Left: Quick Panel Open Buttons + Drag hint badge */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+              {!showLeftPanel && (
+                <Tooltip title="बायाँ टूल्स प्यानल खोल्नुहोस्">
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<TuneIcon fontSize="small" />}
+                    onClick={handleToggleLeftPanel}
+                    sx={{ bgcolor: '#0F2E5A', fontSize: '0.68rem', fontWeight: 800, py: 0.3, px: 1, borderRadius: 1.5 }}
+                  >
+                    🛠️ टूल्स खोल्नुहोस्
+                  </Button>
+                </Tooltip>
+              )}
+              {!showRightPanel && (
+                <Tooltip title="दायाँ इन्स्पेक्टर प्यानल खोल्नुहोस्">
+                  <Button
+                    size="small"
+                    variant="contained"
+                    startIcon={<AutoAwesomeIcon fontSize="small" />}
+                    onClick={handleToggleRightPanel}
+                    sx={{ bgcolor: '#0284C7', fontSize: '0.68rem', fontWeight: 800, py: 0.3, px: 1, borderRadius: 1.5 }}
+                  >
+                    🎨 इन्स्पेक्टर खोल्नुहोस्
+                  </Button>
+                </Tooltip>
+              )}
+              {!showLeftPanel && !showRightPanel && (
+                <Chip
+                  label="🖥️ पूर्ण ल्यान्डस्केप दृश्य (Full Landscape Focus)"
+                  size="small"
+                  sx={{ bgcolor: '#059669', color: '#FFFFFF', fontWeight: 900, fontSize: '0.7rem' }}
+                />
+              )}
               <Chip
                 icon={<DragIndicatorIcon sx={{ color: '#38BDF8 !important' }} />}
                 label="💡 माउसले तानेर मिलाउनुहोस् (Drag to Move)"
@@ -2136,17 +2257,31 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         {/* ========================================================== */}
         {/* COLUMN 3: RIGHT INSPECTOR & PRESETS PANEL (~310px)         */}
         {/* ========================================================== */}
-        <Box
-          sx={{
-            width: { xs: '100%', lg: 310 },
-            flexShrink: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: 1.5,
-            overflowY: 'auto'
-          }}
-          onClick={(e) => e.stopPropagation()}
-        >
+        {showRightPanel && (
+          <Box
+            sx={{
+              width: { xs: '100%', lg: 310 },
+              flexShrink: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1.5,
+              overflowY: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top Close Bar for Right Inspector */}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+              <Tooltip title="दायाँ इन्स्पेक्टर लुकाउनुहोस् (Hide Inspector)">
+                <Button
+                  size="small"
+                  onClick={handleToggleRightPanel}
+                  endIcon={<CloseIcon fontSize="small" />}
+                  sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#64748B', p: '2px 8px', bgcolor: '#F1F5F9', borderRadius: 1.5 }}
+                >
+                  इन्स्पेक्टर बन्द गर्नुहोस्
+                </Button>
+              </Tooltip>
+            </Box>
           {/* CARD 1: ELEMENT INSPECTOR */}
           <Paper
             elevation={1}
@@ -2501,6 +2636,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             </Box>
           </Paper>
         </Box>
+        )}
       </Box>
 
       {/* Dynamic Print CSS for Studio Test Prints */}
