@@ -413,19 +413,33 @@ export default function CertificateManager() {
 
       {/* 4. TABLE VIEW */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+        <Card sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
-                  <TableCell sx={{ fontWeight: 900, minWidth: 180 }}>Trainee Name</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 95 }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 110, textAlign: 'center' }}>Attendance</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 140 }}>Certificate No</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 110 }}>Issue Date</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 130 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 180, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रशिक्षार्थीको नाम (Trainee)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 95 }}>TGID</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110, textAlign: 'center' }}>हाजिरी %</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>प्रमाणपत्र नं (Cert No)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>जारी मिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>स्थिति (Status)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -434,7 +448,7 @@ export default function CertificateManager() {
 
                   return (
                     <TableRow key={student.id} hover>
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B', width: 65 }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>

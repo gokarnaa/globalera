@@ -352,19 +352,33 @@ export default function StudentManager() {
 
       {/* Students Data View (Table or Card) */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: 60, textAlign: 'center' }}>S.N.</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Student</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Training Group & Shift</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Contact & WhatsApp</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Fee Status (शुल्क)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Admission Date</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षार्थी (Student)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम समूह र सिफ्ट (Batch & Shift)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क र WhatsApp</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>शुल्क स्थिति (Fee Status)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भर्ना मिति (Admission Date)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -374,7 +388,7 @@ export default function StudentManager() {
 
                   return (
                     <TableRow key={std.id} hover>
-                      <TableCell sx={{ fontWeight: 800, color: '#647089', textAlign: 'center' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>

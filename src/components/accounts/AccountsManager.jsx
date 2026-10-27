@@ -708,18 +708,34 @@ export default function AccountsManager({ initialTab = 0 }) {
 
               <TableContainer>
                 <Table size="small">
-                  <TableHead>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 900,
+                        fontSize: '0.84rem',
+                        py: 1.2,
+                        borderBottom: '2px solid #F59E0B'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>रसिद नं.</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>विद्यार्थी</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>रकम (Rs.)</TableCell>
-                      <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>मिति</TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>रसिद</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>क्र.सं.</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद नं.</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थी</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रकम (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {payments.slice(0, 5).map((p) => (
+                    {payments.slice(0, 5).map((p, idx) => (
                       <TableRow key={p.id} hover>
+                        <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
+                          {idx + 1}
+                        </TableCell>
                         <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
                           {p.receiptNo}
                         </TableCell>
@@ -915,32 +931,50 @@ export default function AccountsManager({ initialTab = 0 }) {
 
           <TableContainer sx={{ maxHeight: 620 }}>
             <Table stickyHeader>
-              <TableHead>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>विद्यार्थीको नाम</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>कोर्स तथा ब्याच</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>लक्ड कुल शुल्क</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>बुझाएको रकम</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>बाँकी बक्यौता</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>अवस्था</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>२nd किस्ता म्याद</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>कार्यहरू</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको नाम</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कोर्स तथा ब्याच</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>लक्ड कुल शुल्क</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>बुझाएको रकम</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>बाँकी बक्यौता</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>अवस्था</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>२nd किस्ता म्याद</TableCell>
+                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्यहरू</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                    <TableCell colSpan={10} align="center" sx={{ py: 6, color: '#94A3B8' }}>
                       कुनै विद्यार्थी फेला परेन।
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredStudents.map((st) => {
+                  filteredStudents.map((st, idx) => {
                     const l = getStudentLedger(st);
 
                     return (
                       <TableRow key={st.id} hover>
+                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                          {idx + 1}
+                        </TableCell>
                         <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
                           {st.tgid}
                         </TableCell>
@@ -1308,28 +1342,46 @@ export default function AccountsManager({ initialTab = 0 }) {
 
           <TableContainer sx={{ maxHeight: 620 }}>
             <Table stickyHeader>
-              <TableHead>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>रसिद / भौचर नं.</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>प्रकार</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>सम्बन्धित व्यक्ति</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>रकम (Rs.)</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>माध्यम</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>मिति</TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>कैफियत</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800, bgcolor: '#F8FAFC' }}>प्रिन्ट</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद / भौचर नं.</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रकार</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्बन्धित व्यक्ति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रकम (Rs.)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>माध्यम</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कैफियत</TableCell>
+                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रिन्ट</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {combinedTransactions.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                    <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
                       कुनै कारोबार फेला परेन।
                     </TableCell>
                   </TableRow>
                 ) : (
-                  combinedTransactions.map((tx) => (
+                  combinedTransactions.map((tx, idx) => (
                     <TableRow key={tx.id} hover>
+                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                        {idx + 1}
+                      </TableCell>
                       <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: tx.isInflow ? '#1E40AF' : '#B45309' }}>
                         {tx.refNo}
                       </TableCell>

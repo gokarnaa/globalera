@@ -641,18 +641,32 @@ export default function TrainerPortal() {
             </Box>
 
             {/* Trainee Attendance List */}
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5 }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
               <Table size="small">
-                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      py: 1.5,
+                      borderBottom: '2px solid #F59E0B'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 60 }}>क्र.सं.</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थीको नाम तथा विवरण</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>TGID / फोन</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>समग्र हाजिरी %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 140 }}>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      क्र.सं. (S.N.)
+                    </TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षार्थीको नाम तथा विवरण</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID / फोन</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>समग्र हाजिरी %</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
                       हाजिरी स्थिति (P 🟢 / A 🔴 / L 🟠)
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>कैफियत (Remarks)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कैफियत (Remarks)</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -937,18 +951,33 @@ export default function TrainerPortal() {
               </TextField>
             </Box>
 
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5 }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
               <Table size="small">
-                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      py: 1.5,
+                      borderBottom: '2px solid #F59E0B'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थी</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>TGID</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>सक्षमता स्थिति (Competency)</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षकको सिफारिस</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      क्र.सं. (S.N.)
+                    </TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षार्थी</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>सक्षमता स्थिति (Competency)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षकको सिफारिस</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {groupStudents.map((s) => {
+                  {groupStudents.map((s, idx) => {
                     const ev = (db.evaluations || []).find(
                       (e) => e.groupId === selectedGroupId && e.studentId === s.id
                     );
@@ -956,6 +985,9 @@ export default function TrainerPortal() {
 
                     return (
                       <TableRow key={s.id} hover>
+                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                          {idx + 1}
+                        </TableCell>
                         <TableCell>
                           <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                             {s.name}
@@ -1034,16 +1066,28 @@ export default function TrainerPortal() {
           {viewGroupModal?.group?.name} - विद्यार्थी सूची ({viewGroupModal?.students?.length})
         </DialogTitle>
         <DialogContent sx={{ p: 2.5 }}>
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <Table size="small">
-              <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.2,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>नाम</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>फोन</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>ठेगाना</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>ह्वाट्सएप</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>क्र.सं.</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नाम</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>फोन</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ठेगाना</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>ह्वाट्सएप</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

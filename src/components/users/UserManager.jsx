@@ -539,17 +539,31 @@ export default function UserManager() {
       </Card>
 
       {/* 4. Users Table */}
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden' }}>
+      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
         <Table size="small">
-          <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+          <TableHead
+            sx={{
+              bgcolor: '#0F2E5A',
+              '& .MuiTableCell-head': {
+                bgcolor: '#0F2E5A !important',
+                color: '#FFFFFF !important',
+                fontWeight: 900,
+                fontSize: '0.84rem',
+                py: 1.5,
+                borderBottom: '2px solid #F59E0B'
+              }
+            }}
+          >
             <TableRow>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 50 }}>क्र.सं.</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>प्रयोगकर्ता (User Profile)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>भूमिका (Role)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सम्पर्क (Phone/Username)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>४-अङ्कको पिन (PIN)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>स्थिति (Status)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                क्र.सं. (S.N.)
+              </TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रयोगकर्ता (User Profile)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भूमिका (Role)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क (Phone/Username)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>४-अङ्कको पिन (PIN)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति (Status)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>

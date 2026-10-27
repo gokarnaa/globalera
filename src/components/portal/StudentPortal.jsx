@@ -381,18 +381,32 @@ export default function StudentPortal() {
               <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
                 हालसालैका हाजिरी लगहरू (Recent Attendance Logs)
               </Typography>
-              <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 240, borderRadius: 2 }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 240, borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#f8fafc' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 900,
+                        fontSize: '0.82rem',
+                        py: 1.2,
+                        borderBottom: '2px solid #F59E0B'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 800 }}>मिति (Date)</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>स्थिति (Status)</TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>कैफियत (Remarks)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>क्र.सं.</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति (Date)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कैफियत (Remarks)</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {(attendanceStats.records || []).slice(-10).reverse().map((r, i) => (
                       <TableRow key={i}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B' }}>{i + 1}</TableCell>
                         <TableCell sx={{ fontWeight: 600 }}>{r.date}</TableCell>
                         <TableCell>
                           <Chip
@@ -450,15 +464,27 @@ export default function StudentPortal() {
             sx={{ height: 8, borderRadius: 4, mb: 3 }}
           />
 
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: 70 }}>एकाइ</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>शीर्षक तथा सिकाइ उपलब्धि</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 120 }}>घण्टा भार</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 140 }}>स्थिति</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>सुधार गर्नुपर्ने पक्ष / योजना</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70 }}>एकाइ</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>शीर्षक तथा सिकाइ उपलब्धि</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>घण्टा भार</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>स्थिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुधार गर्नुपर्ने पक्ष / योजना</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

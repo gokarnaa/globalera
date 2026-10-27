@@ -388,25 +388,39 @@ export default function LogBookManager() {
 
       {/* 1. TABLE VIEW */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: 60, textAlign: 'center' }}>S.N.</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 120 }}>Delivery Date</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 200 }}>Delivered Topics</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 180 }}>Materials Used</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 180 }}>Skills Acquired</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 85 }}>Hours</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 110 }}>Status</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 140, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>अध्यापन मिति (Date)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>सिकाईएको विषय (Delivered Topics)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रयुक्त सामग्री (Materials)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>हासिल सीप (Skills Acquired)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 85 }}>घण्टा (Hours)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>स्थिति (Status)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredLogBooks.map((lb, index) => (
                   <TableRow key={lb.id} hover>
-                    <TableCell sx={{ fontWeight: 700, color: '#647089', textAlign: 'center' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
                       {index + 1}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 800, color: '#1a56b0' }}>

@@ -862,56 +862,87 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#0F2C59' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 85 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>
                     <TableSortLabel
                       active={sortBy === 'groupCode'}
                       direction={sortBy === 'groupCode' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('groupCode')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       Group Code
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>पाठ्यक्रम र पेशा (Course & Occupation)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>प्रशिक्षक (Instructor)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पाठ्यक्रम र पेशा (Course & Occupation)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षक (Instructor)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
                     <TableSortLabel
                       active={sortBy === 'shift'}
                       direction={sortBy === 'shift' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('shift')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       सिफ्ट र समय (Shift)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
                     <TableSortLabel
                       active={sortBy === 'startDate'}
                       direction={sortBy === 'startDate' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('startDate')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       मिति (Start → End)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
                     <TableSortLabel
                       active={sortBy === 'students'}
                       direction={sortBy === 'students' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('students')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       विद्यार्थी (Students)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAndSortedGroups.map((grp) => {
+                {filteredAndSortedGroups.map((grp, idx) => {
                   const course = (db.courses || []).find((c) => c.id === grp.courseId);
                   const occ = (db.occupations || []).find((o) => o.id === course?.occupationId);
                   const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
@@ -920,34 +951,46 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
                   return (
                     <TableRow key={grp.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                      <TableCell sx={{ fontWeight: 900, color: '#1D4ED8' }}>
+                      {/* S.N. Column */}
+                      <TableCell sx={{ fontWeight: 800, color: '#475569', textAlign: 'center' }}>
+                        {idx + 1}
+                      </TableCell>
+
+                      {/* Group Code */}
+                      <TableCell sx={{ fontWeight: 900 }}>
                         <Chip
                           label={grp.groupCode}
                           size="small"
-                          sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', fontWeight: 900 }}
+                          sx={{ bgcolor: '#0F2E5A', color: '#FFFFFF', fontWeight: 900 }}
                         />
                       </TableCell>
+
+                      {/* Course & Occupation */}
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>
                           {course?.title || 'Vocational Course'}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B' }}>
                           {occ?.name || 'Technical'} • {course?.level || ''}
                         </Typography>
                       </TableCell>
+
+                      {/* Trainer */}
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Avatar
                             src={trainer?.photo}
-                            sx={{ width: 28, height: 28, bgcolor: '#0F2C59', fontSize: 12, fontWeight: 800 }}
+                            sx={{ width: 28, height: 28, bgcolor: '#0F2E5A', fontSize: 12, fontWeight: 800 }}
                           >
                             {trainer?.name?.[0] || 'T'}
                           </Avatar>
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#1E293B' }}>
                             {trainer?.name || 'Unassigned'}
                           </Typography>
                         </Box>
                       </TableCell>
+
+                      {/* Shift & Time */}
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                           <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
@@ -965,25 +1008,31 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                           {grp.startTime} – {grp.endTime}
                         </Typography>
                       </TableCell>
+
+                      {/* Dates */}
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                           {grp.startDate}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
                           → {grp.expectedEndDate}
                         </Typography>
                       </TableCell>
+
+                      {/* Students count */}
                       <TableCell sx={{ textAlign: 'center' }}>
                         <Button
                           size="small"
                           variant="outlined"
                           startIcon={<PeopleIcon />}
                           onClick={() => setRosterGroup(grp)}
-                          sx={{ borderRadius: 2, fontWeight: 800, py: 0.2, fontSize: '0.72rem' }}
+                          sx={{ borderRadius: 2, fontWeight: 800, py: 0.3, px: 1.2, fontSize: '0.74rem' }}
                         >
                           {studentsInGroup.length} Trainees
                         </Button>
                       </TableCell>
+
+                      {/* Status */}
                       <TableCell sx={{ textAlign: 'center' }}>
                         <Chip
                           label={grp.status}
@@ -992,27 +1041,49 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                             bgcolor: grp.status === 'Running' ? '#ECFDF5' : '#EFF6FF',
                             color: grp.status === 'Running' ? '#059669' : '#1D4ED8',
                             fontWeight: 900,
-                            fontSize: '0.7rem'
+                            fontSize: '0.72rem'
                           }}
                         />
                       </TableCell>
+
+                      {/* Action Buttons */}
                       <TableCell sx={{ textAlign: 'right' }}>
-                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'flex-end', alignItems: 'center' }}>
                           <Button
                             variant="contained"
                             size="small"
                             startIcon={<FactCheckIcon />}
                             onClick={() => onNavigateToAttendance(grp.id)}
-                            sx={{ fontWeight: 800, py: 0.3, px: 1.5, fontSize: '0.75rem', bgcolor: '#0F2C59' }}
+                            sx={{
+                              fontWeight: 800,
+                              py: 0.4,
+                              px: 1.4,
+                              fontSize: '0.75rem',
+                              bgcolor: '#0F2E5A',
+                              borderRadius: 1.8,
+                              '&:hover': { bgcolor: '#174276' }
+                            }}
                           >
                             हाजिरी
                           </Button>
-                          <IconButton size="small" onClick={() => handleOpenEdit(grp)} sx={{ color: '#1D4ED8' }}>
-                            <EditIcon fontSize="small" />
-                          </IconButton>
-                          <IconButton size="small" onClick={() => handleDelete(grp.id)} sx={{ color: '#EF4444' }}>
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
+                          <Tooltip title="सम्पादन गर्नुहोस् (Edit)">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleOpenEdit(grp)}
+                              sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9', borderRadius: 1.8 }}
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="मेटाउनुहोस् (Delete)">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDelete(grp.id)}
+                              sx={{ color: '#EF4444', bgcolor: '#FEF2F2', borderRadius: 1.8 }}
+                            >
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
                         </Box>
                       </TableCell>
                     </TableRow>
@@ -1021,7 +1092,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
                 {filteredAndSortedGroups.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
                       कुनै समूह फेला परेन।
                     </TableCell>
                   </TableRow>

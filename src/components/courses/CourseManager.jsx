@@ -785,63 +785,97 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#0F2C59' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 85 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 100 }}>
                     <TableSortLabel
                       active={sortBy === 'id'}
                       direction={sortBy === 'id' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('id')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       Course ID
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
                     <TableSortLabel
                       active={sortBy === 'title'}
                       direction={sortBy === 'title' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('title')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       पाठ्यक्रम शीर्षक र स्तर (Title & Level)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>पेशा (Occupation)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>अवधि (Duration)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पेशा (Occupation)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>अवधि (Duration)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
                     <TableSortLabel
                       active={sortBy === 'totalHours'}
                       direction={sortBy === 'totalHours' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('totalHours')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       घण्टा (Hours)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>
                     <TableSortLabel
                       active={sortBy === 'price'}
                       direction={sortBy === 'price' ? sortOrder : 'asc'}
                       onClick={() => handleRequestSort('price')}
-                      sx={{ color: '#FFFFFF !important', '& .MuiTableSortLabel-icon': { color: '#FFFFFF !important' } }}
+                      sx={{
+                        color: '#FFFFFF !important',
+                        '&.Mui-active': { color: '#F59E0B !important' },
+                        '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
+                      }}
                     >
                       शुल्क (Fee)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>एकाइ / ब्याच</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>एकाइ / ब्याच</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredAndSortedCourses.map((crs) => {
+                {filteredAndSortedCourses.map((crs, idx) => {
                   const occ = (db.occupations || []).find((o) => o.id === crs.occupationId);
                   const syllabusUnits = (db.syllabi || []).filter((s) => s.courseId === crs.id);
                   const batches = (db.trainingGroups || []).filter((g) => g.courseId === crs.id);
 
                   return (
                     <TableRow key={crs.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                        {idx + 1}
+                      </TableCell>
                       <TableCell sx={{ fontWeight: 900, color: '#1D4ED8' }}>
                         {crs.id}
                       </TableCell>
@@ -920,7 +954,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                 {filteredAndSortedCourses.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                    <TableCell colSpan={10} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
                       कुनै पाठ्यक्रम फेला परेन।
                     </TableCell>
                   </TableRow>

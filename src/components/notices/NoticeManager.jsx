@@ -217,25 +217,39 @@ export default function NoticeManager() {
 
       {/* Table vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '60px' }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Date</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Priority</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Notice Title</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Target Audience</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Content Summary</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Issued By</TableCell>
-                  <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति (Date)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्राथमिकता (Priority)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सूचना शीर्षक (Notice Title)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>लक्षित समूह (Target Audience)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>व्यहोरा संक्षेप (Summary)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>जारीकर्ता (Issued By)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredNotices.map((n, idx) => (
                   <TableRow key={n.id} hover>
-                    <TableCell sx={{ fontWeight: 700, color: '#647089' }}>{idx + 1}</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>{idx + 1}</TableCell>
                     <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>
                       {n.createdAt?.slice(0, 10)}
                     </TableCell>

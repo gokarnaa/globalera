@@ -137,27 +137,45 @@ export default function TrainerManager() {
         </Button>
       </Box>
 
-      <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+      <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.84rem',
+                  py: 1.5,
+                  borderBottom: '2px solid #F59E0B'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800 }}>Trainer</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Occupation Specialization</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Phone & WhatsApp</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Security PIN</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Assigned Batches</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                  क्र.सं. (S.N.)
+                </TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षक (Trainer)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पेशा तथा विज्ञता (Specialization)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क र WhatsApp</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुरक्षा पिन (PIN)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तोकिएको तालिम समूह (Batches)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {db.trainers.map((trn) => {
+              {db.trainers.map((trn, idx) => {
                 const occ = db.occupations.find((o) => o.id === trn.occupationId);
                 const assignedGroups = (db.trainingGroups || []).filter((g) => g.trainerId === trn.id);
 
                 return (
                   <TableRow key={trn.id} hover>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                      {idx + 1}
+                    </TableCell>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                         <Avatar src={trn.photo} sx={{ width: 42, height: 42, bgcolor: '#1a9c5c', fontWeight: 700 }}>

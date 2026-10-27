@@ -455,20 +455,35 @@ export default function AdmissionManager() {
       </Card>
 
       {/* Admissions Table */}
-      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.84rem',
+                  py: 1.5,
+                  borderBottom: '2px solid #F59E0B'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>सम्झौता नं / मिति</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>विद्यार्थीको विवरण</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>तालिम तथा ब्याच</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>OJT सुविधा</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="right">
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                  क्र.सं. (S.N.)
+                </TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्झौता नं / मिति</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको विवरण</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम तथा ब्याच</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>OJT सुविधा</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">
                   शुल्क / ५०% अग्रिम
                 </TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }}>दोस्रो किस्ता / ३०-दिने भाका</TableCell>
-                <TableCell sx={{ fontWeight: 800, color: '#0f2e5a' }} align="center">
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>दोस्रो किस्ता / ३०-दिने भाका</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">
                   कार्यहरू (Actions)
                 </TableCell>
               </TableRow>
@@ -476,13 +491,16 @@ export default function AdmissionManager() {
             <TableBody>
               {filteredAdmissions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, color: '#64748b' }}>
+                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#64748b' }}>
                     कुनै भर्ना सम्झौता फेला परेन। '+ नयाँ भर्ना तथा सम्झौता' बटन थिचेर पहिलो सम्झौता दर्ता गर्नुहोस्।
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredAdmissions.map((adm) => (
+                filteredAdmissions.map((adm, idx) => (
                   <TableRow key={adm.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                      {idx + 1}
+                    </TableCell>
                     {/* Agreement No & Date */}
                     <TableCell>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a' }}>

@@ -399,16 +399,30 @@ export default function EvaluationManager() {
         <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
           <TableContainer>
             <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 900,
+                    fontSize: '0.84rem',
+                    py: 1.5,
+                    borderBottom: '2px solid #F59E0B'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: 60, textAlign: 'center' }}>S.N.</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 180 }}>Student</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 200 }}>Syllabus Skill / Task</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 130 }}>Competency</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 180 }}>Areas to Improve</TableCell>
-                  <TableCell sx={{ fontWeight: 800, minWidth: 200 }}>Trainer Action Plan</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 140 }}>Evaluator & Date</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 140, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    क्र.सं. (S.N.)
+                  </TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रशिक्षार्थी (Student)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>पाठ्यक्रम सीप / कार्य (Skill / Task)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>सक्षमता (Competency)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>सुधार गर्नुपर्ने पक्ष (Areas to Improve)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>प्रशिक्षक कार्ययोजना (Action Plan)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>मूल्याङ्कनकर्ता र मिति</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -418,7 +432,7 @@ export default function EvaluationManager() {
 
                   return (
                     <TableRow key={evl.id} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#647089', textAlign: 'center' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
                         {index + 1}
                       </TableCell>
                       <TableCell>

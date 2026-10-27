@@ -739,15 +739,27 @@ export default function AttendanceManager({ initialGroupId = null }) {
             >
               <TableContainer sx={{ overflowX: 'auto' }}>
                 <Table sx={{ minWidth: 650 }}>
-                  <TableHead sx={{ bgcolor: '#0d3466' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 900,
+                        fontSize: '0.85rem',
+                        py: 1.5,
+                        borderBottom: '2px solid #F59E0B'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, width: 70, textAlign: 'center', py: 1.8 }}>
-                        क्र.सं.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70, textAlign: 'center' }}>
+                        क्र.सं. (S.N.)
                       </TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, py: 1.8 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
                         विद्यार्थीको विवरण (Trainee Details)
                       </TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, width: 280, textAlign: 'center', py: 1.8 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 280, textAlign: 'center' }}>
                         हाजिरी स्थिति (P ➔ A ➔ L)
                       </TableCell>
                     </TableRow>
@@ -1253,15 +1265,29 @@ export default function AttendanceManager({ initialGroupId = null }) {
             >
               <TableContainer>
                 <Table sx={{ minWidth: 800 }}>
-                  <TableHead sx={{ bgcolor: '#0d3466' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 900,
+                        fontSize: '0.85rem',
+                        py: 1.5,
+                        borderBottom: '2px solid #F59E0B'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, width: 60, textAlign: 'center' }}>#</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800 }}>हाजिरी मिति (Date)</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800 }}>तालिम समूह / कोर्स (Batch & Course)</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800 }}>सिफ्ट तथा प्रशिक्षक (Shift & Trainer)</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>कुल विद्यार्थी</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>उपस्थिति विभाजन (P / A / L)</TableCell>
-                      <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                        क्र.सं. (S.N.)
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>हाजिरी मिति (Date)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम समूह / कोर्स (Batch & Course)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सिफ्ट तथा प्रशिक्षक (Shift & Trainer)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>कुल विद्यार्थी</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>उपस्थिति विभाजन (P / A / L)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1621,17 +1647,31 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
             <TableContainer>
               <Table sx={{ minWidth: 800 }}>
-                <TableHead sx={{ bgcolor: '#0d3466' }}>
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 900,
+                      fontSize: '0.85rem',
+                      py: 1.5,
+                      borderBottom: '2px solid #F59E0B'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, width: 60, textAlign: 'center' }}>#</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800 }}>विद्यार्थीको नाम (Trainee Name)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>कुल कक्षा (Total)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>उपस्थित (P)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>अनुपस्थित (A)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>ढिलो (L)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, width: 180 }}>हाजिरी % (Compliance)</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'center' }}>TVET वर्गीकरण</TableCell>
-                    <TableCell sx={{ color: '#fff', fontWeight: 800, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      क्र.सं. (S.N.)
+                    </TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको नाम (Trainee Name)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>कुल कक्षा (Total)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>उपस्थित (P)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>अनुपस्थित (A)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>ढिलो (L)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>हाजिरी % (Compliance)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>TVET वर्गीकरण</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
