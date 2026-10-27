@@ -868,28 +868,39 @@ export default function CourseFeeManager() {
       {/* ============================================================== */}
       {/* 5. MODAL: EDIT / REVISE COURSE FEE STRUCTURE                    */}
       {/* ============================================================== */}
-      <Dialog open={openEditModal} onClose={() => setOpenEditModal(false)} maxWidth="md" fullWidth>
-        <form onSubmit={handleSaveFeeStructure}>
-          <DialogTitle
-            sx={{
-              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-              color: '#FFFFFF',
-              fontWeight: 900,
-              py: 2,
-              px: 3,
-              borderBottom: '3px solid #F59E0B',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <span>कोर्स शुल्क दर सम्पादन (Edit Fee Structure) — {selectedCourse?.title}</span>
-            <IconButton onClick={() => setOpenEditModal(false)} sx={{ color: '#FFFFFF' }}>
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
+      <Dialog
+        open={openEditModal}
+        onClose={() => setOpenEditModal(false)}
+        maxWidth="md"
+        fullWidth
+        scroll="paper"
+        PaperProps={{
+          component: 'form',
+          onSubmit: handleSaveFeeStructure,
+          sx: { maxHeight: '90vh', display: 'flex', flexDirection: 'column' }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            color: '#FFFFFF',
+            fontWeight: 900,
+            py: 2,
+            px: 3,
+            borderBottom: '3px solid #F59E0B',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexShrink: 0
+          }}
+        >
+          <span>कोर्स शुल्क दर सम्पादन (Edit Fee Structure) — {selectedCourse?.title}</span>
+          <IconButton onClick={() => setOpenEditModal(false)} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
 
-          <DialogContent sx={{ p: 3 }}>
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto' }}>
             <Grid container spacing={3} sx={{ mt: 0.2 }}>
               {/* Left Column: Form Inputs */}
               <Grid item xs={12} md={6}>
@@ -1119,7 +1130,7 @@ export default function CourseFeeManager() {
             </Grid>
           </DialogContent>
 
-          <DialogActions sx={{ p: 2.5, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+          <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
             <Button onClick={() => setOpenEditModal(false)} color="inherit" sx={{ fontWeight: 700 }}>
               रद्द गर्नुहोस्
             </Button>
@@ -1135,39 +1146,49 @@ export default function CourseFeeManager() {
               नयाँ शुल्क दर सुरक्षित गर्नुहोस् (Save Rate)
             </Button>
           </DialogActions>
-        </form>
       </Dialog>
 
       {/* ============================================================== */}
       {/* 5.1 MODAL: CONFIGURE COURSE FEE STRUCTURE (DROPDOWN SELECTION)  */}
       {/* ============================================================== */}
-      <Dialog open={openAddModal} onClose={() => setOpenAddModal(false)} maxWidth="md" fullWidth>
-        <form onSubmit={handleSaveCourseFee}>
-          <DialogTitle
-            sx={{
-              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-              color: '#FFFFFF',
-              fontWeight: 900,
-              py: 2,
-              px: 3,
-              borderBottom: '3px solid #F59E0B',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <AddCircleOutlineIcon sx={{ color: '#FCD34D' }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem' }}>
-                कोर्स शुल्क संरचना निर्धारण (Course Fee Setup)
-              </Typography>
-            </Box>
-            <IconButton onClick={() => setOpenAddModal(false)} sx={{ color: '#FFFFFF' }}>
-              <CloseIcon />
-            </IconButton>
-          </DialogTitle>
+      <Dialog
+        open={openAddModal}
+        onClose={() => setOpenAddModal(false)}
+        maxWidth="md"
+        fullWidth
+        scroll="paper"
+        PaperProps={{
+          component: 'form',
+          onSubmit: handleSaveCourseFee,
+          sx: { maxHeight: '90vh', display: 'flex', flexDirection: 'column' }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
+            color: '#FFFFFF',
+            fontWeight: 900,
+            py: 2,
+            px: 3,
+            borderBottom: '3px solid #F59E0B',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexShrink: 0
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <AddCircleOutlineIcon sx={{ color: '#FCD34D' }} />
+            <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem' }}>
+              कोर्स शुल्क संरचना निर्धारण (Course Fee Setup)
+            </Typography>
+          </Box>
+          <IconButton onClick={() => setOpenAddModal(false)} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
 
-          <DialogContent sx={{ p: 3 }}>
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3 }, overflowY: 'auto' }}>
             <Grid container spacing={3} sx={{ mt: 0.2 }}>
               {/* Left Column: Course Dropdown & Fee Details */}
               <Grid item xs={12} md={6}>
@@ -1511,7 +1532,7 @@ export default function CourseFeeManager() {
             </Grid>
           </DialogContent>
 
-          <DialogActions sx={{ p: 2.5, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+          <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
             <Button onClick={() => setOpenAddModal(false)} color="inherit" sx={{ fontWeight: 700 }}>
               रद्द गर्नुहोस्
             </Button>
@@ -1527,7 +1548,6 @@ export default function CourseFeeManager() {
               शुल्क संरचना सुरक्षित गर्नुहोस् (Save Fee Setup)
             </Button>
           </DialogActions>
-        </form>
       </Dialog>
 
       {/* ============================================================== */}
