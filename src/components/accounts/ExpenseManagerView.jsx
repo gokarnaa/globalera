@@ -21,17 +21,23 @@ import {
   DialogActions,
   Divider,
   Paper,
-  Grid
+  Grid,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 import { postDoubleEntryJournal, saveDB } from '../../services/storage';
 
 export default function ExpenseManagerView({ db, setDb, showToast }) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState('table'); // 'table' | 'cards'
 
   // New Expense Dialog
   const [openModal, setOpenModal] = useState(false);
@@ -172,51 +178,184 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
             <MenuItem value="Marketing & Counseling">Marketing & Counseling</MenuItem>
             <MenuItem value="Office Supplies & Maintenance">Office Supplies & Maintenance</MenuItem>
           </TextField>
-          <Box sx={{ ml: 'auto' }}>
+          <Box sx={{ ml: { xs: 0, sm: 'auto' }, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#DC2626' }}>
               कुल खर्च योग: Rs. {totalExpenseAmount.toLocaleString()}
             </Typography>
+
+            <ToggleButtonGroup
+              size="small"
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              sx={{
+                bgcolor: '#F1F5F9',
+                borderRadius: 2,
+                p: 0.3,
+                '& .MuiToggleButton-root': {
+                  border: 'none',
+                  borderRadius: '6px !important',
+                  px: 1.2,
+                  py: 0.5,
+                  fontWeight: 800,
+                  fontSize: '0.74rem',
+                  textTransform: 'none',
+                  color: '#64748B',
+                  '&.Mui-selected': {
+                    bgcolor: '#FFFFFF',
+                    color: '#0F2E5A',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                  }
+                }
+              }}
+            >
+              <ToggleButton value="table">
+                <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> तालिका
+              </ToggleButton>
+              <ToggleButton value="cards">
+                <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> कार्ड
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Stack>
       </Card>
 
-      <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+      {/* Table View Mode */}
+      {viewMode === 'table' && (
+      <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
         <TableContainer>
           <Table>
-            <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 900,
+                  fontSize: '0.84rem',
+                  py: 1.4,
+                  borderBottom: '2px solid #F59E0B'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800, width: 140 }}>Voucher No</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 120 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>पाउने व्यक्ति / आपूर्तिकर्ता (Payee)</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 180 }}>विधा (Category)</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 140 }}>Payment Method</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 140 }}>रकम (Amount)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>भौचर नं. (Voucher)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>मिति (Date)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पाउने व्यक्ति / आपूर्तिकर्ता (Payee)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>विधा (Category)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Payment Method</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right', width: 140 }}>रकम (Amount)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {filtered.map((e) => (
-                <TableRow key={e.id} hover>
-                  <TableCell sx={{ fontWeight: 800, color: '#DC2626' }}>{e.voucherNo}</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>{e.date}</TableCell>
-                  <TableCell>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>{e.payee}</Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B' }}>{e.description}</Typography>
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={e.category} size="small" sx={{ fontWeight: 700, fontSize: '0.72rem' }} />
-                  </TableCell>
-                  <TableCell>
-                    <Chip label={e.paymentMethod} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
-                  </TableCell>
-                  <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#DC2626', fontSize: '0.95rem' }}>
-                    Rs. {Number(e.amount).toLocaleString()}
+              {filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                    कुनै खर्च फेला परेन।
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filtered.map((e) => (
+                  <TableRow key={e.id} hover>
+                    <TableCell sx={{ fontWeight: 800, color: '#DC2626', fontFamily: 'monospace' }}>{e.voucherNo}</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>{e.date}</TableCell>
+                    <TableCell>
+                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>{e.payee}</Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>{e.description}</Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Chip label={e.category} size="small" sx={{ fontWeight: 700, fontSize: '0.72rem' }} />
+                    </TableCell>
+                    <TableCell>
+                      <Chip label={e.paymentMethod} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#DC2626', fontSize: '0.95rem' }}>
+                      Rs. {Number(e.amount).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </TableContainer>
       </Card>
+      )}
+
+      {/* Cards View Mode */}
+      {viewMode === 'cards' && (
+        <Box sx={{ mt: 1 }}>
+          {filtered.length === 0 ? (
+            <Card elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <ReceiptLongIcon sx={{ fontSize: 48, color: '#94A3B8', mb: 1 }} />
+              <Typography variant="body1" sx={{ fontWeight: 700, color: '#64748B' }}>
+                कुनै खर्च फेला परेन।
+              </Typography>
+            </Card>
+          ) : (
+            <Grid container spacing={2.2}>
+              {filtered.map((e) => (
+                <Grid item xs={12} sm={6} md={4} key={e.id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2.2,
+                      borderRadius: 3,
+                      border: '1px solid #E2E8F0',
+                      bgcolor: '#FFFFFF',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      borderLeft: '5px solid #DC2626',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 6px 16px rgba(0,0,0,0.06)'
+                      }
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
+                        <Chip
+                          label={e.voucherNo}
+                          size="small"
+                          sx={{ fontFamily: 'monospace', fontWeight: 800, fontSize: '0.74rem', bgcolor: '#FEF2F2', color: '#DC2626' }}
+                        />
+                        <Chip
+                          label={e.category}
+                          size="small"
+                          sx={{ fontWeight: 700, fontSize: '0.68rem', bgcolor: '#F1F5F9' }}
+                        />
+                      </Box>
+
+                      <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', mb: 0.3 }}>
+                        {e.payee}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5 }}>
+                        {e.description}
+                      </Typography>
+
+                      <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, mb: 1.5, border: '1px solid #E2E8F0' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 700 }}>
+                          खर्च रकम (Expense Amount):
+                        </Typography>
+                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#DC2626' }}>
+                          Rs. {Number(e.amount).toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ pt: 1, borderTop: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.75rem', color: '#64748B' }}>
+                      <span>माध्यम: <strong>{e.paymentMethod}</strong></span>
+                      <span>मिति: <strong>{e.date}</strong></span>
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          )}
+        </Box>
+      )}
 
       {/* Record Expense Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>

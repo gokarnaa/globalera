@@ -25,8 +25,12 @@ import {
   Divider,
   Snackbar,
   Alert,
-  LinearProgress
+  LinearProgress,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -121,6 +125,13 @@ export default function AccountsManager({ initialTab = 0 }) {
   // Transactions Log Filters
   const [txTypeFilter, setTxTypeFilter] = useState('ALL'); // 'ALL', 'FEE', 'PAYOUT'
   const [txSearch, setTxSearch] = useState('');
+
+  // View Mode Toggles (Table vs Cards)
+  const [studentViewMode, setStudentViewMode] = useState('table'); // 'table' | 'cards'
+  const [trainerViewMode, setTrainerViewMode] = useState('cards'); // 'cards' | 'table'
+  const [trainerSearch, setTrainerSearch] = useState('');
+  const [trainerTypeFilter, setTrainerTypeFilter] = useState('ALL'); // 'ALL' | 'SALARY' | 'COMMISSION'
+  const [txViewMode, setTxViewMode] = useState('table'); // 'table' | 'cards'
 
   // Toast
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -610,6 +621,24 @@ export default function AccountsManager({ initialTab = 0 }) {
       return true;
     });
   }, [students, searchQuery, statusFilter, groupFilter, payments, groups, courses]);
+
+  // Filtered Trainers for Payroll Tab
+  const filteredTrainers = useMemo(() => {
+    return trainers.filter((trn) => {
+      if (trainerSearch.trim()) {
+        const q = trainerSearch.toLowerCase();
+        const matchName = (trn.name || '').toLowerCase().includes(q);
+        const matchSpec = (trn.specialization || '').toLowerCase().includes(q);
+        const matchPhone = (trn.phone || '').includes(q);
+        if (!matchName && !matchSpec && !matchPhone) return false;
+      }
+      if (trainerTypeFilter !== 'ALL') {
+        if (trainerTypeFilter === 'SALARY' && trn.remunerationType !== 'SALARY') return false;
+        if (trainerTypeFilter === 'COMMISSION' && trn.remunerationType === 'SALARY') return false;
+      }
+      return true;
+    });
+  }, [trainers, trainerSearch, trainerTypeFilter]);
 
   // Combined Transactions Audit Log
   const combinedTransactions = useMemo(() => {
@@ -1473,8 +1502,47 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               )}
             </Box>
+
+            {/* View Mode Toggle: Table vs Cards */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ToggleButtonGroup
+                size="small"
+                value={studentViewMode}
+                exclusive
+                onChange={(e, next) => next && setStudentViewMode(next)}
+                sx={{
+                  bgcolor: '#F1F5F9',
+                  borderRadius: 2,
+                  p: 0.3,
+                  '& .MuiToggleButton-root': {
+                    border: 'none',
+                    borderRadius: '6px !important',
+                    px: 1.5,
+                    py: 0.6,
+                    fontWeight: 800,
+                    fontSize: '0.75rem',
+                    textTransform: 'none',
+                    color: '#64748B',
+                    '&.Mui-selected': {
+                      bgcolor: '#FFFFFF',
+                      color: '#0F2E5A',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                    }
+                  }
+                }}
+              >
+                <ToggleButton value="table">
+                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                </ToggleButton>
+                <ToggleButton value="cards">
+                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
           </Box>
 
+          {/* Table View Mode */}
+          {studentViewMode === 'table' && (
           <TableContainer sx={{ maxHeight: 620 }}>
             <Table stickyHeader>
               <TableHead
@@ -1695,6 +1763,309 @@ export default function AccountsManager({ initialTab = 0 }) {
               </TableBody>
             </Table>
           </TableContainer>
+          )}
+
+          {/* Cards View Mode */}
+          {studentViewMode === 'cards' && (
+            <Box sx={{ p: 2.5, bgcolor: '#F8FAFC' }}>
+              {filteredStudents.length === 0 ? (
+                <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
+                  <SchoolIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै विद्यार्थी फेला परेन।</Typography>
+                </Box>
+              ) : (
+                <Grid container spacing={2.5}>
+                  {filteredStudents.map((st) => {
+                    const l = getStudentLedger(st);
+                    const paidPercent = l.lockedFee > 0 ? Math.min(100, Math.round((l.totalPaid / l.lockedFee) * 100)) : 100;
+
+                    return (
+                      <Grid item xs={12} sm={6} md={4} key={st.id}>
+                        <Paper
+                          elevation={0}
+                          sx={{
+                            p: 2.2,
+                            borderRadius: 3.5,
+                            border: '1px solid #E2E8F0',
+                            bgcolor: '#FFFFFF',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.2s ease',
+                            borderTop: `4px solid ${
+                              l.paymentStatus === 'Paid'
+                                ? '#10B981'
+                                : l.paymentStatus === 'Overdue'
+                                ? '#DC2626'
+                                : l.paymentStatus === 'Partial'
+                                ? '#F59E0B'
+                                : '#64748B'
+                            }`,
+                            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
+                            '&:hover': {
+                              transform: 'translateY(-3px)',
+                              boxShadow: '0 8px 24px rgba(15, 46, 90, 0.08)',
+                              borderColor: '#93C5FD'
+                            }
+                          }}
+                        >
+                          <Box>
+                            {/* Card Top: Student Avatar, Name, TGID */}
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                                <Avatar
+                                  src={st.photo}
+                                  sx={{
+                                    width: 44,
+                                    height: 44,
+                                    bgcolor: '#0F2E5A',
+                                    fontWeight: 800,
+                                    fontSize: '1rem',
+                                    border: '2px solid #EFF6FF'
+                                  }}
+                                >
+                                  {st.name ? st.name.charAt(0) : 'S'}
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
+                                    {st.name}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                                    {st.phone}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              <Chip
+                                label={st.tgid}
+                                size="small"
+                                sx={{
+                                  fontFamily: 'monospace',
+                                  fontWeight: 800,
+                                  fontSize: '0.72rem',
+                                  bgcolor: '#EFF6FF',
+                                  color: '#1E40AF',
+                                  border: '1px solid #DBEAFE'
+                                }}
+                              />
+                            </Box>
+
+                            {/* Course & Batch */}
+                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, px: 0.5 }}>
+                              <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155', display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                                <SchoolIcon sx={{ fontSize: '0.95rem', color: '#0F2E5A' }} />
+                                {l.courseTitle}
+                              </Typography>
+                              <Chip
+                                label={l.groupCode}
+                                size="small"
+                                sx={{ fontWeight: 700, fontSize: '0.68rem', height: 20, bgcolor: '#F1F5F9' }}
+                              />
+                            </Box>
+
+                            {/* Payment Progress Bar */}
+                            <Box sx={{ mb: 2, bgcolor: '#F8FAFC', p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
+                                <Chip
+                                  label={
+                                    l.paymentStatus === 'Paid'
+                                      ? 'सम्पन्न (Paid)'
+                                      : l.paymentStatus === 'Overdue'
+                                      ? 'Overdue (>30D)'
+                                      : l.paymentStatus === 'Partial'
+                                      ? 'आंशिक (Partial)'
+                                      : 'नबुझाएको (Unpaid)'
+                                  }
+                                  size="small"
+                                  color={
+                                    l.paymentStatus === 'Paid'
+                                      ? 'success'
+                                      : l.paymentStatus === 'Overdue'
+                                      ? 'error'
+                                      : l.paymentStatus === 'Partial'
+                                      ? 'warning'
+                                      : 'default'
+                                  }
+                                  sx={{ fontWeight: 800, fontSize: '0.68rem', height: 22 }}
+                                />
+                                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                                  भुक्तानी: {paidPercent}% ({l.paymentCount} रसिद)
+                                </Typography>
+                              </Box>
+                              <LinearProgress
+                                variant="determinate"
+                                value={paidPercent}
+                                sx={{
+                                  height: 6,
+                                  borderRadius: 3,
+                                  bgcolor: '#E2E8F0',
+                                  '& .MuiLinearProgress-bar': {
+                                    bgcolor:
+                                      paidPercent === 100
+                                        ? '#10B981'
+                                        : l.isOverdue
+                                        ? '#DC2626'
+                                        : '#3B82F6',
+                                    borderRadius: 3
+                                  }
+                                }}
+                              />
+                            </Box>
+
+                            {/* 3-Column Financial Matrix */}
+                            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, mb: 2, p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1', textAlign: 'center' }}>
+                              <Box>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                                  कुल शुल्क
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.82rem' }}>
+                                  Rs. {l.lockedFee.toLocaleString()}
+                                </Typography>
+                              </Box>
+                              <Box>
+                                <Typography variant="caption" sx={{ color: '#059669', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                                  बुझाएको
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669', fontSize: '0.82rem' }}>
+                                  Rs. {l.totalPaid.toLocaleString()}
+                                </Typography>
+                              </Box>
+                              <Box>
+                                <Typography variant="caption" sx={{ color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                                  बाँकी बक्यौता
+                                </Typography>
+                                <Typography variant="body2" sx={{ fontWeight: 900, color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669', fontSize: '0.82rem' }}>
+                                  Rs. {l.due.toLocaleString()}
+                                </Typography>
+                              </Box>
+                            </Box>
+
+                            {/* Due Date Alert Badge */}
+                            {l.due > 0 && (
+                              <Box
+                                sx={{
+                                  mb: 2,
+                                  p: 0.8,
+                                  borderRadius: 2,
+                                  bgcolor: l.isOverdue ? '#FEF2F2' : '#FFFBEB',
+                                  border: `1px solid ${l.isOverdue ? '#FECACA' : '#FDE68A'}`,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  fontSize: '0.74rem'
+                                }}
+                              >
+                                <Typography variant="caption" sx={{ fontWeight: 800, color: l.isOverdue ? '#991B1B' : '#92400E' }}>
+                                  {l.isOverdue ? '⚠️ म्याद नाघेको किस्ता:' : '📅 दोस्रो किस्ता म्याद:'}
+                                </Typography>
+                                <Typography variant="caption" sx={{ fontWeight: 900, color: l.isOverdue ? '#DC2626' : '#B45309' }}>
+                                  {l.dueDateStr}
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+
+                          {/* Card Bottom Actions */}
+                          <Box sx={{ pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
+                            <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+                              {l.due > 0 ? (
+                                <Button
+                                  fullWidth
+                                  size="small"
+                                  variant="contained"
+                                  startIcon={<PointOfSaleIcon sx={{ fontSize: '0.95rem !important' }} />}
+                                  onClick={() => {
+                                    setPreselectedStudentId(st.id);
+                                    setOpenCollectModal(true);
+                                  }}
+                                  sx={{
+                                    background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                                    color: '#FFFFFF',
+                                    fontWeight: 800,
+                                    fontSize: '0.75rem',
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    py: 0.65
+                                  }}
+                                >
+                                  शुल्क लिनुहोस्
+                                </Button>
+                              ) : (
+                                <Button
+                                  fullWidth
+                                  size="small"
+                                  variant="contained"
+                                  startIcon={<VerifiedIcon sx={{ fontSize: '0.95rem !important' }} />}
+                                  onClick={() => {
+                                    setClearanceStudent(st);
+                                    setClearanceLedger(l);
+                                  }}
+                                  sx={{
+                                    bgcolor: '#F59E0B',
+                                    color: '#0F2E5A',
+                                    fontWeight: 900,
+                                    fontSize: '0.74rem',
+                                    textTransform: 'none',
+                                    borderRadius: 2,
+                                    py: 0.65,
+                                    '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
+                                  }}
+                                >
+                                  शुल्क चुक्ता प्रमाणपत्र
+                                </Button>
+                              )}
+                            </Box>
+
+                            <Stack direction="row" spacing={0.8} justifyContent="flex-end">
+                              <Tooltip title="विद्यार्थी किस्ता लेजर (Fee Statement / Passbook)">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setStatementType('STUDENT');
+                                    setStatementTargetId(st.id);
+                                    setUniversalStatementOpen(true);
+                                  }}
+                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9', borderRadius: 1.8 }}
+                                >
+                                  <ArticleIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+
+                              <Tooltip title="किस्ता टाइमलाइन र इतिहास हेर्नुहोस्">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => setTimelineStudent({ student: st, ledger: l })}
+                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9', borderRadius: 1.8 }}
+                                >
+                                  <AccessTimeIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+
+                              {l.paymentCount > 0 && (
+                                <Tooltip title="पछिल्लो रसिद हेर्नुहोस्">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      const latestP = payments.filter((p) => p.studentId === st.id).slice(-1)[0];
+                                      if (latestP) setSelectedReceiptPayment(latestP);
+                                    }}
+                                    sx={{ color: '#0284C7', bgcolor: '#F0F9FF', borderRadius: 1.8 }}
+                                  >
+                                    <ReceiptLongIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            </Stack>
+                          </Box>
+                        </Paper>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              )}
+            </Box>
+          )}
         </Card>
       )}
 
@@ -1709,126 +2080,395 @@ export default function AccountsManager({ initialTab = 0 }) {
       {/* TAB 3: TRAINER PAYOUTS & COMMISSIONS                     */}
       {/* ======================================================== */}
       {activeTab === 3 && (
-        <Grid container spacing={2.5}>
-          {trainers.map((trn) => {
-            const l = getTrainerLedger(trn);
+        <Card
+          elevation={0}
+          sx={{
+            borderRadius: 3.5,
+            border: '1px solid #E2E8F0',
+            overflow: 'hidden',
+            bgcolor: '#FFFFFF'
+          }}
+        >
+          {/* Trainer Toolbar */}
+          <Box
+            sx={{
+              p: 2,
+              borderBottom: '1px solid #E2E8F0',
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
+              <TextField
+                size="small"
+                placeholder="प्रशिक्षक नाम वा विधा खोज्नुहोस्..."
+                value={trainerSearch}
+                onChange={(e) => setTrainerSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94A3B8' }} />
+                    </InputAdornment>
+                  )
+                }}
+                sx={{ minWidth: 260 }}
+              />
 
-            return (
-              <Grid item xs={12} sm={6} md={4} key={trn.id}>
-                <Card
-                  elevation={0}
+              <TextField
+                select
+                size="small"
+                label="पारिश्रमिक मोडल"
+                value={trainerTypeFilter}
+                onChange={(e) => setTrainerTypeFilter(e.target.value)}
+                sx={{ minWidth: 170 }}
+              >
+                <MenuItem value="ALL">सबै मोडल (All)</MenuItem>
+                <MenuItem value="SALARY">मासिक तलब (Salary)</MenuItem>
+                <MenuItem value="COMMISSION">कमिसन आधारित (Commission %)</MenuItem>
+              </TextField>
+
+              {(trainerSearch || trainerTypeFilter !== 'ALL') && (
+                <Button
+                  size="small"
+                  startIcon={<FilterAltOffIcon />}
+                  onClick={() => {
+                    setTrainerSearch('');
+                    setTrainerTypeFilter('ALL');
+                  }}
+                  sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
+                >
+                  फिल्टर हटाउनुहोस्
+                </Button>
+              )}
+            </Box>
+
+            {/* View Mode Toggle: Cards vs Table */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ToggleButtonGroup
+                size="small"
+                value={trainerViewMode}
+                exclusive
+                onChange={(e, next) => next && setTrainerViewMode(next)}
+                sx={{
+                  bgcolor: '#F1F5F9',
+                  borderRadius: 2,
+                  p: 0.3,
+                  '& .MuiToggleButton-root': {
+                    border: 'none',
+                    borderRadius: '6px !important',
+                    px: 1.5,
+                    py: 0.6,
+                    fontWeight: 800,
+                    fontSize: '0.75rem',
+                    textTransform: 'none',
+                    color: '#64748B',
+                    '&.Mui-selected': {
+                      bgcolor: '#FFFFFF',
+                      color: '#0F2E5A',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                    }
+                  }
+                }}
+              >
+                <ToggleButton value="cards">
+                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                </ToggleButton>
+                <ToggleButton value="table">
+                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                </ToggleButton>
+              </ToggleButtonGroup>
+            </Box>
+          </Box>
+
+          {/* Cards View Mode */}
+          {trainerViewMode === 'cards' && (
+            <Box sx={{ p: 2.5, bgcolor: '#F8FAFC' }}>
+              {filteredTrainers.length === 0 ? (
+                <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
+                  <PersonIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै प्रशिक्षक फेला परेन।</Typography>
+                </Box>
+              ) : (
+                <Grid container spacing={2.5}>
+                  {filteredTrainers.map((trn) => {
+                    const l = getTrainerLedger(trn);
+
+                    return (
+                      <Grid item xs={12} sm={6} md={4} key={trn.id}>
+                        <Card
+                          elevation={0}
+                          sx={{
+                            p: 2.5,
+                            borderRadius: 3.5,
+                            border: '1px solid #E2E8F0',
+                            bgcolor: '#FFFFFF',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                            height: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'space-between',
+                            transition: 'all 0.2s ease',
+                            borderTop: `4px solid ${trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#B45309'}`,
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 6px 18px rgba(0,0,0,0.06)'
+                            }
+                          }}
+                        >
+                          <Box>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                <Avatar
+                                  src={trn.photo}
+                                  sx={{ width: 46, height: 46, bgcolor: '#B45309', fontWeight: 800 }}
+                                >
+                                  {trn.name ? trn.name.charAt(0) : 'T'}
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
+                                    {trn.name}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B' }}>
+                                    {trn.specialization || 'प्रशिक्षक'}
+                                  </Typography>
+                                </Box>
+                              </Box>
+
+                              <Chip
+                                label={trn.remunerationType === 'SALARY' ? 'मासिक तलब' : 'कमिसन (%)'}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  fontSize: '0.7rem',
+                                  bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
+                                  color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
+                                }}
+                              />
+                            </Box>
+
+                            {/* Financial Breakdown Card */}
+                            <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 2, border: '1px solid #E2E8F0' }}>
+                              <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
+                                <Grid item xs={6}>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>तोकिएका ब्याच:</Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{l.assignedGroupsCount} ब्याच</Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>संकलित शुल्क रकम:</Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>Rs. {l.totalCollectedInGroups.toLocaleString()}</Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>पाकेको पारिश्रमिक:</Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>Rs. {l.totalEarned.toLocaleString()}</Typography>
+                                </Grid>
+                                <Grid item xs={6}>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>अहिलेसम्म भुक्तानी:</Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#10B981' }}>Rs. {l.totalPaid.toLocaleString()}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sx={{ pt: 1, borderTop: '1px dashed #CBD5E1', mt: 0.5 }}>
+                                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="caption" sx={{ color: '#78350F', fontWeight: 800 }}>दिन बाँकी बक्यौता:</Typography>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
+                                      Rs. {l.balanceDue.toLocaleString()}
+                                    </Typography>
+                                  </Box>
+                                </Grid>
+                              </Grid>
+                            </Box>
+                          </Box>
+
+                          {/* Action Buttons */}
+                          <Stack direction="row" spacing={1}>
+                            <Button
+                              fullWidth
+                              variant="contained"
+                              startIcon={<PaymentsIcon />}
+                              onClick={() => {
+                                setPreselectedTrainerId(trn.id);
+                                setOpenPayoutModal(true);
+                              }}
+                              sx={{
+                                background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+                                fontWeight: 800,
+                                borderRadius: 2,
+                                textTransform: 'none'
+                              }}
+                            >
+                              पारिश्रमिक निकासा (Pay)
+                            </Button>
+                            <Tooltip title="प्रशिक्षक पारिश्रमिक तथा कमिसन लेजर">
+                              <IconButton
+                                onClick={() => {
+                                  setStatementType('TRAINER');
+                                  setStatementTargetId(trn.id);
+                                  setUniversalStatementOpen(true);
+                                }}
+                                sx={{
+                                  border: '1.5px solid #CBD5E1',
+                                  borderRadius: 2,
+                                  color: '#0F2E5A',
+                                  bgcolor: '#F8FAFC',
+                                  px: 1.2,
+                                  '&:hover': { bgcolor: '#F1F5F9' }
+                                }}
+                              >
+                                <ArticleIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </Card>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              )}
+            </Box>
+          )}
+
+          {/* Table View Mode */}
+          {trainerViewMode === 'table' && (
+            <TableContainer sx={{ maxHeight: 620 }}>
+              <Table stickyHeader>
+                <TableHead
                   sx={{
-                    p: 2.5,
-                    borderRadius: 3.5,
-                    border: '1px solid #E2E8F0',
-                    bgcolor: '#FFFFFF',
-                    boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 900,
+                      fontSize: '0.84rem',
+                      py: 1.5,
+                      borderBottom: '2px solid #F59E0B'
+                    }
                   }}
                 >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1.5 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                      <Avatar
-                        src={trn.photo}
-                        sx={{ width: 46, height: 46, bgcolor: '#B45309', fontWeight: 800 }}
-                      >
-                        {trn.name ? trn.name.charAt(0) : 'T'}
-                      </Avatar>
-                      <Box>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
-                          {trn.name}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B' }}>
-                          {trn.specialization || 'प्रशिक्षक'}
-                        </Typography>
-                      </Box>
-                    </Box>
+                  <TableRow>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      क्र.सं. (S.N.)
+                    </TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षकको विवरण</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मोडल</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>जिम्मेवार ब्याच</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ब्याच संकलित शुल्क</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पाकेको पारिश्रमिक</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>निकासा भइसकेको</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>दिन बाँकी बक्यौता</TableCell>
+                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्यहरू</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filteredTrainers.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                        कुनै प्रशिक्षक फेला परेन।
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredTrainers.map((trn, idx) => {
+                      const l = getTrainerLedger(trn);
 
-                    <Chip
-                      label={trn.remunerationType === 'SALARY' ? 'मासिक तलब' : 'कमिसन (%)'}
-                      size="small"
-                      sx={{
-                        fontWeight: 800,
-                        fontSize: '0.7rem',
-                        bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
-                        color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
-                      }}
-                    />
-                  </Box>
-
-                  {/* Financial Breakdown Card */}
-                  <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 2, border: '1px solid #E2E8F0' }}>
-                    <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
-                      <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>तोकिएका ब्याच:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>{l.assignedGroupsCount} ब्याच</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>संकलित शुल्क रकम:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>Rs. {l.totalCollectedInGroups.toLocaleString()}</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>पाकेको पारिश्रमिक:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>Rs. {l.totalEarned.toLocaleString()}</Typography>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>अहिलेसम्म भुक्तानी:</Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#10B981' }}>Rs. {l.totalPaid.toLocaleString()}</Typography>
-                      </Grid>
-                      <Grid item xs={12} sx={{ pt: 1, borderTop: '1px dashed #CBD5E1', mt: 0.5 }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Typography variant="caption" sx={{ color: '#78350F', fontWeight: 800 }}>दिन बाँकी बक्यौता:</Typography>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
+                      return (
+                        <TableRow key={trn.id} hover>
+                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                              <Avatar
+                                src={trn.photo}
+                                sx={{ width: 36, height: 36, bgcolor: '#B45309', fontWeight: 800, fontSize: '0.85rem' }}
+                              >
+                                {trn.name ? trn.name.charAt(0) : 'T'}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                                  {trn.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                                  {trn.specialization || 'प्रशिक्षक'} • {trn.phone || ''}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={trn.remunerationType === 'SALARY' ? 'मासिक तलब' : 'कमिसन (%)'}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.7rem',
+                                bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
+                                color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
+                            {l.assignedGroupsCount} ब्याच
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
+                            Rs. {l.totalCollectedInGroups.toLocaleString()}
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>
+                            Rs. {l.totalEarned.toLocaleString()}
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: '#10B981' }}>
+                            Rs. {l.totalPaid.toLocaleString()}
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
                             Rs. {l.balanceDue.toLocaleString()}
-                          </Typography>
-                        </Box>
-                      </Grid>
-                    </Grid>
-                  </Box>
-
-                  {/* Action Buttons */}
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      startIcon={<PaymentsIcon />}
-                      onClick={() => {
-                        setPreselectedTrainerId(trn.id);
-                        setOpenPayoutModal(true);
-                      }}
-                      sx={{
-                        background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
-                        fontWeight: 800,
-                        borderRadius: 2,
-                        textTransform: 'none'
-                      }}
-                    >
-                      पारिश्रमिक निकासा (Pay)
-                    </Button>
-                    <Tooltip title="प्रशिक्षक पारिश्रमिक तथा कमिसन लेजर">
-                      <IconButton
-                        onClick={() => {
-                          setStatementType('TRAINER');
-                          setStatementTargetId(trn.id);
-                          setUniversalStatementOpen(true);
-                        }}
-                        sx={{
-                          border: '1.5px solid #CBD5E1',
-                          borderRadius: 2,
-                          color: '#0F2E5A',
-                          bgcolor: '#F8FAFC',
-                          px: 1.2,
-                          '&:hover': { bgcolor: '#F1F5F9' }
-                        }}
-                      >
-                        <ArticleIcon fontSize="small" />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                              <Button
+                                size="small"
+                                variant="contained"
+                                startIcon={<PaymentsIcon sx={{ fontSize: '0.95rem !important' }} />}
+                                onClick={() => {
+                                  setPreselectedTrainerId(trn.id);
+                                  setOpenPayoutModal(true);
+                                }}
+                                sx={{
+                                  background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+                                  fontWeight: 800,
+                                  fontSize: '0.74rem',
+                                  borderRadius: 2,
+                                  textTransform: 'none'
+                                }}
+                              >
+                                निकासा
+                              </Button>
+                              <Tooltip title="प्रशिक्षक पारिश्रमिक तथा कमिसन लेजर">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setStatementType('TRAINER');
+                                    setStatementTargetId(trn.id);
+                                    setUniversalStatementOpen(true);
+                                  }}
+                                  sx={{
+                                    border: '1px solid #CBD5E1',
+                                    borderRadius: 2,
+                                    color: '#0F2E5A',
+                                    bgcolor: '#F8FAFC'
+                                  }}
+                                >
+                                  <ArticleIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Card>
       )}
 
       {/* ======================================================== */}
@@ -1961,8 +2601,47 @@ export default function AccountsManager({ initialTab = 0 }) {
                     <MenuItem value="PAYOUT">प्रशिक्षक निकासा भौचर (- Payout)</MenuItem>
                   </TextField>
                 </Box>
+
+                {/* View Mode Toggle: Table vs Cards */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <ToggleButtonGroup
+                    size="small"
+                    value={txViewMode}
+                    exclusive
+                    onChange={(e, next) => next && setTxViewMode(next)}
+                    sx={{
+                      bgcolor: '#F1F5F9',
+                      borderRadius: 2,
+                      p: 0.3,
+                      '& .MuiToggleButton-root': {
+                        border: 'none',
+                        borderRadius: '6px !important',
+                        px: 1.5,
+                        py: 0.6,
+                        fontWeight: 800,
+                        fontSize: '0.75rem',
+                        textTransform: 'none',
+                        color: '#64748B',
+                        '&.Mui-selected': {
+                          bgcolor: '#FFFFFF',
+                          color: '#0F2E5A',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                        }
+                      }
+                    }}
+                  >
+                    <ToggleButton value="table">
+                      <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                    </ToggleButton>
+                    <ToggleButton value="cards">
+                      <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Box>
               </Box>
 
+              {/* Table View Mode */}
+              {txViewMode === 'table' && (
               <TableContainer sx={{ maxHeight: 620 }}>
                 <Table stickyHeader>
                   <TableHead
@@ -2056,6 +2735,113 @@ export default function AccountsManager({ initialTab = 0 }) {
                   </TableBody>
                 </Table>
               </TableContainer>
+              )}
+
+              {/* Cards View Mode */}
+              {txViewMode === 'cards' && (
+                <Box sx={{ p: 2.5, bgcolor: '#F8FAFC' }}>
+                  {combinedTransactions.length === 0 ? (
+                    <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
+                      <ArticleIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
+                      <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै कारोबार फेला परेन।</Typography>
+                    </Box>
+                  ) : (
+                    <Grid container spacing={2.2}>
+                      {combinedTransactions.map((tx) => (
+                        <Grid item xs={12} sm={6} md={4} key={tx.id}>
+                          <Paper
+                            elevation={0}
+                            sx={{
+                              p: 2.2,
+                              borderRadius: 3,
+                              border: '1px solid #E2E8F0',
+                              bgcolor: '#FFFFFF',
+                              height: '100%',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              justifyContent: 'space-between',
+                              borderLeft: `5px solid ${tx.isInflow ? '#059669' : '#B45309'}`,
+                              transition: 'all 0.2s',
+                              '&:hover': {
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 6px 16px rgba(0,0,0,0.06)'
+                              }
+                            }}
+                          >
+                            <Box>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
+                                <Chip
+                                  label={tx.refNo}
+                                  size="small"
+                                  sx={{
+                                    fontFamily: 'monospace',
+                                    fontWeight: 800,
+                                    fontSize: '0.74rem',
+                                    bgcolor: tx.isInflow ? '#EFF6FF' : '#FEF3C7',
+                                    color: tx.isInflow ? '#1E40AF' : '#92400E'
+                                  }}
+                                />
+                                <Chip
+                                  label={tx.isInflow ? 'शुल्क संकलन (+ Inflow)' : 'पारिश्रमिक (- Outflow)'}
+                                  size="small"
+                                  sx={{
+                                    fontWeight: 800,
+                                    fontSize: '0.68rem',
+                                    bgcolor: tx.isInflow ? '#ECFDF5' : '#FFFBEB',
+                                    color: tx.isInflow ? '#047857' : '#B45309'
+                                  }}
+                                />
+                              </Box>
+
+                              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', mb: 0.2 }}>
+                                {tx.name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5 }}>
+                                {tx.sub}
+                              </Typography>
+
+                              <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, mb: 1.5, border: '1px solid #E2E8F0' }}>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 700 }}>
+                                  कारोबार रकम (Amount):
+                                </Typography>
+                                <Typography variant="h6" sx={{ fontWeight: 900, color: tx.isInflow ? '#059669' : '#B45309' }}>
+                                  {tx.isInflow ? '+' : '-'} Rs. {Number(tx.amount).toLocaleString()}
+                                </Typography>
+                              </Box>
+
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748B', mb: 0.5 }}>
+                                <span>माध्यम: <strong>{tx.method}</strong></span>
+                                <span>मिति: <strong>{tx.date}</strong></span>
+                              </Box>
+                              {tx.remarks && (
+                                <Typography variant="caption" sx={{ color: '#64748B', fontStyle: 'italic', display: 'block' }}>
+                                  कैफियत: {tx.remarks}
+                                </Typography>
+                              )}
+                            </Box>
+
+                            <Box sx={{ pt: 1.2, borderTop: '1px solid #F1F5F9', mt: 1.5, display: 'flex', justifyContent: 'flex-end' }}>
+                              {tx.isInflow ? (
+                                <Button
+                                  size="small"
+                                  variant="outlined"
+                                  startIcon={<PrintIcon />}
+                                  onClick={() => setSelectedReceiptPayment(tx.rawObj)}
+                                  sx={{ fontWeight: 800, fontSize: '0.74rem', textTransform: 'none', borderRadius: 2 }}
+                                >
+                                  रसिद प्रिन्ट
+                                </Button>
+                              ) : (
+                                <Chip label="भौचर स्वीकृत" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
+                              )}
+                            </Box>
+                          </Paper>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  )}
+                </Box>
+              )}
             </Card>
           )}
 

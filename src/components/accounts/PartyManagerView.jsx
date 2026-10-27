@@ -24,8 +24,12 @@ import {
   DialogContent,
   DialogActions,
   Divider,
-  Alert
+  Alert,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -61,6 +65,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [dueFilter, setDueFilter] = useState('ALL');
+  const [viewMode, setViewMode] = useState('table'); // 'table' | 'cards'
 
   // Modals
   const [addPartyOpen, setAddPartyOpen] = useState(false);
@@ -495,7 +500,42 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           </Grid>
 
           <Grid item xs={12} md={4} sx={{ textAlign: { md: 'right' } }}>
-            <Stack direction="row" spacing={1.5} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+            <Stack direction="row" spacing={1.2} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap">
+              {/* View Toggle */}
+              <ToggleButtonGroup
+                size="small"
+                value={viewMode}
+                exclusive
+                onChange={(e, next) => next && setViewMode(next)}
+                sx={{
+                  bgcolor: '#F1F5F9',
+                  borderRadius: 2,
+                  p: 0.3,
+                  '& .MuiToggleButton-root': {
+                    border: 'none',
+                    borderRadius: '6px !important',
+                    px: 1.2,
+                    py: 0.5,
+                    fontWeight: 800,
+                    fontSize: '0.74rem',
+                    textTransform: 'none',
+                    color: '#64748B',
+                    '&.Mui-selected': {
+                      bgcolor: '#FFFFFF',
+                      color: '#0F2E5A',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                    }
+                  }
+                }}
+              >
+                <ToggleButton value="table">
+                  <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> तालिका
+                </ToggleButton>
+                <ToggleButton value="cards">
+                  <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> कार्ड
+                </ToggleButton>
+              </ToggleButtonGroup>
+
               <Button
                 variant="outlined"
                 startIcon={<ArticleIcon />}
@@ -504,15 +544,15 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   setStatementPartyType('LANDLORD');
                   setUniversalStatementOpen(true);
                 }}
-                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, fontSize: '0.78rem' }}
               >
-                वार्षिक स्टेटमेन्ट हब
+                स्टेटमेन्ट हब
               </Button>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
                 onClick={() => setAddPartyOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a', borderRadius: 2, '&:hover': { bgcolor: '#174276' } }}
+                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#174276' } }}
               >
                 + पार्टी थप्नुहोस्
               </Button>
@@ -520,7 +560,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 variant="contained"
                 startIcon={<PointOfSaleIcon />}
                 onClick={() => setRecordPurchaseOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', borderRadius: 2, '&:hover': { bgcolor: '#047857' } }}
+                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#047857' } }}
               >
                 + खरिद/खर्च
               </Button>
@@ -530,6 +570,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       </Card>
 
       {/* Party Table with Model 1 Styling */}
+      {viewMode === 'table' && (
       <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
         <TableContainer>
           <Table>
@@ -712,6 +753,217 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           </Table>
         </TableContainer>
       </Card>
+      )}
+
+      {/* Party Cards View */}
+      {viewMode === 'cards' && (
+        <Box sx={{ mt: 1 }}>
+          {filteredParties.length === 0 ? (
+            <Card elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <StorefrontIcon sx={{ fontSize: 48, color: '#94A3B8', mb: 1 }} />
+              <Typography variant="body1" sx={{ fontWeight: 700, color: '#64748B' }}>
+                कुनै पार्टी फेला परेन। '+ पार्टी थप्नुहोस्' थिचेर नयाँ पार्टी दर्ता गर्नुहोस्।
+              </Typography>
+            </Card>
+          ) : (
+            <Grid container spacing={2.5}>
+              {filteredParties.map((p) => {
+                const isDue = (Number(p.currentDue) || 0) > 0;
+                const catInfo = PARTY_CATEGORIES.find((c) => c.code === p.category);
+
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={p.id}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2.5,
+                        borderRadius: 3.5,
+                        border: '1px solid #E2E8F0',
+                        bgcolor: '#FFFFFF',
+                        height: '100%',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        transition: 'all 0.2s ease',
+                        borderTop: `4px solid ${isDue ? '#DC2626' : '#10B981'}`,
+                        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+                        '&:hover': {
+                          transform: 'translateY(-3px)',
+                          boxShadow: '0 8px 24px rgba(15, 46, 90, 0.08)',
+                          borderColor: '#93C5FD'
+                        }
+                      }}
+                    >
+                      <Box>
+                        {/* Top: Category Badge & Due Status Chip */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                          <Chip
+                            label={`${catInfo?.icon || '🏢'} ${catInfo?.label ? catInfo.label.split('(')[0] : p.category}`}
+                            size="small"
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: '0.72rem',
+                              bgcolor: p.category === 'LANDLORD' ? '#EFF6FF' : '#F8FAFC',
+                              color: p.category === 'LANDLORD' ? '#1D4ED8' : '#334155',
+                              border: '1px solid #E2E8F0'
+                            }}
+                          />
+                          <Chip
+                            label={isDue ? `बक्यौता बाँकी` : 'पूर्ण चुक्ता'}
+                            size="small"
+                            sx={{
+                              fontWeight: 900,
+                              fontSize: '0.7rem',
+                              bgcolor: isDue ? '#FEF2F2' : '#ECFDF5',
+                              color: isDue ? '#DC2626' : '#059669',
+                              border: `1px solid ${isDue ? '#FECACA' : '#A7F3D0'}`
+                            }}
+                          />
+                        </Box>
+
+                        {/* Party Name */}
+                        <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5, lineHeight: 1.3 }}>
+                          {p.name}
+                        </Typography>
+
+                        {/* Contact Person & Phone */}
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, p: 1, bgcolor: '#F8FAFC', borderRadius: 2 }}>
+                          <Box>
+                            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 700 }}>
+                              सम्पर्क: {p.contactPerson || '-'}
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                              {p.phone || '-'}
+                            </Typography>
+                          </Box>
+                          {p.phone && (
+                            <Tooltip title="ह्वाट्सएप सन्देश पठाउनुहोस्">
+                              <IconButton
+                                size="small"
+                                component="a"
+                                href={getWhatsAppUrl(p.phone, `नमस्ते ${p.name}, ग्लोबल एरा इन्स्टिच्युटबाट सम्पर्क गर्दैछौँ।`)}
+                                target="_blank"
+                                rel="noreferrer"
+                                sx={{ color: '#16A34A', bgcolor: '#DCFCE7' }}
+                              >
+                                <WhatsAppIcon fontSize="small" />
+                              </IconButton>
+                            </Tooltip>
+                          )}
+                        </Box>
+
+                        {/* Bank & Tax Details */}
+                        <Box sx={{ mb: 1.5, fontSize: '0.78rem', color: '#475569' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                            <span style={{ color: '#64748B' }}>प्यान (PAN):</span>
+                            <strong>{p.panNumber || '-'}</strong>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
+                            <span style={{ color: '#64748B' }}>बैंक:</span>
+                            <span style={{ fontWeight: 700, color: '#1E40AF' }}>{p.bankName || 'ConnectIPS'}</span>
+                          </Box>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span style={{ color: '#64748B' }}>खाता नं.:</span>
+                            <strong style={{ fontFamily: 'monospace' }}>{p.accountNumber || '-'}</strong>
+                          </Box>
+                        </Box>
+
+                        {/* Landlord Specific Info */}
+                        {p.category === 'LANDLORD' && (
+                          <Box sx={{ p: 1, mb: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #DBEAFE', fontSize: '0.76rem' }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.3 }}>
+                              <span style={{ color: '#1E40AF', fontWeight: 700 }}>मासिक भाडा:</span>
+                              <strong>रु. {(p.monthlyRent || 50000).toLocaleString()}/महिना</strong>
+                            </Box>
+                            {p.securityDeposit && (
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ color: '#1E40AF' }}>धरौटी (Deposit):</span>
+                                <strong>रु. {Number(p.securityDeposit).toLocaleString()}</strong>
+                              </Box>
+                            )}
+                          </Box>
+                        )}
+
+                        {/* 3-Column Financial Summary */}
+                        <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1', textAlign: 'center', mb: 1.5 }}>
+                          <Box>
+                            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                              कुल बिल
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.8rem' }}>
+                              रु. {(p.totalPurchases || 0).toLocaleString()}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ color: '#16A34A', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                              भुक्तानी
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#16A34A', fontSize: '0.8rem' }}>
+                              रु. {(p.totalPaid || 0).toLocaleString()}
+                            </Typography>
+                          </Box>
+                          <Box>
+                            <Typography variant="caption" sx={{ color: isDue ? '#DC2626' : '#16A34A', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
+                              बाँकी बक्यौता
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontWeight: 900, color: isDue ? '#DC2626' : '#16A34A', fontSize: '0.8rem' }}>
+                              रु. {(p.currentDue || 0).toLocaleString()}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+
+                      {/* Card Bottom Actions */}
+                      <Box sx={{ pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
+                        <Stack direction="row" spacing={1} alignItems="center">
+                          <Button
+                            fullWidth
+                            variant="contained"
+                            size="small"
+                            startIcon={<AccountBalanceIcon sx={{ fontSize: '0.95rem !important' }} />}
+                            onClick={() => handleOpenConnectIps(p)}
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: '0.75rem',
+                              py: 0.65,
+                              bgcolor: isDue ? '#DC2626' : '#0F2E5A',
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              '&:hover': { bgcolor: isDue ? '#B91C1C' : '#174276' }
+                            }}
+                          >
+                            ConnectIPS भुक्तानी
+                          </Button>
+
+                          <Tooltip title={p.category === 'LANDLORD' ? "१२-महिने घरभाडा स्टेटमेन्ट" : "पार्टी खाता लेजर"}>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleOpenStatement(p)}
+                              sx={{ border: '1px solid #CBD5E1', borderRadius: 2, color: '#0F2E5A', bgcolor: '#F8FAFC' }}
+                            >
+                              <ArticleIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+
+                          <Tooltip title="पार्टी मेटाउनुहोस्">
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteParty(p.id, p.name)}
+                              sx={{ color: '#EF4444', bgcolor: '#FEF2F2', borderRadius: 2 }}
+                            >
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          )}
+        </Box>
+      )}
 
       {/* Dialog: Add New Party */}
       <Dialog open={addPartyOpen} onClose={() => setAddPartyOpen(false)} maxWidth="sm" fullWidth>
