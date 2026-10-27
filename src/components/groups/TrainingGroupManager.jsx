@@ -1143,22 +1143,23 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         <DialogTitle
           sx={{
             p: 2.5,
-            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.25)' }}>
               <GroupWorkIcon />
             </Avatar>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
                 {editingItem ? 'तालिम समूह सम्पादन (Edit Training Group)' : 'नयाँ तालिम समूह सिर्जना (Create New Batch)'}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
                 {editingItem ? 'समूह विवरण र तालिका अद्यावधिक गर्नुहोस्' : 'कृपया नयाँ तालिम समूहको सम्पूर्ण विवरण प्रविष्ट गर्नुहोस्'}
               </Typography>
             </Box>
@@ -1167,9 +1168,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             size="small"
             onClick={() => setOpenDialog(false)}
             sx={{
-              color: 'rgba(255, 255, 255, 0.8)',
-              bgcolor: 'rgba(255, 255, 255, 0.08)',
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+              color: 'rgba(255, 255, 255, 0.85)',
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#FFFFFF' }
             }}
           >
             <CloseIcon fontSize="small" />

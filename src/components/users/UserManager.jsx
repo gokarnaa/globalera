@@ -780,8 +780,11 @@ export default function UserManager() {
       {/* 5. Add / Edit User Modal Dialog */}
       <Dialog open={openUserModal} onClose={() => setOpenUserModal(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleSaveUser}>
-          <DialogTitle sx={{ bgcolor: '#0F2E5A', color: '#ffffff', fontWeight: 900 }}>
-            {editingUser ? 'प्रयोगकर्ता विवरण सम्पादन (Edit User)' : '+ नयाँ प्रयोगकर्ता थप्नुहोस् (Create User)'}
+          <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', fontWeight: 900, py: 2.2, px: 3, borderBottom: '3px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{editingUser ? 'प्रयोगकर्ता विवरण सम्पादन (Edit User)' : '+ नयाँ प्रयोगकर्ता थप्नुहोस् (Create User)'}</span>
+            <IconButton onClick={() => setOpenUserModal(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
+              <CloseIcon fontSize="small" />
+            </IconButton>
           </DialogTitle>
           <DialogContent sx={{ p: 3 }}>
             <Stack spacing={2.5} sx={{ mt: 1 }}>
@@ -932,7 +935,7 @@ export default function UserManager() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle sx={{ bgcolor: '#0F2E5A', color: '#ffffff', textAlign: 'center', fontWeight: 900 }}>
+        <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', textAlign: 'center', fontWeight: 900, py: 2.2, borderBottom: '3px solid #F59E0B' }}>
           प्रयोगकर्ता पहुँच कार्ड तथा लगइन QR
         </DialogTitle>
         <DialogContent sx={{ p: 3, textAlign: 'center' }}>

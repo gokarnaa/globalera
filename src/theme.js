@@ -87,9 +87,90 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 14,
+    borderRadius: 10,
   },
   components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          fontSize: '0.875rem',
+          backgroundColor: '#FFFFFF',
+          transition: 'all 0.15s ease',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#CBD5E1',
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#94A3B8',
+          },
+          '&.Mui-focused': {
+            boxShadow: '0 0 0 3px rgba(15, 46, 90, 0.08)',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#0F2C59',
+              borderWidth: '1.5px',
+            },
+          },
+        },
+        input: {
+          padding: '10px 14px',
+        },
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.85rem',
+          fontWeight: 600,
+          color: '#475569',
+          '&.Mui-focused': {
+            color: '#0F2C59',
+            fontWeight: 700,
+          },
+        },
+        outlined: {
+          lineHeight: '1.2em',
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.72rem',
+          color: '#64748B',
+          marginTop: 4,
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 16,
+          boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.35)',
+          border: '1px solid rgba(226, 232, 240, 0.9)',
+          overflow: 'hidden',
+        },
+      },
+    },
+    MuiDialogTitle: {
+      styleOverrides: {
+        root: {
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E40AF 100%)',
+          color: '#FFFFFF',
+          padding: '18px 24px',
+          borderBottom: '3px solid #F59E0B',
+        },
+      },
+    },
+    MuiDialogActions: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#F8FAFC',
+          borderTop: '1px solid #E2E8F0',
+          padding: '16px 24px',
+          gap: 12,
+        },
+      },
+    },
     MuiCssBaseline: {
       styleOverrides: {
         body: {

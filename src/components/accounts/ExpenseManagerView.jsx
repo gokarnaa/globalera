@@ -31,6 +31,7 @@ import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import CloseIcon from '@mui/icons-material/Close';
 
 import { postDoubleEntryJournal, saveDB } from '../../services/storage';
 
@@ -359,8 +360,39 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
 
       {/* Record Expense Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>+ नयाँ खर्च प्रविष्टि (Record Center Expense)</DialogTitle>
-        <DialogContent dividers>
+        <DialogTitle
+          sx={{
+            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            color: '#FFFFFF',
+            py: 2.2,
+            px: 3,
+            borderBottom: '3px solid #F59E0B',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}
+        >
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
+              + नयाँ खर्च प्रविष्टि (Record Center Expense)
+            </Typography>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
+              संस्थागत सञ्चालन, भाडा, सामग्री तथा प्रशासनिक खर्च दर्ता
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            onClick={() => setOpenModal(false)}
+            sx={{
+              color: 'rgba(255, 255, 255, 0.85)',
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#FFFFFF' }
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers sx={{ p: 3, bgcolor: '#FFFFFF' }}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -457,9 +489,28 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenModal(false)}>Cancel</Button>
-          <Button variant="contained" color="error" onClick={handleSaveExpense} sx={{ fontWeight: 800 }}>
+        <DialogActions sx={{ p: 2.5, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+          <Button
+            onClick={() => setOpenModal(false)}
+            sx={{ fontWeight: 700, color: '#64748B', border: '1px solid #CBD5E1', borderRadius: 2, px: 2.5, textTransform: 'none', bgcolor: '#FFFFFF', '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' } }}
+          >
+            रद्द गर्नुहोस् (Cancel)
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveExpense}
+            sx={{
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+              color: '#FFFFFF',
+              borderRadius: 2,
+              px: 3,
+              py: 0.8,
+              boxShadow: '0 4px 14px rgba(220, 38, 38, 0.3)',
+              textTransform: 'none',
+              '&:hover': { background: 'linear-gradient(135deg, #B91C1C 0%, #991B1B 100%)' }
+            }}
+          >
             खर्च सुरक्षित गर्नुहोस् (Save Expense)
           </Button>
         </DialogActions>

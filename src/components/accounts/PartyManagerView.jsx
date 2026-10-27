@@ -967,13 +967,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
 
       {/* Dialog: Add New Party */}
       <Dialog open={addPartyOpen} onClose={() => setAddPartyOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: '#0f2e5a', color: '#ffffff', py: 2 }}>
+        <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', py: 2.2, px: 3, borderBottom: '3px solid #F59E0B' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem' }}>
               + नयाँ पार्टी दर्ता गर्नुहोस् (Add Party / Vendor)
             </Typography>
-            <IconButton onClick={() => setAddPartyOpen(false)} sx={{ color: '#ffffff' }}>
-              <CloseIcon />
+            <IconButton onClick={() => setAddPartyOpen(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
         </DialogTitle>
@@ -1145,13 +1145,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
 
       {/* Dialog: Record Purchase */}
       <Dialog open={recordPurchaseOpen} onClose={() => setRecordPurchaseOpen(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ bgcolor: '#0f2e5a', color: '#ffffff', py: 2 }}>
+        <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', py: 2.2, px: 3, borderBottom: '3px solid #F59E0B' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem' }}>
               + नयाँ खरिद / खर्च बिल प्रविष्टि गर्नुहोस्
             </Typography>
-            <IconButton onClick={() => setRecordPurchaseOpen(false)} sx={{ color: '#ffffff' }}>
-              <CloseIcon />
+            <IconButton onClick={() => setRecordPurchaseOpen(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
+              <CloseIcon fontSize="small" />
             </IconButton>
           </Stack>
         </DialogTitle>

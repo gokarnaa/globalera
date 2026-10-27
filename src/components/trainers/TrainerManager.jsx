@@ -315,22 +315,23 @@ export default function TrainerManager() {
         <DialogTitle
           sx={{
             p: 2.5,
-            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.25)' }}>
               <SchoolIcon />
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
                 {editingItem ? 'प्रशिक्षक विवरण सम्पादन (Edit Trainer)' : 'नयाँ मुख्य प्रशिक्षक दर्ता (Add New Trainer)'}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
                 {editingItem ? 'प्रशिक्षक प्रोफाइल, मोबाइल PIN र विज्ञता अद्यावधिक गर्नुहोस्' : 'प्रशिक्षकको व्यक्तिगत विवरण, ४-अंकको सुरक्षा पिन र विषय दर्ता गर्नुहोस्'}
               </Typography>
             </Box>
@@ -339,9 +340,9 @@ export default function TrainerManager() {
             size="small"
             onClick={() => setOpenDialog(false)}
             sx={{
-              color: 'rgba(255, 255, 255, 0.8)',
-              bgcolor: 'rgba(255, 255, 255, 0.08)',
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+              color: 'rgba(255, 255, 255, 0.85)',
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#FFFFFF' }
             }}
           >
             <CloseIcon fontSize="small" />
@@ -354,13 +355,12 @@ export default function TrainerManager() {
             bgcolor: '#FFFFFF',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
-            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
-            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 }
           }}
         >
-          <Stack spacing={2.5}>
+          <Stack spacing={2.2}>
             <TextField
-              label="Trainer Full Name *"
+              label="Trainer Full Name"
               fullWidth
               size="small"
               placeholder="उदा: Pooja Rajbanshi"
@@ -369,7 +369,7 @@ export default function TrainerManager() {
               required
             />
             <TextField
-              label="Mobile Number (for WhatsApp/SMS) *"
+              label="Mobile Number (for WhatsApp/SMS)"
               fullWidth
               size="small"
               placeholder="98XXXXXXXX"
@@ -379,7 +379,7 @@ export default function TrainerManager() {
             />
             <TextField
               select
-              label="Primary Occupation Specialization *"
+              label="Primary Occupation Specialization"
               fullWidth
               size="small"
               value={formData.occupationId}
@@ -396,7 +396,7 @@ export default function TrainerManager() {
               ))}
             </TextField>
             <TextField
-              label="4-Digit Security PIN (for mobile unlock) *"
+              label="4-Digit Security PIN (for mobile unlock)"
               fullWidth
               size="small"
               type="password"
@@ -451,11 +451,13 @@ export default function TrainerManager() {
             sx={{
               fontWeight: 700,
               color: '#64748B',
-              border: '1px solid #E2E8F0',
+              border: '1px solid #CBD5E1',
               borderRadius: 2,
               px: 2.5,
+              py: 0.8,
               textTransform: 'none',
-              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+              bgcolor: '#FFFFFF',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A', borderColor: '#94A3B8' }
             }}
           >
             रद्द गर्नुहोस् (Cancel)
@@ -466,15 +468,16 @@ export default function TrainerManager() {
             onClick={handleSave}
             sx={{
               fontWeight: 800,
-              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
               color: '#FFFFFF',
               borderRadius: 2,
               px: 3,
-              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              py: 0.8,
+              boxShadow: '0 4px 14px rgba(15, 46, 90, 0.3)',
               textTransform: 'none',
               '&:hover': {
-                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
-                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+                background: 'linear-gradient(135deg, #0A1E3B 0%, #0F2E5A 100%)',
+                boxShadow: '0 6px 18px rgba(15, 46, 90, 0.4)'
               }
             }}
           >

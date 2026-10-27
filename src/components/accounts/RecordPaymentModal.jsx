@@ -216,7 +216,8 @@ export default function RecordPaymentModal({
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '3px solid #F59E0B'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>

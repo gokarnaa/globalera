@@ -321,28 +321,31 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
       <DialogTitle
         sx={{
-          bgcolor: '#0f2e5a',
+          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
           color: '#ffffff',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          py: 2,
-          px: 3
+          py: 2.2,
+          px: 3,
+          borderBottom: '3px solid #F59E0B'
         }}
       >
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <HowToRegIcon sx={{ color: '#f59e0b', fontSize: 28 }} />
+          <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#F59E0B', width: 44, height: 44, borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.25)' }}>
+            <HowToRegIcon sx={{ fontSize: 26 }} />
+          </Avatar>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
               नयाँ विद्यार्थी भर्ना तथा तालिम सम्झौता (New Admission)
             </Typography>
-            <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
               ५०% अग्रिम भुक्तानी, OJT रोजाइ र २-प्रति A4 सम्झौता पत्र प्रणाली
             </Typography>
           </Box>
         </Stack>
-        <IconButton onClick={onClose} sx={{ color: '#ffffff' }}>
-          <CloseIcon />
+        <IconButton onClick={onClose} sx={{ color: 'rgba(255, 255, 255, 0.85)', bgcolor: 'rgba(255, 255, 255, 0.1)', '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#ffffff' } }}>
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 

@@ -638,13 +638,13 @@ export default function StudentManager() {
         maxWidth="md"
         fullWidth
         BackdropProps={{
-          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.5)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: 3.5,
             overflow: 'hidden',
-            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.35)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
           }
         }}
@@ -652,22 +652,23 @@ export default function StudentManager() {
         <DialogTitle
           sx={{
             p: 2.5,
-            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5 }}>
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF', width: 44, height: 44, borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.25)' }}>
               <PersonAddAlt1Icon />
             </Avatar>
             <Box>
-              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
                 {editingItem ? 'विद्यार्थी विवरण सम्पादन (Edit Student Details)' : 'नयाँ विद्यार्थी भर्ना (Enroll New Student)'}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
                 {editingItem ? 'विद्यार्थीको व्यक्तिगत तथा शैक्षिक विवरण अद्यावधिक गर्नुहोस्' : 'प्रशिक्षार्थीको व्यक्तिगत विवरण र तालिम समूह आबद्धता भर्नुहोस्'}
               </Typography>
             </Box>
@@ -676,9 +677,9 @@ export default function StudentManager() {
             size="small"
             onClick={() => setOpenAddDialog(false)}
             sx={{
-              color: 'rgba(255, 255, 255, 0.8)',
-              bgcolor: 'rgba(255, 255, 255, 0.08)',
-              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', color: '#FFFFFF' }
+              color: 'rgba(255, 255, 255, 0.85)',
+              bgcolor: 'rgba(255, 255, 255, 0.1)',
+              '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#FFFFFF' }
             }}
           >
             <CloseIcon fontSize="small" />
@@ -689,212 +690,240 @@ export default function StudentManager() {
           dividers
           sx={{
             p: 3,
-            bgcolor: '#FFFFFF',
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
-            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
-            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 }
           }}
         >
           <Stack spacing={2.5}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Student TGID *"
-                  fullWidth
-                  size="small"
-                  placeholder="उदा: TGID-105"
-                  value={formData.tgid}
-                  onChange={(e) => setFormData({ ...formData, tgid: e.target.value })}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={8}>
-                <TextField
-                  label="Full Name (देवनागरी / English) *"
-                  fullWidth
-                  size="small"
-                  placeholder="उदा: सीता शर्मा / Sita Sharma"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </Grid>
-            </Grid>
+            {/* Section 1: प्राथमिक परिचय तथा समूह आबद्धता */}
+            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2E5A' }} />
+                १. प्राथमिक परिचय तथा तालिम समूह आबद्धता (Batch & Identity)
+              </Typography>
 
-            {/* Operational Training Group Selection */}
-            <TextField
-              select
-              label="Assign to Training Group (Class & Shift) *"
-              fullWidth
-              size="small"
-              value={formData.groupId}
-              onChange={(e) => handleGroupSelect(e.target.value)}
-              helperText="समूह चयन गर्दा विद्यार्थी स्वतः सम्बन्धित पाठ्यक्रम, प्रशिक्षक र सिफ्टसँग आबद्ध हुन्छ।"
-              required
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- तालिम समूह चयन गर्नुहोस् (Select Group) --
-              </MenuItem>
-              {myGroups.map((grp) => {
-                const crs = db.courses.find((c) => c.id === grp.courseId);
-                return (
-                  <MenuItem key={grp.id} value={grp.id}>
-                    {grp.groupCode} — {crs?.title} (Shift {grp.shift}: {grp.startTime} – {grp.endTime})
-                  </MenuItem>
-                );
-              })}
-            </TextField>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Student TGID"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: TGID-105"
+                    value={formData.tgid}
+                    onChange={(e) => setFormData({ ...formData, tgid: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    label="Full Name (देवनागरी / English)"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: सीता शर्मा / Sita Sharma"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </Grid>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Primary Mobile (WhatsApp Enabled) *"
-                  fullWidth
-                  size="small"
-                  placeholder="98XXXXXXXX"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    label="Assign to Training Group (Class & Shift)"
+                    fullWidth
+                    size="small"
+                    value={formData.groupId}
+                    onChange={(e) => handleGroupSelect(e.target.value)}
+                    helperText="समूह चयन गर्दा विद्यार्थी स्वतः सम्बन्धित पाठ्यक्रम, प्रशिक्षक र सिफ्टसँग आबद्ध हुन्छ।"
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- तालिम समूह चयन गर्नुहोस् (Select Group) --
+                    </MenuItem>
+                    {myGroups.map((grp) => {
+                      const crs = db.courses.find((c) => c.id === grp.courseId);
+                      return (
+                        <MenuItem key={grp.id} value={grp.id}>
+                          {grp.groupCode} — {crs?.title} (Shift {grp.shift}: {grp.startTime} – {grp.endTime})
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Secondary Phone / Guardian Contact"
-                  fullWidth
-                  size="small"
-                  placeholder="98XXXXXXXX"
-                  value={formData.secondaryPhone}
-                  onChange={(e) => setFormData({ ...formData, secondaryPhone: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+            </Paper>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  select
-                  label="Gender"
-                  fullWidth
-                  size="small"
-                  value={formData.gender}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                >
-                  <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                    -- लिंग चयन गर्नुहोस् --
-                  </MenuItem>
-                  <MenuItem value="Female">Female (महिला)</MenuItem>
-                  <MenuItem value="Male">Male (पुरुष)</MenuItem>
-                  <MenuItem value="Other">Other (अन्य)</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  type="date"
-                  label="Date of Birth"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  label="Citizenship Number"
-                  fullWidth
-                  size="small"
-                  placeholder="उदा: 27-01-75-XXXXX"
-                  value={formData.citizenshipNumber}
-                  onChange={(e) => setFormData({ ...formData, citizenshipNumber: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+            {/* Section 2: सम्पर्क तथा व्यक्तिगत विवरण */}
+            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
+                २. सम्पर्क तथा व्यक्तिगत विवरण (Contact & Demographics)
+              </Typography>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Permanent Address"
-                  fullWidth
-                  size="small"
-                  placeholder="उदा: Pokhara-8, Kaski"
-                  value={formData.permanentAddress}
-                  onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Current Address"
-                  fullWidth
-                  size="small"
-                  placeholder="उदा: Koteshwor, Kathmandu"
-                  value={formData.currentAddress}
-                  onChange={(e) => setFormData({ ...formData, currentAddress: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Primary Mobile (WhatsApp Enabled)"
+                    fullWidth
+                    size="small"
+                    placeholder="98XXXXXXXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Secondary Phone / Guardian Contact"
+                    fullWidth
+                    size="small"
+                    placeholder="98XXXXXXXX"
+                    value={formData.secondaryPhone}
+                    onChange={(e) => setFormData({ ...formData, secondaryPhone: e.target.value })}
+                  />
+                </Grid>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Father Name"
-                  fullWidth
-                  size="small"
-                  placeholder="बुबाको नाम"
-                  value={formData.fatherName}
-                  onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
-                />
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    label="Gender"
+                    fullWidth
+                    size="small"
+                    value={formData.gender}
+                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- लिंग चयन गर्नुहोस् --
+                    </MenuItem>
+                    <MenuItem value="Female">Female (महिला)</MenuItem>
+                    <MenuItem value="Male">Male (पुरुष)</MenuItem>
+                    <MenuItem value="Other">Other (अन्य)</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    type="date"
+                    label="Date of Birth"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.dateOfBirth}
+                    onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Citizenship Number"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: 27-01-75-XXXXX"
+                    value={formData.citizenshipNumber}
+                    onChange={(e) => setFormData({ ...formData, citizenshipNumber: e.target.value })}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  label="Mother Name"
-                  fullWidth
-                  size="small"
-                  placeholder="आमाको नाम"
-                  value={formData.motherName}
-                  onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+            </Paper>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="date"
-                  label="Admission Date"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.admissionDate}
-                  onChange={(e) => setFormData({ ...formData, admissionDate: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="Status"
-                  fullWidth
-                  size="small"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                >
-                  <MenuItem value="Active">Active (सक्रिय)</MenuItem>
-                  <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
-                  <MenuItem value="OJT">OJT Phase (इन्टर्नसिप)</MenuItem>
-                  <MenuItem value="Placed">Placed (रोजगारीमा)</MenuItem>
-                  <MenuItem value="Dropout">Dropout (छोडेको)</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
+            {/* Section 3: ठेगाना तथा पारिवारिक विवरण */}
+            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
+                ३. ठेगाना तथा पारिवारिक विवरण (Address & Family)
+              </Typography>
 
-            <TextField
-              label="Photo URL (Optional)"
-              fullWidth
-              size="small"
-              placeholder="https://example.com/photo.jpg"
-              value={formData.photoUrl}
-              onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-            />
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Permanent Address"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: Pokhara-8, Kaski"
+                    value={formData.permanentAddress}
+                    onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Current Address"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: Koteshwor, Kathmandu"
+                    value={formData.currentAddress}
+                    onChange={(e) => setFormData({ ...formData, currentAddress: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Father Name"
+                    fullWidth
+                    size="small"
+                    placeholder="बुबाको नाम"
+                    value={formData.fatherName}
+                    onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Mother Name"
+                    fullWidth
+                    size="small"
+                    placeholder="आमाको नाम"
+                    value={formData.motherName}
+                    onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Section 4: भर्ना मिति, अवस्था तथा फोटो */}
+            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#D97706' }} />
+                ४. भर्ना मिति, अवस्था तथा फोटो (Admission & Status)
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    type="date"
+                    label="Admission Date"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.admissionDate}
+                    onChange={(e) => setFormData({ ...formData, admissionDate: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    label="Status"
+                    fullWidth
+                    size="small"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <MenuItem value="Active">Active (सक्रिय)</MenuItem>
+                    <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+                    <MenuItem value="OJT">OJT Phase (इन्टर्नसिप)</MenuItem>
+                    <MenuItem value="Placed">Placed (रोजगारीमा)</MenuItem>
+                    <MenuItem value="Dropout">Dropout (छोडेको)</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Photo URL (Optional)"
+                    fullWidth
+                    size="small"
+                    placeholder="https://example.com/photo.jpg"
+                    value={formData.photoUrl}
+                    onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
           </Stack>
         </DialogContent>
         <DialogActions
@@ -912,11 +941,13 @@ export default function StudentManager() {
             sx={{
               fontWeight: 700,
               color: '#64748B',
-              border: '1px solid #E2E8F0',
+              border: '1px solid #CBD5E1',
               borderRadius: 2,
               px: 2.5,
+              py: 0.8,
               textTransform: 'none',
-              '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+              bgcolor: '#FFFFFF',
+              '&:hover': { bgcolor: '#F1F5F9', color: '#0F2E5A', borderColor: '#94A3B8' }
             }}
           >
             रद्द गर्नुहोस् (Cancel)
@@ -927,15 +958,16 @@ export default function StudentManager() {
             onClick={handleSave}
             sx={{
               fontWeight: 800,
-              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
               color: '#FFFFFF',
               borderRadius: 2,
               px: 3,
-              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+              py: 0.8,
+              boxShadow: '0 4px 14px rgba(15, 46, 90, 0.3)',
               textTransform: 'none',
               '&:hover': {
-                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
-                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+                background: 'linear-gradient(135deg, #0A1E3B 0%, #0F2E5A 100%)',
+                boxShadow: '0 6px 18px rgba(15, 46, 90, 0.4)'
               }
             }}
           >

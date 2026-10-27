@@ -204,11 +204,12 @@ export default function LeadModal({
           m: 0,
           p: 2.2,
           flexShrink: 0,
-          background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '3px solid #F59E0B'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -228,10 +229,10 @@ export default function LeadModal({
             <AutoAwesomeIcon />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
               {editingLead ? 'सोधपुछ सम्पादन (Edit Lead / Inquiry)' : 'नयाँ सोधपुछ दर्ता (New Lead Entry)'}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
               {editingLead ? `Lead ID: ${editingLead.id}` : 'तालिम सम्बन्धी सोधपुछ र काउन्सिलिङ विवरण प्रविष्टि'}
             </Typography>
           </Box>
@@ -239,11 +240,12 @@ export default function LeadModal({
         <IconButton
           onClick={onClose}
           sx={{
-            color: '#94A3B8',
-            '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' }
+            color: 'rgba(255, 255, 255, 0.85)',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255, 255, 255, 0.25)' }
           }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
