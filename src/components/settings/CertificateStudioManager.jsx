@@ -60,6 +60,11 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LayersIcon from '@mui/icons-material/Layers';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import ZoomOutIcon from '@mui/icons-material/ZoomOut';
+import FitScreenIcon from '@mui/icons-material/FitScreen';
+import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
+import PaletteIcon from '@mui/icons-material/Palette';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB } from '../../services/storage';
@@ -317,6 +322,55 @@ function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' 
   );
 }
 
+// Sample Student Data for Live Preview
+const SAMPLE_STUDENTS = [
+  {
+    nameEn: 'Sunita Sharma',
+    nameNp: 'सुनिता शर्मा',
+    parentEn: 'Mr./Mrs. Hari Sharma',
+    parentNp: 'श्री हरि शर्मा',
+    addressEn: 'Gokarneshwor-05, Kathmandu',
+    addressNp: 'गोकर्णेश्वर-०५, काठमाडौँ',
+    courseEn: 'Basic Beautician Training',
+    courseNp: 'आधारभूत ब्युटिसियन तालिम',
+    hoursBadge: '390 Hours / 3 Months',
+    hoursNp: '३९० घन्टे',
+    certNo: 'GE-2081-000101',
+    tgid: 'TGID-101',
+    issueDate: '2026-09-01'
+  },
+  {
+    nameEn: 'Ram Bahadur Singh Thakuri',
+    nameNp: 'राम बहादुर सिंह ठकुरी',
+    parentEn: 'Mr. Sher Bahadur Singh Thakuri',
+    parentNp: 'श्री शेर बहादुर सिंह ठकुरी',
+    addressEn: 'Birgunj-12, Parsa, Madhesh',
+    addressNp: 'वीरगन्ज-१२, पर्सा, मधेश',
+    courseEn: 'Advanced Welding & Fabrication',
+    courseNp: 'एडभान्स वेल्डिङ तथा फेब्रिकेसन तालिम',
+    hoursBadge: '450 Hours / 4 Months',
+    hoursNp: '४५० घन्टे',
+    certNo: 'GE-2081-000102',
+    tgid: 'TGID-102',
+    issueDate: '2026-09-01'
+  },
+  {
+    nameEn: 'Dinesh Chaudhary',
+    nameNp: 'दिनेश चौधरी',
+    parentEn: 'Mr. Ram Lal Chaudhary',
+    parentNp: 'श्री राम लाल चौधरी',
+    addressEn: 'Dhangadhi-03, Kailali, Sudurpashchim',
+    addressNp: 'धनगढी-०३, कैलाली, सुदूरपश्चिम',
+    courseEn: 'Building Electrician (House Wiring)',
+    courseNp: 'भवन इलेक्ट्रिसियन (हाउस वायरिङ)',
+    hoursBadge: '390 Hours / 3 Months',
+    hoursNp: '३९० घन्टे',
+    certNo: 'GE-2081-000103',
+    tgid: 'TGID-103',
+    issueDate: '2026-09-01'
+  }
+];
+
 export default function CertificateStudioManager({ onSaveSuccess }) {
   const [db, setDb] = useState(loadDB());
   const [design, setDesign] = useState(() => {
@@ -354,11 +408,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   });
 
   const [savedAlert, setSavedAlert] = useState(false);
-  const [previewScale, setPreviewScale] = useState(0.88);
+  const [previewScale, setPreviewScale] = useState(0.75);
 
-  // Top Ribbon Active Category Tab: 0=Header, 1=Background, 2=Borders, 3=Stamp/Signatures, 4=Calibration
-  const [activeRibbonTab, setActiveRibbonTab] = useState(0);
-  const [ribbonExpanded, setRibbonExpanded] = useState(true);
+  // Left Tools Active Category Tab: 0=Header, 1=Background, 2=Borders, 3=Stamp/Signatures, 4=Calibration, 5=Layers
+  const [activeLeftTab, setActiveLeftTab] = useState(0);
+
+  // Sample Student Switcher
+  const [sampleStudentIndex, setSampleStudentIndex] = useState(0);
+  const currentSample = SAMPLE_STUDENTS[sampleStudentIndex] || SAMPLE_STUDENTS[0];
 
   // Canva-Style Selected Element & Dragging State
   const [selectedElement, setSelectedElement] = useState(null);
@@ -792,79 +849,106 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           </Alert>
         )}
 
-        {/* ============================================================== */}
-        {/* 2. TOP RIBBON CATEGORY TABS (Word / Canva Style)               */}
-        {/* ============================================================== */}
-        <Divider sx={{ my: 1.5 }} />
+      </Paper>
 
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-            {[
-              { id: 0, label: '१. संस्थागत लेटरहेड र लोगो', icon: <BrandingWatermarkIcon fontSize="small" /> },
-              { id: 1, label: '२. पृष्ठभूमि (१० प्रिसेट)', icon: <WallpaperIcon fontSize="small" /> },
-              { id: 2, label: '३. बोर्डर, कुना र कलर पिकर', icon: <BorderStyleIcon fontSize="small" /> },
-              { id: 3, label: '४. आधिकारिक छाप र हस्ताक्षरकर्ता', icon: <EditNoteIcon fontSize="small" /> },
-              { id: 4, label: '५. प्रि-प्रिन्टेड क्यालिब्रेसन', icon: <TuneIcon fontSize="small" /> }
-            ].map((tab) => (
-              <Button
-                key={tab.id}
-                size="small"
-                variant={activeRibbonTab === tab.id ? 'contained' : 'outlined'}
-                onClick={() => {
-                  setActiveRibbonTab(tab.id);
-                  setRibbonExpanded(true);
-                }}
-                startIcon={tab.icon}
-                sx={{
-                  fontWeight: 800,
-                  fontSize: '0.74rem',
-                  py: 0.6,
-                  px: 1.5,
-                  borderRadius: 2,
-                  bgcolor: activeRibbonTab === tab.id ? '#0F2E5A' : '#FFFFFF',
-                  borderColor: '#CBD5E1',
-                  color: activeRibbonTab === tab.id ? '#FFFFFF' : '#334155',
-                  boxShadow: activeRibbonTab === tab.id ? '0 2px 8px rgba(15, 46, 90, 0.25)' : 'none'
-                }}
-              >
-                {tab.label}
-              </Button>
-            ))}
-          </Stack>
+      {/* ============================================================== */}
+      {/* 2. 3-COLUMN STUDIO LAYOUT (LEFT: TOOLS | CENTER: CANVAS | RIGHT: INSPECTOR) */}
+      {/* ============================================================== */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', lg: 'row' },
+          gap: 1.5,
+          height: { xs: 'auto', lg: 'calc(100vh - 165px)' },
+          minHeight: { xs: 'auto', lg: '740px' }
+        }}
+      >
+        {/* ========================================================== */}
+        {/* COLUMN 1: LEFT TOOLS & SETTINGS PANEL (~330px)             */}
+        {/* ========================================================== */}
+        <Paper
+          elevation={1}
+          sx={{
+            width: { xs: '100%', lg: 330 },
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            borderRadius: 2.5,
+            border: '1px solid #E2E8F0',
+            bgcolor: '#FFFFFF',
+            overflow: 'hidden'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header of Left Panel */}
+          <Box sx={{ p: 1.2, bgcolor: '#0F2E5A', color: '#FFFFFF', borderBottom: '2px solid #F59E0B' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <TuneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
+              स्टुडियो टूल्स र विकल्पहरू (Tools)
+            </Typography>
+          </Box>
 
-          {/* Collapse/Expand Ribbon Button */}
-          <Button
-            size="small"
-            onClick={() => setRibbonExpanded(!ribbonExpanded)}
-            endIcon={ribbonExpanded ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            sx={{ fontWeight: 700, fontSize: '0.74rem', color: '#64748B' }}
-          >
-            {ribbonExpanded ? 'प्यानल बन्द गर्नुहोस्' : 'कन्ट्रोल खोल्नुहोस्'}
-          </Button>
-        </Box>
+          {/* Left Vertical Tabs Navigation Buttons */}
+          <Box sx={{ p: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+            <Grid container spacing={0.6}>
+              {[
+                { id: 0, label: 'लेटरहेड र लोगो', icon: <BrandingWatermarkIcon sx={{ fontSize: 16 }} /> },
+                { id: 1, label: 'पृष्ठभूमि (१०)', icon: <WallpaperIcon sx={{ fontSize: 16 }} /> },
+                { id: 2, label: 'बोर्डर र कुना', icon: <BorderStyleIcon sx={{ fontSize: 16 }} /> },
+                { id: 3, label: 'छाप र हस्ताक्षर', icon: <EditNoteIcon sx={{ fontSize: 16 }} /> },
+                { id: 4, label: 'क्यालिब्रेसन', icon: <TuneIcon sx={{ fontSize: 16 }} /> },
+                { id: 5, label: 'लेयर्स सूची', icon: <LayersIcon sx={{ fontSize: 16 }} /> }
+              ].map((tab) => (
+                <Grid item xs={6} key={tab.id}>
+                  <Button
+                    fullWidth
+                    size="small"
+                    variant={activeLeftTab === tab.id ? 'contained' : 'outlined'}
+                    onClick={() => setActiveLeftTab(tab.id)}
+                    startIcon={tab.icon}
+                    sx={{
+                      fontSize: '0.68rem',
+                      fontWeight: 800,
+                      py: 0.6,
+                      px: 0.8,
+                      justifyContent: 'flex-start',
+                      borderRadius: 1.5,
+                      bgcolor: activeLeftTab === tab.id ? '#0F2E5A' : '#FFFFFF',
+                      borderColor: activeLeftTab === tab.id ? '#0F2E5A' : '#CBD5E1',
+                      color: activeLeftTab === tab.id ? '#FFFFFF' : '#334155',
+                      '&:hover': {
+                        bgcolor: activeLeftTab === tab.id ? '#0B2545' : '#F1F5F9'
+                      }
+                    }}
+                  >
+                    {tab.label}
+                  </Button>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
 
-        {/* ============================================================== */}
-        {/* 3. EXPANDABLE HORIZONTAL TOP RIBBON CONTENT PANELS             */}
-        {/* ============================================================== */}
-        <Collapse in={ribbonExpanded}>
-          <Box sx={{ mt: 1.8, p: 2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }} onClick={(e) => e.stopPropagation()}>
+          {/* Scrollable Tab Content Body */}
+          <Box sx={{ flex: 1, overflowY: 'auto', p: 1.5 }}>
             {/* TAB 0: LETTERHEAD & LOGOS */}
-            {activeRibbonTab === 0 && (
-              <Grid container spacing={2} alignItems="flex-start">
-                <Grid item xs={12} md={5}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                    मुख्य संस्थागत नाम (Single Versatile Heading - English/Nepali/Both):
+            {activeLeftTab === 0 && (
+              <Stack spacing={1.5}>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
+                    मुख्य संस्थागत नाम (Single Heading):
                   </Typography>
                   <TextField
                     fullWidth
                     size="small"
                     value={design.instituteName}
                     onChange={(e) => handleUpdate('instituteName', e.target.value)}
-                    placeholder="ग्लोबल एरा प्राविधिक स्कुल / GLOBAL ERA TECHNICAL SCHOOL"
-                    sx={{ mb: 1, bgcolor: '#FFFFFF' }}
+                    placeholder="ग्लोबल एरा प्राविधिक स्कुल"
+                    sx={{ bgcolor: '#FFFFFF' }}
                   />
+                </Box>
 
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
                     सम्बन्धन / उप-शीर्षक (Accreditation / Sub-title):
                   </Typography>
                   <TextField
@@ -874,10 +958,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onChange={(e) => handleUpdate('accreditationText', e.target.value)}
                     sx={{ bgcolor: '#FFFFFF' }}
                   />
-                </Grid>
+                </Box>
 
-                <Grid item xs={12} md={4}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
                     दर्ता, सम्बन्धन कोड र ठेगाना (Regd & Location):
                   </Typography>
                   <TextField
@@ -885,10 +969,17 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     size="small"
                     value={design.affiliationCodeText}
                     onChange={(e) => handleUpdate('affiliationCodeText', e.target.value)}
-                    sx={{ mb: 1, bgcolor: '#FFFFFF' }}
+                    sx={{ bgcolor: '#FFFFFF' }}
                   />
+                </Box>
 
-                  <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                <Divider sx={{ my: 0.5 }} />
+
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                    लोगो तथा ब्याज प्रदर्शन:
+                  </Typography>
+                  <Stack spacing={0.6}>
                     <FormControlLabel
                       control={<Switch checked={design.showLeftLogo} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>बायाँ लोगो देखाउने</Typography>}
@@ -898,40 +989,37 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>दायाँ ब्याज देखाउने</Typography>}
                     />
                   </Stack>
-                </Grid>
 
-                <Grid item xs={12} md={3}>
-                  <Box sx={{ p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                      कस्टम लोगो अपलोड (Upload Transparent PNG):
-                    </Typography>
-                    <Stack direction="row" spacing={1}>
-                      <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.7rem', fontWeight: 700 }}>
-                        बायाँ लोगो
-                        <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('leftLogoUrl', e)} />
-                      </Button>
-                      <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.7rem', fontWeight: 700 }}>
-                        दायाँ लोगो
-                        <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('rightLogoUrl', e)} />
-                      </Button>
-                    </Stack>
-                    <Typography variant="caption" sx={{ color: '#0369A1', display: 'block', mt: 0.8, fontSize: '0.66rem' }}>
-                      💡 टिप: क्यानभासमा प्रत्येक लाइन र लोगोमा क्लिक गरेर माउसले जहाँ पनि सार्न सकिन्छ!
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mt: 1.2, mb: 0.6 }}>
+                    कस्टम लोगो अपलोड (PNG):
+                  </Typography>
+                  <Stack direction="row" spacing={1}>
+                    <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', fontWeight: 700, flex: 1 }}>
+                      बायाँ लोगो
+                      <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('leftLogoUrl', e)} />
+                    </Button>
+                    <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', fontWeight: 700, flex: 1 }}>
+                      दायाँ लोगो
+                      <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('rightLogoUrl', e)} />
+                    </Button>
+                  </Stack>
+                </Box>
+
+                <Alert severity="info" sx={{ fontSize: '0.7rem', py: 0.5, borderRadius: 1.5 }}>
+                  💡 टिप: क्यानभासमा प्रत्येक लोगो र अक्षरमा क्लिक गरेर माउसले जहाँ पनि सार्न सकिन्छ।
+                </Alert>
+              </Stack>
             )}
 
             {/* TAB 1: BACKGROUND PRESETS */}
-            {activeRibbonTab === 1 && (
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                  १० आधुनिक तथा विश्वविद्यालय स्तरका पृष्ठभूमि प्रिसेटहरू:
+            {activeLeftTab === 1 && (
+              <Stack spacing={1.5}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block' }}>
+                  १० आधुनिक पृष्ठभूमि प्रिसेटहरू:
                 </Typography>
-                <Grid container spacing={1} sx={{ mb: 1.5 }}>
+                <Grid container spacing={0.8}>
                   {BACKGROUND_PRESETS.map((bg) => (
-                    <Grid item xs={6} sm={4} md={2.4} key={bg.id}>
+                    <Grid item xs={6} key={bg.id}>
                       <Button
                         fullWidth
                         size="small"
@@ -939,8 +1027,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         onClick={() => handleUpdate('backgroundType', bg.id)}
                         sx={{
                           fontWeight: 700,
-                          fontSize: '0.67rem',
-                          py: 0.7,
+                          fontSize: '0.64rem',
+                          py: 0.6,
+                          justifyContent: 'flex-start',
+                          textAlign: 'left',
                           bgcolor: design.backgroundType === bg.id ? '#0F2E5A' : '#FFFFFF',
                           borderColor: '#CBD5E1',
                           color: design.backgroundType === bg.id ? '#FFFFFF' : '#334155'
@@ -952,37 +1042,46 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ))}
                 </Grid>
 
-                <Stack direction="row" spacing={3} alignItems="center">
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.72rem', fontWeight: 700 }}>
-                      आफ्नै फोटो अपलोड
+                <Divider sx={{ my: 0.5 }} />
+
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                    कस्टम पृष्ठभूमि छवि:
+                  </Typography>
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.7rem', fontWeight: 700, flex: 1 }}>
+                      फोटो अपलोड
                       <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('customBackgroundUrl', e)} />
                     </Button>
                     {design.customBackgroundUrl && (
-                      <Button size="small" color="error" onClick={() => handleUpdate('customBackgroundUrl', '')}>हटाउनुहोस्</Button>
+                      <Button size="small" color="error" onClick={() => handleUpdate('customBackgroundUrl', '')} sx={{ fontSize: '0.68rem' }}>
+                        हटाउनुहोस्
+                      </Button>
                     )}
-                  </Box>
+                  </Stack>
+                </Box>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1, maxWidth: 350 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>वाटरमार्क गाढापन ({design.watermarkOpacity}%):</Typography>
-                    <Slider
-                      value={design.watermarkOpacity}
-                      min={0}
-                      max={25}
-                      step={1}
-                      onChange={(e, val) => handleUpdate('watermarkOpacity', val)}
-                      sx={{ color: '#0F2E5A' }}
-                    />
-                  </Box>
-                </Stack>
-              </Box>
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
+                    वाटरमार्क गाढापन ({design.watermarkOpacity}%):
+                  </Typography>
+                  <Slider
+                    value={design.watermarkOpacity}
+                    min={0}
+                    max={25}
+                    step={1}
+                    onChange={(e, val) => handleUpdate('watermarkOpacity', val)}
+                    sx={{ color: '#0F2E5A' }}
+                  />
+                </Box>
+              </Stack>
             )}
 
-            {/* TAB 2: BORDERS, CORNERS & PALETTES */}
-            {activeRibbonTab === 2 && (
-              <Grid container spacing={2}>
-                <Grid item xs={12} md={4}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+            {/* TAB 2: BORDERS, CORNERS & MARGINS */}
+            {activeLeftTab === 2 && (
+              <Stack spacing={1.5}>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.6 }}>
                     क) ७ बोर्डर ढाँचाहरू (Border Styles):
                   </Typography>
                   <Grid container spacing={0.8}>
@@ -995,8 +1094,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           onClick={() => handleUpdate('borderStyle', b.id)}
                           sx={{
                             fontWeight: 700,
-                            fontSize: '0.65rem',
-                            py: 0.5,
+                            fontSize: '0.64rem',
+                            py: 0.6,
+                            justifyContent: 'flex-start',
+                            textAlign: 'left',
                             bgcolor: design.borderStyle === b.id ? '#C59B27' : '#FFFFFF',
                             borderColor: '#CBD5E1',
                             color: design.borderStyle === b.id ? '#0F172A' : '#334155'
@@ -1007,10 +1108,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       </Grid>
                     ))}
                   </Grid>
-                </Grid>
+                </Box>
 
-                <Grid item xs={12} md={4}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 0.8 }}>
+                <Divider sx={{ my: 0.5 }} />
+
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 0.6 }}>
                     ख) कुनाका बुट्टाहरू (Corner Ornaments):
                   </Typography>
                   <Grid container spacing={0.8}>
@@ -1023,8 +1126,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           onClick={() => handleUpdate('cornerStyle', c.id)}
                           sx={{
                             fontWeight: 700,
-                            fontSize: '0.65rem',
-                            py: 0.5,
+                            fontSize: '0.64rem',
+                            py: 0.6,
+                            justifyContent: 'flex-start',
+                            textAlign: 'left',
                             bgcolor: design.cornerStyle === c.id ? '#0F2E5A' : '#FFFFFF',
                             borderColor: '#CBD5E1',
                             color: design.cornerStyle === c.id ? '#FFFFFF' : '#334155'
@@ -1035,55 +1140,43 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       </Grid>
                     ))}
                   </Grid>
-                </Grid>
+                </Box>
 
-                <Grid item xs={12} md={4}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    ग) १-क्लिक लक्जरी प्यालेट तथा कलर पिकर:
+                <Divider sx={{ my: 0.5 }} />
+
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
+                    बोर्डर मार्जिन ({design.borderMargin} mm):
                   </Typography>
-                  <Stack direction="row" spacing={0.8} sx={{ mb: 1, flexWrap: 'wrap', gap: 0.5 }}>
-                    {LUXURY_PALETTES.map((pal) => (
-                      <Chip
-                        key={pal.name}
-                        label={pal.name}
-                        size="small"
-                        onClick={() => handleApplyPalette(pal)}
-                        sx={{ fontSize: '0.68rem', fontWeight: 800, cursor: 'pointer', border: '1px solid #CBD5E1' }}
-                      />
-                    ))}
-                  </Stack>
-
-                  <Stack direction="row" spacing={2} alignItems="center">
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700 }}>Primary:</Typography>
-                      <input
-                        type="color"
-                        value={design.primaryColor}
-                        onChange={(e) => handleUpdate('primaryColor', e.target.value)}
-                        style={{ width: 28, height: 26, border: 'none', cursor: 'pointer', borderRadius: 4 }}
-                      />
-                    </Box>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#C59B27' }}>Accent:</Typography>
-                      <input
-                        type="color"
-                        value={design.accentColor}
-                        onChange={(e) => handleUpdate('accentColor', e.target.value)}
-                        style={{ width: 28, height: 26, border: 'none', cursor: 'pointer', borderRadius: 4 }}
-                      />
-                    </Box>
-                  </Stack>
-                </Grid>
-              </Grid>
+                  <Slider
+                    value={design.borderMargin}
+                    min={4}
+                    max={25}
+                    step={1}
+                    onChange={(e, val) => handleUpdate('borderMargin', val)}
+                    sx={{ color: '#0F2E5A' }}
+                  />
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mt: 1, mb: 0.5 }}>
+                    बोर्डर मोटाइ ({design.borderWidth} px):
+                  </Typography>
+                  <Slider
+                    value={design.borderWidth}
+                    min={2}
+                    max={14}
+                    step={1}
+                    onChange={(e, val) => handleUpdate('borderWidth', val)}
+                    sx={{ color: '#0F2E5A' }}
+                  />
+                </Box>
+              </Stack>
             )}
 
             {/* TAB 3: OFFICIAL SEAL (4 MODES) & DYNAMIC SIGNATORIES */}
-            {activeRibbonTab === 3 && (
-              <Grid container spacing={2}>
-                {/* 4-in-1 Official Seal Modes */}
-                <Grid item xs={12} md={5}>
-                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    आधिकारिक छाप मोड (Official Stamp - ४ वटा विकल्पहरू):
+            {activeLeftTab === 3 && (
+              <Stack spacing={1.5}>
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.6 }}>
+                    आधिकारिक छाप मोड (Official Stamp - ४ विकल्पहरू):
                   </Typography>
                   <ToggleButtonGroup
                     value={design.sealMode}
@@ -1091,43 +1184,40 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onChange={(e, next) => next && handleUpdate('sealMode', next)}
                     size="small"
                     fullWidth
-                    sx={{ mb: 1.5, bgcolor: '#FFFFFF' }}
+                    orientation="vertical"
+                    sx={{ bgcolor: '#FFFFFF' }}
                   >
-                    <ToggleButton value="blank" sx={{ fontSize: '0.68rem', fontWeight: 800 }}>
-                      खाली ठाउँ (Wet Stamp)
+                    <ToggleButton value="blank" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
+                      ⭕ खाली ठाउँ (Wet Stamp - हातले लगाउने)
                     </ToggleButton>
-                    <ToggleButton value="scanned" sx={{ fontSize: '0.68rem', fontWeight: 800 }}>
-                      स्क्यान छाप (Upload PNG)
+                    <ToggleButton value="scanned" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
+                      📷 स्क्यान छाप (Upload Stamp PNG)
                     </ToggleButton>
-                    <ToggleButton value="digital" sx={{ fontSize: '0.68rem', fontWeight: 800 }}>
-                      डिजिटल सिल (Graphic)
+                    <ToggleButton value="digital" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
+                      ★ डिजिटल सिल (Graphic Stamp)
                     </ToggleButton>
-                    <ToggleButton value="none" sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#DC2626' }}>
-                      छाप हटाउने
+                    <ToggleButton value="none" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6, color: '#DC2626' }}>
+                      ❌ छाप नराख्ने (None)
                     </ToggleButton>
                   </ToggleButtonGroup>
 
                   {design.sealMode === 'scanned' && (
-                    <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 1.5, border: '1px dashed #0284C7' }}>
+                    <Box sx={{ mt: 1, p: 1, bgcolor: '#F0F9FF', borderRadius: 1.5, border: '1px dashed #0284C7' }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1', display: 'block', mb: 0.5 }}>
                         संस्थाको वास्तविक रबर छापको स्क्यान फोटो:
                       </Typography>
-                      <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.7rem' }}>
+                      <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', width: '100%' }}>
                         छापको फोटो छान्नुहोस्
                         <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('customSealUrl', e)} />
                       </Button>
                     </Box>
                   )}
+                </Box>
 
-                  {design.sealMode === 'blank' && (
-                    <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'block' }}>
-                      ✓ प्रिन्ट गरिसकेपछि हातले रबर स्ट्याम्प लगाउनका लागि बीचमा सफा खाली ठाउँ सुरक्षित गरिएको छ।
-                    </Typography>
-                  )}
-                </Grid>
+                <Divider sx={{ my: 0.5 }} />
 
-                {/* Dynamic Signatories List (+ Add Signatory) */}
-                <Grid item xs={12} md={7}>
+                {/* Dynamic Signatories List */}
+                <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                       हस्ताक्षरकर्ताहरू ({design.signatories?.length || 0} जना):
@@ -1137,43 +1227,49 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       variant="contained"
                       startIcon={<AddCircleOutlineIcon />}
                       onClick={handleAddSignatory}
-                      sx={{ fontSize: '0.68rem', fontWeight: 800, bgcolor: '#059669' }}
+                      sx={{ fontSize: '0.65rem', fontWeight: 800, bgcolor: '#059669', py: 0.3 }}
                     >
-                      + नयाँ हस्ताक्षरकर्ता थप्नुहोस्
+                      + थप्नुहोस्
                     </Button>
                   </Box>
 
-                  <Stack spacing={1} sx={{ maxHeight: 150, overflowY: 'auto', pr: 0.5 }}>
+                  <Stack spacing={1}>
                     {(design.signatories || []).map((sig, idx) => (
-                      <Paper key={sig.id} variant="outlined" sx={{ p: 1, display: 'flex', alignItems: 'center', gap: 1, bgcolor: '#FFFFFF' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 900, color: '#64748B' }}>#{idx + 1}</Typography>
+                      <Paper key={sig.id} variant="outlined" sx={{ p: 1, bgcolor: '#F8FAFC', borderRadius: 1.5 }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
+                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
+                            हस्ताक्षरकर्ता #{idx + 1}
+                          </Typography>
+                          <IconButton size="small" color="error" onClick={() => handleDeleteSignatory(sig.id)} sx={{ p: 0.2 }}>
+                            <DeleteOutlineIcon fontSize="small" />
+                          </IconButton>
+                        </Box>
                         <TextField
+                          fullWidth
                           size="small"
                           label="नाम (Name)"
                           value={sig.name}
                           onChange={(e) => handleUpdateSignatory(sig.id, 'name', e.target.value)}
-                          sx={{ flexGrow: 1, '& input': { py: 0.5, fontSize: '0.74rem' } }}
+                          sx={{ mb: 0.8, bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
                         />
                         <TextField
+                          fullWidth
                           size="small"
                           label="पद (Title)"
                           value={sig.title}
                           onChange={(e) => handleUpdateSignatory(sig.id, 'title', e.target.value)}
-                          sx={{ flexGrow: 1, '& input': { py: 0.5, fontSize: '0.74rem' } }}
+                          sx={{ bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
                         />
-                        <IconButton size="small" color="error" onClick={() => handleDeleteSignatory(sig.id)}>
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
                       </Paper>
                     ))}
                   </Stack>
-                </Grid>
-              </Grid>
+                </Box>
+              </Stack>
             )}
 
             {/* TAB 4: PRE-PRINTED CALIBRATION */}
-            {activeRibbonTab === 4 && (
-              <Stack direction="row" spacing={4} alignItems="center">
+            {activeLeftTab === 4 && (
+              <Stack spacing={1.5}>
                 <Box sx={{ p: 1.2, bgcolor: '#FFFBEB', borderRadius: 2, border: '1px solid #FCD34D' }}>
                   <FormControlLabel
                     control={
@@ -1186,15 +1282,18 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     }
                     label={
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
-                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode: बजारको बोर्डर भएको कागजमा प्रिन्ट गर्न)
+                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode)
                       </Typography>
                     }
                   />
+                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block', mt: 0.5, fontSize: '0.67rem' }}>
+                    बजारबाट किनिएका वा पहिले नै बोर्डर र संस्थाको नाम छापिएका रेडीमेड पेपरहरूमा तालिमार्थीको नाम र विवरण मात्र प्रिन्ट गर्न यो मोड अन गर्नुहोस्।
+                  </Typography>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1, maxWidth: 350 }}>
-                  <Typography variant="caption" sx={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
-                    माथि/तल सर्ने (Y-Offset: {design.offsetY} mm):
+                <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
+                    माथि/तल सर्ने क्यालिब्रेसन (Y-Offset: {design.offsetY} mm):
                   </Typography>
                   <Slider
                     value={design.offsetY}
@@ -1204,890 +1303,1203 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onChange={(e, val) => handleUpdate('offsetY', val)}
                     sx={{ color: '#D97706' }}
                   />
-                </Box>
-              </Stack>
-            )}
-          </Box>
-        </Collapse>
-      </Paper>
-
-      {/* ============================================================== */}
-      {/* 4. CANVA-STYLE FLOATING ELEMENT INSPECTOR BAR                  */}
-      {/* ============================================================== */}
-      <Paper
-        elevation={2}
-        sx={{
-          p: 1.2,
-          mb: 1.5,
-          border: '1.5px solid #0284c7',
-          borderRadius: 2.5,
-          bgcolor: selectedElement ? '#F0F9FF' : '#FFFFFF',
-          boxShadow: selectedElement ? '0 4px 16px rgba(2, 132, 199, 0.15)' : '0 2px 6px rgba(0,0,0,0.05)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 1
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {selectedElement ? (
-          <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Chip
-                  icon={<PanToolIcon fontSize="small" />}
-                  label={ELEMENT_LABELS[selectedElement] || selectedElement}
-                  size="small"
-                  sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 900, fontSize: '0.72rem' }}
-                />
-                <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#0369A1' }}>
-                  X: {activeStyle?.x > 0 ? `+${activeStyle?.x}` : activeStyle?.x || 0}px, Y: {activeStyle?.y > 0 ? `+${activeStyle?.y}` : activeStyle?.y || 0}px
-                </Typography>
-              </Box>
-
-              {/* Precision Nudge Arrow Buttons */}
-              <Stack direction="row" spacing={0.5} alignItems="center">
-                <Tooltip title="बायाँ सार्नुहोस् (-1px, Shift थिचेर -5px)">
-                  <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, -1, 0)} sx={{ bgcolor: '#E0F2FE' }}>
-                    <ArrowBackIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="माथि सार्नुहोस् (-1px)">
-                  <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, -1)} sx={{ bgcolor: '#E0F2FE' }}>
-                    <ArrowUpwardIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="तल सार्नुहोस् (+1px)">
-                  <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, 1)} sx={{ bgcolor: '#E0F2FE' }}>
-                    <ArrowDownwardIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-                <Tooltip title="दायाँ सार्नुहोस् (+1px)">
-                  <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 1, 0)} sx={{ bgcolor: '#E0F2FE' }}>
-                    <ArrowForwardIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-
-                <Button
-                  size="small"
-                  color="inherit"
-                  onClick={() => handleResetElement(selectedElement)}
-                  sx={{ fontSize: '0.68rem', fontWeight: 700, ml: 1 }}
-                >
-                  सुरुवाती स्थिति (Reset)
-                </Button>
-
-                <IconButton size="small" onClick={() => setSelectedElement(null)} sx={{ ml: 0.5 }}>
-                  <CloseIcon fontSize="small" />
-                </IconButton>
-              </Stack>
-            </Box>
-
-            {/* Rich Typography Controls for Selected Text / Photo Elements */}
-            <Divider sx={{ my: 0.3 }} />
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-              {/* If it's a text element */}
-              {['headerTitle', 'headerSub', 'headerAddress', 'title', 'student', 'body'].includes(selectedElement) && (
-                <>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#FFFFFF', p: '2px 6px', borderRadius: 1.5, border: '1px solid #CBD5E1' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', mr: 0.5 }}>🗚 साइज:</Typography>
-                    <Button size="small" sx={{ minWidth: 24, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.max(8, (activeStyle?.fontSize || 20) - 1))}>-</Button>
-                    <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace' }}>{activeStyle?.fontSize || 20}px</Typography>
-                    <Button size="small" sx={{ minWidth: 24, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.min(50, (activeStyle?.fontSize || 20) + 1))}>+</Button>
-                  </Box>
-
-                  <Stack direction="row" spacing={0.5}>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleElementStyleUpdate(selectedElement, 'fontWeight', activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? 'normal' : '900')}
-                      sx={{
-                        bgcolor: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#0284C7' : '#FFFFFF',
-                        color: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#FFFFFF' : '#334155',
-                        border: '1px solid #CBD5E1'
-                      }}
-                    >
-                      <FormatBoldIcon fontSize="small" />
-                    </IconButton>
-
-                    <IconButton
-                      size="small"
-                      onClick={() => handleElementStyleUpdate(selectedElement, 'fontStyle', activeStyle?.fontStyle === 'italic' ? 'normal' : 'italic')}
-                      sx={{
-                        bgcolor: activeStyle?.fontStyle === 'italic' ? '#0284C7' : '#FFFFFF',
-                        color: activeStyle?.fontStyle === 'italic' ? '#FFFFFF' : '#334155',
-                        border: '1px solid #CBD5E1'
-                      }}
-                    >
-                      <FormatItalicIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
-
-                  <Stack direction="row" spacing={0.5}>
-                    {['left', 'center', 'right', 'justify'].map((align) => (
-                      <IconButton
-                        key={align}
-                        size="small"
-                        onClick={() => handleElementStyleUpdate(selectedElement, 'align', align)}
-                        sx={{
-                          bgcolor: activeStyle?.align === align ? '#0284C7' : '#FFFFFF',
-                          color: activeStyle?.align === align ? '#FFFFFF' : '#334155',
-                          border: '1px solid #CBD5E1'
-                        }}
-                      >
-                        {align === 'left' && <FormatAlignLeftIcon fontSize="small" />}
-                        {align === 'center' && <FormatAlignCenterIcon fontSize="small" />}
-                        {align === 'right' && <FormatAlignRightIcon fontSize="small" />}
-                        {align === 'justify' && <FormatAlignJustifyIcon fontSize="small" />}
-                      </IconButton>
-                    ))}
-                  </Stack>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>अक्षर रङ:</Typography>
-                    <input
-                      type="color"
-                      value={activeStyle?.color || design.primaryColor}
-                      onChange={(e) => handleElementStyleUpdate(selectedElement, 'color', e.target.value)}
-                      style={{ width: 30, height: 26, border: 'none', cursor: 'pointer', borderRadius: 4 }}
-                    />
-                  </Box>
-
-                  <FormControl size="small" sx={{ minWidth: 140 }}>
-                    <Select
-                      value={activeStyle?.fontFamily || 'Times New Roman'}
-                      onChange={(e) => handleElementStyleUpdate(selectedElement, 'fontFamily', e.target.value)}
-                      sx={{ height: 30, fontSize: '0.74rem' }}
-                    >
-                      {FONT_OPTIONS.map((f) => (
-                        <MenuItem key={f.id} value={f.id} sx={{ fontSize: '0.75rem' }}>{f.label}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </>
-              )}
-
-              {/* If it's Photo Frame */}
-              {selectedElement === 'photo' && (
-                <>
-                  <Typography variant="caption" sx={{ fontWeight: 800 }}>फोटो स्थिति:</Typography>
-                  <ToggleButtonGroup
-                    value={activeStyle?.preset || 'right'}
-                    exclusive
-                    onChange={(e, next) => next && handleElementStyleUpdate('photo', 'preset', next)}
-                    size="small"
-                  >
-                    <ToggleButton value="right" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>दायाँ कुना (Right)</ToggleButton>
-                    <ToggleButton value="center" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>बीचमा (Center)</ToggleButton>
-                    <ToggleButton value="left" sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}>बायाँ (Left)</ToggleButton>
-                  </ToggleButtonGroup>
-
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 800 }}>साइज:</Typography>
-                    <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.max(60, (activeStyle?.width || 88) - 4))}>-</Button>
-                    <Typography variant="caption" sx={{ fontWeight: 900 }}>{activeStyle?.width || 88}px</Typography>
-                    <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.min(140, (activeStyle?.width || 88) + 4))}>+</Button>
-                  </Box>
-                </>
-              )}
-            </Box>
-          </>
-        ) : (
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <DragIndicatorIcon sx={{ color: '#0284C7' }} />
-              <Typography variant="caption" sx={{ color: '#0369A1', fontWeight: 800 }}>
-                💡 Canva Move & Edit: क्यानभास भित्रको कुनै पनि लाइन वा लोगोमा क्लिक गरी माउसले सीधै जहाँ पनि तान्नुहोस् (Click & Drag)!
-              </Typography>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="caption" sx={{ color: '#64748B' }}>जुम:</Typography>
-              <Button size="small" onClick={() => setPreviewScale((p) => Math.max(0.55, p - 0.05))}>-</Button>
-              <Typography variant="caption" sx={{ fontWeight: 800 }}>{Math.round(previewScale * 100)}%</Typography>
-              <Button size="small" onClick={() => setPreviewScale((p) => Math.min(1.05, p + 0.05))}>+</Button>
-            </Box>
-          </Box>
-        )}
-      </Paper>
-
-      {/* ============================================================== */}
-      {/* 5. FULL-WIDTH MAJESTIC CERTIFICATE CANVAS WORKSPACE            */}
-      {/* ============================================================== */}
-      <Box
-        sx={{
-          width: '100%',
-          overflow: 'auto',
-          p: { xs: 1.5, sm: 3 },
-          bgcolor: '#334155',
-          borderRadius: 3,
-          display: 'flex',
-          justifyContent: 'center',
-          boxShadow: 'inset 0 2px 14px rgba(0,0,0,0.3)',
-          minHeight: '800px',
-          userSelect: isDragging ? 'none' : 'auto'
-        }}
-      >
-        {/* The Live Certificate Canvas with Proportional True A4 Aspect Ratio */}
-        <Box
-          id="liveCertificateStudioCanvas"
-          sx={{
-            width: isPortrait ? '760px' : '1040px',
-            minHeight: isPortrait ? '1060px' : '740px',
-            p: `${design.borderMargin}mm`,
-            boxSizing: 'border-box',
-            fontFamily: "'Times New Roman', serif",
-            color: '#0F172A',
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
-            transformOrigin: 'top center',
-            transition: isDragging ? 'none' : 'all 0.15s ease',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.35)',
-            ...getBorderStyle(),
-            ...getBackgroundStyle()
-          }}
-        >
-          {/* 4 Corner Ornaments */}
-          {!design.preprintedTextOnly && design.cornerStyle !== 'none' && (
-            <>
-              <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-left" />
-              <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-right" />
-              <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-left" />
-              <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-right" />
-            </>
-          )}
-
-          {/* Watermark Logo */}
-          {!design.preprintedTextOnly && design.watermarkOpacity > 0 && (
-            <Box
-              sx={{
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                opacity: design.watermarkOpacity / 100,
-                pointerEvents: 'none',
-                zIndex: 0
-              }}
-            >
-              <SchoolIcon sx={{ fontSize: (isPortrait ? 380 : 340) * (design.watermarkScale / 100), color: design.primaryColor }} />
-            </Box>
-          )}
-
-          {/* ============================================================== */}
-          {/* 1. INSTITUTIONAL LETTERHEAD: INDIVIDUAL MOVABLE LAYERS        */}
-          {/* ============================================================== */}
-          {design.showHeader && (
-            <Box sx={{ position: 'relative', zIndex: 3, pb: 1, borderBottom: `1.5px solid ${design.accentColor}` }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', px: 2 }}>
-                {/* Left Logo (Independently Movable) */}
-                <Box
-                  onClick={(e) => { e.stopPropagation(); setSelectedElement('leftLogo'); }}
-                  onMouseDown={(e) => handleMouseDownOnElement(e, 'leftLogo')}
-                  sx={{
-                    width: `${design.leftLogoWidth || 46}px`,
-                    position: 'relative',
-                    zIndex: selectedElement === 'leftLogo' ? 10 : 2,
-                    transform: `translate(${design.elementStyles?.leftLogo?.x || 0}px, ${design.elementStyles?.leftLogo?.y || 0}px)`,
-                    cursor: isDragging && selectedElement === 'leftLogo' ? 'grabbing' : 'grab',
-                    outline: selectedElement === 'leftLogo' ? '2px dashed #0284c7' : '1px dashed transparent',
-                    outlineOffset: '4px',
-                    borderRadius: '4px'
-                  }}
-                >
-                  {design.showLeftLogo && (
-                    design.leftLogoUrl ? (
-                      <img src={design.leftLogoUrl} alt="Logo" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                    ) : (
-                      <SchoolIcon sx={{ fontSize: design.leftLogoWidth || 46, color: design.primaryColor }} />
-                    )
-                  )}
-                </Box>
-
-                {/* Center Lines: Main Title, Sub-heading, Address (Each Independently Movable) */}
-                <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
-                  {/* Line 1: Main Institution Title */}
-                  <Box
-                    onClick={(e) => { e.stopPropagation(); setSelectedElement('headerTitle'); }}
-                    onMouseDown={(e) => handleMouseDownOnElement(e, 'headerTitle')}
-                    sx={{
-                      position: 'relative',
-                      zIndex: selectedElement === 'headerTitle' ? 10 : 2,
-                      transform: `translate(${design.elementStyles?.headerTitle?.x || 0}px, ${design.elementStyles?.headerTitle?.y || 0}px)`,
-                      cursor: isDragging && selectedElement === 'headerTitle' ? 'grabbing' : 'grab',
-                      outline: selectedElement === 'headerTitle' ? '2px dashed #0284c7' : '1px dashed transparent',
-                      outlineOffset: '2px',
-                      borderRadius: '4px'
-                    }}
-                  >
-                    <Typography
-                      variant="h5"
-                      sx={{
-                        fontFamily: design.elementStyles?.headerTitle?.fontFamily || "'Times New Roman', serif",
-                        fontWeight: design.elementStyles?.headerTitle?.fontWeight || 900,
-                        fontStyle: design.elementStyles?.headerTitle?.fontStyle || 'normal',
-                        letterSpacing: '0.04em',
-                        color: design.elementStyles?.headerTitle?.color || design.primaryColor,
-                        fontSize: `${design.elementStyles?.headerTitle?.fontSize || (isPortrait ? 21 : 22)}px`,
-                        textTransform: 'uppercase'
-                      }}
-                    >
-                      {design.instituteName}
-                    </Typography>
-                  </Box>
-
-                  {/* Line 2: Accreditation / Sub-heading */}
-                  {design.showAccreditation && (
-                    <Box
-                      onClick={(e) => { e.stopPropagation(); setSelectedElement('headerSub'); }}
-                      onMouseDown={(e) => handleMouseDownOnElement(e, 'headerSub')}
-                      sx={{
-                        position: 'relative',
-                        zIndex: selectedElement === 'headerSub' ? 10 : 2,
-                        transform: `translate(${design.elementStyles?.headerSub?.x || 0}px, ${design.elementStyles?.headerSub?.y || 0}px)`,
-                        cursor: isDragging && selectedElement === 'headerSub' ? 'grabbing' : 'grab',
-                        outline: selectedElement === 'headerSub' ? '2px dashed #0284c7' : '1px dashed transparent',
-                        outlineOffset: '2px',
-                        borderRadius: '4px',
-                        mt: 0.3
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: 'block',
-                          fontSize: `${design.elementStyles?.headerSub?.fontSize || 11.5}px`,
-                          fontWeight: design.elementStyles?.headerSub?.fontWeight || 600,
-                          color: design.elementStyles?.headerSub?.color || '#475569'
-                        }}
-                      >
-                        {design.accreditationText}
-                      </Typography>
-                    </Box>
-                  )}
-
-                  {/* Line 3: Registration, Affiliation & Location */}
-                  {design.showAffiliation && (
-                    <Box
-                      onClick={(e) => { e.stopPropagation(); setSelectedElement('headerAddress'); }}
-                      onMouseDown={(e) => handleMouseDownOnElement(e, 'headerAddress')}
-                      sx={{
-                        position: 'relative',
-                        zIndex: selectedElement === 'headerAddress' ? 10 : 2,
-                        transform: `translate(${design.elementStyles?.headerAddress?.x || 0}px, ${design.elementStyles?.headerAddress?.y || 0}px)`,
-                        cursor: isDragging && selectedElement === 'headerAddress' ? 'grabbing' : 'grab',
-                        outline: selectedElement === 'headerAddress' ? '2px dashed #0284c7' : '1px dashed transparent',
-                        outlineOffset: '2px',
-                        borderRadius: '4px',
-                        mt: 0.2
-                      }}
-                    >
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          display: 'block',
-                          fontSize: `${design.elementStyles?.headerAddress?.fontSize || 10.5}px`,
-                          color: design.elementStyles?.headerAddress?.color || '#64748B'
-                        }}
-                      >
-                        {design.affiliationCodeText}
-                      </Typography>
-                    </Box>
-                  )}
-                </Box>
-
-                {/* Right Logo / CTEVT Badge (Independently Movable) */}
-                <Box
-                  onClick={(e) => { e.stopPropagation(); setSelectedElement('rightLogo'); }}
-                  onMouseDown={(e) => handleMouseDownOnElement(e, 'rightLogo')}
-                  sx={{
-                    width: `${design.rightLogoWidth || 46}px`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'flex-end',
-                    position: 'relative',
-                    zIndex: selectedElement === 'rightLogo' ? 10 : 2,
-                    transform: `translate(${design.elementStyles?.rightLogo?.x || 0}px, ${design.elementStyles?.rightLogo?.y || 0}px)`,
-                    cursor: isDragging && selectedElement === 'rightLogo' ? 'grabbing' : 'grab',
-                    outline: selectedElement === 'rightLogo' ? '2px dashed #0284c7' : '1px dashed transparent',
-                    outlineOffset: '4px',
-                    borderRadius: '4px'
-                  }}
-                >
-                  {design.showRightLogo && (
-                    design.rightLogoUrl ? (
-                      <img src={design.rightLogoUrl} alt="Right Badge" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                    ) : (
-                      <VerifiedIcon sx={{ fontSize: design.rightLogoWidth || 46, color: design.accentColor }} />
-                    )
-                  )}
-                </Box>
-              </Box>
-            </Box>
-          )}
-
-          {/* ============================================================== */}
-          {/* 2. CERTIFICATE TITLE BANNER (MOVABLE)                          */}
-          {/* ============================================================== */}
-          <Box
-            onClick={(e) => { e.stopPropagation(); setSelectedElement('title'); }}
-            onMouseDown={(e) => handleMouseDownOnElement(e, 'title')}
-            sx={{
-              position: 'relative',
-              zIndex: selectedElement === 'title' ? 10 : 2,
-              textAlign: design.elementStyles?.title?.align || 'center',
-              my: isPortrait ? 1.5 : 0.8,
-              transform: `translate(${design.elementStyles?.title?.x || 0}px, ${design.elementStyles?.title?.y || 0}px)`,
-              cursor: isDragging && selectedElement === 'title' ? 'grabbing' : 'grab',
-              outline: selectedElement === 'title' ? '2px dashed #0284c7' : '1px dashed transparent',
-              outlineOffset: '4px',
-              borderRadius: '4px'
-            }}
-          >
-            <Typography
-              variant="h5"
-              sx={{
-                fontFamily: design.elementStyles?.title?.fontFamily || "'Times New Roman', serif",
-                fontWeight: design.elementStyles?.title?.fontWeight || 900,
-                fontStyle: design.elementStyles?.title?.fontStyle || 'normal',
-                color: design.elementStyles?.title?.color || design.primaryColor,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                fontSize: `${design.elementStyles?.title?.fontSize || (isPortrait ? 19 : 20)}px`,
-                mb: 0.2
-              }}
-            >
-              {design.certificateTitleEn}
-            </Typography>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontFamily: "'Noto Sans Devanagari', sans-serif",
-                fontWeight: 800,
-                color: design.accentColor,
-                fontSize: '0.98rem',
-                letterSpacing: '0.03em'
-              }}
-            >
-              {design.certificateTitleNp}
-            </Typography>
-          </Box>
-
-          {/* 3. Reference Tracking Bar */}
-          <Box
-            sx={{
-              position: 'relative',
-              zIndex: 1,
-              display: 'flex',
-              justifyContent: 'space-between',
-              px: 3,
-              py: 0.5,
-              bgcolor: '#F8FAFC',
-              borderTop: '1px solid #E2E8F0',
-              borderBottom: '1px solid #E2E8F0',
-              fontSize: '0.76rem',
-              fontWeight: 700,
-              color: '#334155'
-            }}
-          >
-            <Box>Certificate No: <b style={{ color: design.primaryColor }}>GE-2081-000101</b></Box>
-            <Box>Registration / TGID: <b style={{ color: design.primaryColor }}>TGID-101</b></Box>
-            <Box>Issue Date: <b>2026-09-01</b></Box>
-          </Box>
-
-          {/* ============================================================== */}
-          {/* 4. TRAINEE CENTERPIECE & PHOTO FRAME (MOVABLE)                 */}
-          {/* ============================================================== */}
-          <Box
-            sx={{
-              position: 'relative',
-              zIndex: 2,
-              display: 'flex',
-              flexDirection: design.elementStyles?.photo?.preset === 'center' ? 'column' : 'row',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              px: 3,
-              my: isPortrait ? 1.5 : 1
-            }}
-          >
-            {/* Photo if placed on LEFT */}
-            {design.elementStyles?.photo?.preset === 'left' && (
-              <Box
-                onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
-                onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
-                sx={{
-                  width: `${design.elementStyles?.photo?.width || 88}px`,
-                  height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
-                  position: 'relative',
-                  transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
-                  cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
-                  outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
-                  outlineOffset: '4px',
-                  borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`
-                }}
-              >
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
-                    borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
-                    p: '2px',
-                    bgcolor: '#FFFFFF',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
-                  <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
-                    PP PHOTO<br />(35×45mm)
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.67rem' }}>
+                    प्रिन्टरमा कागजको बोर्डरसँग ठ्याक्कै मिलाउन माथि वा तल सार्न सकिन्छ।
                   </Typography>
                 </Box>
-              </Box>
+              </Stack>
             )}
 
-            {/* Left Competency Badge (if photo not on left) */}
-            {design.elementStyles?.photo?.preset !== 'left' && (
-              <Box sx={{ width: '92px' }}>
-                {design.showCompetencyBadge && (
-                  <Box sx={{ border: `1.5px dashed ${design.accentColor}`, borderRadius: 1, p: '4px 8px', textAlign: 'center', bgcolor: '#FFFBF0' }}>
-                    <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 900, color: design.primaryColor, display: 'block' }}>
-                      CTEVT LEVEL 1
-                    </Typography>
-                    <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748B', display: 'block' }}>
-                      {design.hoursBadgeText}
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-            )}
-
-            {/* Center Trainee Name Highlight (MOVABLE) */}
-            <Box
-              onClick={(e) => { e.stopPropagation(); setSelectedElement('student'); }}
-              onMouseDown={(e) => handleMouseDownOnElement(e, 'student')}
-              sx={{
-                textAlign: design.elementStyles?.student?.align || 'center',
-                flexGrow: 1,
-                px: 2,
-                position: 'relative',
-                zIndex: selectedElement === 'student' ? 10 : 2,
-                transform: `translate(${design.elementStyles?.student?.x || 0}px, ${design.elementStyles?.student?.y || 0}px)`,
-                cursor: isDragging && selectedElement === 'student' ? 'grabbing' : 'grab',
-                outline: selectedElement === 'student' ? '2px dashed #0284c7' : '1px dashed transparent',
-                outlineOffset: '4px',
-                borderRadius: '4px'
-              }}
-            >
-              <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
-              </Typography>
-              <Typography
-                variant="h4"
-                sx={{
-                  fontFamily: design.elementStyles?.student?.fontFamily || "'Times New Roman', serif",
-                  fontWeight: design.elementStyles?.student?.fontWeight || 900,
-                  fontStyle: design.elementStyles?.student?.fontStyle || 'normal',
-                  color: design.elementStyles?.student?.color || design.primaryColor,
-                  letterSpacing: '0.04em',
-                  fontSize: `${design.elementStyles?.student?.fontSize || (isPortrait ? 29 : 28)}px`,
-                  mt: 0.3
-                }}
-              >
-                Sunita Sharma
-              </Typography>
-              <Typography
-                variant="subtitle1"
-                sx={{
-                  fontFamily: "'Noto Sans Devanagari', sans-serif",
-                  fontWeight: 800,
-                  color: design.accentColor,
-                  fontSize: '1.05rem',
-                  mt: 0.2
-                }}
-              >
-                (सुनिता शर्मा)
-              </Typography>
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 800,
-                  color: '#059669',
-                  fontSize: '0.92rem',
-                  mt: 0.3,
-                  letterSpacing: '0.04em'
-                }}
-              >
-                COURSE: BASIC BEAUTICIAN TRAINING (390 HOURS / 3 MONTHS)
-              </Typography>
-            </Box>
-
-            {/* Photo if placed on RIGHT (Default) */}
-            {design.elementStyles?.photo?.preset !== 'left' && (
-              <Box
-                onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
-                onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
-                sx={{
-                  width: `${design.elementStyles?.photo?.width || 88}px`,
-                  height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
-                  position: 'relative',
-                  transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
-                  cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
-                  outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
-                  outlineOffset: '4px',
-                  borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`
-                }}
-              >
-                {design.showStudentPhoto && (
-                  <Box
-                    sx={{
-                      width: '100%',
-                      height: '100%',
-                      border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
-                      borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
-                      p: '2px',
-                      bgcolor: '#FFFFFF',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
-                    <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
-                      PP PHOTO<br />(35×45mm)
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
+            {/* TAB 5: ELEMENT LAYERS */}
+            {activeLeftTab === 5 && (
+              <Stack spacing={0.8}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block' }}>
+                  क्यानभास लेयर्स सूची (Click to Select & Move):
+                </Typography>
+                {Object.entries(ELEMENT_LABELS).map(([key, label]) => {
+                  const isSelected = selectedElement === key;
+                  const elStyle = design.elementStyles?.[key] || {};
+                  return (
+                    <Box
+                      key={key}
+                      onClick={() => setSelectedElement(key)}
+                      sx={{
+                        p: 0.8,
+                        borderRadius: 1.5,
+                        cursor: 'pointer',
+                        bgcolor: isSelected ? '#E0F2FE' : '#F8FAFC',
+                        border: isSelected ? '1.5px solid #0284C7' : '1px solid #E2E8F0',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        transition: 'all 0.15s ease',
+                        '&:hover': {
+                          bgcolor: isSelected ? '#E0F2FE' : '#F1F5F9'
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+                        <DragIndicatorIcon sx={{ fontSize: 16, color: isSelected ? '#0284C7' : '#94A3B8' }} />
+                        <Typography variant="caption" sx={{ fontWeight: isSelected ? 900 : 700, color: isSelected ? '#0369A1' : '#334155', fontSize: '0.72rem' }}>
+                          {label}
+                        </Typography>
+                      </Box>
+                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontSize: '0.66rem', color: '#64748B' }}>
+                        X:{elStyle.x || 0} Y:{elStyle.y || 0}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Stack>
             )}
           </Box>
+        </Paper>
 
-          {/* ============================================================== */}
-          {/* 5. ENGLISH & NEPALI WORDING PARAGRAPHS (MOVABLE)               */}
-          {/* ============================================================== */}
-          <Box
-            onClick={(e) => { e.stopPropagation(); setSelectedElement('body'); }}
-            onMouseDown={(e) => handleMouseDownOnElement(e, 'body')}
-            sx={{
-              position: 'relative',
-              zIndex: selectedElement === 'body' ? 10 : 2,
-              px: 3,
-              textAlign: design.elementStyles?.body?.align || 'justify',
-              my: isPortrait ? 1.5 : 0.5,
-              transform: `translate(${design.elementStyles?.body?.x || 0}px, ${design.elementStyles?.body?.y || 0}px)`,
-              cursor: isDragging && selectedElement === 'body' ? 'grabbing' : 'grab',
-              outline: selectedElement === 'body' ? '2px dashed #0284c7' : '1px dashed transparent',
-              outlineOffset: '4px',
-              borderRadius: '4px'
-            }}
-          >
-            {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'english-only') && (
-              <Typography
-                variant="body2"
-                sx={{
-                  fontFamily: design.elementStyles?.body?.fontFamily || "'Times New Roman', serif",
-                  fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
-                  fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
-                  fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
-                  lineHeight: design.elementStyles?.body?.lineHeight || 1.45,
-                  color: design.elementStyles?.body?.color || '#1E293B',
-                  mb: 0.8
-                }}
-              >
-                This is to certify that Ms. <b>Sunita Sharma</b>, Daughter of Mr./Mrs. <b>Hari Sharma</b>, permanent resident of <b>Gokarneshwor-05, Kathmandu</b>, has successfully completed the <b>390 Hours</b> vocational skills training course in <b>"Basic Beautician Training"</b> conducted from <b>2026-06-01</b> to <b>2026-09-01</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
-              </Typography>
-            )}
-
-            {design.bodyLayoutMode === 'bilingual' && (
-              <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#E2E8F0' }} />
-                <Box sx={{ color: design.accentColor, fontSize: '0.75rem' }}>❖</Box>
-                <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#E2E8F0' }} />
-              </Box>
-            )}
-
-            {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'nepali-only') && (
-              <Typography
-                variant="body2"
-                sx={{
-                  fontFamily: "'Noto Sans Devanagari', sans-serif",
-                  fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
-                  fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
-                  fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
-                  lineHeight: design.elementStyles?.body?.lineHeight || 1.5,
-                  color: design.elementStyles?.body?.color || '#1E293B'
-                }}
-              >
-                प्रमाणित गरिन्छ कि गोकर्णेश्वर-०५, काठमाडौँ निवासी श्री हरि शर्माको सुपुत्री सुश्री <b>सुनिता शर्मा</b>ले यस संस्थाद्वारा मिति <b>२०८३/०२/१८</b> देखि <b>२०८३/०५/१८</b> सम्म सञ्चालित <b>३९० घन्टे</b> <b>"आधारभूत ब्युटिसियन तालिम"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
-              </Typography>
-            )}
-          </Box>
-
-          {/* ============================================================== */}
-          {/* 6. FOOTER: DYNAMIC QR + OFFICIAL SEAL (4 MODES) + SIGNATORIES  */}
-          {/* ============================================================== */}
+        {/* ========================================================== */}
+        {/* COLUMN 2: CENTER LIVE CANVAS WORKSPACE (Interactive)        */}
+        {/* ========================================================== */}
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            bgcolor: '#1E293B',
+            borderRadius: 2.5,
+            overflow: 'hidden',
+            boxShadow: 'inset 0 2px 14px rgba(0,0,0,0.4)',
+            position: 'relative'
+          }}
+        >
+          {/* Canvas Top Sticky Toolbar */}
           <Box
             sx={{
-              position: 'relative',
-              zIndex: 2,
-              mt: isPortrait ? 2.5 : 1.2,
-              pt: 1.2,
-              borderTop: '1px solid #CBD5E1',
+              p: '8px 14px',
+              bgcolor: '#0F172A',
+              borderBottom: '1px solid #334155',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              px: 2
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1,
+              zIndex: 10
             }}
+            onClick={(e) => e.stopPropagation()}
           >
-            {/* Left QR Code (Movable) */}
-            <Box
-              onClick={(e) => { e.stopPropagation(); setSelectedElement('qrCode'); }}
-              onMouseDown={(e) => handleMouseDownOnElement(e, 'qrCode')}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 1,
-                width: '26%',
-                transform: `translate(${design.elementStyles?.qrCode?.x || 0}px, ${design.elementStyles?.qrCode?.y || 0}px)`,
-                cursor: isDragging && selectedElement === 'qrCode' ? 'grabbing' : 'grab',
-                outline: selectedElement === 'qrCode' ? '2px dashed #0284c7' : '1px dashed transparent',
-                outlineOffset: '4px',
-                borderRadius: '4px'
-              }}
-            >
-              {design.showQrVerification && (
-                <>
-                  <Box sx={{ p: 0.5, bgcolor: '#FFFFFF', border: `1.5px solid ${design.primaryColor}`, borderRadius: 1 }}>
-                    <QRCodeSVG value="https://globalera.edu.np/verify?cert=GE-2081-000101" size={design.elementStyles?.qrCode?.qrSize || 54} level="M" />
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ fontWeight: 800, color: design.primaryColor, display: 'block', fontSize: '0.68rem' }}>
-                      SCAN TO VERIFY
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.62rem' }}>
-                      CTEVT Accredited
-                    </Typography>
-                  </Box>
-                </>
+            {/* Drag hint badge */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Chip
+                icon={<DragIndicatorIcon sx={{ color: '#38BDF8 !important' }} />}
+                label="💡 माउसले तानेर मिलाउनुहोस् (Drag to Move)"
+                size="small"
+                sx={{
+                  bgcolor: 'rgba(56, 189, 248, 0.12)',
+                  color: '#38BDF8',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  border: '1px solid rgba(56, 189, 248, 0.3)'
+                }}
+              />
+              {selectedElement && (
+                <Chip
+                  label={`चयन: ${ELEMENT_LABELS[selectedElement] || selectedElement}`}
+                  size="small"
+                  onDelete={() => setSelectedElement(null)}
+                  sx={{ bgcolor: '#F59E0B', color: '#0F172A', fontWeight: 900, fontSize: '0.7rem' }}
+                />
               )}
             </Box>
 
-            {/* Center Official Seal Zone (4-in-1 Modes: Blank Space, Scanned Stamp, Digital, or None) */}
-            {design.sealMode !== 'none' && (
+            {/* Canvas Zoom & Aspect Ratio Controls */}
+            <Stack direction="row" spacing={0.6} alignItems="center">
+              <Tooltip title="जुम घटाउनुहोस्">
+                <IconButton
+                  size="small"
+                  onClick={() => setPreviewScale((p) => Math.max(0.45, Math.round((p - 0.05) * 100) / 100))}
+                  sx={{ color: '#E2E8F0', bgcolor: '#1E293B' }}
+                >
+                  <ZoomOutIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              <Typography variant="caption" sx={{ color: '#F8FAFC', fontWeight: 900, fontFamily: 'monospace', px: 0.8 }}>
+                {Math.round(previewScale * 100)}%
+              </Typography>
+
+              <Tooltip title="जुम बढाउनुहोस्">
+                <IconButton
+                  size="small"
+                  onClick={() => setPreviewScale((p) => Math.min(1.2, Math.round((p + 0.05) * 100) / 100))}
+                  sx={{ color: '#E2E8F0', bgcolor: '#1E293B' }}
+                >
+                  <ZoomInIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="फिट दृश्य (Fit to View ~72%)">
+                <IconButton
+                  size="small"
+                  onClick={() => setPreviewScale(0.72)}
+                  sx={{ color: '#38BDF8', bgcolor: '#1E293B' }}
+                >
+                  <FitScreenIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+
+              <Button
+                size="small"
+                onClick={() => setPreviewScale(1.0)}
+                sx={{ color: '#CBD5E1', fontSize: '0.68rem', fontWeight: 800, minWidth: 32 }}
+              >
+                100%
+              </Button>
+            </Stack>
+          </Box>
+
+          {/* Scrollable Viewport containing the True A4 Certificate Canvas */}
+          <Box
+            sx={{
+              flex: 1,
+              overflow: 'auto',
+              p: { xs: 1.5, sm: 2.5 },
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+              userSelect: isDragging ? 'none' : 'auto'
+            }}
+          >
+            {/* The Live Certificate Canvas with Proportional True A4 Aspect Ratio */}
+            <Box
+              id="liveCertificateStudioCanvas"
+              sx={{
+                width: isPortrait ? '760px' : '1040px',
+                minHeight: isPortrait ? '1060px' : '740px',
+                p: `${design.borderMargin}mm`,
+                boxSizing: 'border-box',
+                fontFamily: "'Times New Roman', serif",
+                color: '#0F172A',
+                position: 'relative',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
+                transformOrigin: 'top center',
+                transition: isDragging ? 'none' : 'all 0.15s ease',
+                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                ...getBorderStyle(),
+                ...getBackgroundStyle()
+              }}
+            >
+              {/* 4 Corner Ornaments */}
+              {!design.preprintedTextOnly && design.cornerStyle !== 'none' && (
+                <>
+                  <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-left" />
+                  <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="top-right" />
+                  <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-left" />
+                  <CornerSvg style={design.cornerStyle} size={design.cornerSize} color={design.cornerColor} position="bottom-right" />
+                </>
+              )}
+
+              {/* Watermark Logo */}
+              {!design.preprintedTextOnly && design.watermarkOpacity > 0 && (
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    opacity: design.watermarkOpacity / 100,
+                    pointerEvents: 'none',
+                    zIndex: 0
+                  }}
+                >
+                  <SchoolIcon sx={{ fontSize: (isPortrait ? 380 : 340) * (design.watermarkScale / 100), color: design.primaryColor }} />
+                </Box>
+              )}
+
+              {/* ============================================================== */}
+              {/* 1. INSTITUTIONAL LETTERHEAD: INDIVIDUAL MOVABLE LAYERS        */}
+              {/* ============================================================== */}
+              {design.showHeader && (
+                <Box sx={{ position: 'relative', zIndex: 3, pb: 1, borderBottom: `1.5px solid ${design.accentColor}` }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', px: 2 }}>
+                    {/* Left Logo (Independently Movable) */}
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('leftLogo'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'leftLogo')}
+                      sx={{
+                        width: `${design.leftLogoWidth || 46}px`,
+                        position: 'relative',
+                        zIndex: selectedElement === 'leftLogo' ? 10 : 2,
+                        transform: `translate(${design.elementStyles?.leftLogo?.x || 0}px, ${design.elementStyles?.leftLogo?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'leftLogo' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'leftLogo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '4px',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      {design.showLeftLogo && (
+                        design.leftLogoUrl ? (
+                          <img src={design.leftLogoUrl} alt="Logo" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                        ) : (
+                          <SchoolIcon sx={{ fontSize: design.leftLogoWidth || 46, color: design.primaryColor }} />
+                        )
+                      )}
+                    </Box>
+
+                    {/* Center Lines: Main Title, Sub-heading, Address */}
+                    <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
+                      {/* Line 1: Main Institution Title */}
+                      <Box
+                        onClick={(e) => { e.stopPropagation(); setSelectedElement('headerTitle'); }}
+                        onMouseDown={(e) => handleMouseDownOnElement(e, 'headerTitle')}
+                        sx={{
+                          position: 'relative',
+                          zIndex: selectedElement === 'headerTitle' ? 10 : 2,
+                          transform: `translate(${design.elementStyles?.headerTitle?.x || 0}px, ${design.elementStyles?.headerTitle?.y || 0}px)`,
+                          cursor: isDragging && selectedElement === 'headerTitle' ? 'grabbing' : 'grab',
+                          outline: selectedElement === 'headerTitle' ? '2px dashed #0284c7' : '1px dashed transparent',
+                          outlineOffset: '2px',
+                          borderRadius: '4px'
+                        }}
+                      >
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            fontFamily: design.elementStyles?.headerTitle?.fontFamily || "'Times New Roman', serif",
+                            fontWeight: design.elementStyles?.headerTitle?.fontWeight || 900,
+                            fontStyle: design.elementStyles?.headerTitle?.fontStyle || 'normal',
+                            letterSpacing: '0.04em',
+                            color: design.elementStyles?.headerTitle?.color || design.primaryColor,
+                            fontSize: `${design.elementStyles?.headerTitle?.fontSize || (isPortrait ? 21 : 22)}px`,
+                            textTransform: 'uppercase'
+                          }}
+                        >
+                          {design.instituteName}
+                        </Typography>
+                      </Box>
+
+                      {/* Line 2: Accreditation / Sub-heading */}
+                      {design.showAccreditation && (
+                        <Box
+                          onClick={(e) => { e.stopPropagation(); setSelectedElement('headerSub'); }}
+                          onMouseDown={(e) => handleMouseDownOnElement(e, 'headerSub')}
+                          sx={{
+                            position: 'relative',
+                            zIndex: selectedElement === 'headerSub' ? 10 : 2,
+                            transform: `translate(${design.elementStyles?.headerSub?.x || 0}px, ${design.elementStyles?.headerSub?.y || 0}px)`,
+                            cursor: isDragging && selectedElement === 'headerSub' ? 'grabbing' : 'grab',
+                            outline: selectedElement === 'headerSub' ? '2px dashed #0284c7' : '1px dashed transparent',
+                            outlineOffset: '2px',
+                            borderRadius: '4px',
+                            mt: 0.3
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              display: 'block',
+                              fontSize: `${design.elementStyles?.headerSub?.fontSize || 11.5}px`,
+                              fontWeight: design.elementStyles?.headerSub?.fontWeight || 600,
+                              color: design.elementStyles?.headerSub?.color || '#475569'
+                            }}
+                          >
+                            {design.accreditationText}
+                          </Typography>
+                        </Box>
+                      )}
+
+                      {/* Line 3: Registration, Affiliation & Location */}
+                      {design.showAffiliation && (
+                        <Box
+                          onClick={(e) => { e.stopPropagation(); setSelectedElement('headerAddress'); }}
+                          onMouseDown={(e) => handleMouseDownOnElement(e, 'headerAddress')}
+                          sx={{
+                            position: 'relative',
+                            zIndex: selectedElement === 'headerAddress' ? 10 : 2,
+                            transform: `translate(${design.elementStyles?.headerAddress?.x || 0}px, ${design.elementStyles?.headerAddress?.y || 0}px)`,
+                            cursor: isDragging && selectedElement === 'headerAddress' ? 'grabbing' : 'grab',
+                            outline: selectedElement === 'headerAddress' ? '2px dashed #0284c7' : '1px dashed transparent',
+                            outlineOffset: '2px',
+                            borderRadius: '4px',
+                            mt: 0.2
+                          }}
+                        >
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              display: 'block',
+                              fontSize: `${design.elementStyles?.headerAddress?.fontSize || 10.5}px`,
+                              color: design.elementStyles?.headerAddress?.color || '#64748B'
+                            }}
+                          >
+                            {design.affiliationCodeText}
+                          </Typography>
+                        </Box>
+                      )}
+                    </Box>
+
+                    {/* Right Logo / CTEVT Badge (Independently Movable) */}
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('rightLogo'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'rightLogo')}
+                      sx={{
+                        width: `${design.rightLogoWidth || 46}px`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        position: 'relative',
+                        zIndex: selectedElement === 'rightLogo' ? 10 : 2,
+                        transform: `translate(${design.elementStyles?.rightLogo?.x || 0}px, ${design.elementStyles?.rightLogo?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'rightLogo' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'rightLogo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '4px',
+                        borderRadius: '4px'
+                      }}
+                    >
+                      {design.showRightLogo && (
+                        design.rightLogoUrl ? (
+                          <img src={design.rightLogoUrl} alt="Right Badge" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                        ) : (
+                          <VerifiedIcon sx={{ fontSize: design.rightLogoWidth || 46, color: design.accentColor }} />
+                        )
+                      )}
+                    </Box>
+                  </Box>
+                </Box>
+              )}
+
+              {/* ============================================================== */}
+              {/* 2. CERTIFICATE TITLE BANNER (MOVABLE)                          */}
+              {/* ============================================================== */}
               <Box
-                onClick={(e) => { e.stopPropagation(); setSelectedElement('seal'); }}
-                onMouseDown={(e) => handleMouseDownOnElement(e, 'seal')}
+                onClick={(e) => { e.stopPropagation(); setSelectedElement('title'); }}
+                onMouseDown={(e) => handleMouseDownOnElement(e, 'title')}
                 sx={{
-                  textAlign: 'center',
-                  width: '32%',
-                  transform: `translate(${design.elementStyles?.seal?.x || 0}px, ${design.elementStyles?.seal?.y || 0}px)`,
-                  cursor: isDragging && selectedElement === 'seal' ? 'grabbing' : 'grab',
-                  outline: selectedElement === 'seal' ? '2px dashed #0284c7' : '1px dashed transparent',
+                  position: 'relative',
+                  zIndex: selectedElement === 'title' ? 10 : 2,
+                  textAlign: design.elementStyles?.title?.align || 'center',
+                  my: isPortrait ? 1.5 : 0.8,
+                  transform: `translate(${design.elementStyles?.title?.x || 0}px, ${design.elementStyles?.title?.y || 0}px)`,
+                  cursor: isDragging && selectedElement === 'title' ? 'grabbing' : 'grab',
+                  outline: selectedElement === 'title' ? '2px dashed #0284c7' : '1px dashed transparent',
                   outlineOffset: '4px',
                   borderRadius: '4px'
                 }}
               >
-                {/* MODE 1: Scanned Real Stamp Upload */}
-                {design.sealMode === 'scanned' && (
-                  design.customSealUrl ? (
-                    <Box
-                      component="img"
-                      src={design.customSealUrl}
-                      alt="Official Stamp"
-                      sx={{
-                        width: `${design.sealWidth || 84}px`,
-                        height: 'auto',
-                        transform: `rotate(${design.sealTilt || 0}deg)`,
-                        display: 'inline-block'
-                      }}
-                    />
-                  ) : (
-                    <Box sx={{ p: '6px 12px', border: '1.5px dashed #0284C7', borderRadius: 2, display: 'inline-block' }}>
-                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1' }}>
-                        [ स्क्यान गरिएको छाप अपलोड गर्नुहोस् ]
-                      </Typography>
-                    </Box>
-                  )
-                )}
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontFamily: design.elementStyles?.title?.fontFamily || "'Times New Roman', serif",
+                    fontWeight: design.elementStyles?.title?.fontWeight || 900,
+                    fontStyle: design.elementStyles?.title?.fontStyle || 'normal',
+                    color: design.elementStyles?.title?.color || design.primaryColor,
+                    letterSpacing: '0.08em',
+                    textTransform: 'uppercase',
+                    fontSize: `${design.elementStyles?.title?.fontSize || (isPortrait ? 19 : 20)}px`,
+                    mb: 0.2
+                  }}
+                >
+                  {design.certificateTitleEn}
+                </Typography>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontFamily: "'Noto Sans Devanagari', sans-serif",
+                    fontWeight: 800,
+                    color: design.accentColor,
+                    fontSize: '0.98rem',
+                    letterSpacing: '0.03em'
+                  }}
+                >
+                  {design.certificateTitleNp}
+                </Typography>
+              </Box>
 
-                {/* MODE 2: Reserved Blank Space for Hand Rubber Stamp (Wet Stamp) */}
-                {design.sealMode === 'blank' && (
+              {/* 3. Reference Tracking Bar */}
+              <Box
+                sx={{
+                  position: 'relative',
+                  zIndex: 1,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  px: 3,
+                  py: 0.5,
+                  bgcolor: '#F8FAFC',
+                  borderTop: '1px solid #E2E8F0',
+                  borderBottom: '1px solid #E2E8F0',
+                  fontSize: '0.76rem',
+                  fontWeight: 700,
+                  color: '#334155'
+                }}
+              >
+                <Box>Certificate No: <b style={{ color: design.primaryColor }}>{currentSample.certNo}</b></Box>
+                <Box>Registration / TGID: <b style={{ color: design.primaryColor }}>{currentSample.tgid}</b></Box>
+                <Box>Issue Date: <b>{currentSample.issueDate}</b></Box>
+              </Box>
+
+              {/* ============================================================== */}
+              {/* 4. TRAINEE CENTERPIECE & PHOTO FRAME (MOVABLE)                 */}
+              {/* ============================================================== */}
+              <Box
+                sx={{
+                  position: 'relative',
+                  zIndex: 2,
+                  display: 'flex',
+                  flexDirection: design.elementStyles?.photo?.preset === 'center' ? 'column' : 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  px: 3,
+                  my: isPortrait ? 1.5 : 1
+                }}
+              >
+                {/* Photo if placed on LEFT */}
+                {design.elementStyles?.photo?.preset === 'left' && (
                   <Box
+                    onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
+                    onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
                     sx={{
-                      width: '100px',
-                      height: '60px',
-                      margin: '0 auto',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      border: '1px dashed rgba(203, 213, 225, 0.6)',
-                      borderRadius: '50%',
-                      bgcolor: 'transparent'
+                      width: `${design.elementStyles?.photo?.width || 88}px`,
+                      height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
+                      position: 'relative',
+                      transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
+                      cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
+                      outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                      outlineOffset: '4px',
+                      borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`
                     }}
                   >
-                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.58rem', textAlign: 'center', fontStyle: 'italic' }}>
-                      (प्रिन्टपछि हातले<br />छाप लगाउने ठाउँ)
-                    </Typography>
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
+                        borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
+                        p: '2px',
+                        bgcolor: '#FFFFFF',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
+                      <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
+                        PP PHOTO<br />(35×45mm)
+                      </Typography>
+                    </Box>
                   </Box>
                 )}
 
-                {/* MODE 3: Built-in Graphic Seal */}
-                {design.sealMode === 'digital' && (
-                  <Box sx={{ display: 'inline-block', p: '4px 12px', border: `1.5px solid ${design.accentColor}`, borderRadius: 2, bgcolor: '#FDFBF7' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 900, color: design.primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.68rem' }}>
-                      ★ OFFICIAL SEAL ★
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: design.accentColor, fontWeight: 800, fontSize: '0.62rem', display: 'block' }}>
-                      GLOBAL ERA TECHNICAL SCHOOL
-                    </Typography>
+                {/* Left Competency Badge (if photo not on left) */}
+                {design.elementStyles?.photo?.preset !== 'left' && (
+                  <Box sx={{ width: '92px' }}>
+                    {design.showCompetencyBadge && (
+                      <Box sx={{ border: `1.5px dashed ${design.accentColor}`, borderRadius: 1, p: '4px 8px', textAlign: 'center', bgcolor: '#FFFBF0' }}>
+                        <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 900, color: design.primaryColor, display: 'block' }}>
+                          CTEVT LEVEL 1
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748B', display: 'block' }}>
+                          {design.hoursBadgeText || currentSample.hoursBadge}
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
+
+                {/* Center Trainee Name Highlight (MOVABLE) */}
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('student'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'student')}
+                  sx={{
+                    textAlign: design.elementStyles?.student?.align || 'center',
+                    flexGrow: 1,
+                    px: 2,
+                    position: 'relative',
+                    zIndex: selectedElement === 'student' ? 10 : 2,
+                    transform: `translate(${design.elementStyles?.student?.x || 0}px, ${design.elementStyles?.student?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'student' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'student' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
+                  </Typography>
+                  <Typography
+                    variant="h4"
+                    sx={{
+                      fontFamily: design.elementStyles?.student?.fontFamily || "'Times New Roman', serif",
+                      fontWeight: design.elementStyles?.student?.fontWeight || 900,
+                      fontStyle: design.elementStyles?.student?.fontStyle || 'normal',
+                      color: design.elementStyles?.student?.color || design.primaryColor,
+                      letterSpacing: '0.04em',
+                      fontSize: `${design.elementStyles?.student?.fontSize || (isPortrait ? 29 : 28)}px`,
+                      mt: 0.3
+                    }}
+                  >
+                    {currentSample.nameEn}
+                  </Typography>
+                  <Typography
+                    variant="subtitle1"
+                    sx={{
+                      fontFamily: "'Noto Sans Devanagari', sans-serif",
+                      fontWeight: 800,
+                      color: design.accentColor,
+                      fontSize: '1.05rem',
+                      mt: 0.2
+                    }}
+                  >
+                    ({currentSample.nameNp})
+                  </Typography>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      fontWeight: 800,
+                      color: '#059669',
+                      fontSize: '0.92rem',
+                      mt: 0.3,
+                      letterSpacing: '0.04em'
+                    }}
+                  >
+                    COURSE: {currentSample.courseEn.toUpperCase()} ({currentSample.hoursBadge.toUpperCase()})
+                  </Typography>
+                </Box>
+
+                {/* Photo if placed on RIGHT (Default) */}
+                {design.elementStyles?.photo?.preset !== 'left' && (
+                  <Box
+                    onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
+                    onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
+                    sx={{
+                      width: `${design.elementStyles?.photo?.width || 88}px`,
+                      height: `${Math.round((design.elementStyles?.photo?.width || 88) * 1.25)}px`,
+                      position: 'relative',
+                      transform: `translate(${design.elementStyles?.photo?.x || 0}px, ${design.elementStyles?.photo?.y || 0}px)`,
+                      cursor: isDragging && selectedElement === 'photo' ? 'grabbing' : 'grab',
+                      outline: selectedElement === 'photo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                      outlineOffset: '4px',
+                      borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`
+                    }}
+                  >
+                    {design.showStudentPhoto && (
+                      <Box
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          border: `2px solid ${design.elementStyles?.photo?.borderColor || design.accentColor}`,
+                          borderRadius: `${design.elementStyles?.photo?.borderRadius || 4}px`,
+                          p: '2px',
+                          bgcolor: '#FFFFFF',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        <PersonIcon sx={{ fontSize: 36, color: '#94A3B8' }} />
+                        <Typography variant="caption" sx={{ fontSize: '0.52rem', color: '#64748B', textAlign: 'center', lineHeight: 1 }}>
+                          PP PHOTO<br />(35×45mm)
+                        </Typography>
+                      </Box>
+                    )}
                   </Box>
                 )}
               </Box>
-            )}
 
-            {/* Right: Dynamic Signatories List (Independently Movable) */}
-            <Box
-              onClick={(e) => { e.stopPropagation(); setSelectedElement('signatories'); }}
-              onMouseDown={(e) => handleMouseDownOnElement(e, 'signatories')}
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: 2.5,
-                width: design.sealMode === 'none' ? '68%' : '42%',
-                transform: `translate(${design.elementStyles?.signatories?.x || 0}px, ${design.elementStyles?.signatories?.y || 0}px)`,
-                cursor: isDragging && selectedElement === 'signatories' ? 'grabbing' : 'grab',
-                outline: selectedElement === 'signatories' ? '2px dashed #0284c7' : '1px dashed transparent',
-                outlineOffset: '4px',
-                borderRadius: '4px'
-              }}
-            >
-              {(design.signatories || []).map((sig) => (
-                <Box key={sig.id} sx={{ textAlign: 'center', minWidth: '110px' }}>
-                  {/* Signature Line */}
-                  <Box
+              {/* ============================================================== */}
+              {/* 5. ENGLISH & NEPALI WORDING PARAGRAPHS (MOVABLE)               */}
+              {/* ============================================================== */}
+              <Box
+                onClick={(e) => { e.stopPropagation(); setSelectedElement('body'); }}
+                onMouseDown={(e) => handleMouseDownOnElement(e, 'body')}
+                sx={{
+                  position: 'relative',
+                  zIndex: selectedElement === 'body' ? 10 : 2,
+                  px: 3,
+                  textAlign: design.elementStyles?.body?.align || 'justify',
+                  my: isPortrait ? 1.5 : 0.5,
+                  transform: `translate(${design.elementStyles?.body?.x || 0}px, ${design.elementStyles?.body?.y || 0}px)`,
+                  cursor: isDragging && selectedElement === 'body' ? 'grabbing' : 'grab',
+                  outline: selectedElement === 'body' ? '2px dashed #0284c7' : '1px dashed transparent',
+                  outlineOffset: '4px',
+                  borderRadius: '4px'
+                }}
+              >
+                {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'english-only') && (
+                  <Typography
+                    variant="body2"
                     sx={{
-                      height: 28,
-                      borderBottom: sig.lineStyle === 'dashed' ? '1px dashed #64748B' : sig.lineStyle === 'none' ? 'none' : `1.5px solid ${design.primaryColor}`,
-                      mb: 0.5
+                      fontFamily: design.elementStyles?.body?.fontFamily || "'Times New Roman', serif",
+                      fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
+                      fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
+                      fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
+                      lineHeight: design.elementStyles?.body?.lineHeight || 1.45,
+                      color: design.elementStyles?.body?.color || '#1E293B',
+                      mb: 0.8
                     }}
+                  >
+                    This is to certify that Ms./Mr. <b>{currentSample.nameEn}</b>, Child of <b>{currentSample.parentEn}</b>, permanent resident of <b>{currentSample.addressEn}</b>, has successfully completed the <b>{currentSample.hoursNp}</b> vocational skills training course in <b>"{currentSample.courseEn}"</b> conducted in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
+                  </Typography>
+                )}
+
+                {design.bodyLayoutMode === 'bilingual' && (
+                  <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                    <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#E2E8F0' }} />
+                    <Box sx={{ color: design.accentColor, fontSize: '0.75rem' }}>❖</Box>
+                    <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#E2E8F0' }} />
+                  </Box>
+                )}
+
+                {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'nepali-only') && (
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontFamily: "'Noto Sans Devanagari', sans-serif",
+                      fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
+                      fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
+                      fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
+                      lineHeight: design.elementStyles?.body?.lineHeight || 1.5,
+                      color: design.elementStyles?.body?.color || '#1E293B'
+                    }}
+                  >
+                    प्रमाणित गरिन्छ कि {currentSample.addressNp} निवासी {currentSample.parentNp}को सन्तान सुश्री/श्री <b>{currentSample.nameNp}</b>ले यस संस्थाद्वारा सञ्चालित <b>{currentSample.hoursNp}</b> <b>"{currentSample.courseNp}"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
+                  </Typography>
+                )}
+              </Box>
+
+              {/* ============================================================== */}
+              {/* 6. FOOTER: DYNAMIC QR + OFFICIAL SEAL (4 MODES) + SIGNATORIES  */}
+              {/* ============================================================== */}
+              <Box
+                sx={{
+                  position: 'relative',
+                  zIndex: 2,
+                  mt: isPortrait ? 2.5 : 1.2,
+                  pt: 1.2,
+                  borderTop: '1px solid #CBD5E1',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                  px: 2
+                }}
+              >
+                {/* Left QR Code (Movable) */}
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('qrCode'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'qrCode')}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1,
+                    width: '26%',
+                    transform: `translate(${design.elementStyles?.qrCode?.x || 0}px, ${design.elementStyles?.qrCode?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'qrCode' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'qrCode' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {design.showQrVerification && (
+                    <>
+                      <Box sx={{ p: 0.5, bgcolor: '#FFFFFF', border: `1.5px solid ${design.primaryColor}`, borderRadius: 1 }}>
+                        <QRCodeSVG value={`https://globalera.edu.np/verify?cert=${currentSample.certNo}`} size={design.elementStyles?.qrCode?.qrSize || 54} level="M" />
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: design.primaryColor, display: 'block', fontSize: '0.68rem' }}>
+                          SCAN TO VERIFY
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.62rem' }}>
+                          CTEVT Accredited
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
+                </Box>
+
+                {/* Center Official Seal Zone (4-in-1 Modes: Blank Space, Scanned Stamp, Digital, or None) */}
+                {design.sealMode !== 'none' && (
+                  <Box
+                    onClick={(e) => { e.stopPropagation(); setSelectedElement('seal'); }}
+                    onMouseDown={(e) => handleMouseDownOnElement(e, 'seal')}
+                    sx={{
+                      textAlign: 'center',
+                      width: '32%',
+                      transform: `translate(${design.elementStyles?.seal?.x || 0}px, ${design.elementStyles?.seal?.y || 0}px)`,
+                      cursor: isDragging && selectedElement === 'seal' ? 'grabbing' : 'grab',
+                      outline: selectedElement === 'seal' ? '2px dashed #0284c7' : '1px dashed transparent',
+                      outlineOffset: '4px',
+                      borderRadius: '4px'
+                    }}
+                  >
+                    {/* MODE 1: Scanned Real Stamp Upload */}
+                    {design.sealMode === 'scanned' && (
+                      design.customSealUrl ? (
+                        <Box
+                          component="img"
+                          src={design.customSealUrl}
+                          alt="Official Stamp"
+                          sx={{
+                            width: `${design.sealWidth || 84}px`,
+                            height: 'auto',
+                            transform: `rotate(${design.sealTilt || 0}deg)`,
+                            display: 'inline-block'
+                          }}
+                        />
+                      ) : (
+                        <Box sx={{ p: '6px 12px', border: '1.5px dashed #0284C7', borderRadius: 2, display: 'inline-block' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1' }}>
+                            [ स्क्यान गरिएको छाप अपलोड गर्नुहोस् ]
+                          </Typography>
+                        </Box>
+                      )
+                    )}
+
+                    {/* MODE 2: Reserved Blank Space for Hand Rubber Stamp (Wet Stamp) */}
+                    {design.sealMode === 'blank' && (
+                      <Box
+                        sx={{
+                          width: '100px',
+                          height: '60px',
+                          margin: '0 auto',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          border: '1px dashed rgba(203, 213, 225, 0.6)',
+                          borderRadius: '50%',
+                          bgcolor: 'transparent'
+                        }}
+                      >
+                        <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.58rem', textAlign: 'center', fontStyle: 'italic' }}>
+                          (प्रिन्टपछि हातले<br />छाप लगाउने ठाउँ)
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* MODE 3: Built-in Graphic Seal */}
+                    {design.sealMode === 'digital' && (
+                      <Box sx={{ display: 'inline-block', p: '4px 12px', border: `1.5px solid ${design.accentColor}`, borderRadius: 2, bgcolor: '#FDFBF7' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 900, color: design.primaryColor, display: 'block', letterSpacing: '0.06em', fontSize: '0.68rem' }}>
+                          ★ OFFICIAL SEAL ★
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: design.accentColor, fontWeight: 800, fontSize: '0.62rem', display: 'block' }}>
+                          GLOBAL ERA TECHNICAL SCHOOL
+                        </Typography>
+                      </Box>
+                    )}
+                  </Box>
+                )}
+
+                {/* Right: Dynamic Signatories List (Independently Movable) */}
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('signatories'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'signatories')}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 2.5,
+                    width: design.sealMode === 'none' ? '68%' : '42%',
+                    transform: `translate(${design.elementStyles?.signatories?.x || 0}px, ${design.elementStyles?.signatories?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'signatories' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'signatories' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '4px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  {(design.signatories || []).map((sig) => (
+                    <Box key={sig.id} sx={{ textAlign: 'center', minWidth: '110px' }}>
+                      {/* Signature Line */}
+                      <Box
+                        sx={{
+                          height: 28,
+                          borderBottom: sig.lineStyle === 'dashed' ? '1px dashed #64748B' : sig.lineStyle === 'none' ? 'none' : `1.5px solid ${design.primaryColor}`,
+                          mb: 0.5
+                        }}
+                      />
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: design.primaryColor, fontSize: '0.74rem' }}>
+                        {sig.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.65rem', display: 'block' }}>
+                        {sig.title}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+
+        {/* ========================================================== */}
+        {/* COLUMN 3: RIGHT INSPECTOR & PRESETS PANEL (~310px)         */}
+        {/* ========================================================== */}
+        <Box
+          sx={{
+            width: { xs: '100%', lg: 310 },
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 1.5,
+            overflowY: 'auto'
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* CARD 1: ELEMENT INSPECTOR */}
+          <Paper
+            elevation={1}
+            sx={{
+              p: 1.5,
+              borderRadius: 2.5,
+              border: selectedElement ? '1.5px solid #0284c7' : '1px solid #E2E8F0',
+              bgcolor: selectedElement ? '#F0F9FF' : '#FFFFFF',
+              boxShadow: selectedElement ? '0 4px 16px rgba(2, 132, 199, 0.12)' : '0 1px 4px rgba(0,0,0,0.04)'
+            }}
+          >
+            {selectedElement ? (
+              <Stack spacing={1.2}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Chip
+                    icon={<PanToolIcon fontSize="small" />}
+                    label={ELEMENT_LABELS[selectedElement] || selectedElement}
+                    size="small"
+                    sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 900, fontSize: '0.72rem' }}
                   />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: design.primaryColor, fontSize: '0.74rem' }}>
-                    {sig.name}
+                  <IconButton size="small" onClick={() => setSelectedElement(null)} sx={{ p: 0.2 }}>
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                {/* Precision Nudge Controls */}
+                <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1' }}>
+                      स्थिति नियन्त्रण (Position):
+                    </Typography>
+                    <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#0369A1' }}>
+                      X:{activeStyle?.x || 0}px Y:{activeStyle?.y || 0}px
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.5 }}>
+                    <Tooltip title="बायाँ (-1px / Shift -5px)">
+                      <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, -1, 0)} sx={{ bgcolor: '#F1F5F9' }}>
+                        <ArrowBackIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Stack spacing={0.5}>
+                      <Tooltip title="माथि (-1px / Shift -5px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, -1)} sx={{ bgcolor: '#F1F5F9' }}>
+                          <ArrowUpwardIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="तल (+1px / Shift +5px)">
+                        <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, 1)} sx={{ bgcolor: '#F1F5F9' }}>
+                          <ArrowDownwardIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    </Stack>
+                    <Tooltip title="दायाँ (+1px / Shift +5px)">
+                      <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 1, 0)} sx={{ bgcolor: '#F1F5F9' }}>
+                        <ArrowForwardIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  </Box>
+
+                  {/* Direct Numeric Coordinate Input */}
+                  <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
+                    <TextField
+                      size="small"
+                      label="X स्थिति (px)"
+                      type="number"
+                      value={activeStyle?.x || 0}
+                      onChange={(e) => handleElementStyleUpdate(selectedElement, 'x', parseInt(e.target.value) || 0)}
+                      sx={{ '& input': { py: 0.4, fontSize: '0.72rem', textAlign: 'center' } }}
+                    />
+                    <TextField
+                      size="small"
+                      label="Y स्थिति (px)"
+                      type="number"
+                      value={activeStyle?.y || 0}
+                      onChange={(e) => handleElementStyleUpdate(selectedElement, 'y', parseInt(e.target.value) || 0)}
+                      sx={{ '& input': { py: 0.4, fontSize: '0.72rem', textAlign: 'center' } }}
+                    />
+                  </Stack>
+
+                  <Button
+                    fullWidth
+                    size="small"
+                    color="inherit"
+                    onClick={() => handleResetElement(selectedElement)}
+                    sx={{ mt: 0.8, fontSize: '0.68rem', fontWeight: 700, bgcolor: '#F8FAFC' }}
+                  >
+                    सुरुवाती स्थितिमा फर्काउनुहोस् (Reset)
+                  </Button>
+                </Box>
+
+                {/* Typography Controls for Selected Text */}
+                {['headerTitle', 'headerSub', 'headerAddress', 'title', 'student', 'body'].includes(selectedElement) && (
+                  <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                      टाइपोग्राफी तथा फन्ट स्टाइल:
+                    </Typography>
+
+                    <Stack spacing={1}>
+                      {/* Font Size & Weight */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#F8FAFC', p: '2px 6px', borderRadius: 1.5, border: '1px solid #CBD5E1' }}>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>साइज:</Typography>
+                          <Button size="small" sx={{ minWidth: 20, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.max(8, (activeStyle?.fontSize || 20) - 1))}>-</Button>
+                          <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace' }}>{activeStyle?.fontSize || 20}px</Typography>
+                          <Button size="small" sx={{ minWidth: 20, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.min(50, (activeStyle?.fontSize || 20) + 1))}>+</Button>
+                        </Box>
+
+                        <Stack direction="row" spacing={0.5}>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleElementStyleUpdate(selectedElement, 'fontWeight', activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? 'normal' : '900')}
+                            sx={{
+                              bgcolor: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#0284C7' : '#FFFFFF',
+                              color: activeStyle?.fontWeight === 'bold' || activeStyle?.fontWeight === '900' ? '#FFFFFF' : '#334155',
+                              border: '1px solid #CBD5E1'
+                            }}
+                          >
+                            <FormatBoldIcon fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            size="small"
+                            onClick={() => handleElementStyleUpdate(selectedElement, 'fontStyle', activeStyle?.fontStyle === 'italic' ? 'normal' : 'italic')}
+                            sx={{
+                              bgcolor: activeStyle?.fontStyle === 'italic' ? '#0284C7' : '#FFFFFF',
+                              color: activeStyle?.fontStyle === 'italic' ? '#FFFFFF' : '#334155',
+                              border: '1px solid #CBD5E1'
+                            }}
+                          >
+                            <FormatItalicIcon fontSize="small" />
+                          </IconButton>
+                        </Stack>
+                      </Box>
+
+                      {/* Text Alignment */}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>पङ्क्तिबद्धता:</Typography>
+                        <Stack direction="row" spacing={0.5}>
+                          {['left', 'center', 'right', 'justify'].map((align) => (
+                            <IconButton
+                              key={align}
+                              size="small"
+                              onClick={() => handleElementStyleUpdate(selectedElement, 'align', align)}
+                              sx={{
+                                bgcolor: activeStyle?.align === align ? '#0284C7' : '#FFFFFF',
+                                color: activeStyle?.align === align ? '#FFFFFF' : '#334155',
+                                border: '1px solid #CBD5E1'
+                              }}
+                            >
+                              {align === 'left' && <FormatAlignLeftIcon fontSize="small" />}
+                              {align === 'center' && <FormatAlignCenterIcon fontSize="small" />}
+                              {align === 'right' && <FormatAlignRightIcon fontSize="small" />}
+                              {align === 'justify' && <FormatAlignJustifyIcon fontSize="small" />}
+                            </IconButton>
+                          ))}
+                        </Stack>
+                      </Box>
+
+                      {/* Font Family & Color */}
+                      <FormControl fullWidth size="small">
+                        <InputLabel sx={{ fontSize: '0.72rem' }}>फन्ट परिवार (Font)</InputLabel>
+                        <Select
+                          value={activeStyle?.fontFamily || 'Times New Roman'}
+                          label="फन्ट परिवार (Font)"
+                          onChange={(e) => handleElementStyleUpdate(selectedElement, 'fontFamily', e.target.value)}
+                          sx={{ height: 32, fontSize: '0.72rem' }}
+                        >
+                          {FONT_OPTIONS.map((f) => (
+                            <MenuItem key={f.id} value={f.id} sx={{ fontSize: '0.74rem' }}>{f.label}</MenuItem>
+                          ))}
+                        </Select>
+                      </FormControl>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>अक्षरको रङ:</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <input
+                            type="color"
+                            value={activeStyle?.color || design.primaryColor}
+                            onChange={(e) => handleElementStyleUpdate(selectedElement, 'color', e.target.value)}
+                            style={{ width: 34, height: 26, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                          />
+                          <Typography variant="caption" sx={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                            {activeStyle?.color || design.primaryColor}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Stack>
+                  </Box>
+                )}
+
+                {/* Photo Frame Controls */}
+                {selectedElement === 'photo' && (
+                  <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
+                      विद्यार्थी फोटो फ्रेम नियन्त्रण:
+                    </Typography>
+                    <ToggleButtonGroup
+                      value={activeStyle?.preset || 'right'}
+                      exclusive
+                      onChange={(e, next) => next && handleElementStyleUpdate('photo', 'preset', next)}
+                      size="small"
+                      fullWidth
+                      sx={{ mb: 1 }}
+                    >
+                      <ToggleButton value="right" sx={{ fontSize: '0.68rem', py: 0.3 }}>दायाँ कुना</ToggleButton>
+                      <ToggleButton value="center" sx={{ fontSize: '0.68rem', py: 0.3 }}>बीचमा</ToggleButton>
+                      <ToggleButton value="left" sx={{ fontSize: '0.68rem', py: 0.3 }}>बायाँ</ToggleButton>
+                    </ToggleButtonGroup>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700 }}>चौडाइ (Width):</Typography>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.max(60, (activeStyle?.width || 88) - 4))}>-</Button>
+                        <Typography variant="caption" sx={{ fontWeight: 900 }}>{activeStyle?.width || 88}px</Typography>
+                        <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.min(140, (activeStyle?.width || 88) + 4))}>+</Button>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+              </Stack>
+            ) : (
+              <Box sx={{ textAlign: 'center', py: 1.5 }}>
+                <AutoAwesomeIcon sx={{ color: '#0284C7', fontSize: 32, mb: 0.5 }} />
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5 }}>
+                  एलिमेन्ट इन्स्पेक्टर (Inspector)
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5, lineHeight: 1.3 }}>
+                  क्यानभासमा कुनै पनि अक्षर वा लोगोमा क्लिक गर्नुहोस्, वा तलका मुख्य एलिमेन्टहरू छान्नुहोस्:
+                </Typography>
+                <Grid container spacing={0.6}>
+                  {[
+                    { key: 'student', label: 'विद्यार्थी नाम' },
+                    { key: 'headerTitle', label: 'संस्थागत नाम' },
+                    { key: 'title', label: 'मुख्य शीर्षक' },
+                    { key: 'photo', label: 'फोटो फ्रेम' },
+                    { key: 'body', label: 'व्यहोरा' },
+                    { key: 'signatories', label: 'हस्ताक्षर' },
+                    { key: 'seal', label: 'आधिकारिक छाप' },
+                    { key: 'qrCode', label: 'क्युआर कोड' }
+                  ].map((el) => (
+                    <Grid item xs={6} key={el.key}>
+                      <Button
+                        fullWidth
+                        size="small"
+                        variant="outlined"
+                        onClick={() => setSelectedElement(el.key)}
+                        sx={{ fontSize: '0.67rem', fontWeight: 800, py: 0.4, bgcolor: '#FFFFFF' }}
+                      >
+                        {el.label}
+                      </Button>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </Paper>
+
+          {/* CARD 2: SAMPLE STUDENT SWITCHER */}
+          <Paper elevation={1} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.8 }}>
+              <PersonIcon fontSize="small" sx={{ color: '#059669' }} />
+              नमूना विद्यार्थी छनोट (Preview)
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1, fontSize: '0.68rem' }}>
+              विभिन्न नामको लम्बाइ तथा कोर्स अनुसार डिजाइन कस्तो देखिन्छ जाँच गर्नुहोस्:
+            </Typography>
+            <Stack spacing={0.8}>
+              {SAMPLE_STUDENTS.map((st, idx) => (
+                <Box
+                  key={st.certNo}
+                  onClick={() => setSampleStudentIndex(idx)}
+                  sx={{
+                    p: 0.8,
+                    borderRadius: 1.5,
+                    cursor: 'pointer',
+                    bgcolor: sampleStudentIndex === idx ? '#ECFDF5' : '#F8FAFC',
+                    border: sampleStudentIndex === idx ? '1.5px solid #059669' : '1px solid #E2E8F0',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontWeight: 900, color: sampleStudentIndex === idx ? '#065F46' : '#1E293B', display: 'block' }}>
+                    {st.nameNp} ({st.nameEn})
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.65rem', display: 'block' }}>
-                    {sig.title}
+                    {st.courseEn} ({st.hoursBadge})
                   </Typography>
                 </Box>
               ))}
+            </Stack>
+          </Paper>
+
+          {/* CARD 3: 1-CLICK LUXURY PALETTES */}
+          <Paper elevation={1} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.8 }}>
+              <PaletteIcon fontSize="small" sx={{ color: '#C59B27' }} />
+              १-क्लिक लक्जरी रङ थिम
+            </Typography>
+            <Stack spacing={0.6} sx={{ mb: 1.2 }}>
+              {LUXURY_PALETTES.map((pal) => (
+                <Box
+                  key={pal.name}
+                  onClick={() => handleApplyPalette(pal)}
+                  sx={{
+                    p: '6px 10px',
+                    borderRadius: 1.5,
+                    cursor: 'pointer',
+                    bgcolor: '#F8FAFC',
+                    border: '1px solid #E2E8F0',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    transition: 'all 0.15s ease',
+                    '&:hover': { bgcolor: '#F1F5F9', borderColor: '#CBD5E1' }
+                  }}
+                >
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', fontSize: '0.7rem' }}>
+                    {pal.name}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 0.5 }}>
+                    <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: pal.primary, border: '1px solid #CBD5E1' }} />
+                    <Box sx={{ width: 14, height: 14, borderRadius: '50%', bgcolor: pal.accent, border: '1px solid #CBD5E1' }} />
+                  </Box>
+                </Box>
+              ))}
+            </Stack>
+
+            <Box sx={{ p: 1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+              <Stack direction="row" spacing={2} justifyContent="space-around">
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>Primary</Typography>
+                  <input
+                    type="color"
+                    value={design.primaryColor}
+                    onChange={(e) => handleUpdate('primaryColor', e.target.value)}
+                    style={{ width: 36, height: 28, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                  />
+                  <Typography variant="caption" sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.65rem' }}>{design.primaryColor}</Typography>
+                </Box>
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 0.4 }}>Accent</Typography>
+                  <input
+                    type="color"
+                    value={design.accentColor}
+                    onChange={(e) => handleUpdate('accentColor', e.target.value)}
+                    style={{ width: 36, height: 28, border: 'none', cursor: 'pointer', borderRadius: 4 }}
+                  />
+                  <Typography variant="caption" sx={{ display: 'block', fontFamily: 'monospace', fontSize: '0.65rem' }}>{design.accentColor}</Typography>
+                </Box>
+              </Stack>
             </Box>
-          </Box>
+          </Paper>
         </Box>
       </Box>
 
