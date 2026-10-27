@@ -277,6 +277,30 @@ export default function App() {
     );
   }
 
+  // Dedicated Trainer View
+  if (currentUser?.role === 'TRAINER') {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <TrainerPortal />
+        </Box>
+      </Box>
+    );
+  }
+
+  // Dedicated Student View
+  if (currentUser?.role === 'STUDENT') {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <StudentPortal />
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f4f7fb' }}>
       <CssBaseline />

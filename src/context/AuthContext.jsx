@@ -10,14 +10,7 @@ export function AuthProvider({ children }) {
       const saved = sessionStorage.getItem('kite_current_user');
       if (saved) return JSON.parse(saved);
     } catch (_) {}
-    // Default to Super Admin for smooth initial loading
-    return {
-      id: 'USR-ADMIN',
-      name: 'Super Admin',
-      role: 'ADMIN',
-      phone: '9851000000',
-      title: 'Administrator'
-    };
+    return null;
   });
   const [isLocked, setIsLocked] = useState(false);
 
@@ -67,7 +60,12 @@ export function AuthProvider({ children }) {
 
       // Check PIN
       const userPin = matchedUser.pin || '1234';
-      if (cleanPin === userPin || cleanPin === '1111') {
+      const isPinMatch =
+        cleanPin === userPin ||
+        (matchedUser.role === 'ADMIN' && (cleanPin === 'admin123' || cleanPin === '1111')) ||
+        cleanPin === '1111';
+
+      if (isPinMatch) {
         let userObj = { ...matchedUser };
 
         if (matchedUser.role === 'TRAINER') {
@@ -168,10 +166,11 @@ export function AuthProvider({ children }) {
       return { success: false, message: 'पिन कोड मिलेन।' };
     }
 
-    // 4. Quick PIN check for direct 4-digit code (e.g. 1111 Admin, 2222 Staff)
-    if (cleanId === '1111' || cleanPin === '1111') {
+    // 4. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
+    if (cleanId === '1111' || cleanPin === '1111' || (cleanId === 'admin' && (cleanPin === 'admin123' || cleanPin === '1111'))) {
       const user = {
         id: 'USR-ADMIN',
+        username: 'admin',
         name: 'Super Admin',
         role: 'ADMIN',
         title: 'Institute Administrator'

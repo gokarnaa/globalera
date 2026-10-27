@@ -32,7 +32,7 @@ export function generateDefaultUsers(trainers = [], students = []) {
     phone: '9851000000',
     name: 'Super Admin',
     role: 'ADMIN',
-    pin: '1111',
+    pin: 'admin123',
     status: 'Active',
     title: 'Institute Administrator',
     createdAt: '2026-01-01'

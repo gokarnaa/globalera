@@ -39,13 +39,14 @@ import SendIcon from '@mui/icons-material/Send';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB, saveDB } from '../../services/storage';
 import A4LandscapeCertificateModal from '../certificates/A4LandscapeCertificateModal';
 import PublicCertificateVerify from '../certificates/PublicCertificateVerify';
 
 export default function StudentPortal() {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
 
@@ -240,6 +241,24 @@ export default function StudentPortal() {
                 }}
               >
                 QR Verify
+              </Button>
+              <Button
+                variant="outlined"
+                color="inherit"
+                startIcon={<LogoutIcon />}
+                onClick={() => {
+                  if (window.confirm('के तपाईं विद्यार्थी पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?')) {
+                    logout();
+                  }
+                }}
+                sx={{
+                  color: '#ffffff',
+                  borderColor: 'rgba(255,255,255,0.4)',
+                  fontWeight: 800,
+                  '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.2)', borderColor: '#EF4444' }
+                }}
+              >
+                Logout
               </Button>
             </Stack>
           </Grid>

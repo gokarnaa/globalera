@@ -44,54 +44,50 @@ import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
 const NAV_ITEMS = [
-  { id: 'dashboard', label: 'Executive Dashboard', icon: <DashboardIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
+  // --- 1. मुख्य ड्यासबोर्ड र कार्यक्रम ---
+  { section: '१. ड्यासबोर्ड र कार्यक्रम (CORE OPERATIONS)' },
+  { id: 'dashboard', label: 'कार्यकारी ड्यासबोर्ड (Dashboard)', icon: <DashboardIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'groups', label: 'तालिम समूहहरू (Training Batches)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: '8' },
+  { id: 'occupations', label: 'पेशा तथा क्षेत्र (Occupations Master)', icon: <CategoryIcon />, roles: ['ADMIN'], badge: 'Master' },
+  { id: 'courses', label: 'पाठ्यक्रमहरू (Courses & Curriculum)', icon: <MenuBookIcon />, roles: ['ADMIN'], badge: 'CTEVT' },
+  { id: 'trainers', label: 'प्रशिक्षक रोस्टर (Certified Trainers)', icon: <PeopleAltIcon />, roles: ['ADMIN'], badge: 'ToT' },
+  { id: 'holidays', label: 'शैक्षिक क्यालेन्डर र बिदा (Calendar)', icon: <EventBusyIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 1. Master Definitions ---
-  { section: '1. ACADEMIC & CURRICULUM' },
-  { id: 'occupations', label: 'Occupations (पेशा)', icon: <CategoryIcon />, roles: ['ADMIN'], badge: 'Master' },
-  { id: 'courses', label: 'Courses (पाठ्यक्रम)', icon: <MenuBookIcon />, roles: ['ADMIN'], badge: 'CTEVT' },
-  { id: 'trainers', label: 'Certified Trainers (प्रशिक्षक)', icon: <PeopleAltIcon />, roles: ['ADMIN'], badge: 'ToT' },
-  { id: 'syllabus', label: 'Syllabus Studio (पाठ्य-एकाइ)', icon: <FormatListBulletedIcon />, roles: ['ADMIN', 'TRAINER'], badge: 'Studio' },
-  { id: 'holidays', label: 'Holidays & Calendar (बिदा)', icon: <EventBusyIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
+  // --- 2. प्रशिक्षार्थी तथा भर्ना व्यवस्थापन ---
+  { section: '२. प्रशिक्षार्थी तथा भर्ना (TRAINEES CRM)' },
+  { id: 'leads', label: 'सोधपुछ तथा लिड्स (Inquiry CRM)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
+  { id: 'admission', label: 'नयाँ भर्ना सम्झौता (Admissions)', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
+  { id: 'students', label: 'प्रशिक्षार्थी विवरण (Trainees Directory)', icon: <SchoolIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 2. Operational Delivery Chain ---
-  { section: '2. OPERATIONS & TRAINING CHAIN' },
-  { id: 'leads', label: 'Lead CRM (सोधपुछ / इन्क्वायरी)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
-  { id: 'admission', label: 'Admission (भर्ना सम्झौता)', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
-  { id: 'groups', label: 'Training Batches (समूह)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, countBadge: '8' },
-  { id: 'students', label: 'Trainees CRM (विद्यार्थी)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
-  { id: 'accounts', label: 'Account & Finance (लेखा तथा वित्त)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
-  { id: 'workplan', label: 'Work Plan (कार्ययोजना)', icon: <EventNoteIcon />, roles: ['ADMIN', 'TRAINER'] },
-  { id: 'lessonplan', label: 'Lesson Plan (पाठ-तयारी)', icon: <AssignmentIcon />, roles: ['ADMIN', 'TRAINER'] },
-  { id: 'attendance', label: 'Daily Attendance (हाजिरी)', icon: <FactCheckIcon />, roles: ['ADMIN', 'TRAINER'], highlight: true, countBadge: 'Live' },
-  { id: 'logbook', label: 'Log Book (डेलिभरी लग)', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN', 'TRAINER'] },
-  { id: 'evaluations', label: 'Competency Matrix (मूल्याङ्कन)', icon: <AssessmentIcon />, roles: ['ADMIN', 'TRAINER'] },
+  // --- 3. तालिम तथा कक्षा सञ्चालन ---
+  { section: '३. तालिम तथा कक्षा सञ्चालन (ACADEMICS)' },
+  { id: 'attendance', label: 'दैनिक हाजिरी (Daily Attendance)', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Live' },
+  { id: 'workplan', label: 'कार्य-योजना (Work Plan)', icon: <EventNoteIcon />, roles: ['ADMIN'] },
+  { id: 'lessonplan', label: 'पाठ-योजना (Lesson Plan)', icon: <AssignmentIcon />, roles: ['ADMIN'] },
+  { id: 'logbook', label: 'CTEVT दैनिक लग-बुक (Log Book)', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
+  { id: 'evaluations', label: 'सीप मूल्याङ्कन (Competency Matrix)', icon: <AssessmentIcon />, roles: ['ADMIN'] },
+  { id: 'syllabus', label: 'पाठ्यक्रम स्टुडियो (Syllabus Studio)', icon: <FormatListBulletedIcon />, roles: ['ADMIN'], badge: 'Studio' },
 
-  // --- 3. Outcomes, Placements & Certificates ---
-  { section: '3. OJT, EMPLOYMENT & CERTIFICATES' },
-  { id: 'employers', label: 'Partner Employers (कम्पनी)', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'ojt', label: 'OJT Records (उद्योग तालिम)', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'placements', label: 'Placements & EPP (रोजगारी)', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'certificates', label: 'Official Certificates (प्रमाणपत्र)', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'], highlight: true, badge: 'A4 QR' },
-  { id: 'certificate_studio', label: 'Certificate Studio (डिजाइन स्टुडियो)', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
+  // --- 4. रोजगारी तथा प्रमाणपत्र ---
+  { section: '४. रोजगारी तथा प्रमाणपत्र (PLACEMENTS)' },
+  { id: 'certificates', label: 'आधिकारिक प्रमाणपत्र (Certificates)', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4 QR' },
+  { id: 'certificate_studio', label: 'प्रमाणपत्र स्टुडियो (Design Studio)', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
+  { id: 'employers', label: 'रोजगारदाता कम्पनी (Partner Employers)', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'ojt', label: 'उद्योग तालिम / OJT Records', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'placements', label: 'रोजगारी तथ्याङ्क (Placements & EPP)', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 4. Self-Service Portals ---
-  { section: '4. SELF-SERVICE PORTALS' },
-  { id: 'trainer_portal', label: 'प्रशिक्षक पोर्टल (Trainer Portal)', icon: <PeopleAltIcon />, roles: ['ADMIN', 'TRAINER'], highlight: true, badge: 'Trainer' },
-  { id: 'student_portal', label: 'विद्यार्थी पोर्टल (Student Portal)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF', 'STUDENT'], highlight: true, badge: 'Student' },
-  { id: 'employer_portal', label: 'रोजगारदाता पोर्टल (Employer Portal)', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF', 'EMPLOYER'], highlight: true, badge: 'Jobs' },
+  // --- 5. आर्थिक तथा लेखा ---
+  { section: '५. आर्थिक तथा लेखा (FINANCE & ACCOUNTS)' },
+  { id: 'accounts', label: 'लेखा तथा बिलिङ (Finance & Billing)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
 
-  // --- 5. Communication & Notices ---
-  { section: '5. COMMUNICATION & AUDIT' },
-  { id: 'communication', label: 'Communication Hub (सञ्चार)', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'notices', label: 'Notice Board (सूचना)', icon: <CampaignIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF', 'STUDENT'] },
-  { id: 'snapshots', label: 'Snapshots & Audit Trail', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'reports', label: 'Reports & Analytics (रिपोर्ट्स)', icon: <BarChartIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF'] },
-
-  // --- 6. Tools & Sync ---
-  { section: '6. CLOUD & SYSTEM' },
-  { id: 'users', label: 'प्रयोगकर्ता व्यवस्थापन (Users & Access)', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Users' },
-  { id: 'settings', label: 'Settings & Supabase Sync', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' }
+  // --- 6. प्रणाली र प्रयोगकर्ता ---
+  { section: '६. प्रणाली र प्रयोगकर्ता (SYSTEM & SETTINGS)' },
+  { id: 'users', label: 'प्रयोगकर्ता तथा पहुँच (User Access)', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
+  { id: 'settings', label: 'संस्थागत प्रोफाइल र सिङ्क (Settings)', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' },
+  { id: 'communication', label: 'सञ्चार हब (SMS/WhatsApp Hub)', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'notices', label: 'सूचना पाटी (Notice Board)', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'snapshots', label: 'अडिट तथा स्न्यापसट (Audit Trail)', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'reports', label: 'समग्र रिपोर्टहरू (Reports & Analytics)', icon: <BarChartIcon />, roles: ['ADMIN', 'STAFF'] }
 ];
 
 export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobile }) {

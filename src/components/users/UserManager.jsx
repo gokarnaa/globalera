@@ -289,6 +289,126 @@ export default function UserManager() {
         </Box>
       </Box>
 
+      {/* 1.5 Dedicated Portals Distribution Hub */}
+      <Card
+        sx={{
+          mb: 3,
+          p: 2.5,
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #0F2E5A 0%, #1A467E 100%)',
+          color: '#ffffff',
+          boxShadow: '0 8px 24px rgba(15, 46, 90, 0.2)'
+        }}
+      >
+        <Typography variant="subtitle1" sx={{ fontWeight: 900, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+          🌐 समर्पित पोर्टल लिङ्क वितरण हब (Public Portal Links Distribution Hub)
+        </Typography>
+
+        <Grid container spacing={2}>
+          {/* Trainer Portal Link Card */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              sx={{
+                p: 2,
+                borderRadius: 2.5,
+                bgcolor: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.4)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
+                  👨‍🏫 प्रशिक्षक पोर्टल लिङ्क (Trainer Portal Gateway)
+                </Typography>
+                <Chip label="Trainer Only" size="small" sx={{ bgcolor: '#10B981', color: '#fff', fontWeight: 800 }} />
+              </Box>
+              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
+                प्रशिक्षकहरूलाई कक्षा हाजिरी, दैनिक लग-बुक र ब्याच सञ्चालनका लागि यो लिङ्क पठाउनुहोस्:
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={`${window.location.origin}${window.location.pathname}?portal=trainer`}
+                InputProps={{
+                  readOnly: true,
+                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<ContentCopyIcon />}
+                  onClick={() => handleCopyLink(`${window.location.origin}${window.location.pathname}?portal=trainer`)}
+                  sx={{ bgcolor: '#10B981', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#059669' } }}
+                >
+                  {copySuccess ? '✓ Copied' : 'Copy Link'}
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => window.open(`${window.location.origin}${window.location.pathname}?portal=trainer`, '_blank')}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                >
+                  नयाँ विन्डोमा खोल्नुहोस्
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Student Portal Link Card */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              sx={{
+                p: 2,
+                borderRadius: 2.5,
+                bgcolor: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.4)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#BAE6FD' }}>
+                  🎓 विद्यार्थी पोर्टल लिङ्क (Student Portal Gateway)
+                </Typography>
+                <Chip label="Student Only" size="small" sx={{ bgcolor: '#0284C7', color: '#fff', fontWeight: 800 }} />
+              </Box>
+              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
+                विद्यार्थीहरूलाई हाजिरी %, प्रमाणपत्र र सूचना हेर्नका लागि यो लिङ्क पठाउनुहोस्:
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={`${window.location.origin}${window.location.pathname}?portal=student`}
+                InputProps={{
+                  readOnly: true,
+                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<ContentCopyIcon />}
+                  onClick={() => handleCopyLink(`${window.location.origin}${window.location.pathname}?portal=student`)}
+                  sx={{ bgcolor: '#0284C7', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#0369A1' } }}
+                >
+                  {copySuccess ? '✓ Copied' : 'Copy Link'}
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => window.open(`${window.location.origin}${window.location.pathname}?portal=student`, '_blank')}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                >
+                  नयाँ विन्डोमा खोल्नुहोस्
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Card>
+
       {/* 2. KPI Cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={6} sm={4} md={2}>
