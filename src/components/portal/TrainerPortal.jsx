@@ -114,14 +114,27 @@ export default function TrainerPortal() {
     setAttendanceSavedAlert(false);
   }, [selectedGroupId, attendanceDate, groupStudents, db.attendances]);
 
-  const handleToggleAttendance = (studentId, status) => {
-    setAttendanceMap((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        status
+  // Tri-State Single Button Cycle: Present (P) -> Absent (A) -> Late (L) -> Present (P)
+  const handleCycleAttendance = (studentId) => {
+    setAttendanceMap((prev) => {
+      const current = prev[studentId]?.status || 'present';
+      let nextStatus = 'present';
+      if (current === 'present') {
+        nextStatus = 'absent';
+      } else if (current === 'absent') {
+        nextStatus = 'late';
+      } else {
+        nextStatus = 'present';
       }
-    }));
+
+      return {
+        ...prev,
+        [studentId]: {
+          ...prev[studentId],
+          status: nextStatus
+        }
+      };
+    });
   };
 
   const handleMarkAllPresent = () => {
@@ -636,8 +649,8 @@ export default function TrainerPortal() {
                     <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थीको नाम तथा विवरण</TableCell>
                     <TableCell sx={{ fontWeight: 900 }}>TGID / फोन</TableCell>
                     <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>समग्र हाजिरी %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 220 }}>
-                      आजको स्थिति (P / A / L)
+                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 140 }}>
+                      हाजिरी स्थिति (P 🟢 / A 🔴 / L 🟠)
                     </TableCell>
                     <TableCell sx={{ fontWeight: 900 }}>कैफियत (Remarks)</TableCell>
                   </TableRow>
@@ -646,6 +659,34 @@ export default function TrainerPortal() {
                   {groupStudents.map((std, idx) => {
                     const currentStatus = attendanceMap[std.id]?.status || 'present';
                     const attPercent = getStudentAttPercent(std.id);
+
+                    const statusConfig =
+                      currentStatus === 'absent'
+                        ? {
+                            label: 'A',
+                            title: 'अनुपस्थित (Absent) - थिच्दा ढिलो (L) हुन्छ',
+                            text: 'अनुपस्थित',
+                            bg: '#EF4444',
+                            border: '#DC2626',
+                            color: '#FFFFFF'
+                          }
+                        : currentStatus === 'late'
+                        ? {
+                            label: 'L',
+                            title: 'ढिलो (Late) - थिच्दा उपस्थित (P) हुन्छ',
+                            text: 'ढिलो',
+                            bg: '#F59E0B',
+                            border: '#D97706',
+                            color: '#FFFFFF'
+                          }
+                        : {
+                            label: 'P',
+                            title: 'उपस्थित (Present) - थिच्दा अनुपस्थित (A) हुन्छ',
+                            text: 'उपस्थित',
+                            bg: '#10B981',
+                            border: '#059669',
+                            color: '#FFFFFF'
+                          };
 
                     return (
                       <TableRow key={std.id} hover>
@@ -694,52 +735,53 @@ export default function TrainerPortal() {
                           </Box>
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1 }}>
-                            <Button
-                              size="small"
-                              variant={currentStatus === 'present' ? 'contained' : 'outlined'}
-                              color="success"
-                              onClick={() => handleToggleAttendance(std.id, 'present')}
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                            <Tooltip title={statusConfig.title} arrow>
+                              <Box
+                                component="button"
+                                type="button"
+                                onClick={() => handleCycleAttendance(std.id)}
+                                sx={{
+                                  width: 38,
+                                  height: 38,
+                                  borderRadius: '50%',
+                                  bgcolor: statusConfig.bg,
+                                  color: statusConfig.color,
+                                  border: `2px solid ${statusConfig.border}`,
+                                  fontWeight: 900,
+                                  fontSize: '0.98rem',
+                                  cursor: 'pointer',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  boxShadow: `0 3px 10px ${statusConfig.bg}40`,
+                                  transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
+                                  outline: 'none',
+                                  userSelect: 'none',
+                                  '&:hover': {
+                                    transform: 'scale(1.12)',
+                                    boxShadow: `0 5px 14px ${statusConfig.bg}60`
+                                  },
+                                  '&:active': {
+                                    transform: 'scale(0.92)'
+                                  }
+                                }}
+                              >
+                                {statusConfig.label}
+                              </Box>
+                            </Tooltip>
+                            <Typography
+                              variant="caption"
                               sx={{
-                                minWidth: 38,
-                                height: 32,
-                                fontWeight: 900,
-                                p: 0,
-                                borderRadius: 1.5
+                                fontWeight: 800,
+                                fontSize: '0.72rem',
+                                color: statusConfig.bg,
+                                display: { xs: 'none', sm: 'inline-block' },
+                                minWidth: 46
                               }}
                             >
-                              P
-                            </Button>
-                            <Button
-                              size="small"
-                              variant={currentStatus === 'absent' ? 'contained' : 'outlined'}
-                              color="error"
-                              onClick={() => handleToggleAttendance(std.id, 'absent')}
-                              sx={{
-                                minWidth: 38,
-                                height: 32,
-                                fontWeight: 900,
-                                p: 0,
-                                borderRadius: 1.5
-                              }}
-                            >
-                              A
-                            </Button>
-                            <Button
-                              size="small"
-                              variant={currentStatus === 'late' ? 'contained' : 'outlined'}
-                              color="warning"
-                              onClick={() => handleToggleAttendance(std.id, 'late')}
-                              sx={{
-                                minWidth: 38,
-                                height: 32,
-                                fontWeight: 900,
-                                p: 0,
-                                borderRadius: 1.5
-                              }}
-                            >
-                              L
-                            </Button>
+                              {statusConfig.text}
+                            </Typography>
                           </Box>
                         </TableCell>
                         <TableCell>
