@@ -25,6 +25,61 @@ export function calculateExpectedEndDate(startDateStr, durationValue, durationUn
   return date.toISOString().slice(0, 10);
 }
 
+export function generateDefaultUsers(trainers = [], students = []) {
+  const adminUser = {
+    id: 'USR-ADMIN',
+    username: 'admin',
+    phone: '9851000000',
+    name: 'Super Admin',
+    role: 'ADMIN',
+    pin: '1111',
+    status: 'Active',
+    title: 'Institute Administrator',
+    createdAt: '2026-01-01'
+  };
+
+  const staffUser = {
+    id: 'USR-STAFF',
+    username: 'staff',
+    phone: '9841000000',
+    name: 'Front Desk Officer',
+    role: 'STAFF',
+    pin: '2222',
+    status: 'Active',
+    title: 'Admissions & Inquiries',
+    createdAt: '2026-01-01'
+  };
+
+  const trainerUsers = trainers.map((t, idx) => ({
+    id: `USR-${t.id}`,
+    username: (t.name.split(' ')[0] || `trainer${idx + 1}`).toLowerCase(),
+    phone: t.phone || `984100000${idx + 1}`,
+    name: t.name,
+    role: 'TRAINER',
+    trainerId: t.id,
+    pin: t.pin || '1234',
+    status: t.status === 'Inactive' ? 'Suspended' : 'Active',
+    specialization: t.specialization || 'Instructor',
+    createdAt: '2026-01-01'
+  }));
+
+  const studentUsers = students.map((s, idx) => ({
+    id: `USR-${s.id}`,
+    username: (s.tgid || `std${idx + 1}`).toLowerCase().replace(/[^a-z0-9]/g, ''),
+    phone: s.phone || `986000000${idx + 1}`,
+    name: s.name,
+    role: 'STUDENT',
+    studentId: s.id,
+    pin: s.pin || '1234',
+    status: s.status === 'Dropout' ? 'Suspended' : 'Active',
+    tgid: s.tgid,
+    groupId: s.groupId,
+    createdAt: s.admissionDate || '2026-01-01'
+  }));
+
+  return [adminUser, staffUser, ...trainerUsers, ...studentUsers];
+}
+
 export const INITIAL_SEED_DATA = {
   occupations: [
     { id: 'OCC-01', name: 'Beautician', status: 'Active' },
@@ -1280,8 +1335,12 @@ export const INITIAL_SEED_DATA = {
       seqDigits: 3,
       startSeq: 1
     }
-  }
+  },
+  users: []
 };
+
+// Auto-seed default users in seed data
+INITIAL_SEED_DATA.users = generateDefaultUsers(INITIAL_SEED_DATA.trainers, INITIAL_SEED_DATA.students);
 
 const DB_KEY = 'kite_tvet_erp_data_v1';
 
@@ -1293,9 +1352,14 @@ export function loadDB() {
       return INITIAL_SEED_DATA;
     }
     const parsed = JSON.parse(raw);
+    const existingUsers = (parsed.users && parsed.users.length > 0)
+      ? parsed.users
+      : generateDefaultUsers(parsed.trainers || INITIAL_SEED_DATA.trainers, parsed.students || INITIAL_SEED_DATA.students);
+
     return {
       ...INITIAL_SEED_DATA,
       ...parsed,
+      users: existingUsers,
       jobOpenings: parsed.jobOpenings || INITIAL_SEED_DATA.jobOpenings || [],
       jobApplications: parsed.jobApplications || INITIAL_SEED_DATA.jobApplications || [],
       holidays: parsed.holidays || INITIAL_SEED_DATA.holidays,

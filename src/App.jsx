@@ -44,6 +44,9 @@ import SnapshotAuditManager from './components/snapshots/SnapshotAuditManager';
 import SettingsManager from './components/settings/SettingsManager';
 import StudentPortal from './components/portal/StudentPortal';
 import EmployerPortal from './components/portal/EmployerPortal';
+import TrainerPortal from './components/portal/TrainerPortal';
+import UserManager from './components/users/UserManager';
+import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
 import { loadDB } from './services/storage';
 import { verifyCertificateRemote } from './services/supabaseClient';
 import { useAuth } from './context/AuthContext';
@@ -98,6 +101,7 @@ export default function App() {
   const { isLocked, currentUser, isStudent, isEmployer } = useAuth();
 
   const [currentTab, setCurrentTab] = useState(() => {
+    if (currentUser?.role === 'TRAINER') return 'trainer_portal';
     if (currentUser?.role === 'STUDENT') return 'student_portal';
     if (currentUser?.role === 'EMPLOYER') return 'employer_portal';
     return 'dashboard';
@@ -105,7 +109,9 @@ export default function App() {
 
   // Switch tab when user role changes
   React.useEffect(() => {
-    if (currentUser?.role === 'STUDENT') {
+    if (currentUser?.role === 'TRAINER') {
+      setCurrentTab('trainer_portal');
+    } else if (currentUser?.role === 'STUDENT') {
       setCurrentTab('student_portal');
     } else if (currentUser?.role === 'EMPLOYER') {
       setCurrentTab('employer_portal');
@@ -251,12 +257,25 @@ export default function App() {
         return <SettingsManager />;
       case 'student_portal':
         return <StudentPortal />;
+      case 'trainer_portal':
+        return <TrainerPortal />;
       case 'employer_portal':
         return <EmployerPortal />;
+      case 'users':
+        return <UserManager />;
       default:
         return <Dashboard onNavigate={setCurrentTab} />;
     }
   };
+
+  if (!currentUser) {
+    return (
+      <Box>
+        <CssBaseline />
+        <UnifiedLoginScreen />
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f4f7fb' }}>

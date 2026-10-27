@@ -23,6 +23,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShieldIcon from '@mui/icons-material/Shield';
+import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB, resetDB } from '../../services/storage';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
@@ -350,6 +351,21 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
           <MenuItem onClick={handleResetData} sx={{ borderRadius: 2 }}>
             <RestartAltIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
             <Typography variant="body2" sx={{ fontWeight: 600, color: '#DC2626' }}>Reset Sample Data</Typography>
+          </MenuItem>
+
+          <Divider sx={{ my: 1 }} />
+
+          <MenuItem
+            onClick={() => {
+              handleCloseUser();
+              if (window.confirm('के तपाईं लगआउट (Logout) गर्न चाहनुहुन्छ?')) {
+                logout();
+              }
+            }}
+            sx={{ borderRadius: 2, color: '#DC2626' }}
+          >
+            <LogoutIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#DC2626' }}>Logout (लगआउट)</Typography>
           </MenuItem>
         </Menu>
       </Toolbar>

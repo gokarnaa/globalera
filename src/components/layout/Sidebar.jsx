@@ -77,6 +77,7 @@ const NAV_ITEMS = [
 
   // --- 4. Self-Service Portals ---
   { section: '4. SELF-SERVICE PORTALS' },
+  { id: 'trainer_portal', label: 'प्रशिक्षक पोर्टल (Trainer Portal)', icon: <PeopleAltIcon />, roles: ['ADMIN', 'TRAINER'], highlight: true, badge: 'Trainer' },
   { id: 'student_portal', label: 'विद्यार्थी पोर्टल (Student Portal)', icon: <SchoolIcon />, roles: ['ADMIN', 'TRAINER', 'STAFF', 'STUDENT'], highlight: true, badge: 'Student' },
   { id: 'employer_portal', label: 'रोजगारदाता पोर्टल (Employer Portal)', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF', 'EMPLOYER'], highlight: true, badge: 'Jobs' },
 
@@ -89,6 +90,7 @@ const NAV_ITEMS = [
 
   // --- 6. Tools & Sync ---
   { section: '6. CLOUD & SYSTEM' },
+  { id: 'users', label: 'प्रयोगकर्ता व्यवस्थापन (Users & Access)', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Users' },
   { id: 'settings', label: 'Settings & Supabase Sync', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' }
 ];
 

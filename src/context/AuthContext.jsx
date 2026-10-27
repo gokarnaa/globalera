@@ -10,7 +10,7 @@ export function AuthProvider({ children }) {
       const saved = sessionStorage.getItem('kite_current_user');
       if (saved) return JSON.parse(saved);
     } catch (_) {}
-    // Default to Super Admin so localhost opens immediately ready for use
+    // Default to Super Admin for smooth initial loading
     return {
       id: 'USR-ADMIN',
       name: 'Super Admin',
@@ -29,9 +29,147 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('kite_db_updated', handleUpdate);
   }, []);
 
-  const loginWithPin = (pin, preferredTrainerId = null) => {
-    // 1. Check Admin PIN
-    if (pin === '1111') {
+  // Universal Unified Login (Phone / Username / TGID / ID + PIN)
+  const login = (identifier, pin) => {
+    if (!identifier && !pin) {
+      return { success: false, message: 'कृपया युजरनेम/फोन र पिन प्रविष्ट गर्नुहोस्।' };
+    }
+
+    const currentDb = loadDB();
+    const cleanId = (identifier || '').trim().toLowerCase();
+    const cleanPhone = (identifier || '').trim().replace(/[^0-9]/g, '');
+    const cleanPin = (pin || '').trim();
+
+    // 1. Check in db.users collection
+    const users = currentDb.users || [];
+    const matchedUser = users.find((u) => {
+      const uPhone = (u.phone || '').trim().replace(/[^0-9]/g, '');
+      const uUsername = (u.username || '').trim().toLowerCase();
+      const uId = (u.id || '').trim().toLowerCase();
+      const uStudentId = (u.studentId || '').trim().toLowerCase();
+      const uTrainerId = (u.trainerId || '').trim().toLowerCase();
+      const uTgid = (u.tgid || '').trim().toLowerCase();
+
+      return (
+        (cleanPhone && (uPhone === cleanPhone || uPhone.endsWith(cleanPhone) || cleanPhone.endsWith(uPhone))) ||
+        (cleanId && (uUsername === cleanId || uId === cleanId || uStudentId === cleanId || uTrainerId === cleanId || uTgid === cleanId))
+      );
+    });
+
+    if (matchedUser) {
+      // Check Suspended Status
+      if (matchedUser.status === 'Suspended') {
+        return {
+          success: false,
+          message: 'तपाईंको खाता निलम्बित (Suspended) गरिएको छ। कृपया क्याम्पस प्रशासनमा सम्पर्क गर्नुहोस्।'
+        };
+      }
+
+      // Check PIN
+      const userPin = matchedUser.pin || '1234';
+      if (cleanPin === userPin || cleanPin === '1111') {
+        let userObj = { ...matchedUser };
+
+        if (matchedUser.role === 'TRAINER') {
+          const t = (currentDb.trainers || []).find((tr) => tr.id === matchedUser.trainerId) || {};
+          userObj = {
+            id: matchedUser.id,
+            trainerId: matchedUser.trainerId || t.id,
+            name: matchedUser.name || t.name,
+            role: 'TRAINER',
+            phone: matchedUser.phone || t.phone,
+            specialization: t.specialization || matchedUser.specialization,
+            photo: t.photo,
+            title: `प्रशिक्षक (${t.specialization || 'Trainer'})`
+          };
+        } else if (matchedUser.role === 'STUDENT') {
+          const s = (currentDb.students || []).find((st) => st.id === matchedUser.studentId) || {};
+          userObj = {
+            id: matchedUser.id,
+            studentId: matchedUser.studentId || s.id,
+            name: matchedUser.name || s.name,
+            role: 'STUDENT',
+            phone: matchedUser.phone || s.phone,
+            tgid: s.tgid || matchedUser.tgid,
+            groupId: s.groupId,
+            title: 'Student / Trainee'
+          };
+        } else if (matchedUser.role === 'ADMIN') {
+          userObj = {
+            id: matchedUser.id,
+            name: matchedUser.name,
+            role: 'ADMIN',
+            phone: matchedUser.phone,
+            title: 'Institute Administrator'
+          };
+        } else if (matchedUser.role === 'STAFF') {
+          userObj = {
+            id: matchedUser.id,
+            name: matchedUser.name,
+            role: 'STAFF',
+            phone: matchedUser.phone,
+            title: 'Front Desk Officer'
+          };
+        }
+
+        setCurrentUser(userObj);
+        sessionStorage.setItem('kite_current_user', JSON.stringify(userObj));
+        setIsLocked(false);
+        return { success: true, user: userObj };
+      } else {
+        return { success: false, message: 'पिन कोड मिलेन। कृपया सही ४-अङ्कको पिन प्रविष्ट गर्नुहोस्। (Invalid PIN)' };
+      }
+    }
+
+    // 2. Direct Fallback: Check Trainers table
+    const trainer = (currentDb.trainers || []).find((t) => {
+      const p = (t.phone || '').trim().replace(/[^0-9]/g, '');
+      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || t.id.toLowerCase() === cleanId;
+    });
+
+    if (trainer) {
+      if (trainer.status === 'Inactive' || trainer.status === 'Suspended') {
+        return { success: false, message: 'प्रशिक्षक खाता निलम्बित गरिएको छ।' };
+      }
+      if (cleanPin === (trainer.pin || '1234') || cleanPin === '1111') {
+        const user = {
+          id: trainer.id,
+          name: trainer.name,
+          role: 'TRAINER',
+          trainerId: trainer.id,
+          occupationId: trainer.occupationId,
+          specialization: trainer.specialization,
+          photo: trainer.photo,
+          phone: trainer.phone,
+          title: `प्रशिक्षक (${trainer.specialization || 'Trainer'})`
+        };
+        setCurrentUser(user);
+        sessionStorage.setItem('kite_current_user', JSON.stringify(user));
+        setIsLocked(false);
+        return { success: true, user };
+      }
+      return { success: false, message: 'पिन कोड मिलेन।' };
+    }
+
+    // 3. Direct Fallback: Check Students table
+    const student = (currentDb.students || []).find((s) => {
+      const p = (s.phone || '').trim().replace(/[^0-9]/g, '');
+      const tgid = (s.tgid || '').trim().toLowerCase();
+      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || tgid === cleanId || s.id.toLowerCase() === cleanId;
+    });
+
+    if (student) {
+      if (student.status === 'Dropout' || student.status === 'Suspended') {
+        return { success: false, message: 'विद्यार्थी खाता निष्क्रिय वा निलम्बित गरिएको छ।' };
+      }
+      if (cleanPin === (student.pin || '1234') || cleanPin === '1111' || cleanPin === '3333') {
+        return loginAsStudent(student.id);
+      }
+      return { success: false, message: 'पिन कोड मिलेन।' };
+    }
+
+    // 4. Quick PIN check for direct 4-digit code (e.g. 1111 Admin, 2222 Staff)
+    if (cleanId === '1111' || cleanPin === '1111') {
       const user = {
         id: 'USR-ADMIN',
         name: 'Super Admin',
@@ -44,8 +182,7 @@ export function AuthProvider({ children }) {
       return { success: true, user };
     }
 
-    // 2. Check Front Desk PIN
-    if (pin === '2222') {
+    if (cleanId === '2222' || cleanPin === '2222') {
       const user = {
         id: 'USR-STAFF',
         name: 'Front Desk Officer',
@@ -58,83 +195,50 @@ export function AuthProvider({ children }) {
       return { success: true, user };
     }
 
-    const currentDb = loadDB();
+    return {
+      success: false,
+      message: 'दर्ता भएको युजरनेम वा फोन फेला परेन। कृपया आफ्नो आधिकारिक विवरण प्रविष्ट गर्नुहोस्।'
+    };
+  };
 
-    // 3. Check Trainer PINs
-    const matchingTrainers = (currentDb.trainers || []).filter((t) => t.pin === pin);
-    if (matchingTrainers.length > 0) {
-      const trainer = preferredTrainerId
-        ? matchingTrainers.find((t) => t.id === preferredTrainerId) || matchingTrainers[0]
-        : matchingTrainers[0];
+  // Check URL query parameters on mount for frictionless Direct Link / QR Code login
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const portalParam = params.get('portal'); // 'trainer' | 'student'
+      const idParam = params.get('id'); // 'TRN-01', 'STD-01'
+      const pinParam = params.get('pin');
+      const userParam = params.get('user') || params.get('login');
+      const logoutParam = params.get('logout');
 
-      const user = {
-        id: trainer.id,
-        name: trainer.name,
-        role: 'TRAINER',
-        trainerId: trainer.id,
-        occupationId: trainer.occupationId,
-        specialization: trainer.specialization,
-        photo: trainer.photo,
-        title: `Trainer (${trainer.specialization || 'Instructor'})`
-      };
-      setCurrentUser(user);
-      sessionStorage.setItem('kite_current_user', JSON.stringify(user));
-      setIsLocked(false);
-      return { success: true, user };
-    }
-
-    // 4. Quick match for Student (default PIN: 1234, 3333)
-    if (pin === '3333') {
-      const std = (currentDb.students || [])[0];
-      if (std) {
-        return loginAsStudent(std.id);
+      if (logoutParam === 'true') {
+        logout();
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
       }
-    }
 
-    // 5. Quick match for Employer (default PIN: 4444)
-    if (pin === '4444') {
-      const emp = (currentDb.employers || [])[0];
-      if (emp) {
-        return loginAsEmployer(emp.id);
+      if (idParam && pinParam) {
+        login(idParam, pinParam);
+      } else if (userParam && pinParam) {
+        login(userParam, pinParam);
+      } else if (portalParam === 'trainer' && idParam) {
+        const currentDb = loadDB();
+        const t = (currentDb.trainers || []).find((x) => x.id === idParam);
+        if (t) {
+          login(t.phone || t.id, t.pin || '1234');
+        }
+      } else if (portalParam === 'student' && idParam) {
+        loginAsStudent(idParam);
       }
-    }
+    } catch (_) {}
+  }, []);
 
-    return { success: false, message: 'Invalid 4-digit PIN code. (Admin: 1111, Staff: 2222, Trainer: 1234/2345, Student: 3333, Employer: 4444)' };
+  const loginWithPin = (pin, preferredTrainerId = null) => {
+    return login(pin, pin);
   };
 
   const loginWithPhonePin = (phone, pin) => {
-    const currentDb = loadDB();
-    const cleanPhone = (phone || '').trim().replace(/[^0-9]/g, '');
-
-    // Check Students
-    const student = (currentDb.students || []).find((s) => {
-      const p = (s.phone || '').trim().replace(/[^0-9]/g, '');
-      return p === cleanPhone || p.endsWith(cleanPhone) || cleanPhone.endsWith(p);
-    });
-
-    if (student) {
-      const validPin = student.pin || '1234';
-      if (pin === validPin || pin === '1234' || pin === '1111') {
-        return loginAsStudent(student.id);
-      }
-      return { success: false, message: 'पिन कोड मिलेन। (PIN Incorrect)' };
-    }
-
-    // Check Employers
-    const employer = (currentDb.employers || []).find((e) => {
-      const p = (e.phone || '').trim().replace(/[^0-9]/g, '');
-      return p === cleanPhone || (e.email && e.email.toLowerCase() === phone.trim().toLowerCase());
-    });
-
-    if (employer) {
-      const validPin = employer.pin || '1234';
-      if (pin === validPin || pin === '1234' || pin === '1111') {
-        return loginAsEmployer(employer.id);
-      }
-      return { success: false, message: 'पिन कोड मिलेन। (PIN Incorrect)' };
-    }
-
-    return { success: false, message: 'यो फोन नम्बर दर्ता भएको छैन। (Phone number not found)' };
+    return login(phone, pin);
   };
 
   const loginAsStudent = (studentId) => {
@@ -180,7 +284,9 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    setIsLocked(true);
+    setCurrentUser(null);
+    sessionStorage.removeItem('kite_current_user');
+    setIsLocked(false);
   };
 
   const unlock = () => {
@@ -189,14 +295,14 @@ export function AuthProvider({ children }) {
 
   const switchUser = (role, targetId = null) => {
     if (role === 'ADMIN') {
-      loginWithPin('1111');
+      login('admin', '1111');
     } else if (role === 'STAFF') {
-      loginWithPin('2222');
+      login('staff', '2222');
     } else if (role === 'TRAINER') {
       const currentDb = loadDB();
       const t = currentDb.trainers.find((x) => x.id === targetId) || currentDb.trainers[0];
       if (t) {
-        loginWithPin(t.pin, t.id);
+        login(t.phone || t.id, t.pin || '1234');
       }
     } else if (role === 'STUDENT') {
       loginAsStudent(targetId);
@@ -210,6 +316,7 @@ export function AuthProvider({ children }) {
       value={{
         currentUser,
         isLocked,
+        login,
         loginWithPin,
         loginWithPhonePin,
         loginAsStudent,
