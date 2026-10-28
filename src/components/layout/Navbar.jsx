@@ -24,12 +24,13 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShieldIcon from '@mui/icons-material/Shield';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PublicIcon from '@mui/icons-material/Public';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { loadDB, resetDB } from '../../services/storage';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 
-export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
+export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
   const { currentUser, switchUser, logout, isAdmin, isTrainer, isStudent, isEmployer } = useAuth();
   const { confirm, alert } = useDialog();
   const [anchorUser, setAnchorUser] = useState(null);
@@ -258,6 +259,28 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal }) {
               </Typography>
             </Box>
           </Box>
+
+          {onGoHome && (
+            <Tooltip title="संस्थाको मुख्य सार्वजनिक वेबसाइट हेर्नुहोस् (View Public Website)">
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={onGoHome}
+                startIcon={<PublicIcon sx={{ fontSize: 16 }} />}
+                sx={{
+                  color: '#0F2E5A',
+                  borderColor: '#CBD5E1',
+                  fontWeight: 800,
+                  fontSize: '0.74rem',
+                  display: { xs: 'none', md: 'inline-flex' },
+                  bgcolor: '#FFFFFF',
+                  '&:hover': { bgcolor: '#F8FAFC', borderColor: '#0F2E5A' }
+                }}
+              >
+                वेबसाइट
+              </Button>
+            </Tooltip>
+          )}
 
           <Tooltip title="Quick Lock Screen (4-Digit PIN)">
             <IconButton

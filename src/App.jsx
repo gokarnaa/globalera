@@ -46,6 +46,7 @@ import SettingsManager from './components/settings/SettingsManager';
 import StudentPortal from './components/portal/StudentPortal';
 import EmployerPortal from './components/portal/EmployerPortal';
 import TrainerPortal from './components/portal/TrainerPortal';
+import PublicWebsite from './components/portal/PublicWebsite';
 import UserManager from './components/users/UserManager';
 import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
 import { loadDB } from './services/storage';
@@ -99,7 +100,46 @@ class ErrorBoundary extends React.Component {
 export default function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const { isLocked, currentUser, isStudent, isEmployer } = useAuth();
+  const { isLocked, currentUser, isStudent, isEmployer, logout } = useAuth();
+
+  // Multi-Portal Route detection supporting pathname (/trainer, /student, /ge-admin, /admin, /verify) and query (?portal=trainer, etc.)
+  const getInitialRoute = () => {
+    const path = window.location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+    const params = new URLSearchParams(window.location.search);
+    const portal = params.get('portal');
+    const verify = params.get('verify');
+
+    if (verify || path === '/verify') return 'verify';
+    if (portal === 'trainer' || path === '/trainer') return 'trainer';
+    if (portal === 'student' || path === '/student') return 'student';
+    if (portal === 'admin' || path === '/admin' || path === '/ge-admin' || path === '/office' || path === '/mgmt') return 'admin';
+    return 'home'; // default is official website!
+  };
+
+  const [currentRoute, setCurrentRoute] = useState(getInitialRoute);
+
+  const navigateTo = (route, updateUrl = true) => {
+    setCurrentRoute(route);
+    if (updateUrl) {
+      const pathMap = {
+        home: '/',
+        trainer: '/trainer',
+        student: '/student',
+        admin: '/ge-admin',
+        verify: '/verify'
+      };
+      const newPath = pathMap[route] || '/';
+      window.history.pushState({}, '', newPath);
+    }
+  };
+
+  React.useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(getInitialRoute());
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const [currentTab, setCurrentTab] = useState(() => {
     if (currentUser?.role === 'TRAINER') return 'trainer_portal';
@@ -271,34 +311,134 @@ export default function App() {
     }
   };
 
-  if (!currentUser) {
+  // 1. PUBLIC WEBSITE ROUTE (HOME & VERIFY)
+  if (currentRoute === 'home' || currentRoute === 'verify') {
     return (
-      <Box>
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
         <CssBaseline />
-        <UnifiedLoginScreen />
+        <PublicWebsite
+          onNavigate={navigateTo}
+          onVerifyCertificate={(certId) => {
+            setVerifyParam(certId);
+          }}
+        />
+
+        {/* Online Verification Modal triggered by QR scan (?verify=...) or direct verify */}
+        {verifyData && (
+          <>
+            <PublicCertificateVerify
+              open={Boolean(verifyParam)}
+              onClose={() => {
+                setVerifyParam(null);
+                window.history.replaceState({}, '', window.location.pathname);
+              }}
+              certId={verifyData.certId}
+              certificate={verifyData.certificate}
+              student={verifyData.student}
+              course={verifyData.course}
+              group={verifyData.group}
+              isCloudVerified={verifyData.isCloudVerified}
+              onOpenFullCertificate={() => setFullCertModalOpen(true)}
+            />
+
+            {verifyData.certificate && verifyData.student && (
+              <A4LandscapeCertificateModal
+                open={fullCertModalOpen}
+                onClose={() => setFullCertModalOpen(false)}
+                certificate={verifyData.certificate}
+                student={verifyData.student}
+                course={verifyData.course}
+                group={verifyData.group}
+                trainer={verifyData.trainer}
+              />
+            )}
+          </>
+        )}
       </Box>
     );
   }
 
-  // Dedicated Trainer View
-  if (currentUser?.role === 'TRAINER') {
+  // 2. DEDICATED TRAINER PORTAL ROUTE (/trainer)
+  if (currentRoute === 'trainer') {
+    if (!currentUser || currentUser?.role !== 'TRAINER') {
+      return (
+        <Box sx={{ minHeight: '100vh', bgcolor: '#064E3B' }}>
+          <CssBaseline />
+          <UnifiedLoginScreen
+            initialMode="trainer"
+            allowedModes={['trainer', 'student']}
+            onBackHome={() => navigateTo('home')}
+          />
+        </Box>
+      );
+    }
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <TrainerPortal />
+          <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
         </Box>
       </Box>
     );
   }
 
-  // Dedicated Student View
+  // 3. DEDICATED STUDENT PORTAL ROUTE (/student)
+  if (currentRoute === 'student') {
+    if (!currentUser || currentUser?.role !== 'STUDENT') {
+      return (
+        <Box sx={{ minHeight: '100vh', bgcolor: '#1E3A8A' }}>
+          <CssBaseline />
+          <UnifiedLoginScreen
+            initialMode="student"
+            allowedModes={['student', 'trainer']}
+            onBackHome={() => navigateTo('home')}
+          />
+        </Box>
+      );
+    }
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
+        </Box>
+      </Box>
+    );
+  }
+
+  // 4. ADMIN & MANAGEMENT ROUTE (/ge-admin or /admin)
+  if (!currentUser) {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#0F2E5A' }}>
+        <CssBaseline />
+        <UnifiedLoginScreen
+          initialMode="admin"
+          allowedModes={['admin']}
+          onBackHome={() => navigateTo('home')}
+        />
+      </Box>
+    );
+  }
+
+  // Role Enforcement: If logged in user is a Trainer, lock to Trainer Portal
+  if (currentUser?.role === 'TRAINER') {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
+        </Box>
+      </Box>
+    );
+  }
+
+  // Role Enforcement: If logged in user is a Student, lock to Student Portal
   if (currentUser?.role === 'STUDENT') {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <StudentPortal />
+          <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
         </Box>
       </Box>
     );
@@ -313,6 +453,7 @@ export default function App() {
         <Navbar
           onToggleSidebar={handleToggleSidebar}
           onOpenPinModal={() => setPinModalOpen(true)}
+          onGoHome={() => navigateTo('home')}
         />
 
         <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative', overflowX: 'hidden' }}>

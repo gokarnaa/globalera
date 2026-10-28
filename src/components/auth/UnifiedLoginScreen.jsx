@@ -27,20 +27,26 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
-export default function UnifiedLoginScreen({ onLoginSuccess }) {
+export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowedModes, onBackHome }) {
   const { login } = useAuth();
   const db = loadDB();
   const company = db.settings?.companyProfile || {};
 
-  // Detect mode from URL query ?portal=trainer or ?portal=student
+  // Detect mode from props, URL query ?portal=trainer or path
   const [portalMode, setPortalMode] = useState(() => {
+    if (initialMode) return initialMode;
     try {
+      const path = window.location.pathname.toLowerCase();
+      if (path === '/trainer') return 'trainer';
+      if (path === '/student') return 'student';
+      if (path === '/admin' || path === '/ge-admin') return 'admin';
       const params = new URLSearchParams(window.location.search);
       const p = params.get('portal');
       if (p === 'trainer') return 'trainer';
       if (p === 'student') return 'student';
+      if (p === 'admin') return 'admin';
     } catch (_) {}
-    return 'admin'; // Default is Admin Gateway
+    return 'trainer';
   });
 
   const [identifier, setIdentifier] = useState('');
@@ -54,21 +60,9 @@ export default function UnifiedLoginScreen({ onLoginSuccess }) {
     setPortalMode(mode);
     setError('');
     setShowPin(false);
-    if (mode === 'admin') {
-      setIdentifier('admin');
-      setPin('admin123');
-    } else {
-      setIdentifier('');
-      setPin('');
-    }
+    setIdentifier('');
+    setPin('');
   };
-
-  useEffect(() => {
-    if (portalMode === 'admin') {
-      setIdentifier('admin');
-      setPin('admin123');
-    }
-  }, [portalMode]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -306,7 +300,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess }) {
 
                 {portalMode === 'admin' && (
                   <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.6 }}>
-                    सुरुवाती एडमिन पासवर्ड: <b>admin123</b> (वा <b>1111</b>)
+                    अधिकृत प्रशासनिक युजरनेम तथा पासवर्ड प्रविष्ट गर्नुहोस्।
                   </Typography>
                 )}
               </Box>
@@ -352,88 +346,63 @@ export default function UnifiedLoginScreen({ onLoginSuccess }) {
             </Stack>
           </form>
 
-          {/* Quick Demo Helpers for Each Mode */}
-          {portalMode === 'trainer' && (
-            <Box sx={{ mt: 2.5, p: 1.5, bgcolor: '#F0FDF4', borderRadius: 2, border: '1px solid #BBF7D0' }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#166534', display: 'block', mb: 0.8 }}>
-                परीक्षणका लागि प्रशिक्षक खाता (Quick Test):
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => handleQuickDemo('pooja', '1234')}
-                  sx={{ fontWeight: 800, fontSize: '0.72rem', color: '#047857', borderColor: '#10B981' }}
-                >
-                  Pooja (PIN: 1234)
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  onClick={() => handleQuickDemo('anita', '2345')}
-                  sx={{ fontWeight: 800, fontSize: '0.72rem', color: '#047857', borderColor: '#10B981' }}
-                >
-                  Anita (PIN: 2345)
-                </Button>
-              </Box>
-            </Box>
-          )}
-
-          {portalMode === 'student' && (
-            <Box sx={{ mt: 2.5, p: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #BFDBFE' }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E40AF', display: 'block', mb: 0.8 }}>
-                परीक्षणका लागि विद्यार्थी खाता (Quick Test):
-              </Typography>
-              <Button
-                size="small"
-                variant="outlined"
-                onClick={() => handleQuickDemo('gets-2026-std01', '1234')}
-                sx={{ fontWeight: 800, fontSize: '0.72rem', color: '#1D4ED8', borderColor: '#3B82F6' }}
-              >
-                Student Sunita (PIN: 1234)
-              </Button>
-            </Box>
-          )}
-
-          {/* Switch Portals Navigation at the Bottom */}
+          {/* Bottom Navigation */}
           <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #E2E8F0', textAlign: 'center' }}>
-            {portalMode === 'admin' ? (
-              <Box>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1, fontWeight: 700 }}>
-                  अन्य प्रयोगकर्ता पोर्टलहरू (Direct User Portals):
-                </Typography>
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5 }}>
-                  <Button
-                    size="small"
-                    variant="text"
-                    startIcon={<PeopleAltIcon />}
-                    onClick={() => handleSwitchMode('trainer')}
-                    sx={{ fontWeight: 800, color: '#059669', fontSize: '0.82rem' }}
-                  >
-                    प्रशिक्षक पोर्टल (Trainer) →
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="text"
-                    startIcon={<SchoolIcon />}
-                    onClick={() => handleSwitchMode('student')}
-                    sx={{ fontWeight: 800, color: '#2563EB', fontSize: '0.82rem' }}
-                  >
-                    विद्यार्थी पोर्टल (Student) →
-                  </Button>
+            <Stack spacing={1.5} alignItems="center">
+              {onBackHome && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={onBackHome}
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.78rem',
+                    color: '#0F2E5A',
+                    borderColor: '#CBD5E1',
+                    borderRadius: 2,
+                    px: 2
+                  }}
+                >
+                  ← मुख्य वेबसाइट (गृहपृष्ठ) मा फर्कनुहोस्
+                </Button>
+              )}
+
+              {/* Show role switcher only if allowed or between trainer & student */}
+              {(!allowedModes || allowedModes.length > 1) && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, flexWrap: 'wrap', pt: 0.5 }}>
+                  {portalMode !== 'trainer' && (!allowedModes || allowedModes.includes('trainer')) && (
+                    <Button
+                      size="small"
+                      startIcon={<PeopleAltIcon />}
+                      onClick={() => handleSwitchMode('trainer')}
+                      sx={{ fontWeight: 800, color: '#059669', fontSize: '0.78rem' }}
+                    >
+                      प्रशिक्षक पोर्टल (Trainer)
+                    </Button>
+                  )}
+                  {portalMode !== 'student' && (!allowedModes || allowedModes.includes('student')) && (
+                    <Button
+                      size="small"
+                      startIcon={<SchoolIcon />}
+                      onClick={() => handleSwitchMode('student')}
+                      sx={{ fontWeight: 800, color: '#2563EB', fontSize: '0.78rem' }}
+                    >
+                      विद्यार्थी पोर्टल (Student)
+                    </Button>
+                  )}
+                  {portalMode !== 'admin' && allowedModes && allowedModes.includes('admin') && (
+                    <Button
+                      size="small"
+                      startIcon={<ArrowBackIcon />}
+                      onClick={() => handleSwitchMode('admin')}
+                      sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}
+                    >
+                      एडमिन लगइन (Admin)
+                    </Button>
+                  )}
                 </Box>
-              </Box>
-            ) : (
-              <Button
-                size="small"
-                variant="text"
-                startIcon={<ArrowBackIcon />}
-                onClick={() => handleSwitchMode('admin')}
-                sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.82rem' }}
-              >
-                ← मुख्य प्रशासनिक लगइनमा फर्कनुहोस् (Back to Admin Login)
-              </Button>
-            )}
+              )}
+            </Stack>
           </Box>
         </CardContent>
       </Card>
