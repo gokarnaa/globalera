@@ -7,7 +7,8 @@ import {
   useTheme,
   Alert,
   Button,
-  Typography
+  Typography,
+  Snackbar
 } from '@mui/material';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
@@ -51,6 +52,7 @@ import PublicWebsite from './components/portal/PublicWebsite';
 import UserManager from './components/users/UserManager';
 import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
 import { loadDB } from './services/storage';
+import { playLeadChime } from './services/soundUtils';
 import { verifyCertificateRemote } from './services/supabaseClient';
 import { useAuth } from './context/AuthContext';
 
@@ -225,6 +227,35 @@ export default function App() {
 
     return { certId: verifyParam, certificate: cert, student, course, group, trainer };
   }, [verifyParam, remoteVerifyData]);
+
+  const [globalLeadAlert, setGlobalLeadAlert] = useState(null);
+
+  // Global Real-time Lead Listener across all tabs and routes
+  React.useEffect(() => {
+    let lastLeadCount = (loadDB().leads || []).length;
+
+    const checkIncomingLeads = () => {
+      const freshDb = loadDB();
+      const currentLeads = freshDb.leads || [];
+
+      if (currentLeads.length > lastLeadCount) {
+        const latest = currentLeads[0];
+        playLeadChime();
+        setGlobalLeadAlert(latest);
+      }
+      lastLeadCount = currentLeads.length;
+    };
+
+    window.addEventListener('kite_db_updated', checkIncomingLeads);
+    window.addEventListener('storage', checkIncomingLeads);
+    const poller = setInterval(checkIncomingLeads, 4000);
+
+    return () => {
+      window.removeEventListener('kite_db_updated', checkIncomingLeads);
+      window.removeEventListener('storage', checkIncomingLeads);
+      clearInterval(poller);
+    };
+  }, []);
 
   const handleToggleSidebar = () => {
     setSidebarOpen((prev) => !prev);
@@ -566,6 +597,50 @@ export default function App() {
             />
           )}
         </>
+      )}
+
+      {/* Global Real-Time Incoming Lead Alert */}
+      {globalLeadAlert && (
+        <Snackbar
+          open={Boolean(globalLeadAlert)}
+          autoHideDuration={8000}
+          onClose={() => setGlobalLeadAlert(null)}
+          anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <Alert
+            severity="success"
+            variant="filled"
+            onClose={() => setGlobalLeadAlert(null)}
+            action={
+              <Button
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setCurrentTab('leads');
+                  setGlobalLeadAlert(null);
+                }}
+                sx={{
+                  fontWeight: 900,
+                  bgcolor: 'rgba(255,255,255,0.25)',
+                  px: 1.5,
+                  borderRadius: 1.5,
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.4)' }
+                }}
+              >
+                लिड हेर्नुहोस्
+              </Button>
+            }
+            sx={{
+              fontWeight: 800,
+              fontSize: '0.88rem',
+              borderRadius: 3,
+              boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+              alignItems: 'center'
+            }}
+          >
+            🔔 नयाँ लिड प्राप्त भयो! {globalLeadAlert.name} ({globalLeadAlert.course || globalLeadAlert.subject || 'कोर्स'})
+          </Alert>
+        </Snackbar>
       )}
     </Box>
   );

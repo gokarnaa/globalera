@@ -58,6 +58,7 @@ import DialogActions from '@mui/material/DialogActions';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
+import { playLeadChime } from '../../services/soundUtils';
 import LeadModal, { LEAD_STAGES, LEAD_PRIORITIES, LEAD_SOURCES } from './LeadModal';
 import LeadDetailsModal from './LeadDetailsModal';
 import ConvertToStudentModal from './ConvertToStudentModal';
@@ -100,6 +101,39 @@ export default function LeadManager() {
   const showToast = (message, severity = 'success') => {
     setSnackbar({ open: true, message, severity });
   };
+
+  // Live Real-Time Multi-Device & Multi-Tab Lead Listener
+  React.useEffect(() => {
+    let lastKnownCount = (loadDB().leads || []).length;
+
+    const handleRealTimeSync = () => {
+      const freshDb = loadDB();
+      const currentLeads = freshDb.leads || [];
+
+      if (currentLeads.length > lastKnownCount) {
+        const latest = currentLeads[0];
+        playLeadChime();
+        showToast(
+          `🔔 नयाँ लिड प्राप्त भयो! ${latest?.name || 'विद्यार्थी'} (${latest?.course || latest?.subject || 'कोर्स'}) - ${latest?.source || 'अनलाइन'}`,
+          'success'
+        );
+      }
+      lastKnownCount = currentLeads.length;
+      setDb(freshDb);
+    };
+
+    window.addEventListener('kite_db_updated', handleRealTimeSync);
+    window.addEventListener('storage', handleRealTimeSync);
+
+    // Fast background poller (every 4 seconds) so any new lead instantly appears without page refresh
+    const poller = setInterval(handleRealTimeSync, 4000);
+
+    return () => {
+      window.removeEventListener('kite_db_updated', handleRealTimeSync);
+      window.removeEventListener('storage', handleRealTimeSync);
+      clearInterval(poller);
+    };
+  }, []);
 
   const leads = db.leads || [];
 

@@ -48,6 +48,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import SyncIcon from '@mui/icons-material/Sync';
 import SchoolIcon from '@mui/icons-material/School';
 import BadgeIcon from '@mui/icons-material/Badge';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 import confetti from 'canvas-confetti';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -81,6 +82,12 @@ export default function UserManager() {
     status: 'Active',
     trainerId: '',
     studentId: '',
+    agentId: '',
+    agentCode: '',
+    commissionType: 'FIXED',
+    defaultRate: 1000,
+    paymentInfo: '',
+    address: 'काठमाडौं',
     title: ''
   });
 
@@ -95,6 +102,7 @@ export default function UserManager() {
         (u.username || '').toLowerCase().includes(q) ||
         (u.phone || '').includes(q) ||
         (u.id || '').toLowerCase().includes(q) ||
+        (u.agentCode || '').toLowerCase().includes(q) ||
         (u.tgid || '').toLowerCase().includes(q);
 
       if (!matchSearch) return false;
@@ -111,6 +119,7 @@ export default function UserManager() {
   const suspendedCount = usersList.filter((u) => u.status === 'Suspended').length;
   const trainerCount = usersList.filter((u) => u.role === 'TRAINER').length;
   const studentCount = usersList.filter((u) => u.role === 'STUDENT').length;
+  const agentCount = usersList.filter((u) => u.role === 'AGENT').length;
   const adminStaffCount = usersList.filter((u) => u.role === 'ADMIN' || u.role === 'STAFF').length;
 
   const togglePinVisibility = (id) => {
@@ -136,7 +145,15 @@ export default function UserManager() {
 
     if (ok) {
       const nextUsers = usersList.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u));
-      const nextDb = { ...db, users: nextUsers };
+      let nextAgents = db.agents || [];
+      if (user.role === 'AGENT' || user.agentCode || user.agentId) {
+        nextAgents = nextAgents.map((ag) =>
+          ag.id === user.agentId || ag.code === user.agentCode || ag.code === user.username
+            ? { ...ag, status: nextStatus }
+            : ag
+        );
+      }
+      const nextDb = { ...db, users: nextUsers, agents: nextAgents };
       saveDB(nextDb);
       setDb(nextDb);
     }
@@ -150,10 +167,16 @@ export default function UserManager() {
       username: '',
       phone: '',
       pin: '1234',
-      role: 'STUDENT',
+      role: roleFilter === 'AGENT' ? 'AGENT' : 'STUDENT',
       status: 'Active',
       trainerId: '',
       studentId: '',
+      agentId: '',
+      agentCode: '',
+      commissionType: 'FIXED',
+      defaultRate: 1000,
+      paymentInfo: '',
+      address: 'काठमाडौं',
       title: ''
     });
     setOpenUserModal(true);
@@ -162,15 +185,22 @@ export default function UserManager() {
   // Open Edit Dialog
   const handleOpenEdit = (user) => {
     setEditingUser(user);
+    const ag = (db.agents || []).find((a) => a.id === user.agentId || a.code === user.agentCode || a.code === user.username) || {};
     setFormData({
-      name: user.name || '',
-      username: user.username || '',
-      phone: user.phone || '',
-      pin: user.pin || '1234',
+      name: user.name || ag.name || '',
+      username: user.username || ag.code || '',
+      phone: user.phone || ag.phone || '',
+      pin: user.pin || ag.pin || '1234',
       role: user.role || 'STUDENT',
-      status: user.status || 'Active',
+      status: user.status || ag.status || 'Active',
       trainerId: user.trainerId || '',
       studentId: user.studentId || '',
+      agentId: user.agentId || ag.id || '',
+      agentCode: user.agentCode || ag.code || '',
+      commissionType: user.commissionType || ag.commissionType || 'FIXED',
+      defaultRate: user.defaultRate || ag.defaultRate || 1000,
+      paymentInfo: user.paymentInfo || ag.paymentInfo || '',
+      address: user.address || ag.address || 'काठमाडौं',
       title: user.title || ''
     });
     setOpenUserModal(true);
@@ -185,6 +215,58 @@ export default function UserManager() {
     }
 
     let nextUsers = [...usersList];
+    let nextAgents = [...(db.agents || [])];
+
+    if (formData.role === 'AGENT') {
+      let agCode = formData.agentCode;
+      let agId = formData.agentId;
+
+      if (!agCode) {
+        const existingCodes = nextAgents.map((a) => parseInt((a.code || '').replace(/\D/g, '') || 100));
+        const nextNum = existingCodes.length ? Math.max(...existingCodes) + 1 : 101;
+        agCode = `AGE-${nextNum}`;
+        agId = `AGT-${String(nextNum).padStart(2, '0')}`;
+      }
+
+      if (editingUser) {
+        nextAgents = nextAgents.map((ag) => {
+          if (ag.id === editingUser.agentId || ag.code === editingUser.agentCode || ag.code === agCode) {
+            return {
+              ...ag,
+              name: formData.name,
+              phone: formData.phone,
+              code: agCode,
+              commissionType: formData.commissionType,
+              defaultRate: Number(formData.defaultRate) || 1000,
+              paymentInfo: formData.paymentInfo || `eSewa: ${formData.phone}`,
+              address: formData.address || 'काठमाडौं',
+              pin: formData.pin,
+              status: formData.status
+            };
+          }
+          return ag;
+        });
+      } else {
+        const newAgent = {
+          id: agId,
+          code: agCode,
+          name: formData.name,
+          phone: formData.phone,
+          address: formData.address || 'काठमाडौं',
+          pin: formData.pin,
+          status: formData.status,
+          commissionType: formData.commissionType,
+          defaultRate: Number(formData.defaultRate) || 1000,
+          paymentInfo: formData.paymentInfo || `eSewa: ${formData.phone}`,
+          joinedDate: new Date().toISOString().slice(0, 10)
+        };
+        nextAgents = [newAgent, ...nextAgents];
+      }
+
+      formData.agentCode = agCode;
+      formData.agentId = agId;
+      formData.username = agCode.toLowerCase();
+    }
 
     if (editingUser) {
       nextUsers = nextUsers.map((u) =>
@@ -207,7 +289,7 @@ export default function UserManager() {
       });
     }
 
-    const nextDb = { ...db, users: nextUsers };
+    const nextDb = { ...db, users: nextUsers, agents: nextAgents };
     saveDB(nextDb);
     setDb(nextDb);
     setOpenUserModal(false);
@@ -230,7 +312,13 @@ export default function UserManager() {
     });
     if (ok) {
       const nextUsers = usersList.filter((u) => u.id !== userId);
-      const nextDb = { ...db, users: nextUsers };
+      let nextAgents = db.agents || [];
+      if (targetUser?.role === 'AGENT' || targetUser?.agentId || targetUser?.agentCode) {
+        nextAgents = nextAgents.filter(
+          (ag) => ag.id !== targetUser.agentId && ag.code !== targetUser.agentCode && ag.code !== targetUser.username
+        );
+      }
+      const nextDb = { ...db, users: nextUsers, agents: nextAgents };
       saveDB(nextDb);
       setDb(nextDb);
     }
@@ -260,14 +348,17 @@ export default function UserManager() {
 
   // Generate Direct Login Link for User
   const getDirectLoginLink = (user) => {
-    const baseUrl = window.location.origin + window.location.pathname;
+    const baseUrl = window.location.origin;
+    if (user.role === 'AGENT') {
+      return `${baseUrl}/agent?id=${user.agentCode || user.phone}&pin=${user.pin || '1234'}`;
+    }
     if (user.role === 'TRAINER') {
-      return `${baseUrl}?portal=trainer&id=${user.trainerId || user.id}&pin=${user.pin || '1234'}`;
+      return `${baseUrl}/trainer?id=${user.trainerId || user.id}&pin=${user.pin || '1234'}`;
     }
     if (user.role === 'STUDENT') {
-      return `${baseUrl}?portal=student&id=${user.studentId || user.id}&pin=${user.pin || '1234'}`;
+      return `${baseUrl}/student?id=${user.studentId || user.id}&pin=${user.pin || '1234'}`;
     }
-    return `${baseUrl}?user=${user.username || user.phone}&pin=${user.pin || '1111'}`;
+    return `${baseUrl}/ge-admin?user=${user.username || user.phone}&pin=${user.pin || '1111'}`;
   };
 
   const handleCopyLink = (link) => {
@@ -330,7 +421,7 @@ export default function UserManager() {
 
         <Grid container spacing={2}>
           {/* Trainer Portal Link Card */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <Paper
               sx={{
                 p: 2,
@@ -342,17 +433,17 @@ export default function UserManager() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
-                  👨‍🏫 प्रशिक्षक पोर्टल लिङ्क (Trainer Portal Gateway)
+                  👨‍🏫 प्रशिक्षक पोर्टल लिङ्क (Trainer)
                 </Typography>
                 <Chip label="Trainer Only" size="small" sx={{ bgcolor: '#10B981', color: '#fff', fontWeight: 800 }} />
               </Box>
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                प्रशिक्षकहरूलाई कक्षा हाजिरी, दैनिक लग-बुक र ब्याच सञ्चालनका लागि यो लिङ्क पठाउनुहोस्:
+                प्रशिक्षकहरूलाई कक्षा हाजिरी, दैनिक लग-बुक र ब्याच सञ्चालनका लागि:
               </Typography>
               <TextField
                 fullWidth
                 size="small"
-                value={`${window.location.origin}${window.location.pathname}?portal=trainer`}
+                value={`${window.location.origin}/trainer`}
                 InputProps={{
                   readOnly: true,
                   sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
@@ -363,25 +454,25 @@ export default function UserManager() {
                   size="small"
                   variant="contained"
                   startIcon={<ContentCopyIcon />}
-                  onClick={() => handleCopyLink(`${window.location.origin}${window.location.pathname}?portal=trainer`)}
+                  onClick={() => handleCopyLink(`${window.location.origin}/trainer`)}
                   sx={{ bgcolor: '#10B981', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#059669' } }}
                 >
-                  {copySuccess ? '✓ Copied' : 'Copy Link'}
+                  {copySuccess ? '✓ Copied' : 'Copy'}
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={() => window.open(`${window.location.origin}${window.location.pathname}?portal=trainer`, '_blank')}
+                  onClick={() => window.open(`${window.location.origin}/trainer`, '_blank')}
                   sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
                 >
-                  नयाँ विन्डोमा खोल्नुहोस्
+                  खोल्नुहोस्
                 </Button>
               </Box>
             </Paper>
           </Grid>
 
           {/* Student Portal Link Card */}
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={4}>
             <Paper
               sx={{
                 p: 2,
@@ -393,17 +484,17 @@ export default function UserManager() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#BAE6FD' }}>
-                  🎓 विद्यार्थी पोर्टल लिङ्क (Student Portal Gateway)
+                  🎓 विद्यार्थी पोर्टल लिङ्क (Student)
                 </Typography>
                 <Chip label="Student Only" size="small" sx={{ bgcolor: '#0284C7', color: '#fff', fontWeight: 800 }} />
               </Box>
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                विद्यार्थीहरूलाई हाजिरी %, प्रमाणपत्र र सूचना हेर्नका लागि यो लिङ्क पठाउनुहोस्:
+                विद्यार्थीहरूलाई हाजिरी %, प्रमाणपत्र र सूचना हेर्नका लागि:
               </Typography>
               <TextField
                 fullWidth
                 size="small"
-                value={`${window.location.origin}${window.location.pathname}?portal=student`}
+                value={`${window.location.origin}/student`}
                 InputProps={{
                   readOnly: true,
                   sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
@@ -414,18 +505,69 @@ export default function UserManager() {
                   size="small"
                   variant="contained"
                   startIcon={<ContentCopyIcon />}
-                  onClick={() => handleCopyLink(`${window.location.origin}${window.location.pathname}?portal=student`)}
+                  onClick={() => handleCopyLink(`${window.location.origin}/student`)}
                   sx={{ bgcolor: '#0284C7', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#0369A1' } }}
                 >
-                  {copySuccess ? '✓ Copied' : 'Copy Link'}
+                  {copySuccess ? '✓ Copied' : 'Copy'}
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={() => window.open(`${window.location.origin}${window.location.pathname}?portal=student`, '_blank')}
+                  onClick={() => window.open(`${window.location.origin}/student`, '_blank')}
                   sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
                 >
-                  नयाँ विन्डोमा खोल्नुहोस्
+                  खोल्नुहोस्
+                </Button>
+              </Box>
+            </Paper>
+          </Grid>
+
+          {/* Agent Portal Link Card */}
+          <Grid item xs={12} md={4}>
+            <Paper
+              sx={{
+                p: 2,
+                borderRadius: 2.5,
+                bgcolor: 'rgba(255,255,255,0.1)',
+                border: '1px solid rgba(245, 158, 11, 0.4)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FDE68A' }}>
+                  🤝 एजेन्ट पोर्टल लिङ्क (Agent / Referral)
+                </Typography>
+                <Chip label="Referral Only" size="small" sx={{ bgcolor: '#D97706', color: '#fff', fontWeight: 800 }} />
+              </Box>
+              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
+                रेफ़रल साझेदारहरूलाई लिड पठाउन र कमिसन ट्र्याक गर्नका लागि:
+              </Typography>
+              <TextField
+                fullWidth
+                size="small"
+                value={`${window.location.origin}/agent`}
+                InputProps={{
+                  readOnly: true,
+                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
+                }}
+              />
+              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<ContentCopyIcon />}
+                  onClick={() => handleCopyLink(`${window.location.origin}/agent`)}
+                  sx={{ bgcolor: '#D97706', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#B45309' } }}
+                >
+                  {copySuccess ? '✓ Copied' : 'Copy'}
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => window.open(`${window.location.origin}/agent`, '_blank')}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                >
+                  खोल्नुहोस्
                 </Button>
               </Box>
             </Paper>
@@ -435,7 +577,7 @@ export default function UserManager() {
 
       {/* 2. KPI Cards */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
               कुल प्रयोगकर्ता
@@ -446,7 +588,7 @@ export default function UserManager() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1px solid #BBF7D0' }}>
             <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800 }}>
               सक्रिय (Active)
@@ -457,7 +599,7 @@ export default function UserManager() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FEF2F2', borderRadius: 2.5, border: '1px solid #FECACA' }}>
             <Typography variant="caption" sx={{ color: '#991B1B', fontWeight: 800 }}>
               निलम्बित (Suspended)
@@ -468,7 +610,7 @@ export default function UserManager() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#EFF6FF', borderRadius: 2.5, border: '1px solid #BFDBFE' }}>
             <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800 }}>
               प्रशिक्षक (Trainers)
@@ -479,7 +621,7 @@ export default function UserManager() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FAF5FF', borderRadius: 2.5, border: '1px solid #E9D5FF' }}>
             <Typography variant="caption" sx={{ color: '#6B21A8', fontWeight: 800 }}>
               विद्यार्थी (Students)
@@ -490,12 +632,23 @@ export default function UserManager() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={2}>
+        <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FFFBEB', borderRadius: 2.5, border: '1px solid #FDE68A' }}>
-            <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800 }}>
-              एडमिन / स्टाफ
+            <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800 }}>
+              एजेन्ट (Agents)
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#B45309', mt: 0.5 }}>
+              {agentCount}
+            </Typography>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} sm={4} md={1.8}>
+          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #CBD5E1' }}>
+            <Typography variant="caption" sx={{ color: '#475569', fontWeight: 800 }}>
+              एडमिन / स्टाफ
+            </Typography>
+            <Typography variant="h5" sx={{ fontWeight: 900, color: '#334155', mt: 0.5 }}>
               {adminStaffCount}
             </Typography>
           </Card>
@@ -505,11 +658,11 @@ export default function UserManager() {
       {/* 3. Search & Filter Bar */}
       <Card sx={{ p: 2, mb: 3, borderRadius: 2.5, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={5}>
+          <Grid item xs={12} md={4.5}>
             <TextField
               fullWidth
               size="small"
-              placeholder="नाम, फोन, युजरनेम वा TGID बाट खोज्नुहोस्..."
+              placeholder="नाम, फोन, युजरनेम वा कोडबाट खोज्नुहोस्..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -522,7 +675,7 @@ export default function UserManager() {
             />
           </Grid>
 
-          <Grid item xs={12} md={4}>
+          <Grid item xs={12} md={4.5}>
             <Tabs
               value={roleFilter}
               onChange={(e, val) => setRoleFilter(val)}
@@ -540,6 +693,7 @@ export default function UserManager() {
               <Tab value="ALL" label="सबै (All)" />
               <Tab value="TRAINER" label="प्रशिक्षक" />
               <Tab value="STUDENT" label="विद्यार्थी" />
+              <Tab value="AGENT" label="एजेन्ट (Agents)" />
               <Tab value="ADMIN" label="एडमिन" />
               <Tab value="STAFF" label="स्टाफ" />
             </Tabs>
@@ -637,9 +791,14 @@ export default function UserManager() {
                           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                             {user.name}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
                             ID: {user.id} {user.trainerId ? `• Trainer: ${user.trainerId}` : ''} {user.tgid ? `• TGID: ${user.tgid}` : ''}
                           </Typography>
+                          {(user.role === 'AGENT' || user.agentCode) && (
+                            <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 800 }}>
+                              रेफ़रल कोड: {user.agentCode || user.username}
+                            </Typography>
+                          )}
                         </Box>
                       </Box>
                     </TableCell>
@@ -653,6 +812,8 @@ export default function UserManager() {
                             ? '👨‍🏫 Trainer'
                             : user.role === 'STUDENT'
                             ? '🎓 Student'
+                            : user.role === 'AGENT'
+                            ? '🤝 Agent'
                             : '📋 Staff'
                         }
                         size="small"
@@ -665,7 +826,9 @@ export default function UserManager() {
                               ? '#DCFCE7'
                               : user.role === 'STUDENT'
                               ? '#EFF6FF'
-                              : '#FEF3C7',
+                              : user.role === 'AGENT'
+                              ? '#FEF3C7'
+                              : '#F1F5F9',
                           color:
                             user.role === 'ADMIN'
                               ? '#3730A3'
@@ -673,7 +836,9 @@ export default function UserManager() {
                               ? '#15803D'
                               : user.role === 'STUDENT'
                               ? '#1D4ED8'
-                              : '#92400E'
+                              : user.role === 'AGENT'
+                              ? '#92400E'
+                              : '#475569'
                         }}
                       />
                     </TableCell>
@@ -804,6 +969,7 @@ export default function UserManager() {
                   >
                     <MenuItem value="STUDENT">विद्यार्थी (Student)</MenuItem>
                     <MenuItem value="TRAINER">प्रशिक्षक (Trainer)</MenuItem>
+                    <MenuItem value="AGENT">🤝 रेफ़रल पार्टनर / एजेन्ट (Agent)</MenuItem>
                     <MenuItem value="STAFF">स्टाफ / फ्रन्ट डेस्क (Staff)</MenuItem>
                     <MenuItem value="ADMIN">सुपर एडमिन (Admin)</MenuItem>
                   </TextField>
@@ -822,6 +988,70 @@ export default function UserManager() {
                   </TextField>
                 </Grid>
               </Grid>
+
+              {/* Agent Specific Fields */}
+              {formData.role === 'AGENT' && (
+                <Paper sx={{ p: 2, bgcolor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 2 }}>
+                  <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mb: 1.5 }}>
+                    🤝 एजेन्ट कमिसन तथा रेफ़रल सेटिङहरू (Agent Policy Settings)
+                  </Typography>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="एजेन्ट कोड (Agent Referral Code)"
+                        value={formData.agentCode}
+                        onChange={(e) => setFormData({ ...formData, agentCode: e.target.value })}
+                        placeholder="उदा: AGE-101"
+                        helperText="खाली छाडेमा स्वतः नयाँ कोड जेनेरेट हुनेछ।"
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        label="कमिसन प्रकार"
+                        value={formData.commissionType}
+                        onChange={(e) => setFormData({ ...formData, commissionType: e.target.value })}
+                      >
+                        <MenuItem value="FIXED">फिक्स्ड रकम (Fixed Rs.)</MenuItem>
+                        <MenuItem value="PERCENTAGE">प्रतिशत (Percentage %)</MenuItem>
+                      </TextField>
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        type="number"
+                        fullWidth
+                        size="small"
+                        label={formData.commissionType === 'PERCENTAGE' ? 'कमिसन प्रतिशत (%)' : 'कमिसन रकम (रु.)'}
+                        value={formData.defaultRate}
+                        onChange={(e) => setFormData({ ...formData, defaultRate: e.target.value })}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="ठेगाना / सहर (City)"
+                        value={formData.address}
+                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="कमिसन पाउने eSewa वा बैंक विवरण"
+                        value={formData.paymentInfo}
+                        onChange={(e) => setFormData({ ...formData, paymentInfo: e.target.value })}
+                        placeholder="उदा: eSewa: 9841234567 वा Nabil Bank A/C: 0192837..."
+                      />
+                    </Grid>
+                  </Grid>
+                </Paper>
+              )}
 
               {/* Link with Existing Profile if Trainer */}
               {formData.role === 'TRAINER' && (
