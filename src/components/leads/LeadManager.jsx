@@ -48,6 +48,12 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import HistoryIcon from '@mui/icons-material/History';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
+import HandshakeIcon from '@mui/icons-material/Handshake';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
@@ -69,11 +75,24 @@ export default function LeadManager() {
   const [openImportModal, setOpenImportModal] = useState(false);
 
   // Filters & View Modes
-  const [viewMode, setViewMode] = useState('table'); // 'table', 'card', 'kanban'
+  const [viewMode, setViewMode] = useState('table'); // 'table', 'card', 'kanban', 'agents'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStage, setSelectedStage] = useState('ALL');
   const [selectedPriority, setSelectedPriority] = useState('ALL');
   const [selectedSource, setSelectedSource] = useState('ALL');
+
+  // Agent Management states
+  const [openAddAgentModal, setOpenAddAgentModal] = useState(false);
+  const [agentForm, setAgentForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    address: 'काठमाडौं',
+    commissionType: 'FIXED',
+    defaultRate: 1000,
+    paymentInfo: '',
+    pin: '1234'
+  });
 
   // Feedback Notification
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
@@ -217,9 +236,11 @@ export default function LeadManager() {
 
     const updatedLeads = leads.map((l) => {
       if (l.id === leadId) {
+        const isConverted = newStage === 'Converted';
         return {
           ...l,
           stage: newStage,
+          commissionStatus: isConverted && l.agentId ? 'approved' : l.commissionStatus,
           timeline: updatedTimeline
         };
       }
@@ -235,6 +256,80 @@ export default function LeadManager() {
     }
 
     showToast(`अवस्था बदलिएर '${newStage}' बनाइयो।`);
+  };
+
+  // Handler: Save New Agent
+  const handleSaveAgent = (e) => {
+    if (e) e.preventDefault();
+    if (!agentForm.name.trim() || !agentForm.phone.trim()) {
+      alert('कृपया नाम र फोन नम्बर अनिवार्य लेख्नुहोस्।');
+      return;
+    }
+
+    const currentAgents = db.agents || [];
+    const existingIds = currentAgents
+      .map((a) => {
+        const match = a.code && a.code.match(/\d+/);
+        return match ? parseInt(match[0], 10) : 0;
+      })
+      .filter((n) => !isNaN(n));
+    const nextNum = existingIds.length ? Math.max(...existingIds) + 1 : 101;
+    const newCode = `AGE-${nextNum}`;
+    const newId = `AGT-${String(nextNum).padStart(2, '0')}`;
+
+    const newAgent = {
+      id: newId,
+      code: newCode,
+      name: agentForm.name.trim(),
+      phone: agentForm.phone.trim(),
+      email: agentForm.email.trim() || '',
+      address: agentForm.address.trim() || 'काठमाडौं',
+      pin: agentForm.pin.trim() || '1234',
+      status: 'Active',
+      commissionType: agentForm.commissionType,
+      defaultRate: Number(agentForm.defaultRate) || 1000,
+      paymentInfo: agentForm.paymentInfo.trim() || `eSewa: ${agentForm.phone.trim()}`,
+      joinedDate: new Date().toISOString().slice(0, 10)
+    };
+
+    const nextDb = {
+      ...db,
+      agents: [newAgent, ...currentAgents]
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenAddAgentModal(false);
+    showToast(`नयाँ एजेन्ट (${newAgent.name} - ${newCode}) सफलतापूर्वक दर्ता भयो।`);
+    setAgentForm({
+      name: '',
+      phone: '',
+      email: '',
+      address: 'काठमाडौं',
+      commissionType: 'FIXED',
+      defaultRate: 1000,
+      paymentInfo: '',
+      pin: '1234'
+    });
+  };
+
+  // Handler: Mark Commission Payout as Paid
+  const handleMarkPayoutPaid = (agentCodeOrId) => {
+    const updatedLeads = leads.map((l) => {
+      const match = (l.agentId === agentCodeOrId || l.agentCode === agentCodeOrId) && l.stage === 'Converted';
+      if (match && l.commissionStatus !== 'paid') {
+        return {
+          ...l,
+          commissionStatus: 'paid',
+          commissionPaidDate: new Date().toISOString()
+        };
+      }
+      return l;
+    });
+
+    const nextDb = { ...db, leads: updatedLeads };
+    saveDB(nextDb);
+    setDb(nextDb);
+    showToast('कमिसन भुक्तानी सम्पन्न मार्क गरियो (Commission marked as Paid).');
   };
 
   // Handler: Add Timeline Note
@@ -664,6 +759,9 @@ export default function LeadManager() {
           <ToggleButton value="kanban" aria-label="Kanban View">
             <ViewWeekIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> पाइपलाइन (Kanban)
           </ToggleButton>
+          <ToggleButton value="agents" aria-label="Agents & Referrals">
+            <HandshakeIcon sx={{ mr: 0.5, fontSize: '1.2rem', color: viewMode === 'agents' ? '#FFFFFF' : '#D97706' }} /> एजेन्ट तथा रेफ़रल
+          </ToggleButton>
         </ToggleButtonGroup>
       </Paper>
 
@@ -798,9 +896,24 @@ export default function LeadManager() {
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                             {lead.course || 'सामान्य'}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
                             {lead.subject ? `${lead.subject} • ` : ''} Rs. {Number(lead.price || 0).toLocaleString()}
                           </Typography>
+                          {(lead.agentName || lead.agentCode) && (
+                            <Chip
+                              icon={<HandshakeIcon sx={{ fontSize: '13px !important' }} />}
+                              label={`एजेन्ट: ${lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}`}
+                              size="small"
+                              sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
+                                bgcolor: '#FEF3C7',
+                                color: '#92400E',
+                                fontWeight: 800,
+                                mt: 0.5
+                              }}
+                            />
+                          )}
                         </TableCell>
 
                         <TableCell>
@@ -1300,6 +1413,234 @@ export default function LeadManager() {
       )}
 
       {/* ========================================================= */}
+      {/* VIEW 4: AGENTS & REFERRAL PARTNER MANAGEMENT             */}
+      {/* ========================================================= */}
+      {viewMode === 'agents' && (
+        <Box>
+          {/* Agent KPI Metrics */}
+          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+            {(() => {
+              const allAgents = db.agents || [];
+              const agentLeads = leads.filter((l) => l.agentId || l.agentCode || (l.source && l.source.includes('एजेन्ट')));
+              const convertedAgentLeads = agentLeads.filter((l) => l.stage === 'Converted');
+
+              let totalEarned = 0;
+              let pendingPayout = 0;
+              let paidOut = 0;
+
+              convertedAgentLeads.forEach((l) => {
+                const ag = allAgents.find((a) => a.id === l.agentId || a.code === l.agentCode);
+                let amt = l.commissionAmount;
+                if (!amt) {
+                  amt = ag?.commissionType === 'PERCENTAGE'
+                    ? Math.round(((l.price || 15000) * (ag.defaultRate || 10)) / 100)
+                    : (ag?.defaultRate || 1000);
+                }
+                totalEarned += amt;
+                if (l.commissionStatus === 'paid') paidOut += amt;
+                else pendingPayout += amt;
+              });
+
+              return (
+                <>
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
+                        कुल दर्ता एजेन्ट (Agents)
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', my: 0.5 }}>
+                        {allAgents.length}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>सक्रिय रेफ़रल साझेदारहरू</Typography>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
+                        एजेन्टबाट आएका लिड
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#2563EB', my: 0.5 }}>
+                        {agentLeads.length}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 700 }}>
+                        {convertedAgentLeads.length} जना भर्ना सम्पन्न ({agentLeads.length > 0 ? Math.round((convertedAgentLeads.length / agentLeads.length) * 100) : 0}%)
+                      </Typography>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFBEB' }}>
+                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800, textTransform: 'uppercase' }}>
+                        भुक्तानी गर्न बाँकी कमिसन
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#B45309', my: 0.5 }}>
+                        रु. {pendingPayout.toLocaleString('ne-NP')}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700 }}>स्वीकृत भई दिन बाँकी</Typography>
+                    </Paper>
+                  </Grid>
+
+                  <Grid item xs={12} sm={6} md={3}>
+                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#ECFDF5' }}>
+                      <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
+                        कुल भुक्तानी भइसकेको
+                      </Typography>
+                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>
+                        रु. {paidOut.toLocaleString('ne-NP')}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>सम्पन्न भुक्तानी</Typography>
+                    </Paper>
+                  </Grid>
+                </>
+              );
+            })()}
+          </Grid>
+
+          {/* Agents Directory Card */}
+          <Card elevation={0} sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
+            <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, borderBottom: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                  🤝 आधिकारिक एजेन्ट तथा रेफ़रल साझेदारहरू
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                  एजेन्टहरूको कार्यसम्पादन, सिफारिस लिडहरू तथा कमिसन भुक्तानी व्यवस्थापन
+                </Typography>
+              </Box>
+
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => setOpenAddAgentModal(true)}
+                sx={{
+                  bgcolor: '#0B2545',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  borderRadius: 2.5,
+                  px: 2.5,
+                  '&:hover': { bgcolor: '#133E68' }
+                }}
+              >
+                + नयाँ एजेन्ट दर्ता गर्नुहोस्
+              </Button>
+            </Box>
+
+            <TableContainer>
+              <Table>
+                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>एजेन्ट विवरण (Name & Code)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>सम्पर्क नम्बर</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>कमिसन दर (Policy)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>भुक्तानी खाता (eSewa / Bank)</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>सिफारिस / भर्ना</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 800, color: '#475569' }}>कमिसन (बाँकी / कुल)</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>कार्य (Action)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {(db.agents || []).map((ag) => {
+                    const agentLeads = leads.filter((l) => l.agentId === ag.id || l.agentCode === ag.code);
+                    const converted = agentLeads.filter((l) => l.stage === 'Converted');
+
+                    let earned = 0;
+                    let pending = 0;
+                    converted.forEach((l) => {
+                      let amt = l.commissionAmount;
+                      if (!amt) {
+                        amt = ag.commissionType === 'PERCENTAGE'
+                          ? Math.round(((l.price || 15000) * (ag.defaultRate || 10)) / 100)
+                          : (ag.defaultRate || 1000);
+                      }
+                      earned += amt;
+                      if (l.commissionStatus !== 'paid') pending += amt;
+                    });
+
+                    return (
+                      <TableRow key={ag.id} hover>
+                        <TableCell>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                            {ag.name}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.3 }}>
+                            <Chip label={ag.code} size="small" sx={{ fontWeight: 800, bgcolor: '#FEF3C7', color: '#92400E', height: 20, fontSize: '0.7rem' }} />
+                            <Typography variant="caption" sx={{ color: '#64748B' }}>{ag.address || 'काठमाडौं'}</Typography>
+                          </Box>
+                        </TableCell>
+
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                            {ag.phone}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                            पिन: {ag.pin || '1234'}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell>
+                          <Chip
+                            label={ag.commissionType === 'PERCENTAGE' ? `${ag.defaultRate}% प्रति भर्ना` : `रु. ${Number(ag.defaultRate || 1000).toLocaleString('ne-NP')} प्रति भर्ना`}
+                            size="small"
+                            sx={{ fontWeight: 800, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
+                          />
+                        </TableCell>
+
+                        <TableCell sx={{ maxWidth: 220 }}>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
+                            {ag.paymentInfo || 'विवरण भरिएको छैन'}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell align="center">
+                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                            {agentLeads.length} लिड
+                          </Typography>
+                          <Chip
+                            label={`${converted.length} भर्ना`}
+                            size="small"
+                            color={converted.length > 0 ? 'success' : 'default'}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
+                          />
+                        </TableCell>
+
+                        <TableCell align="right">
+                          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: pending > 0 ? '#B45309' : '#059669' }}>
+                            रु. {pending.toLocaleString('ne-NP')} (बाँकी)
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            कुल: रु. {earned.toLocaleString('ne-NP')}
+                          </Typography>
+                        </TableCell>
+
+                        <TableCell align="center">
+                          <Stack direction="row" spacing={1} justifyContent="center">
+                            {pending > 0 ? (
+                              <Button
+                                size="small"
+                                variant="contained"
+                                color="warning"
+                                onClick={() => handleMarkPayoutPaid(ag.code)}
+                                sx={{ fontWeight: 800, fontSize: '0.72rem', borderRadius: 2 }}
+                              >
+                                भुक्तानी सम्पन्न मार्क
+                              </Button>
+                            ) : (
+                              <Chip label="बाँकी छैन (Clear)" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        </Box>
+      )}
+
+      {/* ========================================================= */}
       {/* MODALS                                                    */}
       {/* ========================================================= */}
 
@@ -1350,6 +1691,112 @@ export default function LeadManager() {
         onClose={() => setOpenImportModal(false)}
         onImportSuccess={handleImportLeads}
       />
+
+      {/* 5. Add New Agent Modal */}
+      <Dialog
+        open={openAddAgentModal}
+        onClose={() => setOpenAddAgentModal(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+      >
+        <form onSubmit={handleSaveAgent}>
+          <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A' }}>
+            + नयाँ एजेन्ट / रेफ़रल पार्टनर दर्ता (Add Referral Partner)
+          </DialogTitle>
+          <DialogContent dividers>
+            <Stack spacing={2.2} sx={{ pt: 1 }}>
+              <TextField
+                required
+                fullWidth
+                label="एजेन्टको पूरा नाम (Agent Full Name)"
+                placeholder="उदा: सुवास घिमिरे"
+                value={agentForm.name}
+                onChange={(e) => setAgentForm({ ...agentForm, name: e.target.value })}
+              />
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    required
+                    fullWidth
+                    label="सम्पर्क नम्बर (Phone / WhatsApp)"
+                    placeholder="उदा: 9841234567"
+                    value={agentForm.phone}
+                    onChange={(e) => setAgentForm({ ...agentForm, phone: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="इमेल (Email)"
+                    placeholder="agent@gmail.com"
+                    value={agentForm.email}
+                    onChange={(e) => setAgentForm({ ...agentForm, email: e.target.value })}
+                  />
+                </Grid>
+              </Grid>
+
+              <TextField
+                fullWidth
+                label="ठेगाना / सहर (Address)"
+                value={agentForm.address}
+                onChange={(e) => setAgentForm({ ...agentForm, address: e.target.value })}
+              />
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    label="कमिसन प्रकार (Commission Type)"
+                    value={agentForm.commissionType}
+                    onChange={(e) => setAgentForm({ ...agentForm, commissionType: e.target.value })}
+                  >
+                    <MenuItem value="FIXED">फिक्स्ड रकम (Fixed Amount)</MenuItem>
+                    <MenuItem value="PERCENTAGE">प्रतिशत (Percentage % of Fee)</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="number"
+                    fullWidth
+                    label={agentForm.commissionType === 'PERCENTAGE' ? 'कमिसन प्रतिशत (%)' : 'कमिसन रकम (रु.)'}
+                    value={agentForm.defaultRate}
+                    onChange={(e) => setAgentForm({ ...agentForm, defaultRate: e.target.value })}
+                  />
+                </Grid>
+              </Grid>
+
+              <TextField
+                fullWidth
+                label="कमिसन भुक्तानी खाता (eSewa / Bank Details)"
+                placeholder="उदा: eSewa: 9841234567 वा Global IME Bank: 01928374..."
+                value={agentForm.paymentInfo}
+                onChange={(e) => setAgentForm({ ...agentForm, paymentInfo: e.target.value })}
+              />
+
+              <TextField
+                fullWidth
+                type="password"
+                label="लगइन ४-अङ्कको पिन (Login PIN)"
+                value={agentForm.pin}
+                onChange={(e) => setAgentForm({ ...agentForm, pin: e.target.value })}
+                inputProps={{ maxLength: 6 }}
+                helperText="एजेन्टले /agent पोर्टलमा लगइन गर्दा प्रयोग गर्ने पिन।"
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setOpenAddAgentModal(false)} sx={{ fontWeight: 700 }}>
+              रद्द
+            </Button>
+            <Button type="submit" variant="contained" sx={{ bgcolor: '#0B2545', fontWeight: 800, px: 3 }}>
+              एजेन्ट सुरक्षित गर्नुहोस्
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
 
       {/* Snackbar Feedback */}
       <Snackbar

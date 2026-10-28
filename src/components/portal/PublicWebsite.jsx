@@ -34,6 +34,7 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CloseIcon from '@mui/icons-material/Close';
+import HandshakeIcon from '@mui/icons-material/Handshake';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { calculateFeeBreakdown } from '../courses/CourseFeeManager';
@@ -42,6 +43,28 @@ import { verifyCertificateRemote } from '../../services/supabaseClient';
 export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   const [db, setDb] = useState(loadDB());
   const company = db.settings?.companyProfile || {};
+
+  // Detect referral agent parameter ?ref=AGE-101 or ?agent=AGE-101
+  const refCode = useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('ref') || params.get('agent') || null;
+    } catch (_) {
+      return null;
+    }
+  }, []);
+
+  const referredAgent = useMemo(() => {
+    if (!refCode) return null;
+    const agents = db.agents || [];
+    return (
+      agents.find(
+        (a) =>
+          a.code?.toLowerCase() === refCode.trim().toLowerCase() ||
+          a.id?.toLowerCase() === refCode.trim().toLowerCase()
+      ) || null
+    );
+  }, [refCode, db.agents]);
 
   // Form State for Online Lead Inquiry
   const [inquiryForm, setInquiryForm] = useState({
@@ -108,13 +131,35 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       phone: inquiryForm.phone.trim(),
       email: inquiryForm.email.trim(),
       courseId: inquiryForm.courseId,
-      source: 'वेबसाइट अनलाइन सोधपुछ (Web Inquiry)',
-      status: 'New',
-      notes: `इच्छुक समय: ${inquiryForm.preferredShift} | सन्देश: ${inquiryForm.notes || 'छैन'}`,
+      course: chosenCourse?.title || 'व्यावसायिक तालिम',
+      price: chosenCourse?.price || 15000,
+      source: referredAgent
+        ? `एजेन्ट रेफ़रल (${referredAgent.name} - ${referredAgent.code})`
+        : 'वेबसाइट अनलाइन सोधपुछ (Web Inquiry)',
+      agentId: referredAgent?.id || null,
+      agentCode: referredAgent?.code || null,
+      agentName: referredAgent?.name || null,
+      commissionType: referredAgent?.commissionType || null,
+      commissionRate: referredAgent?.defaultRate || null,
+      potentialCommission: referredAgent
+        ? (referredAgent.commissionType === 'PERCENTAGE'
+            ? Math.round(((chosenCourse?.price || 15000) * (referredAgent.defaultRate || 10)) / 100)
+            : (referredAgent.defaultRate || 1000))
+        : 0,
+      commissionAmount: referredAgent
+        ? (referredAgent.commissionType === 'PERCENTAGE'
+            ? Math.round(((chosenCourse?.price || 15000) * (referredAgent.defaultRate || 10)) / 100)
+            : (referredAgent.defaultRate || 1000))
+        : 0,
+      commissionStatus: referredAgent ? 'pending' : null,
+      stage: 'New Lead',
+      notes: `इच्छुक समय: ${inquiryForm.preferredShift} | सन्देश: ${inquiryForm.notes || 'छैन'} ${referredAgent ? `| रेफ़रल: ${referredAgent.name} (${referredAgent.code})` : ''}`,
       timeline: [
         {
           date: new Date().toISOString(),
-          note: `वेबसाइटबाट नयाँ सोधपुछ दर्ता: ${chosenCourse?.title || 'कोर्स'}`,
+          note: referredAgent
+            ? `वेबसाइट रेफ़रल फारम दर्ता: ${referredAgent.name} (${referredAgent.code})`
+            : `वेबसाइटबाट नयाँ सोधपुछ दर्ता: ${chosenCourse?.title || 'कोर्स'}`,
           staffName: 'Online Web Portal'
         }
       ],
@@ -262,6 +307,22 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Button
                 variant="outlined"
                 size="small"
+                startIcon={<HandshakeIcon />}
+                onClick={() => onNavigate('agent')}
+                sx={{
+                  borderColor: '#F59E0B',
+                  color: '#F59E0B',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.15)', borderColor: '#D97706' }
+                }}
+              >
+                एजेन्ट पोर्टल
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
                 startIcon={<PeopleAltIcon />}
                 onClick={() => onNavigate('trainer')}
                 sx={{
@@ -293,6 +354,18 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           </Box>
         </Container>
       </Box>
+
+      {/* Referral Partner Notification Banner if ?ref=... is present */}
+      {referredAgent && (
+        <Box sx={{ bgcolor: '#FFFBEB', borderBottom: '2px solid #FCD34D', py: 1.2, px: 2, textAlign: 'center' }}>
+          <Container maxWidth="lg">
+            <Typography variant="body2" sx={{ color: '#92400E', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <HandshakeIcon sx={{ color: '#D97706', fontSize: 20 }} />
+              नमस्ते! तपाईंलाई हाम्रा आधिकारिक रेफ़रल प्रतिनिधि <u>{referredAgent.name} (कोड: {referredAgent.code})</u> ले सिफारिस गर्नुभएको छ। विशेष सहुलियत तथा भर्ना परामर्शका लागि तलको फारम भर्नुहोस्।
+            </Typography>
+          </Container>
+        </Box>
+      )}
 
       {/* ============================================================== */}
       {/* 2. HERO BANNER SECTION                                          */}
@@ -822,6 +895,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 प्रयोगकर्ता पोर्टलहरू
               </Typography>
               <Stack spacing={1}>
+                <Button
+                  size="small"
+                  onClick={() => onNavigate('agent')}
+                  sx={{ color: '#FCD34D', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
+                >
+                  🤝 एजेन्ट / रेफ़रल पोर्टल (Agent Portal)
+                </Button>
                 <Button
                   size="small"
                   onClick={() => onNavigate('trainer')}

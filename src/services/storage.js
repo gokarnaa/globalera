@@ -77,7 +77,52 @@ export function generateDefaultUsers(trainers = [], students = []) {
     createdAt: s.admissionDate || '2026-01-01'
   }));
 
-  return [adminUser, staffUser, ...trainerUsers, ...studentUsers];
+  const initialAgents = [
+    {
+      id: 'AGT-01',
+      code: 'AGE-101',
+      name: 'रमेश श्रेष्ठ (Ramesh Shrestha)',
+      phone: '9841234567',
+      email: 'ramesh.agent@gmail.com',
+      address: 'चाबहिल, काठमाडौं',
+      pin: '1234',
+      status: 'Active',
+      commissionType: 'FIXED', // 'FIXED' or 'PERCENTAGE'
+      defaultRate: 1000,
+      paymentInfo: 'eSewa: 9841234567',
+      joinedDate: '2026-01-15'
+    },
+    {
+      id: 'AGT-02',
+      code: 'AGE-102',
+      name: 'सुनिता गुरुङ (Sunita Gurung)',
+      phone: '9851234567',
+      email: 'sunita.edupath@gmail.com',
+      address: 'पोखरा / काठमाडौं',
+      pin: '1234',
+      status: 'Active',
+      commissionType: 'PERCENTAGE',
+      defaultRate: 10,
+      paymentInfo: 'Khalti: 9851234567',
+      joinedDate: '2026-02-01'
+    }
+  ];
+
+  const agentUsers = initialAgents.map((a, idx) => ({
+    id: `USR-${a.id}`,
+    username: (a.code || `agent${idx + 1}`).toLowerCase(),
+    phone: a.phone,
+    name: a.name,
+    role: 'AGENT',
+    agentId: a.id,
+    agentCode: a.code,
+    pin: a.pin || '1234',
+    status: a.status === 'Suspended' ? 'Suspended' : 'Active',
+    title: 'Referral Partner / Agent',
+    createdAt: a.joinedDate || '2026-01-01'
+  }));
+
+  return [adminUser, staffUser, ...trainerUsers, ...studentUsers, ...agentUsers];
 }
 
 export const INITIAL_SEED_DATA = {
@@ -974,6 +1019,63 @@ export const INITIAL_SEED_DATA = {
         { date: '2026-10-26T08:00:00Z', note: 'Lead captured from Website Inquiry Form.', staffName: 'System' }
       ],
       createdAt: '2026-10-26T08:00:00Z'
+    },
+    {
+      id: 'L0006',
+      name: 'दिनेश अधिकारी (Dinesh Adhikari)',
+      phone: '9841998811',
+      address: 'कोटेश्वर, काठमाडौं',
+      subject: 'Mobile Repair',
+      course: 'Smartphone Hardware & Software',
+      duration: '2 Months (260 hrs)',
+      price: 18000,
+      source: 'एजेन्ट रेफ़रल (रमेश श्रेष्ठ - AGE-101)',
+      agentId: 'AGT-01',
+      agentCode: 'AGE-101',
+      agentName: 'रमेश श्रेष्ठ (Ramesh Shrestha)',
+      priority: 'High',
+      stage: 'Contacted',
+      notes: 'एजेन्ट रमेशजी मार्फत सिफारिस। अनलाइनबाट बुझेको।',
+      commissionType: 'FIXED',
+      commissionRate: 1000,
+      potentialCommission: 1000,
+      commissionStatus: 'pending',
+      followUpDate: '2026-10-29',
+      timeline: [
+        { date: '2026-10-27T10:00:00Z', note: 'एजेन्ट पोर्टलबाट लिड प्राप्त भयो: रमेश श्रेष्ठ (AGE-101)', staffName: 'Agent Portal' }
+      ],
+      createdAt: '2026-10-27T10:00:00Z'
+    }
+  ],
+
+  agents: [
+    {
+      id: 'AGT-01',
+      code: 'AGE-101',
+      name: 'रमेश श्रेष्ठ (Ramesh Shrestha)',
+      phone: '9841234567',
+      email: 'ramesh.agent@gmail.com',
+      address: 'चाबहिल, काठमाडौं',
+      pin: '1234',
+      status: 'Active',
+      commissionType: 'FIXED',
+      defaultRate: 1000,
+      paymentInfo: 'eSewa: 9841234567',
+      joinedDate: '2026-01-15'
+    },
+    {
+      id: 'AGT-02',
+      code: 'AGE-102',
+      name: 'सुनिता गुरुङ (Sunita Gurung)',
+      phone: '9851234567',
+      email: 'sunita.edupath@gmail.com',
+      address: 'पोखरा / काठमाडौं',
+      pin: '1234',
+      status: 'Active',
+      commissionType: 'PERCENTAGE',
+      defaultRate: 10,
+      paymentInfo: 'Khalti: 9851234567',
+      joinedDate: '2026-02-01'
     }
   ],
 
@@ -1440,6 +1542,7 @@ export function loadDB() {
       auditLogs: parsed.auditLogs || INITIAL_SEED_DATA.auditLogs,
       studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
       leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
+      agents: (parsed.agents && parsed.agents.length > 0) ? parsed.agents : INITIAL_SEED_DATA.agents || [],
       admissions: parsed.admissions || INITIAL_SEED_DATA.admissions || [],
       parties: (parsed.parties && parsed.parties.length > 0) ? parsed.parties : INITIAL_SEED_DATA.parties || [],
       payments: parsed.payments || INITIAL_SEED_DATA.payments || [],

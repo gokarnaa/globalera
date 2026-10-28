@@ -145,6 +145,7 @@ export default function ConvertToStudentModal({
         return {
           ...l,
           stage: 'Converted',
+          commissionStatus: (l.agentId || l.agentCode) ? 'approved' : l.commissionStatus,
           convertedToStudentId: newStudent.id,
           timeline: updatedTimeline
         };

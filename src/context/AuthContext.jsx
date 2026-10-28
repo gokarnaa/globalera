@@ -41,11 +41,13 @@ export function AuthProvider({ children }) {
       const uId = (u.id || '').trim().toLowerCase();
       const uStudentId = (u.studentId || '').trim().toLowerCase();
       const uTrainerId = (u.trainerId || '').trim().toLowerCase();
+      const uAgentId = (u.agentId || '').trim().toLowerCase();
+      const uAgentCode = (u.agentCode || '').trim().toLowerCase();
       const uTgid = (u.tgid || '').trim().toLowerCase();
 
       return (
         (cleanPhone && (uPhone === cleanPhone || uPhone.endsWith(cleanPhone) || cleanPhone.endsWith(uPhone))) ||
-        (cleanId && (uUsername === cleanId || uId === cleanId || uStudentId === cleanId || uTrainerId === cleanId || uTgid === cleanId))
+        (cleanId && (uUsername === cleanId || uId === cleanId || uStudentId === cleanId || uTrainerId === cleanId || uAgentId === cleanId || uAgentCode === cleanId || uTgid === cleanId))
       );
     });
 
@@ -99,6 +101,20 @@ export function AuthProvider({ children }) {
             role: 'ADMIN',
             phone: matchedUser.phone,
             title: 'Institute Administrator'
+          };
+        } else if (matchedUser.role === 'AGENT') {
+          const ag = (currentDb.agents || []).find((a) => a.id === matchedUser.agentId || a.code === matchedUser.agentCode) || {};
+          userObj = {
+            id: matchedUser.id,
+            agentId: matchedUser.agentId || ag.id,
+            agentCode: matchedUser.agentCode || ag.code,
+            name: matchedUser.name || ag.name,
+            role: 'AGENT',
+            phone: matchedUser.phone || ag.phone,
+            email: ag.email,
+            commissionType: ag.commissionType,
+            defaultRate: ag.defaultRate,
+            title: 'रेफ़रल पार्टनर / एजेन्ट (Referral Partner)'
           };
         } else if (matchedUser.role === 'STAFF') {
           userObj = {
@@ -162,6 +178,38 @@ export function AuthProvider({ children }) {
       }
       if (cleanPin === (student.pin || '1234') || cleanPin === '1111' || cleanPin === '3333') {
         return loginAsStudent(student.id);
+      }
+      return { success: false, message: 'पिन कोड मिलेन।' };
+    }
+
+    // 4. Direct Fallback: Check Agents table
+    const agent = (currentDb.agents || []).find((a) => {
+      const p = (a.phone || '').trim().replace(/[^0-9]/g, '');
+      const code = (a.code || '').trim().toLowerCase();
+      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || code === cleanId || a.id.toLowerCase() === cleanId;
+    });
+
+    if (agent) {
+      if (agent.status === 'Suspended') {
+        return { success: false, message: 'एजेन्ट खाता निलम्बित गरिएको छ।' };
+      }
+      if (cleanPin === (agent.pin || '1234') || cleanPin === '1111') {
+        const user = {
+          id: `USR-${agent.id}`,
+          agentId: agent.id,
+          agentCode: agent.code,
+          name: agent.name,
+          role: 'AGENT',
+          phone: agent.phone,
+          email: agent.email,
+          commissionType: agent.commissionType,
+          defaultRate: agent.defaultRate,
+          title: 'रेफ़रल पार्टनर / एजेन्ट (Referral Partner)'
+        };
+        setCurrentUser(user);
+        sessionStorage.setItem('kite_current_user', JSON.stringify(user));
+        setIsLocked(false);
+        return { success: true, user };
       }
       return { success: false, message: 'पिन कोड मिलेन।' };
     }
@@ -328,9 +376,11 @@ export function AuthProvider({ children }) {
         isStaff: currentUser?.role === 'STAFF',
         isStudent: currentUser?.role === 'STUDENT',
         isEmployer: currentUser?.role === 'EMPLOYER',
+        isAgent: currentUser?.role === 'AGENT',
         activeTrainerId: currentUser?.role === 'TRAINER' ? currentUser.trainerId : null,
         activeStudentId: currentUser?.role === 'STUDENT' ? currentUser.studentId : null,
-        activeEmployerId: currentUser?.role === 'EMPLOYER' ? currentUser.employerId : null
+        activeEmployerId: currentUser?.role === 'EMPLOYER' ? currentUser.employerId : null,
+        activeAgentId: currentUser?.role === 'AGENT' ? currentUser.agentId : null
       }}
     >
       {children}

@@ -46,6 +46,7 @@ import SettingsManager from './components/settings/SettingsManager';
 import StudentPortal from './components/portal/StudentPortal';
 import EmployerPortal from './components/portal/EmployerPortal';
 import TrainerPortal from './components/portal/TrainerPortal';
+import AgentPortal from './components/portal/AgentPortal';
 import PublicWebsite from './components/portal/PublicWebsite';
 import UserManager from './components/users/UserManager';
 import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
@@ -110,6 +111,7 @@ export default function App() {
     const verify = params.get('verify');
 
     if (verify || path === '/verify') return 'verify';
+    if (portal === 'agent' || path === '/agent') return 'agent';
     if (portal === 'trainer' || path === '/trainer') return 'trainer';
     if (portal === 'student' || path === '/student') return 'student';
     if (portal === 'admin' || path === '/admin' || path === '/ge-admin' || path === '/office' || path === '/mgmt') return 'admin';
@@ -123,6 +125,7 @@ export default function App() {
     if (updateUrl) {
       const pathMap = {
         home: '/',
+        agent: '/agent',
         trainer: '/trainer',
         student: '/student',
         admin: '/ge-admin',
@@ -358,7 +361,29 @@ export default function App() {
     );
   }
 
-  // 2. DEDICATED TRAINER PORTAL ROUTE (/trainer)
+  // 2. DEDICATED AGENT / REFERRAL PORTAL ROUTE (/agent)
+  if (currentRoute === 'agent') {
+    if (!currentUser || currentUser?.role !== 'AGENT') {
+      return (
+        <Box sx={{ minHeight: '100vh', bgcolor: '#431407' }}>
+          <CssBaseline />
+          <UnifiedLoginScreen
+            initialMode="agent"
+            allowedModes={['agent', 'trainer', 'student']}
+            onBackHome={() => navigateTo('home')}
+          />
+        </Box>
+      );
+    }
+    return (
+      <AgentPortal
+        onLogout={() => { logout(); navigateTo('home'); }}
+        onGoHome={() => navigateTo('home')}
+      />
+    );
+  }
+
+  // 3. DEDICATED TRAINER PORTAL ROUTE (/trainer)
   if (currentRoute === 'trainer') {
     if (!currentUser || currentUser?.role !== 'TRAINER') {
       return (
@@ -441,6 +466,16 @@ export default function App() {
           <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
         </Box>
       </Box>
+    );
+  }
+
+  // Role Enforcement: If logged in user is an Agent, lock to Agent Portal
+  if (currentUser?.role === 'AGENT') {
+    return (
+      <AgentPortal
+        onLogout={() => { logout(); navigateTo('home'); }}
+        onGoHome={() => navigateTo('home')}
+      />
     );
   }
 

@@ -47,6 +47,7 @@ export const MASTER_SUBJECTS = [
 ];
 
 export const LEAD_SOURCES = [
+  'Agent Referral (एजेन्ट रेफ़रल)',
   'Walk-in (कार्यालयमा आएको)',
   'Phone Inquiry (फोन सम्पर्क)',
   'Facebook (फेसबुक)',
