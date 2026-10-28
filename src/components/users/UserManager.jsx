@@ -655,38 +655,49 @@ export default function UserManager() {
         </Grid>
       </Grid>
 
-      {/* 3. Search & Filter Bar */}
-      <Card sx={{ p: 2, mb: 3, borderRadius: 2.5, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={4.5}>
+      {/* 3. Search & Filter Bar (Compact & Balanced Layout) */}
+      <Card sx={{ p: 1.5, mb: 3, borderRadius: 2.5, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
+        <Grid container spacing={1.5} alignItems="center">
+          {/* Compact Search Box */}
+          <Grid item xs={12} sm={4} md={2.8}>
             <TextField
               fullWidth
               size="small"
-              placeholder="नाम, फोन, युजरनेम वा कोडबाट खोज्नुहोस्..."
+              placeholder="खोज्नुहोस्: नाम, फोन, कोड..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94A3B8' }} />
+                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 19 }} />
                   </InputAdornment>
-                )
+                ),
+                sx: { height: 38, fontSize: '0.82rem', borderRadius: 2 }
               }}
             />
           </Grid>
 
-          <Grid item xs={12} md={4.5}>
+          {/* Expanded Role Tabs (All 6 Roles visible without scroll arrows) */}
+          <Grid item xs={12} sm={8} md={7.2}>
             <Tabs
               value={roleFilter}
               onChange={(e, val) => setRoleFilter(val)}
               variant="scrollable"
               scrollButtons="auto"
+              allowScrollButtonsMobile
               sx={{
+                minHeight: 38,
+                '& .MuiTabs-indicator': { height: 3, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
                 '& .MuiTab-root': {
                   fontWeight: 800,
-                  fontSize: '0.8rem',
-                  minHeight: 36,
-                  py: 0.5
+                  fontSize: '0.82rem',
+                  minHeight: 38,
+                  py: 0.5,
+                  px: { xs: 1, sm: 1.6 },
+                  minWidth: 'auto',
+                  textTransform: 'none',
+                  color: '#64748B',
+                  '&.Mui-selected': { color: '#0F2E5A', fontWeight: 900 }
                 }
               }}
             >
@@ -699,7 +710,8 @@ export default function UserManager() {
             </Tabs>
           </Grid>
 
-          <Grid item xs={12} md={3}>
+          {/* Compact Status Filter */}
+          <Grid item xs={12} sm={6} md={2}>
             <TextField
               select
               fullWidth
@@ -707,10 +719,13 @@ export default function UserManager() {
               label="स्थिति (Status)"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
+              InputProps={{
+                sx: { height: 38, fontSize: '0.82rem', borderRadius: 2 }
+              }}
             >
-              <MenuItem value="ALL">सबै स्थिति (All Status)</MenuItem>
-              <MenuItem value="Active">सक्रिय (Active Only)</MenuItem>
-              <MenuItem value="Suspended">निलम्बित (Suspended Only)</MenuItem>
+              <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>सबै स्थिति (All)</MenuItem>
+              <MenuItem value="Active" sx={{ fontSize: '0.82rem' }}>सक्रिय (Active)</MenuItem>
+              <MenuItem value="Suspended" sx={{ fontSize: '0.82rem' }}>निलम्बित (Suspended)</MenuItem>
             </TextField>
           </Grid>
         </Grid>
