@@ -54,9 +54,11 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import BoltIcon from '@mui/icons-material/Bolt';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { syncBiometricAttendance } from '../../services/biometricService';
 
 export default function Dashboard({ onNavigate }) {
   const [db, setDb] = useState(loadDB());
@@ -929,6 +931,113 @@ export default function Dashboard({ onNavigate }) {
           </Typography>
         </Alert>
       )}
+
+      {/* 4.5 REAL-TIME LIVE ATTENDANCE COMMAND CARD */}
+      <Card
+        sx={{
+          mb: 3.5,
+          p: { xs: 2.5, sm: 3 },
+          borderRadius: 3.5,
+          bgcolor: '#FFFFFF',
+          border: '1.5px solid #BBF7D0',
+          boxShadow: '0 6px 24px -4px rgba(16, 185, 129, 0.12)',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+            <Avatar sx={{ bgcolor: '#DCFCE7', color: '#15803D', width: 42, height: 42, border: '1px solid #86EFAC' }}>
+              <FingerprintIcon />
+            </Avatar>
+            <Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
+                  📡 आजको प्रत्यक्ष लाइभ हाजिरी (Real-time Live Attendance Hub)
+                </Typography>
+                <Chip
+                  label="🟢 WiFi ZKTeco K40 (Online)"
+                  size="small"
+                  sx={{ bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.72rem' }}
+                />
+              </Box>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                गेटमा थम्ब स्क्यान गर्ने बित्तिकै तत्काल यहाँ देखिन्छ • अन्तिम सिङ्क: {db.settings?.biometricSettings?.lastSyncTime || '०७:४५ AM'}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<FingerprintIcon />}
+              onClick={() => {
+                const today = new Date().toISOString().slice(0, 10);
+                const res = syncBiometricAttendance(today);
+                setDb(loadDB());
+                alert(`📡 बायोमेट्रिक सिङ्क सफल! (${res.syncedCount} वटा नयाँ लग अद्यावधिक)`);
+              }}
+              sx={{ fontWeight: 800, color: '#15803D', borderColor: '#86EFAC', borderRadius: 2 }}
+            >
+              मेसिन सिङ्क (Sync)
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={() => onNavigate('live_attendance')}
+              endIcon={<ArrowForwardIcon />}
+              sx={{ fontWeight: 900, bgcolor: '#0F2E5A', '&:hover': { bgcolor: '#0B2545' }, borderRadius: 2 }}
+            >
+              पूर्ण लाइभ मनिटर खोल्नुहोस् ➔
+            </Button>
+          </Box>
+        </Box>
+
+        {/* 4 Latest Punches Ticker Grid */}
+        <Grid container spacing={1.5}>
+          {(db.biometricLogs || []).slice(0, 4).map((log, idx) => (
+            <Grid item xs={12} sm={6} md={3} key={log.id || idx}>
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2.5,
+                  bgcolor: '#F8FAFC',
+                  borderColor: '#E2E8F0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.2
+                }}
+              >
+                <Avatar sx={{ bgcolor: log.role === 'STUDENT' ? '#DCFCE7' : '#FEF3C7', color: log.role === 'STUDENT' ? '#15803D' : '#92400E', width: 36, height: 36, fontWeight: 900, fontSize: '0.85rem' }}>
+                  {log.name?.[0] || 'U'}
+                </Avatar>
+                <Box sx={{ minWidth: 0, flex: 1 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.82rem', whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
+                    {log.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#0F2E5A', fontWeight: 800, fontSize: '0.7rem', display: 'block' }}>
+                    🕒 {log.timestamp} • #{log.biometricId}
+                  </Typography>
+                </Box>
+                <Chip
+                  label="🟢 समयमै"
+                  size="small"
+                  sx={{ height: 18, fontSize: '0.62rem', fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
+                />
+              </Paper>
+            </Grid>
+          ))}
+          {(db.biometricLogs || []).length === 0 && (
+            <Grid item xs={12}>
+              <Typography variant="caption" sx={{ color: '#94A3B8', textAlign: 'center', display: 'block', py: 1 }}>
+                आज हालसम्म कुनै पनि नयाँ थम्ब स्क्यान रेकर्ड भएको छैन।
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Card>
 
       {/* 5. Schedule & Batches Table + Notices */}
       <Grid container spacing={3}>

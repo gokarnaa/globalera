@@ -29,6 +29,7 @@ import AccountsManager from './components/accounts/AccountsManager';
 import WorkPlanManager from './components/workplan/WorkPlanManager';
 import LessonPlanManager from './components/lessonplan/LessonPlanManager';
 import AttendanceManager from './components/attendance/AttendanceManager';
+import LiveAttendanceMonitor from './components/attendance/LiveAttendanceMonitor';
 import LogBookManager from './components/logbook/LogBookManager';
 import EvaluationManager from './components/evaluation/EvaluationManager';
 import EmployerManager from './components/employers/EmployerManager';
@@ -304,6 +305,8 @@ export default function App() {
         return <WorkPlanManager />;
       case 'lessonplan':
         return <LessonPlanManager />;
+      case 'live_attendance':
+        return <LiveAttendanceMonitor onNavigate={setCurrentTab} />;
       case 'attendance':
         return <AttendanceManager initialGroupId={attendanceGroupId} />;
       case 'logbook':

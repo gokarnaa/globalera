@@ -40,6 +40,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
@@ -61,7 +62,8 @@ const NAV_ITEMS = [
 
   // --- 3. तालिम तथा कक्षा सञ्चालन ---
   { section: '३. तालिम तथा कक्षा सञ्चालन (ACADEMICS)' },
-  { id: 'attendance', label: 'दैनिक हाजिरी (Daily Attendance)', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Live' },
+  { id: 'live_attendance', label: '📡 प्रत्यक्ष लाइभ हाजिरी (Live Attendance)', icon: <FingerprintIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'LIVE' },
+  { id: 'attendance', label: 'दैनिक हाजिरी (Daily Attendance)', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'workplan', label: 'कार्य-योजना (Work Plan)', icon: <EventNoteIcon />, roles: ['ADMIN'] },
   { id: 'lessonplan', label: 'पाठ-योजना (Lesson Plan)', icon: <AssignmentIcon />, roles: ['ADMIN'] },
   { id: 'logbook', label: 'CTEVT दैनिक लग-बुक (Log Book)', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
