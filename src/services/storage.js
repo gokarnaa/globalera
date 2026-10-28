@@ -189,6 +189,7 @@ export const INITIAL_SEED_DATA = {
   trainers: [
     {
       id: 'TRN-01',
+      biometricId: '2001',
       name: 'Pooja Rajbanshi',
       phone: '9841234567',
       occupationId: 'OCC-01',
@@ -201,6 +202,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'TRN-02',
+      biometricId: '2002',
       name: 'Sister Anita Thapa',
       phone: '9851098765',
       occupationId: 'OCC-02',
@@ -213,6 +215,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'TRN-03',
+      biometricId: '2003',
       name: 'Suresh Shrestha',
       phone: '9860112233',
       occupationId: 'OCC-03',
@@ -225,6 +228,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'TRN-04',
+      biometricId: '2004',
       name: 'Chef Bikram Gurung',
       phone: '9813445566',
       occupationId: 'OCC-04',
@@ -300,6 +304,7 @@ export const INITIAL_SEED_DATA = {
   students: [
     {
       id: 'STD-01',
+      biometricId: '1001',
       tgid: 'TGID-101',
       name: 'Sunita Sharma',
       phone: '9841987654',
@@ -322,6 +327,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'STD-02',
+      biometricId: '1002',
       tgid: 'TGID-102',
       name: 'Alina Rai',
       phone: '9818554433',
@@ -344,6 +350,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'STD-03',
+      biometricId: '1003',
       tgid: 'TGID-103',
       name: 'Manish Adhikari',
       phone: '9861223344',
@@ -366,6 +373,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'STD-04',
+      biometricId: '1004',
       tgid: 'TGID-104',
       name: 'Pabitra Magar',
       phone: '9808332211',
@@ -388,6 +396,7 @@ export const INITIAL_SEED_DATA = {
     },
     {
       id: 'STD-05',
+      biometricId: '1005',
       tgid: 'TGID-105',
       name: 'Kopila Tamang',
       phone: '9843667788',
@@ -476,12 +485,59 @@ export const INITIAL_SEED_DATA = {
   ],
 
   attendances: [
-    { id: 'ATT-1', groupId: 'GRP-01', date: '2026-10-09', studentId: 'STD-01', status: 'present', remarks: 'On time' },
-    { id: 'ATT-2', groupId: 'GRP-01', date: '2026-10-09', studentId: 'STD-02', status: 'present', remarks: 'On time' },
-    { id: 'ATT-3', groupId: 'GRP-01', date: '2026-10-10', studentId: 'STD-01', status: 'present', remarks: 'Active in class' },
-    { id: 'ATT-4', groupId: 'GRP-01', date: '2026-10-10', studentId: 'STD-02', status: 'late', remarks: '15 mins late' },
-    { id: 'ATT-5', groupId: 'GRP-02', date: '2026-10-10', studentId: 'STD-03', status: 'present', remarks: '' },
-    { id: 'ATT-6', groupId: 'GRP-02', date: '2026-10-10', studentId: 'STD-04', status: 'absent', remarks: 'Sick leave' }
+    { id: 'ATT-1', groupId: 'GRP-01', date: '2026-10-09', studentId: 'STD-01', status: 'present', source: 'BIOMETRIC', checkInTime: '06:58:20 AM', biometricId: '1001', verifiedBy: 'Global Era ZKTeco K40 WiFi', remarks: 'On time' },
+    { id: 'ATT-2', groupId: 'GRP-01', date: '2026-10-09', studentId: 'STD-02', status: 'present', source: 'BIOMETRIC', checkInTime: '07:04:15 AM', biometricId: '1002', verifiedBy: 'Global Era ZKTeco K40 WiFi', remarks: 'On time' },
+    { id: 'ATT-3', groupId: 'GRP-01', date: '2026-10-10', studentId: 'STD-01', status: 'present', source: 'BIOMETRIC', checkInTime: '06:55:10 AM', biometricId: '1001', verifiedBy: 'Global Era ZKTeco K40 WiFi', remarks: 'Active in class' },
+    { id: 'ATT-4', groupId: 'GRP-01', date: '2026-10-10', studentId: 'STD-02', status: 'late', source: 'BIOMETRIC', checkInTime: '07:22:45 AM', biometricId: '1002', verifiedBy: 'Global Era ZKTeco K40 WiFi', remarks: '15 mins late' },
+    { id: 'ATT-5', groupId: 'GRP-02', date: '2026-10-10', studentId: 'STD-03', status: 'present', source: 'TRAINER_MANUAL', checkInTime: '07:15:00 AM', verifiedBy: 'Pooja Rajbanshi (प्रशिक्षक)', remarks: 'प्रशिक्षक म्यानुअल हाजिरी' },
+    { id: 'ATT-6', groupId: 'GRP-02', date: '2026-10-10', studentId: 'STD-04', status: 'absent', source: 'TRAINER_MANUAL', remarks: 'Sick leave' }
+  ],
+
+  biometricLogs: [
+    {
+      id: 'LOG-001',
+      biometricId: '1001',
+      name: 'Sunita Sharma',
+      role: 'STUDENT',
+      date: new Date().toISOString().slice(0, 10),
+      timestamp: '06:58:20 AM',
+      device: 'Main Gate - ZKTeco K40 WiFi',
+      matched: true,
+      status: 'success'
+    },
+    {
+      id: 'LOG-002',
+      biometricId: '2001',
+      name: 'Pooja Rajbanshi (Trainer)',
+      role: 'TRAINER',
+      date: new Date().toISOString().slice(0, 10),
+      timestamp: '06:52:10 AM',
+      device: 'Main Gate - ZKTeco K40 WiFi',
+      matched: true,
+      status: 'success'
+    },
+    {
+      id: 'LOG-003',
+      biometricId: '1002',
+      name: 'Alina Rai',
+      role: 'STUDENT',
+      date: new Date().toISOString().slice(0, 10),
+      timestamp: '07:22:45 AM',
+      device: 'Main Gate - ZKTeco K40 WiFi',
+      matched: true,
+      status: 'success'
+    },
+    {
+      id: 'LOG-004',
+      biometricId: '3001',
+      name: 'Admin / Reception Desk Staff',
+      role: 'STAFF',
+      date: new Date().toISOString().slice(0, 10),
+      timestamp: '06:45:00 AM',
+      device: 'Main Gate - ZKTeco K40 WiFi',
+      matched: true,
+      status: 'success'
+    }
   ],
 
   evaluations: [
@@ -1436,6 +1492,23 @@ export const INITIAL_SEED_DATA = {
       yearMode: 'AD',
       seqDigits: 3,
       startSeq: 1
+    },
+    biometricSettings: {
+      enabled: true,
+      deviceName: 'Global Era ZKTeco K40 WiFi',
+      deviceIp: '192.168.1.201',
+      devicePort: 4370,
+      serialNo: 'ZK-GE-2026-8891',
+      deviceType: 'ZKTeco K40 WiFi / ADMS Push',
+      cloudPushUrl: 'https://globalera.edu.np/iclock/cdata',
+      status: 'Online',
+      lastSyncTime: 'आज, ०७:४५ AM',
+      morningShiftStart: '07:00',
+      dayShiftStart: '11:00',
+      eveningShiftStart: '15:00',
+      lateGraceMinutes: 15,
+      allowTrainerManualOverride: true,
+      autoSmsOnAbsent: true
     }
   },
   parties: [
@@ -1531,6 +1604,17 @@ export function loadDB() {
     return {
       ...INITIAL_SEED_DATA,
       ...parsed,
+      biometricLogs: (parsed.biometricLogs && parsed.biometricLogs.length > 0)
+        ? parsed.biometricLogs
+        : INITIAL_SEED_DATA.biometricLogs || [],
+      students: (parsed.students || INITIAL_SEED_DATA.students).map((s, idx) => ({
+        ...s,
+        biometricId: s.biometricId || String(1001 + idx)
+      })),
+      trainers: (parsed.trainers || INITIAL_SEED_DATA.trainers).map((t, idx) => ({
+        ...t,
+        biometricId: t.biometricId || String(2001 + idx)
+      })),
       users: existingUsers,
       jobOpenings: parsed.jobOpenings || INITIAL_SEED_DATA.jobOpenings || [],
       jobApplications: parsed.jobApplications || INITIAL_SEED_DATA.jobApplications || [],
@@ -1555,6 +1639,10 @@ export function loadDB() {
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
+        biometricSettings: {
+          ...INITIAL_SEED_DATA.settings.biometricSettings,
+          ...(parsed.settings?.biometricSettings || {})
+        },
         companyProfile: {
           ...INITIAL_SEED_DATA.settings.companyProfile,
           ...(parsed.settings?.companyProfile || {})

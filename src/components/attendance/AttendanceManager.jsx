@@ -49,10 +49,23 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import SchoolIcon from '@mui/icons-material/School';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import RouterIcon from '@mui/icons-material/Router';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import TuneIcon from '@mui/icons-material/Tune';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, getHolidayInfo, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
+import {
+  syncBiometricAttendance,
+  recordLiveBiometricPunch,
+  parseBiometricLogFile,
+  formatPunchTime
+} from '../../services/biometricService';
+import { playBiometricBeep } from '../../services/soundUtils';
 
 export default function AttendanceManager({ initialGroupId = null }) {
   const [db, setDb] = useState(loadDB());
@@ -101,6 +114,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
       }
       initialMap[s.id] = {
         status: st,
+        source: match?.source || (match ? 'ADMIN_MANUAL' : (s.biometricId ? 'BIOMETRIC' : 'ADMIN_MANUAL')),
+        checkInTime: match?.checkInTime || '',
+        biometricId: match?.biometricId || s.biometricId || '',
+        verifiedBy: match?.verifiedBy || '',
         remarks: match?.remarks || ''
       };
     });
@@ -125,6 +142,31 @@ export default function AttendanceManager({ initialGroupId = null }) {
   );
   const [reportSearchQuery, setReportSearchQuery] = useState('');
   const [calendarStudentModal, setCalendarStudentModal] = useState(null); // student object
+
+  // Tab 3 (Biometric Hub) state
+  const [bioSearchQuery, setBioSearchQuery] = useState('');
+  const [bioRoleFilter, setBioRoleFilter] = useState('ALL');
+  const [bioDateFilter, setBioDateFilter] = useState(new Date().toISOString().slice(0, 10));
+  const [openUsbDialog, setOpenUsbDialog] = useState(false);
+  const [usbTextData, setUsbTextData] = useState('');
+  const [openSettingsDialog, setOpenSettingsDialog] = useState(false);
+  const [bioSettingsForm, setBioSettingsForm] = useState(db.settings?.biometricSettings || {});
+  const [openSimulateDialog, setOpenSimulateDialog] = useState(false);
+  const [simTargetId, setSimTargetId] = useState('');
+  const [simTargetRole, setSimTargetRole] = useState('STUDENT');
+
+  // Reactive listener for storage updates (e.g. from live punch or ADMS push)
+  useEffect(() => {
+    const handleUpdate = () => {
+      const refreshed = loadDB();
+      setDb(refreshed);
+      if (refreshed.settings?.biometricSettings) {
+        setBioSettingsForm(refreshed.settings.biometricSettings);
+      }
+    };
+    window.addEventListener('kite_db_updated', handleUpdate);
+    return () => window.removeEventListener('kite_db_updated', handleUpdate);
+  }, []);
 
   // ----------------------------------------------------
   // COMPUTED: HISTORICAL SESSIONS (FOR SAVED RECORDS)
@@ -292,7 +334,9 @@ export default function AttendanceManager({ initialGroupId = null }) {
         ...prev,
         [studentId]: {
           ...prev[studentId],
-          status: next
+          status: next,
+          source: 'ADMIN_MANUAL',
+          verifiedBy: `${currentUser?.name || 'Admin'} (Manual)`
         }
       };
     });
@@ -336,6 +380,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
         studentId: s.id,
         date: selectedDate,
         status: fullStatus,
+        source: rec.source || updatedAttendances[existingIdx]?.source || 'ADMIN_MANUAL',
+        checkInTime: rec.checkInTime || updatedAttendances[existingIdx]?.checkInTime || '',
+        biometricId: rec.biometricId || s.biometricId || '',
+        verifiedBy: rec.verifiedBy || (rec.source === 'BIOMETRIC' ? 'ZKTeco K40' : (currentUser?.name || 'Admin')),
         remarks: rec.remarks || ''
       };
 
@@ -397,6 +445,91 @@ export default function AttendanceManager({ initialGroupId = null }) {
     );
     saveDB(nextDb);
     setDb(nextDb);
+  };
+
+  // Biometric Actions
+  const handleSyncBiometric = (targetDate = selectedDate) => {
+    const res = syncBiometricAttendance(targetDate);
+    const refreshed = loadDB();
+    setDb(refreshed);
+    playBiometricBeep(true);
+    try {
+      confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+    } catch (_) {}
+    alert(`📡 बायोमेट्रिक मेसिन सिङ्क सफल! (${res.syncedCount} वटा लग अद्यावधिक)`);
+  };
+
+  const handleSaveBiometricSettings = () => {
+    const nextDb = {
+      ...db,
+      settings: {
+        ...db.settings,
+        biometricSettings: {
+          ...db.settings?.biometricSettings,
+          ...bioSettingsForm,
+          lastSyncTime: formatPunchTime()
+        }
+      }
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenSettingsDialog(false);
+    alert('बायोमेट्रिक मेसिन तथा सिफ्ट सेटिङ सफलतापूर्वक सुरक्षित गरियो!');
+  };
+
+  const handleProcessUsbLogs = () => {
+    if (!usbTextData.trim()) {
+      alert('कृपया पेनड्राइभ वा USB लग डेटा पेस्ट गर्नुहोस् वा फाइल छान्नुहोस्।');
+      return;
+    }
+    const parsed = parseBiometricLogFile(usbTextData, 'USB Imported Log');
+    if (parsed.length === 0) {
+      alert('फाइलमा मान्य लग फेला परेन। कृपया ZKTeco/Realtime को .DAT वा CSV ढाँचा जाँच गर्नुहोस्।');
+      return;
+    }
+    const nextLogs = [...parsed, ...(db.biometricLogs || [])];
+    const nextDb = { ...db, biometricLogs: nextLogs };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setUsbTextData('');
+    setOpenUsbDialog(false);
+    syncBiometricAttendance(bioDateFilter);
+    playBiometricBeep(true);
+    alert(`सफल! ${parsed.length} वटा USB बायोमेट्रिक लग आयात भयो र हाजिरीमा सिङ्क गरियो।`);
+  };
+
+  const handleRunSimulationPunch = () => {
+    if (!simTargetId) {
+      alert('कृपया विद्यार्थी, प्रशिक्षक वा बायोमेट्रिक आईडी छान्नुहोस्।');
+      return;
+    }
+    let targetName = 'Enrolled User';
+    let role = simTargetRole;
+
+    if (role === 'STUDENT') {
+      const s = (db.students || []).find((x) => x.id === simTargetId || String(x.biometricId) === String(simTargetId));
+      if (s) targetName = s.name;
+    } else if (role === 'TRAINER') {
+      const t = (db.trainers || []).find((x) => x.id === simTargetId || String(x.biometricId) === String(simTargetId));
+      if (t) targetName = `${t.name} (Trainer)`;
+    } else {
+      targetName = 'Global Era Staff';
+    }
+
+    const log = recordLiveBiometricPunch({
+      biometricId: simTargetId,
+      name: targetName,
+      role: role,
+      device: `${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'} (Live Scan)`
+    });
+
+    const refreshed = loadDB();
+    setDb(refreshed);
+    setOpenSimulateDialog(false);
+    try {
+      confetti({ particleCount: 60, spread: 55, origin: { y: 0.65 } });
+    } catch (_) {}
+    alert(`🟢 थम्ब स्वाइप सफल!\nप्रयोगकर्ता: ${targetName}\nसमय: ${log.timestamp}\nहाजिरी स्वतः दर्ता भयो!`);
   };
 
   const pCount = Object.values(sessionRecords).filter((r) => r.status === 'P').length;
@@ -496,6 +629,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
               iconPosition="start"
               label="📊 Reports & Analytics (नियमितता विश्लेषण)"
             />
+            <Tab
+              icon={<FingerprintIcon sx={{ fontSize: 20 }} />}
+              iconPosition="start"
+              label="📡 Biometric Hub (बायोमेट्रिक मेसिन हब)"
+            />
           </Tabs>
         </Box>
       </Card>
@@ -505,6 +643,73 @@ export default function AttendanceManager({ initialGroupId = null }) {
           ======================================================= */}
       {activeTab === 0 && (
         <Box>
+          {/* Biometric Status Quick Banner */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 3,
+              bgcolor: '#F0FDF4',
+              border: '1px solid #BBF7D0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 1.5
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <Chip
+                icon={<FingerprintIcon sx={{ fontSize: '16px !important', color: '#166534 !important' }} />}
+                label={`${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: 🟢 अनलाइन (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`}
+                sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: '0.85rem' }}
+              />
+              <Typography variant="body2" sx={{ color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}>
+                अन्तिम सिङ्क: <b>{db.settings?.biometricSettings?.lastSyncTime || 'अहिले सम्म छैन'}</b>
+              </Typography>
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 1 }}>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<FingerprintIcon />}
+                onClick={() => {
+                  const res = syncBiometricAttendance(selectedDate);
+                  setDb(loadDB());
+                  try { confetti({ particleCount: 50, spread: 60 }); } catch (_) {}
+                  alert(`📡 बायोमेट्रिक मेसिनबाट ${res.syncedCount} वटा थम्ब लगहरू सफलतापूर्वक सिङ्क गरियो!`);
+                }}
+                sx={{
+                  fontWeight: 900,
+                  bgcolor: '#10B981',
+                  '&:hover': { bgcolor: '#059669' },
+                  color: '#FFFFFF',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  px: 2
+                }}
+              >
+                मेसिनबाट सिङ्क (Sync Punch Logs)
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setActiveTab(3)}
+                sx={{
+                  fontWeight: 800,
+                  color: '#0F2E5A',
+                  borderColor: '#0F2E5A',
+                  borderRadius: 2,
+                  textTransform: 'none'
+                }}
+              >
+                मेसिन हब खोल्नुहोस् ➔
+              </Button>
+            </Box>
+          </Paper>
+
           {reopenNotice && (
             <Alert
               severity="info"
@@ -859,18 +1064,24 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 >
                                   {std.name}
                                 </Typography>
-                                <Typography
-                                  variant="caption"
-                                  sx={{
-                                    color: '#647089',
-                                    fontWeight: 600,
-                                    fontSize: '0.8rem',
-                                    display: 'block',
-                                    mt: 0.3
-                                  }}
-                                >
-                                  {std.tgid} • {std.phone}
-                                </Typography>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.3, flexWrap: 'wrap' }}>
+                                  <Typography
+                                    variant="caption"
+                                    sx={{
+                                      color: '#647089',
+                                      fontWeight: 600,
+                                      fontSize: '0.8rem'
+                                    }}
+                                  >
+                                    {std.tgid} • {std.phone}
+                                  </Typography>
+                                  <Chip
+                                    size="small"
+                                    icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
+                                    label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                                    sx={{ height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                                  />
+                                </Box>
                               </Box>
                             </Box>
                           </TableCell>
@@ -931,6 +1142,29 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                     '&:hover': { opacity: 0.9 }
                                   }}
                                 />
+                                {selectedStatus !== 'A' && (
+                                  <Chip
+                                    size="small"
+                                    icon={rec.source === 'BIOMETRIC' ? <FingerprintIcon sx={{ fontSize: '11px !important', color: '#15803D !important' }} /> : undefined}
+                                    label={
+                                      rec.source === 'BIOMETRIC'
+                                        ? `बायोमेट्रिक (${rec.checkInTime || 'समयमै'})`
+                                        : rec.source === 'TRAINER_MANUAL'
+                                        ? 'प्रशिक्षक म्यानुअल'
+                                        : 'एडमिन म्यानुअल'
+                                    }
+                                    sx={{
+                                      mt: 0.4,
+                                      height: 18,
+                                      fontSize: '0.64rem',
+                                      fontWeight: 800,
+                                      bgcolor: rec.source === 'BIOMETRIC' ? '#DCFCE7' : rec.source === 'TRAINER_MANUAL' ? '#FEF3C7' : '#EFF6FF',
+                                      color: rec.source === 'BIOMETRIC' ? '#15803D' : rec.source === 'TRAINER_MANUAL' ? '#92400E' : '#1D4ED8',
+                                      width: '100%',
+                                      justifyContent: 'center'
+                                    }}
+                                  />
+                                )}
                                 <Typography
                                   variant="caption"
                                   sx={{
@@ -1832,6 +2066,659 @@ export default function AttendanceManager({ initialGroupId = null }) {
           </Card>
         </Box>
       )}
+
+      {/* =======================================================
+          TAB 3: BIOMETRIC DEVICE HUB & LIVE PUNCH STREAM (📡 बायोमेट्रिक हब)
+          ======================================================= */}
+      {activeTab === 3 && (() => {
+        const settings = db.settings?.biometricSettings || {};
+        const allLogs = db.biometricLogs || [];
+
+        // Filter logs
+        let filteredLogs = allLogs.filter((l) => {
+          if (bioDateFilter && l.date !== bioDateFilter) return false;
+          if (bioRoleFilter !== 'ALL' && l.role !== bioRoleFilter) return false;
+          if (bioSearchQuery.trim()) {
+            const q = bioSearchQuery.toLowerCase();
+            return (
+              (l.name && l.name.toLowerCase().includes(q)) ||
+              (l.biometricId && String(l.biometricId).toLowerCase().includes(q)) ||
+              (l.device && l.device.toLowerCase().includes(q))
+            );
+          }
+          return true;
+        });
+
+        // Compute metrics for the selected date
+        const todayLogs = allLogs.filter((l) => l.date === bioDateFilter);
+        const totalPunches = todayLogs.length;
+        const studentPunches = todayLogs.filter((l) => l.role === 'STUDENT').length;
+        const trainerStaffPunches = todayLogs.filter((l) => l.role === 'TRAINER' || l.role === 'STAFF').length;
+
+        // Group shift for evaluating late
+        const morningShift = settings.morningShiftStart || '07:00';
+        const graceMins = Number(settings.lateGraceMinutes) || 15;
+
+        return (
+          <Box sx={{ width: '100%' }}>
+            {/* 1. Device Overview Hero Card */}
+            <Card
+              sx={{
+                mb: 3,
+                borderRadius: 3.5,
+                p: { xs: 2.5, sm: 3.5 },
+                bgcolor: '#0B2545',
+                color: '#FFFFFF',
+                boxShadow: '0 8px 24px rgba(11, 37, 69, 0.25)',
+                border: '1px solid #1E3A8A'
+              }}
+            >
+              <Grid container spacing={2.5} alignItems="center">
+                <Grid item xs={12} md={7}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Avatar sx={{ width: 44, height: 44, bgcolor: '#10B981', color: '#FFFFFF' }}>
+                      <FingerprintIcon sx={{ fontSize: 26 }} />
+                    </Avatar>
+                    <Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
+                          {settings.deviceName || 'Global Era ZKTeco K40 WiFi'}
+                        </Typography>
+                        <Chip
+                          label={settings.status === 'Online' ? '🟢 Online (सक्रिय)' : '🔴 Offline'}
+                          size="small"
+                          sx={{
+                            bgcolor: settings.status === 'Online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                            color: settings.status === 'Online' ? '#34D399' : '#F87171',
+                            border: `1px solid ${settings.status === 'Online' ? '#10B981' : '#EF4444'}`,
+                            fontWeight: 800,
+                            fontSize: '0.72rem'
+                          }}
+                        />
+                      </Box>
+                      <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 600 }}>
+                        ZKTeco ADMS Cloud Push & Local WiFi/LAN Bridge • Serial: <b>{settings.serialNo || 'ZK-GE-2026-8891'}</b>
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2, bgcolor: 'rgba(255,255,255,0.06)', p: 1.5, borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
+                      🌐 <b>मेसिन IP:</b> {settings.deviceIp || '192.168.1.201'}:{settings.devicePort || 4370}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
+                      ☁️ <b>Cloud Push:</b> /iclock/cdata
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
+                      🕒 <b>अन्तिम सिङ्क:</b> {settings.lastSyncTime || 'अहिले सम्म छैन'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#FCD34D' }}>
+                      ⏰ <b>सिफ्ट समय:</b> बिहानी {morningShift} (ग्रेस: {graceMins} मिनेट)
+                    </Typography>
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} md={5}>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                    <Button
+                      variant="contained"
+                      startIcon={<RefreshIcon />}
+                      onClick={() => handleSyncBiometric(bioDateFilter)}
+                      sx={{
+                        fontWeight: 900,
+                        bgcolor: '#10B981',
+                        '&:hover': { bgcolor: '#059669' },
+                        color: '#FFFFFF',
+                        borderRadius: 2.5,
+                        py: 1.2,
+                        textTransform: 'none',
+                        fontSize: '0.92rem'
+                      }}
+                    >
+                      📥 मेसिनबाट सिङ्क गर्नुहोस् (Sync Punch Logs)
+                    </Button>
+
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<CloudUploadIcon />}
+                        onClick={() => setOpenUsbDialog(true)}
+                        sx={{
+                          fontWeight: 800,
+                          color: '#FFFFFF',
+                          borderColor: 'rgba(255,255,255,0.3)',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontSize: '0.78rem',
+                          '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
+                        }}
+                      >
+                        📁 USB लग आयात
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<PlayArrowIcon />}
+                        onClick={() => setOpenSimulateDialog(true)}
+                        sx={{
+                          fontWeight: 800,
+                          color: '#F59E0B',
+                          borderColor: '#F59E0B',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontSize: '0.78rem',
+                          '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.1)' }
+                        }}
+                      >
+                        🧪 प्रत्यक्ष स्क्यान टेस्ट
+                      </Button>
+
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        startIcon={<TuneIcon />}
+                        onClick={() => setOpenSettingsDialog(true)}
+                        sx={{
+                          fontWeight: 800,
+                          color: '#CBD5E1',
+                          borderColor: 'rgba(255,255,255,0.2)',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          fontSize: '0.78rem',
+                          '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
+                        }}
+                      >
+                        ⚙️ सेटिङ
+                      </Button>
+                    </Box>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Card>
+
+            {/* 2. Today's Biometric Statistics Cards */}
+            <Grid container spacing={2} sx={{ mb: 3 }}>
+              <Grid item xs={6} sm={3}>
+                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
+                    कुल बायोमेट्रिक स्क्यान
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', mt: 0.5 }}>
+                    {totalPunches}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#10B981', fontWeight: 700 }}>
+                    आजको मितिमा दर्ता
+                  </Typography>
+                </Card>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BBF7D0', bgcolor: '#F0FDF4' }}>
+                  <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800, display: 'block' }}>
+                    प्रशिक्षार्थी थम्ब हाजिरी
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#15803D', mt: 0.5 }}>
+                    {studentPunches}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700 }}>
+                    CTEVT ८०% मा गणना
+                  </Typography>
+                </Card>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BAE6FD', bgcolor: '#F0F9FF' }}>
+                  <Typography variant="caption" sx={{ color: '#075985', fontWeight: 800, display: 'block' }}>
+                    प्रशिक्षक तथा कर्मचारी
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#0369A1', mt: 0.5 }}>
+                    {trainerStaffPunches}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>
+                    दैनिक उपस्थिति प्रमाणित
+                  </Typography>
+                </Card>
+              </Grid>
+
+              <Grid item xs={6} sm={3}>
+                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #FED7AA', bgcolor: '#FFF7ED' }}>
+                  <Typography variant="caption" sx={{ color: '#9A3412', fontWeight: 800, display: 'block' }}>
+                    लेट ग्रेस समयावधि
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#C2410C', mt: 0.5 }}>
+                    {graceMins} मिनेट
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#EA580C', fontWeight: 700 }}>
+                    सिफ्ट सुरु भएपछिको छुट
+                  </Typography>
+                </Card>
+              </Grid>
+            </Grid>
+
+            {/* 3. Live Punch Explorer Controls */}
+            <Card sx={{ p: 2, mb: 2.5, borderRadius: 3, border: '1px solid #E2E8F0' }}>
+              <Grid container spacing={1.5} alignItems="center">
+                <Grid item xs={12} sm={3.5}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="खोज्नुहोस्: नाम, ID, मेसिन..."
+                    value={bioSearchQuery}
+                    onChange={(e) => setBioSearchQuery(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={2.5}>
+                  <TextField
+                    type="date"
+                    size="small"
+                    fullWidth
+                    label="लग मिति"
+                    value={bioDateFilter}
+                    onChange={(e) => setBioDateFilter(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+
+                <Grid item xs={6} sm={4}>
+                  <ToggleButtonGroup
+                    value={bioRoleFilter}
+                    exclusive
+                    onChange={(e, val) => val && setBioRoleFilter(val)}
+                    size="small"
+                    sx={{ width: '100%' }}
+                  >
+                    <ToggleButton value="ALL" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
+                      सबै
+                    </ToggleButton>
+                    <ToggleButton value="STUDENT" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
+                      विद्यार्थी
+                    </ToggleButton>
+                    <ToggleButton value="TRAINER" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
+                      प्रशिक्षक
+                    </ToggleButton>
+                    <ToggleButton value="STAFF" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
+                      स्टाफ
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                </Grid>
+
+                <Grid item xs={12} sm={2}>
+                  <Button
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                    startIcon={<RefreshIcon />}
+                    onClick={() => {
+                      setBioSearchQuery('');
+                      setBioRoleFilter('ALL');
+                      setBioDateFilter(new Date().toISOString().slice(0, 10));
+                    }}
+                    sx={{ fontWeight: 800, borderRadius: 2, py: 0.8 }}
+                  >
+                    रिसेट
+                  </Button>
+                </Grid>
+              </Grid>
+            </Card>
+
+            {/* 4. Live Punch Stream Table */}
+            <Card sx={{ borderRadius: 3, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+              <TableContainer component={Paper} elevation={0}>
+                <Table size="small">
+                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                    <TableRow>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
+                        क्र.सं.
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>
+                        बायोमेट्रिक ID
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                        प्रयोगकर्ताको नाम तथा पद
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
+                        भूमिका (Role)
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>
+                        स्क्यान मिति र समय
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
+                        स्थिति (Status)
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                        स्रोत उपकरण (Device)
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredLogs.map((log, idx) => {
+                      const isLate = log.timestamp && log.timestamp > '07:15:00 AM' && log.role === 'STUDENT';
+                      return (
+                        <TableRow key={log.id || idx} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B' }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              icon={<FingerprintIcon sx={{ fontSize: '13px !important', color: '#0F2E5A !important' }} />}
+                              label={`#${log.biometricId}`}
+                              size="small"
+                              sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#1E293B' }}>
+                              {log.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Chip
+                              label={
+                                log.role === 'STUDENT'
+                                  ? 'प्रशिक्षार्थी'
+                                  : log.role === 'TRAINER'
+                                  ? 'प्रशिक्षक'
+                                  : 'स्टाफ'
+                              }
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                bgcolor:
+                                  log.role === 'STUDENT'
+                                    ? '#DCFCE7'
+                                    : log.role === 'TRAINER'
+                                    ? '#FEF3C7'
+                                    : '#E0E7FF',
+                                color:
+                                  log.role === 'STUDENT'
+                                    ? '#15803D'
+                                    : log.role === 'TRAINER'
+                                    ? '#92400E'
+                                    : '#3730A3'
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                              🕒 {log.timestamp}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#64748B' }}>
+                              📅 {log.date}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Chip
+                              label={isLate ? '🟠 १५ मिनेट ढिलो' : '🟢 समयमै प्रमाणित'}
+                              size="small"
+                              sx={{
+                                fontWeight: 800,
+                                bgcolor: isLate ? '#FFF7ED' : '#F0FDF4',
+                                color: isLate ? '#C2410C' : '#166534',
+                                border: `1px solid ${isLate ? '#FFEDD5' : '#BBF7D0'}`
+                              }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                              {log.device || 'Global Era ZKTeco K40'}
+                            </Typography>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+
+                    {filteredLogs.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94A3B8' }}>
+                          <FingerprintIcon sx={{ fontSize: 44, color: '#CBD5E1', mb: 1, display: 'block', mx: 'auto' }} />
+                          छानिएको मिति वा फिल्टर अनुसार कुनै बायोमेट्रिक लग फेला परेन।
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Card>
+
+            {/* MODAL 1: USB / PENDRIVE LOG IMPORT DIALOG */}
+            <Dialog open={openUsbDialog} onClose={() => setOpenUsbDialog(false)} maxWidth="sm" fullWidth>
+              <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
+                📁 USB / पेनड्राइभ फाइल आयात (Import Offline Logs)
+              </DialogTitle>
+              <DialogContent sx={{ pt: 3 }}>
+                <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
+                  ZKTeco वा Realtime बायोमेट्रिक मेसिनबाट पेनड्राइभमा डाउनलोड गरिएको <b>.DAT, .CSV वा .TXT</b> लग डेटा यहाँ पेस्ट गर्नुहोस् वा फाइल खोल्नुहोस्।
+                </Typography>
+                <TextField
+                  multiline
+                  rows={8}
+                  fullWidth
+                  placeholder={`उदा: \n1001\t2026-10-28 07:05:12\t1\n1002\t2026-10-28 07:18:40\t1\n2001\t2026-10-28 06:50:00\t1`}
+                  value={usbTextData}
+                  onChange={(e) => setUsbTextData(e.target.value)}
+                  sx={{ fontFamily: 'monospace' }}
+                />
+                <Box sx={{ mt: 2 }}>
+                  <input
+                    type="file"
+                    accept=".dat,.csv,.txt"
+                    id="usb-log-file-input"
+                    style={{ display: 'none' }}
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setUsbTextData(event.target?.result || '');
+                        };
+                        reader.readAsText(file);
+                      }
+                    }}
+                  />
+                  <label htmlFor="usb-log-file-input">
+                    <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} sx={{ fontWeight: 800 }}>
+                      पेनड्राइभबाट फाइल छान्नुहोस् (.DAT / .CSV)
+                    </Button>
+                  </label>
+                </Box>
+              </DialogContent>
+              <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
+                <Button onClick={() => setOpenUsbDialog(false)} sx={{ fontWeight: 800 }}>
+                  रद्द गर्नुहोस्
+                </Button>
+                <Button variant="contained" onClick={handleProcessUsbLogs} sx={{ fontWeight: 900, bgcolor: '#0F2E5A' }}>
+                  फाइल प्रोसेस तथा सिङ्क गर्नुहोस्
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* MODAL 2: SHIFT TIMINGS & GRACE SETTINGS DIALOG */}
+            <Dialog open={openSettingsDialog} onClose={() => setOpenSettingsDialog(false)} maxWidth="sm" fullWidth>
+              <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
+                ⚙️ बायोमेट्रिक मेसिन तथा सिफ्ट समय सेटिङ
+              </DialogTitle>
+              <DialogContent sx={{ pt: 3 }}>
+                <Stack spacing={2.2} sx={{ mt: 1 }}>
+                  <TextField
+                    label="उपकरणको नाम (Device Name)"
+                    size="small"
+                    fullWidth
+                    value={bioSettingsForm.deviceName || ''}
+                    onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, deviceName: e.target.value })}
+                  />
+                  <Grid container spacing={2}>
+                    <Grid item xs={8}>
+                      <TextField
+                        label="उपकरण IP Address"
+                        size="small"
+                        fullWidth
+                        value={bioSettingsForm.deviceIp || ''}
+                        onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, deviceIp: e.target.value })}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="Port"
+                        size="small"
+                        fullWidth
+                        value={bioSettingsForm.devicePort || 4370}
+                        onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, devicePort: Number(e.target.value) })}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <TextField
+                    label="मेसिन सिरियल नम्बर (Serial No)"
+                    size="small"
+                    fullWidth
+                    value={bioSettingsForm.serialNo || ''}
+                    onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, serialNo: e.target.value })}
+                  />
+
+                  <Divider sx={{ my: 1 }}>सिफ्ट सुरु समय (Shift Schedules)</Divider>
+
+                  <Grid container spacing={2}>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="बिहानी सिफ्ट"
+                        type="time"
+                        size="small"
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        value={bioSettingsForm.morningShiftStart || '07:00'}
+                        onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, morningShiftStart: e.target.value })}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="दिवा सिफ्ट"
+                        type="time"
+                        size="small"
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        value={bioSettingsForm.dayShiftStart || '11:00'}
+                        onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, dayShiftStart: e.target.value })}
+                      />
+                    </Grid>
+                    <Grid item xs={4}>
+                      <TextField
+                        label="साँझ सिफ्ट"
+                        type="time"
+                        size="small"
+                        fullWidth
+                        InputLabelProps={{ shrink: true }}
+                        value={bioSettingsForm.eveningShiftStart || '15:00'}
+                        onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, eveningShiftStart: e.target.value })}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  <TextField
+                    label="लेट ग्रेस समयावधि (Grace Period in Minutes)"
+                    type="number"
+                    size="small"
+                    fullWidth
+                    value={bioSettingsForm.lateGraceMinutes || 15}
+                    onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, lateGraceMinutes: Number(e.target.value) })}
+                    helperText="सिफ्ट सुरु भएपछि कति मिनेट सम्म आइपुग्दा समयमै मान्ने (डिफल्ट: १५ मिनेट)"
+                  />
+                </Stack>
+              </DialogContent>
+              <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
+                <Button onClick={() => setOpenSettingsDialog(false)} sx={{ fontWeight: 800 }}>
+                  रद्द
+                </Button>
+                <Button variant="contained" onClick={handleSaveBiometricSettings} sx={{ fontWeight: 900, bgcolor: '#0F2E5A' }}>
+                  सेटिङ सुरक्षित गर्नुहोस्
+                </Button>
+              </DialogActions>
+            </Dialog>
+
+            {/* MODAL 3: LIVE SIMULATION PUNCH TEST DIALOG */}
+            <Dialog open={openSimulateDialog} onClose={() => setOpenSimulateDialog(false)} maxWidth="sm" fullWidth>
+              <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
+                🧪 प्रत्यक्ष थम्ब स्वाइप टेस्ट (Live Thumb Scan Simulation)
+              </DialogTitle>
+              <DialogContent sx={{ pt: 3 }}>
+                <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
+                  मेसिन नजोडिएको अवस्थामा वा प्रत्यक्ष परीक्षण गर्न कुनै पनि विद्यार्थी वा प्रशिक्षकको थम्ब स्वाइप तत्काल परीक्षण गर्नुहोस्।
+                </Typography>
+                <Stack spacing={2.2} sx={{ mt: 1 }}>
+                  <ToggleButtonGroup
+                    value={simTargetRole}
+                    exclusive
+                    onChange={(e, val) => val && setSimTargetRole(val)}
+                    size="small"
+                    fullWidth
+                  >
+                    <ToggleButton value="STUDENT" sx={{ fontWeight: 800 }}>
+                      विद्यार्थी (Trainee)
+                    </ToggleButton>
+                    <ToggleButton value="TRAINER" sx={{ fontWeight: 800 }}>
+                      प्रशिक्षक (Trainer)
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+
+                  {simTargetRole === 'STUDENT' ? (
+                    <TextField
+                      select
+                      label="प्रशिक्षार्थी छान्नुहोस् (Select Trainee)"
+                      size="small"
+                      fullWidth
+                      value={simTargetId}
+                      onChange={(e) => setSimTargetId(e.target.value)}
+                    >
+                      {(db.students || []).map((s) => (
+                        <MenuItem key={s.id} value={s.id}>
+                          {s.name} (मेसिन ID: #{s.biometricId || '1001'}) — TGID: {s.tgid}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  ) : (
+                    <TextField
+                      select
+                      label="प्रशिक्षक छान्नुहोस् (Select Trainer)"
+                      size="small"
+                      fullWidth
+                      value={simTargetId}
+                      onChange={(e) => setSimTargetId(e.target.value)}
+                    >
+                      {(db.trainers || []).map((t) => (
+                        <MenuItem key={t.id} value={t.id}>
+                          {t.name} (मेसिन ID: #{t.biometricId || '2001'}) — {t.specialization}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                </Stack>
+              </DialogContent>
+              <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
+                <Button onClick={() => setOpenSimulateDialog(false)} sx={{ fontWeight: 800 }}>
+                  रद्द
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<FingerprintIcon />}
+                  onClick={handleRunSimulationPunch}
+                  sx={{ fontWeight: 900, bgcolor: '#10B981', '&:hover': { bgcolor: '#059669' } }}
+                >
+                  थम्ब स्क्यान प्रमाणित गर्नुहोस् (Scan Thumb)
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Box>
+        );
+      })()}
 
       {/* =======================================================
           INDIVIDUAL STUDENT ATTENDANCE CALENDAR MODAL

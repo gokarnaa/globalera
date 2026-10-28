@@ -45,6 +45,7 @@ import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
@@ -70,6 +71,7 @@ export default function StudentManager() {
 
   const [formData, setFormData] = useState({
     tgid: '',
+    biometricId: '',
     name: '',
     phone: '',
     secondaryPhone: '',
@@ -108,6 +110,7 @@ export default function StudentManager() {
       (s) =>
         s.name.toLowerCase().includes(q) ||
         s.tgid.toLowerCase().includes(q) ||
+        (s.biometricId && String(s.biometricId).toLowerCase().includes(q)) ||
         s.phone.includes(q)
     );
   }
@@ -116,6 +119,7 @@ export default function StudentManager() {
     setEditingItem(null);
     setFormData({
       tgid: '',
+      biometricId: String(1001 + (db.students || []).length),
       name: '',
       phone: '',
       secondaryPhone: '',
@@ -412,8 +416,14 @@ export default function StudentManager() {
                             <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                               {std.name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089' }}>
-                              {std.tgid} • {std.gender}
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.3, flexWrap: 'wrap' }}>
+                              <span>{std.tgid} • {std.gender}</span>
+                              <Chip
+                                size="small"
+                                icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                                label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                                sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                              />
                             </Typography>
                           </Box>
                         </Box>
@@ -555,8 +565,14 @@ export default function StudentManager() {
                         <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
                           {std.name}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
-                          {std.tgid} • {std.gender}
+                        <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.3, flexWrap: 'wrap' }}>
+                          <span>{std.tgid} • {std.gender}</span>
+                          <Chip
+                            size="small"
+                            icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                            label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                            sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                          />
                         </Typography>
                       </Box>
                     </Box>
@@ -705,7 +721,7 @@ export default function StudentManager() {
               </Typography>
 
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
+                <Grid item xs={12} sm={3.5}>
                   <TextField
                     label="Student TGID"
                     fullWidth
@@ -716,7 +732,25 @@ export default function StudentManager() {
                     required
                   />
                 </Grid>
-                <Grid item xs={12} sm={8}>
+                <Grid item xs={12} sm={3.5}>
+                  <TextField
+                    label="बायोमेट्रिक मेसिन ID"
+                    fullWidth
+                    size="small"
+                    placeholder="उदा: 1005"
+                    value={formData.biometricId || ''}
+                    onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FingerprintIcon sx={{ fontSize: 18, color: '#0F2E5A' }} />
+                        </InputAdornment>
+                      )
+                    }}
+                    helperText="ZKTeco / WiFi मेसिनमा दर्ता भएको User ID"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={5}>
                   <TextField
                     label="Full Name (देवनागरी / English)"
                     fullWidth

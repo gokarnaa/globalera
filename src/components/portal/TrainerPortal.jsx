@@ -45,12 +45,14 @@ import AddIcon from '@mui/icons-material/Add';
 import SaveIcon from '@mui/icons-material/Save';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import confetti from 'canvas-confetti';
 
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { syncBiometricAttendance } from '../../services/biometricService';
 
 export default function TrainerPortal() {
   const { currentUser, logout } = useAuth();
@@ -109,6 +111,10 @@ export default function TrainerPortal() {
       const existing = existingRecords.find((r) => r.studentId === student.id);
       initialMap[student.id] = {
         status: existing?.status || 'present',
+        source: existing?.source || (student.biometricId ? 'BIOMETRIC' : 'TRAINER_MANUAL'),
+        checkInTime: existing?.checkInTime || '',
+        biometricId: existing?.biometricId || student.biometricId || '',
+        verifiedBy: existing?.verifiedBy || '',
         remarks: existing?.remarks || ''
       };
     });
@@ -129,11 +135,25 @@ export default function TrainerPortal() {
         nextStatus = 'present';
       }
 
+      // If trainer marks student manually, update source to TRAINER_MANUAL
+      const isManual = nextStatus === 'present' || nextStatus === 'late';
+      const newRemarks =
+        nextStatus === 'present' && prev[studentId]?.source === 'BIOMETRIC'
+          ? (prev[studentId]?.remarks || 'बायोमेट्रिक प्रमाणित')
+          : nextStatus === 'present'
+          ? 'प्रशिक्षक म्यानुअल हाजिरी (Manual Present)'
+          : nextStatus === 'late'
+          ? 'प्रशिक्षक म्यानुअल ढिलो (Manual Late)'
+          : '';
+
       return {
         ...prev,
         [studentId]: {
           ...prev[studentId],
-          status: nextStatus
+          status: nextStatus,
+          source: isManual ? 'TRAINER_MANUAL' : (prev[studentId]?.source || 'TRAINER_MANUAL'),
+          verifiedBy: `${trainer?.name || 'प्रशिक्षक'} (Manual Override)`,
+          remarks: newRemarks
         }
       };
     });
@@ -144,7 +164,9 @@ export default function TrainerPortal() {
     groupStudents.forEach((s) => {
       nextMap[s.id] = {
         ...nextMap[s.id],
-        status: 'present'
+        status: 'present',
+        source: nextMap[s.id]?.source === 'BIOMETRIC' ? 'BIOMETRIC' : 'TRAINER_MANUAL',
+        verifiedBy: nextMap[s.id]?.source === 'BIOMETRIC' ? nextMap[s.id]?.verifiedBy : `${trainer?.name || 'प्रशिक्षक'} (Manual)`
       };
     });
     setAttendanceMap(nextMap);
@@ -161,6 +183,10 @@ export default function TrainerPortal() {
       date: attendanceDate,
       studentId,
       status: data.status,
+      source: data.source || 'TRAINER_MANUAL',
+      checkInTime: data.checkInTime || '',
+      biometricId: data.biometricId || '',
+      verifiedBy: data.verifiedBy || `${trainer?.name || 'प्रशिक्षक'} (Manual)`,
       remarks: data.remarks || ''
     }));
 
@@ -587,21 +613,47 @@ export default function TrainerPortal() {
                   ))}
                 </TextField>
 
-                {/* Date Picker */}
-                <TextField
-                  type="date"
-                  size="small"
-                  label="हाजिरी मिति"
-                  value={attendanceDate}
-                  onChange={(e) => setAttendanceDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                  sx={{
-                    bgcolor: '#FFFFFF',
-                    borderRadius: 1.5,
-                    minWidth: 150,
-                    '& .MuiInputBase-input': { fontWeight: 800 }
-                  }}
-                />
+                {/* Date Picker & Biometric Sync */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TextField
+                    type="date"
+                    size="small"
+                    label="हाजिरी मिति"
+                    value={attendanceDate}
+                    onChange={(e) => setAttendanceDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                    sx={{
+                      bgcolor: '#FFFFFF',
+                      borderRadius: 1.5,
+                      minWidth: 150,
+                      '& .MuiInputBase-input': { fontWeight: 800 }
+                    }}
+                  />
+                  <Tooltip title="WiFi बायोमेट्रिक मेसिनबाट आजको थम्ब लगहरू सिङ्क गर्नुहोस्">
+                    <Button
+                      variant="contained"
+                      size="small"
+                      startIcon={<FingerprintIcon />}
+                      onClick={() => {
+                        const res = syncBiometricAttendance(attendanceDate);
+                        setDb(loadDB());
+                        alert(`📡 बायोमेट्रिक मेसिन सिङ्क सफल भयो! (${res.syncedCount} वटा लग अद्यावधिक)`);
+                      }}
+                      sx={{
+                        fontWeight: 900,
+                        bgcolor: '#10B981',
+                        '&:hover': { bgcolor: '#059669' },
+                        color: '#FFFFFF',
+                        borderRadius: 1.5,
+                        textTransform: 'none',
+                        px: 1.8,
+                        py: 0.8
+                      }}
+                    >
+                      मेसिन सिङ्क
+                    </Button>
+                  </Tooltip>
+                </Box>
               </Box>
             </Box>
           </Box>
@@ -735,9 +787,15 @@ export default function TrainerPortal() {
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                             {std.tgid}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
                             {std.phone}
                           </Typography>
+                          <Chip
+                            size="small"
+                            icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
+                            label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                            sx={{ height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A', mt: 0.3 }}
+                          />
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
@@ -760,7 +818,7 @@ export default function TrainerPortal() {
                           </Box>
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.2 }}>
                             <Tooltip title={statusConfig.title} arrow>
                               <Box
                                 component="button"
@@ -795,18 +853,37 @@ export default function TrainerPortal() {
                                 {statusConfig.label}
                               </Box>
                             </Tooltip>
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontWeight: 800,
-                                fontSize: '0.72rem',
-                                color: statusConfig.bg,
-                                display: { xs: 'none', sm: 'inline-block' },
-                                minWidth: 46
-                              }}
-                            >
-                              {statusConfig.text}
-                            </Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 95 }}>
+                              <Typography
+                                variant="caption"
+                                sx={{
+                                  fontWeight: 800,
+                                  fontSize: '0.74rem',
+                                  color: statusConfig.bg
+                                }}
+                              >
+                                {statusConfig.text}
+                              </Typography>
+                              {currentStatus !== 'absent' && (
+                                <Chip
+                                  size="small"
+                                  icon={attendanceMap[std.id]?.source === 'BIOMETRIC' ? <FingerprintIcon sx={{ fontSize: '11px !important', color: '#059669 !important' }} /> : undefined}
+                                  label={
+                                    attendanceMap[std.id]?.source === 'BIOMETRIC'
+                                      ? `बायोमेट्रिक (${attendanceMap[std.id]?.checkInTime || 'समयमै'})`
+                                      : 'प्रशिक्षक म्यानुअल'
+                                  }
+                                  sx={{
+                                    height: 19,
+                                    fontSize: '0.64rem',
+                                    fontWeight: 800,
+                                    bgcolor: attendanceMap[std.id]?.source === 'BIOMETRIC' ? '#DCFCE7' : '#FEF3C7',
+                                    color: attendanceMap[std.id]?.source === 'BIOMETRIC' ? '#15803D' : '#92400E',
+                                    mt: 0.3
+                                  }}
+                                />
+                              )}
+                            </Box>
                           </Box>
                         </TableCell>
                         <TableCell>

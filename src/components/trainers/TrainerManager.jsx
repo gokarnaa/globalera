@@ -25,8 +25,10 @@ import {
   Tab,
   Grid,
   Paper,
-  LinearProgress
+  LinearProgress,
+  InputAdornment
 } from '@mui/material';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -55,6 +57,7 @@ export default function TrainerManager() {
 
   const [formData, setFormData] = useState({
     name: '',
+    biometricId: '',
     phone: '',
     occupationId: '',
     pin: '1234',
@@ -67,6 +70,7 @@ export default function TrainerManager() {
     setEditingItem(null);
     setFormData({
       name: '',
+      biometricId: String(2001 + (db.trainers || []).length),
       phone: '',
       occupationId: '',
       pin: '',
@@ -209,8 +213,14 @@ export default function TrainerManager() {
                           <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                             {trn.name}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#647089' }}>
-                            {trn.id}
+                          <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.2 }}>
+                            <span>{trn.id}</span>
+                            <Chip
+                              size="small"
+                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                              label={`मेसिन ID: #${trn.biometricId || 'N/A'}`}
+                              sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                            />
                           </Typography>
                         </Box>
                       </Box>
@@ -376,6 +386,22 @@ export default function TrainerManager() {
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               required
+            />
+            <TextField
+              label="बायोमेट्रिक मेसिन ID (Biometric ID)"
+              fullWidth
+              size="small"
+              placeholder="उदा: 2001"
+              value={formData.biometricId || ''}
+              onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <FingerprintIcon sx={{ fontSize: 18, color: '#0F2E5A' }} />
+                  </InputAdornment>
+                )
+              }}
+              helperText="ZKTeco / WiFi बायोमेट्रिक मेसिनमा दर्ता भएको User ID"
             />
             <TextField
               select
