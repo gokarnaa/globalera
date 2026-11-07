@@ -47,7 +47,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
 
   const handleCreateProject = () => {
     if (!form.name.trim() || !form.contractValue) {
-      showToast('कृपया प्रोजेक्टको नाम र सम्झौता रकम भर्नुहोस्।', 'error');
+      showToast('Please enter the project title and contract value.', 'error');
       return;
     }
 
@@ -66,8 +66,8 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
       receivedAmount: 0,
       pendingReceivable: val,
       milestones: [
-        { name: 'सम्झौता तथा विद्यार्थी भर्ना किस्ता (५०%)', amount: val * 0.5, status: 'Pending', date: form.startDate },
-        { name: 'प्रशिक्षार्थी मूल्याङ्कन तथा अन्तिम भुक्तानी (५०%)', amount: val * 0.5, status: 'Pending', date: form.endDate }
+        { name: 'Contract Signing & Trainee Enrollment Installment (50%)', amount: val * 0.5, status: 'Pending', date: form.startDate },
+        { name: 'Trainee Evaluation & Final Payment (50%)', amount: val * 0.5, status: 'Pending', date: form.endDate }
       ]
     };
 
@@ -77,7 +77,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
     };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast(`प्रोजेक्ट सम्झौता ${newProject.code} थपियो!`);
+    showToast(`Project contract ${newProject.code} added!`);
     setOpenModal(false);
     setForm({
       name: '',
@@ -95,10 +95,10 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              🏢 नगरपालिका तथा संस्थागत प्रोजेक्ट लेखा (Municipal Project Accounting)
+              🏢 Municipal & Institutional Project Accounting
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              स्थानीय तह (वार्ड / पालिका), दातृ निकाय तथा विशेष तालिम सम्झौता, माइलस्टोन बिलिङ तथा प्राप्ति ट्र्याकिङ
+              Local government (Ward / Municipality), donor agencies, special training contracts, milestone billing, and receipt tracking
             </Typography>
           </Box>
           <Button
@@ -112,7 +112,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
               textTransform: 'none'
             }}
           >
-            + नयाँ प्रोजेक्ट सम्झौता (Add Project)
+            + Add Project Contract
           </Button>
         </Box>
 
@@ -122,7 +122,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2, borderRadius: 2.5, bgcolor: '#EEF2FF', border: '1px solid #C7D2FE' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#4338CA' }}>कुल सम्झौता रकम (Total Contract Value)</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#4338CA' }}>Total Contract Value</Typography>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#312E81', mt: 0.5 }}>
                 Rs. {totalContractValue.toLocaleString()}
               </Typography>
@@ -130,7 +130,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2, borderRadius: 2.5, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#059669' }}>प्राप्त रकम (Amount Received)</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#059669' }}>Amount Received</Typography>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#065F46', mt: 0.5 }}>
                 Rs. {totalReceived.toLocaleString()}
               </Typography>
@@ -138,7 +138,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper sx={{ p: 2, borderRadius: 2.5, bgcolor: '#FFFBEB', border: '1px solid #FDE68A' }}>
-              <Typography variant="caption" sx={{ fontWeight: 700, color: '#B45309' }}>बाँकी बक्यौता (Pending Receivable)</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 700, color: '#B45309' }}>Pending Receivable</Typography>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#92400E', mt: 0.5 }}>
                 Rs. {totalReceivables.toLocaleString()}
               </Typography>
@@ -163,7 +163,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                     <Chip label={p.status} size="small" color="primary" sx={{ fontWeight: 700 }} />
                   </Box>
                   <Typography variant="body2" sx={{ color: '#64748B', fontWeight: 600, mt: 0.3 }}>
-                    सम्पर्क निकाय: {p.fundingAgency} • लक्षित प्रशिक्षार्थी संख्या: {p.targetTrainees} जना
+                    Funding Agency: {p.fundingAgency} • Target Trainees: {p.targetTrainees}
                   </Typography>
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
@@ -171,7 +171,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                     Rs. {Number(p.contractValue).toLocaleString()}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                    प्राप्त: Rs. {Number(p.receivedAmount).toLocaleString()} ({progressPct}%)
+                    Received: Rs. {Number(p.receivedAmount).toLocaleString()} ({progressPct}%)
                   </Typography>
                 </Box>
               </Box>
@@ -180,7 +180,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
 
               {/* Milestones list */}
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#475569', mb: 1 }}>
-                माइलस्टोन भुक्तानी तालिका (Payment Milestones):
+                Payment Milestones:
               </Typography>
               <Grid container spacing={1.5}>
                 {p.milestones.map((m, i) => (
@@ -191,7 +191,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                           {m.name}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B' }}>
-                          मिति: {m.date}
+                          Date: {m.date}
                         </Typography>
                       </Box>
                       <Box sx={{ textAlign: 'right' }}>
@@ -221,13 +221,13 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
 
       {/* New Project Modal */}
       <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>+ नयाँ प्रोजेक्ट सम्झौता प्रविष्टि (New Project Contract)</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800 }}>+ New Project Contract</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2}>
             <TextField
               fullWidth
               size="small"
-              label="प्रोजेक्टको नाम (Project Title)"
+              label="Project Title"
               placeholder="e.g. Ward 5 Vocational Training for Women"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -236,7 +236,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
             <TextField
               fullWidth
               size="small"
-              label="दाता / पालिका (Funding Agency)"
+              label="Funding Agency / Municipality"
               placeholder="e.g. Gokarneshwor Municipality Ward 5"
               value={form.fundingAgency}
               onChange={(e) => setForm({ ...form, fundingAgency: e.target.value })}
@@ -247,7 +247,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                   fullWidth
                   size="small"
                   type="number"
-                  label="कुल सम्झौता रकम (Contract Value)"
+                  label="Contract Value"
                   placeholder="e.g. 450000"
                   value={form.contractValue}
                   onChange={(e) => setForm({ ...form, contractValue: e.target.value })}
@@ -259,7 +259,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                   fullWidth
                   size="small"
                   type="number"
-                  label="लक्ष्य संख्या (Trainees)"
+                  label="Target Trainees"
                   placeholder="e.g. 40"
                   value={form.targetTrainees}
                   onChange={(e) => setForm({ ...form, targetTrainees: e.target.value })}
@@ -270,7 +270,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                   fullWidth
                   size="small"
                   type="date"
-                  label="सुरु मिति (Start Date)"
+                  label="Start Date"
                   value={form.startDate}
                   onChange={(e) => setForm({ ...form, startDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
@@ -281,7 +281,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                   fullWidth
                   size="small"
                   type="date"
-                  label="सकिने मिति (End Date)"
+                  label="End Date"
                   value={form.endDate}
                   onChange={(e) => setForm({ ...form, endDate: e.target.value })}
                   InputLabelProps={{ shrink: true }}
@@ -293,7 +293,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleCreateProject} sx={{ fontWeight: 800 }}>
-            सम्झौता सुरक्षित गर्नुहोस् (Save Project)
+            Save Project
           </Button>
         </DialogActions>
       </Dialog>

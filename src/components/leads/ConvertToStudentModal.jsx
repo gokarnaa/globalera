@@ -93,11 +93,11 @@ export default function ConvertToStudentModal({
   const handleConvert = (e) => {
     e.preventDefault();
     if (!selectedGroupId) {
-      setErrorMsg('कृपया तालिम समूह / ब्याच (Training Batch) छान्नुहोस्।');
+      setErrorMsg('Please select a Training Batch.');
       return;
     }
     if (!tgid.trim()) {
-      setErrorMsg('कृपया विद्यार्थी दर्ता नम्बर (TGID) भर्नुहोस्।');
+      setErrorMsg('Please enter a Student Registration Code (TGID).');
       return;
     }
 
@@ -139,7 +139,7 @@ export default function ConvertToStudentModal({
       ...(lead.timeline || []),
       {
         date: new Date().toISOString(),
-        note: `भर्ना सम्पन्न (Converted to Student: ${tgid} in Batch: ${batchLabel})`,
+        note: `Admission Completed (Converted to Student: ${tgid} in Batch: ${batchLabel})`,
         staffName: 'Admin / Counselor'
       }
     ];
@@ -232,7 +232,7 @@ export default function ConvertToStudentModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.1rem', lineHeight: 1.2 }}>
-              सोधपुछबाट विद्यार्थी भर्ना (Convert to Student)
+              Convert Lead to Student Admission
             </Typography>
             <Typography variant="caption" sx={{ color: '#A7F3D0', fontWeight: 500 }}>
               {lead.name} • {lead.id}
@@ -289,30 +289,30 @@ export default function ConvertToStudentModal({
             }}
           >
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#065F46', mb: 1 }}>
-              भर्ना गरिने विद्यार्थीको जानकारी (Lead Overview)
+              Lead Overview
             </Typography>
             <Grid container spacing={1}>
               <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>नाम (Name):</Typography>
+                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Name:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.name}</Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>फोन (Phone):</Typography>
+                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Phone:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.phone}</Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>ठेगाना (Address):</Typography>
+                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Address:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 600, color: '#064E3B' }}>{lead.address || 'N/A'}</Typography>
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>पाठ्यक्रम (Course):</Typography>
+                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Course:</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.course || 'N/A'}</Typography>
               </Grid>
             </Grid>
           </Paper>
 
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 2 }}>
-            भर्ना र तालिम समूह विवरण (Admission & Batch Setup)
+            Admission & Batch Setup
           </Typography>
 
           <Grid container spacing={2}>
@@ -320,10 +320,10 @@ export default function ConvertToStudentModal({
               <TextField
                 fullWidth
                 required
-                label="विद्यार्थी दर्ता कोड (TGID)"
+                label="Student Registration Code (TGID)"
                 value={tgid}
                 onChange={(e) => setTgid(e.target.value)}
-                helperText="युनिक विद्यार्थी पहिचान कोड"
+                helperText="Unique Student Identification Code"
               />
             </Grid>
 
@@ -331,13 +331,13 @@ export default function ConvertToStudentModal({
               <TextField
                 select
                 fullWidth
-                label="लिङ्ग (Gender)"
+                label="Gender"
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
               >
-                <MenuItem value="Female">महिला (Female)</MenuItem>
-                <MenuItem value="Male">पुरुष (Male)</MenuItem>
-                <MenuItem value="Other">अन्य (Other)</MenuItem>
+                <MenuItem value="Female">Female</MenuItem>
+                <MenuItem value="Male">Male</MenuItem>
+                <MenuItem value="Other">Other</MenuItem>
               </TextField>
             </Grid>
 
@@ -346,7 +346,7 @@ export default function ConvertToStudentModal({
                 select
                 fullWidth
                 required
-                label="तालिम समूह / ब्याच (Training Batch)"
+                label="Training Batch"
                 value={selectedGroupId}
                 onChange={(e) => handleGroupChange(e.target.value)}
               >
@@ -365,7 +365,7 @@ export default function ConvertToStudentModal({
               <TextField
                 fullWidth
                 type="date"
-                label="भर्ना मिति (Admission Date)"
+                label="Admission Date"
                 InputLabelProps={{ shrink: true }}
                 value={admissionDate}
                 onChange={(e) => setAdmissionDate(e.target.value)}
@@ -376,7 +376,7 @@ export default function ConvertToStudentModal({
               <TextField
                 fullWidth
                 type="date"
-                label="समापन मिति (Expected End Date)"
+                label="Expected End Date"
                 InputLabelProps={{ shrink: true }}
                 value={expectedEndDate}
                 onChange={(e) => setExpectedEndDate(e.target.value)}
@@ -386,8 +386,8 @@ export default function ConvertToStudentModal({
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="बुबाको नाम (Father's Name)"
-                placeholder="वैकल्पिक (Optional)"
+                label="Father's Name"
+                placeholder="Optional"
                 value={fatherName}
                 onChange={(e) => setFatherName(e.target.value)}
               />
@@ -396,8 +396,8 @@ export default function ConvertToStudentModal({
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="अभिभावक सम्पर्क (Guardian Phone)"
-                placeholder="वैकल्पिक (Optional)"
+                label="Guardian Phone"
+                placeholder="Optional"
                 value={guardianContact}
                 onChange={(e) => setGuardianContact(e.target.value)}
               />
@@ -420,7 +420,7 @@ export default function ConvertToStudentModal({
           }}
         >
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -435,7 +435,7 @@ export default function ConvertToStudentModal({
               boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
             }}
           >
-            भर्ना निश्चित गर्नुहोस् (Confirm Admission)
+            Confirm Admission
           </Button>
         </DialogActions>
       </Box>

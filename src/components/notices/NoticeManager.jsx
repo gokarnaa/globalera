@@ -148,7 +148,7 @@ export default function NoticeManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <CampaignIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Notice Board & Circulars (सूचना तथा परिपत्र केन्द्र)
+              Notice Board & Circulars
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -235,15 +235,15 @@ export default function NoticeManager() {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति (Date)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्राथमिकता (Priority)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सूचना शीर्षक (Notice Title)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>लक्षित समूह (Target Audience)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>व्यहोरा संक्षेप (Summary)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>जारीकर्ता (Issued By)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Priority</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Notice Title</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Target Audience</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Summary</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Issued By</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -415,10 +415,10 @@ export default function NoticeManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'आधिकारिक सूचना सम्पादन (Edit Notice)' : 'नयाँ आधिकारिक सूचना जारी (Broadcast Notice)'}
+                {editingItem ? 'Edit Notice' : 'Broadcast Notice'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                समस्त प्रशिक्षार्थी, प्रशिक्षक तथा कर्मचारी वर्गका लागि सूचना प्रसारण
+                Broadcast official announcements to all trainees, instructors, and staff
               </Typography>
             </Box>
           </Box>
@@ -450,7 +450,7 @@ export default function NoticeManager() {
               label="Notice Title (e.g. Dashain Break / CTEVT Inspection) *"
               fullWidth
               size="small"
-              placeholder="उदा: बडादशैं बिदा सम्बन्धमा / CTEVT अनुगमन"
+              placeholder="e.g. Regarding Dashain Vacation / CTEVT Inspection"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -466,9 +466,9 @@ export default function NoticeManager() {
                   value={formData.targetRole}
                   onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
                 >
-                  <MenuItem value="ALL">Entire Institute (सबैका लागि)</MenuItem>
-                  <MenuItem value="TRAINERS">Trainers Only (प्रशिक्षकहरू)</MenuItem>
-                  <MenuItem value="STUDENTS">Students Only (प्रशिक्षार्थीहरू)</MenuItem>
+                  <MenuItem value="ALL">Entire Institute (All)</MenuItem>
+                  <MenuItem value="TRAINERS">Trainers Only</MenuItem>
+                  <MenuItem value="STUDENTS">Students Only</MenuItem>
                 </TextField>
               </Grid>
               <Grid item xs={6}>
@@ -480,8 +480,8 @@ export default function NoticeManager() {
                   value={formData.priority}
                   onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
                 >
-                  <MenuItem value="Normal">Normal Notice (सामान्य)</MenuItem>
-                  <MenuItem value="Urgent">Urgent / Immediate Action (जरुरी)</MenuItem>
+                  <MenuItem value="Normal">Normal Notice</MenuItem>
+                  <MenuItem value="Urgent">Urgent / Immediate Action</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -492,7 +492,7 @@ export default function NoticeManager() {
               rows={4}
               fullWidth
               size="small"
-              placeholder="सूचनाको सम्पूर्ण व्यहोरा, मिति तथा पालना गर्नुपर्ने निर्देशनहरू..."
+              placeholder="Full notice details, dates, and instructions to follow..."
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               required
@@ -502,7 +502,7 @@ export default function NoticeManager() {
               label="Author / Signing Authority"
               fullWidth
               size="small"
-              placeholder="उदा: प्रिन्सिपल / प्रशासन शाखा"
+              placeholder="e.g. Principal / Administration Department"
               value={formData.author}
               onChange={(e) => setFormData({ ...formData, author: e.target.value })}
             />
@@ -530,7 +530,7 @@ export default function NoticeManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -550,7 +550,7 @@ export default function NoticeManager() {
               }
             }}
           >
-            {editingItem ? 'अद्यावधिक गर्नुहोस्' : 'सूचना जारी गर्नुहोस् (Broadcast)'}
+            {editingItem ? 'Update Notice' : 'Broadcast Notice'}
           </Button>
         </DialogActions>
       </Dialog>

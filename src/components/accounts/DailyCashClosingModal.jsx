@@ -167,8 +167,8 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
         5: Number(denominations[5]) || 0,
         coins: Number(denominations.coins) || 0
       },
-      notes: closingNotes.trim() || (variance === 0 ? 'काउन्टर नगद पूर्ण रूपमा मिलेको (Matched)' : `नगद फरक (Variance): Rs. ${variance}`),
-      closedBy: db?.counterStatus?.openedBy || 'सुनिता शर्मा (क्यासियर)',
+      notes: closingNotes.trim() || (variance === 0 ? 'Counter cash matched exactly' : `Cash variance: Rs. ${variance}`),
+      closedBy: db?.counterStatus?.openedBy || 'Sunita Sharma (Cashier)',
       closedAt: new Date().toISOString(),
       status: variance === 0 ? 'EXACT_MATCH' : variance > 0 ? 'EXCESS' : 'SHORTAGE'
     };
@@ -191,7 +191,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
     setShowPrintView(true);
 
     if (showToast) {
-      showToast(`दैनिक काउन्टर नगद क्लोजिङ (Rs. ${physicalCount.toLocaleString()}) प्रमाणित भई दिन बन्द भयो!`, 'success');
+      showToast(`Daily counter cash closing (Rs. ${physicalCount.toLocaleString()}) verified and day closed!`, 'success');
     }
     if (onDayClosed) {
       onDayClosed(closingRecord);
@@ -248,10 +248,10 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-              दैनिक काउन्टर नगद क्लोजिङ तथा नोट गणना (Daily Cash Closing)
+              Daily Counter Cash Closing & Denomination Count
             </Typography>
             <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 600 }}>
-              मिति: {today} • समय: {currentTime} • भौतिक नोट गणना (Denomination Sheet)
+              Date: {today} • Time: {currentTime} • Physical Denomination Sheet
             </Typography>
           </Box>
         </Box>
@@ -270,15 +270,15 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 GLOBAL ERA TECHNICAL SCHOOL
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                ग्लोबल एरा प्राविधिक स्कुल • जोरपाटी, काठमाडौं
+                Global Era Technical School • Jorpati, Kathmandu
               </Typography>
               <Chip
-                label="दैनिक काउन्टर नगद क्लोजिङ भौचर (DAILY CASH CLOSING & DENOMINATION SLIP)"
+                label="DAILY CASH CLOSING & DENOMINATION SLIP"
                 size="small"
                 sx={{ bgcolor: '#0F2E5A', color: '#FFF', fontWeight: 900, fontSize: '0.72rem', mt: 1 }}
               />
               <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#475569' }}>
-                क्लोजिङ नं: <strong>{savedClosingRecord.id}</strong> • मिति: <strong>{savedClosingRecord.closingDate}</strong> ({savedClosingRecord.closingTime})
+                Closing ID: <strong>{savedClosingRecord.id}</strong> • Date: <strong>{savedClosingRecord.closingDate}</strong> ({savedClosingRecord.closingTime})
               </Typography>
             </Box>
 
@@ -286,25 +286,25 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
               <Grid item xs={3}>
                 <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>सुरु मौज्दात</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Opening Balance</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>Rs. {savedClosingRecord.openingBalance.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={3}>
                 <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#059669' }}>नगद प्राप्ति (+)</Typography>
+                  <Typography variant="caption" sx={{ color: '#059669' }}>Cash Received (+)</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>Rs. {savedClosingRecord.cashReceived.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={3}>
                 <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#FEF2F2', border: '1px solid #FECACA', textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#DC2626' }}>नगद खर्च (-)</Typography>
+                  <Typography variant="caption" sx={{ color: '#DC2626' }}>Cash Paid (-)</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {savedClosingRecord.cashPaid.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={3}>
                 <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#EFF6FF', border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#1E40AF' }}>हुनुपर्ने मौज्दात</Typography>
+                  <Typography variant="caption" sx={{ color: '#1E40AF' }}>Expected Balance</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#1E40AF' }}>Rs. {savedClosingRecord.expectedClosing.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
@@ -312,21 +312,21 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
 
             {/* Denomination Breakdown Table */}
             <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 1 }}>
-              💵 भौतिक नोट गणना विवरण (Physical Cash Denomination):
+              💵 Physical Cash Denomination:
             </Typography>
             <TableContainer sx={{ border: '1px solid #CBD5E1', borderRadius: 2, mb: 2 }}>
               <Table size="small">
                 <TableHead sx={{ bgcolor: '#0F2E5A' }}>
                   <TableRow>
-                    <TableCell sx={{ color: '#FFF !important', fontWeight: 900 }}>दर (Rate)</TableCell>
-                    <TableCell align="center" sx={{ color: '#FFF !important', fontWeight: 900 }}>थान (Count)</TableCell>
-                    <TableCell align="right" sx={{ color: '#FFF !important', fontWeight: 900 }}>जम्मा रकम (Sub-Total)</TableCell>
+                    <TableCell sx={{ color: '#FFF !important', fontWeight: 900 }}>Rate</TableCell>
+                    <TableCell align="center" sx={{ color: '#FFF !important', fontWeight: 900 }}>Count</TableCell>
+                    <TableCell align="right" sx={{ color: '#FFF !important', fontWeight: 900 }}>Sub-Total</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {DENOMINATION_RATES.map((r) => (
                     <TableRow key={r}>
-                      <TableCell sx={{ fontWeight: 800 }}>रु. {r}</TableCell>
+                      <TableCell sx={{ fontWeight: 800 }}>Rs. {r}</TableCell>
                       <TableCell align="center" sx={{ fontWeight: 800, fontFamily: 'monospace' }}>
                         {savedClosingRecord.denominations[r] || 0}
                       </TableCell>
@@ -336,16 +336,16 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800 }}>सिक्का तथा खुद्रा</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Coins & Loose Change</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 800 }}>-</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                       Rs. {(savedClosingRecord.denominations.coins || 0).toLocaleString()}
                     </TableCell>
                   </TableRow>
                   <TableRow sx={{ bgcolor: '#F1F5F9' }}>
-                    <TableCell sx={{ fontWeight: 900, fontSize: '0.95rem' }}>कुल भौतिक नगद (Grand Total)</TableCell>
+                    <TableCell sx={{ fontWeight: 900, fontSize: '0.95rem' }}>Total Physical Cash (Grand Total)</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 900 }}>
-                      {Object.keys(savedClosingRecord.denominations).filter(k => k !== 'coins').reduce((sum, k) => sum + savedClosingRecord.denominations[k], 0)} थान
+                      {Object.keys(savedClosingRecord.denominations).filter(k => k !== 'coins').reduce((sum, k) => sum + savedClosingRecord.denominations[k], 0)} Notes
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 900, fontSize: '1rem', color: '#059669' }}>
                       Rs. {savedClosingRecord.physicalCount.toLocaleString()}
@@ -358,10 +358,10 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             {/* Reconciliation Variance */}
             <Box sx={{ p: 1.5, bgcolor: savedClosingRecord.variance === 0 ? '#ECFDF5' : '#FEF2F2', borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 800, color: savedClosingRecord.variance === 0 ? '#065F46' : '#991B1B' }}>
-                रुजु स्थिति: {savedClosingRecord.variance === 0 ? '✓ हिसाब पूर्ण रूपमा मिलेको (Exact Match)' : `फरक (Variance): Rs. ${savedClosingRecord.variance.toLocaleString()}`}
+                Reconciliation Status: {savedClosingRecord.variance === 0 ? '✓ Exact Match' : `Variance: Rs. ${savedClosingRecord.variance.toLocaleString()}`}
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B' }}>
-                कैफियत: {savedClosingRecord.notes}
+                Remarks: {savedClosingRecord.notes}
               </Typography>
             </Box>
 
@@ -372,17 +372,17 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
                   {savedClosingRecord.closedBy}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>काउन्टर क्यासियर (Cashier)</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Counter Cashier</Typography>
               </Grid>
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderBottom: '1px solid #475569', pb: 0.5, mb: 0.5, minHeight: 25 }} />
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>लेखा अधिकृत</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>प्रमाणित गर्ने (Accountant)</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>Finance Officer</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Verified By (Accountant)</Typography>
               </Grid>
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderBottom: '1px solid #475569', pb: 0.5, mb: 0.5, minHeight: 25 }} />
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>क्याम्पस प्रमुख / निर्देशक</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>स्वीकृत (Campus Chief)</Typography>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>Campus Chief / Director</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Approved By (Campus Chief)</Typography>
               </Grid>
             </Grid>
           </Box>
@@ -393,25 +393,25 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             <Grid container spacing={2} sx={{ mb: 2.8 }}>
               <Grid item xs={6} sm={3}>
                 <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>सुरु मौज्दात (Opening)</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Opening Balance</Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>Rs. {openingBalance.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>नगद संकलन (+)</Typography>
+                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>Cash Collection (+)</Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#059669' }}>Rs. {todayCashIn.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 700 }}>नगद खर्च (-)</Typography>
+                  <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 700 }}>Cash Expenses (-)</Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {todayCashOut.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#EEF2FF', border: '1.5px solid #C7D2FE', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#4338CA', fontWeight: 800 }}>हुनुपर्ने अन्तिम नगद</Typography>
+                  <Typography variant="caption" sx={{ color: '#4338CA', fontWeight: 800 }}>Expected Closing Cash</Typography>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1E40AF', fontSize: '1.1rem' }}>Rs. {expectedClosing.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
@@ -423,11 +423,11 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CalculateIcon sx={{ color: '#0F2E5A' }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                    भौतिक नोट गणना क्यालकुलेटर (Physical Cash Denomination Counter):
+                    Physical Cash Denomination Counter:
                   </Typography>
                 </Box>
                 <Chip
-                  label={`जम्मा थान: ${totalNotesCount} नोटहरू`}
+                  label={`Total Notes: ${totalNotesCount}`}
                   size="small"
                   sx={{ fontWeight: 800, bgcolor: '#F1F5F9', color: '#0F2E5A' }}
                 />
@@ -451,14 +451,14 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                         }}
                       >
                         <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.88rem' }}>
-                          रु. {rate}
+                          Rs. {rate}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>×</Typography>
                           <TextField
                             size="small"
                             type="number"
-                            placeholder="०"
+                            placeholder="0"
                             value={denominations[rate]}
                             onChange={(e) => handleDenominationChange(rate, e.target.value)}
                             inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 60, padding: '4px 6px' } }}
@@ -491,14 +491,14 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                         }}
                       >
                         <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.88rem' }}>
-                          रु. {rate}
+                          Rs. {rate}
                         </Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>×</Typography>
                           <TextField
                             size="small"
                             type="number"
-                            placeholder="०"
+                            placeholder="0"
                             value={denominations[rate]}
                             onChange={(e) => handleDenominationChange(rate, e.target.value)}
                             inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 60, padding: '4px 6px' } }}
@@ -525,14 +525,14 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                       }}
                     >
                       <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.85rem' }}>
-                        खुद्रा / सिक्का
+                        Coins / Loose
                       </Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Rs.</Typography>
                         <TextField
                           size="small"
                           type="number"
-                          placeholder="०"
+                          placeholder="0"
                           value={denominations.coins}
                           onChange={(e) => handleDenominationChange('coins', e.target.value)}
                           inputProps={{ min: 0, style: { textAlign: 'right', fontWeight: 800, width: 85, padding: '4px 6px' } }}
@@ -564,7 +564,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             >
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
-                  गनिएको जम्मा भौतिक नगद (Physical Count)
+                  Total Physical Count
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: variance === 0 ? '#059669' : variance > 0 ? '#1E40AF' : '#DC2626' }}>
                   Rs. {physicalCount.toLocaleString()}
@@ -575,10 +575,10 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 <Chip
                   label={
                     variance === 0
-                      ? '✓ हिसाब पूर्ण रूपमा मिलेको (Exact Match)'
+                      ? '✓ Exact Match'
                       : variance > 0
-                      ? `बढी नगद (Excess: +Rs. ${variance.toLocaleString()})`
-                      : `घटी नगद (Shortage: -Rs. ${Math.abs(variance).toLocaleString()})`
+                      ? `Excess Cash (+Rs. ${variance.toLocaleString()})`
+                      : `Shortage (-Rs. ${Math.abs(variance).toLocaleString()})`
                   }
                   size="small"
                   sx={{
@@ -591,7 +591,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                   }}
                 />
                 <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#64748B', fontWeight: 600 }}>
-                  सिस्टमले रु. {expectedClosing.toLocaleString()} अपेक्षा गरेको छ
+                  System expects Rs. {expectedClosing.toLocaleString()}
                 </Typography>
               </Box>
             </Paper>
@@ -602,7 +602,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
               multiline
               rows={2}
               size="small"
-              label="क्लोजिङ कैफियत / टिप्पणी (Closing Notes)"
+              label="Closing Notes / Remarks"
               placeholder="e.g. Counter closed successfully. Cash verified and locked in institute vault."
               value={closingNotes}
               onChange={(e) => setClosingNotes(e.target.value)}
@@ -620,7 +620,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
               onClick={() => setShowPrintView(false)}
               sx={{ fontWeight: 700, textTransform: 'none' }}
             >
-              &larr; विवरणमा फर्कनुहोस्
+              &larr; Back to Details
             </Button>
             <Stack direction="row" spacing={1.5}>
               <Button
@@ -635,7 +635,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                   '&:hover': { bgcolor: '#D97706' }
                 }}
               >
-                A4 क्लोजिङ स्लिप प्रिन्ट गर्नुहोस्
+                Print A4 Closing Slip
               </Button>
               <Button
                 variant="contained"
@@ -647,14 +647,14 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                   textTransform: 'none'
                 }}
               >
-                सम्पन्न (Done)
+                Done
               </Button>
             </Stack>
           </>
         ) : (
           <>
             <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748B', textTransform: 'none' }}>
-              रद्द गर्नुहोस् (Cancel)
+              Cancel
             </Button>
             <Button
               variant="contained"
@@ -670,7 +670,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 fontSize: '0.88rem'
               }}
             >
-              🔒 दिन बन्द प्रमाणित गर्नुहोस् (Confirm & Lock Day Close)
+              🔒 Confirm & Lock Day Close
             </Button>
           </>
         )}

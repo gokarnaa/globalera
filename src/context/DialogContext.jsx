@@ -31,8 +31,8 @@ export function DialogProvider({ children }) {
     title: '',
     message: '',
     detail: '',
-    confirmText: 'निश्चित गर्नुहोस् (Confirm)',
-    cancelText: 'रद्द गर्नुहोस् (Cancel)',
+    confirmText: 'Confirm',
+    cancelText: 'Cancel',
     type: 'warning', // 'logout' | 'danger' | 'warning' | 'info' | 'success'
     confirmColor: '#DC2626'
   });
@@ -54,11 +54,11 @@ export function DialogProvider({ children }) {
       setDialogState({
         isOpen: true,
         isAlertOnly: false,
-        title: options?.title || 'निश्चित गर्नुहोस् (Confirmation)',
-        message: options?.message || 'के तपाईं यो कार्य गर्न निश्चित हुनुहुन्छ?',
+        title: options?.title || 'Confirmation',
+        message: options?.message || 'Are you sure you want to proceed with this action?',
         detail: options?.detail || '',
-        confirmText: options?.confirmText || 'हो, निश्चित गर्नुहोस् (Confirm)',
-        cancelText: options?.cancelText || 'रद्द गर्नुहोस् (Cancel)',
+        confirmText: options?.confirmText || 'Confirm',
+        cancelText: options?.cancelText || 'Cancel',
         type,
         confirmColor: options?.confirmColor || defaultConfirmColor
       });
@@ -79,10 +79,10 @@ export function DialogProvider({ children }) {
       setDialogState({
         isOpen: true,
         isAlertOnly: true,
-        title: opts?.title || (type === 'error' ? 'सुझाव / त्रुटि (Notice)' : 'जानकारी (Notice)'),
+        title: opts?.title || (type === 'error' ? 'Error / Notice' : 'Notice'),
         message: opts?.message || '',
         detail: opts?.detail || '',
-        confirmText: opts?.confirmText || 'हुन्छ, बुझें (OK)',
+        confirmText: opts?.confirmText || 'OK',
         cancelText: '',
         type,
         confirmColor: opts?.confirmColor || defaultConfirmColor
@@ -115,7 +115,7 @@ export function DialogProvider({ children }) {
     const originalAlert = window.alert;
     window.alert = (msg) => {
       alert({
-        title: 'जानकारी तथा सूचना (Notice)',
+        title: 'System Notice',
         message: typeof msg === 'object' ? JSON.stringify(msg) : String(msg),
         type: 'info'
       });

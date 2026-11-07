@@ -110,7 +110,7 @@ export default function CourseFeeManager() {
     vatPercent: 13,
     paymentMode: 'TWO_INSTALLMENTS',
     fullPayDiscount: 1000,
-    revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+    revisionReason: 'Initial official fee schedule',
     effectiveDate: new Date().toISOString().split('T')[0]
   });
 
@@ -123,7 +123,7 @@ export default function CourseFeeManager() {
     vatPercent: 13,
     paymentMode: 'TWO_INSTALLMENTS',
     fullPayDiscount: 1000,
-    revisionReason: 'अभियान तथा शुल्क परिमार्जन',
+    revisionReason: 'Campaign and fee revision',
     effectiveDate: new Date().toISOString().split('T')[0]
   });
 
@@ -141,7 +141,7 @@ export default function CourseFeeManager() {
           paymentMode: isBasic ? 'FULL_ONLY' : 'TWO_INSTALLMENTS',
           fullPayDiscount: isBasic ? 0 : 1000,
           effectiveDate: '2026-07-16',
-          revisionReason: isBasic ? 'बेसिक कोर्स भर्ना दर' : 'विशेष ७०% अभियान अफर',
+          revisionReason: isBasic ? 'Basic course admission rate' : 'Special 70% campaign offer',
           revisionHistory: [
             {
               id: 'init-1',
@@ -153,7 +153,7 @@ export default function CourseFeeManager() {
               vatPercent: 13,
               totalEffectiveFee: isBasic ? 1921 : 11865,
               paymentMode: isBasic ? 'FULL_ONLY' : 'TWO_INSTALLMENTS',
-              reason: 'प्रारम्भिक आधिकारिक शुल्क दर'
+              reason: 'Initial official fee schedule'
             }
           ]
         };
@@ -219,7 +219,7 @@ export default function CourseFeeManager() {
   // Helper to get Occupation name
   const getOccupationName = (occId) => {
     const occ = (db.occupations || []).find((o) => o.id === occId);
-    return occ ? occ.name : 'सामान्य प्राविधिक सीप';
+    return occ ? occ.name : 'General Technical Skill';
   };
 
   // When a course is selected in the dropdown
@@ -237,7 +237,7 @@ export default function CourseFeeManager() {
       vatPercent: fs.vatPercent !== undefined ? fs.vatPercent : 13,
       paymentMode: fs.paymentMode || (isBasic ? 'FULL_ONLY' : 'TWO_INSTALLMENTS'),
       fullPayDiscount: fs.fullPayDiscount || 1000,
-      revisionReason: fs.revisionReason || 'कोर्स शुल्क संरचना निर्धारण',
+      revisionReason: fs.revisionReason || 'Course fee structure setup',
       effectiveDate: new Date().toISOString().split('T')[0]
     });
   };
@@ -256,7 +256,7 @@ export default function CourseFeeManager() {
         vatPercent: 13,
         paymentMode: 'TWO_INSTALLMENTS',
         fullPayDiscount: 1000,
-        revisionReason: 'प्रारम्भिक आधिकारिक शुल्क दर',
+        revisionReason: 'Initial official fee schedule',
         effectiveDate: new Date().toISOString().split('T')[0]
       });
     }
@@ -267,13 +267,13 @@ export default function CourseFeeManager() {
   const handleSaveCourseFee = (e) => {
     e.preventDefault();
     if (!newCourseFeeData.courseId) {
-      alert('कृपया पहिले कोर्स सेक्सनबाट कोर्स छनोट गर्नुहोस्।');
+      alert('Please select a course first.');
       return;
     }
 
     const targetCourse = (db.courses || []).find((c) => c.id === newCourseFeeData.courseId);
     if (!targetCourse) {
-      alert('छनोट गरिएको कोर्स फेला परेन।');
+      alert('Selected course not found.');
       return;
     }
 
@@ -290,7 +290,7 @@ export default function CourseFeeManager() {
       vatPercent: Number(newCourseFeeData.vatPercent) || 13,
       totalEffectiveFee: calc.totalEffectiveFee,
       paymentMode: newCourseFeeData.paymentMode,
-      reason: newCourseFeeData.revisionReason || 'कोर्स शुल्क संरचना दर्ता/परिमार्जन'
+      reason: newCourseFeeData.revisionReason || 'Course fee setup/revision'
     };
 
     const newFeeStructure = {
@@ -301,7 +301,7 @@ export default function CourseFeeManager() {
       paymentMode: newCourseFeeData.paymentMode,
       fullPayDiscount: Number(newCourseFeeData.fullPayDiscount) || 0,
       effectiveDate: newCourseFeeData.effectiveDate,
-      revisionReason: newCourseFeeData.revisionReason || 'कोर्स शुल्क संरचना दर्ता/परिमार्जन',
+      revisionReason: newCourseFeeData.revisionReason || 'Course fee setup/revision',
       revisionHistory: [newRevisionEntry, ...existingHistory]
     };
 
@@ -351,7 +351,7 @@ export default function CourseFeeManager() {
       vatPercent: Number(formData.vatPercent) || 13,
       totalEffectiveFee: calc.totalEffectiveFee,
       paymentMode: formData.paymentMode,
-      reason: formData.revisionReason || 'शुल्क परिमार्जन'
+      reason: formData.revisionReason || 'Fee revision'
     };
 
     const existingHistory = selectedCourse.feeStructure?.revisionHistory || [];
@@ -394,21 +394,21 @@ export default function CourseFeeManager() {
   // Export to Excel
   const handleExportExcel = () => {
     const exportData = coursesWithFees.map((crs, idx) => ({
-      'क्र.सं.': idx + 1,
-      'कोर्स नाम': crs.title,
-      'तह (Level)': crs.level,
-      'अवधि (घण्टा)': `${crs.durationValue} ${crs.durationUnit} (${crs.totalHours} घण्टा)`,
-      'मूल ब्रोसर शुल्क': crs.feeCalc.basePrice,
-      'छुट प्रतिशत': `${crs.feeCalc.discountPercent}%`,
-      'छुट रकम': crs.feeCalc.discountAmount,
-      'खुद तालिम शुल्क': crs.feeCalc.netTuition,
-      'भर्ना शुल्क': crs.feeCalc.admissionFee,
-      'करयोग्य रकम': crs.feeCalc.subtotal,
-      '१३% भ्याट रकम': crs.feeCalc.vatAmount,
-      'कुल प्रभावकारी शुल्क': crs.feeCalc.totalEffectiveFee,
-      'भुक्तानी मोडल': crs.feeStructure?.paymentMode === 'FULL_ONLY' ? 'एकमुष्ट मात्र (Full Upfront)' : '२ किस्ता (५०% + ५०%)',
-      'पहिलो किस्ता': crs.feeCalc.installment1,
-      'दोस्रो किस्ता (१ महिनापछि)': crs.feeCalc.installment2
+      'S.N.': idx + 1,
+      'Course Title': crs.title,
+      'Level': crs.level,
+      'Duration': `${crs.durationValue} ${crs.durationUnit} (${crs.totalHours} Hours)`,
+      'Brochure Fee': crs.feeCalc.basePrice,
+      'Discount %': `${crs.feeCalc.discountPercent}%`,
+      'Discount Amount': crs.feeCalc.discountAmount,
+      'Net Tuition': crs.feeCalc.netTuition,
+      'Admission Fee': crs.feeCalc.admissionFee,
+      'Subtotal (Taxable)': crs.feeCalc.subtotal,
+      '13% VAT Amount': crs.feeCalc.vatAmount,
+      'Total Effective Fee': crs.feeCalc.totalEffectiveFee,
+      'Payment Model': crs.feeStructure?.paymentMode === 'FULL_ONLY' ? 'Full Upfront' : '2 Installments (50% + 50%)',
+      '1st Installment': crs.feeCalc.installment1,
+      '2nd Installment (After 1 Month)': crs.feeCalc.installment2
     }));
 
     exportToExcel(exportData, 'GlobalEra_Course_Fee_Structures_13VAT');
@@ -453,16 +453,16 @@ export default function CourseFeeManager() {
           </Box>
           <Box>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              कोर्स शुल्क संरचना तथा दर व्यवस्थापन (Course Fee Master)
+              Course Fee Structure & Master Rates
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              ब्रोसर शुल्क, अभियान छुट, भर्ना शुल्क, अनिवार्य १३% भ्याट (VAT) तथा किस्ताबन्दी नीति व्यवस्थापन
+              Manage brochure fees, campaign discounts, admission fees, mandatory 13% VAT, and installment plans
             </Typography>
           </Box>
         </Box>
 
         <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
-          {/* Option requested by user: Short button "+ कोर्स शुल्क" */}
+          {/* Option requested by user: Short button "+ Course Fee" */}
           <Button
             variant="contained"
             size="small"
@@ -479,7 +479,7 @@ export default function CourseFeeManager() {
               }
             }}
           >
-            + कोर्स शुल्क
+            + Course Fee
           </Button>
 
           <Button
@@ -489,7 +489,7 @@ export default function CourseFeeManager() {
             onClick={() => setOpenPrintModal(true)}
             sx={{ fontWeight: 800, borderColor: '#0F2E5A', color: '#0F2E5A' }}
           >
-            शुल्क पत्र प्रिन्ट
+            Print Fee Sheet
           </Button>
 
           <Button
@@ -506,7 +506,7 @@ export default function CourseFeeManager() {
 
       {saveSuccessAlert && (
         <Alert severity="success" sx={{ mb: 2, fontWeight: 700, borderRadius: 2 }}>
-          ✓ कोर्सको नयाँ शुल्क दर, भ्याट र किस्ताबन्दी नीति सफलतापूर्वक सुरक्षित गरियो! नयाँ भर्नामा यो दर स्वतः लागू हुनेछ।
+          ✓ Course fee structure, VAT, and installment policy saved successfully! Applied to new admissions automatically.
         </Alert>
       )}
 
@@ -515,9 +515,9 @@ export default function CourseFeeManager() {
         <Grid item xs={12} sm={6} md={3}>
           <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #0F2E5A' }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>कुल सक्रिय कोर्सहरू</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Total Active Courses</Typography>
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', my: 0.5 }}>{stats.total}</Typography>
-              <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>CTEVT मान्यता प्राप्त पाठ्यक्रम</Typography>
+              <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>CTEVT Recognized Curriculum</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -525,9 +525,9 @@ export default function CourseFeeManager() {
         <Grid item xs={12} sm={6} md={3}>
           <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #059669' }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>औसत प्रभावकारी शुल्क (१३% भ्याट सहित)</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>रु. {stats.avgFee.toLocaleString()}</Typography>
-              <Typography variant="caption" sx={{ color: '#64748B' }}>विद्यार्थीले तिर्ने खुद रकम</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Avg Effective Fee (Inc. 13% VAT)</Typography>
+              <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>NPR {stats.avgFee.toLocaleString()}</Typography>
+              <Typography variant="caption" sx={{ color: '#64748B' }}>Net Payable by Student</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -535,9 +535,9 @@ export default function CourseFeeManager() {
         <Grid item xs={12} sm={6} md={3}>
           <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #0284C7' }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>२ किस्ता सुविधा भएका कोर्स</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>2-Installment Courses</Typography>
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284C7', my: 0.5 }}>{stats.installmentCount}</Typography>
-              <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>५०% भर्नामा + ५०% १ महिनामा</Typography>
+              <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>50% on admission + 50% in 1 month</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -545,9 +545,9 @@ export default function CourseFeeManager() {
         <Grid item xs={12} sm={6} md={3}>
           <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #F59E0B' }}>
             <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>बेसिक / एकमुष्ट मात्र कोर्स</Typography>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Basic / Full Upfront Courses</Typography>
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#D97706', my: 0.5 }}>{stats.fullOnlyCount}</Typography>
-              <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 700 }}>भर्नामै १००% भुक्तानी (किस्ता नहुने)</Typography>
+              <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 700 }}>100% upfront on admission (No installments)</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -559,7 +559,7 @@ export default function CourseFeeManager() {
           {/* Search Box */}
           <TextField
             size="small"
-            placeholder="कोर्स नाम वा कोडबाट खोज्नुहोस्..."
+            placeholder="Search by course title or code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             sx={{ width: { xs: '100%', sm: 300 }, bgcolor: '#F8FAFC' }}
@@ -575,7 +575,7 @@ export default function CourseFeeManager() {
           {/* Payment Mode Filter */}
           <Stack direction="row" spacing={1} alignItems="center">
             <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', display: { xs: 'none', md: 'block' } }}>
-              मोडल फिल्टर:
+              Payment Filter:
             </Typography>
             <ToggleButtonGroup
               size="small"
@@ -584,9 +584,9 @@ export default function CourseFeeManager() {
               onChange={(e, val) => val && setModeFilter(val)}
               sx={{ bgcolor: '#F8FAFC' }}
             >
-              <ToggleButton value="ALL" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>सबै</ToggleButton>
-              <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>२ किस्ता</ToggleButton>
-              <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>एकमुष्ट मात्र</ToggleButton>
+              <ToggleButton value="ALL" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>All</ToggleButton>
+              <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>2 Installments</ToggleButton>
+              <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>Full Upfront</ToggleButton>
             </ToggleButtonGroup>
 
             {/* View Mode Switcher: Card View vs Table View */}
@@ -647,11 +647,11 @@ export default function CourseFeeManager() {
                           {crs.title}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }}>
-                          {crs.level} • {crs.durationValue} {crs.durationUnit} ({crs.totalHours} घण्टा)
+                          {crs.level} • {crs.durationValue} {crs.durationUnit} ({crs.totalHours} Hours)
                         </Typography>
                       </Box>
                       <Chip
-                        label={isFullOnly ? '⚡ एकमुष्ट मात्र' : '📅 २ किस्ता'}
+                        label={isFullOnly ? '⚡ Full Upfront' : '📅 2 Installments'}
                         size="small"
                         sx={{
                           bgcolor: isFullOnly ? '#F59E0B' : '#059669',
@@ -677,52 +677,52 @@ export default function CourseFeeManager() {
                       }}
                     >
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block' }}>
-                        कुल अन्तिम शुल्क (१३% भ्याट सहित):
+                        Total Effective Fee (Inc. 13% VAT):
                       </Typography>
                       <Typography variant="h4" sx={{ fontWeight: 900, color: '#065F46', my: 0.3 }}>
-                        रु. {feeCalc.totalEffectiveFee.toLocaleString()}
+                        NPR {feeCalc.totalEffectiveFee.toLocaleString()}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#047857', fontSize: '0.72rem' }}>
                         {isFullOnly
-                          ? 'भर्ना गर्दा नै १००% एकमुष्ट भुक्तानी'
-                          : `५०% भर्नामा (रु. ${feeCalc.installment1.toLocaleString()}) + ५०% १ महिनामा (रु. ${feeCalc.installment2.toLocaleString()})`}
+                          ? '100% Full Upfront on Admission'
+                          : `50% at Admission (NPR ${feeCalc.installment1.toLocaleString()}) + 50% in 1 Month (NPR ${feeCalc.installment2.toLocaleString()})`}
                       </Typography>
                     </Box>
 
                     {/* Breakdown Details Table */}
                     <Stack spacing={0.8} sx={{ fontSize: '0.8rem' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                        <span>१. मूल ब्रोसर शुल्क (Base Price):</span>
-                        <b style={{ color: '#1E293B' }}>रु. {feeCalc.basePrice.toLocaleString()}</b>
+                        <span>1. Brochure Price (Base Price):</span>
+                        <b style={{ color: '#1E293B' }}>NPR {feeCalc.basePrice.toLocaleString()}</b>
                       </Box>
 
                       {feeCalc.discountPercent > 0 && (
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#DC2626' }}>
-                          <span>२. अभियान छुट ({feeCalc.discountPercent}%):</span>
-                          <b>(-) रु. {feeCalc.discountAmount.toLocaleString()}</b>
+                          <span>2. Campaign Discount ({feeCalc.discountPercent}%):</span>
+                          <b>(-) NPR {feeCalc.discountAmount.toLocaleString()}</b>
                         </Box>
                       )}
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                        <span>३. खुद तालिम शुल्क:</span>
-                        <b style={{ color: '#0F2E5A' }}>रु. {feeCalc.netTuition.toLocaleString()}</b>
+                        <span>3. Net Tuition Fee:</span>
+                        <b style={{ color: '#0F2E5A' }}>NPR {feeCalc.netTuition.toLocaleString()}</b>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#475569' }}>
-                        <span>४. भर्ना तथा दर्ता शुल्क:</span>
-                        <b style={{ color: '#1E293B' }}>रु. {feeCalc.admissionFee.toLocaleString()}</b>
+                        <span>4. Admission & Registration Fee:</span>
+                        <b style={{ color: '#1E293B' }}>NPR {feeCalc.admissionFee.toLocaleString()}</b>
                       </Box>
 
                       <Divider sx={{ my: 0.3 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0369A1', fontWeight: 700 }}>
-                        <span>करयोग्य रकम (Subtotal):</span>
-                        <span>रु. {feeCalc.subtotal.toLocaleString()}</span>
+                        <span>Subtotal (Taxable Amount):</span>
+                        <span>NPR {feeCalc.subtotal.toLocaleString()}</span>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#D97706', fontWeight: 700 }}>
-                        <span>१३% भ्याट (VAT 13%):</span>
-                        <span>(+) रु. {feeCalc.vatAmount.toLocaleString()}</span>
+                        <span>VAT 13%:</span>
+                        <span>(+) NPR {feeCalc.vatAmount.toLocaleString()}</span>
                       </Box>
                     </Stack>
 
@@ -730,7 +730,7 @@ export default function CourseFeeManager() {
                     {fs?.revisionReason && (
                       <Box sx={{ mt: 1.5, p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, border: '1px dashed #CBD5E1' }}>
                         <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-                          📌 <b>हालको अफर/कारण:</b> {fs.revisionReason} (लागू: {fs.effectiveDate || 'हाल'})
+                          📌 <b>Current Offer / Reason:</b> {fs.revisionReason} (Effective: {fs.effectiveDate || 'Current'})
                         </Typography>
                       </Box>
                     )}
@@ -751,7 +751,7 @@ export default function CourseFeeManager() {
                         '&:hover': { bgcolor: '#0B2545' }
                       }}
                     >
-                      शुल्क सम्पादन (Edit)
+                      Edit Fee
                     </Button>
 
                     <Button
@@ -761,7 +761,7 @@ export default function CourseFeeManager() {
                       onClick={() => handleOpenHistory(crs)}
                       sx={{ fontWeight: 800, fontSize: '0.74rem', minWidth: 90 }}
                     >
-                      इतिहास
+                      History
                     </Button>
                   </Box>
                 </Paper>
@@ -775,17 +775,17 @@ export default function CourseFeeManager() {
           <Table size="small">
             <TableHead sx={{ '& th': { bgcolor: '#0F2E5A !important', color: '#FFFFFF !important', borderBottom: '3px solid #F59E0B !important', py: 1.3 } }}>
               <TableRow>
-                <TableCell align="center" sx={{ width: 65, fontWeight: 900, color: '#FFFFFF !important' }}># क्र.सं.</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कोर्स विवरण</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मूल शुल्क</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>छुट (%)</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>खुद तालिम</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भर्ना शुल्क</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>करयोग्य रकम</TableCell>
-                <TableCell align="right" sx={{ color: '#FCD34D !important', fontWeight: 900 }}>१३% भ्याट</TableCell>
-                <TableCell align="right" sx={{ color: '#34D399 !important', fontWeight: 900 }}>अन्तिम खुद शुल्क</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भुक्तानी मोडल</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्य</TableCell>
+                <TableCell align="center" sx={{ width: 65, fontWeight: 900, color: '#FFFFFF !important' }}># S.N.</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course Details</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Base Fee</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Discount (%)</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Net Tuition</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Admission Fee</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Subtotal</TableCell>
+                <TableCell align="right" sx={{ color: '#FCD34D !important', fontWeight: 900 }}>13% VAT</TableCell>
+                <TableCell align="right" sx={{ color: '#34D399 !important', fontWeight: 900 }}>Final Net Fee</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payment Model</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -807,7 +807,7 @@ export default function CourseFeeManager() {
                       </Typography>
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      रु. {feeCalc.basePrice.toLocaleString()}
+                      NPR {feeCalc.basePrice.toLocaleString()}
                     </TableCell>
                     <TableCell align="center">
                       {feeCalc.discountPercent > 0 ? (
@@ -817,23 +817,23 @@ export default function CourseFeeManager() {
                       )}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700, color: '#0F2E5A' }}>
-                      रु. {feeCalc.netTuition.toLocaleString()}
+                      NPR {feeCalc.netTuition.toLocaleString()}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 700 }}>
-                      रु. {feeCalc.admissionFee.toLocaleString()}
+                      NPR {feeCalc.admissionFee.toLocaleString()}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 800, color: '#0369A1' }}>
-                      रु. {feeCalc.subtotal.toLocaleString()}
+                      NPR {feeCalc.subtotal.toLocaleString()}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 800, color: '#D97706' }}>
-                      रु. {feeCalc.vatAmount.toLocaleString()}
+                      NPR {feeCalc.vatAmount.toLocaleString()}
                     </TableCell>
                     <TableCell align="right" sx={{ fontWeight: 900, color: '#059669', fontSize: '0.92rem' }}>
-                      रु. {feeCalc.totalEffectiveFee.toLocaleString()}
+                      NPR {feeCalc.totalEffectiveFee.toLocaleString()}
                     </TableCell>
                     <TableCell align="center">
                       <Chip
-                        label={isFullOnly ? 'एकमुष्ट मात्र' : '२ किस्ता (५०/५०)'}
+                        label={isFullOnly ? 'Full Upfront' : '2 Installments'}
                         size="small"
                         sx={{
                           bgcolor: isFullOnly ? '#FEF3C7' : '#D1FAE5',
@@ -845,12 +845,12 @@ export default function CourseFeeManager() {
                     </TableCell>
                     <TableCell align="center">
                       <Stack direction="row" spacing={0.5} justifyContent="center">
-                        <Tooltip title="शुल्क सम्पादन">
+                        <Tooltip title="Edit Fee">
                           <IconButton size="small" onClick={() => handleOpenEdit(crs)} sx={{ color: '#0F2E5A' }}>
                             <EditIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="परिवर्तन इतिहास">
+                        <Tooltip title="Revision History">
                           <IconButton size="small" onClick={() => handleOpenHistory(crs)} sx={{ color: '#64748B' }}>
                             <HistoryIcon fontSize="small" />
                           </IconButton>
@@ -894,7 +894,7 @@ export default function CourseFeeManager() {
             flexShrink: 0
           }}
         >
-          <span>कोर्स शुल्क दर सम्पादन (Edit Fee Structure) — {selectedCourse?.title}</span>
+          <span>Edit Fee Structure — {selectedCourse?.title}</span>
           <IconButton onClick={() => setOpenEditModal(false)} sx={{ color: '#FFFFFF' }}>
             <CloseIcon />
           </IconButton>
@@ -908,7 +908,7 @@ export default function CourseFeeManager() {
                   {/* Course Type / Payment Mode Selector */}
                   <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                      भुक्तानी तथा किस्ताबन्दी मोडल (Payment Policy):
+                      Payment & Installment Policy:
                     </Typography>
                     <ToggleButtonGroup
                       value={formData.paymentMode}
@@ -918,25 +918,25 @@ export default function CourseFeeManager() {
                       fullWidth
                     >
                       <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
-                        📅 २ किस्ता (५०% + ५०%)
+                        📅 2 Installments (50% + 50%)
                       </ToggleButton>
                       <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
-                        ⚡ एकमुष्ट मात्र (बेसिक कोर्स)
+                        ⚡ Full Upfront (Basic Course)
                       </ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
 
                   {/* Base Price */}
                   <TextField
-                    label="१. मूल कोर्स शुल्क (Base / Brochure Price)"
+                    label="1. Base / Brochure Price"
                     type="number"
                     fullWidth
                     size="small"
                     value={formData.basePrice}
                     onChange={(e) => setFormData({ ...formData, basePrice: Number(e.target.value) || 0 })}
-                    helperText={formData.paymentMode === 'FULL_ONLY' ? 'बेसिक कोर्समा तालिम शुल्क नलागे ० राख्न सक्नुहुन्छ।' : 'ब्रोसरमा छापिएको मूल शुल्क (उदा: ३०,०००)'}
+                    helperText={formData.paymentMode === 'FULL_ONLY' ? 'Enter 0 if tuition is waived for basic course.' : 'Original brochure tuition fee (e.g. 30,000)'}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                      startAdornment: <InputAdornment position="start">NPR</InputAdornment>
                     }}
                   />
 
@@ -944,10 +944,10 @@ export default function CourseFeeManager() {
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                        २. अभियान छुट प्रतिशत (Campaign Discount %):
+                        2. Campaign Discount %:
                       </Typography>
                       <Typography variant="caption" sx={{ fontWeight: 900, color: '#DC2626' }}>
-                        {formData.discountPercent}% छुट (रु. {livePreview.discountAmount.toLocaleString()})
+                        {formData.discountPercent}% Discount (NPR {livePreview.discountAmount.toLocaleString()})
                       </Typography>
                     </Box>
                     <Stack direction="row" spacing={1.5} alignItems="center">
@@ -972,27 +972,27 @@ export default function CourseFeeManager() {
 
                   {/* Admission Charge */}
                   <TextField
-                    label="३. भर्ना तथा दर्ता शुल्क (Admission Fee)"
+                    label="3. Admission & Registration Fee"
                     type="number"
                     fullWidth
                     size="small"
                     value={formData.admissionFee}
                     onChange={(e) => setFormData({ ...formData, admissionFee: Number(e.target.value) || 0 })}
-                    helperText="भर्ना हुँदा लाग्ने फिक्स शुल्क (जस्तै: १५०० वा बेसिकमा १७००)"
+                    helperText="Fixed one-time admission charge (e.g. 1500 or 1700)"
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                      startAdornment: <InputAdornment position="start">NPR</InputAdornment>
                     }}
                   />
 
                   {/* VAT % (Default 13%) */}
                   <TextField
-                    label="४. मूल्य अभिवृद्धि कर (VAT %)"
+                    label="4. Value Added Tax (VAT %)"
                     type="number"
                     fullWidth
                     size="small"
                     value={formData.vatPercent}
                     onChange={(e) => setFormData({ ...formData, vatPercent: Number(e.target.value) || 0 })}
-                    helperText="नेपाल सरकारको नियम अनुसार अनिवार्य १३% भ्याट"
+                    helperText="Mandatory 13% VAT as per government tax regulation"
                     InputProps={{
                       endAdornment: <InputAdornment position="end">%</InputAdornment>
                     }}
@@ -1000,17 +1000,17 @@ export default function CourseFeeManager() {
 
                   {/* Revision Reason & Effective Date */}
                   <TextField
-                    label="५. परिमार्जनको कारण (Revision Reason) *"
+                    label="5. Revision Reason *"
                     fullWidth
                     size="small"
                     required
-                    placeholder="जस्तै: ५०% नयाँ छुट अफर वा शुल्क हेरफेर"
+                    placeholder="e.g. New 50% discount campaign or fee adjustment"
                     value={formData.revisionReason}
                     onChange={(e) => setFormData({ ...formData, revisionReason: e.target.value })}
                   />
 
                   <TextField
-                    label="लागू हुने मिति (Effective Date)"
+                    label="Effective Date"
                     type="date"
                     fullWidth
                     size="small"
@@ -1040,41 +1040,41 @@ export default function CourseFeeManager() {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                       <ReceiptLongIcon sx={{ color: '#059669' }} />
                       <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#065F46' }}>
-                        प्रत्यक्ष हिसाब नतिजा (Live Fee Simulation)
+                        Live Fee Simulation
                       </Typography>
                     </Box>
 
                     <Stack spacing={1.2} sx={{ fontSize: '0.85rem' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>१. मूल ब्रोसर शुल्क:</span>
-                        <b>रु. {livePreview.basePrice.toLocaleString()}</b>
+                        <span>1. Brochure Price:</span>
+                        <b>NPR {livePreview.basePrice.toLocaleString()}</b>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#DC2626' }}>
-                        <span>२. छुट ({livePreview.discountPercent}%):</span>
-                        <b>(-) रु. {livePreview.discountAmount.toLocaleString()}</b>
+                        <span>2. Discount ({livePreview.discountPercent}%):</span>
+                        <b>(-) NPR {livePreview.discountAmount.toLocaleString()}</b>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0F2E5A', fontWeight: 700 }}>
-                        <span>३. खुद तालिम शुल्क:</span>
-                        <span>रु. {livePreview.netTuition.toLocaleString()}</span>
+                        <span>3. Net Tuition:</span>
+                        <span>NPR {livePreview.netTuition.toLocaleString()}</span>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>४. भर्ना शुल्क:</span>
-                        <b>(+) रु. {livePreview.admissionFee.toLocaleString()}</b>
+                        <span>4. Admission Fee:</span>
+                        <b>(+) NPR {livePreview.admissionFee.toLocaleString()}</b>
                       </Box>
 
                       <Divider sx={{ my: 0.5 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0369A1', fontWeight: 800 }}>
-                        <span>करयोग्य रकम (Subtotal):</span>
-                        <span>रु. {livePreview.subtotal.toLocaleString()}</span>
+                        <span>Subtotal (Taxable):</span>
+                        <span>NPR {livePreview.subtotal.toLocaleString()}</span>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#D97706', fontWeight: 800 }}>
-                        <span>१३% भ्याट (VAT {livePreview.vatPercent}%):</span>
-                        <span>(+) रु. {livePreview.vatAmount.toLocaleString()}</span>
+                        <span>13% VAT (VAT {livePreview.vatPercent}%):</span>
+                        <span>(+) NPR {livePreview.vatAmount.toLocaleString()}</span>
                       </Box>
 
                       <Divider sx={{ my: 0.5, borderColor: '#059669' }} />
@@ -1082,37 +1082,37 @@ export default function CourseFeeManager() {
                       {/* Final Payable */}
                       <Box sx={{ p: 1.5, bgcolor: '#FFFFFF', borderRadius: 2, border: '1.5px solid #059669', textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block' }}>
-                          विद्यार्थीले तिर्ने कुल अन्तिम शुल्क (Grand Total):
+                          Grand Total Payable by Student:
                         </Typography>
                         <Typography variant="h3" sx={{ fontWeight: 900, color: '#065F46', my: 0.5 }}>
-                          रु. {livePreview.totalEffectiveFee.toLocaleString()}
+                          NPR {livePreview.totalEffectiveFee.toLocaleString()}
                         </Typography>
                       </Box>
 
                       {/* Installment Breakdown */}
                       <Box sx={{ p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
                         <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                          किस्ताबन्दी तालिका (Installment Plan):
+                          Installment Schedule:
                         </Typography>
                         {livePreview.paymentMode === 'FULL_ONLY' ? (
                           <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 800 }}>
-                            ⚡ एकमुष्ट भुक्तानी मात्र: भर्ना गर्दा नै रु. {livePreview.totalEffectiveFee.toLocaleString()} एकैपटक बुझाउनुपर्नेछ।
+                            ⚡ Full Upfront: Entire NPR {livePreview.totalEffectiveFee.toLocaleString()} payable at admission.
                           </Typography>
                         ) : (
                           <Grid container spacing={1}>
                             <Grid item xs={6}>
                               <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
-                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>१. भर्नामा (५०%)</Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>1. At Admission (50%)</Typography>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                                  रु. {livePreview.installment1.toLocaleString()}
+                                  NPR {livePreview.installment1.toLocaleString()}
                                 </Typography>
                               </Box>
                             </Grid>
                             <Grid item xs={6}>
                               <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
-                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>२. १ महिनापछि (५०%)</Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>2. In 1 Month (50%)</Typography>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                                  रु. {livePreview.installment2.toLocaleString()}
+                                  NPR {livePreview.installment2.toLocaleString()}
                                 </Typography>
                               </Box>
                             </Grid>
@@ -1123,7 +1123,7 @@ export default function CourseFeeManager() {
                   </Box>
 
                   <Alert severity="info" sx={{ mt: 2, fontSize: '0.72rem', py: 0.5 }}>
-                    💡 सुरक्षित गरेपछि नयाँ भर्ना हुने विद्यार्थीहरूलाई यो दर स्वतः लागू हुनेछ।
+                    💡 Once saved, this rate applies automatically to new admissions.
                   </Alert>
                 </Paper>
               </Grid>
@@ -1132,7 +1132,7 @@ export default function CourseFeeManager() {
 
           <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
             <Button onClick={() => setOpenEditModal(false)} color="inherit" sx={{ fontWeight: 700 }}>
-              रद्द गर्नुहोस्
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -1143,7 +1143,7 @@ export default function CourseFeeManager() {
                 px: 3
               }}
             >
-              नयाँ शुल्क दर सुरक्षित गर्नुहोस् (Save Rate)
+              Save New Fee Rate
             </Button>
           </DialogActions>
       </Dialog>
@@ -1180,7 +1180,7 @@ export default function CourseFeeManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <AddCircleOutlineIcon sx={{ color: '#FCD34D' }} />
             <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem' }}>
-              कोर्स शुल्क संरचना निर्धारण (Course Fee Setup)
+              Course Fee Setup
             </Typography>
           </Box>
           <IconButton onClick={() => setOpenAddModal(false)} sx={{ color: '#FFFFFF' }}>
@@ -1197,17 +1197,17 @@ export default function CourseFeeManager() {
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 1, display: 'flex', alignItems: 'center', gap: 0.8 }}>
                       <SchoolIcon fontSize="small" sx={{ color: '#059669' }} />
-                      १. कोर्स छनोट (कोर्स सेक्सनबाट स्वतः आउने):
+                      1. Course Selection (From Course Catalog):
                     </Typography>
 
                     <TextField
                       select
                       fullWidth
                       size="small"
-                      label="कोर्स छनोट गर्नुहोस् (Choose Course) *"
+                      label="Choose Course *"
                       value={newCourseFeeData.courseId}
                       onChange={(e) => handleCourseSelect(e.target.value)}
-                      helperText="शुल्क तोक्नको लागि कोर्स सेक्सनमा दर्ता भएका कोर्सहरूबाट छनोट गर्नुहोस्"
+                      helperText="Select from active registered courses to configure fees"
                       SelectProps={{
                         MenuProps: { PaperProps: { sx: { maxHeight: 320 } } }
                       }}
@@ -1250,15 +1250,15 @@ export default function CourseFeeManager() {
                       </Box>
                       <Grid container spacing={1}>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>क्षेत्र/ट्रेड:</Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Trade / Sector:</Typography>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                             {getOccupationName(selectedCourseInfo.occupationId)}
                           </Typography>
                         </Grid>
                         <Grid item xs={6}>
-                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>अवधि / कुल घण्टा:</Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Duration / Total Hours:</Typography>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                            {selectedCourseInfo.durationValue} {selectedCourseInfo.durationUnit} ({selectedCourseInfo.totalHours || 390} घण्टा)
+                            {selectedCourseInfo.durationValue} {selectedCourseInfo.durationUnit} ({selectedCourseInfo.totalHours || 390} Hours)
                           </Typography>
                         </Grid>
                       </Grid>
@@ -1271,13 +1271,13 @@ export default function CourseFeeManager() {
                   )}
 
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', borderBottom: '2px solid #E2E8F0', pb: 0.5, mt: 1 }}>
-                    २. शुल्क दर तथा किस्ताबन्दी नीति (Fee & Policy Setup)
+                    2. Fee Structure & Policy Setup
                   </Typography>
 
                   {/* Payment Mode Selector */}
                   <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                      भुक्तानी मोडल (Payment Policy):
+                      Payment Policy:
                     </Typography>
                     <ToggleButtonGroup
                       value={newCourseFeeData.paymentMode}
@@ -1287,25 +1287,25 @@ export default function CourseFeeManager() {
                       fullWidth
                     >
                       <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
-                        📅 २ किस्ता (५०% + ५०%)
+                        📅 2 Installments (50% + 50%)
                       </ToggleButton>
                       <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800 }}>
-                        ⚡ एकमुष्ट मात्र (बेसिक)
+                        ⚡ Full Upfront (Basic)
                       </ToggleButton>
                     </ToggleButtonGroup>
                   </Box>
 
                   {/* Base Price */}
                   <TextField
-                    label="मूल ब्रोसर शुल्क (Base / Brochure Price)"
+                    label="Base / Brochure Price"
                     type="number"
                     fullWidth
                     size="small"
                     value={newCourseFeeData.basePrice}
                     onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, basePrice: Number(e.target.value) || 0 })}
-                    helperText={newCourseFeeData.paymentMode === 'FULL_ONLY' ? 'बेसिक कोर्समा तालिम शुल्क नभए ० राख्नुहोस्।' : 'ब्रोसरमा छापिएको मूल शुल्क (उदा: ३०,०००)'}
+                    helperText={newCourseFeeData.paymentMode === 'FULL_ONLY' ? 'Enter 0 if tuition is waived for basic course.' : 'Brochure price (e.g. 30,000)'}
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                      startAdornment: <InputAdornment position="start">NPR</InputAdornment>
                     }}
                   />
 
@@ -1313,10 +1313,10 @@ export default function CourseFeeManager() {
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                        अभियान छुट प्रतिशत (Discount %):
+                        Campaign Discount (%):
                       </Typography>
                       <Typography variant="caption" sx={{ fontWeight: 900, color: '#DC2626' }}>
-                        {newCourseFeeData.discountPercent}% छुट (रु. {newCourseLivePreview.discountAmount.toLocaleString()})
+                        {newCourseFeeData.discountPercent}% Discount (NPR {newCourseLivePreview.discountAmount.toLocaleString()})
                       </Typography>
                     </Box>
                     <Stack direction="row" spacing={1.5} alignItems="center">
@@ -1341,27 +1341,27 @@ export default function CourseFeeManager() {
 
                   {/* Admission Charge */}
                   <TextField
-                    label="भर्ना तथा दर्ता शुल्क (Admission Fee)"
+                    label="Admission & Registration Fee"
                     type="number"
                     fullWidth
                     size="small"
                     value={newCourseFeeData.admissionFee}
                     onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, admissionFee: Number(e.target.value) || 0 })}
-                    helperText="भर्ना हुँदा लाग्ने शुल्क (उदा: १५०० वा बेसिकमा १७००)"
+                    helperText="One-time admission charge (e.g. 1500 or 1700)"
                     InputProps={{
-                      startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                      startAdornment: <InputAdornment position="start">NPR</InputAdornment>
                     }}
                   />
 
                   {/* VAT % */}
                   <TextField
-                    label="मूल्य अभिवृद्धि कर (VAT %)"
+                    label="Value Added Tax (VAT %)"
                     type="number"
                     fullWidth
                     size="small"
                     value={newCourseFeeData.vatPercent}
                     onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, vatPercent: Number(e.target.value) || 0 })}
-                    helperText="नेपाल सरकारको नियम अनुसार अनिवार्य १३% भ्याट"
+                    helperText="Mandatory 13% VAT as per government tax regulation"
                     InputProps={{
                       endAdornment: <InputAdornment position="end">%</InputAdornment>
                     }}
@@ -1369,17 +1369,17 @@ export default function CourseFeeManager() {
 
                   {/* Reason / Offer Note */}
                   <TextField
-                    label="अफर कैफियत / परिमार्जनको कारण (Offer / Note)"
+                    label="Offer Remarks / Revision Note"
                     fullWidth
                     size="small"
-                    placeholder="उदा: विशेष ७०% छुट अफर वा ५०% नयाँ अफर"
+                    placeholder="e.g. Special 70% campaign discount or revision"
                     value={newCourseFeeData.revisionReason}
                     onChange={(e) => setNewCourseFeeData({ ...newCourseFeeData, revisionReason: e.target.value })}
                   />
 
                   {/* Effective Date */}
                   <TextField
-                    label="लागू हुने मिति (Effective Date)"
+                    label="Effective Date"
                     type="date"
                     fullWidth
                     size="small"
@@ -1409,7 +1409,7 @@ export default function CourseFeeManager() {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.5 }}>
                       <ReceiptLongIcon sx={{ color: '#059669' }} />
                       <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                        शुल्क हिसाब सारांश (Live Summary)
+                        Fee Calculation Summary
                       </Typography>
                     </Box>
 
@@ -1417,50 +1417,50 @@ export default function CourseFeeManager() {
 
                     <Stack spacing={1.2}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" color="text.secondary">मूल ब्रोसर शुल्क:</Typography>
+                        <Typography variant="body2" color="text.secondary">Base Brochure Price:</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                          रु. {newCourseLivePreview.basePrice.toLocaleString()}
+                          NPR {newCourseLivePreview.basePrice.toLocaleString()}
                         </Typography>
                       </Box>
 
                       {newCourseLivePreview.discountPercent > 0 && (
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#DC2626' }}>
                           <Typography variant="body2">
-                            विशेष छुट ({newCourseLivePreview.discountPercent}%):
+                            Campaign Discount ({newCourseLivePreview.discountPercent}%):
                           </Typography>
                           <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                            (-) रु. {newCourseLivePreview.discountAmount.toLocaleString()}
+                            (-) NPR {newCourseLivePreview.discountAmount.toLocaleString()}
                           </Typography>
                         </Box>
                       )}
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0F2E5A' }}>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>खुद तालिम शुल्क (Net Tuition):</Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700 }}>Net Tuition Fee:</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                          रु. {newCourseLivePreview.netTuition.toLocaleString()}
+                          NPR {newCourseLivePreview.netTuition.toLocaleString()}
                         </Typography>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" color="text.secondary">भर्ना तथा दर्ता शुल्क:</Typography>
+                        <Typography variant="body2" color="text.secondary">Admission & Reg. Fee:</Typography>
                         <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                          (+) रु. {newCourseLivePreview.admissionFee.toLocaleString()}
+                          (+) NPR {newCourseLivePreview.admissionFee.toLocaleString()}
                         </Typography>
                       </Box>
 
                       <Divider sx={{ my: 0.5 }} />
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#0369A1' }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>करयोग्य रकम (Subtotal):</Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Subtotal (Taxable):</Typography>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                          रु. {newCourseLivePreview.subtotal.toLocaleString()}
+                          NPR {newCourseLivePreview.subtotal.toLocaleString()}
                         </Typography>
                       </Box>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#D97706' }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>१३% भ्याट (VAT 13%):</Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>13% VAT:</Typography>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                          (+) रु. {newCourseLivePreview.vatAmount.toLocaleString()}
+                          (+) NPR {newCourseLivePreview.vatAmount.toLocaleString()}
                         </Typography>
                       </Box>
 
@@ -1478,43 +1478,43 @@ export default function CourseFeeManager() {
                       >
                         <Box>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#059669', display: 'block' }}>
-                            विद्यार्थीले तिर्ने कुल खुद शुल्क
+                            Total Net Payable by Student
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            (१३% भ्याट तथा भर्ना शुल्क समावेश)
+                            (Includes 13% VAT and Admission Fee)
                           </Typography>
                         </Box>
                         <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669' }}>
-                          रु. {newCourseLivePreview.totalEffectiveFee.toLocaleString()}
+                          NPR {newCourseLivePreview.totalEffectiveFee.toLocaleString()}
                         </Typography>
                       </Box>
 
                       {/* Payment Schedule Breakdown */}
                       <Box sx={{ mt: 1.5, p: 1.5, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
                         <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                          📌 किस्ताबन्दी तालिका (Schedule Breakdown):
+                          📌 Installment Schedule:
                         </Typography>
                         {newCourseFeeData.paymentMode === 'FULL_ONLY' ? (
                           <Box sx={{ p: 1, bgcolor: '#FEF3C7', borderRadius: 1.5, textAlign: 'center' }}>
                             <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
-                              ⚡ एकमुष्ट भुक्तानी: भर्नाकै समयमा रु. {newCourseLivePreview.totalEffectiveFee.toLocaleString()} (१००%)
+                              ⚡ Full Upfront: NPR {newCourseLivePreview.totalEffectiveFee.toLocaleString()} payable at admission (100%)
                             </Typography>
                           </Box>
                         ) : (
                           <Grid container spacing={1}>
                             <Grid item xs={6}>
                               <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
-                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>१. भर्नामा (५०%)</Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>1. At Admission (50%)</Typography>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                                  रु. {newCourseLivePreview.installment1.toLocaleString()}
+                                  NPR {newCourseLivePreview.installment1.toLocaleString()}
                                 </Typography>
                               </Box>
                             </Grid>
                             <Grid item xs={6}>
                               <Box sx={{ p: 0.8, bgcolor: '#F8FAFC', borderRadius: 1.5, textAlign: 'center' }}>
-                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>२. १ महिनापछि (५०%)</Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>2. In 1 Month (50%)</Typography>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                                  रु. {newCourseLivePreview.installment2.toLocaleString()}
+                                  NPR {newCourseLivePreview.installment2.toLocaleString()}
                                 </Typography>
                               </Box>
                             </Grid>
@@ -1525,7 +1525,7 @@ export default function CourseFeeManager() {
                   </Box>
 
                   <Alert severity="success" sx={{ mt: 2, fontSize: '0.72rem', py: 0.5 }}>
-                    ✓ शुल्क संरचना सुरक्षित भएपछि यो कोर्सको नयाँ भर्नाहरूमा सोही दर लागू हुनेछ।
+                    ✓ Once saved, this fee policy applies automatically to upcoming enrollments.
                   </Alert>
                 </Paper>
               </Grid>
@@ -1534,7 +1534,7 @@ export default function CourseFeeManager() {
 
           <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
             <Button onClick={() => setOpenAddModal(false)} color="inherit" sx={{ fontWeight: 700 }}>
-              रद्द गर्नुहोस्
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -1545,7 +1545,7 @@ export default function CourseFeeManager() {
                 px: 3
               }}
             >
-              शुल्क संरचना सुरक्षित गर्नुहोस् (Save Fee Setup)
+              Save Fee Setup
             </Button>
           </DialogActions>
       </Dialog>
@@ -1564,7 +1564,7 @@ export default function CourseFeeManager() {
             alignItems: 'center'
           }}
         >
-          <span>शुल्क परिवर्तन इतिहास (Revision Audit Log) — {selectedCourse?.title}</span>
+          <span>Revision Audit Log — {selectedCourse?.title}</span>
           <IconButton onClick={() => setOpenHistoryModal(false)} sx={{ color: '#FFFFFF' }}>
             <CloseIcon />
           </IconButton>
@@ -1574,13 +1574,13 @@ export default function CourseFeeManager() {
             <Table size="small">
               <TableHead sx={{ bgcolor: '#F1F5F9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800 }}>लागू मिति</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>परिमार्जनको कारण</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800 }}>मूल शुल्क</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800 }}>छुट (%)</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800 }}>भर्ना शुल्क</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800 }}>कुल प्रभावकारी (भ्याट सहित)</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800 }}>परिवर्तनकर्ता</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Effective Date</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Revision Reason</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>Base Fee</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 800 }}>Discount (%)</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>Admission Fee</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 800 }}>Total Effective (Inc. VAT)</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 800 }}>Changed By</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1588,13 +1588,13 @@ export default function CourseFeeManager() {
                   <TableRow key={rev.id} hover>
                     <TableCell sx={{ fontWeight: 700 }}>{rev.date}</TableCell>
                     <TableCell>{rev.reason}</TableCell>
-                    <TableCell align="right">रु. {(rev.basePrice || 0).toLocaleString()}</TableCell>
+                    <TableCell align="right">NPR {(rev.basePrice || 0).toLocaleString()}</TableCell>
                     <TableCell align="center">
                       <Chip label={`${rev.discountPercent}%`} size="small" sx={{ fontSize: '0.68rem', fontWeight: 800 }} />
                     </TableCell>
-                    <TableCell align="right">रु. {(rev.admissionFee || 0).toLocaleString()}</TableCell>
+                    <TableCell align="right">NPR {(rev.admissionFee || 0).toLocaleString()}</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 900, color: '#059669' }}>
-                      रु. {(rev.totalEffectiveFee || 0).toLocaleString()}
+                      NPR {(rev.totalEffectiveFee || 0).toLocaleString()}
                     </TableCell>
                     <TableCell align="center" sx={{ fontSize: '0.74rem', color: '#64748B' }}>
                       {rev.changedBy || 'Admin'}
@@ -1607,7 +1607,7 @@ export default function CourseFeeManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
           <Button onClick={() => setOpenHistoryModal(false)} variant="contained" sx={{ bgcolor: '#0F2E5A' }}>
-            बन्द गर्नुहोस्
+            Close
           </Button>
         </DialogActions>
       </Dialog>
@@ -1617,10 +1617,10 @@ export default function CourseFeeManager() {
       {/* ============================================================== */}
       <Dialog open={openPrintModal} onClose={() => setOpenPrintModal(false)} maxWidth="md" fullWidth>
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>आधिकारिक शुल्क तालिका विवरण पत्र (Official Fee Sheet)</span>
+          <span>Official Fee Sheet & Installment Schedule</span>
           <Stack direction="row" spacing={1}>
             <Button variant="contained" size="small" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ bgcolor: '#0F2E5A' }}>
-              प्रिन्ट गर्नुहोस्
+              Print Sheet
             </Button>
             <IconButton onClick={() => setOpenPrintModal(false)}>
               <CloseIcon />
@@ -1641,13 +1641,13 @@ export default function CourseFeeManager() {
             {/* Header */}
             <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px double #0F2E5A', mb: 2 }}>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A', letterSpacing: '0.04em' }}>
-                ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
+                GLOBAL ERA TECHNICAL SCHOOL
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#475569' }}>
                 CTEVT Accredited Training Center • MitraPark, Chabahil, Kathmandu
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#F59E0B', mt: 1 }}>
-                आधिकारिक तालिम कोर्स शुल्क विवरण तथा किस्ताबन्दी तालिका (१३% भ्याट सहित)
+                Official Training Course Fee Schedule & Installment Breakdown (Inc. 13% VAT)
               </Typography>
             </Box>
 
@@ -1655,30 +1655,30 @@ export default function CourseFeeManager() {
             <Table size="small" sx={{ mb: 3 }}>
               <TableHead>
                 <TableRow sx={{ bgcolor: '#F1F5F9' }}>
-                  <TableCell sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>कोर्स शीर्षक</TableCell>
-                  <TableCell sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>अवधि</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>मूल शुल्क</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>छुट</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>भर्ना शुल्क</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>१३% भ्याट</TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>कुल शुल्क</TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>किस्ता विवरण</TableCell>
+                  <TableCell sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Course Title</TableCell>
+                  <TableCell sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Duration</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Base Fee</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Discount</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Admission Fee</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>13% VAT</TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Total Fee</TableCell>
+                  <TableCell align="center" sx={{ fontWeight: 900, border: '1px solid #CBD5E1' }}>Installment Plan</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {coursesWithFees.map((crs) => (
                   <TableRow key={crs.id}>
                     <TableCell sx={{ border: '1px solid #CBD5E1', fontWeight: 800 }}>{crs.title}</TableCell>
-                    <TableCell sx={{ border: '1px solid #CBD5E1' }}>{crs.totalHours} घण्टा</TableCell>
-                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>रु. {crs.feeCalc.basePrice.toLocaleString()}</TableCell>
+                    <TableCell sx={{ border: '1px solid #CBD5E1' }}>{crs.totalHours} Hours</TableCell>
+                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>NPR {crs.feeCalc.basePrice.toLocaleString()}</TableCell>
                     <TableCell align="center" sx={{ border: '1px solid #CBD5E1' }}>{crs.feeCalc.discountPercent}%</TableCell>
-                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>रु. {crs.feeCalc.admissionFee.toLocaleString()}</TableCell>
-                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>रु. {crs.feeCalc.vatAmount.toLocaleString()}</TableCell>
-                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1', fontWeight: 900 }}>रु. {crs.feeCalc.totalEffectiveFee.toLocaleString()}</TableCell>
+                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>NPR {crs.feeCalc.admissionFee.toLocaleString()}</TableCell>
+                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1' }}>NPR {crs.feeCalc.vatAmount.toLocaleString()}</TableCell>
+                    <TableCell align="right" sx={{ border: '1px solid #CBD5E1', fontWeight: 900 }}>NPR {crs.feeCalc.totalEffectiveFee.toLocaleString()}</TableCell>
                     <TableCell align="center" sx={{ border: '1px solid #CBD5E1', fontSize: '0.72rem' }}>
                       {crs.feeStructure?.paymentMode === 'FULL_ONLY'
-                        ? 'एकमुष्ट मात्र'
-                        : `रु. ${crs.feeCalc.installment1.toLocaleString()} + रु. ${crs.feeCalc.installment2.toLocaleString()}`}
+                        ? 'Full Upfront'
+                        : `NPR ${crs.feeCalc.installment1.toLocaleString()} + NPR ${crs.feeCalc.installment2.toLocaleString()}`}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1689,18 +1689,18 @@ export default function CourseFeeManager() {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', pt: 3 }}>
               <Box sx={{ maxWidth: '60%' }}>
                 <Typography variant="caption" sx={{ fontWeight: 700, display: 'block', color: '#64748B' }}>
-                  * नोट: सम्पूर्ण शुल्कमा नेपाल सरकारको नियम अनुसार १३% मूल्य अभिवृद्धि कर (VAT) समावेश गरिएको छ।
-                  भर्ना शुल्क फिर्ता हुने छैन। दोस्रो किस्ता तालिम सुरु भएको ३० दिनभित्र अनिवार्य बुझाउनुपर्नेछ।
+                  * Note: All fees include 13% Value Added Tax (VAT) as per Nepal Government tax regulations.
+                  Admission fee is non-refundable. The 2nd installment is payable within 30 days of training start.
                 </Typography>
               </Box>
 
               <Box sx={{ textAlign: 'center', minWidth: 150 }}>
                 <Box sx={{ height: 35, borderBottom: '1.5px solid #0F2E5A', mb: 0.5 }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                  अधिकृत हस्ताक्षरकर्ता
+                  Authorized Signatory
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                  प्रबन्ध निर्देशक / लेखा प्रमुख
+                  Managing Director / Head of Accounts
                 </Typography>
               </Box>
             </Box>

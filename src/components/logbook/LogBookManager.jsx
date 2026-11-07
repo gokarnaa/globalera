@@ -187,8 +187,8 @@ export default function LogBookManager() {
   // WhatsApp share message generators
   const getSingleLogShareText = (lb) => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n` +
-      `📖 *DAILY TRAINING LOG SLIP (दैनिक तालिम कार्य विवरण)*\n` +
+      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `📖 *DAILY TRAINING LOG SLIP*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
       `• *Course:* ${selectedCourse?.title || 'Vocational Training'}\n` +
@@ -207,8 +207,8 @@ export default function LogBookManager() {
 
   const getBatchLogShareText = () => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n` +
-      `📚 *OFFICIAL LOG BOOK REGISTER (लग बुक सारांश)*\n` +
+      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `📚 *OFFICIAL LOG BOOK REGISTER*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch / Group:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
       `• *Course:* ${selectedCourse?.title || 'Vocational Training'}\n` +
@@ -234,11 +234,11 @@ export default function LogBookManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <MenuBookTwoToneIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Log Book (दैनिक कार्य पुस्तिका / डेलिभरी)
+              Log Book (Daily Training Delivery)
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Actual training delivery log. Work Plan (योजना) → Lesson Plan (तयारी) → Log Book (वास्तविक तालिम डेलिभरी)।
+            Actual training delivery log. Work Plan (Planning) → Lesson Plan (Preparation) → Log Book (Actual Training Delivery).
           </Typography>
         </Box>
 
@@ -406,15 +406,15 @@ export default function LogBookManager() {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>अध्यापन मिति (Date)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>सिकाईएको विषय (Delivered Topics)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रयुक्त सामग्री (Materials)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>हासिल सीप (Skills Acquired)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 85 }}>घण्टा (Hours)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>स्थिति (Status)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Delivered Topics</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Materials</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Skills Acquired</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 85 }}>Hours</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -590,7 +590,7 @@ export default function LogBookManager() {
       {/* Add / Edit Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
-          {editingItem ? 'Edit Log Book Record' : 'Record Log Book Entry (वास्तविक डेलिभरी)'}
+          {editingItem ? 'Edit Log Book Record' : 'Record Log Book Entry (Actual Delivery)'}
         </DialogTitle>
         <DialogContent sx={{ pt: 1 }}>
           <Stack spacing={2.5} sx={{ mt: 1 }}>
@@ -638,7 +638,7 @@ export default function LogBookManager() {
             </TextField>
 
             <TextField
-              label="Subject / Topics Actually Covered (पढाइएको विषयवस्तु)"
+              label="Subject / Topics Actually Covered"
               multiline
               rows={2}
               fullWidth
@@ -655,7 +655,7 @@ export default function LogBookManager() {
             />
 
             <TextField
-              label="Skills Learned by Students (हासिल गरेका सीपहरू)"
+              label="Skills Learned by Students"
               multiline
               rows={2}
               fullWidth
@@ -698,7 +698,7 @@ export default function LogBookManager() {
         onClose={() => setOfficialModalOpen(false)}
         docType="LOG_BOOK"
         title={modalTargetItem ? 'DAILY VOCATIONAL TRAINING LOG SLIP' : 'OFFICIAL TRAINING LOG BOOK REGISTER'}
-        nepaliTitle={modalTargetItem ? 'दैनिक तालिम कार्य विवरण' : 'तालिम डेलिभरी लग बुक पुस्तिका'}
+        nepaliTitle={modalTargetItem ? 'Daily Training Delivery Record' : 'Training Delivery Log Book Register'}
         group={selectedGroup}
         course={selectedCourse}
         trainer={trainer}
@@ -727,7 +727,7 @@ export default function LogBookManager() {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 900, width: '32%', bgcolor: '#f1f5f9' }}>
                     1. TOPICS & THEORY COVERED<br />
-                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(अध्यापन गरिएका विषयवस्तु)</span>
+                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(Topics & Theory Delivered)</span>
                   </TableCell>
                   <TableCell>
                     {modalTargetItem.topicsCovered}
@@ -737,7 +737,7 @@ export default function LogBookManager() {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 900, bgcolor: '#f1f5f9' }}>
                     2. PRACTICAL COMPETENCIES MASTERED<br />
-                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(सिकाइएका प्रयोगात्मक सीपहरू)</span>
+                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(Practical Skills Mastered)</span>
                   </TableCell>
                   <TableCell>
                     {modalTargetItem.skillsLearned || 'Demonstration, supervised student execution, and hands-on drills completed.'}
@@ -747,7 +747,7 @@ export default function LogBookManager() {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 900, bgcolor: '#f1f5f9' }}>
                     3. CONSUMABLES & APPARATUS USED<br />
-                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(प्रयोग भएका सामग्री तथा औजार)</span>
+                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(Materials & Apparatus Used)</span>
                   </TableCell>
                   <TableCell>
                     {modalTargetItem.materialsUsed || 'Standard workshop materials and safety kits.'}
@@ -757,7 +757,7 @@ export default function LogBookManager() {
                 <TableRow>
                   <TableCell sx={{ fontWeight: 900, bgcolor: '#f1f5f9' }}>
                     4. TRAINER OBSERVATIONS & REMARKS<br />
-                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(प्रशिक्षकको टिप्पणी र विद्यार्थी प्रगति)</span>
+                    <span style={{ fontWeight: 600, color: '#647089', fontSize: '0.78rem' }}>(Trainer Remarks & Trainee Progress)</span>
                   </TableCell>
                   <TableCell>
                     {modalTargetItem.trainerNotes || 'Satisfactory trainee attentiveness and standard adherence.'}
@@ -772,13 +772,13 @@ export default function LogBookManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem' } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 95 }}>डेलिभरी मिति</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>अध्यापन गरिएका विषयवस्तु</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>हासिल गरेका सीपहरू</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 140 }}>प्रयोग भएका सामग्री</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>घन्टा</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>प्रमाणित</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 95 }}>Delivery Date</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Delivered Topics</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Skills Acquired</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 140 }}>Materials Used</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>Hours</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>Verified</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -791,7 +791,7 @@ export default function LogBookManager() {
                     <TableCell>{lb.materialsUsed || '—'}</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>{lb.actualHours}</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#16834b' }}>
-                      {lb.isDelivered ? 'सम्पन्न' : 'बाँकी'}
+                      {lb.isDelivered ? 'Completed' : 'Pending'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -805,7 +805,7 @@ export default function LogBookManager() {
                 {/* Total Delivered Hours Footer */}
                 <TableRow sx={{ bgcolor: '#f8fafc' }}>
                   <TableCell colSpan={5} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                    कुल सम्पन्न भएको तालिम समय (TOTAL DELIVERED HOURS):
+                    TOTAL DELIVERED HOURS:
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#1a56b0' }}>
                     {totalActualHours}

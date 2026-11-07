@@ -22,7 +22,7 @@ export default function OfficialDocumentModal({
   onClose,
   docType = 'WORK_PLAN', // 'WORK_PLAN' | 'LESSON_PLAN' | 'LOG_BOOK' | 'EVALUATION'
   title = 'OFFICIAL DOCUMENT',
-  nepaliTitle = 'आधिकारिक शैक्षिक कागजात',
+  nepaliTitle = 'Official Academic Document',
   group = null,
   course = null,
   trainer = null,
@@ -39,7 +39,7 @@ export default function OfficialDocumentModal({
 
   const fullShareText =
     shareText ||
-    `*KITE TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n*${title} (${nepaliTitle})*\nGroup: ${group?.groupCode || '—'} | Course: ${course?.title || '—'}\nTrainer: ${trainer?.name || '—'}\nDate: ${new Date().toISOString().slice(0, 10)}`;
+    `*KITE TRAINING CENTER / GLOBAL ERA TECHNICAL SCHOOL*\n*${title} (${nepaliTitle})*\nGroup: ${group?.groupCode || '—'} | Course: ${course?.title || '—'}\nTrainer: ${trainer?.name || '—'}\nDate: ${new Date().toISOString().slice(0, 10)}`;
 
   return (
     <Dialog
@@ -134,7 +134,7 @@ export default function OfficialDocumentModal({
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#152238', fontSize: '1.15rem' }}>
-              ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
+              GLOBAL ERA TECHNICAL SCHOOL
             </Typography>
             <Typography variant="caption" sx={{ color: '#475569', display: 'block', fontSize: '0.8rem', mt: 0.3 }}>
               CTEVT Accredited Technical Training Institute • Regd No: 184920/078/079
@@ -169,7 +169,7 @@ export default function OfficialDocumentModal({
           >
             <Box>
               <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                COURSE / CURRICULUM (पाठ्यक्रम):
+                COURSE / CURRICULUM:
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800 }}>
                 {course?.title || 'Vocational Training'} ({course?.durationHours || 160} Hours)
@@ -177,7 +177,7 @@ export default function OfficialDocumentModal({
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                TRAINING GROUP (समूह) & SHIFT:
+                TRAINING GROUP & SHIFT:
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800 }}>
                 Batch: <b>{group?.groupCode || '—'}</b> | Shift: {group?.shift || 'A'} ({group?.startTime || '07:00'} - {group?.endTime || '09:00'})
@@ -185,7 +185,7 @@ export default function OfficialDocumentModal({
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                PRIMARY INSTRUCTOR / TRAINER (प्रशिक्षक):
+                PRIMARY INSTRUCTOR / TRAINER:
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
                 {trainer?.name || 'Assigned Instructor'} {trainer?.phone ? `(${trainer.phone})` : ''}
@@ -193,7 +193,7 @@ export default function OfficialDocumentModal({
             </Box>
             <Box>
               <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                TRAINING PERIOD / DATE (मिति):
+                TRAINING PERIOD / DATE:
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800 }}>
                 {metadata.dateRange || `${group?.admissionDate || '2026-09-01'} → ${group?.expectedEndDate || '2026-10-31'}`}
@@ -225,7 +225,7 @@ export default function OfficialDocumentModal({
                 {trainer?.name || 'Instructor Name'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                Prepared By (प्रशिक्षक)
+                Prepared By (Instructor)
               </Typography>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
                 Date: {new Date().toISOString().slice(0, 10)}
@@ -241,10 +241,10 @@ export default function OfficialDocumentModal({
                 Training Coordinator / Principal
               </Typography>
               <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                Approved By (प्रमाणित / स्वीकृत)
+                Approved By (Verified & Approved)
               </Typography>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                Institutional Seal (संस्थाको छाप)
+                Institutional Seal
               </Typography>
             </Box>
           </Box>

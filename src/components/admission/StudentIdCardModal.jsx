@@ -55,16 +55,16 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
   if (!student && !admission) return null;
 
   // Resolve fields from either student or admission record
-  const studentName = student?.name || admission?.studentName || 'सुनिता शर्मा';
+  const studentName = student?.name || admission?.studentName || 'Sunita Sharma';
   const studentId = student?.id || admission?.studentId || 'STD-01';
   const tgid = student?.tgid || admission?.tgid || 'TGID-101';
   const phone = student?.phone || admission?.phone || '98XXXXXXXX';
   const bloodGroup = student?.bloodGroup || admission?.bloodGroup || 'O+ve';
-  const courseTitle = admission?.courseTitle || student?.courseTitle || 'व्यावसायिक सीप तालिम';
+  const courseTitle = admission?.courseTitle || student?.courseTitle || 'Vocational Skill Training';
   const groupName = admission?.groupName || student?.groupName || 'Batch 1';
   const shift = admission?.shift || 'Shift A';
   const timing = admission?.timing || '07:00 AM – 09:00 AM';
-  const validTill = admission?.expectedEndDate || student?.expectedEndDate || '२०८१/०९/३०';
+  const validTill = admission?.expectedEndDate || student?.expectedEndDate || '2025-12-31';
   const photoUrl = student?.photoUrl || admission?.photoUrl || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80';
 
   // Verification URL for QR Code
@@ -93,7 +93,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
           <BadgeIcon sx={{ color: '#f59e0b', fontSize: 28 }} />
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-              विद्यार्थी परिचयपत्र (Trainee ID Card)
+              Trainee ID Card
             </Typography>
             <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
               Epson L8050 PVC Card Tray (CR-80 Standard: 54mm × 85.6mm)
@@ -109,7 +109,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
             onClick={handlePrint}
             sx={{ fontWeight: 800 }}
           >
-            ID कार्ड प्रिन्ट (Print)
+            Print ID Card
           </Button>
           <IconButton onClick={onClose} sx={{ color: '#ffffff' }}>
             <CloseIcon />
@@ -128,12 +128,12 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
           >
             <Tab
               value="PVC"
-              label="Epson L8050 PVC Card (५४ × ८५.६ मिमी)"
+              label="Epson L8050 PVC Card (54 × 85.6 mm)"
               sx={{ fontWeight: 800, textTransform: 'none' }}
             />
             <Tab
               value="A4"
-              label="A4 फोटो पेपर (Cut & Laminate Sheet)"
+              label="A4 Photo Paper (Cut & Laminate Sheet)"
               sx={{ fontWeight: 800, textTransform: 'none' }}
             />
           </Tabs>
@@ -150,7 +150,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
             }}
           >
             <Typography variant="caption" sx={{ color: '#1e40af', display: 'block', fontWeight: 600 }}>
-              💡 <strong>Epson L8050 निर्देशन:</strong> प्रिन्टरको PVC Tray मा खाली कार्ड राख्नुहोस्। प्रिन्ट डायलगमा <strong>Paper Size: CR80 / PVC Card</strong> वा <strong>Scale: 100%</strong> छनोट गरी प्रिन्ट गर्नुहोस्।
+              💡 <strong>Epson L8050 Instructions:</strong> Insert blank PVC card into printer tray. In the print dialog, select <strong>Paper Size: CR80 / PVC Card</strong> or <strong>Scale: 100%</strong>.
             </Typography>
           </Paper>
         </Box>
@@ -214,7 +214,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                       textTransform: 'uppercase'
                     }}
                   >
-                    ग्लोबल एरा मल्टि सर्भिस
+                    GLOBAL ERA MULTI SERVICE
                   </Typography>
                   <Typography
                     sx={{
@@ -224,7 +224,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                       lineHeight: 1.1
                     }}
                   >
-                    प्राविधिक स्कुल जोरपाटी
+                    Technical School Jorpati
                   </Typography>
                   <Typography
                     sx={{
@@ -234,7 +234,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                       mt: '0.2mm'
                     }}
                   >
-                    गोकर्णेश्वर-०५, जोरपाटी, काठमाडौँ
+                    Gokarneshwor-05, Jorpati, Kathmandu
                   </Typography>
                 </Box>
               </Box>
@@ -253,7 +253,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                   boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                 }}
               >
-                विद्यार्थी परिचयपत्र (TRAINEE ID)
+                TRAINEE IDENTITY CARD
               </Box>
             </Box>
 
@@ -313,7 +313,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                   mb: '1.2mm'
                 }}
               >
-                रोल / ID: <strong style={{ color: '#0f2e5a' }}>{studentId}</strong> | {tgid}
+                Roll / ID: <strong style={{ color: '#0f2e5a' }}>{studentId}</strong> | {tgid}
               </Box>
 
               {/* Key Details Grid */}
@@ -330,26 +330,26 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
                 }}
               >
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0.4mm' }}>
-                  <span style={{ color: '#64748b' }}>तालिम (Course):</span>
+                  <span style={{ color: '#64748b' }}>Course:</span>
                   <strong style={{ color: '#0f2e5a', maxWidth: '30mm', textAlign: 'right', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {courseTitle}
                   </strong>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0.4mm' }}>
-                  <span style={{ color: '#64748b' }}>ब्याच / समय:</span>
+                  <span style={{ color: '#64748b' }}>Batch / Shift:</span>
                   <strong style={{ color: '#334155' }}>
                     {groupName} ({shift})
                   </strong>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: '0.4mm' }}>
-                  <span style={{ color: '#64748b' }}>सम्पर्क (Mobile):</span>
+                  <span style={{ color: '#64748b' }}>Mobile:</span>
                   <strong style={{ color: '#334155' }}>{phone}</strong>
                 </Box>
 
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ color: '#64748b' }}>रक्त समूह (Blood):</span>
+                  <span style={{ color: '#64748b' }}>Blood Group:</span>
                   <Box
                     sx={{
                       bgcolor: '#fee2e2',
@@ -398,7 +398,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
               {/* Center: Validity Info */}
               <Box sx={{ textAlign: 'center', flexGrow: 1, px: '1mm' }}>
                 <Typography sx={{ fontSize: '4.8pt', color: '#93c5fd', lineHeight: 1 }}>
-                  मान्यता अवधि (VALID TILL)
+                  VALID TILL
                 </Typography>
                 <Typography sx={{ fontSize: '6.2pt', fontWeight: 900, color: '#fef08a', mt: '0.3mm' }}>
                   {validTill}
@@ -409,7 +409,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
               <Box sx={{ textAlign: 'center', width: '16mm' }}>
                 <Box sx={{ borderBottom: '1px dashed #cbd5e1', height: '3.5mm', mb: '0.3mm' }}></Box>
                 <Typography sx={{ fontSize: '4.4pt', color: '#cbd5e1', lineHeight: 1 }}>
-                  अधिकृत हस्ताक्षर
+                  Authorized Signatory
                 </Typography>
                 <Typography sx={{ fontSize: '4.2pt', color: '#94a3b8', lineHeight: 1 }}>
                   (Principal)
@@ -422,11 +422,11 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
 
       <DialogActions className="no-print" sx={{ p: 2, bgcolor: '#ffffff', borderTop: '1px solid #e2e8f0', justifyContent: 'space-between' }}>
         <Typography variant="caption" sx={{ color: '#64748b' }}>
-          * Epson L8050 PVC Card Tray मा सिधै ५४ × ८५.६ मिमी (CR80) मा प्रिन्ट हुन्छ।
+          * Directly prints on Epson L8050 PVC Card Tray at 54 × 85.6 mm (CR80).
         </Typography>
         <Stack direction="row" spacing={1.5}>
           <Button onClick={onClose} color="inherit">
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
           <Button
             variant="contained"
@@ -435,7 +435,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
             onClick={handlePrint}
             sx={{ fontWeight: 800 }}
           >
-            प्रिन्ट गर्नुहोस् (Print Card)
+            Print Card
           </Button>
         </Stack>
       </DialogActions>

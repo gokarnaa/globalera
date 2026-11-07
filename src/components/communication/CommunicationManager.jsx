@@ -140,7 +140,7 @@ export default function CommunicationManager() {
 
     return messageBody
       .replace(/\{name\}/g, recipient.name || 'Student')
-      .replace(/\{parent\}/g, recipient.fatherName || recipient.motherName || 'अभिभावक')
+      .replace(/\{parent\}/g, recipient.fatherName || recipient.motherName || 'Guardian')
       .replace(/\{course\}/g, course?.title || 'Vocational Training')
       .replace(/\{shift\}/g, group?.shift || 'A')
       .replace(/\{date\}/g, today)
@@ -150,7 +150,7 @@ export default function CommunicationManager() {
       .replace(/\{supervisor\}/g, 'Supervisor')
       .replace(/\{phone\}/g, recipient.phone || '')
       .replace(/\{jobTitle\}/g, 'Specialist Caregiver')
-      .replace(/\{institute\}/g, db.settings?.instituteSub || 'ग्लोबल एरा प्राविधिक स्कुल');
+      .replace(/\{institute\}/g, db.settings?.instituteSub || 'Global Era Technical School');
   };
 
   // Broadcast Action
@@ -258,7 +258,7 @@ export default function CommunicationManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <MessageIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Communication Center (एकीकृत सञ्चार केन्द्र)
+              Communication Center
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -292,10 +292,10 @@ export default function CommunicationManager() {
             '& .MuiTab-root': { fontWeight: 800, py: 1.8 }
           }}
         >
-          <Tab icon={<SendIcon fontSize="small" />} iconPosition="start" label="१. सन्देश प्रवाह (WhatsApp & SMS Dispatch)" />
-          <Tab icon={<PhoneIcon fontSize="small" />} iconPosition="start" label="२. फोन कल अनुगमन (Call Follow-up)" />
-          <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="३. सञ्चार इतिहास (Communication Log)" />
-          <Tab icon={<MessageIcon fontSize="small" />} iconPosition="start" label="४. सन्देश ढाँचा (Message Templates)" />
+          <Tab icon={<SendIcon fontSize="small" />} iconPosition="start" label="1. WhatsApp & SMS Dispatch" />
+          <Tab icon={<PhoneIcon fontSize="small" />} iconPosition="start" label="2. Call Follow-up" />
+          <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="3. Communication Log" />
+          <Tab icon={<MessageIcon fontSize="small" />} iconPosition="start" label="4. Message Templates" />
         </Tabs>
 
         {/* Tab 1: Dispatch */}
@@ -303,7 +303,7 @@ export default function CommunicationManager() {
           <Box sx={{ p: 3 }}>
             {dispatchStatus && (
               <Alert severity="success" sx={{ mb: 3, fontWeight: 700 }}>
-                सन्देश सफलतापूर्वक प्रवाह गरियो! {dispatchStatus.count} जनालाई {dispatchStatus.channel} मार्फत पठाइएको छ र इतिहासमा सुरक्षित गरिएको छ।
+                Message broadcasted successfully! Sent to {dispatchStatus.count} recipients via {dispatchStatus.channel} and saved to communication history.
               </Alert>
             )}
 
@@ -312,7 +312,7 @@ export default function CommunicationManager() {
               <Grid item xs={12} md={5}>
                 <Stack spacing={2.5}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    १. लक्षित समूह छनोट (Target Audience)
+                    1. Target Audience
                   </Typography>
 
                   <TextField
@@ -322,13 +322,13 @@ export default function CommunicationManager() {
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value)}
                   >
-                    <MenuItem value="GROUP">Training Batch (तालिम समूह अनुसार)</MenuItem>
-                    <MenuItem value="ABSENT_TODAY">Today's Absent Trainees (आज अनुपस्थित विद्यार्थीका अभिभावक)</MenuItem>
-                    <MenuItem value="UNPLACED">Unplaced Job Seekers (रोजगारी बाँकी रहेका विद्यार्थी)</MenuItem>
-                    <MenuItem value="ALL_STUDENTS">All Active Students (सबै सक्रिय विद्यार्थी)</MenuItem>
-                    <MenuItem value="EMPLOYERS">Employer Partners (रोजगारदाता संस्थाहरू)</MenuItem>
-                    <MenuItem value="TRAINERS">All Trainers (सबै प्रशिक्षकहरू)</MenuItem>
-                    <MenuItem value="SINGLE">Individual Student (एकजना विद्यार्थी मात्र)</MenuItem>
+                    <MenuItem value="GROUP">Training Batch</MenuItem>
+                    <MenuItem value="ABSENT_TODAY">Today's Absent Trainees (Guardians)</MenuItem>
+                    <MenuItem value="UNPLACED">Unplaced Job Seekers</MenuItem>
+                    <MenuItem value="ALL_STUDENTS">All Active Students</MenuItem>
+                    <MenuItem value="EMPLOYERS">Employer Partners</MenuItem>
+                    <MenuItem value="TRAINERS">All Trainers</MenuItem>
+                    <MenuItem value="SINGLE">Individual Student</MenuItem>
                   </TextField>
 
                   {targetAudience === 'GROUP' && (
@@ -369,7 +369,7 @@ export default function CommunicationManager() {
                   <Divider />
 
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    २. सञ्चार माध्यम (Delivery Channel)
+                    2. Delivery Channel
                   </Typography>
 
                   <Box sx={{ display: 'flex', gap: 1.5 }}>
@@ -407,7 +407,7 @@ export default function CommunicationManager() {
                   <Divider />
 
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                    ३. सन्देश ढाँचा छनोट (Select Template)
+                    3. Select Template
                   </Typography>
 
                   <TextField
@@ -425,7 +425,7 @@ export default function CommunicationManager() {
                   </TextField>
 
                   <TextField
-                    label="Message Content (सन्देशको व्यहोरा)"
+                    label="Message Content"
                     multiline
                     rows={4}
                     fullWidth
@@ -470,7 +470,7 @@ export default function CommunicationManager() {
                 <Card sx={{ p: 2.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 3 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                      प्रत्यक्ष पूर्वावलोकन (Audience Preview: {recipientList.length} People)
+                      Audience Preview ({recipientList.length} People)
                     </Typography>
                     <Chip
                       label={`Total: ${recipientList.length}`}
@@ -547,7 +547,7 @@ export default function CommunicationManager() {
               <Grid item xs={12} md={5}>
                 <Card sx={{ p: 3, border: '1px solid #e2e8f0', borderRadius: 3 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 2 }}>
-                    फोन कल दर्ता फारम (Log Candidate Follow-up Call)
+                    Log Candidate Follow-up Call
                   </Typography>
 
                   <Stack spacing={2.5}>
@@ -594,20 +594,20 @@ export default function CommunicationManager() {
 
                     <TextField
                       select
-                      label="Call Result (कलको नतिजा)"
+                      label="Call Result"
                       fullWidth
                       value={callStatus}
                       onChange={(e) => setCallStatus(e.target.value)}
                     >
-                      <MenuItem value="Connected">Connected & Spoke (सम्पर्क भएको)</MenuItem>
-                      <MenuItem value="No Answer">No Answer / Not Reachable (फोन नउठेको)</MenuItem>
-                      <MenuItem value="Busy">Line Busy (व्यस्त)</MenuItem>
-                      <MenuItem value="Call Back Later">Call Back Later (पछि कल गर्न भनेको)</MenuItem>
-                      <MenuItem value="Wrong Number">Wrong Number (गलत नम्बर)</MenuItem>
+                      <MenuItem value="Connected">Connected & Spoke</MenuItem>
+                      <MenuItem value="No Answer">No Answer / Not Reachable</MenuItem>
+                      <MenuItem value="Busy">Line Busy</MenuItem>
+                      <MenuItem value="Call Back Later">Call Back Later</MenuItem>
+                      <MenuItem value="Wrong Number">Wrong Number</MenuItem>
                     </TextField>
 
                     <TextField
-                      label="Call Discussion Notes (छलफल भएको विषय)"
+                      label="Call Discussion Notes"
                       multiline
                       rows={3}
                       fullWidth
@@ -618,7 +618,7 @@ export default function CommunicationManager() {
 
                     <TextField
                       type="date"
-                      label="Next Follow-up Date (अर्को कल गर्ने मिति)"
+                      label="Next Follow-up Date"
                       fullWidth
                       InputLabelProps={{ shrink: true }}
                       value={nextFollowUpDate}
@@ -635,7 +635,7 @@ export default function CommunicationManager() {
               <Grid item xs={12} md={7}>
                 <Card sx={{ p: 2.5, border: '1px solid #e2e8f0', borderRadius: 3 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 2 }}>
-                    हालसालै गरिएका कलहरू (Recent Call History)
+                    Recent Call History
                   </Typography>
 
                   <TableContainer>
@@ -729,7 +729,7 @@ export default function CommunicationManager() {
               <Table>
                 <TableHead sx={{ bgcolor: '#f8fafc' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>क्र.सं.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Date & Time</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Recipient</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Channel</TableCell>
@@ -855,15 +855,15 @@ export default function CommunicationManager() {
               value={newTemplate.category}
               onChange={(e) => setNewTemplate({ ...newTemplate, category: e.target.value })}
             >
-              <MenuItem value="Attendance">Attendance (उपस्थिति)</MenuItem>
-              <MenuItem value="Class">Class Schedule (कक्षा तालिका)</MenuItem>
-              <MenuItem value="Certificate">Certificate (प्रमाणपत्र)</MenuItem>
-              <MenuItem value="OJT">OJT & Apprenticeship (स्थलगत तालिम)</MenuItem>
-              <MenuItem value="Placement">Placement & Job (रोजगारी)</MenuItem>
-              <MenuItem value="General">General Notice (साधारण सूचना)</MenuItem>
+              <MenuItem value="Attendance">Attendance</MenuItem>
+              <MenuItem value="Class">Class Schedule</MenuItem>
+              <MenuItem value="Certificate">Certificate</MenuItem>
+              <MenuItem value="OJT">OJT & Apprenticeship</MenuItem>
+              <MenuItem value="Placement">Placement & Job</MenuItem>
+              <MenuItem value="General">General Notice</MenuItem>
             </TextField>
             <TextField
-              label="Template Content (सन्देशको व्यहोरा)"
+              label="Template Content"
               multiline
               rows={4}
               fullWidth

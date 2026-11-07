@@ -63,7 +63,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   const [discountAmount, setDiscountAmount] = useState(0);
   const [advancePaid, setAdvancePaid] = useState(7500);
   const [paymentMethod, setPaymentMethod] = useState('Cash');
-  const [remarks, setRemarks] = useState('भर्ना सम्झौता - ५०% अग्रिम शुल्क');
+  const [remarks, setRemarks] = useState('Admission Agreement - 50% Advance Fee');
 
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -151,15 +151,15 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      setErrorMsg('विद्यार्थीको पूरा नाम अनिवार्य छ।');
+      setErrorMsg('Full student name is required.');
       return;
     }
     if (!phone.trim()) {
-      setErrorMsg('मोबाइल नम्बर अनिवार्य छ।');
+      setErrorMsg('Mobile number is required.');
       return;
     }
     if (!selectedCourseId) {
-      setErrorMsg('कृपया तालिम / कोर्स छनोट गर्नुहोस्।');
+      setErrorMsg('Please select a training course.');
       return;
     }
 
@@ -213,11 +213,11 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       studentName: name.trim(),
       tgid: generatedTgid,
       groupId: groupObj.id || 'GRP-01',
-      courseName: courseObj?.title || 'व्यावसायिक तालिम',
+      courseName: courseObj?.title || 'Vocational Training',
       amount: Number(advancePaid) || 0,
       paymentMethod,
       paymentDate: admissionDate,
-      paymentMonth: '२०८१ मंसिर',
+      paymentMonth: 'Admission',
       receiptNo,
       remarks: `${remarks} (${name.trim()})`,
       receivedBy: 'Admission Desk',
@@ -226,7 +226,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
     // 3. Create Admission Agreement Record
     const agreementCount = (db.admissions || []).length + 1;
-    const agreementNo = `GE-AGR-2081-${String(agreementCount).padStart(3, '0')}`;
+    const agreementNo = `GE-AGR-2025-${String(agreementCount).padStart(3, '0')}`;
 
     const newAdmission = {
       id: `ADM-${Date.now()}`,
@@ -247,12 +247,12 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       guardianContact: guardianContact.trim(),
 
       courseId: courseObj?.id || selectedCourseId,
-      courseTitle: courseObj?.title || 'व्यावसायिक तालिम',
+      courseTitle: courseObj?.title || 'Vocational Training',
       groupId: groupObj.id || 'GRP-01',
       groupName: groupObj.groupCode || groupObj.name || 'Batch 1',
       shift: groupObj.shift || 'Shift A',
       timing: groupObj.timing || '07:00 AM – 09:00 AM',
-      duration: `${courseObj?.durationValue || 3} ${courseObj?.durationUnit || 'Months'} (${courseObj?.totalHours || 390} घण्टा)`,
+      duration: `${courseObj?.durationValue || 3} ${courseObj?.durationUnit || 'Months'} (${courseObj?.totalHours || 390} Hours)`,
       keySkills: keySkills.trim() || courseObj?.description || '',
 
       ojtPreference,
@@ -269,7 +269,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       receiptNo,
 
       admissionDate,
-      admissionDateBS: '२०८१/' + admissionDate.slice(5).replace('-', '/'),
+      admissionDateBS: admissionDate,
       status: 'ACTIVE',
       createdAt: new Date().toISOString()
     };
@@ -303,18 +303,18 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
           entryDate: admissionDate,
           sourceModule: 'ADMISSION',
           sourceId: receiptNo,
-          narration: `विद्यार्थी भर्ना ५०% अग्रिम शुल्क: ${name.trim()} (${courseObj?.title || ''}) सम्झौता नं ${agreementNo}`,
+          narration: `Trainee Admission 50% Advance Fee: ${name.trim()} (${courseObj?.title || ''}) Agreement No ${agreementNo}`,
           createdBy: 'Admission Desk',
           lines: [
             {
               accountCode: paymentMethod !== 'Cash' ? '1020' : '1010',
-              lineNarration: `५०% भर्ना शुल्क संकलन (${paymentMethod})`,
+              lineNarration: `50% Admission Fee Collection (${paymentMethod})`,
               debit: advanceAmt,
               credit: 0
             },
             {
               accountCode: '4100',
-              lineNarration: `विद्यार्थी भर्ना आम्दानी - ${name.trim()}`,
+              lineNarration: `Trainee Admission Revenue - ${name.trim()}`,
               debit: 0,
               credit: advanceAmt
             }
@@ -338,7 +338,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     });
 
     if (showToast) {
-      showToast(`विद्यार्थी ${name} को भर्ना तथा सम्झौता सफलतापूर्वक सम्पन्न भयो!`, 'success');
+      showToast(`Student ${name} successfully admitted with agreement created!`, 'success');
     }
 
     if (onAdmissionCreated) {
@@ -368,10 +368,10 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
           </Avatar>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-              नयाँ विद्यार्थी भर्ना तथा तालिम सम्झौता (New Admission)
+              New Student Admission & Training Agreement
             </Typography>
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-              ५०% अग्रिम भुक्तानी, OJT रोजाइ र २-प्रति A4 सम्झौता पत्र प्रणाली
+              50% advance collection, OJT preference & dual-copy A4 agreement system
             </Typography>
           </Box>
         </Stack>
@@ -393,7 +393,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <SchoolIcon sx={{ color: '#0f2e5a' }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                १. विद्यार्थीको व्यक्तिगत विवरण (Student Details)
+                1. Student Personal Details
               </Typography>
             </Stack>
 
@@ -402,10 +402,10 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   fullWidth
                   required
-                  label="विद्यार्थीको पूरा नाम (Full Name)"
+                  label="Full Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="उदा: सुनिता शर्मा"
+                  placeholder="e.g. Sunita Sharma"
                   size="small"
                 />
               </Grid>
@@ -414,7 +414,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   fullWidth
                   required
-                  label="मोबाइल नं (Mobile No)"
+                  label="Mobile Number"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="98XXXXXXXX"
@@ -425,7 +425,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={3}>
                 <TextField
                   fullWidth
-                  label="वैकल्पिक फोन (Secondary Phone)"
+                  label="Secondary Phone"
                   value={secondaryPhone}
                   onChange={(e) => setSecondaryPhone(e.target.value)}
                   size="small"
@@ -436,14 +436,14 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   select
                   fullWidth
-                  label="लिङ्ग (Gender)"
+                  label="Gender"
                   value={gender}
                   onChange={(e) => setGender(e.target.value)}
                   size="small"
                 >
-                  <MenuItem value="Female">महिला (Female)</MenuItem>
-                  <MenuItem value="Male">पुरुष (Male)</MenuItem>
-                  <MenuItem value="Other">अन्य (Other)</MenuItem>
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
                 </TextField>
               </Grid>
 
@@ -451,7 +451,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   select
                   fullWidth
-                  label="रक्त समूह (Blood Group)"
+                  label="Blood Group"
                   value={bloodGroup}
                   onChange={(e) => setBloodGroup(e.target.value)}
                   size="small"
@@ -464,17 +464,17 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   <MenuItem value="A-ve">A -ve (A Negative)</MenuItem>
                   <MenuItem value="B-ve">B -ve (B Negative)</MenuItem>
                   <MenuItem value="AB-ve">AB -ve (AB Negative)</MenuItem>
-                  <MenuItem value="Unknown">थाहा छैन (Unknown)</MenuItem>
+                  <MenuItem value="Unknown">Unknown</MenuItem>
                 </TextField>
               </Grid>
 
               <Grid item xs={12} sm={3}>
                 <TextField
                   fullWidth
-                  label="नागरिकता / परिचयपत्र नं"
+                  label="Citizenship / ID No"
                   value={citizenshipNumber}
                   onChange={(e) => setCitizenshipNumber(e.target.value)}
-                  placeholder="उदा: २७-०१-७६-०१२३४"
+                  placeholder="e.g. 27-01-76-01234"
                   size="small"
                 />
               </Grid>
@@ -482,10 +482,10 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="हालको ठेगाना (Current Address)"
+                  label="Current Address"
                   value={currentAddress}
                   onChange={(e) => setCurrentAddress(e.target.value)}
-                  placeholder="उदा: जोरपाटी, काठमाडौँ"
+                  placeholder="e.g. Jorpati, Kathmandu"
                   size="small"
                 />
               </Grid>
@@ -493,10 +493,10 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="स्थायी ठेगाना (Permanent Address)"
+                  label="Permanent Address"
                   value={permanentAddress}
                   onChange={(e) => setPermanentAddress(e.target.value)}
-                  placeholder="उदा: मेलम्ची-०३, सिन्धुपाल्चोक"
+                  placeholder="e.g. Melamchi-03, Sindhupalchok"
                   size="small"
                 />
               </Grid>
@@ -504,7 +504,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="बुबा वा आमाको नाम (Guardian / Parent Name)"
+                  label="Guardian / Parent Name"
                   value={fatherName}
                   onChange={(e) => setFatherName(e.target.value)}
                   size="small"
@@ -518,7 +518,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <WorkIcon sx={{ color: '#0f2e5a' }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                २. तालिम, ब्याच तथा OJT प्राथमिकता (Course & Training Details)
+                2. Course, Batch & OJT Preference
               </Typography>
             </Stack>
 
@@ -528,14 +528,14 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   select
                   fullWidth
                   required
-                  label="तालिम / कोर्स छनोट (Select Course)"
+                  label="Select Course"
                   value={selectedCourseId}
                   onChange={(e) => handleCourseChange(e.target.value)}
                   size="small"
                 >
                   {(db.courses || []).map((crs) => (
                     <MenuItem key={crs.id} value={crs.id}>
-                      {crs.title} — रु. {(crs.price || 0).toLocaleString()} ({crs.totalHours || 390} घण्टा)
+                      {crs.title} — Rs. {(crs.price || 0).toLocaleString()} ({crs.totalHours || 390} Hours)
                     </MenuItem>
                   ))}
                 </TextField>
@@ -545,7 +545,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   select
                   fullWidth
-                  label="ब्याच / समूह (Training Group / Batch)"
+                  label="Training Group / Batch"
                   value={selectedGroupId}
                   onChange={(e) => setSelectedGroupId(e.target.value)}
                   size="small"
@@ -557,7 +557,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                       </MenuItem>
                     ))
                   ) : (
-                    <MenuItem value="">कुनै समूह उपलब्ध छैन (नयाँ सिर्जना हुनेछ)</MenuItem>
+                    <MenuItem value="">No group available (will auto-create)</MenuItem>
                   )}
                 </TextField>
               </Grid>
@@ -566,7 +566,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   type="date"
                   fullWidth
-                  label="भर्ना मिति (Admission Date)"
+                  label="Admission Date"
                   value={admissionDate}
                   onChange={(e) => setAdmissionDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -577,7 +577,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <Box sx={{ p: 1, border: '1px solid #e2e8f0', borderRadius: 1, bgcolor: '#f8fafc' }}>
                   <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', display: 'block' }}>
-                    OJT (On-the-Job Training) इन्टर्नशिप सुविधा रोजाइ:
+                    OJT (On-the-Job Training) Placement Preference:
                   </Typography>
                   <RadioGroup
                     row
@@ -587,12 +587,12 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                     <FormControlLabel
                       value="REQUIRED"
                       control={<Radio size="small" color="primary" />}
-                      label={<Typography variant="body2" sx={{ fontWeight: 700, color: '#065f46' }}>आवश्यक छ (निःशुल्क)</Typography>}
+                      label={<Typography variant="body2" sx={{ fontWeight: 700, color: '#065f46' }}>Required (Complimentary)</Typography>}
                     />
                     <FormControlLabel
                       value="NOT_REQUIRED"
                       control={<Radio size="small" color="secondary" />}
-                      label={<Typography variant="body2" sx={{ color: '#64748b' }}>आवश्यक छैन</Typography>}
+                      label={<Typography variant="body2" sx={{ color: '#64748b' }}>Not Required</Typography>}
                     />
                   </RadioGroup>
                 </Box>
@@ -603,11 +603,11 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   fullWidth
                   multiline
                   rows={2}
-                  label="तालिममा सिकाइने मुख्य सीपहरू (Curriculum / Key Skills to Learn)"
+                  label="Key Curriculum Skills to Cover"
                   value={keySkills}
                   onChange={(e) => setKeySkills(e.target.value)}
                   size="small"
-                  helperText="यो विवरण सम्झौता पत्रको खण्ड २ मा छापिनेछ।"
+                  helperText="This description appears on Section 2 of the agreement document."
                 />
               </Grid>
             </Grid>
@@ -618,7 +618,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
               <PaymentsIcon sx={{ color: '#0f2e5a' }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                ३. शुल्क संरचना तथा भुक्तानी सर्त (५०% अग्रिम र बाँकी १ महिनाभित्र)
+                3. Fee Structure & Terms (50% Advance & Remaining within 30 Days)
               </Typography>
             </Stack>
 
@@ -627,7 +627,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   fullWidth
                   type="number"
-                  label="कुल तोकिएको कोर्स शुल्क (Rs.)"
+                  label="Standard Course Fee (Rs.)"
                   value={totalCourseFee}
                   onChange={(e) => {
                     const price = Number(e.target.value) || 0;
@@ -643,7 +643,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   fullWidth
                   type="number"
-                  label="स्वीकृत छुट रकम (Discount Rs.)"
+                  label="Approved Discount (Rs.)"
                   value={discountAmount}
                   onChange={(e) => handleDiscountChange(e.target.value)}
                   size="small"
@@ -652,9 +652,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
               <Grid item xs={12} sm={4}>
                 <Box sx={{ p: 1, bgcolor: '#f1f5f9', borderRadius: 1, border: '1px solid #cbd5e1' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b' }}>खुद तिर्नुपर्ने शुल्क (Net Payable):</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748b' }}>Net Payable Fee:</Typography>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                    रु. {netPayableFee.toLocaleString()}
+                    Rs. {netPayableFee.toLocaleString()}
                   </Typography>
                 </Box>
               </Grid>
@@ -663,7 +663,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse ? '#eff6ff' : '#ecfdf5', border: `1.5px solid ${isFullOnlyCourse ? '#3b82f6' : '#10b981'}`, borderRadius: 1.5 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse ? '#1d4ed8' : '#065f46', mb: 1 }}>
-                    {isFullOnlyCourse ? '⚡ एकमुष्ट भुक्तानी (१००% भर्नामै तिर्नुपर्ने):' : 'पहिलो किस्ता (भर्नाको समयमा ५०% अग्रिम रकम):'}
+                    {isFullOnlyCourse ? '⚡ Lump Sum Payment (100% Due on Enrollment):' : '1st Installment (50% Advance at Enrollment):'}
                   </Typography>
                   <TextField
                     fullWidth
@@ -676,8 +676,8 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   />
                   <Typography variant="caption" sx={{ color: isFullOnlyCourse ? '#1e40af' : '#047857', display: 'block', mt: 0.8, fontWeight: 700 }}>
                     {isFullOnlyCourse
-                      ? '⚡ यो बेसिक कोर्समा किस्ता सुविधा छैन, भर्नाकै समयमा पूरा रकम चुक्ता हुन्छ।'
-                      : `* विद्यार्थीले ५०% (रु. ${Math.round(netPayableFee * 0.5).toLocaleString()}) वा सोभन्दा बढी रकम बुझाउनुपर्नेछ।`}
+                      ? '⚡ Installments are not available for this basic course. Full fee is settled at enrollment.'
+                      : `* Student must pay at least 50% (Rs. ${Math.round(netPayableFee * 0.5).toLocaleString()}) at registration.`}
                   </Typography>
                 </Paper>
               </Grid>
@@ -686,23 +686,23 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse && dueAmount50 === 0 ? '#f0fdf4' : '#fff1f2', border: `1.5px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#22c55e' : '#f43f5e'}`, borderRadius: 1.5 }}>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#9f1239', mb: 1 }}>
-                    {isFullOnlyCourse ? 'बाँकी बक्यौता (बेसिक कोर्स):' : 'दोस्रो किस्ता (बाँकी ५०% रकम):'}
+                    {isFullOnlyCourse ? 'Remaining Balance:' : '2nd Installment (Remaining 50%):'}
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#be123c', mb: 0.5 }}>
-                    रु. {dueAmount50.toLocaleString()}
+                    Rs. {dueAmount50.toLocaleString()}
                   </Typography>
                   <Box sx={{ bgcolor: '#ffffff', p: 0.8, borderRadius: 1, border: `1px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#bbf7d0' : '#fecdd3'}` }}>
                     {isFullOnlyCourse && dueAmount50 === 0 ? (
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#16a34a', display: 'block' }}>
-                        ✓ सम्पूर्ण शुल्क चुक्ता (Full Paid at Admission)
+                        ✓ Full Paid at Admission
                       </Typography>
                     ) : (
                       <>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#9f1239', display: 'block' }}>
-                          भुक्तानी गरिसक्नुपर्ने अन्तिम मिति: {calculatedDueDate}
+                          Due Date: {calculatedDueDate}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#e11d48' }}>
-                          (तालिम सुरु भएको ३० दिन / १ महिना भित्र अनिवार्य)
+                          (Mandatory within 30 days of training start)
                         </Typography>
                       </>
                     )}
@@ -714,12 +714,12 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 <TextField
                   select
                   fullWidth
-                  label="भुक्तानी माध्यम (Payment Method)"
+                  label="Payment Method"
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   size="small"
                 >
-                  <MenuItem value="Cash">नगद (Cash)</MenuItem>
+                  <MenuItem value="Cash">Cash</MenuItem>
                   <MenuItem value="eSewa">eSewa</MenuItem>
                   <MenuItem value="Khalti">Khalti</MenuItem>
                   <MenuItem value="Fonepay">Fonepay QR</MenuItem>
@@ -730,7 +730,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="भुक्तानी कैफियत (Payment Remarks)"
+                  label="Payment Remarks"
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   size="small"
@@ -741,7 +741,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
           <DialogActions sx={{ px: 0, pt: 3, justifyContent: 'space-between' }}>
             <Button onClick={onClose} color="inherit" sx={{ fontWeight: 600 }}>
-              रद्द गर्नुहोस् (Cancel)
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -756,7 +756,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 '&:hover': { bgcolor: '#1e3a8a' }
               }}
             >
-              भर्ना सुरक्षित गरी सम्झौता तयार गर्नुहोस् (Enroll & Generate Agreement)
+              Enroll & Generate Agreement
             </Button>
           </DialogActions>
         </Box>

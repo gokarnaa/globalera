@@ -171,8 +171,8 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
     setFormData((prev) => ({
       ...prev,
       syllabusId,
-      theoryAspect: syl ? `सैद्धान्तिक ज्ञान: ${syl.title} का मुख्य मापदण्ड र अवधारणा` : prev.theoryAspect,
-      practicalAspect: syl ? `प्रयोगात्मक सीप: ${syl.title} मा प्रत्यक्ष डेमो तथा विद्यार्थी अभ्यास ड्रिल` : prev.practicalAspect
+      theoryAspect: syl ? `Theoretical Knowledge: Core standards and concepts of ${syl.title}` : prev.theoryAspect,
+      practicalAspect: syl ? `Practical Skills: Live demonstration and student practice drills on ${syl.title}` : prev.practicalAspect
     }));
   };
 
@@ -184,7 +184,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
   const handleSave = () => {
     if (!formData.syllabusId || !formData.planDate) {
-      alert('कृपया पाठ्यक्रम एकाइ र मिति चयन गर्नुहोस्।');
+      alert('Please select a Syllabus Unit and Date.');
       return;
     }
 
@@ -213,7 +213,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो कार्ययोजना मेटिनेछ।')) {
+    if (window.confirm('Are you sure? This work plan will be deleted.')) {
       let nextDb = {
         ...db,
         workPlans: (db.workPlans || []).filter((x) => x.id !== id)
@@ -244,13 +244,13 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
   // 1-Click Auto-Schedule Generator from Course Syllabus
   const handleGenerateAutoSchedule = () => {
     if (availableSyllabi.length === 0) {
-      alert('यस पाठ्यक्रममा कुनै एकाइ फेला परेन। पहिले Syllabus Studio मा एकाइ थप्नुहोस्।');
+      alert('No syllabus units found for this course. Please add units in Syllabus Studio first.');
       return;
     }
 
     let currentDate = new Date(autoScheduleConfig.startDate);
     if (isNaN(currentDate.getTime())) {
-      alert('कृपया मान्य सुरु मिति छान्नुहोस्।');
+      alert('Please select a valid start date.');
       return;
     }
 
@@ -292,8 +292,8 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           syllabusId: syl.id,
           planDate: planDateStr,
           dayName: dayNameStr,
-          theoryAspect: `सैद्धान्तिक ज्ञान: ${syl.title} - सत्र ${s}/${sessionsNeeded} (आधारभूत सिद्धान्त)`,
-          practicalAspect: `प्रयोगात्मक सीप: ${syl.title} - सत्र ${s}/${sessionsNeeded} (औजार ह्यान्डलिङ र अभ्यास)`,
+          theoryAspect: `Theoretical Knowledge: ${syl.title} - Session ${s}/${sessionsNeeded} (Fundamental Theory)`,
+          practicalAspect: `Practical Skills: ${syl.title} - Session ${s}/${sessionsNeeded} (Tool Handling & Practice)`,
           plannedHours: dailyHours,
           status: 'Pending'
         });
@@ -320,23 +320,23 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
   // WhatsApp Share Message
   const getBatchShareText = () => {
     return (
-      `*ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)*\n` +
-      `📋 *CTEVT आधिकारिक कार्ययोजना (Vocational Work Plan)*\n` +
+      `*Global Era Technical School*\n` +
+      `📋 *CTEVT Official Vocational Work Plan*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `• *समूह (Batch):* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'}: ${selectedGroup?.startTime || '07:00'} - ${selectedGroup?.endTime || '09:00'})\n` +
-      `• *पाठ्यक्रम (Course):* ${selectedCourse?.title || 'Vocational Training'}\n` +
-      `• *प्रशिक्षक (Instructor):* ${trainer?.name || '—'} ${trainer?.phone ? `(${trainer.phone})` : ''}\n` +
-      `• *कुल सत्रहरू:* ${groupWorkPlans.length} Sessions (${totalPlannedHours} Hours)\n` +
-      `• *प्रगति:* ${completedHours} / ${totalPlannedHours} Hours (${deliveryProgress}% Completed)\n` +
+      `• *Batch:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'}: ${selectedGroup?.startTime || '07:00'} - ${selectedGroup?.endTime || '09:00'})\n` +
+      `• *Course:* ${selectedCourse?.title || 'Vocational Training'}\n` +
+      `• *Instructor:* ${trainer?.name || '—'} ${trainer?.phone ? `(${trainer.phone})` : ''}\n` +
+      `• *Total Sessions:* ${groupWorkPlans.length} Sessions (${totalPlannedHours} Hours)\n` +
+      `• *Progress:* ${completedHours} / ${totalPlannedHours} Hours (${deliveryProgress}% Completed)\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `📅 *मुख्य तालिम तालिका (Sample):*\n` +
+      `📅 *Key Training Schedule (Sample):*\n` +
       groupWorkPlans.slice(0, 6).map((wp, idx) => {
         const syl = (db.syllabi || []).find((s) => s.id === wp.syllabusId);
         return `${idx + 1}. ${wp.planDate} (${wp.dayName}): Unit ${syl?.unitNo || ''} - ${syl?.title || 'Unit'} [${wp.plannedHours}h - ${wp.status}]`;
       }).join('\n') +
-      (groupWorkPlans.length > 6 ? `\n...र थप ${groupWorkPlans.length - 6} वटा सत्रहरू।` : '') +
+      (groupWorkPlans.length > 6 ? `\n...and ${groupWorkPlans.length - 6} more sessions.` : '') +
       `\n━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_CTEVT राष्ट्रिय सीप मानक कार्ययोजना।_`
+      `_CTEVT National Skill Standard Work Plan._`
     );
   };
 
@@ -385,7 +385,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 }}
               />
               <Chip
-                label={`प्रशिक्षक: ${trainer?.name || 'Assigned Trainer'}`}
+                label={`Instructor: ${trainer?.name || 'Assigned Trainer'}`}
                 size="small"
                 sx={{
                   bgcolor: 'rgba(74, 222, 128, 0.15)',
@@ -408,12 +408,12 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 mb: 1
               }}
             >
-              Work Plan (कार्य योजना व्यवस्थापन)
+              Work Plan (Training Schedule Management)
             </Typography>
 
             <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              {selectedCourse?.title} को दैनिक शिक्षण तालिका, सैद्धान्तिक तथा प्रयोगात्मक घण्टाको अग्रिम योजना।
-              यस कार्ययोजनाबाट सिधै पाठयोजना (Lesson Plan) र दैनिक लगबुक (Log Book) तयार हुन्छ।
+              Advance planning of daily teaching schedules, theoretical topics, and practical hours for {selectedCourse?.title}.
+              Directly feeds into Lesson Plans and the daily Log Book.
             </Typography>
 
             {/* Quick Actions */}
@@ -436,7 +436,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                   }
                 }}
               >
-                + Create Work Plan (नयाँ कार्ययोजना)
+                + Create Work Plan
               </Button>
 
               <Button
@@ -549,7 +549,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               />
 
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 2 }}>
-                सम्पन्न: <b>{completedHours} घण्टा</b> • बाँकी: <b>{pendingHours} घण्टा</b> ({groupWorkPlans.length} कुल दैनिक सत्रहरू)
+                Completed: <b>{completedHours} Hours</b> • Remaining: <b>{pendingHours} Hours</b> ({groupWorkPlans.length} Total Daily Sessions)
               </Typography>
 
               {/* Status breakdown pills */}
@@ -560,7 +560,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                       COMPLETED
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {groupWorkPlans.filter((w) => w.status === 'Completed').length} सत्र
+                      {groupWorkPlans.filter((w) => w.status === 'Completed').length} Sessions
                     </Typography>
                   </Box>
                 </Grid>
@@ -570,7 +570,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                       PENDING
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {groupWorkPlans.filter((w) => w.status === 'Pending').length} सत्र
+                      {groupWorkPlans.filter((w) => w.status === 'Pending').length} Sessions
                     </Typography>
                   </Box>
                 </Grid>
@@ -580,7 +580,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                       TOTAL DAYS
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {groupWorkPlans.length} दिन
+                      {groupWorkPlans.length} Days
                     </Typography>
                   </Box>
                 </Grid>
@@ -609,7 +609,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <TextField
               select
               size="small"
-              label="तालिम समूह छान्नुहोस् (Select Training Group)"
+              label="Select Training Group"
               fullWidth
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -631,7 +631,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <TextField
               size="small"
               fullWidth
-              placeholder="मिति, एकाइ, सैद्धान्तिक वा सीप खोज्नुहोस्..."
+              placeholder="Search date, unit, theory, or practical skill..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -648,7 +648,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           {/* 3-Way View Switcher */}
           <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-              दृश्य:
+              View:
             </Typography>
             <ToggleButtonGroup
               value={viewMode}
@@ -673,7 +673,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
         <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap', pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
           <Chip
             clickable
-            label={`सबै सत्रहरू (${groupWorkPlans.length})`}
+            label={`All Sessions (${groupWorkPlans.length})`}
             color={statusFilter === 'ALL' ? 'primary' : 'default'}
             onClick={() => setStatusFilter('ALL')}
             size="small"
@@ -681,7 +681,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           />
           <Chip
             clickable
-            label={`सम्पन्न (${groupWorkPlans.filter((w) => w.status === 'Completed').length})`}
+            label={`Completed (${groupWorkPlans.filter((w) => w.status === 'Completed').length})`}
             color={statusFilter === 'Completed' ? 'success' : 'default'}
             onClick={() => setStatusFilter('Completed')}
             size="small"
@@ -689,7 +689,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           />
           <Chip
             clickable
-            label={`हुन बाँकी (${groupWorkPlans.filter((w) => w.status === 'Pending').length})`}
+            label={`Pending (${groupWorkPlans.filter((w) => w.status === 'Pending').length})`}
             color={statusFilter === 'Pending' ? 'warning' : 'default'}
             onClick={() => setStatusFilter('Pending')}
             size="small"
@@ -754,7 +754,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
                       {holidayInfo.isHoliday && (
                         <Chip
-                          label={`⚠️ ${holidayInfo.name || 'Holiday / शनिबार'}`}
+                          label={`⚠️ ${holidayInfo.name || 'Holiday / Saturday'}`}
                           size="small"
                           sx={{ mt: 0.5, bgcolor: '#FEF3C7', color: '#B45309', fontWeight: 800, fontSize: '0.65rem', height: 18 }}
                         />
@@ -793,7 +793,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                   <Box sx={{ px: 2, py: 1.5, mx: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #EDF2F7', mb: 1.5 }}>
                     <Box sx={{ mb: 1 }}>
                       <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 800, display: 'block' }}>
-                        📖 सैद्धान्तिक विषय (Theory):
+                        📖 Theory:
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#334155', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {wp.theoryAspect || 'Fundamental vocational principles.'}
@@ -802,7 +802,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
                     <Box>
                       <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
-                        🛠️ प्रयोगात्मक अभ्यास (Practical):
+                        🛠️ Practical:
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#334155', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {wp.practicalAspect || 'Hands-on practical drills and demonstration.'}
@@ -824,7 +824,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                     }}
                   >
                     <Chip
-                      label={`${wp.plannedHours || 2} घण्टा`}
+                      label={`${wp.plannedHours || 2} hrs`}
                       size="small"
                       sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 900, fontSize: '0.72rem', height: 22 }}
                     />
@@ -858,10 +858,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
                 <EventNoteIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
-                  कुनै कार्ययोजना फेला परेन
+                  No Work Plans Found
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
-                  तपाईंले नयाँ कार्ययोजना थप्न वा "1-Click Auto-Schedule" बाट सम्पूर्ण पाठ्यक्रमको क्यालेन्डर तालिका स्वतः भर्न सक्नुहुन्छ।
+                  You can add a new work plan or use "1-Click Auto-Schedule" to automatically generate the calendar schedule for the entire curriculum.
                 </Typography>
                 <Stack direction="row" spacing={1.5} justifyContent="center">
                   <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
@@ -983,10 +983,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                   </Box>
 
                   <Typography variant="body2" sx={{ color: '#334155', mb: 0.5 }}>
-                    <b>सैद्धान्तिक:</b> {wp.theoryAspect}
+                    <b>Theory:</b> {wp.theoryAspect}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#334155' }}>
-                    <b>प्रयोगात्मक:</b> {wp.practicalAspect}
+                    <b>Practical:</b> {wp.practicalAspect}
                   </Typography>
                 </Card>
               </Box>
@@ -1004,14 +1004,14 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Table>
               <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>मिति र बार (Date)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 180 }}>पाठ्यक्रम एकाइ (Unit)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सैद्धान्तिक विषयवस्तु (Theory)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>प्रयोगात्मक सीप (Practical)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>घण्टा</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 110 }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right', width: 100 }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>S.N.</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>Date &amp; Day</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 180 }}>Syllabus Unit</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Theoretical Aspect</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Practical Skills</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>Hours</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 110 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right', width: 100 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1089,7 +1089,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 {filteredWorkPlans.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
-                      कुनै कार्ययोजना फेला परेन।
+                      No work plans found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -1135,10 +1135,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'दैनिक कार्ययोजना सम्पादन (Edit Work Plan)' : 'नयाँ दैनिक कार्ययोजना सिर्जना (Create Work Plan)'}
+                {editingItem ? 'Edit Work Plan' : 'Create Work Plan'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                {selectedGroup?.groupCode} • {selectedCourse?.title} को दैनिक कक्षा सञ्चालन योजना
+                {selectedGroup?.groupCode} • Daily Class Execution Plan for {selectedCourse?.title}
               </Typography>
             </Box>
           </Box>
@@ -1170,7 +1170,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Grid item xs={12}>
               <TextField
                 select
-                label="पाठ्यक्रम एकाइ (Syllabus Unit) *"
+                label="Syllabus Unit *"
                 fullWidth
                 size="small"
                 value={formData.syllabusId}
@@ -1178,7 +1178,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 required
               >
                 <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- पाठ्यक्रम एकाइ छान्नुहोस् (Select Syllabus Unit) --
+                  -- Select Syllabus Unit --
                 </MenuItem>
                 {availableSyllabi.map((syl) => (
                   <MenuItem key={syl.id} value={syl.id}>
@@ -1192,7 +1192,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Grid item xs={12} sm={4}>
               <TextField
                 type="date"
-                label="योजना गरिएको मिति (Date) *"
+                label="Planned Date *"
                 fullWidth
                 size="small"
                 InputLabelProps={{ shrink: true }}
@@ -1204,7 +1204,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             {/* Day Name */}
             <Grid item xs={12} sm={4}>
               <TextField
-                label="बार (Day)"
+                label="Day"
                 fullWidth
                 size="small"
                 value={formData.dayName}
@@ -1216,10 +1216,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Grid item xs={12} sm={4}>
               <TextField
                 type="number"
-                label="घण्टा (Planned Hours) *"
+                label="Planned Hours *"
                 fullWidth
                 size="small"
-                placeholder="उदा: 2"
+                placeholder="e.g. 2"
                 value={formData.plannedHours}
                 onChange={(e) => setFormData({ ...formData, plannedHours: e.target.value === '' ? '' : Number(e.target.value) })}
               />
@@ -1228,12 +1228,12 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             {/* Theoretical Aspect */}
             <Grid item xs={12}>
               <TextField
-                label="सैद्धान्तिक विषयवस्तु (Theoretical Aspect) *"
+                label="Theoretical Aspect *"
                 multiline
                 rows={2.5}
                 fullWidth
                 size="small"
-                placeholder="यस दिन पढाइने सैद्धान्तिक अवधारणा, सिद्धान्त, नियम तथा मापदण्ड..."
+                placeholder="Theoretical concepts, principles, rules, and standards to be taught on this day..."
                 value={formData.theoryAspect}
                 onChange={(e) => setFormData({ ...formData, theoryAspect: e.target.value })}
               />
@@ -1242,12 +1242,12 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             {/* Practical Aspect */}
             <Grid item xs={12}>
               <TextField
-                label="प्रयोगात्मक सीप तथा अभ्यास (Practical Aspect) *"
+                label="Practical Aspect *"
                 multiline
                 rows={2.5}
                 fullWidth
                 size="small"
-                placeholder="यस दिन विद्यार्थीहरूलाई गराइने प्रयोगात्मक अभ्यास, सीप ड्रिल तथा औजार परीक्षण..."
+                placeholder="Practical exercises, skill drills, and tool testing to be conducted with students on this day..."
                 value={formData.practicalAspect}
                 onChange={(e) => setFormData({ ...formData, practicalAspect: e.target.value })}
               />
@@ -1257,15 +1257,15 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Grid item xs={12} sm={6}>
               <TextField
                 select
-                label="डेलिभरी स्थिति (Status)"
+                label="Delivery Status"
                 fullWidth
                 size="small"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
-                <MenuItem value="Pending">Pending (हुन बाँकी)</MenuItem>
-                <MenuItem value="Completed">Completed (सम्पन्न भयो)</MenuItem>
-                <MenuItem value="Rescheduled">Rescheduled (समय सारिएको)</MenuItem>
+                <MenuItem value="Pending">Pending</MenuItem>
+                <MenuItem value="Completed">Completed</MenuItem>
+                <MenuItem value="Rescheduled">Rescheduled</MenuItem>
               </TextField>
             </Grid>
           </Grid>
@@ -1292,7 +1292,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1312,7 +1312,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Work Plan)
+            Save Work Plan
           </Button>
         </DialogActions>
       </Dialog>
@@ -1333,14 +1333,14 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-            यस सुविधाले <b>{selectedCourse?.title}</b> का सबै <b>{availableSyllabi.length}</b> पाठ्यक्रम एकाइहरूलाई क्यालेन्डर मितिहरूमा स्वतः दिनहुँ २ घण्टाको दरले तालिम तालिका सिर्जना गरिदिन्छ।
-            शनिबार (साप्ताहिक बिदा) र सरकारी सार्वजनिक बिदा स्वतः छाडिनेछ।
+            This feature automatically generates a daily 2-hour training schedule across calendar dates for all <b>{availableSyllabi.length}</b> syllabus units of <b>{selectedCourse?.title}</b>.
+            Saturdays (weekly holidays) and public holidays are automatically skipped.
           </Typography>
 
           <Stack spacing={2}>
             <TextField
               type="date"
-              label="सुरु हुने मिति (Batch Start Date) *"
+              label="Batch Start Date *"
               fullWidth
               size="small"
               InputLabelProps={{ shrink: true }}
@@ -1350,21 +1350,21 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
             <TextField
               type="number"
-              label="दैनिक तालिम घण्टा (Hours per Day)"
+              label="Hours per Day"
               fullWidth
               size="small"
               value={autoScheduleConfig.dailyHours}
               onChange={(e) => setAutoScheduleConfig({ ...autoScheduleConfig, dailyHours: Number(e.target.value) })}
-              helperText="सिफ्ट अनुसार: २ घण्टा (नियमित) वा ४ घण्टा (द्रुत)"
+              helperText="By shift: 2 hours (regular) or 4 hours (intensive)"
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenAutoScheduleDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द
+            Cancel
           </Button>
           <Button variant="contained" onClick={handleGenerateAutoSchedule} sx={{ fontWeight: 900, bgcolor: '#10B981' }}>
-            ⚡ स्वतः तालिका सिर्जना गर्नुहोस् (Generate)
+            ⚡ Generate Auto-Schedule
           </Button>
         </DialogActions>
       </Dialog>
@@ -1384,7 +1384,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Chip label="A4 CTEVT Official Format" color="primary" size="small" sx={{ fontWeight: 900 }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
-              आधिकारिक कार्ययोजना दस्तावेज (Official Printable View)
+              Official Work Plan Document (Printable View)
             </Typography>
           </Box>
 
@@ -1396,10 +1396,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               size="small"
             >
               <ToggleButton value="landscape" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1.5 }}>
-                Landscape (चौडा)
+                Landscape
               </ToggleButton>
               <ToggleButton value="portrait" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1.5 }}>
-                Portrait (ठाडो)
+                Portrait
               </ToggleButton>
             </ToggleButtonGroup>
 
@@ -1409,7 +1409,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               onClick={() => window.print()}
               sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}
             >
-              प्रिन्ट (Print / PDF)
+              Print / PDF
             </Button>
 
             <IconButton onClick={() => setOpenPrintModal(false)} sx={{ color: '#64748B' }}>
@@ -1438,20 +1438,20 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                 GOVERNMENT REGD • CTEVT ACCREDITED TECHNICAL TRAINING INSTITUTE
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '-0.02em', mt: 0.3 }}>
-                ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
+                GLOBAL ERA TECHNICAL SCHOOL
               </Typography>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E3E62' }}>
                 KITE CAREGIVER TRAINING CENTER • Chabahil, MitraPark, Kathmandu
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.5 }}>
-                फोन: +९७७-१-४४८१२३४ | इमेल: info@globalera.edu.np | दर्ता नं: १८४९२०/०७८/०७९
+                Phone: +977-1-4481234 | Email: info@globalera.edu.np | Regd No: 184920/078/079
               </Typography>
             </Box>
 
             {/* 2. Document Title Banner */}
             <Box sx={{ my: 2, textAlign: 'center', bgcolor: '#F1F5F9', py: 1, border: '1.5px solid #0F2C59', borderRadius: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#0F2C59' }}>
-                सत्र कार्ययोजना तालिका (TRAINING DELIVERY WORK PLAN)
+                TRAINING DELIVERY WORK PLAN
               </Typography>
             </Box>
 
@@ -1470,7 +1470,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             >
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  पाठ्यक्रम (Course / Curriculum):
+                  Course / Curriculum:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   {selectedCourse?.title} ({courseTargetHours} Hours • {selectedCourse?.level || 'CTEVT Level 1'})
@@ -1479,7 +1479,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  समूह (Training Batch) &amp; सिफ्ट:
+                  Training Batch &amp; Shift:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   Batch: <b>{selectedGroup?.groupCode}</b> | Shift {selectedGroup?.shift} ({selectedGroup?.startTime} - {selectedGroup?.endTime})
@@ -1488,16 +1488,16 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  प्रमुख प्रशिक्षक (Primary Instructor):
+                  Primary Instructor:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900, color: '#1D4ED8' }}>
-                  {trainer?.name || '—'} {trainer?.phone ? `(सम्पर्क: ${trainer.phone})` : ''}
+                  {trainer?.name || '—'} {trainer?.phone ? `(Contact: ${trainer.phone})` : ''}
                 </Typography>
               </Box>
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  कुल योजना गरिएको समय / प्रगति:
+                  Total Planned Time / Progress:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   {totalPlannedHours} Hours Planned ({groupWorkPlans.length} Days) • {deliveryProgress}% Completed
@@ -1510,14 +1510,14 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               <Table size="small">
                 <TableHead sx={{ bgcolor: '#0F2C59' }}>
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 45, textAlign: 'center' }}>क्र.सं.</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 105 }}>मिति र बार</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>पाठ्यक्रम एकाइ</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सैद्धान्तिक विषयवस्तु (Theory)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>प्रयोगात्मक अभ्यास (Practical)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 50 }}>घण्टा</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>कैफियत</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 65 }}>दस्तखत</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 105 }}>Date &amp; Day</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>Syllabus Unit</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Theoretical Aspect</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Practical Exercises</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 50 }}>Hours</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>Remarks</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 65 }}>Sign.</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1549,7 +1549,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
                   {/* Summary Total Row */}
                   <TableRow sx={{ bgcolor: '#F8FAFC', '& td': { border: '1.5px solid #0F2C59' } }}>
                     <TableCell colSpan={5} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                      कुल योजना गरिएको समय (TOTAL PLANNED HOURS):
+                      TOTAL PLANNED HOURS:
                     </TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#0F2C59', fontSize: '0.95rem' }}>
                       {totalPlannedHours}h
@@ -1565,11 +1565,11 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             {/* 5. Official CTEVT Regulatory Note */}
             <Box sx={{ bgcolor: '#F8FAFC', p: 1.5, borderRadius: 1.5, border: '1px solid #CBD5E1', mb: 4 }}>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F2C59' }}>
-                आधिकारिक कार्ययोजना नियम तथा मापदण्ड:
+                Official Work Plan Rules &amp; Standards:
               </Typography>
               <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3 }}>
-                १. प्रत्येक तालिम सत्र पश्चात प्रशिक्षकले दैनिक लगबुक (Log Book) र हाजिरी पुस्तिका अद्यावधिक गर्नुपर्नेछ।<br />
-                २. अप्रत्याशित सार्वजनिक बिदा परेको खण्डमा क्याम्पस प्रशासनको स्वीकृति लिई अतिरिक्त समयमा सत्र पूर्ति (Compensation Class) गर्नुपर्नेछ।
+                1. After each training session, the instructor must update the daily Log Book and Attendance Register.<br />
+                2. In the event of an unexpected public holiday, a compensation class must be conducted in extra hours with approval from campus administration.
               </Typography>
             </Box>
 
@@ -1578,7 +1578,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    प्रशिक्षकको दस्तखत (Trainer)
+                    Trainer Signature
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     {trainer?.name || 'Lead Trainer'}<br />Date: {new Date().toISOString().slice(0, 10)}
@@ -1589,7 +1589,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    पाठ्यक्रम संयोजक (Curriculum Coordinator)
+                    Curriculum Coordinator
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     Approved by CTEVT Lead<br />Signature &amp; Date
@@ -1600,7 +1600,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    क्याम्पस प्रमुख / प्रिन्सिपल (Principal)
+                    Campus Chief / Principal
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     Official Seal &amp; Signature
@@ -1612,10 +1612,10 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
         </DialogContent>
         <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
           <Button onClick={() => setOpenPrintModal(false)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
           <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
-            प्रिन्ट गर्नुहोस् (Print A4)
+            Print A4
           </Button>
         </DialogActions>
       </Dialog>

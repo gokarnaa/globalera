@@ -244,7 +244,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
   const handleSave = () => {
     if (!formData.groupCode.trim() || !formData.courseId || !formData.trainerId) {
-      alert('समूह कोड, पाठ्यक्रम र प्रशिक्षक अनिवार्य छन्।');
+      alert('Group Code, Course, and Trainer are required.');
       return;
     }
 
@@ -282,9 +282,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     if (studentsInGroup.length > 0) {
       await alert({
         type: 'warning',
-        title: 'समूह मेटाउन नमिल्ने (Batch Restricted)',
-        message: `यस समूहमा ${studentsInGroup.length} जना विद्यार्थी भर्ना भएका छन्।`,
-        detail: 'पहिले विद्यार्थीहरूलाई अर्को तालिम समूहमा स्थानान्तरण गर्नुहोस् वा हटाउनुहोस्।'
+        title: 'Cannot Delete Group (Batch Restricted)',
+        message: `There are ${studentsInGroup.length} students enrolled in this group.`,
+        detail: 'Please transfer or remove the students from this training group first.'
       });
       return;
     }
@@ -292,10 +292,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     const grp = (db.trainingGroups || []).find((g) => g.id === id);
     const ok = await confirm({
       type: 'danger',
-      title: 'तालिम समूह मेटाउने निश्चित गर्नुहोस् (Delete Batch)',
-      message: `के तपाईं समूह "${grp?.groupCode || id}" लाई मेटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो कार्यपछि समूह विवरण स्थायी रूपमा प्रणालीबाट हट्नेछ।',
-      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      title: 'Confirm Delete Training Group (Delete Batch)',
+      message: `Are you sure you want to delete group "${grp?.groupCode || id}"?`,
+      detail: 'This action will permanently remove the group details from the system.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
 
@@ -386,12 +386,12 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 mb: 1
               }}
             >
-              Training Groups / Batches (तालिम समूह सञ्चालन केन्द्र)
+              Training Groups / Batches (Operations Hub)
             </Typography>
 
             <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              संस्थाको सम्पूर्ण भौतिक तथा अनलाइन तालिम कक्षाहरूको प्रत्यक्ष सञ्चालन केन्द्र।
-              पाठ्यक्रम, तोकिएका मुख्य प्रशिक्षक, सिफ्ट समय र भर्ना भएका विद्यार्थीहरूको एकीकृत व्यवस्थापन।
+              Direct operations hub for all institutional physical and online training classes.
+              Unified management of courses, assigned lead instructors, shift timings, and enrolled trainees.
             </Typography>
 
             <Stack direction="row" spacing={1.2} flexWrap="wrap" useFlexGap>
@@ -413,7 +413,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   }
                 }}
               >
-                + Create Training Group (नयाँ समूह)
+                + Create Training Group
               </Button>
 
               <Button
@@ -432,7 +432,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
                 }}
               >
-                दैनिक हाजिरी लिनुहोस्
+                Take Daily Attendance
               </Button>
             </Stack>
           </Grid>
@@ -451,13 +451,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   }}
                 >
                   <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    कुल समूहहरू (BATCHES)
+                    TOTAL BATCHES
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
                     {totalGroupsCount}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#86EFAC' }}>
-                    {runningGroupsCount} सक्रिय कक्षा सञ्चालन
+                    {runningGroupsCount} Active Classes Running
                   </Typography>
                 </Box>
               </Grid>
@@ -473,13 +473,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   }}
                 >
                   <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    अध्ययनरत विद्यार्थी
+                    ENROLLED STUDENTS
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
                     {totalStudentsEnrolled}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                    {ojtGroupsCount} समूह OJT इन्टर्नसिपमा
+                    {ojtGroupsCount} Groups in OJT Internship
                   </Typography>
                 </Box>
               </Grid>
@@ -499,7 +499,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 >
                   <Box>
                     <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 900, display: 'block' }}>
-                      सक्रिय सिफ्ट (ACTIVE LIVE SHIFT)
+                      ACTIVE LIVE SHIFT
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
                       Shift {liveShiftCode} • MitraPark Central Hub
@@ -536,7 +536,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             <TextField
               size="small"
               fullWidth
-              placeholder="समूह कोड, कोर्स वा प्रशिक्षक खोज्नुहोस्..."
+              placeholder="Search group code, course, or trainer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
@@ -555,13 +555,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             <TextField
               select
               size="small"
-              label="सिफ्ट (Shift)"
+              label="Shift"
               fullWidth
               value={selectedShift}
               onChange={(e) => setSelectedShift(e.target.value)}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="ALL">सबै सिफ्ट (All)</MenuItem>
+              <MenuItem value="ALL">All Shifts</MenuItem>
               {SHIFT_DEFINITIONS.map((sh) => (
                 <MenuItem key={sh.code} value={sh.code}>
                   Shift {sh.code} ({sh.time})
@@ -575,17 +575,17 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             <TextField
               select
               size="small"
-              label="स्थिति (Status)"
+              label="Status"
               fullWidth
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="ALL">सबै स्थिति (All)</MenuItem>
-              <MenuItem value="Running">Running (सञ्चालनमा)</MenuItem>
-              <MenuItem value="OJT Phase">OJT Phase (इन्टर्नसिप)</MenuItem>
-              <MenuItem value="Upcoming">Upcoming (हुन बाँकी)</MenuItem>
-              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+              <MenuItem value="ALL">All Statuses</MenuItem>
+              <MenuItem value="Running">Running</MenuItem>
+              <MenuItem value="OJT Phase">OJT Phase</MenuItem>
+              <MenuItem value="Upcoming">Upcoming</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
             </TextField>
           </Grid>
 
@@ -594,7 +594,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             <TextField
               select
               size="small"
-              label="क्रम (Sort By)"
+              label="Sort By"
               fullWidth
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
@@ -604,10 +604,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="groupCode-asc">Group Code (कम-बढी)</MenuItem>
-              <MenuItem value="startDate-asc">सुरु मिति (पहिले-पछि)</MenuItem>
-              <MenuItem value="students-desc">विद्यार्थी संख्या (धेरै-थोरै)</MenuItem>
-              <MenuItem value="shift-asc">सिफ्ट (A देखि E)</MenuItem>
+              <MenuItem value="groupCode-asc">Group Code (A–Z)</MenuItem>
+              <MenuItem value="startDate-asc">Start Date (Oldest–Newest)</MenuItem>
+              <MenuItem value="students-desc">Student Count (High–Low)</MenuItem>
+              <MenuItem value="shift-asc">Shift (A to E)</MenuItem>
             </TextField>
           </Grid>
 
@@ -812,7 +812,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         borderRadius: 2
                       }}
                     >
-                      हाजिरी लिनुहोस्
+                      Take Attendance
                     </Button>
 
                     <Button
@@ -826,7 +826,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         color: '#1D4ED8'
                       }}
                     >
-                      रोस्टर ({studentsInGroup.length})
+                      Roster ({studentsInGroup.length})
                     </Button>
 
                     <Box sx={{ display: 'flex', gap: 0.3 }}>
@@ -858,10 +858,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
                 <GroupWorkIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
-                  कुनै तालिम समूह फेला परेन
+                  No Training Groups Found
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
-                  तपाईंको खोजी वा फिल्टर अनुसार कुनै समूह सूचीकृत छैन।
+                  No training groups match your current search or filter criteria.
                 </Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
                   + Create Training Group
@@ -894,7 +894,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>
                     <TableSortLabel
@@ -910,8 +910,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                       Group Code
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पाठ्यक्रम र पेशा (Course & Occupation)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षक (Instructor)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Occupation</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Instructor</TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
                     <TableSortLabel
                       active={sortBy === 'shift'}
@@ -923,7 +923,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      सिफ्ट र समय (Shift)
+                      Shift & Time
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
@@ -937,7 +937,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      मिति (Start → End)
+                      Date (Start → End)
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
@@ -951,11 +951,11 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      विद्यार्थी (Students)
+                      Students
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1081,9 +1081,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                               '&:hover': { bgcolor: '#174276' }
                             }}
                           >
-                            हाजिरी
+                            Attendance
                           </Button>
-                          <Tooltip title="सम्पादन गर्नुहोस् (Edit)">
+                          <Tooltip title="Edit">
                             <IconButton
                               size="small"
                               onClick={() => handleOpenEdit(grp)}
@@ -1092,7 +1092,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                               <EditIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="मेटाउनुहोस् (Delete)">
+                          <Tooltip title="Delete">
                             <IconButton
                               size="small"
                               onClick={() => handleDelete(grp.id)}
@@ -1110,7 +1110,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 {filteredAndSortedGroups.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={9} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
-                      कुनै समूह फेला परेन।
+                      No training groups found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -1157,10 +1157,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-                {editingItem ? 'तालिम समूह सम्पादन (Edit Training Group)' : 'नयाँ तालिम समूह सिर्जना (Create New Batch)'}
+                {editingItem ? 'Edit Training Group' : 'Create New Batch'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-                {editingItem ? 'समूह विवरण र तालिका अद्यावधिक गर्नुहोस्' : 'कृपया नयाँ तालिम समूहको सम्पूर्ण विवरण प्रविष्ट गर्नुहोस्'}
+                {editingItem ? 'Update group details and schedule' : 'Please enter complete details for the new training group'}
               </Typography>
             </Box>
           </Box>
@@ -1190,10 +1190,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         >
           <Stack spacing={2.5}>
             <TextField
-              label="समूह कोड (Group Code) *"
+              label="Group Code *"
               fullWidth
               size="small"
-              placeholder="उदा: GRP-01, BT-02, CG-03"
+              placeholder="e.g. GRP-01, BT-02, CG-03"
               value={formData.groupCode}
               onChange={(e) => setFormData({ ...formData, groupCode: e.target.value })}
               required
@@ -1202,7 +1202,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             {/* Course Selector */}
             <TextField
               select
-              label="पाठ्यक्रम चयन (Select Course) *"
+              label="Select Course *"
               fullWidth
               size="small"
               value={formData.courseId}
@@ -1210,7 +1210,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- पाठ्यक्रम चयन गर्नुहोस् (Select Course) --
+                -- Select Course --
               </MenuItem>
               {(db.courses || []).map((crs) => (
                 <MenuItem key={crs.id} value={crs.id}>
@@ -1223,10 +1223,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             {selectedCourseInForm && (
               <Alert severity="info" sx={{ borderRadius: 2.5, bgcolor: '#EFF6FF', border: '1px solid #DBEAFE' }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E3A8A', display: 'block' }}>
-                  स्वचालित रूपमा जोडिएको विवरण (AUTO-CASCADED CONTEXT):
+                  AUTO-CASCADED CONTEXT:
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#1E40AF' }}>
-                  पेशा: <b>{selectedOccupationInForm?.name || 'N/A'}</b> • अवधि: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
+                  Occupation: <b>{selectedOccupationInForm?.name || 'N/A'}</b> • Duration: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
                 </Typography>
               </Alert>
             )}
@@ -1234,7 +1234,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             {/* Assigned Trainer */}
             <TextField
               select
-              label="तोकिएको मुख्य प्रशिक्षक (Assigned Trainer) *"
+              label="Assigned Trainer *"
               fullWidth
               size="small"
               value={formData.trainerId}
@@ -1242,7 +1242,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- मुख्य प्रशिक्षक चयन गर्नुहोस् (Select Trainer) --
+                -- Select Lead Trainer --
               </MenuItem>
               {matchingTrainersInForm.map((trn) => (
                 <MenuItem key={trn.id} value={trn.id}>
@@ -1256,14 +1256,14 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={12} sm={4}>
                 <TextField
                   select
-                  label="सिफ्ट (Shift)"
+                  label="Shift"
                   fullWidth
                   size="small"
                   value={formData.shift}
                   onChange={(e) => handleShiftChange(e.target.value)}
                 >
                   <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                    -- सिफ्ट छान्नुहोस् --
+                    -- Select Shift --
                   </MenuItem>
                   {SHIFT_DEFINITIONS.map((sh) => (
                     <MenuItem key={sh.code} value={sh.code}>
@@ -1274,7 +1274,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               </Grid>
               <Grid item xs={6} sm={4}>
                 <TextField
-                  label="सुरु समय (Start Time)"
+                  label="Start Time"
                   fullWidth
                   size="small"
                   placeholder="07:00 AM"
@@ -1284,7 +1284,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               </Grid>
               <Grid item xs={6} sm={4}>
                 <TextField
-                  label="अन्त्य समय (End Time)"
+                  label="End Time"
                   fullWidth
                   size="small"
                   placeholder="09:00 AM"
@@ -1299,7 +1299,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={12} sm={6}>
                 <TextField
                   type="date"
-                  label="सुरु मिति (Start Date) *"
+                  label="Start Date *"
                   fullWidth
                   size="small"
                   InputLabelProps={{ shrink: true }}
@@ -1311,13 +1311,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={12} sm={6}>
                 <TextField
                   type="date"
-                  label="अनुमानित सम्पन्न मिति (Auto End Date)"
+                  label="Auto End Date"
                   fullWidth
                   size="small"
                   InputLabelProps={{ shrink: true }}
                   value={formData.expectedEndDate}
                   onChange={(e) => setFormData({ ...formData, expectedEndDate: e.target.value })}
-                  helperText={formData.expectedEndDate ? "कोर्स अवधि अनुसार स्वतः हिसाब भएको" : "सुरु मिति र कोर्स छानेपछि स्वतः हिसाब हुनेछ"}
+                  helperText={formData.expectedEndDate ? "Auto-calculated based on course duration" : "Will be auto-calculated after selecting start date and course"}
                 />
               </Grid>
             </Grid>
@@ -1327,10 +1327,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={12} sm={6}>
                 <TextField
                   type="number"
-                  label="क्षमता (Trainee Capacity)"
+                  label="Trainee Capacity"
                   fullWidth
                   size="small"
-                  placeholder="उदा: 20"
+                  placeholder="e.g. 20"
                   value={formData.capacity}
                   onChange={(e) => setFormData({ ...formData, capacity: e.target.value === '' ? '' : Number(e.target.value) })}
                 />
@@ -1338,16 +1338,16 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  label="समूह स्थिति (Status)"
+                  label="Status"
                   fullWidth
                   size="small"
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
-                  <MenuItem value="Running">Running (सञ्चालनमा)</MenuItem>
-                  <MenuItem value="OJT Phase">OJT Phase (इन्टर्नसिप)</MenuItem>
-                  <MenuItem value="Upcoming">Upcoming (हुन बाँकी)</MenuItem>
-                  <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+                  <MenuItem value="Running">Running</MenuItem>
+                  <MenuItem value="OJT Phase">OJT Phase</MenuItem>
+                  <MenuItem value="Upcoming">Upcoming</MenuItem>
+                  <MenuItem value="Completed">Completed</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -1376,7 +1376,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1396,7 +1396,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Group)
+            Save Group
           </Button>
         </DialogActions>
       </Dialog>
@@ -1462,7 +1462,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.3)' }
               }}
             >
-              + विद्यार्थी भर्ना गर्नुहोस्
+              + Enroll Student
             </Button>
             <IconButton
               size="small"
@@ -1494,7 +1494,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <TextField
                 size="small"
                 fullWidth
-                placeholder="यस समूहका विद्यार्थी खोज्नुहोस्..."
+                placeholder="Search students in this group..."
                 value={rosterSearch}
                 onChange={(e) => setRosterSearch(e.target.value)}
                 InputProps={{
@@ -1548,7 +1548,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
                 {(db.students || []).filter((s) => s.groupId === rosterGroup.id).length === 0 && (
                   <Typography variant="body2" sx={{ color: '#94A3B8', textAlign: 'center', py: 4 }}>
-                    यस समूहमा कुनै विद्यार्थी भर्ना गरिएको छैन।
+                    No students enrolled in this group yet.
                   </Typography>
                 )}
               </Stack>
@@ -1560,7 +1560,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             onClick={() => setRosterGroup(null)}
             sx={{ fontWeight: 700, color: '#64748B', border: '1px solid #E2E8F0', borderRadius: 2, px: 2.5, textTransform: 'none' }}
           >
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
         </DialogActions>
       </Dialog>

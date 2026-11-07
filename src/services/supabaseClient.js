@@ -75,7 +75,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
   // 1. Organization
   await client.from('organizations').upsert({
     id: orgId,
-    name: db.settings?.instituteName || 'ग्लोबल एरा प्राविधिक स्कुल',
+    name: db.settings?.instituteName || 'Global Era Technical School',
     sub_name: db.settings?.instituteSub || 'KITE CAREGIVER TRAINING CENTER',
     code: 'GETS',
     contact_phone: db.settings?.contactPhone || '+977-1-4488990',
@@ -458,7 +458,7 @@ CREATE TABLE IF NOT EXISTS organizations (
 INSERT INTO organizations (id, name, sub_name, code, contact_phone, address)
 VALUES (
   'ORG-GLOBALERA-01',
-  'ग्लोबल एरा प्राविधिक स्कुल',
+  'Global Era Technical School',
   'KITE CAREGIVER TRAINING CENTER',
   'GETS',
   '+977-1-4488990',
@@ -602,7 +602,7 @@ CREATE TABLE IF NOT EXISTS students (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. Work Plans (योजना)
+-- 9. Work Plans
 CREATE TABLE IF NOT EXISTS work_plans (
   id TEXT PRIMARY KEY DEFAULT ('WP-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -617,7 +617,7 @@ CREATE TABLE IF NOT EXISTS work_plans (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 10. Lesson Plans (तयारी)
+-- 10. Lesson Plans
 CREATE TABLE IF NOT EXISTS lesson_plans (
   id TEXT PRIMARY KEY DEFAULT ('LP-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -632,7 +632,7 @@ CREATE TABLE IF NOT EXISTS lesson_plans (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. Log Books (वास्तविक डेलिभरी)
+-- 11. Log Books
 CREATE TABLE IF NOT EXISTS log_books (
   id TEXT PRIMARY KEY DEFAULT ('LOG-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -693,7 +693,7 @@ CREATE TABLE IF NOT EXISTS employers (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 15. Job Openings (रोजगारका अवसरहरू)
+-- 15. Job Openings
 CREATE TABLE IF NOT EXISTS job_openings (
   id TEXT PRIMARY KEY DEFAULT ('JOB-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -711,7 +711,7 @@ CREATE TABLE IF NOT EXISTS job_openings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 16. Job Applications (विद्यार्थी आवेदनहरू)
+-- 16. Job Applications
 CREATE TABLE IF NOT EXISTS job_applications (
   id TEXT PRIMARY KEY DEFAULT ('APP-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -762,7 +762,7 @@ CREATE TABLE IF NOT EXISTS placements (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 19. Certificates (प्रमाणपत्र & Immutable Snapshot)
+-- 19. Certificates (& Immutable Snapshot)
 CREATE TABLE IF NOT EXISTS certificates (
   id TEXT PRIMARY KEY DEFAULT ('CERT-' || substr(md5(random()::text), 1, 8)),
   organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,

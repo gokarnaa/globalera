@@ -45,52 +45,52 @@ import { useAuth } from '../../context/AuthContext';
 import { loadDB } from '../../services/storage';
 
 const NAV_ITEMS = [
-  // --- 1. मुख्य ड्यासबोर्ड र कार्यक्रम ---
-  { section: '१. ड्यासबोर्ड र कार्यक्रम (CORE OPERATIONS)' },
-  { id: 'dashboard', label: 'कार्यकारी ड्यासबोर्ड (Dashboard)', icon: <DashboardIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'groups', label: 'तालिम समूहहरू (Training Batches)', icon: <GroupWorkIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: '8' },
-  { id: 'occupations', label: 'पेशा तथा क्षेत्र (Occupations Master)', icon: <CategoryIcon />, roles: ['ADMIN'], badge: 'Master' },
-  { id: 'courses', label: 'पाठ्यक्रमहरू (Courses & Curriculum)', icon: <MenuBookIcon />, roles: ['ADMIN'], badge: 'CTEVT' },
-  { id: 'trainers', label: 'प्रशिक्षक रोस्टर (Certified Trainers)', icon: <PeopleAltIcon />, roles: ['ADMIN'], badge: 'ToT' },
-  { id: 'holidays', label: 'शैक्षिक क्यालेन्डर र बिदा (Calendar)', icon: <EventBusyIcon />, roles: ['ADMIN', 'STAFF'] },
+  // --- 1. Core Operations & Programs ---
+  { section: '1. CORE OPERATIONS' },
+  { id: 'dashboard', label: 'Executive Dashboard', icon: <DashboardIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'groups', label: 'Training Batches', icon: <GroupWorkIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Batches' },
+  { id: 'occupations', label: 'Occupations Master', icon: <CategoryIcon />, roles: ['ADMIN'], badge: 'Master' },
+  { id: 'courses', label: 'Courses & Curriculum', icon: <MenuBookIcon />, roles: ['ADMIN'], badge: 'CTEVT' },
+  { id: 'trainers', label: 'Certified Trainers', icon: <PeopleAltIcon />, roles: ['ADMIN'], badge: 'ToT' },
+  { id: 'holidays', label: 'Academic Calendar & Holidays', icon: <EventBusyIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 2. प्रशिक्षार्थी तथा भर्ना व्यवस्थापन ---
-  { section: '२. प्रशिक्षार्थी तथा भर्ना (TRAINEES CRM)' },
-  { id: 'leads', label: 'सोधपुछ तथा लिड्स (Inquiry CRM)', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
-  { id: 'admission', label: 'नयाँ भर्ना सम्झौता (Admissions)', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
-  { id: 'students', label: 'प्रशिक्षार्थी विवरण (Trainees Directory)', icon: <SchoolIcon />, roles: ['ADMIN', 'STAFF'] },
+  // --- 2. Trainees & Admissions Management ---
+  { section: '2. TRAINEES & CRM' },
+  { id: 'leads', label: 'Inquiries & Leads CRM', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
+  { id: 'admission', label: 'Admissions & Agreements', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
+  { id: 'students', label: 'Trainees Directory', icon: <SchoolIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 3. तालिम तथा कक्षा सञ्चालन ---
-  { section: '३. तालिम तथा कक्षा सञ्चालन (ACADEMICS)' },
-  { id: 'live_attendance', label: '📡 प्रत्यक्ष लाइभ हाजिरी (Live Attendance)', icon: <FingerprintIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'LIVE' },
-  { id: 'attendance', label: 'दैनिक हाजिरी (Daily Attendance)', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'workplan', label: 'कार्य-योजना (Work Plan)', icon: <EventNoteIcon />, roles: ['ADMIN'] },
-  { id: 'lessonplan', label: 'पाठ-योजना (Lesson Plan)', icon: <AssignmentIcon />, roles: ['ADMIN'] },
-  { id: 'logbook', label: 'CTEVT दैनिक लग-बुक (Log Book)', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
-  { id: 'evaluations', label: 'सीप मूल्याङ्कन (Competency Matrix)', icon: <AssessmentIcon />, roles: ['ADMIN'] },
-  { id: 'syllabus', label: 'पाठ्यक्रम स्टुडियो (Syllabus Studio)', icon: <FormatListBulletedIcon />, roles: ['ADMIN'], badge: 'Studio' },
+  // --- 3. Training & Classroom Operations ---
+  { section: '3. ACADEMICS & ATTENDANCE' },
+  { id: 'live_attendance', label: '📡 Live Attendance Monitor', icon: <FingerprintIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'LIVE' },
+  { id: 'attendance', label: 'Daily Attendance', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'workplan', label: 'Work Plan', icon: <EventNoteIcon />, roles: ['ADMIN'] },
+  { id: 'lessonplan', label: 'Lesson Plan', icon: <AssignmentIcon />, roles: ['ADMIN'] },
+  { id: 'logbook', label: 'CTEVT Daily Log Book', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
+  { id: 'evaluations', label: 'Competency Matrix', icon: <AssessmentIcon />, roles: ['ADMIN'] },
+  { id: 'syllabus', label: 'Syllabus Studio', icon: <FormatListBulletedIcon />, roles: ['ADMIN'], badge: 'Studio' },
 
-  // --- 4. रोजगारी तथा प्रमाणपत्र ---
-  { section: '४. रोजगारी तथा प्रमाणपत्र (PLACEMENTS)' },
-  { id: 'certificates', label: 'आधिकारिक प्रमाणपत्र (Certificates)', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4 QR' },
-  { id: 'certificate_studio', label: 'प्रमाणपत्र स्टुडियो (Design Studio)', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
-  { id: 'employers', label: 'रोजगारदाता कम्पनी (Partner Employers)', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'ojt', label: 'उद्योग तालिम / OJT Records', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'placements', label: 'रोजगारी तथ्याङ्क (Placements & EPP)', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
+  // --- 4. Placements & Certificates ---
+  { section: '4. PLACEMENTS & CERTIFICATES' },
+  { id: 'certificates', label: 'Official Certificates', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4 QR' },
+  { id: 'certificate_studio', label: 'Certificate Design Studio', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
+  { id: 'employers', label: 'Partner Employers', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'ojt', label: 'Industry OJT Records', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'placements', label: 'Placements & EPP', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
 
-  // --- 5. आर्थिक तथा लेखा ---
-  { section: '५. आर्थिक तथा लेखा (FINANCE & ACCOUNTS)' },
-  { id: 'accounts', label: 'लेखा तथा बिलिङ (Finance & Billing)', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
-  { id: 'course_fees', label: 'कोर्स शुल्क संरचना (Course Fee Setup)', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'VAT' },
+  // --- 5. Finance & Accounts ---
+  { section: '5. FINANCE & ACCOUNTS' },
+  { id: 'accounts', label: 'Finance & Billing', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
+  { id: 'course_fees', label: 'Course Fee Setup', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'VAT' },
 
-  // --- 6. प्रणाली र प्रयोगकर्ता ---
-  { section: '६. प्रणाली र प्रयोगकर्ता (SYSTEM & SETTINGS)' },
-  { id: 'users', label: 'प्रयोगकर्ता तथा पहुँच (User Access)', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
-  { id: 'settings', label: 'संस्थागत प्रोफाइल र सिङ्क (Settings)', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' },
-  { id: 'communication', label: 'सञ्चार हब (SMS/WhatsApp Hub)', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'notices', label: 'सूचना पाटी (Notice Board)', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'snapshots', label: 'अडिट तथा स्न्यापसट (Audit Trail)', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'reports', label: 'समग्र रिपोर्टहरू (Reports & Analytics)', icon: <BarChartIcon />, roles: ['ADMIN', 'STAFF'] }
+  // --- 6. System & Settings ---
+  { section: '6. SYSTEM & SETTINGS' },
+  { id: 'users', label: 'User Access & Portals', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
+  { id: 'settings', label: 'Institute Profile & Sync', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' },
+  { id: 'communication', label: 'SMS / WhatsApp Hub', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'notices', label: 'Notice Board', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'snapshots', label: 'Audit Trail & Snapshots', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'reports', label: 'Reports & Analytics', icon: <BarChartIcon />, roles: ['ADMIN', 'STAFF'] }
 ];
 
 export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobile }) {
@@ -140,7 +140,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             GLOBAL ERA TVET
           </Typography>
           <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A', fontSize: '0.95rem', lineHeight: 1.2 }}>
-            ग्लोबल एरा प्राविधिक स्कुल
+            Global Era Technical School
           </Typography>
           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
             CTEVT Affiliated • Gov Regd

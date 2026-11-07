@@ -386,41 +386,41 @@ export default function AccountsManager({ initialTab = 0 }) {
       case 1: // Trainee Fees Tab
         return [
           {
-            title: 'कुल लक्ड शुल्क',
+            title: 'Total Locked Fees',
             amount: `Rs. ${studentMetrics.totalLocked.toLocaleString()}`,
-            sub: `${students.length} जना विद्यार्थीको कुल शुल्क`,
+            sub: `${students.length} students total locked fee`,
             color: '#0F2E5A',
             icon: <SchoolIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: 'संकलित किस्ता',
+            title: 'Collected Installments',
             amount: `Rs. ${studentMetrics.totalCollected.toLocaleString()}`,
-            sub: 'रसिद जारी भई प्राप्त रकम',
+            sub: 'Receipts issued & funds received',
             color: '#059669',
             icon: <TrendingUpIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#ECFDF5'
           },
           {
-            title: 'उठ्न बाँकी किस्ता',
+            title: 'Outstanding Installments',
             amount: `Rs. ${studentMetrics.totalDue.toLocaleString()}`,
-            sub: 'विद्यार्थीहरूले बुझाउन बाँकी',
+            sub: 'Pending student fee dues',
             color: '#D97706',
             icon: <AccessTimeIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FFFBEB'
           },
           {
-            title: 'म्याद नाघेको किस्ता',
+            title: 'Overdue Installments',
             amount: `Rs. ${studentMetrics.overdueAmount.toLocaleString()}`,
-            sub: `${studentMetrics.overdueCount} जना विद्यार्थी (>३० दिन)`,
+            sub: `${studentMetrics.overdueCount} students (>30 days)`,
             color: '#DC2626',
             icon: <ErrorOutlineIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF2F2'
           },
           {
-            title: 'शुल्क चुक्ता विद्यार्थी',
-            amount: `${studentMetrics.paidCount} जना (${studentMetrics.paidPercent}%)`,
-            sub: 'सम्पन्न प्रमाणपत्र जारी योग्य',
+            title: 'Fully Paid Students',
+            amount: `${studentMetrics.paidCount} students (${studentMetrics.paidPercent}%)`,
+            sub: 'Eligible for certificate issuance',
             color: '#10B981',
             icon: <CheckCircleIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#ECFDF5'
@@ -429,41 +429,41 @@ export default function AccountsManager({ initialTab = 0 }) {
       case 2: // Parties & Landlords Tab
         return [
           {
-            title: 'मासिक घरभाडा देय',
+            title: 'Monthly Rent Payable',
             amount: `Rs. ${partyMetrics.monthlyRent.toLocaleString()}`,
-            sub: '१ गते स्वतः बिलिङ हुने रकम',
+            sub: 'Auto-billed on 1st of month',
             color: '#0F2E5A',
             icon: <HomeWorkIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: 'आपूर्तिकर्ता बाँकी',
+            title: 'Vendor Outstanding',
             amount: `Rs. ${partyMetrics.supplierDue.toLocaleString()}`,
-            sub: 'कच्चा पदार्थ तथा स्टेशनरी उधारो',
+            sub: 'Raw material & stationery credit',
             color: '#D97706',
             icon: <StorefrontIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FFFBEB'
           },
           {
-            title: 'अग्रिम धरौटी (Deposit)',
+            title: 'Security Deposit',
             amount: `Rs. ${partyMetrics.deposit.toLocaleString()}`,
-            sub: 'फिर्ता हुने घरभाडा सेक्युरिटी',
+            sub: 'Refundable lease security deposit',
             color: '#2563EB',
             icon: <AccountBalanceWalletIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: '१०% TDS कट्टी रकम',
+            title: '10% TDS Deductions',
             amount: `Rs. ${partyMetrics.tdsAmount.toLocaleString()}`,
-            sub: 'आन्तरिक राजस्व दाखिला हुने',
+            sub: 'Payable to Inland Revenue Dept.',
             color: '#0D9488',
             icon: <ReceiptLongIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#CCFBF1'
           },
           {
-            title: 'कुल पार्टी दायित्व',
+            title: 'Total Party Liabilities',
             amount: `Rs. ${partyMetrics.totalDue.toLocaleString()}`,
-            sub: 'ConnectIPS बाट भुक्तानी योग्य',
+            sub: 'Payable via ConnectIPS',
             color: '#DC2626',
             icon: <PaymentIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF2F2'
@@ -472,41 +472,41 @@ export default function AccountsManager({ initialTab = 0 }) {
       case 3: // Trainer Payroll Tab
         return [
           {
-            title: 'कुल प्रशिक्षक संख्या',
-            amount: `${trainers.length} जना`,
-            sub: 'तलब तथा कमिसन प्रशिक्षकहरू',
+            title: 'Total Instructors',
+            amount: `${trainers.length} Instructors`,
+            sub: 'Salaried & commission instructors',
             color: '#0F2E5A',
             icon: <PersonIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: 'पाकेको पारिश्रमिक',
+            title: 'Accrued Remuneration',
             amount: `Rs. ${trainerMetrics.totalEarned.toLocaleString()}`,
-            sub: 'संकलित शुल्कमा आधारित कमिसन',
+            sub: 'Commission on collected fees',
             color: '#B45309',
             icon: <TrendingUpIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF3C7'
           },
           {
-            title: 'हालसम्म निकासा',
+            title: 'Disbursed to Date',
             amount: `Rs. ${trainerMetrics.totalPaid.toLocaleString()}`,
-            sub: 'भौचर जारी गरी भुक्तानी भएको',
+            sub: 'Disbursed via payment vouchers',
             color: '#059669',
             icon: <CheckCircleIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#ECFDF5'
           },
           {
-            title: 'दिन बाँकी बक्यौता',
+            title: 'Payable Balance Due',
             amount: `Rs. ${trainerMetrics.totalDue.toLocaleString()}`,
-            sub: 'प्रशिक्षकलाई निकासा हुन बाँकी',
+            sub: 'Pending disbursement to trainers',
             color: '#DC2626',
             icon: <PaymentsIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF2F2'
           },
           {
-            title: 'औसत कमिसन दर',
-            amount: `${trainerMetrics.avgComm}% प्रति ब्याच`,
-            sub: 'ब्याच शुल्क संकलनमा आधारित',
+            title: 'Avg Commission Rate',
+            amount: `${trainerMetrics.avgComm}% per batch`,
+            sub: 'Based on batch fee collection',
             color: '#7C3AED',
             icon: <PercentIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#F5F3FF'
@@ -515,41 +515,41 @@ export default function AccountsManager({ initialTab = 0 }) {
       case 4: // Accounting Hub Tab
         return [
           {
-            title: 'कुल चालु खर्च',
+            title: 'Total Operating Expenses',
             amount: `Rs. ${accountingMetrics.totalExpenses.toLocaleString()}`,
-            sub: 'सञ्चालन तथा प्रशासनिक खर्च',
+            sub: 'Operational & admin expenses',
             color: '#DC2626',
             icon: <TrendingDownIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF2F2'
           },
           {
-            title: 'बैंक मौज्दात (A/C 1020)',
+            title: 'Bank Balance (A/C 1020)',
             amount: `Rs. ${accountingMetrics.bankBalance.toLocaleString()}`,
-            sub: 'नबिल / ग्लोबल आइएमई बैंक',
+            sub: 'Nabil / Global IME Bank',
             color: '#059669',
             icon: <AccountBalanceIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#ECFDF5'
           },
           {
-            title: 'काउन्टर क्यास (A/C 1010)',
+            title: 'Counter Cash (A/C 1010)',
             amount: `Rs. ${accountingMetrics.cashInHand.toLocaleString()}`,
-            sub: 'दैनिक काउन्टर नगद मौज्दात',
+            sub: 'Daily cash in drawer balance',
             color: '#2563EB',
             icon: <PointOfSaleIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: 'दोहोरो लेखा प्रविष्टि',
-            amount: `${accountingMetrics.journalCount} भौचरहरू`,
-            sub: 'सन्तुलित डेबिट-क्रेडिट जर्नल',
+            title: 'Double-Entry Journals',
+            amount: `${accountingMetrics.journalCount} Vouchers`,
+            sub: 'Balanced debit-credit journals',
             color: '#0F2E5A',
             icon: <ReceiptLongIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
           },
           {
-            title: 'प्रोजेक्ट सम्झौता रकम',
+            title: 'Project Contract Sum',
             amount: `Rs. ${accountingMetrics.projectTotal.toLocaleString()}`,
-            sub: 'नगरपालिका / संघसंस्था अनुदान',
+            sub: 'Municipal & donor grants',
             color: '#B45309',
             icon: <BusinessIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF3C7'
@@ -559,41 +559,41 @@ export default function AccountsManager({ initialTab = 0 }) {
       default:
         return [
           {
-            title: 'कुल संकलित शुल्क',
+            title: 'Total Fees Collected',
             amount: `Rs. ${metrics.totalFeeCollected.toLocaleString()}`,
-            sub: 'नगद तथा अनलाइन रसिद प्राप्ति',
+            sub: 'Cash & online receipt inflows',
             color: '#059669',
             icon: <TrendingUpIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#ECFDF5'
           },
           {
-            title: 'उठ्न बाँकी बक्यौता',
+            title: 'Outstanding Receivables',
             amount: `Rs. ${metrics.totalPendingDues.toLocaleString()}`,
-            sub: 'दोस्रो किस्ता बाँकी रकम',
+            sub: '2nd installment dues remaining',
             color: '#D97706',
             icon: <AccessTimeIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FFFBEB'
           },
           {
-            title: 'म्याद नाघेको बक्यौता',
+            title: 'Overdue Receivables',
             amount: `Rs. ${metrics.totalOverdueAmount.toLocaleString()}`,
-            sub: `${metrics.overdueCount} जना विद्यार्थीको म्याद कट्यो`,
+            sub: `${metrics.overdueCount} students past due date`,
             color: '#DC2626',
             icon: <ErrorOutlineIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF2F2'
           },
           {
-            title: 'प्रशिक्षक निकासा',
+            title: 'Instructor Disbursals',
             amount: `Rs. ${metrics.totalTrainerDisbursed.toLocaleString()}`,
-            sub: 'कमिसन तथा मासिक पारिश्रमिक',
+            sub: 'Commission & monthly payroll',
             color: '#B45309',
             icon: <PaymentsIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#FEF3C7'
           },
           {
-            title: 'खुद संस्था बचत',
+            title: 'Net Institutional Surplus',
             amount: `Rs. ${metrics.netMargin.toLocaleString()}`,
-            sub: 'निकासा पछिको कुल बचत रकम',
+            sub: 'Net surplus after disbursements',
             color: '#0F2E5A',
             icon: <AccountBalanceWalletIcon sx={{ fontSize: '1rem' }} />,
             bgBadge: '#EFF6FF'
@@ -659,7 +659,7 @@ export default function AccountsManager({ initialTab = 0 }) {
           id: p.id,
           refNo: p.receiptNo || p.id || '',
           type: 'FEE_RECEIPT',
-          name: p.studentName || matchedStudent?.name || 'प्रशिक्षार्थी',
+          name: p.studentName || matchedStudent?.name || 'Student',
           sub: `${p.tgid || matchedStudent?.tgid || 'Student'} • ${p.courseName || ''}`,
           amount: p.amount,
           isInflow: true,
@@ -667,7 +667,7 @@ export default function AccountsManager({ initialTab = 0 }) {
           month: p.paymentMonth,
           method: p.paymentMethod || 'Cash',
           remarks: p.remarks || '',
-          user: p.receivedBy || p.collectedBy || 'लेखा शाखा',
+          user: p.receivedBy || p.collectedBy || 'Accounts Dept',
           rawObj: p
         };
       }),
@@ -675,15 +675,15 @@ export default function AccountsManager({ initialTab = 0 }) {
         id: tp.id,
         refNo: tp.voucherNo || tp.id || '',
         type: 'TRAINER_PAYOUT',
-        name: tp.trainerName || 'प्रशिक्षक',
-        sub: tp.payoutType === 'COMMISSION' ? `ब्याच कमिसन (${tp.groupName})` : 'मासिक तलब निकासा',
+        name: tp.trainerName || 'Instructor',
+        sub: tp.payoutType === 'COMMISSION' ? `Batch Commission (${tp.groupName})` : 'Monthly Salary Disbursal',
         amount: tp.amount,
         isInflow: false,
         date: tp.payoutDate,
         month: tp.payoutMonth,
         method: tp.paymentMethod || 'Bank Transfer',
         remarks: tp.remarks || '',
-        user: tp.disbursedBy || 'लेखा शाखा',
+        user: tp.disbursedBy || 'Accounts Dept',
         rawObj: tp
       }))
     ];
@@ -714,7 +714,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     let dbToUpdate = db;
     try {
       const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
-        narration: `विद्यार्थी ${newPayment.studentName} शुल्क संकलन (${newPayment.receiptNo})`,
+        narration: `Student ${newPayment.studentName} fee collection (${newPayment.receiptNo})`,
         lines: [
           { accountCode: debitAcc, debit: payAmt, credit: 0, lineNarration: `Receipt ${newPayment.receiptNo} via ${newPayment.paymentMethod}` },
           { accountCode: '4100', debit: 0, credit: payAmt, lineNarration: `${newPayment.courseName || 'Training'} Fee Collection` }
@@ -732,7 +732,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     const nextDb = { ...dbToUpdate, payments: updatedPayments };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast(`रसिद ${newPayment.receiptNo} जारी भयो (Payment Rs. ${newPayment.amount.toLocaleString()} recorded).`);
+    showToast(`Receipt #${newPayment.receiptNo} issued (Payment Rs. ${newPayment.amount.toLocaleString()} recorded).`);
     setSelectedReceiptPayment(newPayment);
   };
 
@@ -747,7 +747,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     let dbToUpdate = db;
     try {
       const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
-        narration: `प्रशिक्षक ${newPayout.trainerName} पारिश्रमिक निकासा (${newPayout.voucherNo})`,
+        narration: `Trainer ${newPayout.trainerName} payroll disbursal (${newPayout.voucherNo})`,
         lines: [
           { accountCode: debitAcc, debit: payoutAmt, credit: 0, lineNarration: newPayout.remarks || 'Trainer remuneration' },
           { accountCode: creditAcc, debit: 0, credit: payoutAmt, lineNarration: `Paid via ${newPayout.paymentMethod}` }
@@ -765,7 +765,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     const nextDb = { ...dbToUpdate, trainerPayouts: updatedPayouts };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast(`भौचर ${newPayout.voucherNo} जारी भयो (Payout Rs. ${newPayout.amount.toLocaleString()} disbursed).`);
+    showToast(`Voucher #${newPayout.voucherNo} issued (Payout Rs. ${newPayout.amount.toLocaleString()} disbursed).`);
   };
 
   // Export to Excel
@@ -789,7 +789,7 @@ export default function AccountsManager({ initialTab = 0 }) {
       };
     });
     exportToExcel(data, 'GlobalEra_Student_Fee_Ledger');
-    showToast('शुल्क लेजर एक्सेल रिपोर्ट डाउनलोड भयो।');
+    showToast('Fee ledger Excel report downloaded.');
   };
 
   return (
@@ -836,9 +836,9 @@ export default function AccountsManager({ initialTab = 0 }) {
               
               {/* Counter Open / Closed Status Badge */}
               {db?.counterStatus?.isOpen !== false ? (
-                <Tooltip title={`काउन्टर सुरु मिति: ${db?.counterStatus?.openedDate || 'आज'} • क्यासियर: ${db?.counterStatus?.openedBy || 'सुनिता शर्मा'}`}>
+                <Tooltip title={`Counter Opened: ${db?.counterStatus?.openedDate || 'Today'} • Cashier: ${db?.counterStatus?.openedBy || 'Sunita Sharma'}`}>
                   <Chip
-                    label="🟢 काउन्टर खुल्ला • FY 2081/82"
+                    label="🟢 Counter Open • FY 2081/82"
                     size="small"
                     sx={{
                       bgcolor: '#ECFDF5',
@@ -851,9 +851,9 @@ export default function AccountsManager({ initialTab = 0 }) {
                   />
                 </Tooltip>
               ) : (
-                <Tooltip title="काउन्टर अहिले बन्द छ। नयाँ कारोबारका लागि पहिले दिन सुरु गर्नुहोस्।">
+                <Tooltip title="Counter is currently closed. Open the day before processing transactions.">
                   <Chip
-                    label="🔴 काउन्टर बन्द • FY 2081/82"
+                    label="🔴 Counter Closed • FY 2081/82"
                     size="small"
                     sx={{
                       bgcolor: '#FEF2F2',
@@ -868,10 +868,10 @@ export default function AccountsManager({ initialTab = 0 }) {
               )}
 
               {/* Live Physical Cash in Hand Badge */}
-              <Tooltip title="काउन्टर दराजमा रहेको वास्तविक नगद मौज्दात (A/C 1010)">
+              <Tooltip title="Actual cash in drawer balance (A/C 1010)">
                 <Chip
                   icon={<PointOfSaleIcon sx={{ fontSize: '0.88rem !important', color: '#059669 !important' }} />}
-                  label={`दराज नगद: Rs. ${liveCashInHand.toLocaleString()}`}
+                  label={`Cash in Drawer: Rs. ${liveCashInHand.toLocaleString()}`}
                   size="small"
                   sx={{
                     bgcolor: '#F0FDF4',
@@ -885,10 +885,10 @@ export default function AccountsManager({ initialTab = 0 }) {
               </Tooltip>
 
               {/* Live Bank Balance Badge */}
-              <Tooltip title="ग्लोबल आइएमई तथा नबिल बैंक खाता मौज्दात (A/C 1020)">
+              <Tooltip title="Global IME & Nabil Bank balance (A/C 1020)">
                 <Chip
                   icon={<AccountBalanceIcon sx={{ fontSize: '0.88rem !important', color: '#1E40AF !important' }} />}
-                  label={`बैंक मौज्दात: Rs. ${liveBankBalance.toLocaleString()}`}
+                  label={`Bank Balance: Rs. ${liveBankBalance.toLocaleString()}`}
                   size="small"
                   sx={{
                     bgcolor: '#EFF6FF',
@@ -902,7 +902,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               </Tooltip>
             </Box>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block' }}>
-              ग्लोबल एरा वित्तीय तथा शुल्क व्यवस्थापन • किस्ता संकलन, ConnectIPS भुक्तानी, घरबेटी/पार्टी लेजर तथा अडिट हब
+              Global Era Financial & Fee Management • Fee Collection, ConnectIPS Payments, Vendor/Landlord Ledger & Audit Hub
             </Typography>
           </Box>
         </Box>
@@ -937,7 +937,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 whiteSpace: 'nowrap'
               }}
             >
-              🔓 दिन सुरु (Day Open)
+              🔓 Day Open
             </Button>
           ) : (
             <>
@@ -967,7 +967,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   }
                 }}
               >
-                + शुल्क संकलन
+                + Collect Fee
               </Button>
 
               <Button
@@ -996,7 +996,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   }
                 }}
               >
-                + भुक्तानी
+                + Vendor Pay
               </Button>
 
               <Button
@@ -1023,11 +1023,11 @@ export default function AccountsManager({ initialTab = 0 }) {
                   }
                 }}
               >
-                + निकासा
+                + Disburse Pay
               </Button>
 
               {/* Bank Deposit Contra Button */}
-              <Tooltip title="काउन्टरको नगद बैंकमा दाखिला गर्नुहोस् (Contra Entry)">
+              <Tooltip title="Deposit cash in drawer into bank account (Contra Entry)">
                 <Button
                   size="small"
                   variant="outlined"
@@ -1047,7 +1047,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     '&:hover': { bgcolor: '#DBEAFE', borderColor: '#3B82F6' }
                   }}
                 >
-                  🏦 बैंक दाखिला
+                  🏦 Bank Deposit
                 </Button>
               </Tooltip>
 
@@ -1073,7 +1073,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
                 }}
               >
-                🔒 क्यास क्लोजिङ
+                🔒 Cash Closing
               </Button>
             </>
           )}
@@ -1101,7 +1101,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
             }}
           >
-            📜 स्टेटमेन्ट
+            📜 Statements
           </Button>
 
           <Button
@@ -1123,7 +1123,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
             }}
           >
-            📊 एक्सेल
+            📊 Excel
           </Button>
         </Stack>
       </Box>
@@ -1210,11 +1210,11 @@ export default function AccountsManager({ initialTab = 0 }) {
             }
           }}
         >
-          <Tab icon={<TrendingUpIcon />} iconPosition="start" label="वित्तीय ड्यासबोर्ड (Overview)" />
-          <Tab icon={<SchoolIcon />} iconPosition="start" label={`विद्यार्थी किस्ता शुल्क (${students.length})`} />
-          <Tab icon={<StorefrontIcon />} iconPosition="start" label={`पार्टी तथा घरबेटी (${(db.parties || []).length})`} />
-          <Tab icon={<PersonIcon />} iconPosition="start" label={`प्रशिक्षक पेरोल (${trainers.length})`} />
-          <Tab icon={<AccountTreeIcon />} iconPosition="start" label="लेजर, डे-बुक तथा अडिट (Accounting Hub)" />
+          <Tab icon={<TrendingUpIcon />} iconPosition="start" label="Financial Dashboard (Overview)" />
+          <Tab icon={<SchoolIcon />} iconPosition="start" label={`Student Fee Installments (${students.length})`} />
+          <Tab icon={<StorefrontIcon />} iconPosition="start" label={`Parties & Landlords (${(db.parties || []).length})`} />
+          <Tab icon={<PersonIcon />} iconPosition="start" label={`Trainer Payroll (${trainers.length})`} />
+          <Tab icon={<AccountTreeIcon />} iconPosition="start" label="Ledger, Day-Book & Audit (Accounting Hub)" />
         </Tabs>
       </Paper>
 
@@ -1239,10 +1239,10 @@ export default function AccountsManager({ initialTab = 0 }) {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                    पछिल्ला शुल्क संकलन रसिदहरू (Recent Receipts)
+                    Recent Fee Collection Receipts
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    विद्यार्थीहरूले भर्खरै बुझाएका शुल्कहरू
+                    Recently received student fee payments
                   </Typography>
                 </Box>
                 <Button
@@ -1250,7 +1250,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   onClick={() => setActiveTab(1)}
                   sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A' }}
                 >
-                  सबै रसिदहरू हेर्नुहोस् &rarr;
+                  View All Receipts &rarr;
                 </Button>
               </Box>
 
@@ -1270,19 +1270,19 @@ export default function AccountsManager({ initialTab = 0 }) {
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>क्र.सं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद नं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थी</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रकम (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>SN</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {payments.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#94A3B8' }}>
-                          अहिलेसम्म कुनै शुल्क संकलन भएको छैन।
+                          No fee collections recorded yet.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -1303,7 +1303,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                           </TableCell>
                           <TableCell sx={{ fontSize: '0.8rem' }}>{p.paymentDate}</TableCell>
                           <TableCell align="right">
-                            <Tooltip title="रसिद प्रिन्ट गर्नुहोस्">
+                            <Tooltip title="Print Receipt">
                               <IconButton
                                 size="small"
                                 onClick={() => setSelectedReceiptPayment(p)}
@@ -1338,10 +1338,10 @@ export default function AccountsManager({ initialTab = 0 }) {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                    प्रशिक्षक निकासा भौचरहरू (Trainer Payouts)
+                    Trainer Payout Vouchers
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    कमिसन र मासिक तलब भुक्तानी
+                    Commission & monthly salary payments
                   </Typography>
                 </Box>
                 <Button
@@ -1349,7 +1349,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   onClick={() => setActiveTab(3)}
                   sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A' }}
                 >
-                  पेरोल हेर्नुहोस् &rarr;
+                  View Payroll &rarr;
                 </Button>
               </Box>
 
@@ -1369,19 +1369,19 @@ export default function AccountsManager({ initialTab = 0 }) {
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>क्र.सं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भौचर नं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षक</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रकम (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रकार</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>SN</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Voucher No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainer</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Type</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {trainerPayouts.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#94A3B8' }}>
-                          अहिलेसम्म कुनै प्रशिक्षक भुक्तानी भएको छैन।
+                          No instructor payouts recorded yet.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -1406,7 +1406,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                           </TableCell>
                           <TableCell align="right">
                             <Chip
-                              label={tp.payoutType === 'COMMISSION' ? 'कमिसन' : 'तलब'}
+                              label={tp.payoutType === 'COMMISSION' ? 'Commission' : 'Salary'}
                               size="small"
                               sx={{
                                 fontWeight: 800,
@@ -1456,7 +1456,7 @@ export default function AccountsManager({ initialTab = 0 }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
               <TextField
                 size="small"
-                placeholder="विद्यार्थी नाम, TGID, वा फोन खोज्नुहोस्..."
+                placeholder="Search student name, TGID, or phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 InputProps={{
@@ -1472,27 +1472,27 @@ export default function AccountsManager({ initialTab = 0 }) {
               <TextField
                 select
                 size="small"
-                label="भुक्तानी स्थिति (Status)"
+                label="Payment Status"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 sx={{ minWidth: 160 }}
               >
-                <MenuItem value="ALL">सबै स्थिति (All)</MenuItem>
-                <MenuItem value="PAID">सम्पन्न (Paid)</MenuItem>
-                <MenuItem value="PARTIAL">आंशिक किस्ता (Partial)</MenuItem>
-                <MenuItem value="OVERDUE">म्याद नाघेको (Overdue &gt;30D)</MenuItem>
-                <MenuItem value="UNPAID">नबुझाएको (Unpaid)</MenuItem>
+                <MenuItem value="ALL">All Status</MenuItem>
+                <MenuItem value="PAID">Paid (Clear)</MenuItem>
+                <MenuItem value="PARTIAL">Partial Installment</MenuItem>
+                <MenuItem value="OVERDUE">Overdue (&gt;30 Days)</MenuItem>
+                <MenuItem value="UNPAID">Unpaid</MenuItem>
               </TextField>
 
               <TextField
                 select
                 size="small"
-                label="तालिम ब्याच (Group)"
+                label="Training Group"
                 value={groupFilter}
                 onChange={(e) => setGroupFilter(e.target.value)}
                 sx={{ minWidth: 160 }}
               >
-                <MenuItem value="ALL">सबै ब्याच (All Groups)</MenuItem>
+                <MenuItem value="ALL">All Groups</MenuItem>
                 {groups.map((g) => (
                   <MenuItem key={g.id} value={g.id}>
                     {g.groupCode || g.id}
@@ -1511,7 +1511,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   }}
                   sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
                 >
-                  फिल्टर हटाउनुहोस्
+                  Reset Filters
                 </Button>
               )}
             </Box>
@@ -1545,10 +1545,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                 }}
               >
                 <ToggleButton value="table">
-                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
                 </ToggleButton>
                 <ToggleButton value="cards">
-                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
@@ -1573,24 +1573,24 @@ export default function AccountsManager({ initialTab = 0 }) {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको नाम</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कोर्स तथा ब्याच</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>लक्ड कुल शुल्क</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>बुझाएको रकम</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>बाँकी बक्यौता</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>अवस्था</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>२nd किस्ता म्याद</TableCell>
-                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्यहरू</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student Name</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Batch</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Locked Total Fee</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount Paid</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Outstanding Due</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>2nd Installment Due Date</TableCell>
+                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={10} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                      कुनै विद्यार्थी फेला परेन।
+                      No students found.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -1620,7 +1620,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             {l.courseTitle}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            ब्याच: {l.groupCode}
+                            Batch: {l.groupCode}
                           </Typography>
                         </TableCell>
 
@@ -1630,7 +1630,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                           </Typography>
                           {l.discountAmount > 0 && (
                             <Typography variant="caption" sx={{ color: '#DC2626', display: 'block' }}>
-                              छुट: -Rs. {l.discountAmount.toLocaleString()} ({l.discountPercent}%)
+                              Discount: -Rs. {l.discountAmount.toLocaleString()} ({l.discountPercent}%)
                             </Typography>
                           )}
                         </TableCell>
@@ -1647,12 +1647,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                           <Chip
                             label={
                               l.paymentStatus === 'Paid'
-                                ? 'सम्पन्न (Paid)'
+                                ? 'Paid (Clear)'
                                 : l.paymentStatus === 'Overdue'
                                 ? 'Overdue (>30D)'
                                 : l.paymentStatus === 'Partial'
-                                ? 'आंशिक (Partial)'
-                                : 'नबुझाएको (Unpaid)'
+                                ? 'Partial'
+                                : 'Unpaid'
                             }
                             size="small"
                             color={
@@ -1699,12 +1699,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   borderRadius: 2
                                 }}
                               >
-                                शुल्क लिनुहोस्
+                                Collect Fee
                               </Button>
                             )}
 
                             {l.due === 0 && (
-                              <Tooltip title="आधिकारिक शुल्क चुक्ता प्रमाणपत्र रसिद प्रिन्ट गर्नुहोस्">
+                              <Tooltip title="Print Official Fee Clearance Certificate">
                                 <Button
                                   size="small"
                                   variant="contained"
@@ -1724,12 +1724,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                                     '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
                                   }}
                                 >
-                                  शुल्क चुक्ता
+                                  Fee Cleared
                                 </Button>
                               </Tooltip>
                             )}
 
-                            <Tooltip title="विद्यार्थी किस्ता लेजर (Fee Statement / Passbook)">
+                            <Tooltip title="Student Fee Statement / Passbook">
                               <IconButton
                                 size="small"
                                 onClick={() => {
@@ -1743,7 +1743,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </IconButton>
                             </Tooltip>
 
-                            <Tooltip title="किस्ता टाइमलाइन र इतिहास हेर्नुहोस्">
+                            <Tooltip title="View Installment Timeline & History">
                               <IconButton
                                 size="small"
                                 onClick={() => setTimelineStudent({ student: st, ledger: l })}
@@ -1754,7 +1754,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             </Tooltip>
 
                             {l.paymentCount > 0 && (
-                              <Tooltip title="पछिल्लो रसिद हेर्नुहोस्">
+                              <Tooltip title="View Latest Receipt">
                                 <IconButton
                                   size="small"
                                   onClick={() => {
@@ -1784,7 +1784,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               {filteredStudents.length === 0 ? (
                 <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
                   <SchoolIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
-                  <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै विद्यार्थी फेला परेन।</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>No students found.</Typography>
                 </Box>
               ) : (
                 <Grid container spacing={2.5}>
@@ -1883,12 +1883,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 <Chip
                                   label={
                                     l.paymentStatus === 'Paid'
-                                      ? 'सम्पन्न (Paid)'
+                                      ? 'Paid (Clear)'
                                       : l.paymentStatus === 'Overdue'
                                       ? 'Overdue (>30D)'
                                       : l.paymentStatus === 'Partial'
-                                      ? 'आंशिक (Partial)'
-                                      : 'नबुझाएको (Unpaid)'
+                                      ? 'Partial'
+                                      : 'Unpaid'
                                   }
                                   size="small"
                                   color={
@@ -1903,7 +1903,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   sx={{ fontWeight: 800, fontSize: '0.68rem', height: 22 }}
                                 />
                                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                                  भुक्तानी: {paidPercent}% ({l.paymentCount} रसिद)
+                                  Payment: {paidPercent}% ({l.paymentCount} Receipts)
                                 </Typography>
                               </Box>
                               <LinearProgress
@@ -1930,7 +1930,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, mb: 2, p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1', textAlign: 'center' }}>
                               <Box>
                                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                                  कुल शुल्क
+                                  Total Fee
                                 </Typography>
                                 <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.82rem' }}>
                                   Rs. {l.lockedFee.toLocaleString()}
@@ -1938,7 +1938,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </Box>
                               <Box>
                                 <Typography variant="caption" sx={{ color: '#059669', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                                  बुझाएको
+                                  Paid
                                 </Typography>
                                 <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669', fontSize: '0.82rem' }}>
                                   Rs. {l.totalPaid.toLocaleString()}
@@ -1946,7 +1946,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </Box>
                               <Box>
                                 <Typography variant="caption" sx={{ color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                                  बाँकी बक्यौता
+                                  Outstanding Due
                                 </Typography>
                                 <Typography variant="body2" sx={{ fontWeight: 900, color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669', fontSize: '0.82rem' }}>
                                   Rs. {l.due.toLocaleString()}
@@ -1970,7 +1970,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 }}
                               >
                                 <Typography variant="caption" sx={{ fontWeight: 800, color: l.isOverdue ? '#991B1B' : '#92400E' }}>
-                                  {l.isOverdue ? '⚠️ म्याद नाघेको किस्ता:' : '📅 दोस्रो किस्ता म्याद:'}
+                                  {l.isOverdue ? '⚠️ Overdue Installment:' : '📅 2nd Installment Due:'}
                                 </Typography>
                                 <Typography variant="caption" sx={{ fontWeight: 900, color: l.isOverdue ? '#DC2626' : '#B45309' }}>
                                   {l.dueDateStr}
@@ -2002,7 +2002,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                     py: 0.65
                                   }}
                                 >
-                                  शुल्क लिनुहोस्
+                                  Collect Fee
                                 </Button>
                               ) : (
                                 <Button
@@ -2025,13 +2025,13 @@ export default function AccountsManager({ initialTab = 0 }) {
                                     '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
                                   }}
                                 >
-                                  शुल्क चुक्ता प्रमाणपत्र
+                                  Clearance Certificate
                                 </Button>
                               )}
                             </Box>
 
                             <Stack direction="row" spacing={0.8} justifyContent="flex-end">
-                              <Tooltip title="विद्यार्थी किस्ता लेजर (Fee Statement / Passbook)">
+                              <Tooltip title="Student Fee Statement / Passbook">
                                 <IconButton
                                   size="small"
                                   onClick={() => {
@@ -2045,7 +2045,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 </IconButton>
                               </Tooltip>
 
-                              <Tooltip title="किस्ता टाइमलाइन र इतिहास हेर्नुहोस्">
+                              <Tooltip title="View Installment Timeline & History">
                                 <IconButton
                                   size="small"
                                   onClick={() => setTimelineStudent({ student: st, ledger: l })}
@@ -2056,7 +2056,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </Tooltip>
 
                               {l.paymentCount > 0 && (
-                                <Tooltip title="पछिल्लो रसिद हेर्नुहोस्">
+                                <Tooltip title="View Latest Receipt">
                                   <IconButton
                                     size="small"
                                     onClick={() => {
@@ -2117,7 +2117,7 @@ export default function AccountsManager({ initialTab = 0 }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
               <TextField
                 size="small"
-                placeholder="प्रशिक्षक नाम वा विधा खोज्नुहोस्..."
+                placeholder="Search instructor name or subject..."
                 value={trainerSearch}
                 onChange={(e) => setTrainerSearch(e.target.value)}
                 InputProps={{
@@ -2133,14 +2133,14 @@ export default function AccountsManager({ initialTab = 0 }) {
               <TextField
                 select
                 size="small"
-                label="पारिश्रमिक मोडल"
+                label="Remuneration Model"
                 value={trainerTypeFilter}
                 onChange={(e) => setTrainerTypeFilter(e.target.value)}
                 sx={{ minWidth: 170 }}
               >
-                <MenuItem value="ALL">सबै मोडल (All)</MenuItem>
-                <MenuItem value="SALARY">मासिक तलब (Salary)</MenuItem>
-                <MenuItem value="COMMISSION">कमिसन आधारित (Commission %)</MenuItem>
+                <MenuItem value="ALL">All Models</MenuItem>
+                <MenuItem value="SALARY">Monthly Salary</MenuItem>
+                <MenuItem value="COMMISSION">Commission-Based (%)</MenuItem>
               </TextField>
 
               {(trainerSearch || trainerTypeFilter !== 'ALL') && (
@@ -2153,7 +2153,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   }}
                   sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
                 >
-                  फिल्टर हटाउनुहोस्
+                  Reset Filters
                 </Button>
               )}
             </Box>
@@ -2187,10 +2187,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                 }}
               >
                 <ToggleButton value="cards">
-                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
                 <ToggleButton value="table">
-                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
@@ -2202,7 +2202,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               {filteredTrainers.length === 0 ? (
                 <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
                   <PersonIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
-                  <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै प्रशिक्षक फेला परेन।</Typography>
+                  <Typography variant="body1" sx={{ fontWeight: 700 }}>No instructors found.</Typography>
                 </Box>
               ) : (
                 <Grid container spacing={2.5}>
@@ -2245,13 +2245,13 @@ export default function AccountsManager({ initialTab = 0 }) {
                                     {trn.name}
                                   </Typography>
                                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                    {trn.specialization || 'प्रशिक्षक'}
+                                    {trn.specialization || 'Instructor'}
                                   </Typography>
                                 </Box>
                               </Box>
 
                               <Chip
-                                label={trn.remunerationType === 'SALARY' ? 'मासिक तलब' : 'कमिसन (%)'}
+                                label={trn.remunerationType === 'SALARY' ? 'Monthly Salary' : 'Commission (%)'}
                                 size="small"
                                 sx={{
                                   fontWeight: 800,
@@ -2266,24 +2266,24 @@ export default function AccountsManager({ initialTab = 0 }) {
                             <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 2, border: '1px solid #E2E8F0' }}>
                               <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
                                 <Grid item xs={6}>
-                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>तोकिएका ब्याच:</Typography>
-                                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{l.assignedGroupsCount} ब्याच</Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Assigned Batches:</Typography>
+                                  <Typography variant="body2" sx={{ fontWeight: 700 }}>{l.assignedGroupsCount} Batches</Typography>
                                 </Grid>
                                 <Grid item xs={6}>
-                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>संकलित शुल्क रकम:</Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Collected Fee Sum:</Typography>
                                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>Rs. {l.totalCollectedInGroups.toLocaleString()}</Typography>
                                 </Grid>
                                 <Grid item xs={6}>
-                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>पाकेको पारिश्रमिक:</Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Accrued Remuneration:</Typography>
                                   <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>Rs. {l.totalEarned.toLocaleString()}</Typography>
                                 </Grid>
                                 <Grid item xs={6}>
-                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>अहिलेसम्म भुक्तानी:</Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Disbursed to Date:</Typography>
                                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#10B981' }}>Rs. {l.totalPaid.toLocaleString()}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sx={{ pt: 1, borderTop: '1px dashed #CBD5E1', mt: 0.5 }}>
                                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Typography variant="caption" sx={{ color: '#78350F', fontWeight: 800 }}>दिन बाँकी बक्यौता:</Typography>
+                                    <Typography variant="caption" sx={{ color: '#78350F', fontWeight: 800 }}>Payable Due:</Typography>
                                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
                                       Rs. {l.balanceDue.toLocaleString()}
                                     </Typography>
@@ -2310,9 +2310,9 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 textTransform: 'none'
                               }}
                             >
-                              पारिश्रमिक निकासा (Pay)
+                              Disburse Pay
                             </Button>
-                            <Tooltip title="प्रशिक्षक पारिश्रमिक तथा कमिसन लेजर">
+                            <Tooltip title="Instructor Remuneration & Commission Ledger">
                               <IconButton
                                 onClick={() => {
                                   setStatementType('TRAINER');
@@ -2360,23 +2360,23 @@ export default function AccountsManager({ initialTab = 0 }) {
                 >
                   <TableRow>
                     <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                      क्र.सं. (S.N.)
+                      S.N.
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षकको विवरण</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मोडल</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>जिम्मेवार ब्याच</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ब्याच संकलित शुल्क</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पाकेको पारिश्रमिक</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>निकासा भइसकेको</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>दिन बाँकी बक्यौता</TableCell>
-                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कार्यहरू</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Instructor Details</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Model</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Assigned Batches</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch Fee Collected</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Accrued Remuneration</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Total Disbursed</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payable Due</TableCell>
+                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {filteredTrainers.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                        कुनै प्रशिक्षक फेला परेन।
+                        No instructors found.
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -2401,14 +2401,14 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   {trn.name}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                  {trn.specialization || 'प्रशिक्षक'} • {trn.phone || ''}
+                                  {trn.specialization || 'Instructor'} • {trn.phone || ''}
                                 </Typography>
                               </Box>
                             </Box>
                           </TableCell>
                           <TableCell>
                             <Chip
-                              label={trn.remunerationType === 'SALARY' ? 'मासिक तलब' : 'कमिसन (%)'}
+                              label={trn.remunerationType === 'SALARY' ? 'Monthly Salary' : 'Commission (%)'}
                               size="small"
                               sx={{
                                 fontWeight: 800,
@@ -2419,7 +2419,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             />
                           </TableCell>
                           <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
-                            {l.assignedGroupsCount} ब्याच
+                            {l.assignedGroupsCount} Batches
                           </TableCell>
                           <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
                             Rs. {l.totalCollectedInGroups.toLocaleString()}
@@ -2451,9 +2451,9 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   textTransform: 'none'
                                 }}
                               >
-                                निकासा
+                                Disburse
                               </Button>
-                              <Tooltip title="प्रशिक्षक पारिश्रमिक तथा कमिसन लेजर">
+                              <Tooltip title="Instructor Remuneration & Commission Ledger">
                                 <IconButton
                                   size="small"
                                   onClick={() => {
@@ -2505,13 +2505,13 @@ export default function AccountsManager({ initialTab = 0 }) {
             }}
           >
             {[
-              { label: `दैनिक खर्च तथा घरभाडा (${(db.expenses || []).length})`, icon: <PaymentsIcon fontSize="small" /> },
-              { label: 'दोहोरो लेखा जर्नल (Journal)', icon: <ReceiptLongIcon fontSize="small" /> },
-              { label: 'खाता सूची (COA)', icon: <AccountTreeIcon fontSize="small" /> },
-              { label: `प्रोजेक्ट एकाउन्टिङ (${(db.projectContracts || []).length})`, icon: <BusinessIcon fontSize="small" /> },
-              { label: 'वित्तीय विवरणहरू (Statements)', icon: <BalanceIcon fontSize="small" /> },
-              { label: `कारोबार अडिट लग (${payments.length + trainerPayouts.length})`, icon: <ArticleIcon fontSize="small" /> },
-              { label: `दैनिक क्लोजिङ लग (${(db.cashClosings || []).length})`, icon: <LockIcon fontSize="small" /> }
+              { label: `Daily Expenses & Rent (${(db.expenses || []).length})`, icon: <PaymentsIcon fontSize="small" /> },
+              { label: 'Double-Entry Journal', icon: <ReceiptLongIcon fontSize="small" /> },
+              { label: 'Chart of Accounts (COA)', icon: <AccountTreeIcon fontSize="small" /> },
+              { label: `Project Accounting (${(db.projectContracts || []).length})`, icon: <BusinessIcon fontSize="small" /> },
+              { label: 'Financial Statements', icon: <BalanceIcon fontSize="small" /> },
+              { label: `Transaction Audit Log (${payments.length + trainerPayouts.length})`, icon: <ArticleIcon fontSize="small" /> },
+              { label: `Daily Cash Closing Log (${(db.cashClosings || []).length})`, icon: <LockIcon fontSize="small" /> }
             ].map((sub, idx) => (
               <Button
                 key={idx}
@@ -2588,7 +2588,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
                   <TextField
                     size="small"
-                    placeholder="रसिद नं., नाम वा कैफियत खोज्नुहोस्..."
+                    placeholder="Search receipt no, name, or narration..."
                     value={txSearch}
                     onChange={(e) => setTxSearch(e.target.value)}
                     InputProps={{
@@ -2604,14 +2604,14 @@ export default function AccountsManager({ initialTab = 0 }) {
                   <TextField
                     select
                     size="small"
-                    label="कारोबार प्रकार (Type)"
+                    label="Transaction Type"
                     value={txTypeFilter}
                     onChange={(e) => setTxTypeFilter(e.target.value)}
                     sx={{ minWidth: 180 }}
                   >
-                    <MenuItem value="ALL">सबै कारोबार (All)</MenuItem>
-                    <MenuItem value="FEE">विद्यार्थी शुल्क रसिद (+ Receipt)</MenuItem>
-                    <MenuItem value="PAYOUT">प्रशिक्षक निकासा भौचर (- Payout)</MenuItem>
+                    <MenuItem value="ALL">All Transactions</MenuItem>
+                    <MenuItem value="FEE">Student Fee (+ Receipt)</MenuItem>
+                    <MenuItem value="PAYOUT">Trainer Payout (- Voucher)</MenuItem>
                   </TextField>
                 </Box>
 
@@ -2644,10 +2644,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                     }}
                   >
                     <ToggleButton value="table">
-                      <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> तालिका (Table)
+                      <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
                     </ToggleButton>
                     <ToggleButton value="cards">
-                      <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> कार्ड (Cards)
+                      <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Box>
@@ -2672,23 +2672,23 @@ export default function AccountsManager({ initialTab = 0 }) {
                   >
                     <TableRow>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                        क्र.सं. (S.N.)
+                        S.N.
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रसिद / भौचर नं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रकार</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्बन्धित व्यक्ति</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रकम (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>माध्यम</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कैफियत</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रिन्ट</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt / Voucher No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Type</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Party / Person</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Method</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Narration</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Print</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {combinedTransactions.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                          कुनै कारोबार फेला परेन।
+                          No transactions found.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -2703,7 +2703,7 @@ export default function AccountsManager({ initialTab = 0 }) {
 
                           <TableCell>
                             <Chip
-                              label={tx.isInflow ? 'शुल्क संकलन (+ Inflow)' : 'पारिश्रमिक (- Outflow)'}
+                              label={tx.isInflow ? 'Fee Inflow (+)' : 'Payout Outflow (-)'}
                               size="small"
                               sx={{
                                 fontWeight: 800,
@@ -2729,7 +2729,7 @@ export default function AccountsManager({ initialTab = 0 }) {
 
                           <TableCell align="right">
                             {tx.isInflow ? (
-                              <Tooltip title="रसिद प्रिन्ट गर्नुहोस्">
+                              <Tooltip title="Print Receipt">
                                 <IconButton
                                   size="small"
                                   onClick={() => setSelectedReceiptPayment(tx.rawObj)}
@@ -2756,7 +2756,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                   {combinedTransactions.length === 0 ? (
                     <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
                       <ArticleIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
-                      <Typography variant="body1" sx={{ fontWeight: 700 }}>कुनै कारोबार फेला परेन।</Typography>
+                      <Typography variant="body1" sx={{ fontWeight: 700 }}>No transactions found.</Typography>
                     </Box>
                   ) : (
                     <Grid container spacing={2.2}>
@@ -2795,7 +2795,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   }}
                                 />
                                 <Chip
-                                  label={tx.isInflow ? 'शुल्क संकलन (+ Inflow)' : 'पारिश्रमिक (- Outflow)'}
+                                  label={tx.isInflow ? 'Fee Inflow (+)' : 'Payout Outflow (-)'}
                                   size="small"
                                   sx={{
                                     fontWeight: 800,
@@ -2815,7 +2815,7 @@ export default function AccountsManager({ initialTab = 0 }) {
 
                               <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, mb: 1.5, border: '1px solid #E2E8F0' }}>
                                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 700 }}>
-                                  कारोबार रकम (Amount):
+                                  Transaction Amount:
                                 </Typography>
                                 <Typography variant="h6" sx={{ fontWeight: 900, color: tx.isInflow ? '#059669' : '#B45309' }}>
                                   {tx.isInflow ? '+' : '-'} Rs. {Number(tx.amount).toLocaleString()}
@@ -2823,12 +2823,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                               </Box>
 
                               <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: '#64748B', mb: 0.5 }}>
-                                <span>माध्यम: <strong>{tx.method}</strong></span>
-                                <span>मिति: <strong>{tx.date}</strong></span>
+                                <span>Method: <strong>{tx.method}</strong></span>
+                                <span>Date: <strong>{tx.date}</strong></span>
                               </Box>
                               {tx.remarks && (
                                 <Typography variant="caption" sx={{ color: '#64748B', fontStyle: 'italic', display: 'block' }}>
-                                  कैफियत: {tx.remarks}
+                                  Narration: {tx.remarks}
                                 </Typography>
                               )}
                             </Box>
@@ -2842,10 +2842,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   onClick={() => setSelectedReceiptPayment(tx.rawObj)}
                                   sx={{ fontWeight: 800, fontSize: '0.74rem', textTransform: 'none', borderRadius: 2 }}
                                 >
-                                  रसिद प्रिन्ट
+                                  Print Receipt
                                 </Button>
                               ) : (
-                                <Chip label="भौचर स्वीकृत" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
+                                <Chip label="Voucher Approved" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
                               )}
                             </Box>
                           </Paper>
@@ -2881,10 +2881,10 @@ export default function AccountsManager({ initialTab = 0 }) {
               >
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                    दैनिक काउन्टर नगद क्लोजिङ तथा नोट अडिट लग (Daily Cash Closings History)
+                    Daily Counter Cash Closing & Denomination Audit History
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    दैनिक दराज नगद गन्ती, नोट विवरण (Denominations) तथा रुजु स्थिति
+                    Daily cash-in-drawer physical count, denominations breakdown & reconciliation status
                   </Typography>
                 </Box>
                 <Button
@@ -2899,7 +2899,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     borderRadius: 2
                   }}
                 >
-                  🔒 आजको क्यास क्लोजिङ गर्नुहोस्
+                  🔒 Perform Today's Cash Closing
                 </Button>
               </Box>
 
@@ -2920,25 +2920,25 @@ export default function AccountsManager({ initialTab = 0 }) {
                   >
                     <TableRow>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                        क्र.सं. (S.N.)
+                        S.N.
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>क्लोजिङ मिति / समय</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुरु मौज्दात</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नगद संकलन (+)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नगद खर्च (-)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>हुनुपर्ने अन्तिम</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भौतिक नगद (Count)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>नोट गणना (Denominations)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>रुजु स्थिति</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>क्यासियर</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्लिप</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Closing Date & Time</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Opening Balance</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cash Inflow (+)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cash Outflow (-)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Expected Closing</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Physical Count</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Denominations Breakdown</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Reconciliation Status</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cashier</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Slip</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {(db.cashClosings || []).length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={11} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                          अहिलेसम्म कुनै दैनिक क्यास क्लोजिङ रेकर्ड फेला परेन।
+                          No daily cash closing records found.
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -2952,7 +2952,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                           den['20'] ? `20×${den['20']}` : null,
                           den['10'] ? `10×${den['10']}` : null,
                           den['5'] ? `5×${den['5']}` : null,
-                          den['coins'] ? `खुद्रा:${den['coins']}` : null
+                          den['coins'] ? `Coins:${den['coins']}` : null
                         ].filter(Boolean).join(', ') || '-';
 
                         return (
@@ -2987,7 +2987,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             </TableCell>
                             <TableCell>
                               <Chip
-                                label={c.variance === 0 ? '✓ मिलेको' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`}
+                                label={c.variance === 0 ? '✓ Matched' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`}
                                 size="small"
                                 sx={{
                                   fontWeight: 800,
@@ -3001,7 +3001,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               {c.closedBy || 'Cashier'}
                             </TableCell>
                             <TableCell align="right">
-                              <Tooltip title="क्लोजिङ स्लिप हेर्नुहोस्">
+                              <Tooltip title="View Closing Slip">
                                 <IconButton
                                   size="small"
                                   onClick={() => setOpenCashClosingModal(true)}
@@ -3138,7 +3138,7 @@ export default function AccountsManager({ initialTab = 0 }) {
         onSuccess={() => {
           setConnectIpsModalOpen(false);
           setDb(loadDB());
-          showToast('ConnectIPS भुक्तानी तथा बैंक भौचर सफलतापूर्वक सम्पन्न भयो।');
+          showToast('ConnectIPS payment & bank voucher completed successfully.');
         }}
       />
 

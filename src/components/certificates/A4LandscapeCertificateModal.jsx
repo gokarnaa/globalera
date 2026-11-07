@@ -143,18 +143,18 @@ export default function A4LandscapeCertificateModal({
     ? `Government Regd. No: ${companyProfile.regNo || '184920/078/079'} • CTEVT Affiliation Code: ${companyProfile.ctevtCode || '4208'} • ${companyProfile.address || 'MitraPark, Kathmandu, Nepal'}`
     : (design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal');
   const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
-  const certificateTitleNp = design.certificateTitleNp || '(व्यावसायिक तालिम समापन प्रमाणपत्र)';
+  const certificateTitleNp = design.certificateTitleNp || '(Official Skill Completion Credential)';
 
   // Default values from Batch trainer and Company Profile
   const defaultTrainerName = trainer?.name && trainer.name !== 'Assigned Instructor' 
     ? trainer.name 
-    : (companyProfile.leadInstructorName || 'सुमन थापा (Suman Thapa)');
+    : (companyProfile.leadInstructorName || 'Suman Thapa');
   const defaultTrainerTitle = trainer?.specialization 
-    ? `प्रशिक्षक (${trainer.specialization})` 
-    : (companyProfile.leadInstructorTitle || 'प्रशिक्षक (Lead Instructor)');
+    ? `Instructor (${trainer.specialization})` 
+    : (companyProfile.leadInstructorTitle || 'Lead Instructor');
 
-  const defaultDirectorName = companyProfile.directorName || 'गोकर्ण थापा (Gokarna Thapa)';
-  const defaultDirectorTitle = companyProfile.directorTitle || 'क्याम्पस प्रमुख / निर्देशक (Managing Director)';
+  const defaultDirectorName = companyProfile.directorName || 'Gokarna Thapa';
+  const defaultDirectorTitle = companyProfile.directorTitle || 'Campus Chief / Managing Director';
 
   // Dynamic Signatories fallback with automatic batch trainer & company director binding
   const signatories = (design.signatories && design.signatories.length > 0)
@@ -162,7 +162,7 @@ export default function A4LandscapeCertificateModal({
         if (sig.id === 'sig-1' || idx === 0) {
           return {
             ...sig,
-            name: (sig.name && sig.name !== 'Lead Instructor' && sig.name !== 'सुमन थापा (Suman Thapa)') ? sig.name : defaultTrainerName,
+            name: (sig.name && sig.name !== 'Lead Instructor' && sig.name !== 'Suman Thapa') ? sig.name : defaultTrainerName,
             title: sig.title || defaultTrainerTitle
           };
         }
@@ -323,16 +323,16 @@ export default function A4LandscapeCertificateModal({
 
   const shareText =
     `*${instituteName}*\n` +
-    `🎓 *VOCATIONAL TRAINING COMPLETION CERTIFICATE (तालिम समापन प्रमाणपत्र)*\n` +
+    `🎓 *VOCATIONAL TRAINING COMPLETION CERTIFICATE*\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-    `• *प्रशिक्षार्थी (Trainee):* ${student.name} (${student.tgid})\n` +
-    `• *पाठ्यक्रम (Course):* ${course?.title || 'Vocational Training'} (${course?.totalHours || 390} Hours)\n` +
-    `• *प्रमाणपत्र नं (Cert No):* ${certificate.certificateNo}\n` +
-    `• *जारी मिति (Issue Date):* ${certificate.issueDate}\n` +
-    `• *स्थिति:* ✅ Successfully Completed (CTEVT Standards)\n` +
+    `• *Trainee:* ${student.name} (${student.tgid})\n` +
+    `• *Course:* ${course?.title || 'Vocational Training'} (${course?.totalHours || 390} Hours)\n` +
+    `• *Cert No:* ${certificate.certificateNo}\n` +
+    `• *Issue Date:* ${certificate.issueDate}\n` +
+    `• *Status:* ✅ Successfully Completed (CTEVT Standards)\n` +
     `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-    `🔗 *अनलाइन प्रमाणीकरण लिंक (Online Verification):*\n${verificationUrl}\n\n` +
-    `_CTEVT सम्बन्धन प्राप्त संस्थाबाट जारी आधिकारिक सीप प्रमाणपत्र।_`;
+    `🔗 *Online Verification Link:*\n${verificationUrl}\n\n` +
+    `_Official skill completion certificate issued by a CTEVT-affiliated institution._`;
 
   const isFemale = (student.gender || '').toLowerCase() === 'female';
 
@@ -384,7 +384,7 @@ export default function A4LandscapeCertificateModal({
               '&:hover': { bgcolor: '#123e80' }
             }}
           >
-            प्रिन्ट गर्नुहोस् (A4 {isPortrait ? 'Portrait' : 'Landscape'})
+            Print (A4 {isPortrait ? 'Portrait' : 'Landscape'})
           </Button>
 
           <Button
@@ -732,7 +732,7 @@ export default function A4LandscapeCertificateModal({
               }}
             >
               <Typography variant="caption" sx={{ color: '#64748b', letterSpacing: '0.04em', display: 'block' }}>
-                यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
+                This is proudly awarded to:
               </Typography>
               <Typography
                 variant="h4"
@@ -866,7 +866,7 @@ export default function A4LandscapeCertificateModal({
                 fontStyle: elStyles.body?.fontStyle || 'normal'
               }}
             >
-              प्रमाणित गरिन्छ कि {student.address || 'काठमाडौँ'} निवासी श्री {student.guardianName || student.fatherName || 'अभिभावक'}को {isFemale ? 'सुपुत्री' : 'सुपुत्र'} {isFemale ? 'सुश्री' : 'श्री'} <b>{student.nameNepali || student.name}</b>ले यस संस्थाद्वारा मिति <b>{group?.startDate || certificate.issueDate}</b> देखि <b>{group?.endDate || certificate.issueDate}</b> सम्म सञ्चालित <b>{course?.totalHours || 390} घन्टे</b> <b>"{course?.titleNepali || course?.title || 'व्यावसायिक तालिम'}"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
+              This credential certifies that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.nameNepali || student.name}</b>, {isFemale ? 'daughter' : 'son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, resident of <b>{student.address || 'Kathmandu'}</b>, has successfully completed the <b>{course?.totalHours || 390}-Hour</b> training program in <b>"{course?.titleNepali || course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || certificate.issueDate}</b> to <b>{group?.endDate || certificate.issueDate}</b> and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
             </Typography>
           </Box>
 

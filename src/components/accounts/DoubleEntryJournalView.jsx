@@ -89,11 +89,11 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
 
   const handlePostJournal = () => {
     if (!narration.trim()) {
-      showToast('कृपया भौचरको विवरण (Narration) भर्नुहोस्।', 'error');
+      showToast('Please enter the voucher narration.', 'error');
       return;
     }
     if (!isBalanced) {
-      showToast(`भौचर असन्तुलित छ! Total Dr (Rs. ${totalDebit}) != Total Cr (Rs. ${totalCredit})`, 'error');
+      showToast(`Voucher is imbalanced! Total Dr (Rs. ${totalDebit}) != Total Cr (Rs. ${totalCredit})`, 'error');
       return;
     }
 
@@ -119,7 +119,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
       });
 
       setDb(nextDb);
-      showToast(`जर्नल भौचर ${newEntry.entryNumber} सफलतापूर्वक प्रविष्टि भयो!`);
+      showToast(`Journal voucher ${newEntry.entryNumber} posted successfully!`);
       setOpenNewDialog(false);
       setNarration('');
       setLines([
@@ -133,13 +133,13 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
 
   const handleConfirmReversal = () => {
     if (!reversalReason.trim()) {
-      showToast('उल्ट्याउनुको कारण (Reason) अनिवार्य छ।', 'error');
+      showToast('Reason for reversal is required.', 'error');
       return;
     }
     try {
       const nextDb = reverseDoubleEntryJournal(db, reversalTarget.id, reversalReason.trim());
       setDb(nextDb);
-      showToast(`भौचर ${reversalTarget.entryNumber} उल्ट्याइयो (Reversed)!`);
+      showToast(`Voucher ${reversalTarget.entryNumber} reversed!`);
       setReversalTarget(null);
       setReversalReason('');
     } catch (err) {
@@ -154,10 +154,10 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              📑 दोहोरो लेखा जर्नल तथा डे-बुक (Double-Entry General Journal)
+              📑 Double-Entry General Journal & Day Book
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              प्रत्येक वित्तीय कारोबारको संतुलित डेबिट र क्रेडिट प्रविष्टि (Debit = Credit Verification)
+              Balanced Debit and Credit entries for every financial transaction (Debit = Credit Verification)
             </Typography>
           </Box>
           <Button
@@ -171,7 +171,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
               textTransform: 'none'
             }}
           >
-            + नयाँ जर्नल भौचर (Post Journal)
+            + Post Journal Entry
           </Button>
         </Box>
 
@@ -190,14 +190,14 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
           <TextField
             select
             size="small"
-            label="स्थिति (Status)"
+            label="Status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             sx={{ minWidth: 160 }}
           >
             <MenuItem value="ALL">All Status</MenuItem>
-            <MenuItem value="POSTED">POSTED (प्रविष्टि)</MenuItem>
-            <MenuItem value="REVERSED">REVERSED (उल्ट्याइएको)</MenuItem>
+            <MenuItem value="POSTED">POSTED</MenuItem>
+            <MenuItem value="REVERSED">REVERSED</MenuItem>
           </TextField>
         </Stack>
       </Card>
@@ -210,10 +210,10 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
               <TableRow>
                 <TableCell sx={{ fontWeight: 800, width: 140 }}>JV Number</TableCell>
                 <TableCell sx={{ fontWeight: 800, width: 120 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>भौचर विवरण (Narration)</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 130 }}>स्रोत (Module)</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Narration</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 130 }}>Source Module</TableCell>
                 <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 140 }}>Total Amount</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 120 }}>स्थिति (Status)</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 120 }}>Status</TableCell>
                 <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 120 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -221,7 +221,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
               {filteredJournals.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748B' }}>
-                    कुनै जर्नल भौचर भेटिएन (No journal entries found).
+                    No journal entries found.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -293,7 +293,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
       {selectedEntry && (
         <Dialog open={Boolean(selectedEntry)} onClose={() => setSelectedEntry(null)} maxWidth="md" fullWidth>
           <DialogTitle sx={{ fontWeight: 800, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>जर्नल भौचर विवरण: {selectedEntry.entryNumber}</span>
+            <span>Journal Voucher Details: {selectedEntry.entryNumber}</span>
             <Chip
               label={selectedEntry.status}
               size="small"
@@ -307,7 +307,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
           <DialogContent dividers>
             <Box sx={{ mb: 2 }}>
               <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
-                मिति (Date): {selectedEntry.entryDate} • प्रविष्टि कर्ता: {selectedEntry.postedBy}
+                Date: {selectedEntry.entryDate} • Posted By: {selectedEntry.postedBy}
               </Typography>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', mt: 0.5 }}>
                 {selectedEntry.narration}
@@ -365,7 +365,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
 
       {/* New Manual Journal Dialog */}
       <Dialog open={openNewDialog} onClose={() => setOpenNewDialog(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ fontWeight: 800 }}>+ नयाँ दोहोरो लेखा जर्नल भौचर (New Journal Entry)</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800 }}>+ New Double-Entry Journal Entry</DialogTitle>
         <DialogContent dividers>
           <Grid container spacing={2} sx={{ mb: 2.5 }}>
             <Grid item xs={12} sm={4}>
@@ -373,7 +373,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
                 fullWidth
                 size="small"
                 type="date"
-                label="भौचर मिति (Date)"
+                label="Voucher Date"
                 value={entryDate}
                 onChange={(e) => setEntryDate(e.target.value)}
                 InputLabelProps={{ shrink: true }}
@@ -383,7 +383,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
               <TextField
                 fullWidth
                 size="small"
-                label="भौचर विवरण (Narration / Particulars)"
+                label="Narration / Particulars"
                 placeholder="e.g. Center Maintenance & IT supplies purchase"
                 value={narration}
                 onChange={(e) => setNarration(e.target.value)}
@@ -393,7 +393,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
           </Grid>
 
           <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1, color: '#1E293B' }}>
-            जर्नल डेबिट र क्रेडिट लाइनहरू (Lines):
+            Journal Debit & Credit Lines:
           </Typography>
 
           <Stack spacing={1.5}>
@@ -450,7 +450,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
 
           <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Button size="small" onClick={handleAddLine} startIcon={<AddIcon />} sx={{ fontWeight: 700 }}>
-              + थप लाइन थप्नुहोस् (Add Line)
+              + Add Line
             </Button>
 
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
@@ -461,7 +461,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
                 Total Cr: <strong>Rs. {totalCredit.toLocaleString()}</strong>
               </Typography>
               <Chip
-                label={isBalanced ? 'सन्तुलित (Balanced)' : 'असन्तुलित (Imbalanced)'}
+                label={isBalanced ? 'Balanced' : 'Imbalanced'}
                 size="small"
                 sx={{
                   fontWeight: 800,
@@ -480,7 +480,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
             onClick={handlePostJournal}
             sx={{ fontWeight: 800 }}
           >
-            भौचर सुरक्षित गर्नुहोस् (Post Journal)
+            Post Journal
           </Button>
         </DialogActions>
       </Dialog>
@@ -489,16 +489,16 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
       {reversalTarget && (
         <Dialog open={Boolean(reversalTarget)} onClose={() => setReversalTarget(null)} maxWidth="sm" fullWidth>
           <DialogTitle sx={{ fontWeight: 800, color: '#DC2626' }}>
-            🔄 जर्नल भौचर उल्ट्याउनुहोस् (Reverse Journal Entry)
+            🔄 Reverse Journal Entry
           </DialogTitle>
           <DialogContent dividers>
             <Alert severity="warning" sx={{ mb: 2, fontWeight: 600 }}>
-              यो कार्यले भौचर <strong>{reversalTarget.entryNumber}</strong> को ठीक विपरीत (Inverse) नयाँ भौचर सिर्जना गर्दछ। पुरानो भौचर कहिल्यै मेटिँदैन।
+              This action creates a new inverse voucher for <strong>{reversalTarget.entryNumber}</strong>. Original vouchers are never deleted.
             </Alert>
             <TextField
               fullWidth
               size="small"
-              label="उल्ट्याउनुको कारण (Reason for Reversal)"
+              label="Reason for Reversal"
               placeholder="e.g. Duplicate entry by mistake / Wrong amount entered"
               value={reversalReason}
               onChange={(e) => setReversalReason(e.target.value)}
@@ -506,7 +506,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
             />
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setReversalTarget(null)}>रद्द गर्नुहोस् (Cancel)</Button>
+            <Button onClick={() => setReversalTarget(null)}>Cancel</Button>
             <Button
               variant="contained"
               color="error"
@@ -514,7 +514,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
               onClick={handleConfirmReversal}
               sx={{ fontWeight: 800 }}
             >
-              उल्ट्याउनुहोस् (Confirm Reversal)
+              Confirm Reversal
             </Button>
           </DialogActions>
         </Dialog>

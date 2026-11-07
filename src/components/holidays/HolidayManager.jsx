@@ -155,7 +155,7 @@ export default function HolidayManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <EventBusyIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Holiday Management (सार्वजनिक तथा संस्थागत बिदा)
+              Holiday Management
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -179,10 +179,10 @@ export default function HolidayManager() {
           <CalendarMonthIcon sx={{ color: '#166534', fontSize: 28 }} />
           <Box>
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#166534' }}>
-              शनिबार स्वतः सार्वजनिक बिदा (Default Saturday Off Policy)
+              Default Saturday Off Policy
             </Typography>
             <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 600 }}>
-              नेपालको आधिकारिक कार्यतालिका बमोजिम प्रत्येक शनिबार प्रणालीले स्वतः गैर-प्रशिक्षण दिन (Non-training day) मान्नेछ।
+              In accordance with the official calendar, every Saturday is automatically treated as a non-training day by the system.
             </Typography>
           </Box>
         </Box>
@@ -249,8 +249,8 @@ export default function HolidayManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>क्र.सं. (S.N.)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Holiday Title (बिदाको शीर्षक)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Holiday Title</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Start Date</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>End Date</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Type</TableCell>
@@ -355,7 +355,7 @@ export default function HolidayManager() {
 
                     <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, mb: 1.5, border: '1px solid #e2e8f0' }}>
                       <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                        DATES (अवधि):
+                        DATES:
                       </Typography>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
                         {hol.startDate} → {hol.endDate}
@@ -428,10 +428,10 @@ export default function HolidayManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'सार्वजनिक बिदा सम्पादन (Edit Holiday)' : 'नयाँ बिदा तालिका दर्ता (Add Holiday Schedule)'}
+                {editingItem ? 'Edit Holiday' : 'Add Holiday Schedule'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                चाडपर्व, राष्ट्रिय वा संस्थागत बिदा तालिका व्यवस्थापन
+                Manage festival, national, or institutional holiday schedules
               </Typography>
             </Box>
           </Box>
@@ -463,7 +463,7 @@ export default function HolidayManager() {
               label="Holiday Title (e.g. Dashain Festival Vacation) *"
               fullWidth
               size="small"
-              placeholder="उदा: बडादशैं बिदा / तिहार बिदा"
+              placeholder="e.g. Dashain Holiday / Tihar Holiday"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -505,11 +505,11 @@ export default function HolidayManager() {
               onChange={(e) => setFormData({ ...formData, type: e.target.value })}
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- विदाको प्रकार छान्नुहोस् --
+                -- Select Holiday Type --
               </MenuItem>
-              <MenuItem value="Public Festival">Public Festival (चाडपर्व बिदा)</MenuItem>
-              <MenuItem value="National Holiday">National Holiday (राष्ट्रिय बिदा)</MenuItem>
-              <MenuItem value="Institutional">Institutional / Local (संस्थागत बिदा)</MenuItem>
+              <MenuItem value="Public Festival">Public Festival</MenuItem>
+              <MenuItem value="National Holiday">National Holiday</MenuItem>
+              <MenuItem value="Institutional">Institutional / Local</MenuItem>
             </TextField>
 
             <TextField
@@ -518,7 +518,7 @@ export default function HolidayManager() {
               rows={2}
               fullWidth
               size="small"
-              placeholder="सूचना सम्बन्धी थप विवरण वा निर्देशन..."
+              placeholder="Additional notice details or instructions..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
@@ -546,7 +546,7 @@ export default function HolidayManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -566,7 +566,7 @@ export default function HolidayManager() {
               }
             }}
           >
-            {editingItem ? 'अद्यावधिक गर्नुहोस्' : 'सुरक्षित गर्नुहोस् (Save Holiday)'}
+            {editingItem ? 'Update Holiday' : 'Save Holiday'}
           </Button>
         </DialogActions>
       </Dialog>

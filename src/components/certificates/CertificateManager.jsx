@@ -246,7 +246,7 @@ export default function CertificateManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <WorkspacePremiumIcon sx={{ color: '#c59b27', fontSize: 36 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Certificates (व्यावसायिक तालिम समापन प्रमाणपत्र)
+              Certificates (Vocational Training Completion)
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -267,7 +267,7 @@ export default function CertificateManager() {
               '&:hover': { bgcolor: '#FEF9C3', borderColor: '#B45309' }
             }}
           >
-            ढाँचा तथा डिजाइन सेटिङ (Certificate Studio)
+            Certificate Studio & Design Settings
           </Button>
 
           {eligiblePendingCount > 0 && (
@@ -290,7 +290,7 @@ export default function CertificateManager() {
           <Grid item xs={12} md={5}>
             <TextField
               select
-              label="Select Training Group (ब्याच)"
+              label="Select Training Group (Batch)"
               fullWidth
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -431,15 +431,15 @@ export default function CertificateManager() {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रशिक्षार्थीको नाम (Trainee)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Trainee Name</TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 95 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110, textAlign: 'center' }}>हाजिरी %</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>प्रमाणपत्र नं (Cert No)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>जारी मिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>स्थिति (Status)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110, textAlign: 'center' }}>Attendance %</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Certificate No</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>Issue Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -763,7 +763,7 @@ export default function CertificateManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <ColorLensIcon sx={{ color: '#F59E0B', fontSize: 28 }} />
             <Typography variant="h6" sx={{ fontWeight: 900 }}>
-              प्रमाणपत्र ढाँचा तथा डिजाइन सेटिङ (Certificate Studio & Designer)
+              Certificate Studio & Template Designer
             </Typography>
           </Box>
           <IconButton onClick={() => setStudioModalOpen(false)} sx={{ color: '#FFFFFF' }}>

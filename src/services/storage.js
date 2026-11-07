@@ -121,33 +121,33 @@ export const INITIAL_SEED_DATA = {
   smsTemplates: [
     {
       id: 'TPL-01',
-      title: 'Attendance Warning (अनुपस्थिति चेतावनी)',
+      title: 'Attendance Warning',
       category: 'Attendance',
-      content: 'नमस्ते {parent}, तपाईंको छोरा/छोरी {name} आज मिति {date} मा {course} कक्षामा अनुपस्थित हुनुभएको जानकारी गराउँदछौँ। - {institute}'
+      content: 'Dear {parent}, this is to inform you that your ward {name} was absent from the {course} class today ({date}). - {institute}'
     },
     {
       id: 'TPL-02',
-      title: 'Training Commencement (कक्षा सुरु सूचना)',
+      title: 'Training Commencement Notice',
       category: 'Class',
-      content: 'नमस्ते {name}, तपाईंको {course} तालिम मिति {date} बाट Shift {shift} मा सुरु हुँदैछ। कृपया समयमै उपस्थित हुनुहोला। - {institute}'
+      content: 'Dear {name}, your {course} training starts from {date} in Shift {shift}. Please attend on time. - {institute}'
     },
     {
       id: 'TPL-03',
-      title: 'Certificate Ready (प्रमाणपत्र तयार सूचना)',
+      title: 'Certificate Ready Notice',
       category: 'Certificate',
-      content: 'बधाई छ {name}! तपाईंको {course} को व्यावसायिक तालिम समापन प्रमाणपत्र (नं. {certNo}) तयार भएको छ। कार्यालयबाट बुझिलिनुहोला। - {institute}'
+      content: 'Congratulations {name}! Your vocational training completion certificate for {course} (No. {certNo}) is ready for collection from the office. - {institute}'
     },
     {
       id: 'TPL-04',
-      title: 'OJT Briefing Notice (स्थलगत तालिम सिफारिस)',
+      title: 'OJT Briefing Notice',
       category: 'OJT',
-      content: 'नमस्ते {name}, तपाईंको OJT तालिम {employer} मा मिति {date} देखि सुरु हुँदैछ। सुपरभाइजर: {supervisor} ({phone})। - {institute}'
+      content: 'Dear {name}, your On-the-Job Training (OJT) at {employer} starts from {date}. Supervisor: {supervisor} ({phone}). - {institute}'
     },
     {
       id: 'TPL-05',
-      title: 'Placement Interview (रोजगारी अन्तर्वार्ता)',
+      title: 'Placement Interview Notice',
       category: 'Placement',
-      content: 'नमस्ते {name}, तपाईंको {jobTitle} पदका लागि {employer} मा अन्तर्वार्ता तय भएको छ। मिति: {date}, समय: {time}। सम्पर्क: {phone}। - {institute}'
+      content: 'Dear {name}, your job interview for {jobTitle} at {employer} is scheduled on {date} at {time}. Contact: {phone}. - {institute}'
     }
   ],
 
@@ -196,7 +196,7 @@ export const INITIAL_SEED_DATA = {
 
   settings: {
     instituteName: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
-    instituteSub: 'ग्लोबल एरा प्राविधिक स्कुल',
+    instituteSub: 'Global Era Technical School',
     location: 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
     contactPhone: '+977-1-4915678 / 9851234567',
     email: 'info@globalera.edu.np',
@@ -207,7 +207,7 @@ export const INITIAL_SEED_DATA = {
     supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO',
     companyProfile: {
       companyNameEnglish: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
-      companyNameNepali: 'ग्लोबल एरा प्राविधिक स्कुल',
+      companyNameNepali: 'Global Era Technical School',
       address: 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
       contactPhone: '+977-1-4915678 / 9851234567',
       email: 'info@globalera.edu.np',
@@ -215,8 +215,8 @@ export const INITIAL_SEED_DATA = {
       companyRegNo: '184920/078/079',
       ctevtCode: '4208',
       panNo: '609823412',
-      directorName: 'गोकर्ण थापा (Gokarna Thapa)',
-      directorTitle: 'क्याम्पस प्रमुख / निर्देशक (Managing Director)',
+      directorName: 'Gokarna Thapa',
+      directorTitle: 'Managing Director / Campus Chief',
       logoUrl: '',
       stampUrl: ''
     },
@@ -236,7 +236,7 @@ export const INITIAL_SEED_DATA = {
       deviceType: 'ZKTeco K40 WiFi / ADMS Push',
       cloudPushUrl: 'https://globalera.edu.np/iclock/cdata',
       status: 'Online',
-      lastSyncTime: 'प्रतीक्षामा',
+      lastSyncTime: 'Standby',
       morningShiftStart: '07:00',
       dayShiftStart: '11:00',
       eveningShiftStart: '15:00',
@@ -256,7 +256,7 @@ INITIAL_SEED_DATA.users = generateDefaultUsers(
   INITIAL_SEED_DATA.agents
 );
 
-const DB_KEY = 'kite_tvet_erp_prod_v1';
+const DB_KEY = 'kite_tvet_erp_prod_v2';
 
 /**
  * Helper to generate safe collision-free sequential IDs (e.g. STD-09, TRN-05, TGID-108)
@@ -405,9 +405,12 @@ export function reconcileUsersWithEntities(data) {
 
 export function loadDB() {
   try {
-    // Purge legacy demo storage key if present
+    // Purge legacy demo storage keys if present
     if (localStorage.getItem('kite_tvet_erp_data_v1')) {
       localStorage.removeItem('kite_tvet_erp_data_v1');
+    }
+    if (localStorage.getItem('kite_tvet_erp_prod_v1')) {
+      localStorage.removeItem('kite_tvet_erp_prod_v1');
     }
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) {
@@ -509,7 +512,7 @@ export function getHolidayInfo(dateStr, holidays = []) {
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return { isHoliday: false, name: null, type: null };
   if (d.getDay() === 6) {
-    return { isHoliday: true, name: 'शनिबार (Saturday Regular Holiday)', type: 'Weekly Off' };
+    return { isHoliday: true, name: 'Saturday Regular Holiday', type: 'Weekly Off' };
   }
   const match = (holidays || []).find((h) => {
     if (!h.startDate || !h.endDate) return false;

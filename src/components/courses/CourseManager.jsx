@@ -56,13 +56,13 @@ import { useDialog } from '../../context/DialogContext';
 // Quick Template presets for new vocational courses
 const COURSE_TEMPLATES = [
   {
-    title: 'Caregiver (हेरचाह कार्यकर्ता)',
+    title: 'Caregiver',
     level: 'CTEVT Level 1',
     durationValue: 3,
     durationUnit: 'Months',
     totalHours: 390,
     price: 18000,
-    description: 'वृद्ध, असक्त तथा बिरामीहरूको हेरचाह, प्राथमिक उपचार र अस्पताल सहयोग सम्बन्धी ३ महिने तालिम।'
+    description: '3-month training program covering elderly, disabled, and patient care, first aid, and hospital support.'
   },
   {
     title: 'Professional Beautician & Hair Care',
@@ -71,25 +71,25 @@ const COURSE_TEMPLATES = [
     durationUnit: 'Months',
     totalHours: 390,
     price: 16000,
-    description: 'स्किन केयर, हेयर स्टाइल, केमिकल ट्रिटमेन्ट, मेकअप तथा सलोन व्यवस्थापन तालिम।'
+    description: 'Training in skin care, hair styling, chemical treatments, makeup, and salon management.'
   },
   {
-    title: 'Building Electrician (भवन वायरिङ)',
+    title: 'Building Electrician',
     level: 'CTEVT Level 1',
     durationValue: 3,
     durationUnit: 'Months',
     totalHours: 390,
     price: 15000,
-    description: 'घरायसी तथा औद्योगिक भवन विद्युतीकरण, अर्थिङ, DB बक्स र सुरक्षा उपकरण जडान तालिम।'
+    description: 'Training in domestic and industrial building wiring, earthing, DB box, and safety equipment installation.'
   },
   {
-    title: 'Sanitary Plumber (प्लम्बिङ प्राविधिक)',
+    title: 'Sanitary Plumber',
     level: 'CTEVT Level 1',
     durationValue: 3,
     durationUnit: 'Months',
     totalHours: 390,
     price: 15000,
-    description: 'खानेपानी पाइप जडान, ड्रेनेज, फिटिङ्स, पम्प तथा सेनिटरी फिक्स्चर मर्मत तालिम।'
+    description: 'Training in water supply pipe installation, drainage, fittings, pumps, and sanitary fixture maintenance.'
   }
 ];
 
@@ -217,7 +217,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
   const handleSave = () => {
     if (!formData.title.trim() || !formData.occupationId) {
-      alert('कृपया पेशा (Occupation) र पाठ्यक्रम शीर्षक (Course Title) प्रविष्ट गर्नुहोस्।');
+      alert('Please enter both the Occupation and Course Title.');
       return;
     }
 
@@ -257,19 +257,19 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
     if (hasBatches) {
       await alert({
         type: 'warning',
-        title: 'पाठ्यक्रम मेटाउन नमिल्ने (Course Restricted)',
-        message: `यो पाठ्यक्रम (${crs?.title}) सँग सम्बन्धित तालिम समूह (Batches) रहेका छन्।`,
-        detail: 'पहिले सम्बन्धित तालिम समूह हटाउनुहोस् वा अर्को पाठ्यक्रममा स्थानान्तरण गर्नुहोस्।'
+        title: 'Cannot Delete Course (Course Restricted)',
+        message: `There are training batches associated with this course (${crs?.title}).`,
+        detail: 'Please remove or transfer the associated training groups to another course first.'
       });
       return;
     }
 
     const ok = await confirm({
       type: 'danger',
-      title: 'पाठ्यक्रम मेटाउने निश्चित गर्नुहोस् (Delete Course)',
-      message: `के तपाईं पाठ्यक्रम "${crs?.title || id}" लाई प्रणालीबाट हटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो कार्यपछि सम्बन्धित पाठ्यक्रम र एकाइ विवरण हट्नेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
-      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      title: 'Confirm Delete Course',
+      message: `Are you sure you want to remove the course "${crs?.title || id}" from the system?`,
+      detail: 'This action will remove the course and its unit details. This action cannot be undone.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
 
@@ -350,12 +350,12 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 mb: 1
               }}
             >
-              Course Master (पाठ्यक्रम व्यवस्थापन)
+              Course Master (Curriculum Management)
             </Typography>
 
             <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              संस्था अन्तर्गत सञ्चालित पेशागत पाठ्यक्रम, अवधि, CTEVT स्तर, घण्टा तथा शुल्कको आधिकारिक मास्टर परिभाषा।
-              यहाँ परिभाषित पाठ्यक्रम अनुसार नै तालिम समूह (Training Batches) सञ्चालन हुन्छन्।
+              Official master definition of vocational courses, duration, CTEVT levels, credit hours, and fees operated under the institution.
+              Training batches are conducted based on the courses defined here.
             </Typography>
 
             <Button
@@ -376,7 +376,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 }
               }}
             >
-              + Add Course (नयाँ पाठ्यक्रम थप्नुहोस्)
+              + Add Course
             </Button>
           </Grid>
 
@@ -394,13 +394,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                   }}
                 >
                   <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    कुल पाठ्यक्रम (COURSES)
+                    TOTAL COURSES
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
                     {totalCoursesCount}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#86EFAC' }}>
-                    {activeCoursesCount} सक्रिय सञ्चालनमा
+                    {activeCoursesCount} Actively Running
                   </Typography>
                 </Box>
               </Grid>
@@ -416,13 +416,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                   }}
                 >
                   <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    औसत तालिम अवधि
+                    AVG. TRAINING DURATION
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
                     {avgHours}h
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                    ३ महिने (CTEVT Level 1)
+                    3 Months (CTEVT Level 1)
                   </Typography>
                 </Box>
               </Grid>
@@ -442,7 +442,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 >
                   <Box>
                     <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 900, display: 'block' }}>
-                      पाठ्य-एकाइहरू (SYLLABUS COVERAGE)
+                      SYLLABUS COVERAGE
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
                       {totalSyllabusUnits} Units across all courses
@@ -479,7 +479,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <TextField
               size="small"
               fullWidth
-              placeholder="पाठ्यक्रम, कोड वा पेशा खोज्नुहोस्..."
+              placeholder="Search course, code, or occupation..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
@@ -498,13 +498,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <TextField
               select
               size="small"
-              label="पेशा (Occupation)"
+              label="Occupation"
               fullWidth
               value={selectedOccupation}
               onChange={(e) => setSelectedOccupation(e.target.value)}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="ALL">सबै पेशाहरू (All)</MenuItem>
+              <MenuItem value="ALL">All Occupations</MenuItem>
               {(db.occupations || []).map((occ) => (
                 <MenuItem key={occ.id} value={occ.id}>
                   {occ.name}
@@ -518,15 +518,15 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <TextField
               select
               size="small"
-              label="स्थिति (Status)"
+              label="Status"
               fullWidth
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="ALL">सबै स्थिति (All)</MenuItem>
-              <MenuItem value="Active">सक्रिय (Active)</MenuItem>
-              <MenuItem value="Inactive">निष्क्रिय (Inactive)</MenuItem>
+              <MenuItem value="ALL">All Statuses</MenuItem>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
           </Grid>
 
@@ -535,7 +535,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <TextField
               select
               size="small"
-              label="क्रम (Sort By)"
+              label="Sort By"
               fullWidth
               value={`${sortBy}-${sortOrder}`}
               onChange={(e) => {
@@ -545,10 +545,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               }}
               sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
-              <MenuItem value="id-asc">Course ID (कम-बढी)</MenuItem>
-              <MenuItem value="title-asc">शीर्षक (A-Z)</MenuItem>
-              <MenuItem value="totalHours-desc">घण्टा (बढी-कम)</MenuItem>
-              <MenuItem value="price-desc">शुल्क (बढी-कम)</MenuItem>
+              <MenuItem value="id-asc">Course ID (Asc)</MenuItem>
+              <MenuItem value="title-asc">Title (A-Z)</MenuItem>
+              <MenuItem value="totalHours-desc">Hours (High-Low)</MenuItem>
+              <MenuItem value="price-desc">Fee (High-Low)</MenuItem>
             </TextField>
           </Grid>
 
@@ -677,7 +677,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                     <Grid container spacing={1}>
                       <Grid item xs={4}>
                         <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
-                          अवधि
+                          Duration
                         </Typography>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A' }}>
                           {crs.durationValue} {crs.durationUnit}
@@ -686,7 +686,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                       <Grid item xs={4}>
                         <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
-                          कुल घण्टा
+                          Total Hours
                         </Typography>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
                           {crs.totalHours || 390} hrs
@@ -695,10 +695,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                       <Grid item xs={4}>
                         <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 800, display: 'block' }}>
-                          तालिम शुल्क
+                          Training Fee
                         </Typography>
                         <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#2563EB' }}>
-                          रु. {Number(crs.price || 0).toLocaleString()}
+                          Rs. {Number(crs.price || 0).toLocaleString()}
                         </Typography>
                       </Grid>
                     </Grid>
@@ -748,7 +748,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                       onClick={() => setSelectedCourseDetails({ ...crs, occupation: occ, syllabusUnits, batches })}
                       sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'none', color: '#0F2C59' }}
                     >
-                      विवरण (Details)
+                      Details
                     </Button>
 
                     <Box sx={{ display: 'flex', gap: 0.5 }}>
@@ -780,10 +780,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
                 <MenuBookIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
-                  कुनै पाठ्यक्रम फेला परेन
+                  No Courses Found
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
-                  तपाईंको खोजी वा फिल्टर अनुसार कुनै पाठ्यक्रम सूचीकृत छैन।
+                  No courses match your current search or filter criteria.
                 </Typography>
                 <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
                   + Add New Course
@@ -816,7 +816,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 100 }}>
                     <TableSortLabel
@@ -843,11 +843,11 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      पाठ्यक्रम शीर्षक र स्तर (Title & Level)
+                      Title & Level
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पेशा (Occupation)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>अवधि (Duration)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Occupation</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Duration</TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
                     <TableSortLabel
                       active={sortBy === 'totalHours'}
@@ -859,7 +859,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      घण्टा (Hours)
+                      Hours
                     </TableSortLabel>
                   </TableCell>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>
@@ -873,12 +873,12 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      शुल्क (Fee)
+                      Fee
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>एकाइ / ब्याच</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Units / Batches</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -917,7 +917,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                         {crs.totalHours || 390}h
                       </TableCell>
                       <TableCell sx={{ fontWeight: 900, textAlign: 'right', color: '#0F172A' }}>
-                        रु. {Number(crs.price || 0).toLocaleString()}
+                        Rs. {Number(crs.price || 0).toLocaleString()}
                       </TableCell>
                       <TableCell sx={{ textAlign: 'center' }}>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>
@@ -971,7 +971,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 {filteredAndSortedCourses.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={10} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
-                      कुनै पाठ्यक्रम फेला परेन।
+                      No courses found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -1018,10 +1018,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-                {editingItem ? 'पाठ्यक्रम सम्पादन गर्नुहोस् (Edit Course Master)' : 'नयाँ पाठ्यक्रम सिर्जना (Create New Course Master)'}
+                {editingItem ? 'Edit Course Master' : 'Create New Course Master'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-                {editingItem ? 'पाठ्यक्रम, अवधि र शुल्क विवरण अद्यावधिक गर्नुहोस्' : 'CTEVT पाठ्यक्रम मापदण्ड अनुसार नयाँ विषय दर्ता गर्नुहोस्'}
+                {editingItem ? 'Update course, duration, and fee details' : 'Register a new course according to CTEVT curriculum standards'}
               </Typography>
             </Box>
           </Box>
@@ -1055,7 +1055,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.2 }}>
                 <AutoAwesomeIcon sx={{ fontSize: 18, color: '#F59E0B' }} />
                 <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                  द्रुत CTEVT टेम्प्लेटबाट भर्नुहोस् (1-Click Auto-Fill):
+                  Quick CTEVT Template (1-Click Auto-Fill):
                 </Typography>
               </Box>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -1088,7 +1088,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={12} sm={6}>
               <TextField
                 select
-                label="सम्बन्धित पेशा (Occupation) *"
+                label="Occupation *"
                 fullWidth
                 size="small"
                 value={formData.occupationId}
@@ -1096,7 +1096,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 required
               >
                 <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- पेशा चयन गर्नुहोस् (Select Occupation) --
+                  -- Select Occupation --
                 </MenuItem>
                 {(db.occupations || []).map((occ) => (
                   <MenuItem key={occ.id} value={occ.id}>
@@ -1109,10 +1109,10 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             {/* Course Title */}
             <Grid item xs={12} sm={6}>
               <TextField
-                label="पाठ्यक्रमको नाम (Course Title) *"
+                label="Course Title *"
                 fullWidth
                 size="small"
-                placeholder="उदा: Professional Caregiver"
+                placeholder="e.g. Professional Caregiver"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 required
@@ -1123,19 +1123,19 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={12} sm={4}>
               <TextField
                 select
-                label="स्तर (Level)"
+                label="Level"
                 fullWidth
                 size="small"
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
               >
                 <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- स्तर चयन गर्नुहोस् --
+                  -- Select Level --
                 </MenuItem>
-                <MenuItem value="CTEVT Level 1">CTEVT Level 1 (आधारभूत)</MenuItem>
-                <MenuItem value="CTEVT Level 2">CTEVT Level 2 (मध्यम)</MenuItem>
-                <MenuItem value="Short Term">छोटो अवधिको (Short Term)</MenuItem>
-                <MenuItem value="ToT Certified">ToT Certified (प्रशिक्षक तालिम)</MenuItem>
+                <MenuItem value="CTEVT Level 1">CTEVT Level 1 (Basic)</MenuItem>
+                <MenuItem value="CTEVT Level 2">CTEVT Level 2 (Intermediate)</MenuItem>
+                <MenuItem value="Short Term">Short Term</MenuItem>
+                <MenuItem value="ToT Certified">ToT Certified (Trainer Training)</MenuItem>
               </TextField>
             </Grid>
 
@@ -1143,13 +1143,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={12} sm={4}>
               <TextField
                 type="number"
-                label="कुल तालिम घण्टा (Total Hours) *"
+                label="Total Hours *"
                 fullWidth
                 size="small"
                 placeholder="390"
                 value={formData.totalHours}
                 onChange={(e) => setFormData({ ...formData, totalHours: e.target.value === '' ? '' : Number(e.target.value) })}
-                helperText="CTEVT मानक: ३९० घण्टा"
+                helperText="CTEVT Standard: 390 Hours"
               />
             </Grid>
 
@@ -1157,13 +1157,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={12} sm={4}>
               <Box sx={{ p: 1, bgcolor: '#F0FDF4', borderRadius: 1.5, border: '1px solid #A7F3D0' }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block', mb: 0.3 }}>
-                  कुल खुद शुल्क (१३% भ्याट सहित):
+                  Total Net Fee (Including 13% VAT):
                 </Typography>
                 <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#065F46' }}>
-                  रु. {(formData.price || 0).toLocaleString()}
+                  Rs. {(formData.price || 0).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', display: 'block' }}>
-                  💡 विस्तृत ब्रेकडाउन, अभियान छुट र किस्ता नीति "कोर्स शुल्क संरचना" मोड्युलमा व्यवस्थित छ।
+                  💡 Detailed breakdown, campaign discounts, and installment policies are managed in the "Course Fee Structure" module.
                 </Typography>
               </Box>
             </Grid>
@@ -1172,7 +1172,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={6} sm={4}>
               <TextField
                 type="number"
-                label="अवधि संख्या (Duration Value)"
+                label="Duration Value"
                 fullWidth
                 size="small"
                 placeholder="3"
@@ -1185,15 +1185,15 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={6} sm={4}>
               <TextField
                 select
-                label="अवधि एकाइ (Duration Unit)"
+                label="Duration Unit"
                 fullWidth
                 size="small"
                 value={formData.durationUnit}
                 onChange={(e) => setFormData({ ...formData, durationUnit: e.target.value })}
               >
-                <MenuItem value="Months">Months (महिना)</MenuItem>
-                <MenuItem value="Weeks">Weeks (हप्ता)</MenuItem>
-                <MenuItem value="Days">Days (दिन)</MenuItem>
+                <MenuItem value="Months">Months</MenuItem>
+                <MenuItem value="Weeks">Weeks</MenuItem>
+                <MenuItem value="Days">Days</MenuItem>
               </TextField>
             </Grid>
 
@@ -1201,26 +1201,26 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid item xs={12} sm={4}>
               <TextField
                 select
-                label="स्थिति (Status)"
+                label="Status"
                 fullWidth
                 size="small"
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
-                <MenuItem value="Active">Active (सक्रिय)</MenuItem>
-                <MenuItem value="Inactive">Inactive (निष्क्रिय)</MenuItem>
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
               </TextField>
             </Grid>
 
             {/* Description */}
             <Grid item xs={12}>
               <TextField
-                label="पाठ्यक्रम विवरण तथा उद्देश्य (Description / Scope)"
+                label="Description / Scope"
                 multiline
                 rows={3}
                 fullWidth
                 size="small"
-                placeholder="यस पाठ्यक्रमको मुख्य उद्देश्य, प्राविधिक सीपहरू र रोजगार सम्भावना सम्बन्धी संक्षिप्त विवरण..."
+                placeholder="Brief summary of the course's main objectives, technical skills, and employment prospects..."
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               />
@@ -1249,7 +1249,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1269,7 +1269,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Course)
+            Save Course
           </Button>
         </DialogActions>
       </Dialog>
@@ -1355,7 +1355,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             <Grid container spacing={2} sx={{ mb: 2.5, p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5 }}>
               <Grid item xs={6} sm={3}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-                  पेशा (Occupation):
+                  Occupation:
                 </Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
                   {selectedCourseDetails.occupation?.name || '—'}
@@ -1363,7 +1363,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-                  अवधि र घण्टा:
+                  Duration & Hours:
                 </Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
                   {selectedCourseDetails.durationValue} {selectedCourseDetails.durationUnit} ({selectedCourseDetails.totalHours} hrs)
@@ -1371,15 +1371,15 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-                  तालिम शुल्क:
+                  Training Fee:
                 </Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#2563EB' }}>
-                  रु. {Number(selectedCourseDetails.price || 0).toLocaleString()}
+                  Rs. {Number(selectedCourseDetails.price || 0).toLocaleString()}
                 </Typography>
               </Grid>
               <Grid item xs={6} sm={3}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-                  सक्रिय समूहहरू:
+                  Active Groups:
                 </Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
                   {selectedCourseDetails.batches?.length || 0} Batches
@@ -1390,7 +1390,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             {selectedCourseDetails.description && (
               <Box sx={{ mb: 3 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5, color: '#0F2C59' }}>
-                  पाठ्यक्रमको उद्देश्य र विवरण:
+                  Course Objectives & Description:
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#334155', lineHeight: 1.6 }}>
                   {selectedCourseDetails.description}
@@ -1400,7 +1400,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
             {/* Linked Syllabus Units Preview */}
             <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 1, color: '#0F2C59' }}>
-              यस पाठ्यक्रमका एकाइहरू ({selectedCourseDetails.syllabusUnits?.length || 0} Units):
+              Syllabus Units for This Course ({selectedCourseDetails.syllabusUnits?.length || 0} Units):
             </Typography>
 
             <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, mb: 2 }}>
@@ -1408,7 +1408,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 <TableHead sx={{ bgcolor: '#F1F5F9' }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 800 }}>Unit #</TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>शीर्षक (Unit Title)</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Unit Title</TableCell>
                     <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Practical</TableCell>
                     <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Theory</TableCell>
                     <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Total</TableCell>
@@ -1427,7 +1427,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                   {(selectedCourseDetails.syllabusUnits || []).length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} sx={{ textAlign: 'center', py: 2, color: '#94A3B8' }}>
-                        कुनै एकाइ थपिएको छैन। Syllabus Studio मा गएर एकाइ थप्न सक्नुहुन्छ।
+                        No units added yet. You can add units in the Syllabus Studio.
                       </TableCell>
                     </TableRow>
                   )}
@@ -1437,7 +1437,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setSelectedCourseDetails(null)} sx={{ fontWeight: 700 }}>
-              बन्द गर्नुहोस्
+              Close
             </Button>
             <Button
               variant="contained"
@@ -1447,7 +1447,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               }}
               sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}
             >
-              सम्पादन गर्नुहोस् (Edit)
+              Edit
             </Button>
           </DialogActions>
         </Dialog>

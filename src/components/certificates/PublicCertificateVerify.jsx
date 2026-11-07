@@ -54,7 +54,7 @@ export default function PublicCertificateVerify({
           OFFICIAL CREDENTIAL VERIFICATION
         </Typography>
         <Typography variant="caption" sx={{ color: '#cbd5e1', display: 'block' }}>
-          प्रमाणीकरण पोर्टल • CTEVT Accredited Institution
+          Verification Portal • CTEVT Accredited Institution
         </Typography>
       </Box>
 
@@ -78,7 +78,7 @@ export default function PublicCertificateVerify({
               <CheckCircleIcon sx={{ color: '#16834b', fontSize: 30 }} />
               <Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#16834b' }}>
-                  CERTIFIED AUTHENTIC & VALID (सक्कल अभिलेख प्रमाणित)
+                  CERTIFIED AUTHENTIC & VALID
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#276749', display: 'block' }}>
                   This vocational training completion certificate is genuine and officially recorded.
@@ -126,7 +126,7 @@ export default function PublicCertificateVerify({
 
                 <Grid item xs={6}>
                   <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontWeight: 700 }}>
-                    ISSUE DATE (जारी मिति):
+                    ISSUE DATE:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800 }}>
                     {certificate.issueDate}
@@ -135,7 +135,7 @@ export default function PublicCertificateVerify({
 
                 <Grid item xs={12}>
                   <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontWeight: 700 }}>
-                    COURSE / PROGRAM (पाठ्यक्रम):
+                    COURSE / PROGRAM:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
                     {course?.title || 'Vocational Training'} ({course?.totalHours || 390} Hours)
@@ -162,7 +162,7 @@ export default function PublicCertificateVerify({
 
                 <Grid item xs={12}>
                   <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontWeight: 700 }}>
-                    TRAINING PERIOD (तालिम अवधि):
+                    TRAINING PERIOD:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800 }}>
                     {group?.admissionDate || '2026-07-15'} → {group?.expectedEndDate || '2026-10-15'}

@@ -29,12 +29,12 @@ import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
 
 export const PAYMENT_METHODS = [
-  'Cash (नगद)',
-  'Fonepay / QR (फोनपे)',
-  'eSewa (इसेवा)',
-  'Khalti (खल्ती)',
-  'Bank Transfer (बैंक दाखिला)',
-  'Cheque (चेक)'
+  'Cash',
+  'Fonepay / QR',
+  'eSewa',
+  'Khalti',
+  'Bank Transfer',
+  'Cheque'
 ];
 
 export default function RecordPaymentModal({
@@ -50,7 +50,7 @@ export default function RecordPaymentModal({
   const [amount, setAmount] = useState('');
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().slice(0, 10));
   const [paymentMonth, setPaymentMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [paymentMethod, setPaymentMethod] = useState('Fonepay / QR (फोनपे)');
+  const [paymentMethod, setPaymentMethod] = useState('Fonepay / QR');
   const [remarks, setRemarks] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -105,10 +105,10 @@ export default function RecordPaymentModal({
       // If student has paid 0, suggest 50% installment!
       if (bal.paid === 0) {
         setAmount(Math.round(bal.lockedFee * 0.5));
-        setRemarks('पहिलो किस्ता (५०% भर्ना शुल्क)');
+        setRemarks('1st Installment (50% Admission Fee)');
       } else {
         setAmount(bal.due);
-        setRemarks('दोस्रो किस्ता (बाँकी बक्यौता भुक्तानी)');
+        setRemarks('2nd Installment (Remaining Balance Payment)');
       }
     } else {
       setStudentId('');
@@ -123,10 +123,10 @@ export default function RecordPaymentModal({
     const bal = getStudentBalance(selectedId);
     if (bal.paid === 0) {
       setAmount(Math.round(bal.lockedFee * 0.5));
-      setRemarks('पहिलो किस्ता (५०% भर्ना शुल्क)');
+      setRemarks('1st Installment (50% Admission Fee)');
     } else {
       setAmount(bal.due);
-      setRemarks('दोस्रो किस्ता (बाँकी बक्यौता भुक्तानी)');
+      setRemarks('2nd Installment (Remaining Balance Payment)');
     }
   };
 
@@ -136,16 +136,16 @@ export default function RecordPaymentModal({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!studentId) {
-      setErrorMsg('कृपया विद्यार्थी छान्नुहोस्।');
+      setErrorMsg('Please select a student.');
       return;
     }
     const payNum = Number(amount);
     if (!payNum || payNum <= 0) {
-      setErrorMsg('कृपया मान्य भुक्तानी रकम लेख्नुहोस् (Amount must be > 0).');
+      setErrorMsg('Please enter a valid payment amount (Amount must be > 0).');
       return;
     }
     if (selectedBalance && payNum > selectedBalance.due) {
-      setErrorMsg(`भुक्तानी रकम बाँकी बक्यौता (Rs. ${selectedBalance.due.toLocaleString()}) भन्दा बढी हुन सक्दैन।`);
+      setErrorMsg(`Payment amount cannot exceed remaining due balance (Rs. ${selectedBalance.due.toLocaleString()}).`);
       return;
     }
 
@@ -177,7 +177,7 @@ export default function RecordPaymentModal({
       paymentDate,
       paymentMonth,
       paymentMethod: paymentMethod.split(' (')[0],
-      remarks: remarks.trim() || 'शुल्क भुक्तानी',
+      remarks: remarks.trim() || 'Fee Payment',
       receivedBy: currentUser?.name || 'Admin / Cashier',
       createdAt: new Date().toISOString()
     };
@@ -237,10 +237,10 @@ export default function RecordPaymentModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
-              शुल्क संकलन तथा रसिद (Collect Student Fee)
+              Collect Student Fee & Issue Receipt
             </Typography>
             <Typography variant="caption" sx={{ color: '#A7F3D0', fontWeight: 500 }}>
-              किस्ता भुक्तानी दर्ता र प्रिन्ट रसिद जारी
+              Record installment payment and issue printable receipt
             </Typography>
           </Box>
         </Box>
@@ -262,19 +262,19 @@ export default function RecordPaymentModal({
             select
             fullWidth
             required
-            label="विद्यार्थी छान्नुहोस् (Select Student)"
+            label="Select Student"
             value={studentId}
             onChange={(e) => handleStudentSelect(e.target.value)}
             sx={{ mb: 2.5 }}
           >
             <MenuItem value="">
-              <em>-- विद्यार्थी छान्नुहोस् --</em>
+              <em>-- Select Student --</em>
             </MenuItem>
             {students.map((st) => {
               const b = getStudentBalance(st.id);
               return (
                 <MenuItem key={st.id} value={st.id} disabled={b.due <= 0}>
-                  {st.name} ({st.tgid}) — बाँकी बक्यौता: Rs. {b.due.toLocaleString()} {b.due <= 0 ? '(सम्पन्न)' : ''}
+                  {st.name} ({st.tgid}) — Remaining Due: Rs. {b.due.toLocaleString()} {b.due <= 0 ? '(Cleared)' : ''}
                 </MenuItem>
               );
             })}
@@ -297,7 +297,7 @@ export default function RecordPaymentModal({
                   {currentStudent?.name} ({currentStudent?.tgid})
                 </Typography>
                 <Chip
-                  label={selectedBalance.due === 0 ? 'सम्पन्न (Paid)' : `बाँकी बक्यौता: Rs. ${selectedBalance.due.toLocaleString()}`}
+                  label={selectedBalance.due === 0 ? 'Cleared (Paid)' : `Remaining Due: Rs. ${selectedBalance.due.toLocaleString()}`}
                   size="small"
                   color={selectedBalance.due === 0 ? 'success' : 'warning'}
                   sx={{ fontWeight: 800, fontSize: '0.75rem' }}
@@ -306,19 +306,19 @@ export default function RecordPaymentModal({
 
               <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>कोर्स:</Typography>
+                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Course:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{selectedBalance.courseName}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>लक्ड कुल शुल्क:</Typography>
+                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Locked Total Fee:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>Rs. {selectedBalance.lockedFee.toLocaleString()}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>अहिलेसम्म बुझाएको:</Typography>
+                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Total Paid So Far:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#10B981' }}>Rs. {selectedBalance.paid.toLocaleString()}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>बाँकी बक्यौता:</Typography>
+                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Remaining Due:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {selectedBalance.due.toLocaleString()}</Typography>
                 </Grid>
               </Grid>
@@ -338,7 +338,7 @@ export default function RecordPaymentModal({
                       bgcolor: '#FFFFFF'
                     }}
                   >
-                    ५०% किस्ता (Rs. {Math.round(selectedBalance.lockedFee * 0.5).toLocaleString()})
+                    50% Installment (Rs. {Math.round(selectedBalance.lockedFee * 0.5).toLocaleString()})
                   </Button>
                   <Button
                     size="small"
@@ -352,7 +352,7 @@ export default function RecordPaymentModal({
                       bgcolor: '#FFFFFF'
                     }}
                   >
-                    बाँकी सबै (Rs. {selectedBalance.due.toLocaleString()})
+                    Full Remaining (Rs. {selectedBalance.due.toLocaleString()})
                   </Button>
                 </Box>
               )}
@@ -365,8 +365,8 @@ export default function RecordPaymentModal({
                 fullWidth
                 required
                 type="number"
-                label="भुक्तानी रकम (Payment Amount Rs.)"
-                placeholder="उदा: 6000"
+                label="Payment Amount (Rs.)"
+                placeholder="e.g. 6000"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 InputProps={{
@@ -383,7 +383,7 @@ export default function RecordPaymentModal({
               <TextField
                 select
                 fullWidth
-                label="भुक्तानी माध्यम (Payment Method)"
+                label="Payment Method"
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
@@ -399,7 +399,7 @@ export default function RecordPaymentModal({
               <TextField
                 fullWidth
                 type="date"
-                label="भुक्तानी मिति (Payment Date)"
+                label="Payment Date"
                 InputLabelProps={{ shrink: true }}
                 value={paymentDate}
                 onChange={(e) => setPaymentDate(e.target.value)}
@@ -410,7 +410,7 @@ export default function RecordPaymentModal({
               <TextField
                 fullWidth
                 type="month"
-                label="लेखा महिना (Month)"
+                label="Accounting Month"
                 InputLabelProps={{ shrink: true }}
                 value={paymentMonth}
                 onChange={(e) => setPaymentMonth(e.target.value)}
@@ -420,8 +420,8 @@ export default function RecordPaymentModal({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="कैफियत / टिप्पणी (Remarks)"
-                placeholder="उदा: पहिलो किस्ता ५०% भर्ना शुल्क बुझाएको..."
+                label="Remarks"
+                placeholder="e.g. 1st installment 50% admission fee paid..."
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
                 InputProps={{
@@ -438,7 +438,7 @@ export default function RecordPaymentModal({
 
         <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -454,7 +454,7 @@ export default function RecordPaymentModal({
               boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
             }}
           >
-            भुक्तानी दर्ता गर्नुहोस् (Record & Generate Receipt)
+            Record & Generate Receipt
           </Button>
         </DialogActions>
       </form>

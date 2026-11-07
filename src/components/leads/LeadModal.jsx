@@ -29,50 +29,50 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 export const MASTER_SUBJECTS = [
-  'Beautician (कस्मोटोलोजी / ब्यूटिसियन)',
-  'Care Giver (केयर गिभर / स्वास्थ्य सेवा)',
-  'Tailoring & Garment (सिलाई कटाई तथा फेसन)',
-  'Bakery & Confectionery (बेकरी तथा पेस्ट्री)',
-  'Mobile Phone Repair (मोबाइल मर्मत)',
-  'Computer Basics & Office App (कम्प्युटर तालिम)',
-  'Electrician (House Wiring) (इलेक्ट्रिसियन)',
-  'Plumbing (प्लम्बिङ)',
-  'Fast Food & Commercial Cooking (फास्टफुड तथा कुकिङ)',
-  'Barista & Coffee Making (बरिस्ता / कफी)',
-  'Photography & Videography (फोटोग्राफी)',
-  'Graphic Design (ग्राफिक डिजाइन)',
-  'Achar & Pickle Making (अचार बनाउने)',
-  'Boutique & Advanced Fashion (बु boutique)',
-  'Other Vocational Trade (अन्य सीप)'
+  'Beautician & Cosmetology',
+  'Care Giver & Healthcare',
+  'Tailoring & Garment Fashion',
+  'Bakery & Confectionery',
+  'Mobile Phone Repair',
+  'Computer Basics & Office Applications',
+  'Electrician (House Wiring)',
+  'Plumbing & Pipe Fitting',
+  'Fast Food & Commercial Cooking',
+  'Barista & Coffee Making',
+  'Photography & Videography',
+  'Graphic Design',
+  'Pickle & Food Processing',
+  'Boutique & Advanced Fashion',
+  'Other Vocational Trade'
 ];
 
 export const LEAD_SOURCES = [
-  'Agent Referral (एजेन्ट रेफ़रल)',
-  'Walk-in (कार्यालयमा आएको)',
-  'Phone Inquiry (फोन सम्पर्क)',
-  'Facebook (फेसबुक)',
-  'Instagram (इन्स्टाग्राम)',
-  'TikTok (टिकटक)',
-  'WhatsApp (ह्वाट्सएप)',
-  'Website (वेबसाइट)',
-  'Referral (सिफारिस / साथी)',
-  'Poster / Banner (पोस्टर / ब्यानर)',
-  'Other (अन्य)'
+  'Agent Referral',
+  'Walk-in',
+  'Phone Inquiry',
+  'Facebook',
+  'Instagram',
+  'TikTok',
+  'WhatsApp',
+  'Website',
+  'Referral / Friends',
+  'Poster / Banner',
+  'Other'
 ];
 
 export const LEAD_STAGES = [
-  { value: 'New Lead', label: 'New Lead (नयाँ सोधपुछ)', color: '#3B82F6' },
-  { value: 'Contacted', label: 'Contacted (सम्पर्क भएको)', color: '#8B5CF6' },
-  { value: 'Interested', label: 'Interested (इच्छुक / Positive)', color: '#F59E0B' },
-  { value: 'Follow-up', label: 'Follow-up (पुन: सम्पर्क गर्नुपर्ने)', color: '#06B6D4' },
-  { value: 'Converted', label: 'Converted (भर्ना सम्पन्न / Enrolled)', color: '#10B981' },
-  { value: 'Lost', label: 'Lost (अनुपस्थित / रद्द)', color: '#EF4444' }
+  { value: 'New Lead', label: 'New Lead', color: '#3B82F6' },
+  { value: 'Contacted', label: 'Contacted', color: '#8B5CF6' },
+  { value: 'Interested', label: 'Interested', color: '#F59E0B' },
+  { value: 'Follow-up', label: 'Follow-up', color: '#06B6D4' },
+  { value: 'Converted', label: 'Converted (Enrolled)', color: '#10B981' },
+  { value: 'Lost', label: 'Lost / Cancelled', color: '#EF4444' }
 ];
 
 export const LEAD_PRIORITIES = [
-  { value: 'High', label: 'High (उच्च)', color: '#EF4444' },
-  { value: 'Medium', label: 'Medium (मध्यम)', color: '#F59E0B' },
-  { value: 'Low', label: 'Low (सामान्य)', color: '#64748B' }
+  { value: 'High', label: 'High', color: '#EF4444' },
+  { value: 'Medium', label: 'Medium', color: '#F59E0B' },
+  { value: 'Low', label: 'Low', color: '#64748B' }
 ];
 
 export default function LeadModal({
@@ -90,7 +90,7 @@ export default function LeadModal({
     course: '',
     duration: '',
     price: '',
-    source: 'Walk-in (कार्यालयमा आएको)',
+    source: 'Walk-in',
     priority: 'Medium',
     stage: 'New Lead',
     followUpDate: '',
@@ -110,7 +110,7 @@ export default function LeadModal({
         course: editingLead.course || '',
         duration: editingLead.duration || '',
         price: editingLead.price || '',
-        source: editingLead.source || 'Walk-in (कार्यालयमा आएको)',
+        source: editingLead.source || 'Walk-in',
         priority: editingLead.priority || 'Medium',
         stage: editingLead.stage || 'New Lead',
         followUpDate: editingLead.followUpDate || '',
@@ -126,7 +126,7 @@ export default function LeadModal({
         course: '',
         duration: '',
         price: '',
-        source: 'Walk-in (कार्यालयमा आएको)',
+        source: 'Walk-in',
         priority: 'Medium',
         stage: 'New Lead',
         followUpDate: '',
@@ -158,17 +158,17 @@ export default function LeadModal({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      setValidationError('कृपया विद्यार्थीको नाम लेख्नुहोस् (Full Name is required).');
+      setValidationError('Full Name is required.');
       return;
     }
     if (!formData.phone.trim()) {
-      setValidationError('कृपया मोबाइल नम्बर लेख्नुहोस् (Mobile Phone is required).');
+      setValidationError('Mobile Phone is required.');
       return;
     }
     // Clean phone number (strip whitespace/dashes)
     const cleanPhone = formData.phone.replace(/\D/g, '');
-    if (cleanPhone.length !== 10) {
-      setValidationError('कृपया १० अंकको मान्य मोबाइल नम्बर लेख्नुहोस् (Must be 10 digits).');
+    if (cleanPhone.length < 7 || cleanPhone.length > 15) {
+      setValidationError('Please enter a valid mobile number.');
       return;
     }
 
@@ -231,10 +231,10 @@ export default function LeadModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-              {editingLead ? 'सोधपुछ सम्पादन (Edit Lead / Inquiry)' : 'नयाँ सोधपुछ दर्ता (New Lead Entry)'}
+              {editingLead ? 'Edit Lead / Inquiry' : 'New Lead / Inquiry Entry'}
             </Typography>
             <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
-              {editingLead ? `Lead ID: ${editingLead.id}` : 'तालिम सम्बन्धी सोधपुछ र काउन्सिलिङ विवरण प्रविष्टि'}
+              {editingLead ? `Lead ID: ${editingLead.id}` : 'Enter prospective student inquiry & counselling details'}
             </Typography>
           </Box>
         </Box>
@@ -294,7 +294,7 @@ export default function LeadModal({
             }}
           >
             <PersonIcon sx={{ color: '#3B82F6', fontSize: '1.2rem' }} />
-            १. विद्यार्थी तथा सम्पर्क विवरण (Contact Info)
+            1. Student Contact Information
           </Typography>
 
           <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -302,8 +302,8 @@ export default function LeadModal({
               <TextField
                 fullWidth
                 required
-                label="पूरा नाम (Full Name)"
-                placeholder="उदा: सुनिता शर्मा"
+                label="Full Name"
+                placeholder="e.g. Sunita Sharma"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 InputProps={{
@@ -320,8 +320,8 @@ export default function LeadModal({
               <TextField
                 fullWidth
                 required
-                label="मोबाइल नम्बर (Phone / WhatsApp)"
-                placeholder="९८४१...... (१० अंक)"
+                label="Mobile Phone / WhatsApp"
+                placeholder="9841......"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 InputProps={{
@@ -331,15 +331,15 @@ export default function LeadModal({
                     </InputAdornment>
                   )
                 }}
-                helperText="१० अंकको मान्य नेपाली मोबाइल नम्बर"
+                helperText="Primary contact number"
               />
             </Grid>
 
             <Grid item xs={12} sm={12}>
               <TextField
                 fullWidth
-                label="ठेगाना / टोल (Address / Location)"
-                placeholder="उदा: जोरपाटी, काठमाडौँ"
+                label="Address / Location"
+                placeholder="e.g. Jorpati, Kathmandu"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 InputProps={{
@@ -368,7 +368,7 @@ export default function LeadModal({
             }}
           >
             <SchoolIcon sx={{ color: '#6366F1', fontSize: '1.2rem' }} />
-            २. रुचि भएको विषय तथा पाठ्यक्रम (Subject & Course)
+            2. Program & Course Interest
           </Typography>
 
           <Grid container spacing={2} sx={{ mb: 3 }}>
@@ -376,15 +376,15 @@ export default function LeadModal({
               <TextField
                 select
                 fullWidth
-                label="मुख्य विषय क्षेत्र (Master Subject)"
+                label="Master Subject / Sector"
                 value={formData.subject}
                 onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
               >
                 <MenuItem value="">
-                  <em>-- विषय क्षेत्र छान्नुहोस् --</em>
+                  <em>-- Select Sector --</em>
                 </MenuItem>
                 {MASTER_SUBJECTS.map((subj) => (
-                  <MenuItem key={subj} value={subj.split(' (')[0]}>
+                  <MenuItem key={subj} value={subj}>
                     {subj}
                   </MenuItem>
                 ))}
@@ -395,27 +395,27 @@ export default function LeadModal({
               <TextField
                 select
                 fullWidth
-                label="पाठ्यक्रम (Course)"
+                label="Course"
                 value={formData.course}
                 onChange={(e) => handleCourseChange(e.target.value)}
               >
                 <MenuItem value="">
-                  <em>-- पाठ्यक्रम छान्नुहोस् --</em>
+                  <em>-- Select Course --</em>
                 </MenuItem>
                 {courses.map((crs) => (
                   <MenuItem key={crs.id} value={crs.title}>
                     {crs.title} {crs.level ? `(${crs.level})` : ''}
                   </MenuItem>
                 ))}
-                <MenuItem value="Custom / Other Course">अन्य पाठ्यक्रम (Other / Custom)</MenuItem>
+                <MenuItem value="Custom / Other Course">Other / Custom Course</MenuItem>
               </TextField>
             </Grid>
 
             <Grid item xs={12} sm={6}>
               <TextField
                 fullWidth
-                label="तालिम अवधि (Course Duration)"
-                placeholder="उदा: 3 Months (390 hrs)"
+                label="Course Duration"
+                placeholder="e.g. 3 Months (390 hrs)"
                 value={formData.duration}
                 onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
                 InputProps={{
@@ -432,8 +432,8 @@ export default function LeadModal({
               <TextField
                 fullWidth
                 type="number"
-                label="अनुमानित शुल्क (Course Fee Rs.)"
-                placeholder="उदा: 15000"
+                label="Course Fee (Rs.)"
+                placeholder="e.g. 15000"
                 value={formData.price}
                 onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                 InputProps={{
@@ -462,7 +462,7 @@ export default function LeadModal({
             }}
           >
             <CampaignIcon sx={{ color: '#EC4899', fontSize: '1.2rem' }} />
-            ३. सोधपुछ स्रोत र फलो-अप स्थिति (Pipeline Status)
+            3. Inquiry Source & Pipeline Tracking
           </Typography>
 
           <Grid container spacing={2}>
@@ -470,7 +470,7 @@ export default function LeadModal({
               <TextField
                 select
                 fullWidth
-                label="सोधपुछको स्रोत (Source)"
+                label="Lead Source"
                 value={formData.source}
                 onChange={(e) => setFormData({ ...formData, source: e.target.value })}
               >
@@ -486,7 +486,7 @@ export default function LeadModal({
               <TextField
                 select
                 fullWidth
-                label="प्राथमिकता (Priority)"
+                label="Priority"
                 value={formData.priority}
                 onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
               >
@@ -502,7 +502,7 @@ export default function LeadModal({
               <TextField
                 select
                 fullWidth
-                label="अवस्था (Pipeline Stage)"
+                label="Pipeline Stage"
                 value={formData.stage}
                 onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
               >
@@ -518,7 +518,7 @@ export default function LeadModal({
               <TextField
                 fullWidth
                 type="date"
-                label="अर्को फलो-अप मिति (Next Follow-up Date)"
+                label="Next Follow-up Date"
                 InputLabelProps={{ shrink: true }}
                 value={formData.followUpDate}
                 onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
@@ -537,8 +537,8 @@ export default function LeadModal({
                 fullWidth
                 multiline
                 rows={2}
-                label="परामर्श नोट / कैफियत (Counselor Notes)"
-                placeholder="विद्यार्थीको रुचि, शिफ्ट प्राथमिकता वा कुनै विशेष छलफल..."
+                label="Counselor Notes & Remarks"
+                placeholder="Student preferences, shift availability, discussion summary..."
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                 InputProps={{
@@ -568,7 +568,7 @@ export default function LeadModal({
           }}
         >
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -582,7 +582,7 @@ export default function LeadModal({
               boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)'
             }}
           >
-            {editingLead ? 'अपडेट गर्नुहोस् (Update Lead)' : 'सोधपुछ दर्ता गर्नुहोस् (Save Lead)'}
+            {editingLead ? 'Update Lead' : 'Save Lead'}
           </Button>
         </DialogActions>
       </Box>

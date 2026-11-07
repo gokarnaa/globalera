@@ -39,7 +39,7 @@ export default function ConnectIpsPayoutModal({
   const { alert } = useDialog();
   const [amount, setAmount] = useState('');
   const [payMethod, setPayMethod] = useState('CONNECT_IPS');
-  const [fromBank, setFromBank] = useState('Nabil Bank (खाता: ०१२३४५६७८९)');
+  const [fromBank, setFromBank] = useState('Nabil Bank (A/C: 0123456789)');
   const [toBankName, setToBankName] = useState('');
   const [toAccountNumber, setToAccountNumber] = useState('');
   const [toAccountHolder, setToAccountHolder] = useState('');
@@ -62,10 +62,10 @@ export default function ConnectIpsPayoutModal({
       if (party.category === 'LANDLORD') {
         const tds = party.monthlyRent ? Math.round(party.monthlyRent * ((party.tdsPercent || 10) / 100)) : 0;
         setTdsDeducted(tds);
-        setRemarks(`${party.name} - मासिक भवन भाडा भुक्तानी (TDS कट्टी सहित)`);
+        setRemarks(`${party.name} - Monthly building rent payment (with TDS deduction)`);
       } else {
         setTdsDeducted(0);
-        setRemarks(`${party.name} - सामान खरिद / सेवा बिल भुक्तानी`);
+        setRemarks(`${party.name} - Material purchase / service bill payment`);
       }
     }
   }, [party]);
@@ -83,8 +83,8 @@ export default function ConnectIpsPayoutModal({
     if (!payNum || payNum <= 0) {
       await alert({
         type: 'warning',
-        title: 'रकम आवश्यक (Amount Required)',
-        message: 'कृपया भुक्तानी गर्ने सही रकम प्रविष्टि गर्नुहोस्।'
+        title: 'Amount Required',
+        message: 'Please enter a valid payment amount.'
       });
       return;
     }
@@ -92,8 +92,8 @@ export default function ConnectIpsPayoutModal({
     if (payMethod === 'CONNECT_IPS' && !txnReference.trim()) {
       await alert({
         type: 'warning',
-        title: 'रेफरेन्स आईडी आवश्यक (Txn Reference Required)',
-        message: 'कृपया ConnectIPS को ट्रान्ज्याक्सन आईडी (Txn ID / UTR No.) प्रविष्टि गर्नुहोस्।'
+        title: 'Txn Reference Required',
+        message: 'Please enter the ConnectIPS Transaction ID (Txn ID / UTR No.).'
       });
       return;
     }
@@ -117,7 +117,7 @@ export default function ConnectIpsPayoutModal({
       toBank: `${toBankName} (A/C: ${toAccountNumber})`,
       toAccountHolder,
       txnReference: txnReference.trim() || 'N/A',
-      remarks: remarks.trim() || 'पार्टी भुक्तानी',
+      remarks: remarks.trim() || 'Party Payment',
       monthTarget: party.category === 'LANDLORD' ? monthTarget : null,
       createdAt: new Date().toISOString()
     };
@@ -168,7 +168,7 @@ export default function ConnectIpsPayoutModal({
       const debitAcc = party.category === 'LANDLORD' ? '5400' : '2010';
       const journalRes = postDoubleEntryJournal(nextDb, {
         entryDate: paymentDate,
-        narration: `पार्टी ${party.name} लाई ${payMethod} भुक्तानी (Voucher: ${voucherNo}, Ref: ${txnReference})`,
+        narration: `Payment to Party ${party.name} via ${payMethod} (Voucher: ${voucherNo}, Ref: ${txnReference})`,
         sourceModule: 'PARTY_PAYOUT',
         sourceId: voucherNo,
         lines: [
@@ -230,10 +230,10 @@ export default function ConnectIpsPayoutModal({
           <AccountBalanceIcon sx={{ color: '#F59E0B', fontSize: 26 }} />
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2 }}>
-              {completedVoucher ? 'भुक्तानी सफलतापूर्वक सम्पन्न (Receipt Voucher)' : 'ConnectIPS / बैंक भुक्तानी टर्मिनल'}
+              {completedVoucher ? 'Payment Completed Successfully (Receipt Voucher)' : 'ConnectIPS / Bank Payout Terminal'}
             </Typography>
             <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-              पार्टी: {party.name} ({party.category})
+              Party: {party.name} ({party.category})
             </Typography>
           </Box>
         </Box>
@@ -267,26 +267,26 @@ export default function ConnectIpsPayoutModal({
             </Box>
 
             <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A', mb: 0.5 }}>
-              रकम सफलतापूर्वक भुक्तानी गरियो!
+              Payment Processed Successfully!
             </Typography>
             <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-              भौचर नं: <strong>{completedVoucher.voucherNo}</strong> • मिति: {completedVoucher.date}
+              Voucher No: <strong>{completedVoucher.voucherNo}</strong> • Date: {completedVoucher.date}
             </Typography>
 
             <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, bgcolor: '#F8FAFC', textAlign: 'left', mb: 3 }}>
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>भुक्तानी पाउने पार्टी:</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Beneficiary Party:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>{party.name}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>भुक्तानी रकम:</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Payment Amount:</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 900, color: '#059669' }}>
-                    रु. {completedVoucher.amount.toLocaleString()}
+                    Rs. {completedVoucher.amount.toLocaleString()}
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>माध्यम तथा खाता:</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Method & Account:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {completedVoucher.paymentMethod} • {completedVoucher.toBank}
                   </Typography>
@@ -300,7 +300,7 @@ export default function ConnectIpsPayoutModal({
                 {completedVoucher.tdsAmount > 0 && (
                   <Grid item xs={12}>
                     <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 700 }}>
-                      * TDS कट्टी: रु. {completedVoucher.tdsAmount.toLocaleString()} (खुद निकासा: रु. {completedVoucher.netDisbursed.toLocaleString()})
+                      * TDS Deducted: Rs. {completedVoucher.tdsAmount.toLocaleString()} (Net Disbursed: Rs. {completedVoucher.netDisbursed.toLocaleString()})
                     </Typography>
                   </Grid>
                 )}
@@ -314,7 +314,7 @@ export default function ConnectIpsPayoutModal({
                 onClick={() => window.print()}
                 sx={{ borderRadius: 2.5, fontWeight: 800, py: 1, textTransform: 'none' }}
               >
-                भौचर प्रिन्ट (Print)
+                Print Voucher
               </Button>
               <Button
                 variant="contained"
@@ -323,12 +323,12 @@ export default function ConnectIpsPayoutModal({
                 component="a"
                 href={getWhatsAppUrl(
                   party.phone,
-                  `नमस्ते ${party.name} ज्यू,\n\nग्लोबल एरा प्राविधिक स्कुलबाट ConnectIPS मार्फत रु. ${completedVoucher.amount.toLocaleString()} भुक्तानी गरिएको छ।\n\nभौचर नं: ${completedVoucher.voucherNo}\nConnectIPS Ref ID: ${completedVoucher.txnReference}\nमिति: ${completedVoucher.date}\nकैफियत: ${completedVoucher.remarks}\n\nधन्यवाद!`
+                  `Dear ${party.name},\n\nPayment of Rs. ${completedVoucher.amount.toLocaleString()} has been processed via ConnectIPS from Global Era Technical School.\n\nVoucher No: ${completedVoucher.voucherNo}\nConnectIPS Ref ID: ${completedVoucher.txnReference}\nDate: ${completedVoucher.date}\nRemarks: ${completedVoucher.remarks}\n\nThank you!`
                 )}
                 target="_blank"
                 sx={{ borderRadius: 2.5, fontWeight: 900, py: 1, textTransform: 'none', bgcolor: '#25D366' }}
               >
-                WhatsApp मा स्लिप पठाउनुहोस्
+                Send Slip via WhatsApp
               </Button>
             </Stack>
           </Box>
@@ -351,25 +351,25 @@ export default function ConnectIpsPayoutModal({
               <Grid container spacing={1}>
                 <Grid item xs={7}>
                   <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                    पार्टीको बैंक विवरण (Saved Beneficiary):
+                    Saved Beneficiary Bank Details:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                     {toBankName} • A/C: {toAccountNumber}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#475569' }}>
-                    खातावाला: {toAccountHolder}
+                    Account Holder: {toAccountHolder}
                   </Typography>
                 </Grid>
                 <Grid item xs={5} sx={{ textAlign: 'right' }}>
                   <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                    हाल तिर्न बाँकी दायित्व:
+                    Current Payable Liability:
                   </Typography>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: party.currentDue > 0 ? '#DC2626' : '#059669' }}>
-                    रु. {(party.currentDue || 0).toLocaleString()}
+                    Rs. {(party.currentDue || 0).toLocaleString()}
                   </Typography>
                   {party.monthlyRent && (
                     <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                      मासिक भाडा: रु. {party.monthlyRent.toLocaleString()}
+                      Monthly Rent: Rs. {party.monthlyRent.toLocaleString()}
                     </Typography>
                   )}
                 </Grid>
@@ -383,7 +383,7 @@ export default function ConnectIpsPayoutModal({
                   select
                   fullWidth
                   size="small"
-                  label="भुक्तानी माध्यम (Payment Method)"
+                  label="Payment Method"
                   value={payMethod}
                   onChange={(e) => setPayMethod(e.target.value)}
                 >
@@ -391,7 +391,7 @@ export default function ConnectIpsPayoutModal({
                   <MenuItem value="BANK_TRANSFER">🏦 Bank Account Transfer</MenuItem>
                   <MenuItem value="ACCOUNT_DEPOSIT">💵 Direct Bank Deposit</MenuItem>
                   <MenuItem value="ESEWA">📱 eSewa / Khalti</MenuItem>
-                  <MenuItem value="CASH">💵 काउन्टर नगद (Cash)</MenuItem>
+                  <MenuItem value="CASH">💵 Counter Cash</MenuItem>
                 </TextField>
               </Grid>
 
@@ -401,13 +401,13 @@ export default function ConnectIpsPayoutModal({
                   select
                   fullWidth
                   size="small"
-                  label="संस्थाको भुक्तानी खाता (From Account)"
+                  label="From Institution Account"
                   value={fromBank}
                   onChange={(e) => setFromBank(e.target.value)}
                 >
-                  <MenuItem value="Nabil Bank (खाता: ०१२३४५६७८९)">Nabil Bank Ltd. (Main Operation)</MenuItem>
-                  <MenuItem value="Global IME Bank (खाता: ०९८७६५४३२१)">Global IME Bank Ltd.</MenuItem>
-                  <MenuItem value="काउन्टर नगद मौज्दात (Counter Cash)">काउन्टर नगद मौज्दात (Cash Box)</MenuItem>
+                  <MenuItem value="Nabil Bank (A/C: 0123456789)">Nabil Bank Ltd. (Main Operation)</MenuItem>
+                  <MenuItem value="Global IME Bank (A/C: 0987654321)">Global IME Bank Ltd.</MenuItem>
+                  <MenuItem value="Counter Cash Balance (Counter Cash)">Counter Cash Balance (Cash Box)</MenuItem>
                 </TextField>
               </Grid>
 
@@ -417,7 +417,7 @@ export default function ConnectIpsPayoutModal({
                   fullWidth
                   required
                   size="small"
-                  label="भुक्तानी रकम (Amount Rs.)"
+                  label="Payment Amount (Rs.)"
                   type="number"
                   value={amount}
                   onChange={(e) => {
@@ -425,7 +425,7 @@ export default function ConnectIpsPayoutModal({
                     handleCalculateTds(e.target.value);
                   }}
                   InputProps={{
-                    startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                    startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
                   }}
                 />
               </Grid>
@@ -435,7 +435,7 @@ export default function ConnectIpsPayoutModal({
                 <TextField
                   fullWidth
                   size="small"
-                  label="भुक्तानी मिति (Date)"
+                  label="Payment Date"
                   type="date"
                   value={paymentDate}
                   onChange={(e) => setPaymentDate(e.target.value)}
@@ -449,11 +449,11 @@ export default function ConnectIpsPayoutModal({
                   fullWidth
                   required={payMethod === 'CONNECT_IPS'}
                   size="small"
-                  label="ConnectIPS Trx ID / UTR / भौचर रेफरेन्स नं"
-                  placeholder="उदा: CIP-90812894129"
+                  label="ConnectIPS Trx ID / UTR / Voucher Ref No."
+                  placeholder="e.g. CIP-90812894129"
                   value={txnReference}
                   onChange={(e) => setTxnReference(e.target.value)}
-                  helperText="अडिट र प्रमाणका लागि ConnectIPS को कारोबार आइडी अनिवार्य लेख्नुहोस्।"
+                  helperText="Enter the ConnectIPS transaction ID for audit and verification."
                 />
               </Grid>
 
@@ -465,12 +465,12 @@ export default function ConnectIpsPayoutModal({
                       select
                       fullWidth
                       size="small"
-                      label="कुन महिनाको भाडा? (Target Month)"
+                      label="Target Rent Month"
                       value={monthTarget}
                       onChange={(e) => setMonthTarget(e.target.value)}
                     >
                       {['Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra', 'Baisakh', 'Jestha', 'Ashad'].map((m) => (
-                        <MenuItem key={m} value={m}>{m} महिनाको भाडा</MenuItem>
+                        <MenuItem key={m} value={m}>{m} Rent</MenuItem>
                       ))}
                     </TextField>
                   </Grid>
@@ -479,14 +479,14 @@ export default function ConnectIpsPayoutModal({
                     <TextField
                       fullWidth
                       size="small"
-                      label="TDS कट्टी रकम (१०%)"
+                      label="TDS Deduction Amount (10%)"
                       type="number"
                       value={tdsDeducted}
                       onChange={(e) => setTdsDeducted(Number(e.target.value) || 0)}
                       InputProps={{
-                        startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                        startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
                       }}
-                      helperText={`खुद घरबेटीलाई जाने: रु. ${(Math.max(0, (Number(amount) || 0) - tdsDeducted)).toLocaleString()}`}
+                      helperText={`Net Payable to Landlord: Rs. ${(Math.max(0, (Number(amount) || 0) - tdsDeducted)).toLocaleString()}`}
                     />
                   </Grid>
                 </>
@@ -497,10 +497,10 @@ export default function ConnectIpsPayoutModal({
                 <TextField
                   fullWidth
                   size="small"
-                  label="कैफियत (Remarks)"
+                  label="Remarks"
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
-                  placeholder="उदा: वैशाख महिनाको भवन भाडा ConnectIPS बाट भुक्तानी गरियो"
+                  placeholder="e.g. Building rent for Baisakh paid via ConnectIPS"
                 />
               </Grid>
             </Grid>
@@ -515,12 +515,12 @@ export default function ConnectIpsPayoutModal({
             onClick={handleResetAndClose}
             sx={{ bgcolor: '#0F2E5A', borderRadius: 2.5, px: 3, fontWeight: 800 }}
           >
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
         ) : (
           <>
             <Button onClick={handleResetAndClose} sx={{ color: '#64748B', fontWeight: 800 }}>
-              रद्द गर्नुहोस् (Cancel)
+              Cancel
             </Button>
             <Button
               variant="contained"
@@ -535,7 +535,7 @@ export default function ConnectIpsPayoutModal({
                 '&:hover': { bgcolor: '#174276' }
               }}
             >
-              💸 भुक्तानी सुरक्षित गर्नुहोस् (Confirm Payout)
+              💸 Confirm Payout
             </Button>
           </>
         )}

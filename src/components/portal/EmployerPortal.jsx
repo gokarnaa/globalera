@@ -99,7 +99,7 @@ export default function EmployerPortal() {
 
   const handlePostJob = () => {
     if (!newJob.title || !newJob.occupationId) {
-      alert('कृपया पदको शीर्षक र पेशा छनोट गर्नुहोस्।');
+      alert('Please enter the job title and select an occupation.');
       return;
     }
 
@@ -140,7 +140,7 @@ export default function EmployerPortal() {
 
   const handleRegisterCompany = () => {
     if (!regData.name || !regData.phone) {
-      alert('कृपया कम्पनीको नाम र फोन नम्बर प्रविष्ट गर्नुहोस्।');
+      alert('Please enter both the company name and phone number.');
       return;
     }
 
@@ -165,7 +165,7 @@ export default function EmployerPortal() {
     setDb(nextDb);
     logAudit(nextDb, 'EMPLOYER_REGISTER', 'Employer', newEmp.id, `New employer ${newEmp.name} self-registered`);
     setOpenRegisterModal(false);
-    alert('कम्पनी दर्ता भएको छ! प्रशासनको स्वीकृति पश्चात पूर्ण सुविधाहरू सक्रिय हुनेछन्।');
+    alert('Company registered successfully! Full portal features will be activated upon admin approval.');
   };
 
   const handleUpdateAppStatus = (appId, newStatus) => {
@@ -228,7 +228,7 @@ export default function EmployerPortal() {
               Location: <b>{employer?.location}</b> | Contact: <b>{employer?.contactPerson} ({employer?.phone})</b>
             </Typography>
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-              ग्लोबल एरा प्राविधिक स्कुल आधिकारिक रोजगार साझेदार पोर्टल (Employer Partnership Hub)
+              Global Era Technical School Official Employer Partnership Hub
             </Typography>
           </Grid>
 
@@ -240,7 +240,7 @@ export default function EmployerPortal() {
                 onClick={() => setOpenPostJobModal(true)}
                 sx={{ bgcolor: '#0284c7', fontWeight: 800, '&:hover': { bgcolor: '#0369a1' } }}
               >
-                नयाँ जागिर खुलाउनुहोस् (Post Job)
+                Post Job
               </Button>
               <Button
                 variant="outlined"
@@ -253,7 +253,7 @@ export default function EmployerPortal() {
                   '&:hover': { borderColor: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' }
                 }}
               >
-                नयाँ कम्पनी दर्ता
+                Register New Company
               </Button>
             </Stack>
           </Grid>
@@ -279,14 +279,14 @@ export default function EmployerPortal() {
               />
             }
             iconPosition="start"
-            label="आवेदक विद्यार्थीहरू (Candidate Applications)"
+            label="Candidate Applications"
           />
           <Tab
             icon={<WorkIcon />}
             iconPosition="start"
-            label={`पोस्ट गरिएका जागिरहरू (${employerJobs.length})`}
+            label={`Posted Jobs (${employerJobs.length})`}
           />
-          <Tab icon={<SchoolIcon />} iconPosition="start" label="TVET विद्यार्थीहरूको खोजी (Graduate Directory)" />
+          <Tab icon={<SchoolIcon />} iconPosition="start" label="TVET Graduate Directory" />
         </Tabs>
       </Box>
 
@@ -294,22 +294,22 @@ export default function EmployerPortal() {
       {activeTab === 0 && (
         <Card sx={{ p: 3, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
-            प्राप्त आवेदनहरू (Received Job Applications)
+            Received Job Applications
           </Typography>
           <Typography variant="body2" sx={{ color: '#647089', mb: 2.5 }}>
-            ग्लोबल एरा प्राविधिक स्कुलका तालिमरत तथा उत्तीर्ण विद्यार्थीहरूले दिएका प्रत्यक्ष आवेदनहरू।
+            Direct applications submitted by currently enrolled trainees and graduates of Global Era Technical School.
           </Typography>
 
           <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
             <Table>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800 }}>विद्यार्थी विवरण (Candidate)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>आवेदन पद (Job Role)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>हाजिरी दर (Attendance)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>स्थिति (Status)</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>कभर नोट / अनुभव</TableCell>
-                  <TableCell sx={{ fontWeight: 800, align: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Candidate</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Job Role</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Attendance Rate</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Cover Note / Experience</TableCell>
+                  <TableCell sx={{ fontWeight: 800, align: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -432,7 +432,7 @@ export default function EmployerPortal() {
                                 size="small"
                                 sx={{ color: '#25D366' }}
                                 onClick={() => {
-                                  const text = `Namaste ${student.name}, regarding your application for ${job?.title} at ${employer.name}, we would like to invite you for an interview.`;
+                                  const text = `Hello ${student.name}, regarding your application for ${job?.title} at ${employer.name}, we would like to invite you for an interview.`;
                                   window.open(getWhatsAppUrl(student.phone, text), '_blank');
                                 }}
                               >
@@ -449,7 +449,7 @@ export default function EmployerPortal() {
                 {employerApplications.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#647089' }}>
-                      हालसम्म कुनै विद्यार्थीको आवेदन प्राप्त भएको छैन। नयाँ जागिर पोस्ट गर्नुहोस्।
+                      No candidate applications received yet. Post a new job opening to get started.
                     </TableCell>
                   </TableRow>
                 )}
@@ -486,22 +486,22 @@ export default function EmployerPortal() {
 
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', bgcolor: '#f8fafc', p: 1.5, borderRadius: 2, mb: 2 }}>
                     <Box>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>माग संख्या:</Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{job.vacancies} सिट</Typography>
+                      <Typography variant="caption" sx={{ color: '#647089' }}>Vacancies:</Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{job.vacancies} Seats</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>तलब दायरा:</Typography>
+                      <Typography variant="caption" sx={{ color: '#647089' }}>Salary Range:</Typography>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#16834b' }}>{job.salaryRange}</Typography>
                     </Box>
                     <Box>
-                      <Typography variant="caption" sx={{ color: '#647089' }}>आवेदकहरू:</Typography>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0284c7' }}>{apps.length} जना</Typography>
+                      <Typography variant="caption" sx={{ color: '#647089' }}>Applicants:</Typography>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0284c7' }}>{apps.length} Candidates</Typography>
                     </Box>
                   </Box>
 
                   {job.requiredSkills && (
                     <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 2 }}>
-                      <b>सीप आवश्यकता:</b> {job.requiredSkills}
+                      <b>Required Skills:</b> {job.requiredSkills}
                     </Typography>
                   )}
                 </Card>
@@ -515,10 +515,10 @@ export default function EmployerPortal() {
       {activeTab === 2 && (
         <Card sx={{ p: 3, borderRadius: 3 }}>
           <Typography variant="h6" sx={{ fontWeight: 800, mb: 0.5 }}>
-            उपलब्ध विद्यार्थी तथा प्रशिक्षार्थी विवरण (Available TVET Talent)
+            Available TVET Talent Directory
           </Typography>
           <Typography variant="body2" sx={{ color: '#647089', mb: 3 }}>
-            तपाईंको व्यवसायमा आवश्यक दक्ष जनशक्तिलाई प्रत्यक्ष अवलोकन गरी सम्पर्क गर्नुहोस्।
+            Browse and connect directly with skilled trainees and graduates for your business needs.
           </Typography>
 
           <Grid container spacing={2.5}>
@@ -551,7 +551,7 @@ export default function EmployerPortal() {
                       onClick={() => setSelectedStudentForProfile(std)}
                       sx={{ fontWeight: 700, fontSize: '0.75rem' }}
                     >
-                      प्रोफाइल हेर्नुहोस्
+                      View Profile
                     </Button>
                   </Card>
                 </Grid>
@@ -564,12 +564,12 @@ export default function EmployerPortal() {
       {/* Post Job Modal */}
       <Dialog open={openPostJobModal} onClose={() => setOpenPostJobModal(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
-          नयाँ रोजगारी अवसर पोस्ट गर्नुहोस् (Create Job Opening)
+          Create Job Opening
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="पदको नाम (Job Title)"
+              label="Job Title"
               fullWidth
               required
               value={newJob.title}
@@ -578,7 +578,7 @@ export default function EmployerPortal() {
             />
             <TextField
               select
-              label="सम्बन्धित पेशा (Occupation)"
+              label="Occupation"
               fullWidth
               required
               value={newJob.occupationId}
@@ -593,7 +593,7 @@ export default function EmployerPortal() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="माग संख्या (Vacancies)"
+                  label="Vacancies"
                   type="number"
                   fullWidth
                   value={newJob.vacancies}
@@ -603,7 +603,7 @@ export default function EmployerPortal() {
               <Grid item xs={6}>
                 <TextField
                   select
-                  label="रोजगार प्रकार"
+                  label="Employment Type"
                   fullWidth
                   value={newJob.employmentType}
                   onChange={(e) => setNewJob({ ...newJob, employmentType: e.target.value })}
@@ -615,20 +615,20 @@ export default function EmployerPortal() {
               </Grid>
             </Grid>
             <TextField
-              label="तलब सुविधा (Salary Range)"
+              label="Salary Range"
               fullWidth
               value={newJob.salaryRange}
               onChange={(e) => setNewJob({ ...newJob, salaryRange: e.target.value })}
               placeholder="e.g. NPR 22,000 – 30,000 / month"
             />
             <TextField
-              label="कार्यस्थल ठेगाना (Location)"
+              label="Workplace Location"
               fullWidth
               value={newJob.location}
               onChange={(e) => setNewJob({ ...newJob, location: e.target.value })}
             />
             <TextField
-              label="कामको विवरण (Job Description)"
+              label="Job Description"
               fullWidth
               multiline
               rows={3}
@@ -636,7 +636,7 @@ export default function EmployerPortal() {
               onChange={(e) => setNewJob({ ...newJob, description: e.target.value })}
             />
             <TextField
-              label="आवश्यक सीपहरू (Required TVET Skills)"
+              label="Required TVET Skills"
               fullWidth
               value={newJob.requiredSkills}
               onChange={(e) => setNewJob({ ...newJob, requiredSkills: e.target.value })}
@@ -645,9 +645,9 @@ export default function EmployerPortal() {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenPostJobModal(false)}>रद्द गर्नुहोस्</Button>
+          <Button onClick={() => setOpenPostJobModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handlePostJob} sx={{ fontWeight: 800 }}>
-            पोस्ट गर्नुहोस् (Publish Opening)
+            Publish Opening
           </Button>
         </DialogActions>
       </Dialog>
@@ -655,12 +655,12 @@ export default function EmployerPortal() {
       {/* Self-Register Modal */}
       <Dialog open={openRegisterModal} onClose={() => setOpenRegisterModal(false)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
-          नयाँ कम्पनी दर्ता (Employer Registration)
+          Employer Registration
         </DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="कम्पनी / संस्थाको नाम"
+              label="Company / Organization Name"
               fullWidth
               required
               value={regData.name}
@@ -668,51 +668,51 @@ export default function EmployerPortal() {
               placeholder="e.g. Himalayan Care Home, Fashion Hub Nepal"
             />
             <TextField
-              label="क्षेत्र / उद्योग (Industry)"
+              label="Industry / Sector"
               fullWidth
               value={regData.industry}
               onChange={(e) => setRegData({ ...regData, industry: e.target.value })}
             />
             <TextField
-              label="ठेगाना (Location)"
+              label="Location"
               fullWidth
               value={regData.location}
               onChange={(e) => setRegData({ ...regData, location: e.target.value })}
             />
             <TextField
-              label="सम्पर्क व्यक्ति (Contact Person)"
+              label="Contact Person"
               fullWidth
               value={regData.contactPerson}
               onChange={(e) => setRegData({ ...regData, contactPerson: e.target.value })}
             />
             <TextField
-              label="फोन नम्बर (Phone / WhatsApp)"
+              label="Phone / WhatsApp Number"
               fullWidth
               required
               value={regData.phone}
               onChange={(e) => setRegData({ ...regData, phone: e.target.value })}
             />
             <TextField
-              label="इमेल (Email)"
+              label="Email"
               fullWidth
               type="email"
               value={regData.email}
               onChange={(e) => setRegData({ ...regData, email: e.target.value })}
             />
             <TextField
-              label="4-Digit PIN कोड"
+              label="4-Digit PIN Code"
               fullWidth
               type="password"
               value={regData.pin}
               onChange={(e) => setRegData({ ...regData, pin: e.target.value })}
-              helperText="लगइन गर्न प्रयोग गरिने 4-अङ्कको पिन"
+              helperText="4-digit PIN used for portal login"
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setOpenRegisterModal(false)}>रद्द गर्नुहोस्</Button>
+          <Button onClick={() => setOpenRegisterModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleRegisterCompany} sx={{ fontWeight: 800 }}>
-            दर्ता गर्नुहोस् (Register)
+            Register
           </Button>
         </DialogActions>
       </Dialog>

@@ -100,12 +100,12 @@ export default function AgentPortal({ onLogout, onGoHome }) {
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
     setCopiedLink(true);
-    showToast('तपाईंको रेफ़रल लिङ्क क्लिपबोर्डमा कपी भयो! (Referral Link Copied)');
+    showToast('Your referral link has been copied to the clipboard!');
     setTimeout(() => setCopiedLink(false), 3000);
   };
 
   const handleShareWhatsApp = () => {
-    const text = `नमस्ते! म ग्लोबल एरा प्राविधिक स्कुल (CTEVT सम्बन्धन) को आधिकारिक रेफ़रल प्रतिनिधि हुँ। विभिन्न रोजगारमूलक सीप तथा प्राविधिक तालिम कोर्सहरूमा भर्ना तथा छुटको लागि यो लिंकबाट फारम भर्नुहोस्: ${referralLink}`;
+    const text = `Hello! I am an official referral representative of Global Era Technical School (CTEVT Affiliated). Fill out the form via this link for admission and discounts on various job-oriented skill and technical training courses: ${referralLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -192,7 +192,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
   const handleCreateLead = (e) => {
     e.preventDefault();
     if (!leadForm.name.trim() || !leadForm.phone.trim()) {
-      alert('कृपया विद्यार्थीको नाम र फोन नम्बर अनिवार्य भर्नुहोस्।');
+      alert('Please enter both the student name and phone number.');
       return;
     }
 
@@ -219,13 +219,13 @@ export default function AgentPortal({ onLogout, onGoHome }) {
       id: newId,
       name: leadForm.name.trim(),
       phone: leadForm.phone.trim(),
-      address: leadForm.address.trim() || 'काठमाडौं',
-      subject: chosenCourse?.title || 'व्यावसायिक तालिम',
-      course: chosenCourse?.title || 'व्यावसायिक तालिम',
+      address: leadForm.address.trim() || 'Kathmandu',
+      subject: chosenCourse?.title || 'Vocational Training',
+      course: chosenCourse?.title || 'Vocational Training',
       courseId: chosenCourse?.id,
       price: chosenCourse?.price || 15000,
       duration: `${chosenCourse?.durationValue || 3} ${chosenCourse?.durationUnit || 'Months'}`,
-      source: `एजेन्ट रेफ़रल (${agent.name} - ${agent.code})`,
+      source: `Agent Referral (${agent.name} - ${agent.code})`,
       agentId: agent.id,
       agentCode: agent.code,
       agentName: agent.name,
@@ -236,11 +236,11 @@ export default function AgentPortal({ onLogout, onGoHome }) {
       potentialCommission: potentialComm,
       commissionAmount: potentialComm,
       commissionStatus: 'pending',
-      notes: leadForm.notes || 'एजेन्ट ड्यासबोर्डबाट सिफारिस गरिएको विद्यार्थी।',
+      notes: leadForm.notes || 'Student referred from Agent Dashboard.',
       timeline: [
         {
           date: new Date().toISOString(),
-          note: `एजेन्ट पोर्टलबाट नयाँ लिड दर्ता: ${agent.name} (${agent.code})`,
+          note: `New lead registered via Agent Portal: ${agent.name} (${agent.code})`,
           staffName: 'Agent Portal'
         }
       ],
@@ -259,7 +259,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.7 } });
     } catch (_) {}
 
-    showToast(`सफलतापूर्वक नयाँ विद्यार्थी (${newLead.name}) सिफारिस गरियो!`);
+    showToast(`Successfully referred new student (${newLead.name})!`);
     setOpenAddLeadModal(false);
     setLeadForm({
       name: '',
@@ -284,7 +284,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
     saveDB(nextDb);
     setDb(nextDb);
     setOpenEditPaymentModal(false);
-    showToast('भुक्तानी प्राप्त गर्ने विवरण अद्यावधिक भयो।');
+    showToast('Payment receiving details updated successfully.');
   };
 
   return (
@@ -320,13 +320,13 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   {company.companyNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL'}
                 </Typography>
                 <Chip
-                  label="रेफ़रल पार्टनर पोर्टल (Agent Portal)"
+                  label="Referral Partner Portal (Agent Portal)"
                   size="small"
                   sx={{ bgcolor: 'rgba(245, 158, 11, 0.25)', color: '#FDE68A', fontWeight: 800, fontSize: '0.75rem' }}
                 />
               </Box>
               <Typography variant="caption" sx={{ color: '#CBD5E1', display: 'block', mt: 0.3 }}>
-                CTEVT सम्बन्धन नं: {company.ctevtCode || '4208'} • आधिकारिक विद्यार्थी सिफारिस तथा कमिसन प्रणाली
+                CTEVT Affiliation No: {company.ctevtCode || '4208'} • Official Student Referral & Commission System
               </Typography>
             </Box>
           </Box>
@@ -338,7 +338,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 {agent?.name}
               </Typography>
               <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700 }}>
-                एजेन्ट कोड: {agent?.code} • {agent?.phone}
+                Agent Code: {agent?.code} • {agent?.phone}
               </Typography>
             </Box>
 
@@ -357,7 +357,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
                 }}
               >
-                वेबसाइट
+                Website
               </Button>
             )}
 
@@ -375,7 +375,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   boxShadow: 'none'
                 }}
               >
-                लगआउट
+                Logout
               </Button>
             )}
           </Box>
@@ -401,21 +401,21 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                   <Chip
                     icon={<VerifiedIcon sx={{ fill: '#10B981 !important' }} />}
-                    label="तपाईंको आधिकारिक रेफ़रल लिङ्क (Your Referral Link)"
+                    label="Your Official Referral Link"
                     size="small"
                     sx={{ bgcolor: 'rgba(16, 185, 129, 0.2)', color: '#6EE7B7', fontWeight: 800 }}
                   />
                   <Chip
-                    label={`कमिसन: ${agent?.commissionType === 'PERCENTAGE' ? `${agent?.defaultRate}% प्रति भर्ना` : `रु. ${Number(agent?.defaultRate || 1000).toLocaleString('ne-NP')} प्रति भर्ना`}`}
+                    label={`Commission: ${agent?.commissionType === 'PERCENTAGE' ? `${agent?.defaultRate}% per admission` : `NPR ${Number(agent?.defaultRate || 1000).toLocaleString()} per admission`}`}
                     size="small"
                     sx={{ bgcolor: 'rgba(245, 158, 11, 0.25)', color: '#FCD34D', fontWeight: 800 }}
                   />
                 </Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, mb: 1 }}>
-                  यो लिङ्क विद्यार्थीलाई सेयर गर्नुहोस् र भर्ना हुँदा कमिसन प्राप्त गर्नुहोस्!
+                  Share this link with students and earn a commission upon their admission!
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#E2E8F0', mb: 2 }}>
-                  विद्यार्थीले यो लिङ्क खोलेर अनलाइन सोधपुछ वा भर्ना फारम भर्नासाथ, त्यो लिड स्वतः तपाईंको खातामा दर्ता हुनेछ र इन्स्टिच्युटमा भर्ना हुनासाथ तपाईंको कमिसन स्वीकृत हुनेछ।
+                  As soon as a student opens this link and submits an online inquiry or admission form, the lead is automatically registered under your account and your commission is approved once they enroll at the institute.
                 </Typography>
 
                 {/* Link Box */}
@@ -458,7 +458,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                       '&:hover': { bgcolor: copiedLink ? '#059669' : '#D97706' }
                     }}
                   >
-                    {copiedLink ? 'कपी भयो!' : 'लिङ्क कपी'}
+                    {copiedLink ? 'Copied!' : 'Copy Link'}
                   </Button>
                 </Paper>
               </Grid>
@@ -482,7 +482,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                       '&:hover': { bgcolor: '#1EBE5D' }
                     }}
                   >
-                    ह्वाट्सएपमा विद्यार्थीलाई पठाउनुहोस्
+                    Send to Student on WhatsApp
                   </Button>
 
                   <Button
@@ -501,7 +501,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                       '&:hover': { bgcolor: '#F1F5F9' }
                     }}
                   >
-                    + नयाँ विद्यार्थी लिड सिधै दर्ता गर्नुहोस्
+                    + Register New Student Lead Directly
                   </Button>
                 </Stack>
               </Grid>
@@ -517,7 +517,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
-                    कुल सिफारिस लिड
+                    Total Referred Leads
                   </Typography>
                   <Avatar sx={{ bgcolor: '#EFF6FF', color: '#2563EB', width: 38, height: 38 }}>
                     <PeopleAltIcon sx={{ fontSize: 22 }} />
@@ -527,7 +527,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   {stats.totalLeads}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', mt: 0.5, display: 'block' }}>
-                  तपाईंले दर्ता गर्नुभएका सबै विद्यार्थी
+                  All students registered by you
                 </Typography>
               </CardContent>
             </Card>
@@ -539,7 +539,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
-                    काउन्सिलिङ / फलोअप
+                    Counseling / Follow-up
                   </Typography>
                   <Avatar sx={{ bgcolor: '#FEF3C7', color: '#D97706', width: 38, height: 38 }}>
                     <AccessTimeIcon sx={{ fontSize: 22 }} />
@@ -549,7 +549,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   {stats.inProgressCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', mt: 0.5, display: 'block' }}>
-                  इन्स्टिच्युटमा कुराकानी चलिरहेका
+                  In active discussion at institute
                 </Typography>
               </CardContent>
             </Card>
@@ -561,7 +561,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
-                    सफल भर्ना (Converted)
+                    Converted Admissions
                   </Typography>
                   <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 38, height: 38 }}>
                     <CheckCircleIcon sx={{ fontSize: 22 }} />
@@ -571,7 +571,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                   {stats.convertedCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, mt: 0.5, display: 'block' }}>
-                  भर्ना सम्पन्न भएका विद्यार्थी
+                  Successfully enrolled students
                 </Typography>
               </CardContent>
             </Card>
@@ -583,17 +583,17 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase' }}>
-                    कुल आर्जित कमिसन
+                    Total Commission Earned
                   </Typography>
                   <Avatar sx={{ bgcolor: '#EEF2FF', color: '#4F46E5', width: 38, height: 38 }}>
                     <MonetizationOnIcon sx={{ fontSize: 22 }} />
                   </Avatar>
                 </Box>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#4F46E5' }}>
-                  रु. {stats.totalEarned.toLocaleString('ne-NP')}
+                  NPR {stats.totalEarned.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', mt: 0.5, display: 'block' }}>
-                  भर्नाबाट बनेको कुल आम्दानी
+                  Total earnings from admissions
                 </Typography>
               </CardContent>
             </Card>
@@ -605,17 +605,17 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <CardContent sx={{ p: 2.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#B45309', textTransform: 'uppercase' }}>
-                    भुक्तानी पाउन बाँकी
+                    Pending Payout
                   </Typography>
                   <Avatar sx={{ bgcolor: '#FEF3C7', color: '#B45309', width: 38, height: 38 }}>
                     <AccountBalanceWalletIcon sx={{ fontSize: 22 }} />
                   </Avatar>
                 </Box>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#B45309' }}>
-                  रु. {stats.pendingPayout.toLocaleString('ne-NP')}
+                  NPR {stats.pendingPayout.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700, mt: 0.5, display: 'block' }}>
-                  एडमिनबाट भुक्तानी प्रक्रियामा
+                  Payout processing by admin
                 </Typography>
               </CardContent>
             </Card>
@@ -640,9 +640,9 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               }
             }}
           >
-            <Tab icon={<PeopleAltIcon />} iconPosition="start" label={`मेरा सिफारिस विद्यार्थीहरू (${myLeads.length})`} />
-            <Tab icon={<MonetizationOnIcon />} iconPosition="start" label="कमिसन तथा भुक्तानी विवरण (Payouts)" />
-            <Tab icon={<SchoolIcon />} iconPosition="start" label="इन्स्टिच्युट तालिम कोर्सहरू र शुल्क" />
+            <Tab icon={<PeopleAltIcon />} iconPosition="start" label={`My Referred Students (${myLeads.length})`} />
+            <Tab icon={<MonetizationOnIcon />} iconPosition="start" label="Commission & Payouts" />
+            <Tab icon={<SchoolIcon />} iconPosition="start" label="Institute Training Courses & Fees" />
           </Tabs>
         </Paper>
 
@@ -655,7 +655,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
                   <TextField
                     size="small"
-                    placeholder="विद्यार्थीको नाम, फोन वा कोर्स खोज्नुहोस्..."
+                    placeholder="Search by student name, phone, or course..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     InputProps={{
@@ -670,21 +670,21 @@ export default function AgentPortal({ onLogout, onGoHome }) {
 
                   <Stack direction="row" spacing={1}>
                     <Chip
-                      label="सबै (All)"
+                      label="All"
                       clickable
                       color={filterStage === 'ALL' ? 'primary' : 'default'}
                       onClick={() => setFilterStage('ALL')}
                       sx={{ fontWeight: 700 }}
                     />
                     <Chip
-                      label="भर्ना सम्पन्न (Admitted)"
+                      label="Admitted"
                       clickable
                       color={filterStage === 'CONVERTED' ? 'success' : 'default'}
                       onClick={() => setFilterStage('CONVERTED')}
                       sx={{ fontWeight: 700 }}
                     />
                     <Chip
-                      label="प्रक्रियामा (In Progress)"
+                      label="In Progress"
                       clickable
                       color={filterStage === 'PENDING' ? 'warning' : 'default'}
                       onClick={() => setFilterStage('PENDING')}
@@ -706,7 +706,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                     '&:hover': { bgcolor: '#133E68' }
                   }}
                 >
-                  + नयाँ लिड दर्ता गर्नुहोस्
+                  + Register New Lead
                 </Button>
               </Box>
 
@@ -715,13 +715,13 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 <Table>
                   <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                     <TableRow>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>मिति / ID</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>विद्यार्थीको नाम</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>सम्पर्क नम्बर</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>इच्छाएको कोर्स</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>इन्स्टिच्युट अवस्था (Status)</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>कमिसन स्थिति</TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>कैफियत (Notes)</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Date / ID</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Student Name</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Contact Number</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Interested Course</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Institute Status</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Commission Status</TableCell>
+                      <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Notes</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -730,10 +730,10 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                         <TableCell colSpan={7} sx={{ textAlign: 'center', py: 6 }}>
                           <PeopleAltIcon sx={{ fontSize: 48, color: '#CBD5E1', mb: 1 }} />
                           <Typography variant="subtitle1" sx={{ fontWeight: 700, color: '#64748B' }}>
-                            कुनै पनि लिड फेला परेन।
+                            No leads found.
                           </Typography>
                           <Typography variant="body2" sx={{ color: '#94A3B8', mb: 2 }}>
-                            नयाँ विद्यार्थी सिफारिस गर्न माथिको बटन थिच्नुहोस् वा आफ्नो रेफ़रल लिङ्क सेयर गर्नुहोस्।
+                            Click the button above to refer a new student or share your referral link.
                           </Typography>
                           <Button
                             variant="outlined"
@@ -742,7 +742,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                             onClick={() => setOpenAddLeadModal(true)}
                             sx={{ fontWeight: 800 }}
                           >
-                            + नयाँ विद्यार्थी लिड थप्नुहोस्
+                            + Add New Student Lead
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -758,7 +758,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                                 {item.id}
                               </Typography>
                               <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                {item.createdAt ? new Date(item.createdAt).toLocaleDateString('ne-NP') : 'आज'}
+                                {item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-US') : 'Today'}
                               </Typography>
                             </TableCell>
 
@@ -767,7 +767,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                                 {item.name}
                               </Typography>
                               <Typography variant="caption" sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                                <LocationOnIcon sx={{ fontSize: 13 }} /> {item.address || 'काठमाडौं'}
+                                <LocationOnIcon sx={{ fontSize: 13 }} /> {item.address || 'Kathmandu'}
                               </Typography>
                             </TableCell>
 
@@ -791,10 +791,10 @@ export default function AgentPortal({ onLogout, onGoHome }) {
 
                             <TableCell>
                               <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E3A8A' }}>
-                                {item.course || item.subject || 'व्यावसायिक तालिम'}
+                                {item.course || item.subject || 'Vocational Training'}
                               </Typography>
                               <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                शुल्क: रु. {Number(item.price || 15000).toLocaleString('ne-NP')}
+                                Fee: NPR {Number(item.price || 15000).toLocaleString()}
                               </Typography>
                             </TableCell>
 
@@ -802,33 +802,33 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                               {isConverted ? (
                                 <Chip
                                   icon={<CheckCircleIcon />}
-                                  label="भर्ना सम्पन्न (Admitted)"
+                                  label="Admitted"
                                   size="small"
                                   color="success"
                                   sx={{ fontWeight: 800 }}
                                 />
                               ) : item.stage === 'Contacted' ? (
-                                <Chip label="सम्पर्कमा (Contacted)" size="small" sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800 }} />
+                                <Chip label="Contacted" size="small" sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800 }} />
                               ) : item.stage === 'Interested' ? (
-                                <Chip label="इच्छुक (Interested)" size="small" sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 800 }} />
+                                <Chip label="Interested" size="small" sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 800 }} />
                               ) : (
-                                <Chip label="नयाँ सोधपुछ (New)" size="small" sx={{ bgcolor: '#F1F5F9', color: '#475569', fontWeight: 800 }} />
+                                <Chip label="New Inquiry" size="small" sx={{ bgcolor: '#F1F5F9', color: '#475569', fontWeight: 800 }} />
                               )}
                             </TableCell>
 
                             <TableCell>
                               <Box>
                                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: isConverted ? '#059669' : '#64748B' }}>
-                                  रु. {commAmt.toLocaleString('ne-NP')}
+                                  NPR {commAmt.toLocaleString()}
                                 </Typography>
                                 {isConverted ? (
                                   item.commissionStatus === 'paid' ? (
-                                    <Chip label="भुक्तानी भयो (Paid)" size="small" color="primary" sx={{ fontSize: '0.68rem', height: 20, fontWeight: 800 }} />
+                                    <Chip label="Paid" size="small" color="primary" sx={{ fontSize: '0.68rem', height: 20, fontWeight: 800 }} />
                                   ) : (
-                                    <Chip label="स्वीकृत (Approved)" size="small" color="success" variant="outlined" sx={{ fontSize: '0.68rem', height: 20, fontWeight: 800 }} />
+                                    <Chip label="Approved" size="small" color="success" variant="outlined" sx={{ fontSize: '0.68rem', height: 20, fontWeight: 800 }} />
                                   )
                                 ) : (
-                                  <Chip label="भर्नापछि प्राप्त हुने" size="small" sx={{ fontSize: '0.68rem', height: 20, bgcolor: '#F1F5F9', color: '#64748B', fontWeight: 700 }} />
+                                  <Chip label="Payable on Admission" size="small" sx={{ fontSize: '0.68rem', height: 20, bgcolor: '#F1F5F9', color: '#64748B', fontWeight: 700 }} />
                                 )}
                               </Box>
                             </TableCell>
@@ -858,7 +858,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 <CardContent sx={{ p: 3 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                     <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                      💳 भुक्तानी प्राप्त गर्ने खाता
+                      💳 Payout Receiving Account
                     </Typography>
                     <IconButton size="small" onClick={() => setOpenEditPaymentModal(true)} sx={{ color: '#0F2E5A' }}>
                       <EditIcon fontSize="small" />
@@ -867,10 +867,10 @@ export default function AgentPortal({ onLogout, onGoHome }) {
 
                   <Paper sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0', mb: 2 }}>
                     <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block', mb: 0.5 }}>
-                      हालको eSewa / बैंक विवरण:
+                      Current eSewa / Bank Details:
                     </Typography>
                     <Typography variant="body1" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                      {agent?.paymentInfo || 'विवरण भरिएको छैन (eSewa / Khalti / Bank)'}
+                      {agent?.paymentInfo || 'Details not provided (eSewa / Khalti / Bank)'}
                     </Typography>
                   </Paper>
 
@@ -884,7 +884,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                     }}
                     sx={{ fontWeight: 800, borderRadius: 2 }}
                   >
-                    भुक्तानी खाता परिवर्तन गर्नुहोस्
+                    Update Payout Account
                   </Button>
                 </CardContent>
               </Card>
@@ -893,16 +893,16 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <Card sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0', bgcolor: '#F0FDF4' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#166534', mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <VerifiedIcon sx={{ color: '#166534' }} /> कमिसन तथा भुक्तानी नीति
+                    <VerifiedIcon sx={{ color: '#166534' }} /> Commission & Payout Policy
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#14532D', mb: 1.5, lineHeight: 1.6 }}>
-                    • प्रत्येक विद्यार्थी इन्स्टिच्युटमा उपस्थित भएर भर्ना शुल्क बुझाउनासाथ कमिसन स्वतः <b>स्वीकृत (Approved)</b> हुन्छ।
+                    • Commission is automatically <b>Approved</b> as soon as each referred student attends the institute and pays the admission fee.
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#14532D', mb: 1.5, lineHeight: 1.6 }}>
-                    • स्वीकृत कमिसन रकम प्रत्येक हप्ता वा भर्ना भएको २४ घण्टाभित्र तपाईंको <b>eSewa, Khalti वा बैंक खातामा</b> पठाइनेछ।
+                    • Approved commission amounts are transferred weekly or within 24 hours of admission to your <b>eSewa, Khalti, or Bank Account</b>.
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#14532D', lineHeight: 1.6 }}>
-                    • कुनै पनि समस्या परेमा सिधै कलेज प्रशासन फोन <b>{company.phone || '9851000000'}</b> मा सम्पर्क गर्न सक्नुहुन्छ।
+                    • For any assistance, you can contact the college administration directly at <b>{company.phone || '9851000000'}</b>.
                   </Typography>
                 </CardContent>
               </Card>
@@ -913,17 +913,17 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <Card sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
                 <CardContent sx={{ p: 3 }}>
                   <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 2 }}>
-                    💰 आर्जित कमिसन विवरण (Earnings Breakdown)
+                    💰 Earnings Breakdown
                   </Typography>
 
                   {myLeads.filter((l) => l.stage === 'Converted').length === 0 ? (
                     <Box sx={{ textAlign: 'center', py: 5, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px dashed #CBD5E1' }}>
                       <MonetizationOnIcon sx={{ fontSize: 44, color: '#CBD5E1', mb: 1 }} />
                       <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#64748B' }}>
-                        अहिलेसम्म कुनै विद्यार्थी भर्ना सम्पन्न भएको छैन।
+                        No student admissions completed yet.
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-                        तपाईंले सिफारिस गरेका विद्यार्थीहरू भर्ना भएपछि यहाँ सूची देखिनेछ।
+                        Once your referred students enroll, the list will appear here.
                       </Typography>
                     </Box>
                   ) : (
@@ -953,16 +953,16 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                                   {item.name} ({item.course || item.subject})
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                  भर्ना ID: {item.id} • फोन: {item.phone}
+                                  Admission ID: {item.id} • Phone: {item.phone}
                                 </Typography>
                               </Box>
 
                               <Box sx={{ textAlign: 'right' }}>
                                 <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#059669' }}>
-                                  + रु. {commAmt.toLocaleString('ne-NP')}
+                                  + NPR {commAmt.toLocaleString()}
                                 </Typography>
                                 <Chip
-                                  label={isPaid ? 'भुक्तान भइसकेको' : 'भुक्तानी प्रक्रियामा (Pending)'}
+                                  label={isPaid ? 'Paid' : 'Pending Payout'}
                                   size="small"
                                   color={isPaid ? 'primary' : 'warning'}
                                   sx={{ fontWeight: 800, fontSize: '0.7rem', height: 22 }}
@@ -984,10 +984,10 @@ export default function AgentPortal({ onLogout, onGoHome }) {
           <Card sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
             <CardContent sx={{ p: { xs: 2, sm: 3.5 } }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1 }}>
-                📚 ग्लोबल एरा प्राविधिक स्कुलका आधिकारिक कोर्सहरू
+                📚 Official Courses at Global Era Technical School
               </Typography>
               <Typography variant="body2" sx={{ color: '#64748B', mb: 3 }}>
-                विद्यार्थीलाई सल्लाह दिँदा यी कोर्सहरूको अवधि, शुल्क र विषयवस्तुको जानकारी दिन सक्नुहुन्छ:
+                Share the duration, fees, and curriculum details of these courses when advising prospective students:
               </Typography>
 
               <Grid container spacing={2.5}>
@@ -1000,20 +1000,20 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                           {crs.title}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 2 }}>
-                          अवधि: {crs.durationValue} {crs.durationUnit} ({crs.totalHours} घण्टा)
+                          Duration: {crs.durationValue} {crs.durationUnit} ({crs.totalHours} Hours)
                         </Typography>
                         <Typography variant="body2" sx={{ color: '#475569', mb: 2, fontSize: '0.82rem' }}>
-                          {crs.description || 'व्यावहारिक सीप र रोजगारीमूलक तालिम।'}
+                          {crs.description || 'Practical skills and job-oriented vocational training.'}
                         </Typography>
 
                         <Divider sx={{ my: 1.5 }} />
 
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                            कोर्स शुल्क:
+                            Course Fee:
                           </Typography>
                           <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                            रु. {Number(crs.price || 15000).toLocaleString('ne-NP')}
+                            NPR {Number(crs.price || 15000).toLocaleString()}
                           </Typography>
                         </Box>
                       </CardContent>
@@ -1038,19 +1038,19 @@ export default function AgentPortal({ onLogout, onGoHome }) {
       >
         <form onSubmit={handleCreateLead}>
           <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A', pb: 1 }}>
-            + नयाँ विद्यार्थी सिफारिस गर्नुहोस् (Refer a Student)
+            + Refer a Student
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2.5} sx={{ pt: 1 }}>
               <Alert severity="info" sx={{ borderRadius: 2, fontWeight: 600 }}>
-                तपाईंको एजेन्ट कोड <b>{agent?.code}</b> यस लिडमा स्वतः संलग्न हुनेछ। विद्यार्थी भर्ना हुनासाथ कमिसन तपाईंको खातामा जम्मा हुनेछ।
+                Your Agent Code <b>{agent?.code}</b> will be automatically attached to this lead. Commission will be credited to your account upon student enrollment.
               </Alert>
 
               <TextField
                 required
                 fullWidth
-                label="विद्यार्थीको पूरा नाम (Full Name)"
-                placeholder="उदा: सुवास कार्की"
+                label="Student Full Name"
+                placeholder="e.g., Subash Karki"
                 value={leadForm.name}
                 onChange={(e) => setLeadForm({ ...leadForm, name: e.target.value })}
               />
@@ -1058,8 +1058,8 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <TextField
                 required
                 fullWidth
-                label="मोबाइल / ह्वाट्सएप नम्बर (10 Digits)"
-                placeholder="उदा: 9841234567"
+                label="Mobile / WhatsApp Number (10 Digits)"
+                placeholder="e.g., 9841234567"
                 value={leadForm.phone}
                 onChange={(e) => setLeadForm({ ...leadForm, phone: e.target.value })}
                 InputProps={{
@@ -1070,21 +1070,21 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <TextField
                 select
                 fullWidth
-                label="इच्छाएको कोर्स (Interested Course)"
+                label="Interested Course"
                 value={leadForm.courseId}
                 onChange={(e) => setLeadForm({ ...leadForm, courseId: e.target.value })}
               >
                 {(db.courses || []).map((c) => (
                   <MenuItem key={c.id} value={c.id}>
-                    {c.title} — रु. {Number(c.price || 15000).toLocaleString('ne-NP')}
+                    {c.title} — NPR {Number(c.price || 15000).toLocaleString()}
                   </MenuItem>
                 ))}
               </TextField>
 
               <TextField
                 fullWidth
-                label="ठेगाना / सहर (Address)"
-                placeholder="उदा: जोरपाटी, काठमाडौं"
+                label="Address / City"
+                placeholder="e.g., Jorpati, Kathmandu"
                 value={leadForm.address}
                 onChange={(e) => setLeadForm({ ...leadForm, address: e.target.value })}
                 InputProps={{
@@ -1095,21 +1095,21 @@ export default function AgentPortal({ onLogout, onGoHome }) {
               <TextField
                 select
                 fullWidth
-                label="प्राथमिकता (Priority)"
+                label="Priority"
                 value={leadForm.priority}
                 onChange={(e) => setLeadForm({ ...leadForm, priority: e.target.value })}
               >
-                <MenuItem value="High">उच्च (High - तुरुन्तै भर्ना हुन इच्छुक)</MenuItem>
-                <MenuItem value="Medium">साधारण (Medium - बुझ्न चाहेको)</MenuItem>
-                <MenuItem value="Urgent">अत्यन्तै जरुरी (Urgent)</MenuItem>
+                <MenuItem value="High">High (Ready to enroll immediately)</MenuItem>
+                <MenuItem value="Medium">Medium (General inquiry)</MenuItem>
+                <MenuItem value="Urgent">Urgent</MenuItem>
               </TextField>
 
               <TextField
                 fullWidth
                 multiline
                 rows={2.5}
-                label="कैफियत / पृष्ठभूमी (Notes / Background)"
-                placeholder="उदा: बिहानी सिफ्ट इच्छुक, साथीको भाइ, विदेश जानको लागि केयरगिभर गर्न चाहेको..."
+                label="Notes / Background"
+                placeholder="e.g., Prefers morning shift, friend's brother, interested in Caregiver course for abroad..."
                 value={leadForm.notes}
                 onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })}
               />
@@ -1117,7 +1117,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
           </DialogContent>
           <DialogActions sx={{ p: 2.5 }}>
             <Button onClick={() => setOpenAddLeadModal(false)} sx={{ fontWeight: 700, color: '#64748B' }}>
-              रद्द गर्नुहोस्
+              Cancel
             </Button>
             <Button
               type="submit"
@@ -1131,7 +1131,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
                 '&:hover': { bgcolor: '#133E68' }
               }}
             >
-              विद्यार्थी लिड सुरक्षित गर्नुहोस्
+              Save Student Lead
             </Button>
           </DialogActions>
         </form>
@@ -1146,30 +1146,30 @@ export default function AgentPortal({ onLogout, onGoHome }) {
         PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
       >
         <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-          भुक्तानी खाता अद्यावधिक
+          Update Payout Account
         </DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2} sx={{ pt: 1 }}>
             <Typography variant="body2" sx={{ color: '#64748B' }}>
-              कमिसन रकम पाउनको लागि आफ्नो eSewa आईडी, Khalti वा बैंक विवरण (खाता नम्बर र बैंक नाम) लेख्नुहोस्:
+              Enter your eSewa ID, Khalti, or Bank details (Account Number and Bank Name) to receive commission payouts:
             </Typography>
             <TextField
               fullWidth
               multiline
               rows={3}
-              label="भुक्तानी विवरण (Payment Info)"
+              label="Payment Info"
               value={paymentInfoDraft}
               onChange={(e) => setPaymentInfoDraft(e.target.value)}
-              placeholder="उदा: eSewa: 9841234567 वा Nabil Bank: 0192837465, Ramesh Shrestha"
+              placeholder="e.g., eSewa: 9841234567 or Nabil Bank: 0192837465, Ramesh Shrestha"
             />
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenEditPaymentModal(false)} sx={{ fontWeight: 700 }}>
-            रद्द
+            Cancel
           </Button>
           <Button variant="contained" onClick={handleSavePaymentInfo} sx={{ fontWeight: 800, bgcolor: '#0B2545' }}>
-            सुरक्षित गर्नुहोस्
+            Save
           </Button>
         </DialogActions>
       </Dialog>

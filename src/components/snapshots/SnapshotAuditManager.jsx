@@ -140,7 +140,7 @@ export default function SnapshotAuditManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <SecurityIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Record Snapshots & Audit Trail (अभिलेख तथा अडिट केन्द्र)
+              Record Snapshots & Audit Trail
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -174,8 +174,8 @@ export default function SnapshotAuditManager() {
             '& .MuiTab-root': { fontWeight: 800, py: 1.8 }
           }}
         >
-          <Tab icon={<LockIcon fontSize="small" />} iconPosition="start" label="१. स्थिर अभिलेखहरू (Immutable Snapshots & Revisions)" />
-          <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="२. प्रणाली अडिट लग (System Audit Trail)" />
+          <Tab icon={<LockIcon fontSize="small" />} iconPosition="start" label="1. Immutable Snapshots & Revisions" />
+          <Tab icon={<HistoryIcon fontSize="small" />} iconPosition="start" label="2. System Audit Trail" />
         </Tabs>
 
         {/* Tab 1: Snapshots */}
@@ -215,7 +215,7 @@ export default function SnapshotAuditManager() {
               <Table>
                 <TableHead sx={{ bgcolor: '#f8fafc' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>क्र.सं.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Version</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Record Title</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Entity Type</TableCell>
@@ -317,7 +317,7 @@ export default function SnapshotAuditManager() {
               <Table>
                 <TableHead sx={{ bgcolor: '#f8fafc' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>क्र.सं.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Timestamp</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Action</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Entity</TableCell>
@@ -396,7 +396,7 @@ export default function SnapshotAuditManager() {
               </Box>
 
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                Snapshot Payload (अपरिवर्तनीय डाटा विवरण):
+                Snapshot Payload (Immutable Data Record):
               </Typography>
               <Paper sx={{ p: 2, bgcolor: '#0f172a', color: '#38bdf8', fontFamily: 'monospace', fontSize: '0.85rem', overflowX: 'auto', borderRadius: 2 }}>
                 <pre style={{ margin: 0 }}>
@@ -423,12 +423,12 @@ export default function SnapshotAuditManager() {
               value={newSnapshotForm.entityType}
               onChange={(e) => setNewSnapshotForm({ ...newSnapshotForm, entityType: e.target.value })}
             >
-              <MenuItem value="WorkPlan">Work Plan (कार्ययोजना)</MenuItem>
-              <MenuItem value="LessonPlan">Lesson Plan (पाठयोजना)</MenuItem>
-              <MenuItem value="LogBook">Log Book (डेलिभरी रेकर्ड)</MenuItem>
-              <MenuItem value="Certificate">Certificate (प्रमाणपत्र)</MenuItem>
-              <MenuItem value="OJT">OJT Deployment (स्थलगत अभ्यास)</MenuItem>
-              <MenuItem value="Placement">Career Placement (रोजगारी सम्झौता)</MenuItem>
+              <MenuItem value="WorkPlan">Work Plan</MenuItem>
+              <MenuItem value="LessonPlan">Lesson Plan</MenuItem>
+              <MenuItem value="LogBook">Log Book (Delivery Record)</MenuItem>
+              <MenuItem value="Certificate">Certificate</MenuItem>
+              <MenuItem value="OJT">OJT Deployment</MenuItem>
+              <MenuItem value="Placement">Career Placement</MenuItem>
             </TextField>
 
             <TextField

@@ -168,8 +168,8 @@ export default function EvaluationManager() {
     const studentEvls = (db.evaluations || []).filter((e) => e.studentId === student.id);
     const studentMastered = studentEvls.filter((e) => e.mastered).length;
     return (
-      `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n` +
-      `🎓 *SKILL COMPETENCY ASSESSMENT REPORT (दक्षता मूल्यांकन)*\n` +
+      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `🎓 *SKILL COMPETENCY ASSESSMENT REPORT*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Trainee Name:* ${student.name} (${student.tgid})\n` +
       `• *Course:* ${selectedCourse?.title || 'Vocational Training'}\n` +
@@ -190,8 +190,8 @@ export default function EvaluationManager() {
 
   const getBatchAssessmentShareText = () => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n` +
-      `📊 *GROUP COMPETENCY EVALUATION SUMMARY (समूह दक्षता सारांश)*\n` +
+      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `📊 *GROUP COMPETENCY EVALUATION SUMMARY*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch / Group:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
       `• *Course:* ${selectedCourse?.title || 'Vocational Training'}\n` +
@@ -212,7 +212,7 @@ export default function EvaluationManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <AssessmentIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Skill Evaluations (दक्षता मूल्यांकन)
+              Skill Evaluations
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -414,15 +414,15 @@ export default function EvaluationManager() {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>प्रशिक्षार्थी (Student)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>पाठ्यक्रम सीप / कार्य (Skill / Task)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>सक्षमता (Competency)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>सुधार गर्नुपर्ने पक्ष (Areas to Improve)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>प्रशिक्षक कार्ययोजना (Action Plan)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>मूल्याङ्कनकर्ता र मिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Student</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Skill / Task</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>Competency</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Areas to Improve</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Action Plan</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Evaluator & Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -650,10 +650,10 @@ export default function EvaluationManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                सीप तथा दक्षता मूल्याङ्कन (Evaluate Student Skill)
+                Evaluate Student Skill
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                {selectedGroup?.groupCode} • CTEVT मानक सीप चेकलिस्ट तथा प्राविधिक दक्षता मूल्याङ्कन
+                {selectedGroup?.groupCode} • CTEVT Standard Skill Checklist & Technical Competency Assessment
               </Typography>
             </Box>
           </Box>
@@ -692,7 +692,7 @@ export default function EvaluationManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- विद्यार्थी छान्नुहोस् (Select Student) --
+                -- Select Student --
               </MenuItem>
               {groupStudents.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
@@ -712,7 +712,7 @@ export default function EvaluationManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- पाठ्यक्रम एकाइ / सीप छान्नुहोस् --
+                -- Select Syllabus Unit / Skill --
               </MenuItem>
               {availableSyllabi.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
@@ -731,27 +731,27 @@ export default function EvaluationManager() {
               }
               label={
                 <Typography sx={{ fontWeight: 800, color: formData.mastered ? '#16834b' : '#c9820a' }}>
-                  {formData.mastered ? 'Skill Mastered (दक्षता हासिल भयो - Competent)' : 'In Progress (थप अभ्यास आवश्यक - Needs Practice)'}
+                  {formData.mastered ? 'Skill Mastered (Competent)' : 'In Progress (Needs Practice)'}
                 </Typography>
               }
             />
 
             <TextField
-              label="Areas to Improve (सुधार गर्नुपर्ने पक्षहरू)"
+              label="Areas to Improve"
               fullWidth
               size="small"
               value={formData.areasToImprove}
               onChange={(e) => setFormData({ ...formData, areasToImprove: e.target.value })}
-              placeholder="उदा: कार्यथलो गति, औजार सुरक्षा, परिशुद्धता तथा फिनिसिङ..."
+              placeholder="e.g. Workshop speed, tool safety, precision and finishing..."
             />
 
             <TextField
-              label="Trainer Action Plan (प्रशिक्षकको आगामी योजना)"
+              label="Trainer Action Plan"
               multiline
               rows={2}
               fullWidth
               size="small"
-              placeholder="उदा: आगामी सत्रमा व्यक्तिगत सुपरिवेक्षण र अतिरिक्त अभ्यास समय उपलब्ध गराउने..."
+              placeholder="e.g. Provide individual supervision and extra practice time in the upcoming session..."
               value={formData.trainerPlan}
               onChange={(e) => setFormData({ ...formData, trainerPlan: e.target.value })}
             />
@@ -802,7 +802,7 @@ export default function EvaluationManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -822,7 +822,7 @@ export default function EvaluationManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Evaluation)
+            Save Evaluation
           </Button>
         </DialogActions>
       </Dialog>
@@ -833,7 +833,7 @@ export default function EvaluationManager() {
         onClose={() => setOfficialModalOpen(false)}
         docType="EVALUATION"
         title={modalTargetStudent ? 'TRAINEE COMPETENCY ASSESSMENT DOSSIER' : 'GROUP COMPETENCY ASSESSMENT MATRIX'}
-        nepaliTitle={modalTargetStudent ? 'प्रशिक्षार्थी सीप तथा दक्षता मूल्यांकन विवरण' : 'समूह दक्षता मूल्यांकन अभिलेख'}
+        nepaliTitle={modalTargetStudent ? 'Trainee Skill & Competency Assessment Record' : 'Group Competency Assessment Register'}
         group={selectedGroup}
         course={selectedCourse}
         trainer={trainer}
@@ -889,12 +889,12 @@ export default function EvaluationManager() {
                   <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem' } }}>
                     <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>क्र.सं.</TableCell>
-                        <TableCell sx={{ fontWeight: 900, width: 150 }}>सीप / पाठ्यक्रम इकाइ</TableCell>
-                        <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 100 }}>दक्षता स्थिति</TableCell>
-                        <TableCell sx={{ fontWeight: 900 }}>सुधार गर्नुपर्ने पक्षहरू</TableCell>
-                        <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षकको आगामी योजना</TableCell>
-                        <TableCell sx={{ fontWeight: 900, width: 85 }}>मूल्यांकन मिति</TableCell>
+                        <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>S.N.</TableCell>
+                        <TableCell sx={{ fontWeight: 900, width: 150 }}>Skill / Syllabus Unit</TableCell>
+                        <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 100 }}>Competency Status</TableCell>
+                        <TableCell sx={{ fontWeight: 900 }}>Areas to Improve</TableCell>
+                        <TableCell sx={{ fontWeight: 900 }}>Trainer Action Plan</TableCell>
+                        <TableCell sx={{ fontWeight: 900, width: 85 }}>Evaluation Date</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -938,13 +938,13 @@ export default function EvaluationManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem' } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 140 }}>प्रशिक्षार्थी नाम र TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 140 }}>मूल्यांकन गरिएको सीप</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 95 }}>दक्षता स्थिति</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>सुधार तथा सुझाव</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 130 }}>प्रशिक्षकको योजना</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 85 }}>मूल्यांकनकर्ता</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 140 }}>Trainee Name & TGID</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 140 }}>Assessed Skill</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 95 }}>Competency Status</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Areas to Improve</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 130 }}>Trainer Plan</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 85 }}>Evaluator</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -985,7 +985,7 @@ export default function EvaluationManager() {
                 {/* Summary Footer */}
                 <TableRow sx={{ bgcolor: '#f8fafc' }}>
                   <TableCell colSpan={3} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                    कुल दक्षता उपलब्धि (OVERALL MASTERY RATE):
+                    OVERALL MASTERY RATE:
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#16834b' }}>
                     {masteredCount} / {totalEvaluations}

@@ -51,13 +51,13 @@ import ConnectIpsPayoutModal from './ConnectIpsPayoutModal';
 import UniversalStatementModal from './UniversalStatementModal';
 
 export const PARTY_CATEGORIES = [
-  { code: 'LANDLORD', label: 'घरबेटी / भवन धनी (Landlord)', icon: '🏠' },
-  { code: 'TECHNICAL_SUPPLIER', label: 'प्राविधिक औजार तथा कच्चा पदार्थ', icon: '🛠️' },
-  { code: 'TAILORING_SUPPLIER', label: 'सिलाई कच्चा पदार्थ (कपडा/धागो)', icon: '🧵' },
-  { code: 'BEAUTICIAN_SUPPLIER', label: 'ब्युटिसियन तथा कस्मेटिक्स सामग्री', icon: '💄' },
-  { code: 'BAKERY_SUPPLIER', label: 'बेकरी तथा खाद्य सामग्री', icon: '🎂' },
-  { code: 'UTILITY_SERVICE', label: 'युटिलिटी (इन्टरनेट, बिजुली तथा सेवा)', icon: '💡' },
-  { code: 'STATIONERY_MEDIA', label: 'स्टेशनरी, मुद्रण तथा ब्राण्डिङ', icon: '📚' }
+  { code: 'LANDLORD', label: 'Building Owner / Landlord', icon: '🏠' },
+  { code: 'TECHNICAL_SUPPLIER', label: 'Technical Tools & Raw Materials', icon: '🛠️' },
+  { code: 'TAILORING_SUPPLIER', label: 'Tailoring Materials (Fabric / Thread)', icon: '🧵' },
+  { code: 'BEAUTICIAN_SUPPLIER', label: 'Beautician & Cosmetics Supplies', icon: '💄' },
+  { code: 'BAKERY_SUPPLIER', label: 'Bakery & Culinary Ingredients', icon: '🎂' },
+  { code: 'UTILITY_SERVICE', label: 'Utilities (Internet, Electricity, Services)', icon: '💡' },
+  { code: 'STATIONERY_MEDIA', label: 'Stationery, Printing & Branding', icon: '📚' }
 ];
 
 export default function PartyManagerView({ db, setDb, showToast }) {
@@ -115,9 +115,9 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       const initialParties = [
         {
           id: 'PRT-001',
-          name: 'राम कुमार श्रेष्ठ (घरधनी - मुख्य भवन)',
+          name: 'Ram Kumar Shrestha (Main Building Landlord)',
           category: 'LANDLORD',
-          contactPerson: 'राम कुमार श्रेष्ठ',
+          contactPerson: 'Ram Kumar Shrestha',
           phone: '9851011122',
           panNumber: '302918273',
           address: 'Jorpati-05, Kathmandu',
@@ -130,13 +130,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           totalPurchases: 600000,
           totalPaid: 550000,
           currentDue: 50000,
-          notes: 'मुख्य इन्स्टिच्युट भवन भाडा सम्झौता (साउन-असार). हरेक महिना १ गते भाडा बिल आउने।'
+          notes: 'Main institute building lease agreement (Shrawan-Ashadh). Monthly rent invoice generated on 1st.'
         },
         {
           id: 'PRT-002',
-          name: 'न्यू महालक्ष्मी हार्डवेयर तथा मेसिनरी स्टोर',
+          name: 'New Mahalaxmi Hardware & Machinery Store',
           category: 'TECHNICAL_SUPPLIER',
-          contactPerson: 'महेश महर्जन',
+          contactPerson: 'Mahesh Maharjan',
           phone: '9841887766',
           panNumber: '601928374',
           address: 'Chabahil, Kathmandu',
@@ -146,13 +146,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           totalPurchases: 85000,
           totalPaid: 65000,
           currentDue: 20000,
-          notes: 'वेल्डिङ, प्लम्बिङ र इलेक्ट्रिकल प्राविधिक तालिमका औजार तथा कच्चा पदार्थ आपूर्तिकर्ता'
+          notes: 'Supplier for welding, plumbing, and electrical training tools and materials'
         },
         {
           id: 'PRT-003',
-          name: 'वर्ल्डलिङ्क कम्युनिकेशन्स प्रा.लि. (इन्टरनेट)',
+          name: 'WorldLink Communications Pvt. Ltd. (Internet)',
           category: 'UTILITY_SERVICE',
-          contactPerson: 'ग्राहक सेवा (Customer Support)',
+          contactPerson: 'Customer Support',
           phone: '01-4911222',
           panNumber: '300182910',
           address: 'Jawalakhel, Lalitpur',
@@ -162,13 +162,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           totalPurchases: 42000,
           totalPaid: 38500,
           currentDue: 3500,
-          notes: 'कम्प्युटर ल्याब तथा कार्यालय २०० Mbps डेडिकेटेड फाइबर इन्टरनेट (मासिक बिल रु. ३,५००)'
+          notes: 'Computer lab & office 200 Mbps dedicated fiber internet (Monthly bill Rs. 3,500)'
         },
         {
           id: 'PRT-004',
-          name: 'न्युरोड फेब्रिक तथा सिलाई सामग्री स्टोर',
+          name: 'New Road Fabric & Tailoring Supply Store',
           category: 'TAILORING_SUPPLIER',
-          contactPerson: 'सुनिल बज्राचार्य',
+          contactPerson: 'Sunil Bajracharya',
           phone: '9841887766',
           panNumber: '601928374',
           address: 'New Road, Kathmandu',
@@ -178,7 +178,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
           totalPurchases: 32000,
           totalPaid: 25000,
           currentDue: 7000,
-          notes: 'सिलाई तालिमका लागि कपडा, धागो, मेसिन सुई सप्लायर'
+          notes: 'Supplier of fabric, thread, and sewing machine needles for tailoring training'
         }
       ];
 
@@ -242,7 +242,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
     saveDB(nextDb);
     setDb(nextDb);
 
-    if (showToast) showToast(`पार्टी ${partyName} सफलतापूर्वक दर्ता भयो।`, 'success');
+    if (showToast) showToast(`Party ${partyName} registered successfully.`, 'success');
     setAddPartyOpen(false);
     setPartyName('');
     setPhone('');
@@ -285,9 +285,9 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       category: targetParty.category === 'LANDLORD' ? 'Rent & Facilities' : 'Practical Raw Materials',
       payee: targetParty.name,
       amount: amt,
-      paymentMethod: isCredit ? 'Credit (उधारो)' : purchasePayMethod,
+      paymentMethod: isCredit ? 'Credit (Payable)' : purchasePayMethod,
       accountCode: targetParty.category === 'LANDLORD' ? '5400' : '5300',
-      description: `बिल नं ${billNo}: ${purchaseDescription || 'सामान खरिद'}`,
+      description: `Bill #${billNo}: ${purchaseDescription || 'Goods Purchase'}`,
       status: isCredit ? 'Pending' : 'Paid',
       billNumber: billNo
     };
@@ -304,7 +304,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       const debitAcc = targetParty.category === 'LANDLORD' ? '5400' : '5300';
       const journalRes = postDoubleEntryJournal(nextDb, {
         entryDate: billDate,
-        narration: `पार्टी ${targetParty.name} बाट खरिद/खर्च (Bill #${billNo})`,
+        narration: `Purchase/Expense from ${targetParty.name} (Bill #${billNo})`,
         sourceModule: 'VENDOR_BILL',
         sourceId: billNo,
         lines: [
@@ -319,7 +319,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
     setDb(nextDb);
 
     if (showToast) {
-      showToast(`बिल नं ${billNo} मार्फत रु. ${amt.toLocaleString()} को खरिद प्रविष्टि भयो।`, 'success');
+      showToast(`Purchase recorded for Bill #${billNo} amounting to Rs. ${amt.toLocaleString()}.`, 'success');
     }
     setRecordPurchaseOpen(false);
     setPurchaseAmount('');
@@ -330,10 +330,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   const handleDeleteParty = async (partyId, name) => {
     const ok = await confirm({
       type: 'danger',
-      title: 'पार्टी हटाउने निश्चित गर्नुहोस् (Delete Party)',
-      message: `के तपाईं पार्टी "${name}" लाई सूचीबाट हटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो कार्यपछि पार्टीको बैंक र बक्यौता विवरण हट्नेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
-      confirmText: 'हो, हटाउनुहोस् (Delete)',
+      title: 'Confirm Delete Party',
+      message: `Are you sure you want to delete party "${name}" from the list?`,
+      detail: 'This will remove the party bank and ledger records. This action cannot be undone.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
 
@@ -342,7 +342,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
       const nextDb = { ...db, parties: updated };
       saveDB(nextDb);
       setDb(nextDb);
-      if (showToast) showToast('पार्टी हटाइयो।', 'info');
+      if (showToast) showToast('Party deleted successfully.', 'info');
     }
   };
 
@@ -366,13 +366,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  कुल दर्ता पार्टीहरू
+                  Total Registered Parties
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
                   {totalPartiesCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
-                  घरबेटी, बिक्रेता तथा युटिलिटी
+                  Landlords, Vendors & Utilities
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
@@ -387,13 +387,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  कुल खरिद तथा भाडा बिल
+                  Total Purchases & Rent Bills
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
-                  रु. {totalPurchasesSum.toLocaleString()}
+                  Rs. {totalPurchasesSum.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748b' }}>
-                  वार्षिक दर्ता कुल दायित्व
+                  Annual Total Liabilities
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, color: '#0f2e5a' }}>
@@ -408,13 +408,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  हालसम्म चुक्ता रकम
+                  Total Amount Paid
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#16a34a', mt: 0.5 }}>
-                  रु. {totalPaidSum.toLocaleString()}
+                  Rs. {totalPaidSum.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#16a34a', fontWeight: 700 }}>
-                  ConnectIPS तथा बैंक मार्फत भुक्तानी
+                  Paid via ConnectIPS & Bank Transfers
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, color: '#16a34a' }}>
@@ -429,13 +429,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  कुल तिर्न बाँकी बक्यौता
+                  Total Outstanding Due
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: totalDueSum > 0 ? '#dc2626' : '#16a34a', mt: 0.5 }}>
-                  रु. {totalDueSum.toLocaleString()}
+                  Rs. {totalDueSum.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: totalDueSum > 0 ? '#dc2626' : '#16a34a', fontWeight: 700 }}>
-                  {totalDueSum > 0 ? 'दायित्व चुक्ता गर्न बाँकी' : 'सबै चुक्ता'}
+                  {totalDueSum > 0 ? 'Pending Payment Obligation' : 'All Clear'}
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: totalDueSum > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: 2, color: totalDueSum > 0 ? '#dc2626' : '#16a34a' }}>
@@ -453,7 +453,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <TextField
               fullWidth
               size="small"
-              placeholder="पार्टीको नाम, फोन वा प्यान नम्बर खोज्नुहोस्..."
+              placeholder="Search party name, phone, or PAN..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               InputProps={{
@@ -471,11 +471,11 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               select
               fullWidth
               size="small"
-              label="पार्टीको प्रकार"
+              label="Party Category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै प्रकार (All Parties)</MenuItem>
+              <MenuItem value="ALL">All Categories</MenuItem>
               {PARTY_CATEGORIES.map((c) => (
                 <MenuItem key={c.code} value={c.code}>
                   {c.icon} {c.label}
@@ -489,13 +489,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               select
               fullWidth
               size="small"
-              label="बक्यौता स्थिति"
+              label="Outstanding Status"
               value={dueFilter}
               onChange={(e) => setDueFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै (All Status)</MenuItem>
-              <MenuItem value="DUE">🔴 बक्यौता बाँकी मात्र</MenuItem>
-              <MenuItem value="PAID">🟢 पूर्ण चुक्ता मात्र</MenuItem>
+              <MenuItem value="ALL">All Status</MenuItem>
+              <MenuItem value="DUE">🔴 Outstanding Due Only</MenuItem>
+              <MenuItem value="PAID">🟢 Fully Paid Only</MenuItem>
             </TextField>
           </Grid>
 
@@ -529,10 +529,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 }}
               >
                 <ToggleButton value="table">
-                  <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> तालिका
+                  <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Table
                 </ToggleButton>
                 <ToggleButton value="cards">
-                  <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> कार्ड
+                  <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
               </ToggleButtonGroup>
 
@@ -546,7 +546,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 }}
                 sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, fontSize: '0.78rem' }}
               >
-                स्टेटमेन्ट हब
+                Statement Hub
               </Button>
               <Button
                 variant="contained"
@@ -554,7 +554,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 onClick={() => setAddPartyOpen(true)}
                 sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#174276' } }}
               >
-                + पार्टी थप्नुहोस्
+                + Add Party
               </Button>
               <Button
                 variant="contained"
@@ -562,7 +562,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 onClick={() => setRecordPurchaseOpen(true)}
                 sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#047857' } }}
               >
-                + खरिद/खर्च
+                + Purchase / Expense
               </Button>
             </Stack>
           </Grid>
@@ -589,22 +589,22 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             >
               <TableRow>
                 <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                  क्र.सं. (S.N.)
+                  S.N.
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पार्टीको नाम / वर्ग</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क व्यक्ति / फोन</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ConnectIPS बैंक विवरण</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">कुल खरिद / भाडा</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">हालसम्म भुक्तानी</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">तिर्न बाँकी बक्यौता</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">कार्यहरू (Actions)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Party Name & Category</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact Person & Phone</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ConnectIPS Bank Details</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Total Purchases / Rent</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Total Paid</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Outstanding Due</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredParties.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#64748b' }}>
-                    कुनै पार्टी फेला परेन। '+ पार्टी थप्नुहोस्' थिचेर घरधनी वा सप्लायर दर्ता गर्नुहोस्।
+                    No parties found. Click '+ Add Party' to register a landlord or vendor.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -629,7 +629,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         />
                         {p.monthlyRent && (
                           <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.3 }}>
-                            मासिक सम्झौता: रु. {p.monthlyRent.toLocaleString()} (TDS: {p.tdsPercent || 10}%)
+                            Monthly Lease: Rs. {p.monthlyRent.toLocaleString()} (TDS: {p.tdsPercent || 10}%)
                           </Typography>
                         )}
                       </TableCell>
@@ -646,7 +646,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             <IconButton
                               size="small"
                               component="a"
-                              href={getWhatsAppUrl(p.phone, `नमस्ते ${p.name} ज्यू, ग्लोबल एरा प्राविधिक स्कुलबाट सम्पर्क गर्दैछौं।`)}
+                              href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Global Era Technical Institute.`)}
                               target="_blank"
                               sx={{ color: '#25D366', p: 0.2 }}
                             >
@@ -661,7 +661,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                           {p.bankName || 'Global IME Bank'}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#475569', fontFamily: 'monospace', display: 'block' }}>
-                          A/C: {p.accountNumber || '०१२०००१२३४५'}
+                          A/C: {p.accountNumber || '01200012345'}
                         </Typography>
                         {p.panNumber && (
                           <Typography variant="caption" sx={{ color: '#64748B' }}>
@@ -671,28 +671,28 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                       </TableCell>
 
                       <TableCell align="right" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                        रु. {(Number(p.totalPurchases) || 0).toLocaleString()}
+                        Rs. {(Number(p.totalPurchases) || 0).toLocaleString()}
                       </TableCell>
 
                       <TableCell align="right" sx={{ fontWeight: 800, color: '#059669' }}>
-                        रु. {(Number(p.totalPaid) || 0).toLocaleString()}
+                        Rs. {(Number(p.totalPaid) || 0).toLocaleString()}
                       </TableCell>
 
                       <TableCell align="right">
                         {isDue ? (
                           <Box>
                             <Typography variant="body2" sx={{ fontWeight: 900, color: '#dc2626' }}>
-                              रु. {(Number(p.currentDue) || 0).toLocaleString()}
+                              Rs. {(Number(p.currentDue) || 0).toLocaleString()}
                             </Typography>
                             <Chip
-                              label="उधारो बाँकी"
+                              label="Due Outstanding"
                               size="small"
                               sx={{ height: '18px', fontSize: '0.65rem', fontWeight: 800, bgcolor: '#fef2f2', color: '#991b1b' }}
                             />
                           </Box>
                         ) : (
                           <Chip
-                            label="चुक्ता (Clear)"
+                            label="Cleared"
                             size="small"
                             sx={{ height: '20px', fontSize: '0.7rem', fontWeight: 800, bgcolor: '#ecfdf5', color: '#065f46' }}
                           />
@@ -701,7 +701,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
 
                       <TableCell align="center">
                         <Stack direction="row" spacing={0.8} justifyContent="center">
-                          <Tooltip title="ConnectIPS / बैंक भुक्तानी गर्नुहोस्">
+                          <Tooltip title="Make ConnectIPS / Bank Payment">
                             <Button
                               variant="contained"
                               size="small"
@@ -718,11 +718,11 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                                 '&:hover': { bgcolor: isDue ? '#B91C1C' : '#174276' }
                               }}
                             >
-                              भुक्तानी
+                              Pay
                             </Button>
                           </Tooltip>
 
-                          <Tooltip title={p.category === 'LANDLORD' ? "आर्थिक वर्ष १२-महिने घरभाडा स्टेटमेन्ट (साउन–असार)" : "पार्टी खाता तथा खरिद लेजर"}>
+                          <Tooltip title={p.category === 'LANDLORD' ? "Fiscal Year 12-Month Rent Statement" : "Vendor Ledger & Purchase Statement"}>
                             <Button
                               variant="outlined"
                               size="small"
@@ -730,11 +730,11 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                               onClick={() => handleOpenStatement(p)}
                               sx={{ fontWeight: 800, fontSize: '0.74rem', py: 0.4, px: 1.2, borderRadius: 1.8, textTransform: 'none' }}
                             >
-                              स्टेटमेन्ट
+                              Statement
                             </Button>
                           </Tooltip>
 
-                          <Tooltip title="पार्टी मेटाउनुहोस्">
+                          <Tooltip title="Delete Party">
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteParty(p.id, p.name)}
@@ -762,7 +762,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             <Card elevation={0} sx={{ p: 6, textAlign: 'center', borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <StorefrontIcon sx={{ fontSize: 48, color: '#94A3B8', mb: 1 }} />
               <Typography variant="body1" sx={{ fontWeight: 700, color: '#64748B' }}>
-                कुनै पार्टी फेला परेन। '+ पार्टी थप्नुहोस्' थिचेर नयाँ पार्टी दर्ता गर्नुहोस्।
+                No parties found. Click '+ Add Party' to register a new vendor or party.
               </Typography>
             </Card>
           ) : (
@@ -809,7 +809,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             }}
                           />
                           <Chip
-                            label={isDue ? `बक्यौता बाँकी` : 'पूर्ण चुक्ता'}
+                            label={isDue ? 'Outstanding Due' : 'Paid & Cleared'}
                             size="small"
                             sx={{
                               fontWeight: 900,
@@ -830,18 +830,18 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, p: 1, bgcolor: '#F8FAFC', borderRadius: 2 }}>
                           <Box>
                             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 700 }}>
-                              सम्पर्क: {p.contactPerson || '-'}
+                              Contact: {p.contactPerson || '-'}
                             </Typography>
                             <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
                               {p.phone || '-'}
                             </Typography>
                           </Box>
                           {p.phone && (
-                            <Tooltip title="ह्वाट्सएप सन्देश पठाउनुहोस्">
+                            <Tooltip title="Send WhatsApp Message">
                               <IconButton
                                 size="small"
                                 component="a"
-                                href={getWhatsAppUrl(p.phone, `नमस्ते ${p.name}, ग्लोबल एरा इन्स्टिच्युटबाट सम्पर्क गर्दैछौँ।`)}
+                                href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Global Era Technical Institute.`)}
                                 target="_blank"
                                 rel="noreferrer"
                                 sx={{ color: '#16A34A', bgcolor: '#DCFCE7' }}
@@ -855,15 +855,15 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         {/* Bank & Tax Details */}
                         <Box sx={{ mb: 1.5, fontSize: '0.78rem', color: '#475569' }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                            <span style={{ color: '#64748B' }}>प्यान (PAN):</span>
+                            <span style={{ color: '#64748B' }}>PAN:</span>
                             <strong>{p.panNumber || '-'}</strong>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.4 }}>
-                            <span style={{ color: '#64748B' }}>बैंक:</span>
+                            <span style={{ color: '#64748B' }}>Bank:</span>
                             <span style={{ fontWeight: 700, color: '#1E40AF' }}>{p.bankName || 'ConnectIPS'}</span>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span style={{ color: '#64748B' }}>खाता नं.:</span>
+                            <span style={{ color: '#64748B' }}>A/C No:</span>
                             <strong style={{ fontFamily: 'monospace' }}>{p.accountNumber || '-'}</strong>
                           </Box>
                         </Box>
@@ -872,13 +872,13 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         {p.category === 'LANDLORD' && (
                           <Box sx={{ p: 1, mb: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #DBEAFE', fontSize: '0.76rem' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.3 }}>
-                              <span style={{ color: '#1E40AF', fontWeight: 700 }}>मासिक भाडा:</span>
-                              <strong>रु. {(p.monthlyRent || 50000).toLocaleString()}/महिना</strong>
+                              <span style={{ color: '#1E40AF', fontWeight: 700 }}>Monthly Rent:</span>
+                              <strong>Rs. {(p.monthlyRent || 50000).toLocaleString()}/Month</strong>
                             </Box>
                             {p.securityDeposit && (
                               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ color: '#1E40AF' }}>धरौटी (Deposit):</span>
-                                <strong>रु. {Number(p.securityDeposit).toLocaleString()}</strong>
+                                <span style={{ color: '#1E40AF' }}>Security Deposit:</span>
+                                <strong>Rs. {Number(p.securityDeposit).toLocaleString()}</strong>
                               </Box>
                             )}
                           </Box>
@@ -888,26 +888,26 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, p: 1.2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px dashed #CBD5E1', textAlign: 'center', mb: 1.5 }}>
                           <Box>
                             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                              कुल बिल
+                              Total Bill
                             </Typography>
                             <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.8rem' }}>
-                              रु. {(p.totalPurchases || 0).toLocaleString()}
+                              Rs. {(p.totalPurchases || 0).toLocaleString()}
                             </Typography>
                           </Box>
                           <Box>
                             <Typography variant="caption" sx={{ color: '#16A34A', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                              भुक्तानी
+                              Paid
                             </Typography>
                             <Typography variant="body2" sx={{ fontWeight: 800, color: '#16A34A', fontSize: '0.8rem' }}>
-                              रु. {(p.totalPaid || 0).toLocaleString()}
+                              Rs. {(p.totalPaid || 0).toLocaleString()}
                             </Typography>
                           </Box>
                           <Box>
                             <Typography variant="caption" sx={{ color: isDue ? '#DC2626' : '#16A34A', display: 'block', fontSize: '0.68rem', fontWeight: 700 }}>
-                              बाँकी बक्यौता
+                              Remaining Due
                             </Typography>
                             <Typography variant="body2" sx={{ fontWeight: 900, color: isDue ? '#DC2626' : '#16A34A', fontSize: '0.8rem' }}>
-                              रु. {(p.currentDue || 0).toLocaleString()}
+                              Rs. {(p.currentDue || 0).toLocaleString()}
                             </Typography>
                           </Box>
                         </Box>
@@ -932,10 +932,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                               '&:hover': { bgcolor: isDue ? '#B91C1C' : '#174276' }
                             }}
                           >
-                            ConnectIPS भुक्तानी
+                            ConnectIPS Pay
                           </Button>
 
-                          <Tooltip title={p.category === 'LANDLORD' ? "१२-महिने घरभाडा स्टेटमेन्ट" : "पार्टी खाता लेजर"}>
+                          <Tooltip title={p.category === 'LANDLORD' ? "12-Month Rent Statement" : "Vendor Ledger"}>
                             <IconButton
                               size="small"
                               onClick={() => handleOpenStatement(p)}
@@ -945,7 +945,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             </IconButton>
                           </Tooltip>
 
-                          <Tooltip title="पार्टी मेटाउनुहोस्">
+                          <Tooltip title="Delete Party">
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteParty(p.id, p.name)}
@@ -970,7 +970,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
         <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', py: 2.2, px: 3, borderBottom: '3px solid #F59E0B' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem' }}>
-              + नयाँ पार्टी दर्ता गर्नुहोस् (Add Party / Vendor)
+              + Add New Party / Vendor
             </Typography>
             <IconButton onClick={() => setAddPartyOpen(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
               <CloseIcon fontSize="small" />
@@ -986,7 +986,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="पार्टीको वर्ग (Category)"
+                  label="Party Category"
                   value={partyCategory}
                   onChange={(e) => setPartyCategory(e.target.value)}
                 >
@@ -1003,10 +1003,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="पार्टी / पसल / घरबेटीको नाम"
+                  label="Party / Vendor / Landlord Name *"
                   value={partyName}
                   onChange={(e) => setPartyName(e.target.value)}
-                  placeholder="उदा: राम कुमार श्रेष्ठ (घरधनी)"
+                  placeholder="e.g., Ram Kumar Shrestha (Landlord)"
                 />
               </Grid>
 
@@ -1014,7 +1014,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="सम्पर्क व्यक्ति (Contact Person)"
+                  label="Contact Person"
                   value={contactPerson}
                   onChange={(e) => setContactPerson(e.target.value)}
                 />
@@ -1025,10 +1025,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="सम्पर्क फोन / WhatsApp"
+                  label="Contact Phone / WhatsApp"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  placeholder="९८४१xxxxxx"
+                  placeholder="9841xxxxxx"
                 />
               </Grid>
 
@@ -1037,10 +1037,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="ConnectIPS बैंकको नाम"
+                  label="ConnectIPS Bank Name"
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
-                  placeholder="उदा: Global IME Bank"
+                  placeholder="e.g., Global IME Bank"
                 />
               </Grid>
 
@@ -1048,10 +1048,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="बैंक खाता नम्बर (A/C No)"
+                  label="Bank Account Number (A/C No)"
                   value={accountNumber}
                   onChange={(e) => setAccountNumber(e.target.value)}
-                  placeholder="०१२०००१२३४५"
+                  placeholder="01200012345"
                 />
               </Grid>
 
@@ -1059,7 +1059,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="खातावालाको नाम (A/C Holder Name)"
+                  label="Account Holder Name"
                   value={accountHolderName}
                   onChange={(e) => setAccountHolderName(e.target.value)}
                   placeholder="Ram Kumar Shrestha"
@@ -1070,7 +1070,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="प्यान / भ्याट नम्बर (PAN/VAT)"
+                  label="PAN / VAT Number"
                   value={panNumber}
                   onChange={(e) => setPanNumber(e.target.value)}
                 />
@@ -1084,12 +1084,12 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                       fullWidth
                       size="small"
                       type="number"
-                      label="मासिक सम्झौता भाडा (रु.)"
+                      label="Monthly Agreement Rent (Rs.)"
                       value={monthlyRent}
                       onChange={(e) => setMonthlyRent(e.target.value)}
-                      placeholder="५०,०००"
+                      placeholder="50,000"
                       InputProps={{
-                        startAdornment: <InputAdornment position="start">रु.</InputAdornment>
+                        startAdornment: <InputAdornment position="start">Rs. </InputAdornment>
                       }}
                     />
                   </Grid>
@@ -1099,10 +1099,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                       fullWidth
                       size="small"
                       type="number"
-                      label="फिर्तायोग्य अग्रिम धरौटी (Deposit)"
+                      label="Refundable Security Deposit (Rs.)"
                       value={securityDeposit}
                       onChange={(e) => setSecurityDeposit(e.target.value)}
-                      placeholder="१,५०,०००"
+                      placeholder="150,000"
                     />
                   </Grid>
                 </>
@@ -1112,7 +1112,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="ठेगाना (Address)"
+                  label="Address"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                 />
@@ -1122,7 +1122,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="कैफियत / सम्झौता विवरण (Notes)"
+                  label="Notes & Agreement Details"
                   multiline
                   rows={2}
                   value={notes}
@@ -1133,10 +1133,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
 
             <DialogActions sx={{ px: 0, pt: 3 }}>
               <Button onClick={() => setAddPartyOpen(false)} color="inherit">
-                रद्द गर्नुहोस्
+                Cancel
               </Button>
               <Button type="submit" variant="contained" sx={{ bgcolor: '#0f2e5a', fontWeight: 800 }}>
-                पार्टी सुरक्षित गर्नुहोस्
+                Save Party
               </Button>
             </DialogActions>
           </Box>
@@ -1148,7 +1148,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
         <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', py: 2.2, px: 3, borderBottom: '3px solid #F59E0B' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem' }}>
-              + नयाँ खरिद / खर्च बिल प्रविष्टि गर्नुहोस्
+              + Record New Purchase / Expense Bill
             </Typography>
             <IconButton onClick={() => setRecordPurchaseOpen(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
               <CloseIcon fontSize="small" />
@@ -1164,7 +1164,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="सम्बन्धित पार्टी छान्नुहोस्"
+                  label="Select Vendor / Party *"
                   value={purchasePartyId}
                   onChange={(e) => setPurchasePartyId(e.target.value)}
                 >
@@ -1180,10 +1180,10 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="बिल नम्बर (Invoice / Bill No)"
+                  label="Invoice / Bill No *"
                   value={billNumber}
                   onChange={(e) => setBillNumber(e.target.value)}
-                  placeholder="उदा: INV-1042"
+                  placeholder="e.g., INV-1042"
                 />
               </Grid>
 
@@ -1192,7 +1192,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   size="small"
                   type="date"
-                  label="बिल मिति (Date)"
+                  label="Bill Date *"
                   value={billDate}
                   onChange={(e) => setBillDate(e.target.value)}
                   InputLabelProps={{ shrink: true }}
@@ -1205,7 +1205,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   required
                   type="number"
                   size="small"
-                  label="कुल बिल रकम (रु.)"
+                  label="Total Bill Amount (Rs.)"
                   value={purchaseAmount}
                   onChange={(e) => setPurchaseAmount(e.target.value)}
                 />
@@ -1216,12 +1216,12 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   select
                   fullWidth
                   size="small"
-                  label="भुक्तानी प्रकार"
+                  label="Payment Terms"
                   value={isCreditPurchase ? 'CREDIT' : 'CASH'}
                   onChange={(e) => setIsCreditPurchase(e.target.value === 'CREDIT')}
                 >
-                  <MenuItem value="CREDIT">🔴 उधारो बिल (Accounts Payable)</MenuItem>
-                  <MenuItem value="CASH">🟢 तुरुन्तै चुक्ता (Instant Paid)</MenuItem>
+                  <MenuItem value="CREDIT">🔴 Credit (Accounts Payable)</MenuItem>
+                  <MenuItem value="CASH">🟢 Instant Paid (Cash/Bank)</MenuItem>
                 </TextField>
               </Grid>
 
@@ -1229,22 +1229,22 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="सामानको विवरण (Description)"
+                  label="Item Description"
                   multiline
                   rows={2}
                   value={purchaseDescription}
                   onChange={(e) => setPurchaseDescription(e.target.value)}
-                  placeholder="उदा: वेल्डिङ तालिमका लागि ५ बन्डल रड र ग्राइन्डिङ ह्विल"
+                  placeholder="e.g., 5 bundles welding electrodes and grinding discs for training"
                 />
               </Grid>
             </Grid>
 
             <DialogActions sx={{ px: 0, pt: 3 }}>
               <Button onClick={() => setRecordPurchaseOpen(false)} color="inherit">
-                रद्द गर्नुहोस्
+                Cancel
               </Button>
               <Button type="submit" variant="contained" sx={{ bgcolor: '#0f2e5a', fontWeight: 800 }}>
-                खरिद बिल दाखिला गर्नुहोस्
+                Submit Purchase Bill
               </Button>
             </DialogActions>
           </Box>
@@ -1259,7 +1259,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
         db={db}
         setDb={setDb}
         onSuccess={() => {
-          if (showToast) showToast('ConnectIPS भुक्तानी सफलतापूर्वक सम्पन्न भयो!', 'success');
+          if (showToast) showToast('ConnectIPS payment completed successfully!', 'success');
         }}
       />
 

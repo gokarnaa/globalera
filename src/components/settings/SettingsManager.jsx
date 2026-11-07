@@ -123,7 +123,7 @@ export default function SettingsManager() {
         <SettingsIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
         <Box>
           <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-            Settings & Cloud Integration (सेटिङ्स)
+            Settings & Cloud Integration
           </Typography>
           <Typography variant="body2" sx={{ color: '#647089' }}>
             Supabase PostgreSQL Connection, Aakash SMS Gateway, WhatsApp, and Google Contacts.
@@ -163,17 +163,17 @@ export default function SettingsManager() {
           <Tab
             icon={<BusinessIcon sx={{ mr: 1, fontSize: 20 }} />}
             iconPosition="start"
-            label="संस्थागत प्रोफाइल र जारी नम्बर (Company Profile & Numbering)"
+            label="Company Profile & Numbering"
           />
           <Tab
             icon={<WorkspacePremiumIcon sx={{ mr: 1, fontSize: 20 }} />}
             iconPosition="start"
-            label="प्रमाणपत्र स्टुडियो तथा टेम्प्लेट (Certificate Studio)"
+            label="Certificate Studio & Templates"
           />
           <Tab
             icon={<CloudUploadIcon sx={{ mr: 1, fontSize: 20 }} />}
             iconPosition="start"
-            label="क्लाउड तथा प्रणाली एकीकरण (Cloud & Integrations)"
+            label="Cloud & System Integrations"
           />
         </Tabs>
       </Paper>

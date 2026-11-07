@@ -69,7 +69,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     name: '',
     phone: '',
     email: '',
-    address: 'काठमाडौं',
+    address: 'Kathmandu',
     paymentInfo: '',
     pin: '1234'
   });
@@ -89,13 +89,13 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     if (!identifier) {
       setError(
         portalMode === 'admin'
-          ? 'कृपया एडमिन युजरनेम प्रविष्ट गर्नुहोस्।'
-          : 'कृपया आफ्नो फोन नम्बर वा आईडी प्रविष्ट गर्नुहोस्।'
+          ? 'Please enter the admin username.'
+          : 'Please enter your phone number or ID.'
       );
       return;
     }
     if (!pin) {
-      setError('कृपया पासवर्ड वा ४-अङ्कको पिन प्रविष्ट गर्नुहोस्।');
+      setError('Please enter your password or 4-digit PIN.');
       return;
     }
 
@@ -108,7 +108,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
       if (res.success) {
         if (onLoginSuccess) onLoginSuccess(res.user);
       } else {
-        setError(res.message || 'लगइन असफल भयो। युजरनेम वा पिन जाँच गर्नुहोस्।');
+        setError(res.message || 'Login failed. Please verify your username and PIN.');
       }
     }, 200);
   };
@@ -116,7 +116,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
   const handleRegisterAgent = (e) => {
     if (e) e.preventDefault();
     if (!regForm.name.trim() || !regForm.phone.trim()) {
-      alert('कृपया नाम र फोन नम्बर अनिवार्य प्रविष्ट गर्नुहोस्।');
+      alert('Please enter both your full name and phone number.');
       return;
     }
 
@@ -137,7 +137,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
       name: regForm.name.trim(),
       phone: regForm.phone.trim(),
       email: regForm.email.trim() || '',
-      address: regForm.address.trim() || 'काठमाडौं',
+      address: regForm.address.trim() || 'Kathmandu',
       pin: regForm.pin.trim() || '1234',
       status: 'Active',
       commissionType: 'FIXED',
@@ -155,7 +155,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     setOpenRegisterModal(false);
     setIdentifier(newCode);
     setPin(newAgent.pin);
-    setRegSuccessMsg(`बधाई छ! तपाईंको एजेन्ट कोड: ${newCode} तयार भयो। लगइन बटन थिच्नुहोस्।`);
+    setRegSuccessMsg(`Congratulations! Your Agent Code ${newCode} is ready. Click Sign In to continue.`);
   };
 
   const handleQuickDemo = (quickId, quickPin) => {
@@ -246,19 +246,19 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
             {company.companyNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL'}
           </Typography>
           <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mt: 0.4, fontWeight: 600 }}>
-            {company.companyNameNepali || 'ग्लोबल एरा प्राविधिक स्कुल'} • CTEVT Code: {company.ctevtCode || '4208'}
+            {company.companyNameNepali || 'Global Era Technical School'} • CTEVT Code: {company.ctevtCode || '4208'}
           </Typography>
 
           {/* Gateway Title Badge */}
           <Chip
             label={
               portalMode === 'agent'
-                ? '🤝 रेफ़रल पार्टनर / एजेन्ट लगइन (Agent Gateway)'
+                ? '🤝 Referral Partner / Agent Gateway'
                 : portalMode === 'trainer'
-                ? '👨‍🏫 प्रशिक्षक पोर्टल लगइन (Trainer Gateway)'
+                ? '👨‍🏫 Trainer Portal Gateway'
                 : portalMode === 'student'
-                ? '🎓 विद्यार्थी पोर्टल लगइन (Student Gateway)'
-                : '🛡️ क्याम्पस मुख्य प्रशासनिक लगइन (Main Admin)'
+                ? '🎓 Student Portal Gateway'
+                : '🛡️ Main Administration Gateway'
             }
             size="small"
             sx={{
@@ -304,12 +304,12 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', mb: 0.6, display: 'block' }}>
                   {portalMode === 'admin'
-                    ? 'एडमिन युजरनेम (Admin Username):'
+                    ? 'Admin Username:'
                     : portalMode === 'agent'
-                    ? 'एजेन्ट कोड वा फोन नम्बर (Agent Code / Phone):'
+                    ? 'Agent Code or Phone Number:'
                     : portalMode === 'trainer'
-                    ? 'प्रशिक्षक फोन वा आईडी (Trainer Phone / ID):'
-                    : 'विद्यार्थी फोन वा दर्ता नम्बर (Phone / TGID):'}
+                    ? 'Trainer Phone or ID:'
+                    : 'Student Phone or Registration ID (TGID):'}
                 </Typography>
                 <TextField
                   fullWidth
@@ -317,10 +317,10 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                     portalMode === 'admin'
                       ? 'admin'
                       : portalMode === 'agent'
-                      ? 'उदा: 9841234567 वा AGE-101'
+                      ? 'e.g. 9841234567 or AGE-101'
                       : portalMode === 'trainer'
-                      ? 'उदा: 9841234567 वा TRN-01'
-                      : 'उदा: 9860000001 वा GETS-2026-STD01'
+                      ? 'e.g. 9841234567 or TRN-01'
+                      : 'e.g. 9860000001 or TGID-101'
                   }
                   value={identifier}
                   onChange={(e) => {
@@ -349,8 +349,8 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', mb: 0.6, display: 'block' }}>
                   {portalMode === 'admin'
-                    ? 'एडमिन पासवर्ड (Password):'
-                    : '४-अङ्कको गोप्य पिन (4-Digit Access PIN):'}
+                    ? 'Admin Password:'
+                    : '4-Digit Access PIN:'}
                 </Typography>
                 <TextField
                   fullWidth
@@ -391,7 +391,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
 
                 {portalMode === 'admin' && (
                   <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.6 }}>
-                    अधिकृत प्रशासनिक युजरनेम तथा पासवर्ड प्रविष्ट गर्नुहोस्।
+                    Enter your authorized administrative username and password.
                   </Typography>
                 )}
               </Box>
@@ -431,14 +431,14 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                 }}
               >
                 {loading
-                  ? 'प्रमाणीकरण हुँदैछ...'
+                  ? 'Authenticating...'
                   : portalMode === 'agent'
-                  ? 'एजेन्ट पोर्टल खोल्नुहोस् (Enter Agent Portal)'
+                  ? 'Enter Agent Portal'
                   : portalMode === 'trainer'
-                  ? 'प्रशिक्षक पोर्टल खोल्नुहोस् (Enter Trainer Portal)'
+                  ? 'Enter Trainer Portal'
                   : portalMode === 'student'
-                  ? 'विद्यार्थी पोर्टल खोल्नुहोस् (Enter Student Portal)'
-                  : 'एडमिन प्रणालीमा प्रवेश गर्नुहोस् (Sign In to ERP)'}
+                  ? 'Enter Student Portal'
+                  : 'Sign In to ERP'}
               </Button>
 
               {/* Agent Sign Up */}
@@ -458,7 +458,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                       '&:hover': { bgcolor: '#FFEDD5', borderColor: '#EA580C' }
                     }}
                   >
-                    ✨ नयाँ रेफ़रल पार्टनर / एजेन्ट दर्ता (Sign Up)
+                    ✨ Register as New Referral Partner / Agent (Sign Up)
                   </Button>
                 </Stack>
               )}
@@ -482,7 +482,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                     px: 2
                   }}
                 >
-                  ← मुख्य वेबसाइट (गृहपृष्ठ) मा फर्कनुहोस्
+                  ← Return to Main Website (Home)
                 </Button>
               )}
 
@@ -496,7 +496,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                       onClick={() => handleSwitchMode('agent')}
                       sx={{ fontWeight: 800, color: '#C2410C', fontSize: '0.78rem' }}
                     >
-                      एजेन्ट पोर्टल (Agent)
+                      Agent Portal
                     </Button>
                   )}
                   {portalMode !== 'trainer' && (!allowedModes || allowedModes.includes('trainer')) && (
@@ -506,7 +506,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                       onClick={() => handleSwitchMode('trainer')}
                       sx={{ fontWeight: 800, color: '#059669', fontSize: '0.78rem' }}
                     >
-                      प्रशिक्षक पोर्टल (Trainer)
+                      Trainer Portal
                     </Button>
                   )}
                   {portalMode !== 'student' && (!allowedModes || allowedModes.includes('student')) && (
@@ -516,7 +516,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                       onClick={() => handleSwitchMode('student')}
                       sx={{ fontWeight: 800, color: '#2563EB', fontSize: '0.78rem' }}
                     >
-                      विद्यार्थी पोर्टल (Student)
+                      Student Portal
                     </Button>
                   )}
                   {portalMode !== 'admin' && allowedModes && allowedModes.includes('admin') && (
@@ -526,7 +526,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                       onClick={() => handleSwitchMode('admin')}
                       sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}
                     >
-                      एडमिन लगइन (Admin)
+                      Admin Login
                     </Button>
                   )}
                 </Box>
@@ -546,19 +546,19 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
       >
         <form onSubmit={handleRegisterAgent}>
           <DialogTitle sx={{ fontWeight: 900, color: '#7C2D12', pb: 1 }}>
-            ✨ नयाँ एजेन्ट / रेफ़रल पार्टनर दर्ता
+            ✨ New Agent / Referral Partner Registration
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
               <Alert severity="info" sx={{ borderRadius: 2, fontWeight: 600 }}>
-                दर्ता गरेपछि तपाईंलाई तुरुन्तै <b>युनिक एजेन्ट कोड</b> र <b>रेफ़रल लिङ्क</b> प्राप्त हुनेछ।
+                Upon registration, you will immediately receive a <b>Unique Agent Code</b> and <b>Referral Link</b>.
               </Alert>
 
               <TextField
                 required
                 fullWidth
-                label="तपाईंको पूरा नाम (Full Name)"
-                placeholder="उदा: रमेश शर्मा"
+                label="Full Name"
+                placeholder="e.g. Ramesh Sharma"
                 value={regForm.name}
                 onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
               />
@@ -566,23 +566,23 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               <TextField
                 required
                 fullWidth
-                label="मोबाइल नम्बर (Phone Number)"
-                placeholder="उदा: 9841234567"
+                label="Mobile Number"
+                placeholder="e.g. 9841234567"
                 value={regForm.phone}
                 onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
               />
 
               <TextField
                 fullWidth
-                label="ठेगाना / सहर (City/Address)"
+                label="City / Address"
                 value={regForm.address}
                 onChange={(e) => setRegForm({ ...regForm, address: e.target.value })}
               />
 
               <TextField
                 fullWidth
-                label="कमिसन पाउने eSewa वा बैंक विवरण"
-                placeholder="उदा: eSewa: 9841234567 वा Nabil Bank"
+                label="eSewa or Bank Details for Commission"
+                placeholder="e.g. eSewa: 9841234567 or Nabil Bank"
                 value={regForm.paymentInfo}
                 onChange={(e) => setRegForm({ ...regForm, paymentInfo: e.target.value })}
               />
@@ -590,24 +590,24 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               <TextField
                 fullWidth
                 type="password"
-                label="आफ्नो ४-अङ्कको लगइन पिन (Login PIN)"
+                label="4-Digit Login PIN"
                 value={regForm.pin}
                 onChange={(e) => setRegForm({ ...regForm, pin: e.target.value })}
                 inputProps={{ maxLength: 6 }}
-                helperText="पछि लगइन गर्न यो पिन प्रयोग गर्नुहोस्।"
+                helperText="Use this PIN for future logins."
               />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setOpenRegisterModal(false)} sx={{ fontWeight: 700 }}>
-              रद्द
+              Cancel
             </Button>
             <Button
               type="submit"
               variant="contained"
               sx={{ bgcolor: '#7C2D12', color: '#FFFFFF', fontWeight: 800, px: 3, '&:hover': { bgcolor: '#9A3412' } }}
             >
-              दर्ता गर्नुहोस् (Register)
+              Register
             </Button>
           </DialogActions>
         </form>

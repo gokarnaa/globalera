@@ -56,10 +56,10 @@ export default function FinancialReportsView({ db }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              📈 आधिकारिक वित्तीय विवरणहरू (Financial Statements & Audit Engine)
+              📈 Financial Statements & Audit Engine
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              नेपाल लेखा मापदण्ड अनुसार स्वचालित सन्तुलन परीक्षण, नाफा-नोक्सान हिसाब तथा वासलात
+              Automated Trial Balance, Profit & Loss Statement, and Balance Sheet according to Nepal Accounting Standards
             </Typography>
           </Box>
           <Button
@@ -68,7 +68,7 @@ export default function FinancialReportsView({ db }) {
             onClick={() => window.print()}
             sx={{ fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
           >
-            प्रिन्ट / PDF (Print Statement)
+            Print Statement / PDF
           </Button>
         </Box>
 
@@ -81,9 +81,9 @@ export default function FinancialReportsView({ db }) {
             '& .MuiTab-root': { fontWeight: 800, textTransform: 'none' }
           }}
         >
-          <Tab icon={<BalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="सन्तुलन परीक्षण (Trial Balance)" />
-          <Tab icon={<TrendingUpIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="नाफा-नोक्सान हिसाब (Profit & Loss)" />
-          <Tab icon={<AccountBalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="वासलात (Balance Sheet)" />
+          <Tab icon={<BalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Trial Balance" />
+          <Tab icon={<TrendingUpIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Profit & Loss" />
+          <Tab icon={<AccountBalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Balance Sheet" />
         </Tabs>
       </Card>
 
@@ -92,11 +92,11 @@ export default function FinancialReportsView({ db }) {
         <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
           <Box sx={{ p: 2, bgcolor: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              ⚖️ गणितीय सन्तुलन परीक्षण (Mathematical Trial Balance as of {tb.asOfDate})
+              ⚖️ Mathematical Trial Balance as of {tb.asOfDate}
             </Typography>
             <Chip
               icon={<CheckCircleIcon sx={{ fontSize: '1rem !important' }} />}
-              label={tb.isBalanced ? '✓ पूर्ण सन्तुलित (Balanced: Dr == Cr)' : '⚠️ असन्तुलित'}
+              label={tb.isBalanced ? '✓ Balanced (Dr == Cr)' : '⚠️ Imbalanced'}
               size="small"
               sx={{
                 fontWeight: 800,
@@ -111,7 +111,7 @@ export default function FinancialReportsView({ db }) {
               <TableHead sx={{ bgcolor: '#F1F5F9' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 800, width: 140 }}>Code</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Account Title (खाताको नाम)</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Account Title</TableCell>
                   <TableCell sx={{ fontWeight: 800, width: 140 }}>Type</TableCell>
                   <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>Debit (Dr)</TableCell>
                   <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>Credit (Cr)</TableCell>
@@ -135,7 +135,7 @@ export default function FinancialReportsView({ db }) {
                 ))}
                 <TableRow sx={{ bgcolor: '#E2E8F0' }}>
                   <TableCell colSpan={3} sx={{ fontWeight: 900, fontSize: '0.95rem' }}>
-                    कुल योग (Grand Total)
+                    Grand Total
                   </TableCell>
                   <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#166534', fontSize: '0.95rem' }}>
                     Rs. {tb.totalDebit.toLocaleString()}
@@ -157,7 +157,7 @@ export default function FinancialReportsView({ db }) {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#166534', mb: 2 }}>
-                1. कुल सञ्चालन आम्दानी (Operating Revenue)
+                1. Operating Revenue
               </Typography>
               <Table size="small">
                 <TableBody>
@@ -170,7 +170,7 @@ export default function FinancialReportsView({ db }) {
                     </TableRow>
                   ))}
                   <TableRow sx={{ bgcolor: '#DCFCE7' }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#166534' }}>कुल आम्दानी (Total Revenue)</TableCell>
+                    <TableCell sx={{ fontWeight: 900, color: '#166534' }}>Total Revenue</TableCell>
                     <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#166534' }}>
                       Rs. {totalRevenue.toLocaleString()}
                     </TableCell>
@@ -184,7 +184,7 @@ export default function FinancialReportsView({ db }) {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#DC2626', mb: 2 }}>
-                2. सञ्चालन तथा पारिश्रमिक खर्च (Operating Expenses)
+                2. Operating Expenses
               </Typography>
               <Table size="small">
                 <TableBody>
@@ -197,7 +197,7 @@ export default function FinancialReportsView({ db }) {
                     </TableRow>
                   ))}
                   <TableRow sx={{ bgcolor: '#FEE2E2' }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#DC2626' }}>कुल खर्च (Total Expenses)</TableCell>
+                    <TableCell sx={{ fontWeight: 900, color: '#DC2626' }}>Total Expenses</TableCell>
                     <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#DC2626' }}>
                       Rs. {totalExpenses.toLocaleString()}
                     </TableCell>
@@ -224,14 +224,14 @@ export default function FinancialReportsView({ db }) {
             >
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
-                  संस्थाको खुद सञ्चालन नाफा / घाटा (Net Profit / Operating Margin)
+                  Net Profit / Operating Margin
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: netProfit >= 0 ? '#059669' : '#DC2626' }}>
                   Rs. {netProfit.toLocaleString()}
                 </Typography>
               </Box>
               <Chip
-                label={`नाफा मार्जिन: ${profitMargin}%`}
+                label={`Profit Margin: ${profitMargin}%`}
                 size="medium"
                 sx={{
                   fontWeight: 900,
@@ -252,7 +252,7 @@ export default function FinancialReportsView({ db }) {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#1E40AF', mb: 2 }}>
-                सम्पत्तिहरू (Assets)
+                Assets
               </Typography>
               <Table size="small">
                 <TableBody>
@@ -265,7 +265,7 @@ export default function FinancialReportsView({ db }) {
                     </TableRow>
                   ))}
                   <TableRow sx={{ bgcolor: '#DBEAFE' }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#1E40AF' }}>कुल सम्पत्ति (Total Assets)</TableCell>
+                    <TableCell sx={{ fontWeight: 900, color: '#1E40AF' }}>Total Assets</TableCell>
                     <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#1E40AF' }}>
                       Rs. {totalAssets.toLocaleString()}
                     </TableCell>
@@ -279,12 +279,12 @@ export default function FinancialReportsView({ db }) {
           <Grid item xs={12} md={6}>
             <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#B45309', mb: 2 }}>
-                दायित्व तथा पुँजी (Liabilities & Equity)
+                Liabilities & Equity
               </Typography>
               <Table size="small">
                 <TableBody>
                   <TableRow sx={{ bgcolor: '#F8FAFC' }}>
-                    <TableCell colSpan={2} sx={{ fontWeight: 800, color: '#64748B' }}>क. दायित्वहरू (Liabilities)</TableCell>
+                    <TableCell colSpan={2} sx={{ fontWeight: 800, color: '#64748B' }}>A. Liabilities</TableCell>
                   </TableRow>
                   {liabilityAccounts.map((a) => (
                     <TableRow key={a.code}>
@@ -296,7 +296,7 @@ export default function FinancialReportsView({ db }) {
                   ))}
 
                   <TableRow sx={{ bgcolor: '#F8FAFC' }}>
-                    <TableCell colSpan={2} sx={{ fontWeight: 800, color: '#64748B' }}>ख. स्वपुँजी (Owner's Equity)</TableCell>
+                    <TableCell colSpan={2} sx={{ fontWeight: 800, color: '#64748B' }}>B. Owner's Equity</TableCell>
                   </TableRow>
                   {equityAccounts.map((a) => (
                     <TableRow key={a.code}>
@@ -307,14 +307,14 @@ export default function FinancialReportsView({ db }) {
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 700, pl: 3, color: '#166534' }}>यस अवधिको खुद नाफा (Current Period Net Margin)</TableCell>
+                    <TableCell sx={{ fontWeight: 700, pl: 3, color: '#166534' }}>Current Period Net Margin</TableCell>
                     <TableCell sx={{ textAlign: 'right', fontWeight: 800, color: '#166534' }}>
                       Rs. {netProfit.toLocaleString()}
                     </TableCell>
                   </TableRow>
 
                   <TableRow sx={{ bgcolor: '#FEF3C7' }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#B45309' }}>कुल दायित्व तथा पुँजी (Liabilities + Equity)</TableCell>
+                    <TableCell sx={{ fontWeight: 900, color: '#B45309' }}>Total Liabilities + Equity</TableCell>
                     <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#B45309' }}>
                       Rs. {(totalLiabilities + totalEquity).toLocaleString()}
                     </TableCell>

@@ -55,22 +55,22 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
           }}
         >
           <BottomNavigationAction
-            label="मेरो पोर्टल"
+            label="My Portal"
             value="student_portal"
             icon={<SchoolIcon />}
           />
           <BottomNavigationAction
-            label="प्रमाणपत्र"
+            label="Certificate"
             value="certificates"
             icon={<WorkspacePremiumIcon />}
           />
           <BottomNavigationAction
-            label="सूचना"
+            label="Notices"
             value="notices"
             icon={<CampaignIcon />}
           />
           <BottomNavigationAction
-            label="मेनु"
+            label="Menu"
             value="menu"
             icon={<MenuIcon />}
           />
@@ -108,7 +108,7 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
           }}
         >
           <BottomNavigationAction
-            label="कम्पनी पोर्टल"
+            label="Employer Portal"
             value="employer_portal"
             icon={<BusinessIcon />}
           />
@@ -118,7 +118,7 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
             icon={<WorkIcon />}
           />
           <BottomNavigationAction
-            label="मेनु"
+            label="Menu"
             value="menu"
             icon={<MenuIcon />}
           />

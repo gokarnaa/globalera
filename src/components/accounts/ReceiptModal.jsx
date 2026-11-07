@@ -26,37 +26,8 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { QRCodeSVG } from 'qrcode.react';
 
 // ============================================================================
-// 1. NUMBER TO WORDS HELPERS (NEPALI & ENGLISH)
+// 1. NUMBER TO WORDS HELPERS (ENGLISH)
 // ============================================================================
-const nepaliDigits = [
-  'शून्य', 'एक', 'दुई', 'तीन', 'चार', 'पाँच', 'छ', 'सात', 'आठ', 'नौ', 'दश',
-  'एघार', 'बाह्र', 'तेह्र', 'चौध', 'पन्ध्र', 'सोह्र', 'सत्र', 'अठार', 'उन्नाइस', 'बीस',
-  'एक्काइस', 'बाइस', 'तेइस', 'चौबीस', 'पच्चीस', 'छब्बीस', 'सत्ताइस', 'अठ्ठाइस', 'उनन्तिस', 'तीस',
-  'एकत्तिस', 'बत्तिस', 'तेत्तिस', 'चौँतिस', 'पैँतिस', 'छत्तीस', 'सैँतिस', 'अड्तीस', 'उनन्चालीस', 'चालीस',
-  'एकचालीस', 'बयालीस', 'त्रिचालीस', 'चौवालिस', 'पैँतालीस', 'छयालीस', 'सड्चालीस', 'अड्चालीस', 'उनन्चास', 'पचास',
-  'एकाउन्न', 'बाउन्न', 'त्रिपन्न', 'चौवन्न', 'पचपन्न', 'छपन्न', 'सन्ताउन्न', 'अन्ठाउन्न', 'उनन्साठ्ठी', 'साठ्ठी',
-  'एकसठ्ठी', 'बासठ्ठी', 'त्रिसठ्ठी', 'चौंसठ्ठी', 'पैंसठ्ठी', 'छैसठ्ठी', 'सड्सठ्ठी', 'अड्सठ्ठी', 'उनन्सत्तरी', 'सत्तरी',
-  'एकहत्तर', 'बहत्तर', 'त्रिहत्तर', 'चौहत्तर', 'पचहत्तर', 'छहत्तर', 'सतहत्तर', 'अठहत्तर', 'उन्यासी', 'असी',
-  'एकासी', 'बयासी', 'त्रियासी', 'चौरासी', 'पचासी', 'छयासी', 'सत्तासी', 'अठासी', 'उनन्नब्बे', 'नब्बे',
-  'एकानब्बे', 'बयानब्बे', 'त्रियानब्बे', 'चौरानब्बे', 'पन्चानब्बे', 'छ्यानब्बे', 'सन्तानब्बे', 'अन्ठानब्बे', 'उनन्सय'
-];
-
-function toNepaliWords(n) {
-  n = Math.floor(Number(n) || 0);
-  if (!n || n <= 0) return 'शून्य रुपैयाँ मात्र';
-  let str = '';
-  const crore = Math.floor(n / 10000000);
-  if (crore > 0) { str += nepaliDigits[crore] + ' करोड '; n %= 10000000; }
-  const lakh = Math.floor(n / 100000);
-  if (lakh > 0) { str += nepaliDigits[lakh] + ' लाख '; n %= 100000; }
-  const thousand = Math.floor(n / 1000);
-  if (thousand > 0) { str += nepaliDigits[thousand] + ' हजार '; n %= 1000; }
-  const hundred = Math.floor(n / 100);
-  if (hundred > 0) { str += nepaliDigits[hundred] + ' सय '; n %= 100; }
-  if (n > 0) { str += nepaliDigits[n] + ' '; }
-  return str.trim() + ' रुपैयाँ मात्र';
-}
-
 const engA = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 const engB = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
 
@@ -72,6 +43,10 @@ function toEnglishWords(num) {
     return convert(Math.floor(n / 10000000)) + ' Crore' + (n % 10000000 !== 0 ? ' ' + convert(n % 10000000) : '');
   }
   return convert(num) + ' Rupees Only';
+}
+
+function toNepaliWords(n) {
+  return toEnglishWords(n);
 }
 
 // ============================================================================
@@ -100,7 +75,7 @@ const OfficialCrest = ({ size = 56 }) => (
       GLOBAL ERA
     </text>
     <text x="50" y="90" textAnchor="middle" fill="#CBD5E1" fontSize="4.5" fontWeight="700" letterSpacing="0.3">
-      ESTD. 2081
+      ESTD. 2024
     </text>
   </svg>
 );
@@ -133,7 +108,7 @@ const OfficialAccountsStamp = ({ size = 78 }) => (
       PAID & VERIFIED
     </text>
     <text x="50" y="67" textAnchor="middle" fill="#991B1B" fontSize="5.5" fontWeight="800">
-      ★ लेखा शाखा ★
+      ★ ACCOUNTS DEPT ★
     </text>
   </svg>
 );
@@ -168,7 +143,7 @@ const WatermarkCrest = () => (
 // ============================================================================
 function ReceiptSlip({
   copyType = 'STUDENT',
-  copyTitleNepali = 'विद्यार्थी प्रति',
+  copyTitleNepali = 'Student Copy',
   payment,
   student,
   group,
@@ -176,10 +151,10 @@ function ReceiptSlip({
   settings,
   isCompact = false
 }) {
-  const instituteName = settings?.instituteSub || 'ग्लोबल एरा प्राविधिक स्कुल';
+  const instituteName = settings?.instituteSub || 'Global Era Technical School';
   const instituteEnglish = settings?.instituteName || 'Global Era Multi Service Pvt. Ltd.';
-  const address = settings?.location || 'गोकर्णेश्वर-०५, जोरपाटी, काठमाडौँ';
-  const phone = settings?.contactPhone || '०१-४९१५५५५ / ९८५१००००००';
+  const address = settings?.location || 'Gokarneshwor-05, Jorpati, Kathmandu';
+  const phone = settings?.contactPhone || '01-4915555 / 9851000000';
   const email = settings?.email || 'info@globalera.edu.np';
 
   const originalFee = Number(payment.originalFee || course?.price || 30000);
@@ -190,7 +165,6 @@ function ReceiptSlip({
   const paidThis = Number(payment.amount || 0);
   const dueRemaining = Math.max(0, lockedFee - paidThis);
 
-  const nepWords = toNepaliWords(paidThis);
   const engWords = toEnglishWords(paidThis);
 
   const isStudentCopy = copyType === 'STUDENT';
@@ -236,7 +210,7 @@ function ReceiptSlip({
                   }}
                 />
                 <Typography variant="caption" sx={{ display: 'block', color: '#475569', fontWeight: 700, fontSize: isCompact ? '0.65rem' : '0.72rem' }}>
-                  दर्ता नं: २०७८/०७९ • प्यान: ६०९८७६५४३
+                  Regd. No: 2078/079 • PAN: 609876543
                 </Typography>
               </Box>
             </Box>
@@ -276,7 +250,7 @@ function ReceiptSlip({
                   fontSize: isCompact ? '0.62rem' : '0.72rem'
                 }}
               >
-                {address} • फोन: {phone} • इमेल: {email}
+                {address} • Phone: {phone} • Email: {email}
               </Typography>
             </Box>
 
@@ -298,7 +272,7 @@ function ReceiptSlip({
                   mt: 0.3
                 }}
               >
-                स्क्यान प्रमाणीकरण
+                Scan to Verify
               </Typography>
             </Box>
           </Box>
@@ -320,7 +294,7 @@ function ReceiptSlip({
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Chip
-                label="आधिकारिक शुल्क रसिद (OFFICIAL FEE RECEIPT)"
+                label="OFFICIAL FEE RECEIPT"
                 size="small"
                 sx={{
                   bgcolor: '#0F2E5A',
@@ -345,16 +319,16 @@ function ReceiptSlip({
                   fontSize: isCompact ? '0.75rem' : '0.85rem'
                 }}
               >
-                रसिद नं: {payment.receiptNo}
+                Receipt No: {payment.receiptNo}
               </Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
               <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', fontSize: isCompact ? '0.68rem' : '0.78rem' }}>
-                मिति: <strong>{payment.paymentDate}</strong> | आ.व.: <strong>२०८१/०८२</strong>
+                Date: <strong>{payment.paymentDate}</strong> | FY: <strong>2025/26</strong>
               </Typography>
               <Chip
-                label={isStudentCopy ? 'विद्यार्थी प्रति (STUDENT COPY)' : 'कार्यालय प्रति (OFFICE COPY)'}
+                label={isStudentCopy ? 'STUDENT COPY' : 'OFFICE COPY'}
                 size="small"
                 sx={{
                   bgcolor: isStudentCopy ? '#ECFDF5' : '#FEF3C7',
@@ -387,33 +361,33 @@ function ReceiptSlip({
           }}
         >
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>विद्यार्थीको पूरा नाम:</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Student Full Name:</span>{' '}
             <strong style={{ color: '#0F2E5A', fontSize: isCompact ? '0.82rem' : '0.92rem' }}>
               {payment.studentName || student?.name}
             </strong>
           </Box>
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>विद्यार्थी कोड (TGID):</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Student Code (TGID):</span>{' '}
             <strong style={{ fontFamily: 'monospace', color: '#1E40AF' }}>
               {payment.tgid || student?.tgid || 'TGID-101'}
             </strong>
           </Box>
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>पाठ्यक्रम (Course):</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Course:</span>{' '}
             <strong style={{ color: '#0F172A' }}>
-              {payment.courseName || course?.title || 'व्यावसायिक तालिम'}
+              {payment.courseName || course?.title || 'Vocational Training'}
             </strong>
           </Box>
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>तालिम ब्याच (Batch / Shift):</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Batch / Shift:</span>{' '}
             <strong>{group?.groupCode || payment.groupId || 'BT-01 (Regular)'}</strong>
           </Box>
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>सम्पर्क मोबाइल:</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Contact Mobile:</span>{' '}
             <span>{student?.phone || 'N/A'}</span>
           </Box>
           <Box>
-            <span style={{ color: '#64748B', fontWeight: 600 }}>भुक्तानी माध्यम:</span>{' '}
+            <span style={{ color: '#64748B', fontWeight: 600 }}>Payment Method:</span>{' '}
             <strong style={{ color: '#059669', bgcolor: '#ECFDF5', padding: '1px 6px', borderRadius: 4 }}>
               {payment.paymentMethod || 'Cash'} {payment.transactionId ? `(Txn: ${payment.transactionId})` : ''}
             </strong>
@@ -437,9 +411,9 @@ function ReceiptSlip({
               fontSize: isCompact ? '0.72rem' : '0.8rem'
             }}
           >
-            <span>क्र.सं.</span>
-            <span>शुल्क विवरण (Particulars / Accounting Heads)</span>
-            <span style={{ textAlign: 'right' }}>रकम (Amount Rs.)</span>
+            <span>S.N.</span>
+            <span>Particulars / Accounting Heads</span>
+            <span style={{ textAlign: 'right' }}>Amount (Rs.)</span>
           </Box>
 
           {/* Row 1: Course Standard Fee */}
@@ -453,10 +427,10 @@ function ReceiptSlip({
               fontSize: isCompact ? '0.75rem' : '0.84rem'
             }}
           >
-            <span style={{ color: '#64748B' }}>१.</span>
-            <span>पाठ्यक्रम आधारभूत नियमित शुल्क (Standard Course Fee)</span>
+            <span style={{ color: '#64748B' }}>1.</span>
+            <span>Standard Course Fee</span>
             <span style={{ textAlign: 'right', fontWeight: 600 }}>
-              रु. {originalFee.toLocaleString()}
+              Rs. {originalFee.toLocaleString()}
             </span>
           </Box>
 
@@ -474,12 +448,12 @@ function ReceiptSlip({
                 fontSize: isCompact ? '0.75rem' : '0.84rem'
               }}
             >
-              <span>२.</span>
+              <span>2.</span>
               <span>
-                विशेष अफर / छात्रवृत्ति छुट (Special Scholarship Discount {discountPercent > 0 ? `${discountPercent}%` : ''})
+                Special Scholarship Discount {discountPercent > 0 ? `(${discountPercent}%)` : ''}
               </span>
               <span style={{ textAlign: 'right', fontWeight: 700 }}>
-                - रु. {discountAmount.toLocaleString()}
+                - Rs. {discountAmount.toLocaleString()}
               </span>
             </Box>
           )}
@@ -496,10 +470,10 @@ function ReceiptSlip({
                 fontSize: isCompact ? '0.75rem' : '0.84rem'
               }}
             >
-              <span>३.</span>
-              <span>भर्ना तथा रजिस्ट्रेसन शुल्क (Admission & Registration Fee)</span>
+              <span>3.</span>
+              <span>Admission & Registration Fee</span>
               <span style={{ textAlign: 'right', fontWeight: 600 }}>
-                + रु. {admissionFee.toLocaleString()}
+                + Rs. {admissionFee.toLocaleString()}
               </span>
             </Box>
           )}
@@ -518,9 +492,9 @@ function ReceiptSlip({
             }}
           >
             <span>-</span>
-            <span style={{ color: '#0F2E5A' }}>कुल सम्झौता लक्ड शुल्क (Net Agreed Course Fee)</span>
+            <span style={{ color: '#0F2E5A' }}>Net Agreed Course Fee</span>
             <span style={{ textAlign: 'right', color: '#1E40AF', fontSize: isCompact ? '0.85rem' : '0.98rem' }}>
-              रु. {lockedFee.toLocaleString()}
+              Rs. {lockedFee.toLocaleString()}
             </span>
           </Box>
 
@@ -541,10 +515,10 @@ function ReceiptSlip({
           >
             <span>✓</span>
             <span style={{ letterSpacing: '0.02em' }}>
-              यस रसिदमा बुझिलिएको जम्मा रकम (PAID IN THIS RECEIPT)
+              AMOUNT PAID IN THIS RECEIPT
             </span>
             <span style={{ textAlign: 'right', fontSize: isCompact ? '1.05rem' : '1.25rem', color: '#FCD34D' }}>
-              रु. {paidThis.toLocaleString()}
+              Rs. {paidThis.toLocaleString()}
             </span>
           </Box>
 
@@ -563,17 +537,17 @@ function ReceiptSlip({
             <span>{dueRemaining > 0 ? '⏳' : '✓'}</span>
             <span style={{ color: dueRemaining > 0 ? '#B45309' : '#065F46' }}>
               {dueRemaining > 0
-                ? 'बाँकी बक्यौता रकम (Outstanding Due Balance)'
-                : 'शुल्क स्थिति: पूर्ण चुक्ता (FULL FEES CLEARED - NO OUTSTANDING DUE)'}
+                ? 'Outstanding Due Balance'
+                : 'Fee Status: FULL FEES CLEARED - NO OUTSTANDING DUE'}
             </span>
             <span style={{ textAlign: 'right', color: dueRemaining > 0 ? '#DC2626' : '#059669', fontSize: isCompact ? '0.85rem' : '1rem' }}>
-              रु. {dueRemaining.toLocaleString()}
+              Rs. {dueRemaining.toLocaleString()}
             </span>
           </Box>
         </Box>
 
         {/* ============================================================== */}
-        {/* AMOUNT IN WORDS (अक्षरमा रकम) BANNER                          */}
+        {/* AMOUNT IN WORDS BANNER                                         */}
         {/* ============================================================== */}
         <Box
           sx={{
@@ -585,19 +559,18 @@ function ReceiptSlip({
             fontSize: isCompact ? '0.72rem' : '0.82rem'
           }}
         >
-          <span style={{ fontWeight: 800, color: '#0F2E5A' }}>अक्षरमा (In Words):</span>{' '}
-          <strong style={{ color: '#059669' }}>{nepWords}</strong>{' '}
-          <span style={{ color: '#64748B', fontStyle: 'italic' }}>({engWords})</span>
+          <span style={{ fontWeight: 800, color: '#0F2E5A' }}>In Words:</span>{' '}
+          <strong style={{ color: '#059669' }}>{engWords}</strong>
         </Box>
 
         {/* Remarks & Installment Notice */}
         <Box sx={{ mb: isCompact ? 1.5 : 2.2 }}>
           <Typography variant="caption" sx={{ color: '#334155', fontWeight: 600, display: 'block', fontSize: isCompact ? '0.68rem' : '0.75rem' }}>
-            <strong>कैफियत (Remarks):</strong> {payment.remarks || 'तालिम पहिलो किस्ता भर्ना शुल्क बुझाएको'}
+            <strong>Remarks:</strong> {payment.remarks || '1st installment training admission fee paid'}
           </Typography>
           {dueRemaining > 0 && (
             <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700, display: 'block', mt: 0.3, fontSize: isCompact ? '0.65rem' : '0.72rem' }}>
-              * सूचना: दोस्रो किस्ता बुझाउने अन्तिम म्याद तालिम सुरु भएको ३० दिन (१ महिना) भित्र रहनेछ।
+              * Notice: The deadline for the 2nd installment is within 30 days (1 month) from the start of training.
             </Typography>
           )}
         </Box>
@@ -610,7 +583,7 @@ function ReceiptSlip({
           <Box sx={{ textAlign: 'center', width: isCompact ? 130 : 160 }}>
             <Box sx={{ borderBottom: '1px dashed #64748B', mb: 0.5, height: isCompact ? 24 : 32 }} />
             <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', fontSize: isCompact ? '0.65rem' : '0.74rem' }}>
-              विद्यार्थी / बुझाउनेको दस्तखत
+              Depositor / Student Signature
             </Typography>
             <Typography variant="caption" sx={{ display: 'block', color: '#94A3B8', fontSize: '0.6rem' }}>
               (Depositor's Signature)
@@ -621,7 +594,7 @@ function ReceiptSlip({
           <Box sx={{ textAlign: 'center', display: { xs: 'none', sm: 'block' } }}>
             <Chip
               icon={<VerifiedUserIcon sx={{ fontSize: '0.85rem !important', color: '#059669 !important' }} />}
-              label="कम्प्युटर बिलिङ प्रणाली प्रमाणित"
+              label="Computer Billing System Verified"
               size="small"
               sx={{
                 bgcolor: '#ECFDF5',
@@ -646,7 +619,7 @@ function ReceiptSlip({
             </Typography>
             <Box sx={{ borderBottom: '1.5px solid #0F2E5A', mb: 0.5 }} />
             <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: isCompact ? '0.68rem' : '0.78rem' }}>
-              अख्तियारप्राप्त लेखा शाखा (Accounts)
+              Authorized Accounts Dept.
             </Typography>
             <Typography variant="caption" sx={{ display: 'block', color: '#94A3B8', fontSize: '0.6rem' }}>
               (Authorized Cashier & Seal)
@@ -657,7 +630,7 @@ function ReceiptSlip({
         {/* Legal Disclaimer Footer */}
         <Box sx={{ mt: isCompact ? 1 : 1.5, pt: 0.5, borderTop: '1px dashed #E2E8F0', textAlign: 'center' }}>
           <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: isCompact ? '0.58rem' : '0.65rem' }}>
-            * बुझाइसकेको शुल्क कुनै पनि अवस्थामा फिर्ता वा नामसारी हुने छैन (Fees once paid are non-refundable) • यो कम्प्युटर प्रणालीद्वारा जारी आधिकारिक रसिद हो।
+            * Fees once paid are non-refundable and non-transferable under any circumstances • Official computer-generated receipt.
           </Typography>
         </Box>
       </Box>
@@ -722,10 +695,10 @@ export default function ReceiptModal({
           <ReceiptLongIcon sx={{ color: '#38BDF8', fontSize: 28 }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.12rem', lineHeight: 1.2 }}>
-              शुल्क रसिद प्रिन्ट (Fee Receipt Preview)
+              Fee Receipt Preview & Print
             </Typography>
             <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-              रसिद नं: {payment.receiptNo} • विद्यार्थी: {payment.studentName || student?.name}
+              Receipt No: {payment.receiptNo} • Student: {payment.studentName || student?.name}
             </Typography>
           </Box>
         </Box>
@@ -752,13 +725,13 @@ export default function ReceiptModal({
             }}
           >
             <ToggleButton value="a4-dual">
-              <ContentCutIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> A4 दुवै प्रति (2-in-1)
+              <ContentCutIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> A4 Dual Copy (2-in-1)
             </ToggleButton>
             <ToggleButton value="a4-single">
-              <ArticleIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> A4 एकल प्रति
+              <ArticleIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> A4 Single Copy
             </ToggleButton>
             <ToggleButton value="thermal">
-              <ReceiptLongIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> POS थर्मल (80mm)
+              <ReceiptLongIcon sx={{ fontSize: '0.95rem', mr: 0.5 }} /> POS Thermal (80mm)
             </ToggleButton>
           </ToggleButtonGroup>
 
@@ -823,7 +796,7 @@ export default function ReceiptModal({
             {/* Top Slip: STUDENT COPY */}
             <ReceiptSlip
               copyType="STUDENT"
-              copyTitleNepali="विद्यार्थी प्रति"
+              copyTitleNepali="Student Copy"
               payment={payment}
               student={student}
               group={group}
@@ -859,7 +832,7 @@ export default function ReceiptModal({
               >
                 <ContentCutIcon sx={{ fontSize: 16 }} />
                 <Typography variant="caption" sx={{ fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em' }}>
-                  यहाँबाट च्यात्नुहोस् / काट्ने रेखा (PERFORATION / CUTTING LINE)
+                  PERFORATION / CUTTING LINE
                 </Typography>
                 <ContentCutIcon sx={{ fontSize: 16, transform: 'scaleX(-1)' }} />
               </Box>
@@ -869,7 +842,7 @@ export default function ReceiptModal({
             {/* Bottom Slip: OFFICE COPY */}
             <ReceiptSlip
               copyType="OFFICE"
-              copyTitleNepali="कार्यालय प्रति"
+              copyTitleNepali="Office Copy"
               payment={payment}
               student={student}
               group={group}
@@ -895,7 +868,7 @@ export default function ReceiptModal({
           >
             <ReceiptSlip
               copyType="STUDENT"
-              copyTitleNepali="विद्यार्थी प्रति"
+              copyTitleNepali="Student Copy"
               payment={payment}
               student={student}
               group={group}
@@ -926,43 +899,43 @@ export default function ReceiptModal({
           >
             <Box sx={{ textAlign: 'center', mb: 1.5 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 900, lineHeight: 1.2 }}>
-                {settings?.instituteSub || 'ग्लोबल एरा प्राविधिक स्कुल'}
+                {settings?.instituteSub || 'Global Era Technical School'}
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontSize: '0.72rem' }}>
-                {settings?.location || 'गोकर्णेश्वर-०५, जोरपाटी, काठमाडौँ'}
+                {settings?.location || 'Gokarneshwor-05, Jorpati, Kathmandu'}
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontSize: '0.72rem' }}>
-                फोन: {settings?.contactPhone || '०१-४९१५५५५ / ९८५१००००००'}
+                Phone: {settings?.contactPhone || '01-4915555 / 9851000000'}
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mt: 0.5, letterSpacing: '0.04em' }}>
-                *** शुल्क रसिद (FEE RECEIPT) ***
+                *** FEE RECEIPT ***
               </Typography>
             </Box>
 
             <Divider sx={{ borderStyle: 'dashed', my: 1 }} />
 
             <Box sx={{ fontSize: '0.75rem', lineHeight: 1.6 }}>
-              <div>रसिद नं: <strong>{payment.receiptNo}</strong></div>
-              <div>मिति: {payment.paymentDate}</div>
-              <div>विद्यार्थी: <strong>{payment.studentName || student?.name}</strong></div>
+              <div>Receipt No: <strong>{payment.receiptNo}</strong></div>
+              <div>Date: {payment.paymentDate}</div>
+              <div>Student: <strong>{payment.studentName || student?.name}</strong></div>
               <div>TGID: {payment.tgid || student?.tgid}</div>
-              <div>कोर्स: {payment.courseName || course?.title}</div>
-              <div>माध्यम: {payment.paymentMethod || 'Cash'}</div>
+              <div>Course: {payment.courseName || course?.title}</div>
+              <div>Method: {payment.paymentMethod || 'Cash'}</div>
             </Box>
 
             <Divider sx={{ borderStyle: 'dashed', my: 1 }} />
 
             <Box sx={{ fontSize: '0.8rem', lineHeight: 1.6 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>लक्ड कुल शुल्क:</span>
+                <span>Locked Total Fee:</span>
                 <span>Rs. {(Number(payment.lockedCourseFee) || Number(course?.price) || 30000).toLocaleString()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 900, fontSize: '0.98rem', margin: '4px 0' }}>
-                <span>प्राप्त रकम:</span>
+                <span>Amount Paid:</span>
                 <span>Rs. {(Number(payment.amount) || 0).toLocaleString()}</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>बाँकी बक्यौता:</span>
+                <span>Remaining Due:</span>
                 <span>
                   Rs. {Math.max(0, (Number(payment.lockedCourseFee) || Number(course?.price) || 30000) - (Number(payment.amount) || 0)).toLocaleString()}
                 </span>
@@ -972,8 +945,8 @@ export default function ReceiptModal({
             <Divider sx={{ borderStyle: 'dashed', my: 1.5 }} />
 
             <Box sx={{ textAlign: 'center', fontSize: '0.7rem' }}>
-              <div style={{ marginBottom: 4 }}>धन्यवाद! (Thank You)</div>
-              <div>ग्लोबल एरामा स्वागत छ!</div>
+              <div style={{ marginBottom: 4 }}>Thank You!</div>
+              <div>Welcome to Global Era!</div>
             </Box>
           </Paper>
         )}
@@ -993,7 +966,7 @@ export default function ReceiptModal({
         }}
       >
         <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-          बन्द गर्नुहोस् (Close)
+          Close
         </Button>
 
         <Button
@@ -1013,10 +986,10 @@ export default function ReceiptModal({
           }}
         >
           {format === 'a4-dual'
-            ? 'A4 दुवै प्रति (2-in-1) प्रिन्ट गर्नुहोस्'
+            ? 'Print A4 Dual Copy (2-in-1)'
             : format === 'a4-single'
-            ? 'A4 एकल प्रति प्रिन्ट गर्नुहोस्'
-            : 'थर्मल रसिद प्रिन्ट (POS 80mm)'}
+            ? 'Print A4 Single Copy'
+            : 'Print Thermal Receipt (POS 80mm)'}
         </Button>
       </DialogActions>
     </Dialog>

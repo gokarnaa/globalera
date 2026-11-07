@@ -298,7 +298,7 @@ export default function PlacementManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>क्र.सं. (S.N.)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Student Candidate</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Target Job Title</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Employer Partner</TableCell>
@@ -593,10 +593,10 @@ export default function PlacementManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'रोजगार योजना सम्पादन (Edit Placement Plan)' : 'रोजगार कार्ययोजना दर्ता (Create Placement Plan)'}
+                {editingItem ? 'Edit Placement Plan' : 'Create Placement Plan'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                विद्यार्थीको रोजगारी पद, साझेदार संस्था, तलब तथा सम्झौता ट्र्याकिङ
+                Track student job role, partner employer, salary, and contract terms
               </Typography>
             </Box>
           </Box>
@@ -634,7 +634,7 @@ export default function PlacementManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- विद्यार्थी छान्नुहोस् (Select Student) --
+                -- Select Student --
               </MenuItem>
               {db.students.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
@@ -649,7 +649,7 @@ export default function PlacementManager() {
               size="small"
               value={formData.targetJob}
               onChange={(e) => setFormData({ ...formData, targetJob: e.target.value })}
-              placeholder="उदा: Senior Elderly Care Assistant / Head Beautician"
+              placeholder="e.g. Senior Elderly Care Assistant / Head Beautician"
               required
             />
 
@@ -662,7 +662,7 @@ export default function PlacementManager() {
               onChange={(e) => setFormData({ ...formData, employerId: e.target.value })}
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- रोजगार साझेदार छान्नुहोस् (Select Employer) --
+                -- Select Employer --
               </MenuItem>
               {db.employers.map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
@@ -677,7 +677,7 @@ export default function PlacementManager() {
                   label="Expected Salary / Monthly Remuneration"
                   fullWidth
                   size="small"
-                  placeholder="उदा: NPR 25,000 / month"
+                  placeholder="e.g. NPR 25,000 / month"
                   value={formData.expectedSalary}
                   onChange={(e) => setFormData({ ...formData, expectedSalary: e.target.value })}
                 />
@@ -723,10 +723,10 @@ export default function PlacementManager() {
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
-                  <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
-                  <MenuItem value="Placed">Placed (रोजगारीमा नियुक्त)</MenuItem>
-                  <MenuItem value="Ongoing">Ongoing Trial (परीक्षणमा)</MenuItem>
-                  <MenuItem value="Cancelled">Cancelled (रद्द)</MenuItem>
+                  <MenuItem value="Planned">Planned</MenuItem>
+                  <MenuItem value="Placed">Placed</MenuItem>
+                  <MenuItem value="Ongoing">Ongoing Trial</MenuItem>
+                  <MenuItem value="Cancelled">Cancelled</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -737,7 +737,7 @@ export default function PlacementManager() {
               rows={2}
               fullWidth
               size="small"
-              placeholder="सम्झौता पत्र, नियुक्ति मिति वा थप निर्देशन..."
+              placeholder="Contract details, joining date, or additional instructions..."
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
             />
@@ -765,7 +765,7 @@ export default function PlacementManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -785,7 +785,7 @@ export default function PlacementManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Placement)
+            Save Placement
           </Button>
         </DialogActions>
       </Dialog>

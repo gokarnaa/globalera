@@ -109,7 +109,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   const handleInquirySubmit = (e) => {
     e.preventDefault();
     if (!inquiryForm.name.trim() || !inquiryForm.phone.trim()) {
-      alert('कृपया आफ्नो नाम र सम्पर्क नम्बर अनिवार्य लेख्नुहोस्।');
+      alert('Please enter both your full name and contact number.');
       return;
     }
 
@@ -131,11 +131,11 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       phone: inquiryForm.phone.trim(),
       email: inquiryForm.email.trim(),
       courseId: inquiryForm.courseId,
-      course: chosenCourse?.title || 'व्यावसायिक तालिम',
+      course: chosenCourse?.title || 'Vocational Training',
       price: chosenCourse?.price || 15000,
       source: referredAgent
-        ? `एजेन्ट रेफ़रल (${referredAgent.name} - ${referredAgent.code})`
-        : 'वेबसाइट अनलाइन सोधपुछ (Web Inquiry)',
+        ? `Agent Referral (${referredAgent.name} - ${referredAgent.code})`
+        : 'Web Inquiry',
       agentId: referredAgent?.id || null,
       agentCode: referredAgent?.code || null,
       agentName: referredAgent?.name || null,
@@ -153,13 +153,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         : 0,
       commissionStatus: referredAgent ? 'pending' : null,
       stage: 'New Lead',
-      notes: `इच्छुक समय: ${inquiryForm.preferredShift} | सन्देश: ${inquiryForm.notes || 'छैन'} ${referredAgent ? `| रेफ़रल: ${referredAgent.name} (${referredAgent.code})` : ''}`,
+      notes: `Preferred Shift: ${inquiryForm.preferredShift} | Message: ${inquiryForm.notes || 'None'} ${referredAgent ? `| Referral: ${referredAgent.name} (${referredAgent.code})` : ''}`,
       timeline: [
         {
           date: new Date().toISOString(),
           note: referredAgent
-            ? `वेबसाइट रेफ़रल फारम दर्ता: ${referredAgent.name} (${referredAgent.code})`
-            : `वेबसाइटबाट नयाँ सोधपुछ दर्ता: ${chosenCourse?.title || 'कोर्स'}`,
+            ? `Website Referral Form Registered: ${referredAgent.name} (${referredAgent.code})`
+            : `New Inquiry Registered via Website: ${chosenCourse?.title || 'Course'}`,
           staffName: 'Online Web Portal'
         }
       ],
@@ -237,10 +237,10 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           isCloudVerified: false
         });
       } else {
-        setVerifyError('उक्त प्रमाणपत्र नम्बर वा कोड हाम्रो आधिकारिक अभिलेखमा फेला परेन। कृपया पुनः जाँच गर्नुहोस्।');
+        setVerifyError('The specified certificate number or code was not found in our official records. Please check and try again.');
       }
     } catch (_) {
-      setVerifyError('प्रमाणीकरण गर्दा समस्या आयो। कृपया केही समयपछि पुनः प्रयास गर्नुहोस्।');
+      setVerifyError('An error occurred during verification. Please try again shortly.');
     } finally {
       setVerifying(false);
     }
@@ -272,10 +272,10 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               </Avatar>
               <Box>
                 <Typography variant="subtitle1" sx={{ fontWeight: 900, letterSpacing: '0.03em', lineHeight: 1.1, color: '#FFFFFF' }}>
-                  {company.companyNameNp || 'ग्लोबल एरा प्राविधिक स्कुल'}
+                  {company.companyNameEn || 'Global Era Technical School'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.68rem', display: 'block' }}>
-                  CTEVT मान्यता प्राप्त • सम्बन्धन कोड: {company.ctevtCode || '४२०८'} • दर्ता नं: {company.regNo || '१८४९२०/०७८/०७९'}
+                  CTEVT Accredited • Affiliation Code: {company.ctevtCode || '4208'} • Reg No: {company.regNo || '184920/078/079'}
                 </Typography>
               </Box>
             </Box>
@@ -290,7 +290,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 }}
                 sx={{ color: '#E2E8F0', fontWeight: 700, fontSize: '0.78rem', display: { xs: 'none', sm: 'inline-flex' } }}
               >
-                तालिम तथा शुल्क
+                Courses & Fees
               </Button>
 
               <Button
@@ -301,7 +301,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 }}
                 sx={{ color: '#E2E8F0', fontWeight: 700, fontSize: '0.78rem', display: { xs: 'none', sm: 'inline-flex' } }}
               >
-                प्रमाणपत्र प्रमाणीकरण
+                Verify Certificate
               </Button>
 
               <Button
@@ -317,7 +317,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.15)', borderColor: '#D97706' }
                 }}
               >
-                एजेन्ट पोर्टल
+                Agent Portal
               </Button>
 
               <Button
@@ -333,7 +333,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   '&:hover': { bgcolor: 'rgba(16, 185, 129, 0.1)', borderColor: '#059669' }
                 }}
               >
-                प्रशिक्षक पोर्टल
+                Trainer Portal
               </Button>
 
               <Button
@@ -348,7 +348,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   '&:hover': { bgcolor: '#0369A1' }
                 }}
               >
-                विद्यार्थी पोर्टल
+                Student Portal
               </Button>
             </Stack>
           </Box>
@@ -361,7 +361,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           <Container maxWidth="lg">
             <Typography variant="body2" sx={{ color: '#92400E', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
               <HandshakeIcon sx={{ color: '#D97706', fontSize: 20 }} />
-              नमस्ते! तपाईंलाई हाम्रा आधिकारिक रेफ़रल प्रतिनिधि <u>{referredAgent.name} (कोड: {referredAgent.code})</u> ले सिफारिस गर्नुभएको छ। विशेष सहुलियत तथा भर्ना परामर्शका लागि तलको फारम भर्नुहोस्।
+              Welcome! You have been referred by our official referral representative <u>{referredAgent.name} (Code: {referredAgent.code})</u>. Fill out the form below for special benefits and admission counseling.
             </Typography>
           </Container>
         </Box>
@@ -389,18 +389,18 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             <Grid item xs={12} md={7}>
               <Chip
                 icon={<VerifiedIcon sx={{ color: '#FCD34D !important' }} />}
-                label="CTEVT मान्यता प्राप्त राष्ट्रिय व्यावसायिक तालिम केन्द्र"
+                label="CTEVT Accredited National Vocational Training Center"
                 size="small"
                 sx={{ bgcolor: 'rgba(255,255,255,0.12)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.75rem', mb: 2, border: '1px solid rgba(253, 211, 77, 0.4)' }}
               />
 
               <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: 1.2, mb: 2, fontSize: { xs: '1.8rem', sm: '2.4rem', md: '3rem' } }}>
-                व्यावसायिक सीप, राष्ट्रिय मान्यता र <span style={{ color: '#F59E0B' }}>सुनौलो भविष्य</span>
+                Vocational Skills, National Recognition & <span style={{ color: '#F59E0B' }}>A Bright Future</span>
               </Typography>
 
               <Typography variant="body1" sx={{ color: '#E2E8F0', mb: 3.5, fontSize: { xs: '0.9rem', md: '1.05rem' }, lineHeight: 1.7, maxWidth: 640 }}>
-                ग्लोबल एरा प्राविधिक स्कुलमा राष्ट्रिय मापदण्ड अनुसार ३ महिने (३९० घण्टा) सीपमूलक तालिमहरू सञ्चालन भइरहेका छन्।
-                पारदर्शी १३% भ्याट सहितको शुल्क, २ किस्ता सुविधा र शतप्रतिशत प्रयोगात्मक अभ्यास !
+                Global Era Technical School offers national-standard 3-month (390 hours) skill-based vocational training programs.
+                Transparent fee structure inclusive of 13% VAT, flexible 2-installment payment plan, and 100% hands-on practical training!
               </Typography>
 
               <Stack direction="row" spacing={1.5} flexWrap="wrap">
@@ -421,7 +421,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     '&:hover': { background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)' }
                   }}
                 >
-                  📝 अनलाइन भर्ना सोधपुछ (Apply Now)
+                  📝 Apply Now (Online Inquiry)
                 </Button>
 
                 <Button
@@ -441,7 +441,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     '&:hover': { borderColor: '#FCD34D', bgcolor: 'rgba(245,158,11,0.1)' }
                   }}
                 >
-                  💰 तालिम तथा शुल्क तालिका
+                  💰 Courses & Fee Schedule
                 </Button>
               </Stack>
             </Grid>
@@ -462,18 +462,18 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <VerifiedIcon sx={{ color: '#059669', fontSize: 24 }} />
                   <Typography variant="h6" sx={{ fontWeight: 900, color: '#0B2545', fontSize: '1.05rem' }}>
-                    अनलाइन प्रमाणपत्र प्रमाणीकरण
+                    Online Certificate Verification
                   </Typography>
                 </Box>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 2 }}>
-                  ग्लोबल एराबाट जारी भएका आधिकारिक तालिम प्रमाणपत्र नम्बर यहाँ प्रविष्ट गर्नुहोस्।
+                  Enter the official training certificate number issued by Global Era below.
                 </Typography>
 
                 <form onSubmit={handleVerifySearch}>
                   <TextField
                     fullWidth
                     size="small"
-                    placeholder="उदा: GE-2081-001 वा STD-01"
+                    placeholder="e.g., GE-2081-001 or STD-01"
                     value={certSearchId}
                     onChange={(e) => setCertSearchId(e.target.value)}
                     sx={{ mb: 1.5 }}
@@ -497,7 +497,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       '&:hover': { bgcolor: '#07182C' }
                     }}
                   >
-                    {verifying ? 'प्रमाणीकरण हुँदैछ...' : '🔍 प्रमाणपत्र जाँच्नुहोस्'}
+                    {verifying ? 'Verifying...' : '🔍 Verify Certificate'}
                   </Button>
                 </form>
 
@@ -507,17 +507,17 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, color: '#166534', mb: 0.5 }}>
                       <CheckCircleIcon fontSize="small" />
                       <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                        ✓ आधिकारिक प्रमाणपत्र प्रमाणित भयो !
+                        ✓ Official Certificate Verified!
                       </Typography>
                     </Box>
                     <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                      विद्यार्थी: {verifyResult.student?.name}
+                      Student: {verifyResult.student?.name}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                      पाठ्यक्रम: {verifyResult.course?.title || 'व्यावसायिक तालिम'}
+                      Course: {verifyResult.course?.title || 'Vocational Training'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                      प्रमाणपत्र नं: <b>{verifyResult.certificate?.certificateNo || verifyResult.certificate?.id}</b>
+                      Certificate No: <b>{verifyResult.certificate?.certificateNo || verifyResult.certificate?.id}</b>
                     </Typography>
                   </Box>
                 )}
@@ -545,8 +545,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <WorkspacePremiumIcon />
                 </Avatar>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>CTEVT मान्यता प्राप्त</Typography>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>सम्बन्धन कोड: {company.ctevtCode || '४२०८'}</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>CTEVT Accredited</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Affiliation Code: {company.ctevtCode || '4208'}</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -557,8 +557,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <AccessTimeIcon />
                 </Avatar>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>३९० घण्टा पाठ्यक्रम</Typography>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>३ महिने राष्ट्रिय मापदण्ड</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>390-Hour Curriculum</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>3-Month National Standard</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -569,8 +569,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <AccountBalanceWalletIcon />
                 </Avatar>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>२ किस्ता भुक्तानी</Typography>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>५०% भर्नामा + ५०% १ महिनामा</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>2-Installment Payment</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>50% at Admission + 50% in 1 Month</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -581,8 +581,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <VerifiedIcon />
                 </Avatar>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>१३% भ्याट सहित</Typography>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>पारदर्शी कर चुक्ता बिलिङ</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>13% VAT Inclusive</Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Transparent Tax-Compliant Billing</Typography>
                 </Box>
               </Box>
             </Grid>
@@ -596,12 +596,12 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       <Box id="courses-section" sx={{ py: 6, bgcolor: '#F8FAFC' }}>
         <Container maxWidth="xl">
           <Box sx={{ textAlign: 'center', mb: 5 }}>
-            <Chip label="पारदर्शी शुल्क संरचना" size="small" sx={{ bgcolor: '#E0F2FE', color: '#0369A1', fontWeight: 800, mb: 1 }} />
+            <Chip label="Transparent Fee Structure" size="small" sx={{ bgcolor: '#E0F2FE', color: '#0369A1', fontWeight: 800, mb: 1 }} />
             <Typography variant="h4" sx={{ fontWeight: 900, color: '#0B2545', mb: 1, fontSize: { xs: '1.6rem', md: '2.2rem' } }}>
-              आधिकारिक तालिम कोर्षहरू तथा शुल्क विवरण
+              Official Training Courses & Fee Breakdown
             </Typography>
             <Typography variant="body2" sx={{ color: '#64748B', maxWidth: 650, mx: 'auto' }}>
-              नेपाल सरकारको नियमानुसार १३% मूल्य अभिवृद्धि कर (VAT) समावेश गरिएको आधिकारिक शुल्क तालिका। कुनै लुकेको शुल्क नलाग्ने।
+              Official fee schedule inclusive of 13% Value Added Tax (VAT) as per Government of Nepal regulations. No hidden charges.
             </Typography>
           </Box>
 
@@ -642,7 +642,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         />
                       </Box>
                       <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                        ⏱️ अवधि: <b>{crs.durationValue} {crs.durationUnit} ({crs.totalHours || 390} घण्टा)</b>
+                        ⏱️ Duration: <b>{crs.durationValue} {crs.durationUnit} ({crs.totalHours || 390} Hours)</b>
                       </Typography>
                     </Box>
 
@@ -657,45 +657,45 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       <Stack spacing={0.8} sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0', mb: 2 }}>
                         {/* Brochure Price */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#64748B' }}>
-                          <span>मूल ब्रोसर शुल्क:</span>
+                          <span>Base Brochure Fee:</span>
                           <span style={{ textDecoration: feeCalc.discountPercent > 0 ? 'line-through' : 'none' }}>
-                            रु. {feeCalc.basePrice.toLocaleString()}
+                            NPR {feeCalc.basePrice.toLocaleString()}
                           </span>
                         </Box>
 
                         {/* Campaign Discount */}
                         {feeCalc.discountPercent > 0 && (
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#DC2626', fontWeight: 700 }}>
-                            <span>अभियान छुट ({feeCalc.discountPercent}%):</span>
-                            <span>(-) रु. {feeCalc.discountAmount.toLocaleString()}</span>
+                            <span>Campaign Discount ({feeCalc.discountPercent}%):</span>
+                            <span>(-) NPR {feeCalc.discountAmount.toLocaleString()}</span>
                           </Box>
                         )}
 
                         {/* Admission Charge */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#475569' }}>
-                          <span>भर्ना तथा दर्ता शुल्क:</span>
-                          <span>(+) रु. {feeCalc.admissionFee.toLocaleString()}</span>
+                          <span>Admission & Registration Fee:</span>
+                          <span>(+) NPR {feeCalc.admissionFee.toLocaleString()}</span>
                         </Box>
 
                         <Divider sx={{ my: 0.3 }} />
 
                         {/* 13% VAT */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', color: '#D97706', fontWeight: 700 }}>
-                          <span>१३% भ्याट (VAT 13%):</span>
-                          <span>(+) रु. {feeCalc.vatAmount.toLocaleString()}</span>
+                          <span>13% VAT:</span>
+                          <span>(+) NPR {feeCalc.vatAmount.toLocaleString()}</span>
                         </Box>
                       </Stack>
 
                       {/* Final Net Effective Price Highlight */}
                       <Box sx={{ p: 1.5, bgcolor: '#ECFDF5', borderRadius: 2, border: '1.5px solid #059669', textAlign: 'center', mb: 1.5 }}>
                         <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, display: 'block' }}>
-                          कुल अन्तिम खुद शुल्क (१३% भ्याट सहित)
+                          Total Final Net Fee (Incl. 13% VAT)
                         </Typography>
                         <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', my: 0.3 }}>
-                          रु. {feeCalc.totalEffectiveFee.toLocaleString()}
+                          NPR {feeCalc.totalEffectiveFee.toLocaleString()}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#047857', fontSize: '0.68rem', display: 'block' }}>
-                          {isFullOnly ? '⚡ एकमुष्ट भुक्तानी (बेसिक दर)' : `📅 २ किस्ता: रु. ${feeCalc.installment1.toLocaleString()} + रु. ${feeCalc.installment2.toLocaleString()}`}
+                          {isFullOnly ? '⚡ Full Payment (Standard Rate)' : `📅 2 Installments: NPR ${feeCalc.installment1.toLocaleString()} + NPR ${feeCalc.installment2.toLocaleString()}`}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -714,7 +714,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                           '&:hover': { bgcolor: '#059669' }
                         }}
                       >
-                        यो कोर्षमा भर्ना सोधपुछ गर्नुहोस्
+                        Inquire About This Course
                       </Button>
                     </Box>
                   </Card>
@@ -732,12 +732,12 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         <Container maxWidth="md">
           <Paper elevation={3} sx={{ p: { xs: 3, sm: 4 }, borderRadius: 3, border: '1px solid #CBD5E1' }}>
             <Box sx={{ textAlign: 'center', mb: 3 }}>
-              <Chip label="सजिलो अनलाइन आवेदन" size="small" sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, mb: 1 }} />
+              <Chip label="Easy Online Application" size="small" sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, mb: 1 }} />
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#0B2545', mb: 0.5 }}>
-                अनलाइन भर्ना तथा परामर्श सोधपुछ
+                Online Admission & Counseling Inquiry
               </Typography>
               <Typography variant="body2" sx={{ color: '#64748B' }}>
-                तपाईं कुन तालिममा इच्छुक हुनुहुन्छ? तलको फारम भर्नुहोस्, हाम्रो परामर्शदाताले तुरुन्तै सम्पर्क गर्नुहुनेछ।
+                Which training program are you interested in? Fill out the form below and our counselor will contact you promptly.
               </Typography>
             </Box>
 
@@ -745,13 +745,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#F0FDF4', borderRadius: 2.5, border: '2px solid #059669' }}>
                 <CheckCircleIcon sx={{ fontSize: 50, color: '#059669', mb: 1 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#065F46', mb: 0.5 }}>
-                  तपाईंको सोधपुछ सफलतापूर्वक दर्ता भयो !
+                  Your inquiry has been registered successfully!
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#047857', mb: 2 }}>
-                  ग्लोबल एरा प्राविधिक स्कुल छनोट गर्नुभएकोमा धन्यवाद। हाम्रो एड्मिसन टोलीले तपाईंलाई छिट्टै सम्पर्क गर्नेछ।
+                  Thank you for choosing Global Era Technical School. Our admissions team will contact you shortly.
                 </Typography>
                 <Button variant="outlined" size="small" onClick={() => setInquirySubmitted(false)} sx={{ fontWeight: 800, borderColor: '#059669', color: '#059669' }}>
-                  अर्को फारम भर्नुहोस्
+                  Submit Another Inquiry
                 </Button>
               </Box>
             ) : (
@@ -759,7 +759,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="पूरा नाम (Full Name) *"
+                      label="Full Name *"
                       fullWidth
                       size="small"
                       required
@@ -770,11 +770,11 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="मोबाइल फोन नम्बर *"
+                      label="Mobile Phone Number *"
                       fullWidth
                       size="small"
                       required
-                      placeholder="उदा: 98XXXXXXXX"
+                      placeholder="e.g., 98XXXXXXXX"
                       value={inquiryForm.phone}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
                     />
@@ -785,13 +785,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       select
                       fullWidth
                       size="small"
-                      label="इच्छुक कोर्ष (Interested Course) *"
+                      label="Interested Course *"
                       value={inquiryForm.courseId}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, courseId: e.target.value })}
                     >
                       {courses.map((crs) => (
                         <MenuItem key={crs.id} value={crs.id}>
-                          {crs.title} ({crs.level || 'Level 1'}) — रु. {crs.feeCalc.totalEffectiveFee.toLocaleString()}
+                          {crs.title} ({crs.level || 'Level 1'}) — NPR {crs.feeCalc.totalEffectiveFee.toLocaleString()}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -802,24 +802,24 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       select
                       fullWidth
                       size="small"
-                      label="इच्छुक समय (Preferred Shift)"
+                      label="Preferred Shift"
                       value={inquiryForm.preferredShift}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, preferredShift: e.target.value })}
                     >
-                      <MenuItem value="Morning">बिहानी सिफ्ट (६:३० - ९:३०)</MenuItem>
-                      <MenuItem value="Day">दिउँसो सिफ्ट (११:०० - २:००)</MenuItem>
-                      <MenuItem value="Evening">साँझ सिफ्ट (३:०० - ६:००)</MenuItem>
+                      <MenuItem value="Morning">Morning Shift (6:30 AM - 9:30 AM)</MenuItem>
+                      <MenuItem value="Day">Day Shift (11:00 AM - 2:00 PM)</MenuItem>
+                      <MenuItem value="Evening">Evening Shift (3:00 PM - 6:00 PM)</MenuItem>
                     </TextField>
                   </Grid>
 
                   <Grid item xs={12}>
                     <TextField
-                      label="कुनै जिज्ञासा वा प्रश्न (Message / Remarks)"
+                      label="Questions or Remarks (Message)"
                       fullWidth
                       size="small"
                       multiline
                       rows={3}
-                      placeholder="केही विशेष सोध्न चाहनुहुन्छ भने यहाँ लेख्नुहोस्..."
+                      placeholder="Write any specific questions or requirements here..."
                       value={inquiryForm.notes}
                       onChange={(e) => setInquiryForm({ ...inquiryForm, notes: e.target.value })}
                     />
@@ -839,7 +839,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         fontSize: '0.95rem'
                       }}
                     >
-                      सोधपुछ फारम पेश गर्नुहोस् (Submit Inquiry)
+                      Submit Inquiry
                     </Button>
                   </Grid>
                 </Grid>
@@ -858,33 +858,33 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             {/* Col 1: Institute Info */}
             <Grid item xs={12} md={5}>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1.2 }}>
-                {company.companyNameNp || 'ग्लोबल एरा प्राविधिक स्कुल'}
+                {company.companyNameEn || 'Global Era Technical School'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 800, display: 'block', mb: 1.5 }}>
                 GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE
               </Typography>
               <Typography variant="body2" sx={{ lineHeight: 1.7, maxWidth: 420 }}>
-                प्राविधिक शिक्षा तथा व्यावसायिक तालिम परिषद् (CTEVT) बाट सम्बन्धन प्राप्त स्तरीय व्यावसायिक सीप विकास केन्द्र।
-                हाम्रो लक्ष्य दक्ष जनशक्ति उत्पादन र रोजगारी सुनिश्चितता हो।
+                A premier vocational skill development center affiliated with the Council for Technical Education and Vocational Training (CTEVT).
+                Our mission is to produce skilled manpower and ensure employment readiness.
               </Typography>
             </Grid>
 
             {/* Col 2: Contact Info */}
             <Grid item xs={12} md={4}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF', mb: 1.5 }}>
-                सम्पर्क तथा ठेगाना
+                Contact & Address
               </Typography>
               <Stack spacing={1}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <LocationOnIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-                  <Typography variant="body2">{company.address || 'मित्रपार्क, चाबहिल, काठमाडौं, नेपाल'}</Typography>
+                  <Typography variant="body2">{company.address || 'Mitrapark, Chabahil, Kathmandu, Nepal'}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PhoneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-                  <Typography variant="body2">{company.phone || '०१-४४६९००० / ९८५१००००००'}</Typography>
+                  <Typography variant="body2">{company.phone || '01-4469000 / 9851000000'}</Typography>
                 </Box>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', pt: 0.5 }}>
-                  CTEVT सम्बन्धन कोड: {company.ctevtCode || '४२०८'} • दर्ता नं: {company.regNo || '१८४९२०/०७८/०७९'}
+                  CTEVT Affiliation Code: {company.ctevtCode || '4208'} • Reg No: {company.regNo || '184920/078/079'}
                 </Typography>
               </Stack>
             </Grid>
@@ -892,7 +892,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             {/* Col 3: Portal Links */}
             <Grid item xs={12} md={3}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF', mb: 1.5 }}>
-                प्रयोगकर्ता पोर्टलहरू
+                User Portals
               </Typography>
               <Stack spacing={1}>
                 <Button
@@ -900,21 +900,21 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   onClick={() => onNavigate('agent')}
                   sx={{ color: '#FCD34D', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
                 >
-                  🤝 एजेन्ट / रेफ़रल पोर्टल (Agent Portal)
+                  🤝 Agent / Referral Portal
                 </Button>
                 <Button
                   size="small"
                   onClick={() => onNavigate('trainer')}
                   sx={{ color: '#10B981', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
                 >
-                  👨‍🏫 प्रशिक्षक पोर्टल (Trainer Login)
+                  👨‍🏫 Trainer Portal (Login)
                 </Button>
                 <Button
                   size="small"
                   onClick={() => onNavigate('student')}
                   sx={{ color: '#38BDF8', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
                 >
-                  🎓 विद्यार्थी पोर्टल (Student Login)
+                  🎓 Student Portal (Login)
                 </Button>
               </Stack>
             </Grid>
@@ -925,11 +925,11 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           {/* Bottom Bar: Copyright and Discreet Admin Login */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="caption">
-              © {new Date().getFullYear()} {company.companyNameEn || 'Global Era Technical School'}. सर्वाधिकार सुरक्षित।
+              © {new Date().getFullYear()} {company.companyNameEn || 'Global Era Technical School'}. All Rights Reserved.
             </Typography>
 
             {/* Discreet Management Link */}
-            <Tooltip title="संस्था व्यवस्थापक लगइन (Super Admin ERP)">
+            <Tooltip title="Super Admin ERP Login">
               <Button
                 size="small"
                 startIcon={<LockIcon sx={{ fontSize: 13 }} />}
@@ -941,7 +941,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   '&:hover': { color: '#94A3B8', bgcolor: 'transparent' }
                 }}
               >
-                कार्यालय प्रणाली (ERP)
+                Office System (ERP)
               </Button>
             </Tooltip>
           </Box>

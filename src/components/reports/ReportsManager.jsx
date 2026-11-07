@@ -306,7 +306,7 @@ export default function ReportsManager() {
   // WHATSAPP SHARE GENERATOR FOR ACTIVE TAB
   // ----------------------------------------------------
   const getActiveTabShareText = () => {
-    const orgHeader = `*KITE CAREGIVER TRAINING CENTER / ग्लोबल एरा प्राविधिक स्कुल*\n`;
+    const orgHeader = `*KITE CAREGIVER TRAINING CENTER / GLOBAL ERA TECHNICAL SCHOOL*\n`;
     const metaHeader = `• *Group:* ${selectedGroup?.groupCode || '—'} | *Course:* ${selectedCourse?.title || 'Vocational'}\n• *Instructor:* ${trainer?.name || '—'}\n━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
 
     if (activeTab === 0) {
@@ -384,13 +384,13 @@ export default function ReportsManager() {
   // WhatsApp Alert to specific guardian/student
   const getGuardianWarningUrl = (student, reasons, attPercent) => {
     const text =
-      `*ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)*\n` +
-      `आदरणीय अभिभावक / विद्यार्थीज्यू,\n\n` +
-      `प्रशिक्षार्थी: *${student.name}* (TGID: ${student.tgid})\n` +
-      `समूह: *${selectedGroup?.groupCode || '—'}* (${selectedCourse?.title || 'तालिम'})\n\n` +
-      `⚠️ *अति जरुरी सूचना (हाजिरी सतर्कता):*\n` +
-      `यहाँको हालसम्मको उपस्थिति *${attPercent}%* मात्र रहेको छ। CTEVT को आधिकारिक नियमानुसार तालिममा कम्तीमा *८०% अनिवार्य उपस्थिति* नभएमा राष्ट्रिय सीप परीक्षण परीक्षा (Skill Test) मा सहभागी हुन र प्रमाणपत्र प्राप्त गर्न पाइँदैन।\n\n` +
-      `कृपया तुरुन्तै संस्था प्रशासन वा प्रशिक्षक (${trainer?.name}, सम्पर्क: ${trainer?.phone || 'कार्यालय'}) सँग सम्पर्क राख्नुहुन अनुरोध गरिन्छ।`;
+      `*GLOBAL ERA TECHNICAL SCHOOL*\n` +
+      `Dear Guardian / Student,\n\n` +
+      `Trainee: *${student.name}* (TGID: ${student.tgid})\n` +
+      `Group: *${selectedGroup?.groupCode || '—'}* (${selectedCourse?.title || 'Training'})\n\n` +
+      `⚠️ *URGENT ATTENDANCE ALERT:*\n` +
+      `Your current attendance is only *${attPercent}%*. According to official CTEVT rules, a minimum of *80% mandatory attendance* is required in training to participate in the National Skill Test and receive certification.\n\n` +
+      `Please contact the institute administration or instructor (${trainer?.name}, Contact: ${trainer?.phone || 'Office'}) immediately.`;
 
     return getWhatsAppUrl(student.guardianPhone || student.phone || '', text);
   };
@@ -403,7 +403,7 @@ export default function ReportsManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <AssessmentIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Reports & Analytics (प्रतिवेदन तथा विश्लेषण)
+              Reports & Analytics
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -517,7 +517,7 @@ export default function ReportsManager() {
           <Tab
             icon={<FactCheckIcon fontSize="small" />}
             iconPosition="start"
-            label="१. Monthly Attendance Matrix"
+            label="1. Monthly Attendance Matrix"
           />
           <Tab
             icon={
@@ -526,22 +526,22 @@ export default function ReportsManager() {
               </Badge>
             }
             iconPosition="start"
-            label="२. Dropout At-Risk Red Alert"
+            label="2. Dropout At-Risk Red Alert"
           />
           <Tab
             icon={<MenuBookIcon fontSize="small" />}
             iconPosition="start"
-            label="३. Syllabus & Hours Completion"
+            label="3. Syllabus & Hours Completion"
           />
           <Tab
             icon={<VerifiedUserIcon fontSize="small" />}
             iconPosition="start"
-            label="४. CTEVT NSTB Skill Readiness"
+            label="4. CTEVT NSTB Skill Readiness"
           />
           <Tab
             icon={<WorkIcon fontSize="small" />}
             iconPosition="start"
-            label="५. OJT & Employment Outcomes"
+            label="5. OJT & Employment Outcomes"
           />
         </Tabs>
       </Card>
@@ -554,7 +554,7 @@ export default function ReportsManager() {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
             <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                मासिक हाजिरी कट्टा (Month: {selectedMonth})
+                Monthly Attendance Register (Month: {selectedMonth})
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Chip label="P = Present" size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
@@ -564,7 +564,7 @@ export default function ReportsManager() {
             </Box>
 
             <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
-              * CTEVT नियमानुसार परीक्षामा सामेल हुन कम्तीमा ८०% उपस्थिति अनिवार्य छ।
+              * Minimum 80% attendance is mandatory to appear for the exam as per CTEVT rules.
             </Typography>
           </Box>
 
@@ -685,10 +685,10 @@ export default function ReportsManager() {
           <Alert severity={atRiskStudents.length > 0 ? 'error' : 'success'} sx={{ mb: 3 }}>
             {atRiskStudents.length > 0 ? (
               <b>
-                {atRiskStudents.length} जना प्रशिक्षार्थी जोखिममा (At-Risk) फेला परे। उपस्थिति ८०% भन्दा कम वा धेरै दिन गयल भएका कारण CTEVT नियम अनुसार परीक्षा रोकिन सक्छ।
+                {atRiskStudents.length} trainee(s) found At-Risk. Exam participation may be withheld under CTEVT rules due to attendance below 80% or excessive absences.
               </b>
             ) : (
-              <b>बधाई छ! यस समूहका सम्पूर्ण प्रशिक्षार्थीको उपस्थिति र सीप सिकाइ सन्तोषजनक छ।</b>
+              <b>Congratulations! Attendance and skill learning for all trainees in this group are satisfactory.</b>
             )}
           </Alert>
 
@@ -921,10 +921,10 @@ export default function ReportsManager() {
         <Box>
           <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-              राष्ट्रिय सीप परीक्षण समिति (NSTB) परीक्षा योग्यता अडिट
+              National Skill Testing Board (NSTB) Exam Eligibility Audit
             </Typography>
             <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
-              * योग्यता मापदण्ड: न्यूनतम ८०% उपस्थिति + कम्तीमा ७०% सीप दक्षता प्रमाणित।
+              * Eligibility Criteria: Minimum 80% attendance + at least 70% verified skill competency.
             </Typography>
           </Box>
 
@@ -1057,7 +1057,7 @@ export default function ReportsManager() {
           <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
             <Box sx={{ p: 2, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                Verified Placements & Industry Partners (रोजगारी विवरण)
+                Verified Placements & Industry Partners
               </Typography>
             </Box>
             <TableContainer>
@@ -1136,14 +1136,14 @@ export default function ReportsManager() {
         }
         nepaliTitle={
           reportDocType === 'ATTENDANCE'
-            ? 'मासिक हाजिरी कट्टा तथा अभिलेख'
+            ? 'Monthly Attendance Register & Record'
             : reportDocType === 'DROPOUT'
-            ? 'जोखिममा रहेका प्रशिक्षार्थी विवरण'
+            ? 'At-Risk Trainee Details'
             : reportDocType === 'SYLLABUS'
-            ? 'पाठ्यक्रम सम्पन्नता प्रगति प्रतिवेदन'
+            ? 'Curriculum Completion Progress Report'
             : reportDocType === 'NSTB'
-            ? 'राष्ट्रिय सीप परीक्षण समिति योग्यता अभिलेख'
-            : 'OJT तथा रोजगारी नतिजा प्रतिवेदन'
+            ? 'National Skill Testing Board Eligibility Record'
+            : 'OJT & Employment Outcome Report'
         }
         group={selectedGroup}
         course={selectedCourse}
@@ -1160,14 +1160,14 @@ export default function ReportsManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.75rem', p: 0.6 } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थीको नाम</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Trainee Name</TableCell>
                   <TableCell sx={{ fontWeight: 900, width: 80 }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>उपस्थित</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>गयल</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>ढिला</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 65 }}>प्रतिशत (%)</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 90 }}>कैफियत</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>Present</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>Absent</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 50 }}>Late</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 65 }}>Percent (%)</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 90 }}>Remarks</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1183,7 +1183,7 @@ export default function ReportsManager() {
                       {item.attendancePercent}%
                     </TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>
-                      {item.attendancePercent >= 80 ? 'नियमित' : 'चेतावनी'}
+                      {item.attendancePercent >= 80 ? 'Regular' : 'Warning'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1197,12 +1197,12 @@ export default function ReportsManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem', p: 0.8 } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 140 }}>प्रशिक्षार्थी नाम</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 140 }}>Trainee Name</TableCell>
                   <TableCell sx={{ fontWeight: 900, width: 90 }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>हाजिरी %</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>जोखिमका कारणहरू</TableCell>
-                  <TableCell sx={{ fontWeight: 900, width: 120 }}>सम्पर्क नम्बर</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>Attendance %</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Risk Factors</TableCell>
+                  <TableCell sx={{ fontWeight: 900, width: 120 }}>Contact Number</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1235,11 +1235,11 @@ export default function ReportsManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem', p: 0.8 } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>इकाइ</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>पाठ्यक्रम शीर्षक तथा सिकाइ उपलब्धि</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 80 }}>लक्षित घन्टा</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 80 }}>सम्पन्न घन्टा</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>अवस्था</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 45 }}>Unit</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Curriculum Title & Learning Outcome</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 80 }}>Target Hours</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 80 }}>Delivered Hours</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1250,13 +1250,13 @@ export default function ReportsManager() {
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>{item.unit.totalHours}</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>{item.hoursDeliveredForUnit}</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>
-                      {item.isCompleted ? 'सम्पन्न' : 'बाँकी'}
+                      {item.isCompleted ? 'Completed' : 'Pending'}
                     </TableCell>
                   </TableRow>
                 ))}
                 <TableRow sx={{ bgcolor: '#f8fafc' }}>
                   <TableCell colSpan={2} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                    कुल सम्पन्न घन्टा (DELIVERED HOURS):
+                    TOTAL DELIVERED HOURS:
                   </TableCell>
                   <TableCell sx={{ textAlign: 'center', fontWeight: 900 }}>
                     {syllabusProgressData.totalTargetHours}
@@ -1278,12 +1278,12 @@ export default function ReportsManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem', p: 0.8 } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थीको नाम</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Trainee Name</TableCell>
                   <TableCell sx={{ fontWeight: 900, width: 85 }}>TGID</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>हाजिरी %</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>दक्षता %</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 140 }}>NSTB सिफारिस</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>Attendance %</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>Competency %</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 140 }}>NSTB Recommendation</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1297,7 +1297,7 @@ export default function ReportsManager() {
                     </TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>{item.masteryPercent}%</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: item.isEligible ? '#16834b' : '#dc2626' }}>
-                      {item.isEligible ? 'योग्य (Recommended)' : 'अयोग्य (Not Ready)'}
+                      {item.isEligible ? 'Recommended' : 'Not Ready'}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -1311,12 +1311,12 @@ export default function ReportsManager() {
             <Table size="small" sx={{ border: '1px solid #0f172a', '& th, & td': { border: '1px solid #cbd5e1', fontSize: '0.8rem', p: 0.8 } }}>
               <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षार्थीको नाम</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>रोजगारदाता (Employer)</TableCell>
-                  <TableCell sx={{ fontWeight: 900 }}>पद (Job Designation)</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 95 }}>तलब (NPR)</TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>अवस्था</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 35 }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Trainee Name</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Employer</TableCell>
+                  <TableCell sx={{ fontWeight: 900 }}>Job Designation</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 95 }}>Salary (NPR)</TableCell>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 85 }}>Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

@@ -69,7 +69,7 @@ export default function PinLockDialog({ open, onClose }) {
   const handlePhoneLogin = (e) => {
     e.preventDefault();
     if (!phone) {
-      setError('कृपया फोन नम्बर प्रविष्ट गर्नुहोस्।');
+      setError('Please enter your phone number.');
       return;
     }
     const res = loginWithPhonePin(phone, studentPin || '1234');
@@ -79,7 +79,7 @@ export default function PinLockDialog({ open, onClose }) {
       setStudentPin('');
       if (onClose) onClose();
     } else {
-      setError(res.message || 'फोन वा पिन मिलेन।');
+      setError(res.message || 'Invalid phone number or PIN.');
     }
   };
 
@@ -121,12 +121,12 @@ export default function PinLockDialog({ open, onClose }) {
         </Avatar>
 
         <Typography variant="h6" sx={{ fontWeight: 800, color: '#152238' }}>
-          {tabIndex === 0 ? '4-Digit Quick PIN Login' : 'विद्यार्थी / रोजगारदाता लगइन'}
+          {tabIndex === 0 ? '4-Digit Quick PIN Login' : 'Student / Employer Login'}
         </Typography>
         <Typography variant="body2" sx={{ color: '#647089', mb: 2 }}>
           {tabIndex === 0
-            ? 'इन्स्टिच्युट वा आफ्नो ट्रेनर PIN प्रविष्ट गर्नुहोस्'
-            : 'फोन नम्बर र ४-अङ्कको पिन मार्फत लगइन गर्नुहोस्'}
+            ? 'Enter your institute or trainer PIN'
+            : 'Sign in using your phone number and 4-digit PIN'}
         </Typography>
 
         <Tabs
@@ -147,7 +147,7 @@ export default function PinLockDialog({ open, onClose }) {
           <Tab
             icon={<PhoneIcon />}
             iconPosition="start"
-            label="फोन + PIN"
+            label="Phone + PIN"
             sx={{ fontWeight: 700, fontSize: '0.85rem', textTransform: 'none' }}
           />
         </Tabs>
@@ -263,7 +263,7 @@ export default function PinLockDialog({ open, onClose }) {
         {tabIndex === 1 && (
           <Box component="form" onSubmit={handlePhoneLogin} sx={{ maxWidth: 300, mx: 'auto', mt: 1 }}>
             <TextField
-              label="फोन नम्बर (Mobile Number)"
+              label="Mobile Number"
               fullWidth
               required
               value={phone}
@@ -279,7 +279,7 @@ export default function PinLockDialog({ open, onClose }) {
               sx={{ mb: 2 }}
             />
             <TextField
-              label="४-अङ्कको PIN (Default: 1234)"
+              label="4-Digit PIN (Default: 1234)"
               fullWidth
               type="password"
               value={studentPin}
@@ -307,15 +307,15 @@ export default function PinLockDialog({ open, onClose }) {
                 '&:hover': { bgcolor: '#0f766e' }
               }}
             >
-              लगइन गर्नुहोस् (Login)
+              Login
             </Button>
 
             <Box sx={{ mt: 2.5, p: 1.5, bgcolor: '#f8fafc', borderRadius: 2 }}>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                💡 <b>विद्यार्थी नमूना:</b> 9841000001 (पिन: 1234)
+                💡 <b>Student Login:</b> Registered Mobile + PIN
               </Typography>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 0.5 }}>
-                🏢 <b>रोजगारदाता नमूना:</b> 9841889900 (पिन: 1234)
+                🏢 <b>Employer Login:</b> Registered Phone + PIN
               </Typography>
             </Box>
           </Box>

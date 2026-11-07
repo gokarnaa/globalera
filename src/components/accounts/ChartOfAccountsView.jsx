@@ -50,10 +50,10 @@ export default function ChartOfAccountsView({ db }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              🏛️ चार्ट अफ एकाउन्ट्स (Standard Chart of Accounts)
+              🏛️ Standard Chart of Accounts
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              नेपाल व्यावसायिक लेखा मापदण्ड अनुसार वर्गीकृत सम्पत्ति, दायित्व, पुँजी, आम्दानी तथा खर्च खाताहरू
+              Assets, Liabilities, Equity, Revenue, and Expense accounts classified according to Nepal Accounting Standards
             </Typography>
           </Box>
         </Box>
@@ -72,17 +72,17 @@ export default function ChartOfAccountsView({ db }) {
           <TextField
             select
             size="small"
-            label="खाता प्रकार (Account Type)"
+            label="Account Type"
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             sx={{ minWidth: 180 }}
           >
             <MenuItem value="ALL">All Types</MenuItem>
-            <MenuItem value="ASSET">ASSET (सम्पत्ति)</MenuItem>
-            <MenuItem value="LIABILITY">LIABILITY (दायित्व)</MenuItem>
-            <MenuItem value="EQUITY">EQUITY (पुँजी)</MenuItem>
-            <MenuItem value="REVENUE">REVENUE (आम्दानी)</MenuItem>
-            <MenuItem value="EXPENSE">EXPENSE (खर्च)</MenuItem>
+            <MenuItem value="ASSET">ASSET</MenuItem>
+            <MenuItem value="LIABILITY">LIABILITY</MenuItem>
+            <MenuItem value="EQUITY">EQUITY</MenuItem>
+            <MenuItem value="REVENUE">REVENUE</MenuItem>
+            <MenuItem value="EXPENSE">EXPENSE</MenuItem>
           </TextField>
         </Stack>
       </Card>
@@ -92,11 +92,11 @@ export default function ChartOfAccountsView({ db }) {
           <Table>
             <TableHead sx={{ bgcolor: '#F8FAFC' }}>
               <TableRow>
-                <TableCell sx={{ fontWeight: 800, width: 120 }}>खाता कोड</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>खाताको नाम (Account Title)</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 160 }}>खाता वर्ग (Type)</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 140 }}>सामान्य ब्यालेन्स</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>हालको मौज्दात (Balance)</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 120 }}>Account Code</TableCell>
+                <TableCell sx={{ fontWeight: 800 }}>Account Title</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 160 }}>Account Type</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 140 }}>Normal Balance</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>Current Balance</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

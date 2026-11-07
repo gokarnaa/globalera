@@ -347,7 +347,7 @@ export default function EmployerManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <BusinessIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Employer Master (रोजगारदाता)
+              Employer Master
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -469,7 +469,7 @@ export default function EmployerManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>क्र.सं. (S.N.)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Employer / Organization</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Industry & Sector</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Location</TableCell>
@@ -833,10 +833,10 @@ export default function EmployerManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-                {editingItem ? 'रोजगार साझेदार सम्पादन (Edit Employer Partner)' : 'नयाँ रोजगार साझेदार दर्ता (Add Employer Partner)'}
+                {editingItem ? 'Edit Employer Partner' : 'Add Employer Partner'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-                {editingItem ? 'संस्थाको सम्पर्क व्यक्ति र सम्झौता विवरण अद्यावधिक गर्नुहोस्' : 'OJT तथा रोजगार सहकार्यका लागि नयाँ साझेदार संस्था दर्ता गर्नुहोस्'}
+                {editingItem ? 'Update organization contact person and MoU agreement details' : 'Register a new partner organization for OJT and career placement collaboration'}
               </Typography>
             </Box>
           </Box>
@@ -868,7 +868,7 @@ export default function EmployerManager() {
               label="Organization Name (e.g. Norvic Hospital) *"
               fullWidth
               size="small"
-              placeholder="उदा: Norvic International Hospital"
+              placeholder="e.g. Norvic International Hospital"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -879,7 +879,7 @@ export default function EmployerManager() {
                   label="Industry / Field"
                   fullWidth
                   size="small"
-                  placeholder="उदा: Hospital & Healthcare"
+                  placeholder="e.g. Hospital & Healthcare"
                   value={formData.industry}
                   onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
                 />
@@ -889,7 +889,7 @@ export default function EmployerManager() {
                   label="Office Location"
                   fullWidth
                   size="small"
-                  placeholder="उदा: Thapathali, Kathmandu"
+                  placeholder="e.g. Thapathali, Kathmandu"
                   value={formData.location}
                   onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 />
@@ -902,7 +902,7 @@ export default function EmployerManager() {
                   label="Contact Person Name"
                   fullWidth
                   size="small"
-                  placeholder="उदा: Dr. Rajesh KC (HR Head)"
+                  placeholder="e.g. Dr. Rajesh KC (HR Head)"
                   value={formData.contactPerson}
                   onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
                 />
@@ -940,8 +940,8 @@ export default function EmployerManager() {
                   value={formData.status}
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
-                  <MenuItem value="Active">Active (सक्रिय साझेदार)</MenuItem>
-                  <MenuItem value="Inactive">Inactive (निष्क्रिय)</MenuItem>
+                  <MenuItem value="Active">Active Partner</MenuItem>
+                  <MenuItem value="Inactive">Inactive</MenuItem>
                 </TextField>
               </Grid>
             </Grid>
@@ -952,7 +952,7 @@ export default function EmployerManager() {
               rows={2}
               fullWidth
               size="small"
-              placeholder="द्विपक्षीय समझदारी पत्र (MoU) सम्बन्धी थप विवरण..."
+              placeholder="Additional details regarding the Memorandum of Understanding (MoU)..."
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
             />
@@ -980,7 +980,7 @@ export default function EmployerManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1000,7 +1000,7 @@ export default function EmployerManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Employer)
+            Save Employer
           </Button>
         </DialogActions>
       </Dialog>
@@ -1333,7 +1333,7 @@ export default function EmployerManager() {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               select
-              label="Select Student / Trainee (विद्यार्थी छनोट)"
+              label="Select Student / Trainee"
               fullWidth
               value={newOjtData.studentId}
               onChange={(e) => setNewOjtData({ ...newOjtData, studentId: e.target.value })}
@@ -1354,7 +1354,7 @@ export default function EmployerManager() {
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="OJT Start Date (सुरु मिति)"
+                  label="OJT Start Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={newOjtData.startDate}
@@ -1365,7 +1365,7 @@ export default function EmployerManager() {
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="OJT End Date (सम्पन्न मिति)"
+                  label="OJT End Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={newOjtData.endDate}
@@ -1377,7 +1377,7 @@ export default function EmployerManager() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Supervisor Name (सुपरभाइजर)"
+                  label="Supervisor Name"
                   fullWidth
                   value={newOjtData.relatedPerson}
                   onChange={(e) => setNewOjtData({ ...newOjtData, relatedPerson: e.target.value })}
@@ -1385,7 +1385,7 @@ export default function EmployerManager() {
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Supervisor Phone (फोन)"
+                  label="Supervisor Phone"
                   fullWidth
                   value={newOjtData.contactNumber}
                   onChange={(e) => setNewOjtData({ ...newOjtData, contactNumber: e.target.value })}
@@ -1395,14 +1395,14 @@ export default function EmployerManager() {
 
             <TextField
               select
-              label="Status (अवस्था)"
+              label="Status"
               fullWidth
               value={newOjtData.status}
               onChange={(e) => setNewOjtData({ ...newOjtData, status: e.target.value })}
             >
-              <MenuItem value="Ongoing">Ongoing (सञ्चालनमा)</MenuItem>
-              <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
-              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+              <MenuItem value="Ongoing">Ongoing</MenuItem>
+              <MenuItem value="Planned">Planned</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
             </TextField>
 
             <TextField
@@ -1432,7 +1432,7 @@ export default function EmployerManager() {
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               select
-              label="Select Graduate / Candidate (विद्यार्थी छनोट)"
+              label="Select Graduate / Candidate"
               fullWidth
               value={newPlacementData.studentId}
               onChange={(e) => setNewPlacementData({ ...newPlacementData, studentId: e.target.value })}
@@ -1452,7 +1452,7 @@ export default function EmployerManager() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Target Job Role / Designation (पद)"
+                  label="Target Job Role / Designation"
                   fullWidth
                   value={newPlacementData.targetJob}
                   onChange={(e) => setNewPlacementData({ ...newPlacementData, targetJob: e.target.value })}
@@ -1462,14 +1462,14 @@ export default function EmployerManager() {
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  label="Employment Type (रोजगारीको प्रकार)"
+                  label="Employment Type"
                   fullWidth
                   value={newPlacementData.employmentType}
                   onChange={(e) => setNewPlacementData({ ...newPlacementData, employmentType: e.target.value })}
                 >
                   <MenuItem value="Full-Time Employee">Full-Time Employee</MenuItem>
                   <MenuItem value="Part-Time Employee">Part-Time Employee</MenuItem>
-                  <MenuItem value="Foreign Employment">Foreign Employment (वैदेशिक)</MenuItem>
+                  <MenuItem value="Foreign Employment">Foreign Employment</MenuItem>
                   <MenuItem value="Contract Based">Contract Based</MenuItem>
                 </TextField>
               </Grid>
@@ -1478,7 +1478,7 @@ export default function EmployerManager() {
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Monthly Salary / Income (मासिक तलब)"
+                  label="Monthly Salary / Income"
                   fullWidth
                   value={newPlacementData.expectedSalary}
                   onChange={(e) => setNewPlacementData({ ...newPlacementData, expectedSalary: e.target.value })}
@@ -1487,7 +1487,7 @@ export default function EmployerManager() {
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="Placement Date (नियुक्ति मिति)"
+                  label="Placement Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={newPlacementData.placementDate}
@@ -1513,7 +1513,7 @@ export default function EmployerManager() {
                   value={newPlacementData.status}
                   onChange={(e) => setNewPlacementData({ ...newPlacementData, status: e.target.value })}
                 >
-                  <MenuItem value="Placed">Placed (नियुक्त भएको)</MenuItem>
+                  <MenuItem value="Placed">Placed</MenuItem>
                   <MenuItem value="Interview Scheduled">Interview Scheduled</MenuItem>
                   <MenuItem value="Offer Issued">Offer Issued</MenuItem>
                   <MenuItem value="Seeking">Seeking</MenuItem>
@@ -1522,7 +1522,7 @@ export default function EmployerManager() {
             </Grid>
 
             <TextField
-              label="Remarks / Notes (टिपोट)"
+              label="Remarks / Notes"
               fullWidth
               multiline
               rows={2}

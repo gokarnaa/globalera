@@ -77,7 +77,7 @@ class ErrorBoundary extends React.Component {
         <Box sx={{ p: 4, textAlign: 'center' }}>
           <Alert severity="error" sx={{ mb: 2.5, justifyContent: 'center' }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-              प्रणालीमा त्रुटि देखियो (Rendering Notice)
+              System Rendering Notice
             </Typography>
             <Typography variant="body2" sx={{ fontFamily: 'monospace', mt: 0.5 }}>
               {this.state.error?.message || 'Unexpected issue'}
@@ -92,7 +92,7 @@ class ErrorBoundary extends React.Component {
             }}
             sx={{ fontWeight: 800 }}
           >
-            ड्यासबोर्डमा फर्कनुहोस् (Return to Dashboard)
+            Return to Dashboard
           </Button>
         </Box>
       );
@@ -642,7 +642,7 @@ export default function App() {
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.4)' }
                 }}
               >
-                लिड हेर्नुहोस्
+                View Lead
               </Button>
             }
             sx={{
@@ -653,7 +653,7 @@ export default function App() {
               alignItems: 'center'
             }}
           >
-            🔔 नयाँ लिड प्राप्त भयो! {globalLeadAlert.name} ({globalLeadAlert.course || globalLeadAlert.subject || 'कोर्स'})
+            🔔 New Lead Received! {globalLeadAlert.name} ({globalLeadAlert.course || globalLeadAlert.subject || 'Course'})
           </Alert>
         </Snackbar>
       )}

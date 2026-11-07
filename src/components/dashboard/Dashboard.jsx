@@ -169,7 +169,7 @@ export default function Dashboard({ onNavigate }) {
 
   const handleCreateNotice = () => {
     if (!newNoticeData.title.trim() || !newNoticeData.content.trim()) {
-      alert('कृपया शीर्षक र व्यहोरा प्रविष्ट गर्नुहोस्।');
+      alert('Please enter both the notice title and content.');
       return;
     }
     const createdNotice = {
@@ -191,16 +191,16 @@ export default function Dashboard({ onNavigate }) {
   };
 
   const workflowSteps = [
-    { id: 'occupations', step: '०१', title: 'Occupations', sub: 'पेशा पहिचान', icon: '🛠️' },
-    { id: 'courses', step: '०२', title: 'Courses', sub: 'पाठ्यक्रम', icon: '📚' },
-    { id: 'syllabus', step: '०३', title: 'Syllabus', sub: 'पाठ्य-एकाइ', icon: '📝' },
-    { id: 'workplan', step: '०४', title: 'Work Plan', sub: 'कार्ययोजना', icon: '🗓️' },
-    { id: 'lessonplan', step: '०५', title: 'Lesson Plan', sub: 'पाठ-तयारी', icon: '📑' },
-    { id: 'attendance', step: '०६', title: 'Attendance', sub: 'दैनिक हाजिरी', icon: '✅', highlight: true },
-    { id: 'logbook', step: '०७', title: 'Log Book', sub: 'डेलिभरी लग', icon: '📖' },
-    { id: 'evaluations', step: '०८', title: 'Evaluations', sub: 'सीप मूल्याङ्कन', icon: '🎯' },
-    { id: 'ojt', step: '०९', title: 'OJT & Jobs', sub: 'उद्योग इन्टर्नसिप', icon: '🏢' },
-    { id: 'certificates', step: '१०', title: 'Certificate', sub: 'CTEVT प्रमाणपत्र', icon: '🏆', highlight: true }
+    { id: 'occupations', step: '01', title: 'Occupations', sub: 'Sector Setup', icon: '🛠️' },
+    { id: 'courses', step: '02', title: 'Courses', sub: 'Curriculum', icon: '📚' },
+    { id: 'syllabus', step: '03', title: 'Syllabus', sub: 'Course Units', icon: '📝' },
+    { id: 'workplan', step: '04', title: 'Work Plan', sub: 'Schedule', icon: '🗓️' },
+    { id: 'lessonplan', step: '05', title: 'Lesson Plan', sub: 'Session Prep', icon: '📑' },
+    { id: 'attendance', step: '06', title: 'Attendance', sub: 'Daily Roll Call', icon: '✅', highlight: true },
+    { id: 'logbook', step: '07', title: 'Log Book', sub: 'Delivery Log', icon: '📖' },
+    { id: 'evaluations', step: '08', title: 'Evaluations', sub: 'Skill Matrix', icon: '🎯' },
+    { id: 'ojt', step: '09', title: 'OJT & Jobs', sub: 'Industry Internship', icon: '🏢' },
+    { id: 'certificates', step: '10', title: 'Certificate', sub: 'CTEVT Certificate', icon: '🏆', highlight: true }
   ];
 
   return (
@@ -239,7 +239,7 @@ export default function Dashboard({ onNavigate }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.8, flexWrap: 'wrap' }}>
               <Chip
                 icon={<ShieldIcon sx={{ fontSize: '15px !important', color: '#FDE047 !important' }} />}
-                label="ग्लोबल एरा प्राविधिक स्कुल"
+                label="Global Era Technical School"
                 size="small"
                 sx={{
                   bgcolor: 'rgba(254, 240, 138, 0.15)',
@@ -251,7 +251,7 @@ export default function Dashboard({ onNavigate }) {
               />
               <Chip
                 icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
-                label="CTEVT मान्यता प्राप्त"
+                label="CTEVT Accredited"
                 size="small"
                 sx={{
                   bgcolor: 'rgba(74, 222, 128, 0.15)',
@@ -286,7 +286,7 @@ export default function Dashboard({ onNavigate }) {
                 lineHeight: 1.15
               }}
             >
-              नमस्ते, {currentUser?.name}!
+              Welcome, {currentUser?.name}!
             </Typography>
 
             <Typography
@@ -300,8 +300,8 @@ export default function Dashboard({ onNavigate }) {
               }}
             >
               {isTrainer
-                ? 'आफ्नो तालिम समूहको दैनिक हाजिरी लिनुहोस्, पाठयोजना कार्यान्वयन गर्नुहोस्, र विद्यार्थी सीप मूल्याङ्कन प्रमाणित गर्नुहोस्।'
-                : 'पेशा पहिचानदेखि पूर्ण पाठ्यक्रम, दैनिक कार्ययोजना, हाजिरी तथा CTEVT प्रमाणपत्र व्यवस्थापन गर्ने आधिकारिक प्रणाली।'}
+                ? 'Manage daily attendance for your training batches, execute lesson plans, and verify student competency evaluations.'
+                : 'Official TVET ERP for managing occupations, curricula, daily work plans, biometric attendance, and CTEVT certifications.'}
             </Typography>
 
             {/* 4 Distinct Action Buttons with Guaranteed Contrast & Crisp Typography */}
@@ -327,7 +327,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                दैनिक हाजिरी लिनुहोस् (Take Attendance)
+                Take Attendance
               </Button>
 
               {/* Button 2: Crisp Solid White Button */}
@@ -350,7 +350,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                पाठयोजना (Lesson Plan)
+                Lesson Plan
               </Button>
 
               {/* Button 3: Leads CRM Button */}
@@ -374,7 +374,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                सोधपुछ CRM ({db.leads?.length || 0})
+                Inquiry CRM ({db.leads?.length || 0})
               </Button>
 
               {/* Button 4: Frosted White Border Pill */}
@@ -398,7 +398,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                विद्यार्थी भर्ना (Add Student)
+                Add Student
               </Button>
 
               {/* Button 4: Amber CTEVT Certificate Button */}
@@ -421,7 +421,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                CTEVT प्रमाणपत्र (A4)
+                CTEVT Certificates (A4)
               </Button>
             </Stack>
           </Grid>
@@ -442,7 +442,7 @@ export default function Dashboard({ onNavigate }) {
               {/* Real-time Ticking Digital Clock Header */}
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Typography variant="overline" sx={{ color: '#93C5FD', letterSpacing: '0.08em', fontWeight: 900, fontSize: '0.7rem' }}>
-                  ⏱️ प्रत्यक्ष समय (LIVE CLOCK)
+                  ⏱️ LIVE SYSTEM CLOCK
                 </Typography>
                 <Chip
                   label="Online"
@@ -473,7 +473,7 @@ export default function Dashboard({ onNavigate }) {
               </Typography>
 
               <Typography variant="body2" sx={{ color: '#CBD5E1', fontWeight: 700, mb: 2 }}>
-                २०८१ कार्तिक ९, शनिबार | 24 October 2026
+                {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </Typography>
 
               <Divider sx={{ my: 1.8, borderColor: 'rgba(255, 255, 255, 0.15)' }} />
@@ -495,7 +495,7 @@ export default function Dashboard({ onNavigate }) {
                   </Typography>
                 </Box>
                 <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', fontWeight: 600 }}>
-                  Caregiver, Beautician & Tailoring Groups सञ्चालनमा
+                  Vocational Training Sessions in Operation
                 </Typography>
               </Box>
 
@@ -507,7 +507,7 @@ export default function Dashboard({ onNavigate }) {
                       {groups.length} Batches
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                      सक्रिय समूहहरू
+                      Active Batches
                     </Typography>
                   </Box>
                 </Grid>
@@ -517,7 +517,7 @@ export default function Dashboard({ onNavigate }) {
                       {overallAttRate}%
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                      औसत हाजिरी दर
+                      Avg. Attendance Rate
                     </Typography>
                   </Box>
                 </Grid>
@@ -542,11 +542,11 @@ export default function Dashboard({ onNavigate }) {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
             <BoltIcon sx={{ color: '#D97706', fontSize: 22 }} />
             <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em' }}>
-              TVET OPERATIONAL WORKFLOW CHAIN (अन्तरसम्बन्धित तालिम डेलिभरी चक्र)
+              TVET OPERATIONAL WORKFLOW CHAIN
             </Typography>
           </Box>
           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-            १० वटै चरणहरू प्रत्यक्ष जोडिएका छन् • सिधै क्लिक गरी काम गर्नुहोस्
+            All 10 stages are interconnected • Click any stage to open directly
           </Typography>
         </Box>
 
@@ -628,7 +628,7 @@ export default function Dashboard({ onNavigate }) {
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                 <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                  कुल प्रशिक्षार्थी (TOTAL TRAINEES)
+                  TOTAL TRAINEES
                 </Typography>
                 <Avatar sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #DBEAFE' }}>
                   <SchoolIcon fontSize="small" />
@@ -640,14 +640,14 @@ export default function Dashboard({ onNavigate }) {
                   {totalStudents}
                 </Typography>
                 <Chip
-                  label={`महिला ${femalePct}%`}
+                  label={`Female ${femalePct}%`}
                   size="small"
                   sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
                 />
               </Box>
 
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                • GESI मापदण्ड: न्यूनतम ३५% कोटा सुनिश्चित
+                • GESI Standard: Minimum 35% Quota Ensured
               </Typography>
             </Box>
 
@@ -659,10 +659,10 @@ export default function Dashboard({ onNavigate }) {
               />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
                 <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                  GESI सहभागिता
+                  GESI Participation
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#1D4ED8', fontSize: '0.68rem', fontWeight: 800 }}>
-                  {femaleCount} महिला / {totalStudents} जम्मा
+                  {femaleCount} Female / {totalStudents} Total
                 </Typography>
               </Box>
             </Box>
@@ -690,7 +690,7 @@ export default function Dashboard({ onNavigate }) {
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                 <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                  सञ्चालित समूह (ACTIVE BATCHES)
+                  ACTIVE BATCHES
                 </Typography>
                 <Avatar sx={{ bgcolor: '#ECFDF5', color: '#059669', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #D1FAE5' }}>
                   <GroupWorkIcon fontSize="small" />
@@ -709,7 +709,7 @@ export default function Dashboard({ onNavigate }) {
               </Box>
 
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                • सिफ्ट A–E (हाल सक्रिय: सिफ्ट {activeShiftCode})
+                • Shifts A–E (Currently Active: Shift {activeShiftCode})
               </Typography>
             </Box>
 
@@ -721,10 +721,10 @@ export default function Dashboard({ onNavigate }) {
               />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
                 <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                  सञ्चालन क्षमता
+                  Operational Capacity
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', fontWeight: 800 }}>
-                  ५ सिफ्ट सञ्चालनमा
+                  5 Shifts Available
                 </Typography>
               </Box>
             </Box>
@@ -752,7 +752,7 @@ export default function Dashboard({ onNavigate }) {
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                 <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                  औसत हाजिरी (TVET ATTENDANCE)
+                  TVET ATTENDANCE
                 </Typography>
                 <Avatar
                   sx={{
@@ -807,8 +807,8 @@ export default function Dashboard({ onNavigate }) {
                 }}
               >
                 {overallAttRate >= 80
-                  ? '• CTEVT मापदण्ड पूरा (≥८०% उपस्थिति)'
-                  : '• न्यूनतम मापदण्ड भन्दा कम (<८०%)'}
+                  ? '• CTEVT Standard Met (≥80% Attendance)'
+                  : '• Below Minimum Threshold (<80%)'}
               </Typography>
             </Box>
 
@@ -825,13 +825,13 @@ export default function Dashboard({ onNavigate }) {
               />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
                 <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                  CTEVT लक्ष्य: ८०%
+                  CTEVT Target: 80%
                 </Typography>
                 <Typography
                   variant="caption"
                   sx={{ color: overallAttRate >= 80 ? '#059669' : '#D97706', fontSize: '0.68rem', fontWeight: 800 }}
                 >
-                  {atRiskStudents.length === 0 ? 'सबै मापदण्डभित्र' : `${atRiskStudents.length} जना सुधार आवश्यक`}
+                  {atRiskStudents.length === 0 ? 'All Compliant' : `${atRiskStudents.length} Needs Attention`}
                 </Typography>
               </Box>
             </Box>
@@ -859,7 +859,7 @@ export default function Dashboard({ onNavigate }) {
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                 <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.68rem', letterSpacing: '0.04em', lineHeight: 1.2 }}>
-                  OJT तथा रोजगारी (PLACEMENTS)
+                  OJT & PLACEMENTS
                 </Typography>
                 <Avatar sx={{ bgcolor: '#F5F3FF', color: '#7C3AED', width: 44, height: 44, borderRadius: 2.5, border: '1px solid #EDE9FE' }}>
                   <RocketLaunchIcon fontSize="small" />
@@ -868,7 +868,7 @@ export default function Dashboard({ onNavigate }) {
 
               <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, my: 0.5 }}>
                 <Typography variant="h3" sx={{ fontWeight: 900, color: '#7C3AED', fontSize: '2.1rem', lineHeight: 1 }}>
-                  78.5%
+                  {totalStudents > 0 ? `${Math.round((placedCount / totalStudents) * 100)}%` : '0%'}
                 </Typography>
                 <Chip
                   label={`${placedCount} Placed`}
@@ -878,22 +878,22 @@ export default function Dashboard({ onNavigate }) {
               </Box>
 
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.74rem', minHeight: 20, whiteSpace: 'nowrap', textOverflow: 'ellipsis', overflow: 'hidden' }}>
-                • {employerCount} रोजगार साझेदार संस्थासँग MoU
+                • {employerCount} Partner Employers with MoU
               </Typography>
             </Box>
 
             <Box sx={{ mt: 2 }}>
               <LinearProgress
                 variant="determinate"
-                value={78.5}
+                value={totalStudents > 0 ? Math.min(100, Math.round((placedCount / totalStudents) * 100)) : 0}
                 sx={{ height: 6, borderRadius: 3, bgcolor: '#F1F5F9', '& .MuiLinearProgress-bar': { bgcolor: '#7C3AED' } }}
               />
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0.8 }}>
                 <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                  १२ प्रशिक्षार्थी OJT मा
+                  {(db.ojts || []).length} Trainees in OJT
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#7C3AED', fontSize: '0.68rem', fontWeight: 800 }}>
-                  लक्ष्य: ८०%
+                  Target: 80%
                 </Typography>
               </Box>
             </Box>
@@ -929,15 +929,15 @@ export default function Dashboard({ onNavigate }) {
                 '&:hover': { bgcolor: '#B45309' }
               }}
             >
-              हाजिरी डायरी खोल्नुहोस्
+              Open Attendance Register
             </Button>
           }
         >
           <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#92400E', fontSize: '0.95rem' }}>
-            नियमितता जोखिम सतर्कता (Dropout Early Warning Alert)
+            Dropout Early Warning Alert
           </Typography>
           <Typography variant="body2" sx={{ fontSize: '0.88rem', color: '#B45309', mt: 0.3 }}>
-            <b>{atRiskStudents[0]?.name}</b> को हाजिरी दर ८०% भन्दा कम देखिएको छ। CTEVT परीक्षामा सहभागी हुन कम्तीमा ८०% हाजिरी अनिवार्य छ। अभिभावकसँग सिधै WhatsApp वा फोनमा सम्पर्क गर्नुहोस्।
+            <b>{atRiskStudents[0]?.name}</b> has an attendance rate below 80%. A minimum of 80% attendance is mandatory for CTEVT examinations. Please contact the guardian via WhatsApp or phone.
           </Typography>
         </Alert>
       )}
@@ -963,7 +963,7 @@ export default function Dashboard({ onNavigate }) {
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                  📡 आजको प्रत्यक्ष लाइभ हाजिरी (Real-time Live Attendance Hub)
+                  📡 Real-Time Live Attendance Hub
                 </Typography>
                 <Chip
                   label="🟢 WiFi ZKTeco K40 (Online)"
@@ -972,7 +972,7 @@ export default function Dashboard({ onNavigate }) {
                 />
               </Box>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                गेटमा थम्ब स्क्यान गर्ने बित्तिकै तत्काल यहाँ देखिन्छ • अन्तिम सिङ्क: {db.settings?.biometricSettings?.lastSyncTime || '०७:४५ AM'}
+                Instant biometric thumb & RFID scans at the main gate • Last Sync: {db.settings?.biometricSettings?.lastSyncTime || 'Standby'}
               </Typography>
             </Box>
           </Box>
@@ -986,11 +986,11 @@ export default function Dashboard({ onNavigate }) {
                 const today = new Date().toISOString().slice(0, 10);
                 const res = syncBiometricAttendance(today);
                 setDb(loadDB());
-                alert(`📡 बायोमेट्रिक सिङ्क सफल! (${res.syncedCount} वटा नयाँ लग अद्यावधिक)`);
+                alert(`📡 Biometric Sync Complete! (${res.syncedCount} new logs updated)`);
               }}
               sx={{ fontWeight: 800, color: '#15803D', borderColor: '#86EFAC', borderRadius: 2 }}
             >
-              मेसिन सिङ्क (Sync)
+              Sync Machine
             </Button>
             <Button
               variant="contained"
@@ -999,7 +999,7 @@ export default function Dashboard({ onNavigate }) {
               endIcon={<ArrowForwardIcon />}
               sx={{ fontWeight: 900, bgcolor: '#0F2E5A', '&:hover': { bgcolor: '#0B2545' }, borderRadius: 2 }}
             >
-              पूर्ण लाइभ मनिटर खोल्नुहोस् ➔
+              Open Full Live Monitor ➔
             </Button>
           </Box>
         </Box>
@@ -1032,7 +1032,7 @@ export default function Dashboard({ onNavigate }) {
                   </Typography>
                 </Box>
                 <Chip
-                  label="🟢 समयमै"
+                  label="🟢 Verified"
                   size="small"
                   sx={{ height: 18, fontSize: '0.62rem', fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
                 />
@@ -1042,7 +1042,7 @@ export default function Dashboard({ onNavigate }) {
           {(db.biometricLogs || []).length === 0 && (
             <Grid item xs={12}>
               <Typography variant="caption" sx={{ color: '#94A3B8', textAlign: 'center', display: 'block', py: 1 }}>
-                आज हालसम्म कुनै पनि नयाँ थम्ब स्क्यान रेकर्ड भएको छैन।
+                No biometric or RFID scans recorded today yet.
               </Typography>
             </Grid>
           )}
@@ -1057,10 +1057,10 @@ export default function Dashboard({ onNavigate }) {
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                  🗓️ सञ्चालित तालिम ब्याचहरू (Active Training Batches)
+                  🗓️ Active Training Batches
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                  दैनिक सिफ्ट, प्रशिक्षक तथा विद्यार्थी विवरण
+                  Daily shifts, assigned trainers, and trainee enrollment details
                 </Typography>
               </Box>
               <Button
@@ -1070,7 +1070,7 @@ export default function Dashboard({ onNavigate }) {
                 endIcon={<ArrowForwardIcon />}
                 sx={{ fontWeight: 800 }}
               >
-                सबै समूहहरू ({groups.length})
+                All Batches ({groups.length})
               </Button>
             </Box>
 
@@ -1091,7 +1091,7 @@ export default function Dashboard({ onNavigate }) {
                   }
                 }}
               >
-                <Tab value="ALL" label="सबै सिफ्ट (All)" />
+                <Tab value="ALL" label="All Shifts" />
                 <Tab value="A" label="Shift A (07-09)" />
                 <Tab value="B" label="Shift B (10-12)" />
                 <Tab value="C" label="Shift C (12-02)" />
@@ -1101,7 +1101,7 @@ export default function Dashboard({ onNavigate }) {
 
               <TextField
                 size="small"
-                placeholder="ब्याच वा प्रशिक्षक खोज्नुहोस्..."
+                placeholder="Search batch or trainer..."
                 value={searchBatch}
                 onChange={(e) => setSearchBatch(e.target.value)}
                 InputProps={{
@@ -1119,11 +1119,11 @@ export default function Dashboard({ onNavigate }) {
               <Table size="medium">
                 <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900 }}>समूह कोड (Batch)</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>पाठ्यक्रम (Course)</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>सिफ्ट समय (Shift)</TableCell>
-                    <TableCell sx={{ fontWeight: 900 }}>प्रशिक्षक (Trainer)</TableCell>
-                    <TableCell sx={{ fontWeight: 900, align: 'right' }}>कार्य (Action)</TableCell>
+                    <TableCell sx={{ fontWeight: 900 }}>Batch Code</TableCell>
+                    <TableCell sx={{ fontWeight: 900 }}>Course</TableCell>
+                    <TableCell sx={{ fontWeight: 900 }}>Shift & Time</TableCell>
+                    <TableCell sx={{ fontWeight: 900 }}>Trainer</TableCell>
+                    <TableCell sx={{ fontWeight: 900, align: 'right' }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1200,7 +1200,7 @@ export default function Dashboard({ onNavigate }) {
                               borderRadius: 2
                             }}
                           >
-                            हाजिरी
+                            Attendance
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -1209,7 +1209,7 @@ export default function Dashboard({ onNavigate }) {
                   {filteredGroups.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={5} align="center" sx={{ py: 3, color: '#64748B' }}>
-                        कुनै ब्याच फेला परेन।
+                        No training batches found.
                       </TableCell>
                     </TableRow>
                   )}
@@ -1226,7 +1226,7 @@ export default function Dashboard({ onNavigate }) {
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 <CampaignIcon sx={{ color: '#D97706', fontSize: 24 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                  सूचना पाटी (Notice Board)
+                  Notice Board
                 </Typography>
               </Box>
               <Button
@@ -1235,7 +1235,7 @@ export default function Dashboard({ onNavigate }) {
                 onClick={() => setOpenAddNoticeModal(true)}
                 sx={{ fontWeight: 800, fontSize: '0.75rem' }}
               >
-                नयाँ सूचना
+                New Notice
               </Button>
             </Box>
 
@@ -1271,7 +1271,7 @@ export default function Dashboard({ onNavigate }) {
                     {notice.content}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 600 }}>
-                    प्रकाशित: {notice.publishDate}
+                    Published: {notice.publishDate}
                   </Typography>
                 </Paper>
               ))}
@@ -1281,10 +1281,10 @@ export default function Dashboard({ onNavigate }) {
 
             <Box sx={{ bgcolor: '#EFF6FF', p: 2, borderRadius: 2.5, border: '1px solid #BFDBFE' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#1E40AF', mb: 0.5 }}>
-                CTEVT मापदण्ड अनुसारको तालिम डेलिभरी
+                CTEVT Standard Training Delivery
               </Typography>
               <Typography variant="caption" sx={{ color: '#3B82F6', display: 'block' }}>
-                प्रत्येक ब्याचको कार्ययोजना (Work Plan), पाठयोजना (Lesson Plan), दैनिक हाजिरी र मूल्याङ्कन पूर्ण गरी प्रमाणपत्र जारी गर्नुहोस्।
+                Complete the Work Plan, Lesson Plan, Daily Attendance, and Competency Evaluations for each batch before issuing official certificates.
               </Typography>
             </Box>
           </Card>
@@ -1295,34 +1295,34 @@ export default function Dashboard({ onNavigate }) {
       {selectedBatchDetails && (
         <Dialog open={Boolean(selectedBatchDetails)} onClose={() => setSelectedBatchDetails(null)} maxWidth="sm" fullWidth>
           <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2C59', color: '#fff' }}>
-            ब्याच विवरण: {selectedBatchDetails.groupCode} ({selectedBatchDetails.course?.title})
+            Batch Details: {selectedBatchDetails.groupCode} ({selectedBatchDetails.course?.title})
           </DialogTitle>
           <DialogContent sx={{ pt: 2.5 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', bgcolor: '#F8FAFC', p: 2, borderRadius: 2, mb: 2, mt: 1 }}>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>सिफ्ट तथा समय:</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Shift & Time:</Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>Shift {selectedBatchDetails.shift} ({selectedBatchDetails.startTime} - {selectedBatchDetails.endTime})</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>प्रशिक्षक:</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Trainer:</Typography>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>{selectedBatchDetails.trainer?.name}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>विद्यार्थी संख्या:</Typography>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#059669' }}>{selectedBatchDetails.students?.length} जना</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Enrolled Trainees:</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#059669' }}>{selectedBatchDetails.students?.length} Trainees</Typography>
               </Box>
             </Box>
 
             <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-              यस ब्याचका प्रशिक्षार्थीहरू (Enrolled Trainees):
+              Enrolled Trainees in this Batch:
             </Typography>
             <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 220, borderRadius: 2 }}>
               <Table size="small">
                 <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800 }}>नाम</TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>सम्पर्क</TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>स्थिति</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Name</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Phone</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1340,7 +1340,7 @@ export default function Dashboard({ onNavigate }) {
             </TableContainer>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
-            <Button onClick={() => setSelectedBatchDetails(null)}>बन्द गर्नुहोस्</Button>
+            <Button onClick={() => setSelectedBatchDetails(null)}>Close</Button>
             <Button
               variant="contained"
               onClick={() => {
@@ -1349,7 +1349,7 @@ export default function Dashboard({ onNavigate }) {
               }}
               sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}
             >
-              यस ब्याचको हाजिरी भर्नुहोस्
+              Take Batch Attendance
             </Button>
           </DialogActions>
         </Dialog>
@@ -1357,18 +1357,18 @@ export default function Dashboard({ onNavigate }) {
 
       {/* Add Notice Modal */}
       <Dialog open={openAddNoticeModal} onClose={() => setOpenAddNoticeModal(false)} maxWidth="xs" fullWidth>
-        <DialogTitle sx={{ fontWeight: 900 }}>नयाँ सूचना प्रकाशित गर्नुहोस्</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 900 }}>Publish New Notice</DialogTitle>
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
-              label="सूचनाको शीर्षक (Title)"
+              label="Notice Title"
               fullWidth
               required
               value={newNoticeData.title}
               onChange={(e) => setNewNoticeData({ ...newNoticeData, title: e.target.value })}
             />
             <TextField
-              label="सूचनाको व्यहोरा (Content)"
+              label="Notice Content"
               fullWidth
               required
               multiline
@@ -1378,7 +1378,7 @@ export default function Dashboard({ onNavigate }) {
             />
             <TextField
               select
-              label="प्राथमिकता (Priority)"
+              label="Priority"
               fullWidth
               value={newNoticeData.priority}
               onChange={(e) => setNewNoticeData({ ...newNoticeData, priority: e.target.value })}
@@ -1390,9 +1390,9 @@ export default function Dashboard({ onNavigate }) {
           </Stack>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenAddNoticeModal(false)}>रद्द गर्नुहोस्</Button>
+          <Button onClick={() => setOpenAddNoticeModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleCreateNotice} sx={{ fontWeight: 800 }}>
-            प्रकाशित गर्नुहोस्
+            Publish Notice
           </Button>
         </DialogActions>
       </Dialog>

@@ -38,7 +38,7 @@ export default function TrainerPayoutModal({
   const [amount, setAmount] = useState('');
   const [payoutDate, setPayoutDate] = useState(new Date().toISOString().slice(0, 10));
   const [payoutMonth, setPayoutMonth] = useState(new Date().toISOString().slice(0, 7));
-  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer (बैंक दाखिला)');
+  const [paymentMethod, setPaymentMethod] = useState('Bank Transfer');
   const [remarks, setRemarks] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -93,7 +93,7 @@ export default function TrainerPayoutModal({
       if (trn?.remunerationType === 'SALARY') {
         setPayoutType('SALARY');
         setAmount(trn.monthlySalary || 25000);
-        setRemarks(`${today.slice(0, 7)} महिनाको मासिक तलब निकासा`);
+        setRemarks(`Monthly salary disbursement for ${today.slice(0, 7)}`);
       } else {
         setPayoutType('COMMISSION');
         const firstGrp = groups.find((g) => g.trainerId === preselectedTrainerId);
@@ -101,7 +101,7 @@ export default function TrainerPayoutModal({
           setGroupId(firstGrp.id);
           const data = getGroupCommissionData(firstGrp.id);
           setAmount(data.due);
-          setRemarks(`ब्याच ${firstGrp.groupCode || firstGrp.id} को कमिसन भुक्तानी`);
+          setRemarks(`Commission payout for Batch ${firstGrp.groupCode || firstGrp.id}`);
         }
       }
     } else {
@@ -118,7 +118,7 @@ export default function TrainerPayoutModal({
     if (trn?.remunerationType === 'SALARY') {
       setPayoutType('SALARY');
       setAmount(trn.monthlySalary || 25000);
-      setRemarks(`${payoutMonth} महिनाको मासिक तलब निकासा`);
+      setRemarks(`Monthly salary disbursement for ${payoutMonth}`);
     } else {
       setPayoutType('COMMISSION');
       const trnGroups = groups.filter((g) => g.trainerId === selectedId);
@@ -126,7 +126,7 @@ export default function TrainerPayoutModal({
         setGroupId(trnGroups[0].id);
         const data = getGroupCommissionData(trnGroups[0].id);
         setAmount(data.due);
-        setRemarks(`ब्याच ${trnGroups[0].groupCode || trnGroups[0].id} को कमिसन भुक्तानी`);
+        setRemarks(`Commission payout for Batch ${trnGroups[0].groupCode || trnGroups[0].id}`);
       } else {
         setGroupId('');
         setAmount('');
@@ -139,7 +139,7 @@ export default function TrainerPayoutModal({
     const data = getGroupCommissionData(grpId);
     setAmount(data.due);
     const grp = groups.find((g) => g.id === grpId);
-    setRemarks(`ब्याच ${grp?.groupCode || grpId} को कमिसन भुक्तानी`);
+    setRemarks(`Commission payout for Batch ${grp?.groupCode || grpId}`);
   };
 
   const selectedTrainer = trainers.find((t) => t.id === trainerId);
@@ -148,17 +148,17 @@ export default function TrainerPayoutModal({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!trainerId) {
-      setErrorMsg('कृपया प्रशिक्षक छान्नुहोस्।');
+      setErrorMsg('Please select a trainer.');
       return;
     }
     const payNum = Number(amount);
     if (!payNum || payNum <= 0) {
-      setErrorMsg('कृपया मान्य भुक्तानी रकम लेख्नुहोस् (Amount must be > 0).');
+      setErrorMsg('Please enter a valid payout amount (Amount must be > 0).');
       return;
     }
 
     if (payoutType === 'COMMISSION' && selectedGroupCommission && payNum > selectedGroupCommission.due) {
-      setErrorMsg(`भुक्तानी रकम पाकेको कमिसन बक्यौता (Rs. ${selectedGroupCommission.due.toLocaleString()}) भन्दा बढी हुन सक्दैन।`);
+      setErrorMsg(`Payout amount cannot exceed accrued commission balance (Rs. ${selectedGroupCommission.due.toLocaleString()}).`);
       return;
     }
 
@@ -186,7 +186,7 @@ export default function TrainerPayoutModal({
       payoutDate,
       payoutMonth,
       paymentMethod: paymentMethod.split(' (')[0],
-      remarks: remarks.trim() || 'प्रशिक्षक पारिश्रमिक निकासा',
+      remarks: remarks.trim() || 'Trainer Remuneration Disbursement',
       disbursedBy: currentUser?.name || 'Admin',
       createdAt: new Date().toISOString()
     };
@@ -239,10 +239,10 @@ export default function TrainerPayoutModal({
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
-              प्रशिक्षक पारिश्रमिक तथा कमिसन निकासा (Trainer Payout)
+              Trainer Remuneration & Commission Payout
             </Typography>
             <Typography variant="caption" sx={{ color: '#FDE68A', fontWeight: 500 }}>
-              कमिसन वा मासिक तलब भुक्तानी भौचर जारी
+              Issue commission or monthly salary payout voucher
             </Typography>
           </Box>
         </Box>
@@ -264,17 +264,17 @@ export default function TrainerPayoutModal({
             select
             fullWidth
             required
-            label="प्रशिक्षक छान्नुहोस् (Select Trainer)"
+            label="Select Trainer"
             value={trainerId}
             onChange={(e) => handleTrainerChange(e.target.value)}
             sx={{ mb: 2.5 }}
           >
             <MenuItem value="">
-              <em>-- प्रशिक्षक छान्नुहोस् --</em>
+              <em>-- Select Trainer --</em>
             </MenuItem>
             {trainers.map((t) => (
               <MenuItem key={t.id} value={t.id}>
-                {t.name} ({t.remunerationType === 'SALARY' ? `मासिक तलब: Rs. ${(t.monthlySalary || 25000).toLocaleString()}` : 'कमिसन मोडेल'})
+                {t.name} ({t.remunerationType === 'SALARY' ? `Monthly Salary: Rs. ${(t.monthlySalary || 25000).toLocaleString()}` : 'Commission Model'})
               </MenuItem>
             ))}
           </TextField>
@@ -285,12 +285,12 @@ export default function TrainerPayoutModal({
               <TextField
                 select
                 fullWidth
-                label="पारिश्रमिक प्रकार (Payout Type)"
+                label="Payout Type"
                 value={payoutType}
                 onChange={(e) => setPayoutType(e.target.value)}
               >
-                <MenuItem value="COMMISSION">ब्याच कमिसन (% Commission)</MenuItem>
-                <MenuItem value="SALARY">मासिक निश्चित तलब (Monthly Salary)</MenuItem>
+                <MenuItem value="COMMISSION">Batch Commission (% Commission)</MenuItem>
+                <MenuItem value="SALARY">Fixed Monthly Salary</MenuItem>
               </TextField>
             </Grid>
 
@@ -300,16 +300,16 @@ export default function TrainerPayoutModal({
                   select
                   fullWidth
                   required
-                  label="तालिम ब्याच (Assigned Batch)"
+                  label="Assigned Training Batch"
                   value={groupId}
                   onChange={(e) => handleGroupChange(e.target.value)}
                 >
                   <MenuItem value="">
-                    <em>-- ब्याच छान्नुहोस् --</em>
+                    <em>-- Select Batch --</em>
                   </MenuItem>
                   {assignedGroups.map((g) => (
                     <MenuItem key={g.id} value={g.id}>
-                      {g.groupCode || g.id} (कमिसन: {g.trainerCommissionPercent || 25}%)
+                      {g.groupCode || g.id} (Commission: {g.trainerCommissionPercent || 25}%)
                     </MenuItem>
                   ))}
                 </TextField>
@@ -330,23 +330,23 @@ export default function TrainerPayoutModal({
               }}
             >
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#92400E', mb: 1 }}>
-                वास्तविक संकलित शुल्क र कमिसन हिसाब (Commission Calculation)
+                Actual Collected Fee & Commission Calculation
               </Typography>
               <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>संकलित शुल्क (Collected):</Typography>
+                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Fee Collected:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>Rs. {selectedGroupCommission.collected.toLocaleString()}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>कमिसन दर (Rate):</Typography>
+                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Commission Rate:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>{selectedGroupCommission.commPercent}%</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>कुल पाकेको कमिसन:</Typography>
+                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Total Accrued Commission:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700, color: '#047857' }}>Rs. {selectedGroupCommission.totalEarned.toLocaleString()}</Typography>
                 </Grid>
                 <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>भुक्तानी दिन बाँकी बक्यौता:</Typography>
+                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Payable Balance Due:</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 900, color: '#B45309' }}>Rs. {selectedGroupCommission.due.toLocaleString()}</Typography>
                 </Grid>
               </Grid>
@@ -359,8 +359,8 @@ export default function TrainerPayoutModal({
                 fullWidth
                 required
                 type="number"
-                label="निकासा रकम (Payout Amount Rs.)"
-                placeholder="उदा: 5000"
+                label="Payout Amount (Rs.)"
+                placeholder="e.g. 5000"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 InputProps={{
@@ -377,13 +377,13 @@ export default function TrainerPayoutModal({
               <TextField
                 select
                 fullWidth
-                label="भुक्तानी माध्यम (Payment Method)"
+                label="Payment Method"
                 value={paymentMethod}
                 onChange={(e) => setPaymentMethod(e.target.value)}
               >
-                <MenuItem value="Bank Transfer (बैंक दाखिला)">Bank Transfer (बैंक दाखिला)</MenuItem>
-                <MenuItem value="Cash (नगद)">Cash (नगद)</MenuItem>
-                <MenuItem value="Cheque (चेक)">Cheque (चेक)</MenuItem>
+                <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                <MenuItem value="Cash">Cash</MenuItem>
+                <MenuItem value="Cheque">Cheque</MenuItem>
                 <MenuItem value="Fonepay / QR">Fonepay / QR</MenuItem>
               </TextField>
             </Grid>
@@ -392,7 +392,7 @@ export default function TrainerPayoutModal({
               <TextField
                 fullWidth
                 type="date"
-                label="भुक्तानी मिति (Payout Date)"
+                label="Payout Date"
                 InputLabelProps={{ shrink: true }}
                 value={payoutDate}
                 onChange={(e) => setPayoutDate(e.target.value)}
@@ -403,7 +403,7 @@ export default function TrainerPayoutModal({
               <TextField
                 fullWidth
                 type="month"
-                label="महिना (Month)"
+                label="Month"
                 InputLabelProps={{ shrink: true }}
                 value={payoutMonth}
                 onChange={(e) => setPayoutMonth(e.target.value)}
@@ -413,8 +413,8 @@ export default function TrainerPayoutModal({
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="कैफियत / टिप्पणी (Remarks)"
-                placeholder="उदा: ब्याच BT-01 को कमिसन वा मासिक तलब भुक्तानी..."
+                label="Remarks"
+                placeholder="e.g. Batch BT-01 commission or monthly salary payout..."
                 value={remarks}
                 onChange={(e) => setRemarks(e.target.value)}
                 InputProps={{
@@ -431,7 +431,7 @@ export default function TrainerPayoutModal({
 
         <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -447,7 +447,7 @@ export default function TrainerPayoutModal({
               boxShadow: '0 4px 14px rgba(180, 83, 9, 0.35)'
             }}
           >
-            पारिश्रमिक निकासा गर्नुहोस् (Disburse Payout)
+            Disburse Payout
           </Button>
         </DialogActions>
       </form>

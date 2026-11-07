@@ -238,7 +238,7 @@ export default function StudentPortal({ onLogout }) {
                     '&:hover': { bgcolor: '#d97706' }
                   }}
                 >
-                  प्रमाणपत्र हेर्नुहोस्
+                  View Certificate
                 </Button>
               )}
               <Button
@@ -261,11 +261,11 @@ export default function StudentPortal({ onLogout }) {
                 onClick={async () => {
                   const ok = await confirm({
                     type: 'logout',
-                    title: 'लगआउट निश्चित गर्नुहोस् (Confirm Logout)',
-                    message: 'के तपाईं विद्यार्थी पोर्टलबाट बाहिरिन (Logout) चाहनुहुन्छ?',
-                    detail: 'तपाईंको सेसन सुरक्षित बन्द हुनेछ र पुनः हेर्न फोन नम्बर तथा पिन आवश्यक पर्नेछ।',
-                    confirmText: 'हो, बाहिरिनुहोस् (Logout)',
-                    cancelText: 'रद्द गर्नुहोस् (Cancel)',
+                    title: 'Confirm Logout',
+                    message: 'Are you sure you want to log out of the Student Portal?',
+                    detail: 'Your session will be securely closed and you will need your phone number and PIN to log in again.',
+                    confirmText: 'Yes, Logout',
+                    cancelText: 'Cancel',
                     confirmColor: '#EF4444'
                   });
                   if (ok) {
@@ -300,8 +300,8 @@ export default function StudentPortal({ onLogout }) {
             '& .MuiTab-root': { fontWeight: 800, fontSize: '0.95rem', textTransform: 'none' }
           }}
         >
-          <Tab icon={<FactCheckIcon />} iconPosition="start" label="उपस्थिति (Attendance)" />
-          <Tab icon={<SchoolIcon />} iconPosition="start" label="पाठ्यक्रम र सीप मूल्याङ्कन (Syllabus & Competency)" />
+          <Tab icon={<FactCheckIcon />} iconPosition="start" label="Attendance" />
+          <Tab icon={<SchoolIcon />} iconPosition="start" label="Syllabus & Competency" />
           <Tab
             icon={
               <Badge badgeContent={jobOpenings.length} color="error">
@@ -309,9 +309,9 @@ export default function StudentPortal({ onLogout }) {
               </Badge>
             }
             iconPosition="start"
-            label="रोजगार अवसरहरू (Job Openings & Apply)"
+            label="Job Openings & Apply"
           />
-          <Tab icon={<WorkspacePremiumIcon />} iconPosition="start" label="प्रमाणपत्र (Certificate)" />
+          <Tab icon={<WorkspacePremiumIcon />} iconPosition="start" label="Certificate" />
         </Tabs>
       </Box>
 
@@ -321,7 +321,7 @@ export default function StudentPortal({ onLogout }) {
           <Grid item xs={12} md={4}>
             <Card sx={{ p: 3, textAlign: 'center', height: '100%', borderRadius: 3 }}>
               <Typography variant="overline" sx={{ color: '#647089', fontWeight: 800 }}>
-                HAJIRI PERCENTAGE
+                ATTENDANCE PERCENTAGE
               </Typography>
               <Typography
                 variant="h2"
@@ -361,7 +361,7 @@ export default function StudentPortal({ onLogout }) {
                 }}
               />
               <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 1 }}>
-                न्यूनतम ८०% उपस्थिति प्रमाणपत्रको लागि अनिवार्य मानिन्छ।
+                Minimum 80% attendance is mandatory for certificate eligibility.
               </Typography>
             </Card>
           </Grid>
@@ -369,7 +369,7 @@ export default function StudentPortal({ onLogout }) {
           <Grid item xs={12} md={8}>
             <Card sx={{ p: 3, borderRadius: 3 }}>
               <Typography variant="h6" sx={{ fontWeight: 800, mb: 2 }}>
-                उपस्थिति विवरण (Session Record Breakdown)
+                Session Record Breakdown
               </Typography>
               <Grid container spacing={2} sx={{ mb: 3 }}>
                 <Grid item xs={4}>
@@ -378,7 +378,7 @@ export default function StudentPortal({ onLogout }) {
                       {attendanceStats.present}
                     </Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#16834b' }}>
-                      उपस्थित (Present)
+                      Present
                     </Typography>
                   </Box>
                 </Grid>
@@ -388,7 +388,7 @@ export default function StudentPortal({ onLogout }) {
                       {attendanceStats.absent}
                     </Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#dc2626' }}>
-                      अनुपस्थित (Absent)
+                      Absent
                     </Typography>
                   </Box>
                 </Grid>
@@ -398,14 +398,14 @@ export default function StudentPortal({ onLogout }) {
                       {attendanceStats.late}
                     </Typography>
                     <Typography variant="caption" sx={{ fontWeight: 700, color: '#d97706' }}>
-                      ढिला (Late)
+                      Late
                     </Typography>
                   </Box>
                 </Grid>
               </Grid>
 
               <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
-                हालसालैका हाजिरी लगहरू (Recent Attendance Logs)
+                Recent Attendance Logs
               </Typography>
               <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 240, borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
@@ -423,10 +423,10 @@ export default function StudentPortal({ onLogout }) {
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>क्र.सं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>मिति (Date)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कैफियत (Remarks)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>S.N.</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Remarks</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -452,7 +452,7 @@ export default function StudentPortal({ onLogout }) {
                     {(attendanceStats.records || []).length === 0 && (
                       <TableRow>
                         <TableCell colSpan={3} align="center" sx={{ py: 3, color: '#647089' }}>
-                          कुनै हाजिरी रेकर्ड फेला परेन।
+                          No attendance records found.
                         </TableCell>
                       </TableRow>
                     )}
@@ -470,10 +470,10 @@ export default function StudentPortal({ onLogout }) {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                {course?.title} - पाठ्यक्रम तथा सीप स्थिति
+                {course?.title} - Syllabus & Competency Status
               </Typography>
               <Typography variant="body2" sx={{ color: '#647089' }}>
-                प्रशिक्षकले प्रमाणित गरेको तपाईंको व्यावहारिक तथा सैद्धान्तिक क्षमता प्रगति विवरण।
+                Your practical and theoretical competency progress verified by the instructor.
               </Typography>
             </Box>
             <Chip
@@ -506,11 +506,11 @@ export default function StudentPortal({ onLogout }) {
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70 }}>एकाइ</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>शीर्षक तथा सिकाइ उपलब्धि</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>घण्टा भार</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>स्थिति</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुधार गर्नुपर्ने पक्ष / योजना</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70 }}>Unit</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Topic & Learning Outcomes</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>Credit Hours</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Areas to Improve / Plan</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -555,17 +555,17 @@ export default function StudentPortal({ onLogout }) {
                       {item.evaluation?.areasToImprove ? (
                         <Box>
                           <Typography variant="caption" sx={{ fontWeight: 600, color: '#dc2626' }}>
-                            सुधार: {item.evaluation.areasToImprove}
+                            To Improve: {item.evaluation.areasToImprove}
                           </Typography>
                           {item.evaluation.trainerPlan && (
                             <Typography variant="caption" sx={{ display: 'block', color: '#1a56b0' }}>
-                              ट्रेनर योजना: {item.evaluation.trainerPlan}
+                              Trainer Plan: {item.evaluation.trainerPlan}
                             </Typography>
                           )}
                         </Box>
                       ) : (
                         <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                          संतोषजनक प्रगति
+                          Satisfactory Progress
                         </Typography>
                       )}
                     </TableCell>
@@ -583,14 +583,14 @@ export default function StudentPortal({ onLogout }) {
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                रोजगार तथा OJT अवसरहरू (Job & OJT Opportunities)
+                Job & OJT Opportunities
               </Typography>
               <Typography variant="body2" sx={{ color: '#647089' }}>
-                तालिम चलिरहेको अवस्थामा पनि रोजगारदाता कम्पनीमा सिधै आवेदन दिन सक्नुहुन्छ।
+                You can apply directly to partner employers even while your training is ongoing.
               </Typography>
             </Box>
             <Chip
-              label={`आवेदन गरिएका: ${studentApplications.length}`}
+              label={`Applied: ${studentApplications.length}`}
               color="primary"
               sx={{ fontWeight: 800 }}
             />
@@ -600,7 +600,7 @@ export default function StudentPortal({ onLogout }) {
           {studentApplications.length > 0 && (
             <Card sx={{ p: 2.5, mb: 3, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 3 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#16834b', mb: 1.5 }}>
-                तपाईंका सक्रिय रोजगार आवेदनहरू (Your Active Applications)
+                Your Active Job Applications
               </Typography>
               <Grid container spacing={2}>
                 {studentApplications.map((app) => {
@@ -683,7 +683,7 @@ export default function StudentPortal({ onLogout }) {
                           💰 {job.salaryRange || 'Attractive Salary'}
                         </Typography>
                         <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#647089' }}>
-                          👥 {job.vacancies || 1} सिट खुला
+                          👥 {job.vacancies || 1} Open Positions
                         </Typography>
                       </Box>
 
@@ -694,7 +694,7 @@ export default function StudentPortal({ onLogout }) {
                       {job.requiredSkills && (
                         <Box sx={{ mb: 2 }}>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#152238', display: 'block', mb: 0.5 }}>
-                            आवश्यक सीपहरू (Key Competencies):
+                            Key Competencies Required:
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#647089', bgcolor: '#f8fafc', p: 1, borderRadius: 1.5, display: 'block' }}>
                             {job.requiredSkills}
@@ -709,7 +709,7 @@ export default function StudentPortal({ onLogout }) {
                       </Typography>
                       {hasApplied ? (
                         <Button variant="outlined" disabled size="small" sx={{ fontWeight: 700 }}>
-                          ✓ पहिले नै आवेदन गरिएको
+                          ✓ Already Applied
                         </Button>
                       ) : (
                         <Button
@@ -719,7 +719,7 @@ export default function StudentPortal({ onLogout }) {
                           onClick={() => setSelectedJob(job)}
                           sx={{ fontWeight: 800, bgcolor: '#1a56b0' }}
                         >
-                          आवेदन दिनुहोस् (Apply Now)
+                          Apply Now
                         </Button>
                       )}
                     </Box>
@@ -738,10 +738,10 @@ export default function StudentPortal({ onLogout }) {
             <Box sx={{ maxWidth: 600, mx: 'auto' }}>
               <WorkspacePremiumIcon sx={{ fontSize: 64, color: '#f59e0b', mb: 1 }} />
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#152238' }}>
-                बधाई छ! तपाईंको आधिकारिक प्रमाणपत्र जारी भएको छ।
+                Congratulations! Your Official Certificate Has Been Issued.
               </Typography>
               <Typography variant="body1" sx={{ color: '#647089', my: 1 }}>
-                CTEVT मान्यता प्राप्त राष्ट्रिय मापदण्ड अनुसारको व्यावसायिक तालिम प्रमाणपत्र।
+                CTEVT-accredited national standard vocational training certificate.
               </Typography>
 
               <Card sx={{ p: 2.5, my: 3, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0', textAlign: 'left' }}>
@@ -775,7 +775,7 @@ export default function StudentPortal({ onLogout }) {
                   onClick={() => setOpenCertModal(true)}
                   sx={{ bgcolor: '#1a56b0', fontWeight: 800 }}
                 >
-                  प्रमाणपत्र हेर्नुहोस् (A4 Print Ready)
+                  View Certificate (A4 Print Ready)
                 </Button>
                 <Button
                   variant="outlined"
@@ -784,7 +784,7 @@ export default function StudentPortal({ onLogout }) {
                   onClick={() => setOpenVerifyModal(true)}
                   sx={{ fontWeight: 700 }}
                 >
-                  अनलाइन QR प्रमाणित गर्नुहोस्
+                  Verify Online QR
                 </Button>
               </Stack>
             </Box>
@@ -792,10 +792,10 @@ export default function StudentPortal({ onLogout }) {
             <Box sx={{ py: 6 }}>
               <SchoolIcon sx={{ fontSize: 60, color: '#94a3b8', mb: 2 }} />
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#647089' }}>
-                प्रमाणपत्र तयारीको क्रममा छ (In Progress)
+                Certificate Preparation in Progress
               </Typography>
               <Typography variant="body2" sx={{ color: '#94a3b8', mt: 0.5, maxWidth: 500, mx: 'auto' }}>
-                तपाईंको तालिम, आवश्यक हाजिरी (न्यूनतम ८०%) र सीप मूल्याङ्कन पूर्ण भएपछि इन्स्टिच्युटबाट आधिकारिक प्रमाणपत्र जारी गरिनेछ।
+                Once your training, required attendance (minimum 80%), and competency evaluations are completed, the official certificate will be issued by the institute.
               </Typography>
             </Box>
           )}
@@ -805,34 +805,34 @@ export default function StudentPortal({ onLogout }) {
       {/* Apply Job Dialog */}
       <Dialog open={Boolean(selectedJob)} onClose={() => setSelectedJob(null)} maxWidth="sm" fullWidth>
         <DialogTitle sx={{ fontWeight: 800 }}>
-          {selectedJob?.title} को लागि आवेदन
+          Apply for {selectedJob?.title}
         </DialogTitle>
         <DialogContent>
           {applySuccess && (
             <Alert severity="success" sx={{ mb: 2, fontWeight: 700 }}>
-              तपाईंको आवेदन सफलतापूर्वक पठाइयो! रोजगारदातालाई सूचित गरिएको छ।
+              Your application has been submitted successfully! The employer has been notified.
             </Alert>
           )}
           <Typography variant="body2" sx={{ color: '#647089', mb: 2 }}>
-            कम्पनी: <b>{(db.employers || []).find((e) => e.id === selectedJob?.employerId)?.name}</b>
+            Company: <b>{(db.employers || []).find((e) => e.id === selectedJob?.employerId)?.name}</b>
           </Typography>
           <TextField
-            label="तपाईंको छोटो अनुभव वा सन्देश (Optional Note to Employer)"
+            label="Brief Experience or Message (Optional Note to Employer)"
             fullWidth
             multiline
             rows={4}
             value={coverNote}
             onChange={(e) => setCoverNote(e.target.value)}
-            placeholder="उदाहरण: मैले ग्लोबल एरामा बेसिक टेलरिङ तालिम ९५% हाजिरीका साथ पूरा गरेको छु। कुर्था तथा ब्लाउज कटिङमा दक्षता छ।"
+            placeholder="Example: I have completed Basic Tailoring training at Global Era with 95% attendance and specialize in Kurtha and Blouse cutting."
           />
           <Alert severity="info" sx={{ mt: 2, fontSize: '0.85rem' }}>
-            रोजगारदाताले तपाईंको हाजिरी दर ({attendanceStats.percent}%) र मास्टर गरिएका सीपहरू अवलोकन गर्न सक्नेछन्।
+            The employer will be able to view your attendance rate ({attendanceStats.percent}%) and mastered competencies.
           </Alert>
         </DialogContent>
         <DialogActions sx={{ p: 2.5 }}>
-          <Button onClick={() => setSelectedJob(null)}>रद्द गर्नुहोस्</Button>
+          <Button onClick={() => setSelectedJob(null)}>Cancel</Button>
           <Button variant="contained" onClick={handleApplyJob} sx={{ fontWeight: 800 }}>
-            आवेदन पठाउनुहोस् (Submit Application)
+            Submit Application
           </Button>
         </DialogActions>
       </Dialog>

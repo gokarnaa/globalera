@@ -25,7 +25,7 @@ export function AuthProvider({ children }) {
   // Universal Unified Login (Phone / Username / TGID / ID + PIN)
   const login = (identifier, pin, preferredRole = null) => {
     if (!identifier && !pin) {
-      return { success: false, message: 'कृपया युजरनेम/फोन र पिन प्रविष्ट गर्नुहोस्।' };
+      return { success: false, message: 'Please enter your username/phone and PIN.' };
     }
 
     const currentDb = loadDB();
@@ -70,7 +70,7 @@ export function AuthProvider({ children }) {
       if (matchedUser.status === 'Suspended') {
         return {
           success: false,
-          message: 'तपाईंको खाता निलम्बित (Suspended) गरिएको छ। कृपया क्याम्पस प्रशासनमा सम्पर्क गर्नुहोस्।'
+          message: 'Your account has been suspended. Please contact the institute administration.'
         };
       }
 
@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
             phone: matchedUser.phone || t.phone,
             specialization: t.specialization || matchedUser.specialization,
             photo: t.photo,
-            title: `प्रशिक्षक (${t.specialization || 'Trainer'})`
+            title: `Trainer (${t.specialization || 'Instructor'})`
           };
         } else if (matchedUser.role === 'STUDENT') {
           const s = (currentDb.students || []).find((st) => st.id === matchedUser.studentId) || {};
@@ -128,7 +128,7 @@ export function AuthProvider({ children }) {
             email: ag.email,
             commissionType: ag.commissionType,
             defaultRate: ag.defaultRate,
-            title: 'रेफ़रल पार्टनर / एजेन्ट (Referral Partner)'
+            title: 'Referral Partner / Agent'
           };
         } else if (matchedUser.role === 'STAFF') {
           userObj = {
@@ -145,7 +145,7 @@ export function AuthProvider({ children }) {
         setIsLocked(false);
         return { success: true, user: userObj };
       } else {
-        return { success: false, message: 'पिन कोड मिलेन। कृपया सही ४-अङ्कको पिन प्रविष्ट गर्नुहोस्। (Invalid PIN)' };
+        return { success: false, message: 'Invalid PIN code. Please enter your 4-digit PIN.' };
       }
     }
 
@@ -156,7 +156,7 @@ export function AuthProvider({ children }) {
 
     if (trainer && (!targetRole || targetRole === 'TRAINER')) {
       if (trainer.status === 'Inactive' || trainer.status === 'Suspended') {
-        return { success: false, message: 'प्रशिक्षक खाता निलम्बित गरिएको छ।' };
+        return { success: false, message: 'Trainer account is suspended.' };
       }
       if (cleanPin === (trainer.pin || '1234') || cleanPin === '1111') {
         const user = {
@@ -168,14 +168,14 @@ export function AuthProvider({ children }) {
           specialization: trainer.specialization,
           photo: trainer.photo,
           phone: trainer.phone,
-          title: `प्रशिक्षक (${trainer.specialization || 'Trainer'})`
+          title: `Trainer (${trainer.specialization || 'Instructor'})`
         };
         setCurrentUser(user);
         sessionStorage.setItem('kite_current_user', JSON.stringify(user));
         setIsLocked(false);
         return { success: true, user };
       }
-      return { success: false, message: 'पिन कोड मिलेन।' };
+      return { success: false, message: 'Invalid PIN code.' };
     }
 
     // 3. Direct Fallback: Check Students table
@@ -186,12 +186,12 @@ export function AuthProvider({ children }) {
 
     if (student && (!targetRole || targetRole === 'STUDENT')) {
       if (student.status === 'Dropout' || student.status === 'Suspended') {
-        return { success: false, message: 'विद्यार्थी खाता निष्क्रिय वा निलम्बित गरिएको छ।' };
+        return { success: false, message: 'Student account is inactive or suspended.' };
       }
       if (cleanPin === (student.pin || '1234') || cleanPin === '1111' || cleanPin === '3333') {
         return loginAsStudent(student.id);
       }
-      return { success: false, message: 'पिन कोड मिलेन।' };
+      return { success: false, message: 'Invalid PIN code.' };
     }
 
     // 4. Direct Fallback: Check Agents table
@@ -202,7 +202,7 @@ export function AuthProvider({ children }) {
 
     if (agent) {
       if (agent.status === 'Suspended') {
-        return { success: false, message: 'एजेन्ट खाता निलम्बित गरिएको छ।' };
+        return { success: false, message: 'Agent account is suspended.' };
       }
       if (cleanPin === (agent.pin || '1234') || cleanPin === '1111') {
         const user = {
@@ -215,14 +215,14 @@ export function AuthProvider({ children }) {
           email: agent.email,
           commissionType: agent.commissionType,
           defaultRate: agent.defaultRate,
-          title: 'रेफ़रल पार्टनर / एजेन्ट (Referral Partner)'
+          title: 'Referral Partner / Agent'
         };
         setCurrentUser(user);
         sessionStorage.setItem('kite_current_user', JSON.stringify(user));
         setIsLocked(false);
         return { success: true, user };
       }
-      return { success: false, message: 'पिन कोड मिलेन।' };
+      return { success: false, message: 'Invalid PIN code.' };
     }
 
     // 5. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
@@ -255,7 +255,7 @@ export function AuthProvider({ children }) {
 
     return {
       success: false,
-      message: 'दर्ता भएको युजरनेम वा फोन फेला परेन। कृपया आफ्नो आधिकारिक विवरण प्रविष्ट गर्नुहोस्।'
+      message: 'Registered username or phone number not found. Please enter valid credentials.'
     };
   };
 

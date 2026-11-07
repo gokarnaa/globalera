@@ -43,18 +43,18 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
     handleCloseUser();
     const ok = await confirm({
       type: 'warning',
-      title: 'डाटा रिसेट निश्चित गर्नुहोस् (Reset Data)',
-      message: 'के तपाईं सम्पूर्ण नमूना डाटा सुरुवाती अवस्थामा फर्काउन चाहनुहुन्छ?',
-      detail: 'यो कार्यपछि हालै प्रविष्टि गरिएका नयाँ डाटाहरू हट्नेछन् र सुरुवाती डेमो डाटा लोड हुनेछ।',
-      confirmText: 'हो, रिसेट गर्नुहोस् (Reset)',
+      title: 'Confirm Data Reset',
+      message: 'Are you sure you want to reset all database records to the clean initial state?',
+      detail: 'This action will clear all newly entered records from local storage.',
+      confirmText: 'Yes, Reset Data',
       confirmColor: '#DC2626'
     });
     if (ok) {
       resetDB();
       await alert({
         type: 'success',
-        title: 'सफलतापूर्वक सम्पन्न (Success)',
-        message: 'डाटा पूर्ववत अवस्थामा रिसेट गरिएको छ।'
+        title: 'Success',
+        message: 'Database has been reset to its initial state.'
       });
     }
   };
@@ -132,7 +132,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
                   letterSpacing: '-0.02em'
                 }}
               >
-                ग्लोबल एरा प्राविधिक स्कुल
+                Global Era Technical School
               </Typography>
               <Chip
                 icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#166534 !important' }} />}
@@ -261,7 +261,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
           </Box>
 
           {onGoHome && (
-            <Tooltip title="संस्थाको मुख्य सार्वजनिक वेबसाइट हेर्नुहोस् (View Public Website)">
+            <Tooltip title="View Public Website">
               <Button
                 size="small"
                 variant="outlined"
@@ -277,7 +277,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
                   '&:hover': { bgcolor: '#F8FAFC', borderColor: '#0F2E5A' }
                 }}
               >
-                वेबसाइट
+                Website
               </Button>
             </Tooltip>
           )}
@@ -325,7 +325,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
           </Box>
 
           <Typography variant="overline" sx={{ px: 2, color: '#94A3B8', fontWeight: 800, fontSize: '0.68rem' }}>
-            द्रुत भूमिका स्विच गर्नुहोस् (SWITCH DEMO ROLE)
+            QUICK ROLE SWITCH
           </Typography>
 
           <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
@@ -362,7 +362,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
               <Avatar sx={{ bgcolor: '#0D9488', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>S</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>विद्यार्थी: Sunita Sharma</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Student: Sunita Sharma</Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>Phone: 9841000001 (Job Apply Active)</Typography>
               </Box>
             </Box>
@@ -372,7 +372,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
               <Avatar sx={{ bgcolor: '#7C3AED', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>E</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>रोजगारदाता: Norvic Hospital</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Employer: Norvic Hospital</Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>Post Job & Hire TVET Trainees</Typography>
               </Box>
             </Box>
@@ -387,7 +387,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
 
           <MenuItem onClick={handleResetData} sx={{ borderRadius: 2 }}>
             <RestartAltIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
-            <Typography variant="body2" sx={{ fontWeight: 600, color: '#DC2626' }}>Reset Sample Data</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#DC2626' }}>Reset Database</Typography>
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />
@@ -397,11 +397,11 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
               handleCloseUser();
               const ok = await confirm({
                 type: 'logout',
-                title: 'लगआउट निश्चित गर्नुहोस् (Confirm Logout)',
-                message: 'के तपाईं प्रणालीबाट बाहिरिन (Logout) चाहनुहुन्छ?',
-                detail: 'तपाईंको सेसन सुरक्षित रूपमा समाप्त हुनेछ र पुनः प्रवेश गर्न पिन आवश्यक पर्नेछ।',
-                confirmText: 'हो, लगआउट गर्नुहोस्',
-                cancelText: 'रद्द गर्नुहोस्',
+                title: 'Confirm Logout',
+                message: 'Are you sure you want to log out of the system?',
+                detail: 'Your session will end securely and you will need your PIN to sign in again.',
+                confirmText: 'Yes, Logout',
+                cancelText: 'Cancel',
                 confirmColor: '#EF4444'
               });
               if (ok) {
@@ -411,7 +411,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             sx={{ borderRadius: 2, color: '#DC2626' }}
           >
             <LogoutIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
-            <Typography variant="body2" sx={{ fontWeight: 800, color: '#DC2626' }}>Logout (लगआउट)</Typography>
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#DC2626' }}>Logout</Typography>
           </MenuItem>
         </Menu>
       </Toolbar>

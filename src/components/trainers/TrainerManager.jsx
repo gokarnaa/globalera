@@ -131,19 +131,19 @@ export default function TrainerManager() {
     if (assignedBatches.length > 0) {
       await alert({
         type: 'warning',
-        title: 'प्रशिक्षक मेटाउन नमिल्ने (Trainer Assigned)',
-        message: `प्रशिक्षक "${trn?.name || id}" हाल ${assignedBatches.length} वटा तालिम ब्याचहरूमा तोकिएका छन्।`,
-        detail: 'पहिले सम्बन्धित समूहहरूबाट प्रशिक्षक परिवर्तन गर्नुहोस् वा ब्याच हटाउनुहोस्।'
+        title: 'Cannot Delete Assigned Trainer',
+        message: `Trainer "${trn?.name || id}" is currently assigned to ${assignedBatches.length} training batch(es).`,
+        detail: 'Please reassign or remove the trainer from the respective training groups first.'
       });
       return;
     }
 
     const ok = await confirm({
       type: 'danger',
-      title: 'प्रशिक्षक मेटाउने निश्चित गर्नुहोस् (Delete Trainer)',
-      message: `के तपाईं प्रशिक्षक "${trn?.name || id}" लाई प्रणालीबाट हटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो कार्यपछि प्रशिक्षकको प्रोफाइल र लगइन विवरण हट्नेछ।',
-      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      title: 'Confirm Trainer Deletion',
+      message: `Are you sure you want to permanently remove trainer "${trn?.name || id}" from the system?`,
+      detail: 'This action will remove the instructor profile and mobile credentials.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
 
@@ -164,7 +164,7 @@ export default function TrainerManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <PeopleAltIcon sx={{ color: '#1a56b0', fontSize: 30 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Trainer Master (प्रशिक्षक)
+              Trainer Master
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -194,15 +194,15 @@ export default function TrainerManager() {
             >
               <TableRow>
                 <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                  क्र.सं. (S.N.)
+                  S.N.
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षक (Trainer)</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>पेशा तथा विज्ञता (Specialization)</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क र WhatsApp</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सुरक्षा पिन (PIN)</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तोकिएको तालिम समूह (Batches)</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainer</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Specialization</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact & WhatsApp</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Security PIN</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Assigned Batches</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -229,7 +229,7 @@ export default function TrainerManager() {
                             <Chip
                               size="small"
                               icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
-                              label={`मेसिन ID: #${trn.biometricId || 'N/A'}`}
+                              label={`Machine ID: #${trn.biometricId || 'N/A'}`}
                               sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                             />
                           </Typography>
@@ -350,10 +350,10 @@ export default function TrainerManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-                {editingItem ? 'प्रशिक्षक विवरण सम्पादन (Edit Trainer)' : 'नयाँ मुख्य प्रशिक्षक दर्ता (Add New Trainer)'}
+                {editingItem ? 'Edit Trainer' : 'Add New Trainer'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-                {editingItem ? 'प्रशिक्षक प्रोफाइल, मोबाइल PIN र विज्ञता अद्यावधिक गर्नुहोस्' : 'प्रशिक्षकको व्यक्तिगत विवरण, ४-अंकको सुरक्षा पिन र विषय दर्ता गर्नुहोस्'}
+                {editingItem ? 'Update trainer profile, mobile PIN and specialization' : 'Register instructor credentials, 4-digit security PIN and trade subject'}
               </Typography>
             </Box>
           </Box>
@@ -384,7 +384,7 @@ export default function TrainerManager() {
               label="Trainer Full Name"
               fullWidth
               size="small"
-              placeholder="उदा: Pooja Rajbanshi"
+              placeholder="e.g. Pooja Rajbanshi"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -399,10 +399,10 @@ export default function TrainerManager() {
               required
             />
             <TextField
-              label="बायोमेट्रिक मेसिन ID (Biometric ID)"
+              label="Biometric Machine ID"
               fullWidth
               size="small"
-              placeholder="उदा: 2001"
+              placeholder="e.g. 2001"
               value={formData.biometricId || ''}
               onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
               InputProps={{
@@ -412,7 +412,7 @@ export default function TrainerManager() {
                   </InputAdornment>
                 )
               }}
-              helperText="ZKTeco / WiFi बायोमेट्रिक मेसिनमा दर्ता भएको User ID"
+              helperText="User ID registered on ZKTeco / Biometric device"
             />
             <TextField
               select
@@ -424,7 +424,7 @@ export default function TrainerManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- पेशा चयन गर्नुहोस् (Select Occupation) --
+                -- Select Occupation --
               </MenuItem>
               {db.occupations.map((occ) => (
                 <MenuItem key={occ.id} value={occ.id}>
@@ -438,10 +438,10 @@ export default function TrainerManager() {
               size="small"
               type="password"
               inputProps={{ maxLength: 4 }}
-              placeholder="उदा: 1234"
+              placeholder="e.g. 1234"
               value={formData.pin}
               onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              helperText="प्रशिक्षकले मोबाइलबाट लगइन गर्दा यो ४-अंकको PIN प्रयोग गर्नेछन्।"
+              helperText="Instructors use this 4-digit PIN for mobile portal login."
               required
             />
             <TextField
@@ -450,7 +450,7 @@ export default function TrainerManager() {
               size="small"
               value={formData.specialization}
               onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-              placeholder="उदा: Cosmetology & Hair Styling / Caregiver"
+              placeholder="e.g. Cosmetology & Hair Styling / Caregiver"
             />
             <TextField
               label="Photo URL (Optional)"
@@ -468,8 +468,8 @@ export default function TrainerManager() {
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <MenuItem value="Active">Active (सक्रिय)</MenuItem>
-              <MenuItem value="Inactive">Inactive (निष्क्रिय)</MenuItem>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
@@ -497,7 +497,7 @@ export default function TrainerManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A', borderColor: '#94A3B8' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -518,7 +518,7 @@ export default function TrainerManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Trainer)
+            Save Trainer
           </Button>
         </DialogActions>
       </Dialog>
@@ -780,7 +780,7 @@ export default function TrainerManager() {
                 {profileTab === 3 && (
                   <Box>
                     <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1.5 }}>
-                      Indirect Employer Connection (यस प्रशिक्षकले सिकाएका विद्यार्थीहरूको OJT र रोजगारी):
+                      Indirect Employer Connection (OJT & Placement of Trainees Under This Instructor):
                     </Typography>
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>

@@ -87,7 +87,7 @@ export default function OccupationManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <CategoryIcon sx={{ color: '#1a56b0', fontSize: 30 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Occupation Master (पेशा)
+              Occupation Master
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -182,10 +182,10 @@ export default function OccupationManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'पेशा समूह सम्पादन (Edit Trade)' : 'नयाँ पेशा समूह दर्ता (Add Trade)'}
+                {editingItem ? 'Edit Trade' : 'Add Trade'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                प्राविधिक व्यवसाय तथा तालिम विधा व्यवस्थापन
+                Technical Trade & Vocational Sector Management
               </Typography>
             </Box>
           </Box>
@@ -217,7 +217,7 @@ export default function OccupationManager() {
               label="Occupation Name (e.g. Care Giver) *"
               fullWidth
               size="small"
-              placeholder="उदा: Care Giver / Beautician / Tailoring"
+              placeholder="e.g. Care Giver / Beautician / Tailoring"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -230,8 +230,8 @@ export default function OccupationManager() {
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <MenuItem value="Active">Active (सक्रिय)</MenuItem>
-              <MenuItem value="Inactive">Inactive (निष्क्रिय)</MenuItem>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
             </TextField>
           </Stack>
         </DialogContent>
@@ -257,7 +257,7 @@ export default function OccupationManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -277,7 +277,7 @@ export default function OccupationManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save)
+            Save
           </Button>
         </DialogActions>
       </Dialog>

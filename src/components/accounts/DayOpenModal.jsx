@@ -32,8 +32,8 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
   const lastClosingCash = db?.cashClosings?.[0]?.physicalCount ?? 44000;
 
   const [openingCash, setOpeningCash] = useState(String(lastClosingCash));
-  const [cashierName, setCashierName] = useState('सुनिता शर्मा (क्यासियर)');
-  const [openingNotes, setOpeningNotes] = useState('काउन्टर बिहानको सुरुवाती नगद रुजु गरी खोलियो।');
+  const [cashierName, setCashierName] = useState('Sunita Sharma (Cashier)');
+  const [openingNotes, setOpeningNotes] = useState('Counter opened after verifying morning opening cash.');
 
   useEffect(() => {
     if (open) {
@@ -75,7 +75,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
     }
 
     if (showToast) {
-      showToast(`दिन सुरु भयो! काउन्टर नगद (Rs. ${cashVal.toLocaleString()}) प्रमाणित भई खुल्ला भयो।`, 'success');
+      showToast(`Day started! Counter cash (Rs. ${cashVal.toLocaleString()}) verified and opened.`, 'success');
     }
 
     if (onDayOpened) {
@@ -130,10 +130,10 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-              दिन सुरु तथा काउन्टर ओपनिङ (Day Open Counter)
+              Day Open Counter
             </Typography>
             <Typography variant="caption" sx={{ color: '#D1FAE5', fontWeight: 600 }}>
-              मिति: {today} • समय: {currentTime} • दैनिक शुल्क संकलन खुल्ला
+              Date: {today} • Time: {currentTime} • Daily Fee Collection Open
             </Typography>
           </Box>
         </Box>
@@ -146,7 +146,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
       <form onSubmit={handleConfirmOpen}>
         <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
           <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-            बिहान काउन्टर सुरु गर्दा दराजमा रहेको सुरुवाती मौज्दात (Float Cash / Petty Cash) रुजु गरी काउन्टर खोल्नुहोस्:
+            Verify the opening float / petty cash in the drawer before opening the counter for the day:
           </Typography>
 
           {/* Previous Closing Cash Banner */}
@@ -165,14 +165,14 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
           >
             <Box>
               <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
-                अघिल्लो दिनको अन्तिम नगद (Last Day Closing Balance)
+                Last Day Closing Balance
               </Typography>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.3 }}>
                 Rs. {Number(lastClosingCash).toLocaleString()}
               </Typography>
             </Box>
             <Chip
-              label="सुरुवाती क्यास"
+              label="Opening Cash"
               size="small"
               sx={{ bgcolor: '#059669', color: '#FFF', fontWeight: 800 }}
             />
@@ -184,7 +184,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
               fullWidth
               required
               type="number"
-              label="काउन्टरमा रहेको सुरुवाती नगद (Opening Float Cash in Rs.)"
+              label="Opening Float Cash (in Rs.)"
               value={openingCash}
               onChange={(e) => setOpeningCash(e.target.value)}
               InputProps={{
@@ -194,7 +194,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
                   </InputAdornment>
                 )
               }}
-              helperText="दराजमा अहिले रहेको खुद्रा तथा नोटको वास्तविक मौज्दात"
+              helperText="Actual balance of cash and notes currently in the drawer"
               sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
             />
           </Box>
@@ -204,7 +204,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
             <TextField
               fullWidth
               required
-              label="काउन्टर खोल्ने क्यासियर / कर्मचारीको नाम"
+              label="Opening Cashier / Staff Name"
               value={cashierName}
               onChange={(e) => setCashierName(e.target.value)}
               InputProps={{
@@ -224,7 +224,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
             multiline
             rows={2}
             size="small"
-            label="सुरुवाती कैफियत / टिप्पणी (Opening Remarks)"
+            label="Opening Remarks"
             value={openingNotes}
             onChange={(e) => setOpeningNotes(e.target.value)}
             sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
@@ -233,7 +233,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
 
         <DialogActions sx={{ p: 2.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748B', textTransform: 'none' }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -249,7 +249,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
               fontSize: '0.88rem'
             }}
           >
-            🟢 काउन्टर खोल्नुहोस् (Open Day Counter)
+            🟢 Open Day Counter
           </Button>
         </DialogActions>
       </form>

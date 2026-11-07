@@ -59,7 +59,7 @@ export default function LeadDetailsModal({
     setNewNote('');
   };
 
-  const whatsAppText = `नमस्ते ${lead.name}! ग्लोबल एरा प्राविधिक स्कुल (Global Era TVET) बाट हजुरले सोधपुछ गर्नुभएको '${lead.course || 'व्यावसायिक तालिम'}' सम्बन्धी थप जानकारी तथा भर्ना प्रक्रियाको लागि सम्पर्क गरेका हौँ।`;
+  const whatsAppText = `Hello ${lead.name}! Greetings from Global Era Technical School (Global Era TVET). We are following up regarding your inquiry for '${lead.course || 'Vocational Training'}' to assist with details and the admission process.`;
   const waUrl = `https://wa.me/977${lead.phone}?text=${encodeURIComponent(whatsAppText)}`;
 
   return (
@@ -141,7 +141,7 @@ export default function LeadDetailsModal({
               '&:hover': { borderColor: '#93C5FD', bgcolor: 'rgba(147, 197, 253, 0.1)' }
             }}
           >
-            सम्पादन (Edit)
+            Edit
           </Button>
           <IconButton
             onClick={onClose}
@@ -186,7 +186,7 @@ export default function LeadDetailsModal({
                 '&:hover': { bgcolor: '#0369A1' }
               }}
             >
-              फोन कल (Call {lead.phone})
+              Call {lead.phone}
             </Button>
 
             <Button
@@ -204,7 +204,7 @@ export default function LeadDetailsModal({
                 '&:hover': { bgcolor: '#059669' }
               }}
             >
-              ह्वाट्सएप च्याट (WhatsApp)
+              WhatsApp
             </Button>
           </Box>
 
@@ -221,12 +221,12 @@ export default function LeadDetailsModal({
                 textTransform: 'none'
               }}
             >
-              विद्यार्थी भर्नामा बदल्नुहोस् (Convert to Student)
+              Convert to Student
             </Button>
           ) : (
             <Chip
               icon={<HowToRegIcon />}
-              label="भर्ना सम्पन्न (Student Enrolled)"
+              label="Student Enrolled"
               color="success"
               sx={{ fontWeight: 800, fontSize: '0.85rem', px: 1 }}
             />
@@ -248,7 +248,7 @@ export default function LeadDetailsModal({
               }}
             >
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 1.5 }}>
-                काउन्सिलिङ चरण (Pipeline Stage)
+                Pipeline Stage
               </Typography>
               <Stack direction="row" flexWrap="wrap" gap={1}>
                 {LEAD_STAGES.map((stg) => {
@@ -286,7 +286,7 @@ export default function LeadDetailsModal({
               }}
             >
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 2 }}>
-                सोधपुछ विवरण (Lead Profile Details)
+                Lead Profile Details
               </Typography>
 
               <Stack spacing={2}>
@@ -294,10 +294,10 @@ export default function LeadDetailsModal({
                   <LocationOnIcon sx={{ color: '#F59E0B', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      ठेगाना (Location)
+                      Location
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                      {lead.address || 'विवरण छैन (Not provided)'}
+                      {lead.address || 'Not provided'}
                     </Typography>
                   </Box>
                 </Box>
@@ -306,10 +306,10 @@ export default function LeadDetailsModal({
                   <SchoolIcon sx={{ color: '#6366F1', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      पाठ्यक्रम (Course / Subject)
+                      Course / Subject
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                      {lead.course || 'सामान्य सोधपुछ'}
+                      {lead.course || 'General Inquiry'}
                     </Typography>
                   </Box>
                 </Box>
@@ -318,7 +318,7 @@ export default function LeadDetailsModal({
                   <AccessTimeIcon sx={{ color: '#0EA5E9', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      अवधि (Duration)
+                      Duration
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                       {lead.duration || 'N/A'}
@@ -330,10 +330,10 @@ export default function LeadDetailsModal({
                   <MonetizationOnIcon sx={{ color: '#10B981', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      अनुमानित शुल्क (Course Fee)
+                      Course Fee
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 800, color: '#10B981' }}>
-                      {lead.price ? `Rs. ${Number(lead.price).toLocaleString()}` : 'निःशुल्क / छलफल हुन बाँकी'}
+                      {lead.price ? `Rs. ${Number(lead.price).toLocaleString()}` : 'Free / Pending Discussion'}
                     </Typography>
                   </Box>
                 </Box>
@@ -342,7 +342,7 @@ export default function LeadDetailsModal({
                   <CampaignIcon sx={{ color: '#EC4899', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      स्रोत (Source)
+                      Source
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                       {lead.source || 'Direct'}
@@ -354,7 +354,7 @@ export default function LeadDetailsModal({
                   <FlagIcon sx={{ color: currentPriorityObj.color, fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      प्राथमिकता (Priority)
+                      Priority
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 800, color: currentPriorityObj.color }}>
                       {currentPriorityObj.label}
@@ -366,10 +366,10 @@ export default function LeadDetailsModal({
                   <CalendarMonthIcon sx={{ color: '#8B5CF6', fontSize: '1.2rem' }} />
                   <Box>
                     <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      अर्को फलो-अप मिति (Next Follow-up)
+                      Next Follow-up Date
                     </Typography>
                     <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                      {lead.followUpDate || 'तोकिएको छैन (Not set)'}
+                      {lead.followUpDate || 'Not set'}
                     </Typography>
                   </Box>
                 </Box>
@@ -377,7 +377,7 @@ export default function LeadDetailsModal({
                 {lead.notes && (
                   <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                     <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block', mb: 0.5 }}>
-                      सुरुवाती कैफियत (Initial Remarks):
+                      Initial Remarks:
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#334155', fontStyle: 'italic' }}>
                       "{lead.notes}"
@@ -414,7 +414,7 @@ export default function LeadDetailsModal({
                 }}
               >
                 <HistoryIcon sx={{ color: '#3B82F6' }} />
-                कुराकानी तथा फलो-अप इतिहास (Activity Timeline)
+                Activity Timeline & Follow-up History
               </Typography>
 
               {/* Add New Note Box */}
@@ -423,7 +423,7 @@ export default function LeadDetailsModal({
                   fullWidth
                   multiline
                   rows={2}
-                  placeholder="विद्यार्थीसँग भएको कल, भेट वा छलफलको टिप्पणी लेख्नुहोस्..."
+                  placeholder="Log notes from calls, meetings, or counselling discussions..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   sx={{ mb: 1 }}
@@ -442,7 +442,7 @@ export default function LeadDetailsModal({
                       textTransform: 'none'
                     }}
                   >
-                    टिप्पणी थप्नुहोस् (Log Note)
+                    Log Note
                   </Button>
                 </Box>
               </Box>
@@ -453,7 +453,7 @@ export default function LeadDetailsModal({
               <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1, maxHeight: 380 }}>
                 {(!lead.timeline || lead.timeline.length === 0) ? (
                   <Typography variant="body2" sx={{ color: '#94A3B8', textAlign: 'center', py: 4 }}>
-                    अहिलेसम्म कुनै फलो-अप नोट दर्ता भएको छैन। माथिबाट नयाँ नोट थप्नुहोस्।
+                    No follow-up notes recorded yet. Add a new note above.
                   </Typography>
                 ) : (
                   <Stack spacing={2}>
@@ -505,7 +505,7 @@ export default function LeadDetailsModal({
 
       <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0' }}>
         <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-          बन्द गर्नुहोस् (Close)
+          Close
         </Button>
       </DialogActions>
     </Dialog>

@@ -421,14 +421,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
     setSelectedDate(session.date);
     setActiveTab(0);
     setReopenNotice(
-      `सत्र पुनः खोलियो: ${session.date} (${session.groupCode}) — तपाईं अब यहाँ उपस्थिति सच्याउन सक्नुहुन्छ।`
+      `Session reopened: ${session.date} (${session.groupCode}) — you can now modify and update attendance records.`
     );
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Delete an entire session (Admin only)
   const handleDeleteSession = (session) => {
-    if (!window.confirm(`के तपाईं निश्चित हुनुहुन्छ? मिति ${session.date} को समूह ${session.groupCode} को सम्पूर्ण हाजिरी मेटिनेछ।`)) {
+    if (!window.confirm(`Are you sure? All attendance records for ${session.groupCode} on ${session.date} will be permanently deleted.`)) {
       return;
     }
     const updatedAttendances = (db.attendances || []).filter(
@@ -456,7 +456,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
     try {
       confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
     } catch (_) {}
-    alert(`📡 बायोमेट्रिक मेसिन सिङ्क सफल! (${res.syncedCount} वटा लग अद्यावधिक)`);
+    alert(`📡 Biometric sync successful! (${res.syncedCount} punch logs synchronized)`);
   };
 
   const handleSaveBiometricSettings = () => {
@@ -474,17 +474,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
     saveDB(nextDb);
     setDb(nextDb);
     setOpenSettingsDialog(false);
-    alert('बायोमेट्रिक मेसिन तथा सिफ्ट सेटिङ सफलतापूर्वक सुरक्षित गरियो!');
+    alert('Biometric device and shift parameters successfully saved!');
   };
 
   const handleProcessUsbLogs = () => {
     if (!usbTextData.trim()) {
-      alert('कृपया पेनड्राइभ वा USB लग डेटा पेस्ट गर्नुहोस् वा फाइल छान्नुहोस्।');
+      alert('Please paste biometric log text or select a USB .DAT / .CSV file.');
       return;
     }
     const parsed = parseBiometricLogFile(usbTextData, 'USB Imported Log');
     if (parsed.length === 0) {
-      alert('फाइलमा मान्य लग फेला परेन। कृपया ZKTeco/Realtime को .DAT वा CSV ढाँचा जाँच गर्नुहोस्।');
+      alert('No valid punch logs found. Please check your ZKTeco / Realtime .DAT or .CSV format.');
       return;
     }
     const nextLogs = [...parsed, ...(db.biometricLogs || [])];
@@ -495,12 +495,12 @@ export default function AttendanceManager({ initialGroupId = null }) {
     setOpenUsbDialog(false);
     syncBiometricAttendance(bioDateFilter);
     playBiometricBeep(true);
-    alert(`सफल! ${parsed.length} वटा USB बायोमेट्रिक लग आयात भयो र हाजिरीमा सिङ्क गरियो।`);
+    alert(`Success! Imported ${parsed.length} biometric logs and updated attendance.`);
   };
 
   const handleRunSimulationPunch = () => {
     if (!simTargetId) {
-      alert('कृपया विद्यार्थी, प्रशिक्षक वा बायोमेट्रिक आईडी छान्नुहोस्।');
+      alert('Please select a student, trainer, or enter a Biometric ID.');
       return;
     }
     let targetName = 'Enrolled User';
@@ -529,7 +529,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
     try {
       confetti({ particleCount: 60, spread: 55, origin: { y: 0.65 } });
     } catch (_) {}
-    alert(`🟢 थम्ब स्वाइप सफल!\nप्रयोगकर्ता: ${targetName}\nसमय: ${log.timestamp}\nहाजिरी स्वतः दर्ता भयो!`);
+    alert(`🟢 Thumb swipe verified!\nUser: ${targetName}\nTime: ${log.timestamp}\nAttendance recorded automatically!`);
   };
 
   const pCount = Object.values(sessionRecords).filter((r) => r.status === 'P').length;
@@ -566,13 +566,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
               <FactCheckIcon sx={{ fontSize: 28, color: '#93c5fd' }} />
               <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.3, color: '#FFFFFF' }}>
-                Attendance Management (हाजिरी व्यवस्थापन)
+                Attendance Management
               </Typography>
             </Box>
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', mt: 0.3 }}>
               {isTrainer
-                ? `प्रशिक्षक: ${currentUser?.name} • तोकिएका ब्याचहरू: ${myGroups.length}`
-                : `एडमिन पोर्टल • कुल सुरक्षित सत्रहरू: ${historicalSessions.length} • कुल हाजिरी: ${db.attendances?.length || 0}`}
+                ? `Instructor: ${currentUser?.name} • Assigned Batches: ${myGroups.length}`
+                : `Admin Portal • Total Saved Sessions: ${historicalSessions.length} • Total Records: ${db.attendances?.length || 0}`}
             </Typography>
           </Box>
 
@@ -617,29 +617,29 @@ export default function AttendanceManager({ initialGroupId = null }) {
             <Tab
               icon={<FactCheckIcon sx={{ fontSize: 20 }} />}
               iconPosition="start"
-              label="+ Mark Attendance (दैनिक हाजिरी)"
+              label="+ Mark Attendance"
             />
             <Tab
               icon={<FolderIcon sx={{ fontSize: 20 }} />}
               iconPosition="start"
-              label={`📁 Saved Records (${historicalSessions.length} सत्रहरू)`}
+              label={`📁 Saved Records (${historicalSessions.length} Sessions)`}
             />
             <Tab
               icon={<AssessmentIcon sx={{ fontSize: 20 }} />}
               iconPosition="start"
-              label="📊 Reports & Analytics (नियमितता विश्लेषण)"
+              label="📊 Reports & Analytics"
             />
             <Tab
               icon={<FingerprintIcon sx={{ fontSize: 20 }} />}
               iconPosition="start"
-              label="📡 Biometric Hub (बायोमेट्रिक मेसिन हब)"
+              label="📡 Biometric Hub"
             />
           </Tabs>
         </Box>
       </Card>
 
       {/* =======================================================
-          TAB 0: MARK DAILY ATTENDANCE (दैनिक हाजिरी लिनुहोस्)
+          TAB 0: MARK DAILY ATTENDANCE
           ======================================================= */}
       {activeTab === 0 && (
         <Box>
@@ -662,11 +662,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
               <Chip
                 icon={<FingerprintIcon sx={{ fontSize: '16px !important', color: '#166534 !important' }} />}
-                label={`${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: 🟢 अनलाइन (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`}
+                label={`${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: 🟢 Online (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`}
                 sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: '0.85rem' }}
               />
               <Typography variant="body2" sx={{ color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}>
-                अन्तिम सिङ्क: <b>{db.settings?.biometricSettings?.lastSyncTime || 'अहिले सम्म छैन'}</b>
+                Last Sync: <b>{db.settings?.biometricSettings?.lastSyncTime || 'Never'}</b>
               </Typography>
             </Box>
 
@@ -679,7 +679,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   const res = syncBiometricAttendance(selectedDate);
                   setDb(loadDB());
                   try { confetti({ particleCount: 50, spread: 60 }); } catch (_) {}
-                  alert(`📡 बायोमेट्रिक मेसिनबाट ${res.syncedCount} वटा थम्ब लगहरू सफलतापूर्वक सिङ्क गरियो!`);
+                  alert(`📡 Synced ${res.syncedCount} punch records from biometric device!`);
                 }}
                 sx={{
                   fontWeight: 900,
@@ -691,7 +691,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   px: 2
                 }}
               >
-                मेसिनबाट सिङ्क (Sync Punch Logs)
+                Sync Punch Logs
               </Button>
               <Button
                 variant="outlined"
@@ -705,7 +705,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   textTransform: 'none'
                 }}
               >
-                मेसिन हब खोल्नुहोस् ➔
+                Open Device Hub ➔
               </Button>
             </Box>
           </Paper>
@@ -736,7 +736,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   select
                   size="small"
-                  label="तालिम समूह (Batch / Class)"
+                  label="Training Group / Batch"
                   fullWidth
                   value={selectedGroupId}
                   onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -755,7 +755,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   type="date"
                   size="small"
-                  label="हाजिरी मिति"
+                  label="Session Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={selectedDate}
@@ -880,7 +880,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 color: '#9a3412'
               }}
             >
-              🏖️ <b>सार्वजनिक बिदा सूचना (Holiday Notice):</b> {holidayInfo.name} ({holidayInfo.type}) — यदि आज अतिरिक्त/विशेष कक्षा सञ्चालन गरिएको भए मात्र हाजिरी दर्ता गर्नुहोस्।
+              🏖️ <b>Holiday Notice:</b> {holidayInfo.name} ({holidayInfo.type}) — Only mark attendance if an extra/makeup class is scheduled today.
             </Alert>
           )}
 
@@ -897,7 +897,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
           >
             <TextField
               size="small"
-              placeholder="विद्यार्थी खोज्नुहोस् (Search Name, Phone, TGID)..."
+              placeholder="Search trainee (Name, Phone, TGID)..."
               value={markSearchQuery}
               onChange={(e) => setMarkSearchQuery(e.target.value)}
               InputProps={{
@@ -912,7 +912,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
-                दृश्य (View):
+                View:
               </Typography>
               <ToggleButtonGroup
                 value={markViewMode}
@@ -959,13 +959,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   >
                     <TableRow>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70, textAlign: 'center' }}>
-                        क्र.सं. (S.N.)
+                        S.N.
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        विद्यार्थीको विवरण (Trainee Details)
+                        Trainee Details
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 280, textAlign: 'center' }}>
-                        हाजिरी स्थिति (P ➔ A ➔ L)
+                        Attendance Status (Cycle P ➔ A ➔ L)
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -976,7 +976,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
                       const btnBg =
                         selectedStatus === 'P'
-                          ? '#16834b'
+                           ? '#16834b'
                           : selectedStatus === 'A'
                           ? '#d5372f'
                           : '#d48806';
@@ -997,10 +997,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
                       const statusTitle =
                         selectedStatus === 'P'
-                          ? 'Present (उपस्थित)'
+                          ? 'Present'
                           : selectedStatus === 'A'
-                          ? 'Absent (अनुपस्थित)'
-                          : 'Late (ढिला)';
+                          ? 'Absent'
+                          : 'Late';
 
                       const chipBg =
                         selectedStatus === 'P'
@@ -1078,7 +1078,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                   <Chip
                                     size="small"
                                     icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
-                                    label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                                    label={`Machine ID: #${std.biometricId || 'N/A'}`}
                                     sx={{ height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                                   />
                                 </Box>
@@ -1098,7 +1098,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                               }}
                             >
                               <Box sx={{ width: 56, minWidth: 56, maxWidth: 56, height: 56, flexShrink: 0 }}>
-                                <Tooltip title="ट्याप गर्नुहोस्: स्थिति परिवर्तन हुन्छ (P ➔ A ➔ L)">
+                                <Tooltip title="Tap to toggle status (P ➔ A ➔ L)">
                                   <Button
                                     onClick={() => handleCycleStatus(std.id)}
                                     sx={{
@@ -1148,10 +1148,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                     icon={rec.source === 'BIOMETRIC' ? <FingerprintIcon sx={{ fontSize: '11px !important', color: '#15803D !important' }} /> : undefined}
                                     label={
                                       rec.source === 'BIOMETRIC'
-                                        ? `बायोमेट्रिक (${rec.checkInTime || 'समयमै'})`
+                                        ? `Biometric (${rec.checkInTime || 'On-time'})`
                                         : rec.source === 'TRAINER_MANUAL'
-                                        ? 'प्रशिक्षक म्यानुअल'
-                                        : 'एडमिन म्यानुअल'
+                                        ? 'Trainer Manual'
+                                        : 'Admin Manual'
                                     }
                                     sx={{
                                       mt: 0.4,
@@ -1211,7 +1211,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     {displayedStudents.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={3} sx={{ textAlign: 'center', py: 6, color: '#94a3b8' }}>
-                          कुनै विद्यार्थी भेटिएन (No students matched).
+                          No students matched.
                         </TableCell>
                       </TableRow>
                     )}
@@ -1397,7 +1397,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
       )}
 
       {/* =======================================================
-          TAB 1: SAVED RECORDS (सत्रहरूको इतिहास र १-क्लिक रिओपन)
+          TAB 1: SAVED RECORDS (Session History & 1-Click Reopen)
           ======================================================= */}
       {activeTab === 1 && (
         <Box>
@@ -1416,7 +1416,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   size="small"
                   fullWidth
-                  placeholder="सत्र खोज्नुहोस् (Search Date, Course, Batch)..."
+                  placeholder="Search Session (Date, Course, Batch)..."
                   value={recordsSearchQuery}
                   onChange={(e) => setRecordsSearchQuery(e.target.value)}
                   InputProps={{
@@ -1435,13 +1435,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   select
                   size="small"
-                  label="समूह फिल्टर (Group)"
+                  label="Filter Batch"
                   fullWidth
                   value={recordsFilterGroup}
                   onChange={(e) => setRecordsFilterGroup(e.target.value)}
                   sx={{ bgcolor: '#fff' }}
                 >
-                  <MenuItem value="ALL">All Batches (सबै समूह)</MenuItem>
+                  <MenuItem value="ALL">All Batches</MenuItem>
                   {myGroups.map((grp) => (
                     <MenuItem key={grp.id} value={grp.id}>
                       {grp.groupCode} — Shift {grp.shift}
@@ -1455,14 +1455,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   select
                   size="small"
-                  label="क्रम (Sort)"
+                  label="Sort Order"
                   fullWidth
                   value={recordsSortOrder}
                   onChange={(e) => setRecordsSortOrder(e.target.value)}
                   sx={{ bgcolor: '#fff' }}
                 >
-                  <MenuItem value="desc">Newest First (नयाँ पहिले)</MenuItem>
-                  <MenuItem value="asc">Oldest First (पुरानो पहिले)</MenuItem>
+                  <MenuItem value="desc">Newest First</MenuItem>
+                  <MenuItem value="asc">Oldest First</MenuItem>
                 </TextField>
               </Grid>
 
@@ -1514,14 +1514,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   >
                     <TableRow>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                        क्र.सं. (S.N.)
+                        S.N.
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>हाजिरी मिति (Date)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम समूह / कोर्स (Batch & Course)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सिफ्ट तथा प्रशिक्षक (Shift & Trainer)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>कुल विद्यार्थी</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>उपस्थिति विभाजन (P / A / L)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Attendance Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch & Course</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Shift & Trainer</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Total Trainees</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Breakdown (P / A / L)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1542,7 +1542,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                             {session.date}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#647089' }}>
-                            {new Date(session.date).toLocaleDateString('ne-NP', { weekday: 'long' })}
+                            {new Date(session.date).toLocaleDateString('en-US', { weekday: 'long' })}
                           </Typography>
                         </TableCell>
 
@@ -1564,7 +1564,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                             Shift {session.shift} ({session.startTime} – {session.endTime})
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#647089' }}>
-                            प्रशिक्षक: {session.trainerName}
+                            Trainer: {session.trainerName}
                           </Typography>
                         </TableCell>
 
@@ -1612,7 +1612,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 '&:hover': { bgcolor: '#0d3466' }
                               }}
                             >
-                              सच्याउनुहोस् (Edit)
+                              Edit Session
                             </Button>
 
                             {isAdmin && (
@@ -1633,7 +1633,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     {historicalSessions.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94a3b8' }}>
-                          कुनै सुरक्षित हाजिरी सत्र फेला परेन (No attendance sessions found).
+                          No attendance sessions found.
                         </TableCell>
                       </TableRow>
                     )}
@@ -1703,7 +1703,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                         />
                       </Box>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>
-                        {session.records.length} जना
+                        {session.records.length} Trainees
                       </Typography>
                     </Box>
 
@@ -1721,7 +1721,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                         '&:hover': { bgcolor: '#eff6ff', borderColor: '#1a56b0' }
                       }}
                     >
-                      सच्याउनुहोस् / विवरण हेर्नुहोस् (Edit)
+                      Edit / View Details
                     </Button>
                   </Card>
                 </Grid>
@@ -1732,7 +1732,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
       )}
 
       {/* =======================================================
-          TAB 2: REPORTS & ANALYTICS (८५% र ७०% नियमितता विश्लेषण)
+          TAB 2: REPORTS & ANALYTICS (85% & 70% Compliance Analytics)
           ======================================================= */}
       {activeTab === 2 && (
         <Box>
@@ -1751,7 +1751,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   select
                   size="small"
-                  label="तालिम समूह छान्नुहोस् (Select Batch)"
+                  label="Select Batch"
                   fullWidth
                   value={reportGroupId}
                   onChange={(e) => setReportGroupId(e.target.value)}
@@ -1769,7 +1769,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <TextField
                   size="small"
                   fullWidth
-                  placeholder="विद्यार्थी खोज्नुहोस् (Search Trainee in Report)..."
+                  placeholder="Search Trainee in Report..."
                   value={reportSearchQuery}
                   onChange={(e) => setReportSearchQuery(e.target.value)}
                   InputProps={{
@@ -1793,7 +1793,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   {reportData.totalSessionsCount}
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  कुल सञ्चालित कक्षा (Sessions Held)
+                  Sessions Held
                 </Typography>
               </Card>
             </Grid>
@@ -1804,7 +1804,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   {reportData.avgRate}%
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  औसत उपस्थिति दर (Average Attendance)
+                  Average Attendance Rate
                 </Typography>
               </Card>
             </Grid>
@@ -1815,7 +1815,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   {reportData.regularCount} / {reportData.totalStudentsCount}
                 </Typography>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  नियमित विद्यार्थी (Regular ≥ 85%)
+                  Regular Trainees (≥ 85%)
                 </Typography>
               </Card>
             </Grid>
@@ -1841,7 +1841,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   variant="caption"
                   sx={{ fontWeight: 800, color: reportData.riskCount > 0 ? '#e11d48' : '#64748b' }}
                 >
-                  ड्रपआउट जोखिम (Dropout Risk &lt; 70%)
+                  Dropout Risk (&lt; 70%)
                 </Typography>
               </Card>
             </Grid>
@@ -1870,7 +1870,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
               }}
             >
               <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                विद्यार्थीगत नियमितता स्थिति (Trainee Compliance &amp; Dropout Tracking)
+                Trainee Compliance &amp; Dropout Tracking
               </Typography>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <Chip label={`Regular: ${reportData.regularCount}`} size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
@@ -1896,16 +1896,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 >
                   <TableRow>
                     <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                      क्र.सं. (S.N.)
+                      S.N.
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको नाम (Trainee Name)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>कुल कक्षा (Total)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>उपस्थित (P)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>अनुपस्थित (A)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>ढिलो (L)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>हाजिरी % (Compliance)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>TVET वर्गीकरण</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Name</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Total Classes</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Present (P)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Absent (A)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Late (L)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>Attendance %</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>TVET Category</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -2028,7 +2028,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 textTransform: 'none'
                               }}
                             >
-                              इतिहास (History)
+                              History
                             </Button>
 
                             {isRisk && (
@@ -2056,7 +2056,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   {reportData.studentStats.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={9} sx={{ textAlign: 'center', py: 8, color: '#94a3b8' }}>
-                        कुनै विद्यार्थी फेला परेन (No trainees found for this batch).
+                        No trainees found for this batch.
                       </TableCell>
                     </TableRow>
                   )}
@@ -2068,7 +2068,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
       )}
 
       {/* =======================================================
-          TAB 3: BIOMETRIC DEVICE HUB & LIVE PUNCH STREAM (📡 बायोमेट्रिक हब)
+          TAB 3: BIOMETRIC DEVICE HUB & LIVE PUNCH STREAM (Biometric Hub)
           ======================================================= */}
       {activeTab === 3 && (() => {
         const settings = db.settings?.biometricSettings || {};
@@ -2125,7 +2125,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           {settings.deviceName || 'Global Era ZKTeco K40 WiFi'}
                         </Typography>
                         <Chip
-                          label={settings.status === 'Online' ? '🟢 Online (सक्रिय)' : '🔴 Offline'}
+                          label={settings.status === 'Online' ? '🟢 Online (Active)' : '🔴 Offline'}
                           size="small"
                           sx={{
                             bgcolor: settings.status === 'Online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
@@ -2144,16 +2144,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
                   <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2, bgcolor: 'rgba(255,255,255,0.06)', p: 1.5, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                      🌐 <b>मेसिन IP:</b> {settings.deviceIp || '192.168.1.201'}:{settings.devicePort || 4370}
+                      🌐 <b>Device IP:</b> {settings.deviceIp || '192.168.1.201'}:{settings.devicePort || 4370}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
                       ☁️ <b>Cloud Push:</b> /iclock/cdata
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                      🕒 <b>अन्तिम सिङ्क:</b> {settings.lastSyncTime || 'अहिले सम्म छैन'}
+                      🕒 <b>Last Sync:</b> {settings.lastSyncTime || 'Never'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#FCD34D' }}>
-                      ⏰ <b>सिफ्ट समय:</b> बिहानी {morningShift} (ग्रेस: {graceMins} मिनेट)
+                      ⏰ <b>Shift Time:</b> Morning {morningShift} (Grace: {graceMins} mins)
                     </Typography>
                   </Box>
                 </Grid>
@@ -2175,7 +2175,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                         fontSize: '0.92rem'
                       }}
                     >
-                      📥 मेसिनबाट सिङ्क गर्नुहोस् (Sync Punch Logs)
+                      📥 Sync Punch Logs
                     </Button>
 
                     <Box sx={{ display: 'flex', gap: 1 }}>
@@ -2194,7 +2194,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
                         }}
                       >
-                        📁 USB लग आयात
+                        📁 Import USB Logs
                       </Button>
 
                       <Button
@@ -2212,7 +2212,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.1)' }
                         }}
                       >
-                        🧪 प्रत्यक्ष स्क्यान टेस्ट
+                        🧪 Live Scan Test
                       </Button>
 
                       <Button
@@ -2230,7 +2230,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
                         }}
                       >
-                        ⚙️ सेटिङ
+                        ⚙️ Settings
                       </Button>
                     </Box>
                   </Box>
@@ -2243,13 +2243,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
               <Grid item xs={6} sm={3}>
                 <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
                   <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
-                    कुल बायोमेट्रिक स्क्यान
+                    Total Biometric Scans
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', mt: 0.5 }}>
                     {totalPunches}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#10B981', fontWeight: 700 }}>
-                    आजको मितिमा दर्ता
+                    Recorded for Date
                   </Typography>
                 </Card>
               </Grid>
@@ -2257,13 +2257,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
               <Grid item xs={6} sm={3}>
                 <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BBF7D0', bgcolor: '#F0FDF4' }}>
                   <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800, display: 'block' }}>
-                    प्रशिक्षार्थी थम्ब हाजिरी
+                    Trainee Thumb Punches
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#15803D', mt: 0.5 }}>
                     {studentPunches}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700 }}>
-                    CTEVT ८०% मा गणना
+                    Counted for 80% Requirement
                   </Typography>
                 </Card>
               </Grid>
@@ -2271,13 +2271,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
               <Grid item xs={6} sm={3}>
                 <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BAE6FD', bgcolor: '#F0F9FF' }}>
                   <Typography variant="caption" sx={{ color: '#075985', fontWeight: 800, display: 'block' }}>
-                    प्रशिक्षक तथा कर्मचारी
+                    Trainer & Staff Punches
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#0369A1', mt: 0.5 }}>
                     {trainerStaffPunches}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>
-                    दैनिक उपस्थिति प्रमाणित
+                    Daily Verified Punches
                   </Typography>
                 </Card>
               </Grid>
@@ -2285,13 +2285,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
               <Grid item xs={6} sm={3}>
                 <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #FED7AA', bgcolor: '#FFF7ED' }}>
                   <Typography variant="caption" sx={{ color: '#9A3412', fontWeight: 800, display: 'block' }}>
-                    लेट ग्रेस समयावधि
+                    Late Grace Period
                   </Typography>
                   <Typography variant="h4" sx={{ fontWeight: 900, color: '#C2410C', mt: 0.5 }}>
-                    {graceMins} मिनेट
+                    {graceMins} mins
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#EA580C', fontWeight: 700 }}>
-                    सिफ्ट सुरु भएपछिको छुट
+                    Shift start grace window
                   </Typography>
                 </Card>
               </Grid>
@@ -2304,7 +2304,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   <TextField
                     size="small"
                     fullWidth
-                    placeholder="खोज्नुहोस्: नाम, ID, मेसिन..."
+                    placeholder="Search Name, ID, Device..."
                     value={bioSearchQuery}
                     onChange={(e) => setBioSearchQuery(e.target.value)}
                     InputProps={{
@@ -2322,7 +2322,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     type="date"
                     size="small"
                     fullWidth
-                    label="लग मिति"
+                    label="Log Date"
                     value={bioDateFilter}
                     onChange={(e) => setBioDateFilter(e.target.value)}
                     InputLabelProps={{ shrink: true }}
@@ -2338,16 +2338,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     sx={{ width: '100%' }}
                   >
                     <ToggleButton value="ALL" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
-                      सबै
+                      All
                     </ToggleButton>
                     <ToggleButton value="STUDENT" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
-                      विद्यार्थी
+                      Trainee
                     </ToggleButton>
                     <ToggleButton value="TRAINER" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
-                      प्रशिक्षक
+                      Trainer
                     </ToggleButton>
                     <ToggleButton value="STAFF" sx={{ fontWeight: 800, textTransform: 'none', flex: 1 }}>
-                      स्टाफ
+                      Staff
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Grid>
@@ -2365,7 +2365,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     }}
                     sx={{ fontWeight: 800, borderRadius: 2, py: 0.8 }}
                   >
-                    रिसेट
+                    Reset
                   </Button>
                 </Grid>
               </Grid>
@@ -2378,25 +2378,25 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   <TableHead sx={{ bgcolor: '#0F2E5A' }}>
                     <TableRow>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        क्र.सं.
+                        S.N.
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>
-                        बायोमेट्रिक ID
+                        Biometric ID
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        प्रयोगकर्ताको नाम तथा पद
+                        Name & Designation
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
-                        भूमिका (Role)
+                        Role
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>
-                        स्क्यान मिति र समय
+                        Scan Date & Time
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
-                        स्थिति (Status)
+                        Status
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        स्रोत उपकरण (Device)
+                        Source Device
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -2425,10 +2425,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
                             <Chip
                               label={
                                 log.role === 'STUDENT'
-                                  ? 'प्रशिक्षार्थी'
+                                  ? 'Trainee'
                                   : log.role === 'TRAINER'
-                                  ? 'प्रशिक्षक'
-                                  : 'स्टाफ'
+                                  ? 'Trainer'
+                                  : 'Staff'
                               }
                               size="small"
                               sx={{
@@ -2458,7 +2458,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
                             <Chip
-                              label={isLate ? '🟠 १५ मिनेट ढिलो' : '🟢 समयमै प्रमाणित'}
+                              label={isLate ? '🟠 Late' : '🟢 On Time'}
                               size="small"
                               sx={{
                                 fontWeight: 800,
@@ -2481,7 +2481,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                       <TableRow>
                         <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94A3B8' }}>
                           <FingerprintIcon sx={{ fontSize: 44, color: '#CBD5E1', mb: 1, display: 'block', mx: 'auto' }} />
-                          छानिएको मिति वा फिल्टर अनुसार कुनै बायोमेट्रिक लग फेला परेन।
+                          No biometric logs found for the selected date and filter.
                         </TableCell>
                       </TableRow>
                     )}
@@ -2493,17 +2493,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
             {/* MODAL 1: USB / PENDRIVE LOG IMPORT DIALOG */}
             <Dialog open={openUsbDialog} onClose={() => setOpenUsbDialog(false)} maxWidth="sm" fullWidth>
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
-                📁 USB / पेनड्राइभ फाइल आयात (Import Offline Logs)
+                📁 Import Offline USB / Flash Drive Logs
               </DialogTitle>
               <DialogContent sx={{ pt: 3 }}>
                 <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
-                  ZKTeco वा Realtime बायोमेट्रिक मेसिनबाट पेनड्राइभमा डाउनलोड गरिएको <b>.DAT, .CSV वा .TXT</b> लग डेटा यहाँ पेस्ट गर्नुहोस् वा फाइल खोल्नुहोस्।
+                  Paste or upload attendance log data (<b>.DAT, .CSV, or .TXT</b>) downloaded from ZKTeco or Realtime biometric machine via USB flash drive.
                 </Typography>
                 <TextField
                   multiline
                   rows={8}
                   fullWidth
-                  placeholder={`उदा: \n1001\t2026-10-28 07:05:12\t1\n1002\t2026-10-28 07:18:40\t1\n2001\t2026-10-28 06:50:00\t1`}
+                  placeholder={`e.g.: \n1001\t2026-10-28 07:05:12\t1\n1002\t2026-10-28 07:18:40\t1\n2001\t2026-10-28 06:50:00\t1`}
                   value={usbTextData}
                   onChange={(e) => setUsbTextData(e.target.value)}
                   sx={{ fontFamily: 'monospace' }}
@@ -2527,17 +2527,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   />
                   <label htmlFor="usb-log-file-input">
                     <Button variant="outlined" component="span" startIcon={<CloudUploadIcon />} sx={{ fontWeight: 800 }}>
-                      पेनड्राइभबाट फाइल छान्नुहोस् (.DAT / .CSV)
+                      Select File (.DAT / .CSV / .TXT)
                     </Button>
                   </label>
                 </Box>
               </DialogContent>
               <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
                 <Button onClick={() => setOpenUsbDialog(false)} sx={{ fontWeight: 800 }}>
-                  रद्द गर्नुहोस्
+                  Cancel
                 </Button>
                 <Button variant="contained" onClick={handleProcessUsbLogs} sx={{ fontWeight: 900, bgcolor: '#0F2E5A' }}>
-                  फाइल प्रोसेस तथा सिङ्क गर्नुहोस्
+                  Process & Sync Logs
                 </Button>
               </DialogActions>
             </Dialog>
@@ -2545,12 +2545,12 @@ export default function AttendanceManager({ initialGroupId = null }) {
             {/* MODAL 2: SHIFT TIMINGS & GRACE SETTINGS DIALOG */}
             <Dialog open={openSettingsDialog} onClose={() => setOpenSettingsDialog(false)} maxWidth="sm" fullWidth>
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
-                ⚙️ बायोमेट्रिक मेसिन तथा सिफ्ट समय सेटिङ
+                ⚙️ Biometric Device & Shift Schedule Settings
               </DialogTitle>
               <DialogContent sx={{ pt: 3 }}>
                 <Stack spacing={2.2} sx={{ mt: 1 }}>
                   <TextField
-                    label="उपकरणको नाम (Device Name)"
+                    label="Device Name"
                     size="small"
                     fullWidth
                     value={bioSettingsForm.deviceName || ''}
@@ -2559,7 +2559,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   <Grid container spacing={2}>
                     <Grid item xs={8}>
                       <TextField
-                        label="उपकरण IP Address"
+                        label="Device IP Address"
                         size="small"
                         fullWidth
                         value={bioSettingsForm.deviceIp || ''}
@@ -2578,19 +2578,19 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   </Grid>
 
                   <TextField
-                    label="मेसिन सिरियल नम्बर (Serial No)"
+                    label="Machine Serial Number"
                     size="small"
                     fullWidth
                     value={bioSettingsForm.serialNo || ''}
                     onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, serialNo: e.target.value })}
                   />
 
-                  <Divider sx={{ my: 1 }}>सिफ्ट सुरु समय (Shift Schedules)</Divider>
+                  <Divider sx={{ my: 1 }}>Shift Schedules (Start Times)</Divider>
 
                   <Grid container spacing={2}>
                     <Grid item xs={4}>
                       <TextField
-                        label="बिहानी सिफ्ट"
+                        label="Morning Shift"
                         type="time"
                         size="small"
                         fullWidth
@@ -2601,7 +2601,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     </Grid>
                     <Grid item xs={4}>
                       <TextField
-                        label="दिवा सिफ्ट"
+                        label="Day Shift"
                         type="time"
                         size="small"
                         fullWidth
@@ -2612,7 +2612,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     </Grid>
                     <Grid item xs={4}>
                       <TextField
-                        label="साँझ सिफ्ट"
+                        label="Evening Shift"
                         type="time"
                         size="small"
                         fullWidth
@@ -2624,22 +2624,22 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   </Grid>
 
                   <TextField
-                    label="लेट ग्रेस समयावधि (Grace Period in Minutes)"
+                    label="Late Grace Period (Minutes)"
                     type="number"
                     size="small"
                     fullWidth
                     value={bioSettingsForm.lateGraceMinutes || 15}
                     onChange={(e) => setBioSettingsForm({ ...bioSettingsForm, lateGraceMinutes: Number(e.target.value) })}
-                    helperText="सिफ्ट सुरु भएपछि कति मिनेट सम्म आइपुग्दा समयमै मान्ने (डिफल्ट: १५ मिनेट)"
+                    helperText="Grace minutes allowed after shift starts before marked late (Default: 15 mins)"
                   />
                 </Stack>
               </DialogContent>
               <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
                 <Button onClick={() => setOpenSettingsDialog(false)} sx={{ fontWeight: 800 }}>
-                  रद्द
+                  Cancel
                 </Button>
                 <Button variant="contained" onClick={handleSaveBiometricSettings} sx={{ fontWeight: 900, bgcolor: '#0F2E5A' }}>
-                  सेटिङ सुरक्षित गर्नुहोस्
+                  Save Settings
                 </Button>
               </DialogActions>
             </Dialog>
@@ -2647,11 +2647,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
             {/* MODAL 3: LIVE SIMULATION PUNCH TEST DIALOG */}
             <Dialog open={openSimulateDialog} onClose={() => setOpenSimulateDialog(false)} maxWidth="sm" fullWidth>
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
-                🧪 प्रत्यक्ष थम्ब स्वाइप टेस्ट (Live Thumb Scan Simulation)
+                🧪 Live Thumb Scan Simulation Test
               </DialogTitle>
               <DialogContent sx={{ pt: 3 }}>
                 <Typography variant="body2" sx={{ color: '#475569', mb: 2 }}>
-                  मेसिन नजोडिएको अवस्थामा वा प्रत्यक्ष परीक्षण गर्न कुनै पनि विद्यार्थी वा प्रशिक्षकको थम्ब स्वाइप तत्काल परीक्षण गर्नुहोस्।
+                  Simulate real-time biometric scan events for testing without physical machine connection.
                 </Typography>
                 <Stack spacing={2.2} sx={{ mt: 1 }}>
                   <ToggleButtonGroup
@@ -2662,17 +2662,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     fullWidth
                   >
                     <ToggleButton value="STUDENT" sx={{ fontWeight: 800 }}>
-                      विद्यार्थी (Trainee)
+                      Trainee
                     </ToggleButton>
                     <ToggleButton value="TRAINER" sx={{ fontWeight: 800 }}>
-                      प्रशिक्षक (Trainer)
+                      Trainer
                     </ToggleButton>
                   </ToggleButtonGroup>
 
                   {simTargetRole === 'STUDENT' ? (
                     <TextField
                       select
-                      label="प्रशिक्षार्थी छान्नुहोस् (Select Trainee)"
+                      label="Select Trainee"
                       size="small"
                       fullWidth
                       value={simTargetId}
@@ -2680,14 +2680,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     >
                       {(db.students || []).map((s) => (
                         <MenuItem key={s.id} value={s.id}>
-                          {s.name} (मेसिन ID: #{s.biometricId || '1001'}) — TGID: {s.tgid}
+                          {s.name} (Machine ID: #{s.biometricId || '1001'}) — TGID: {s.tgid}
                         </MenuItem>
                       ))}
                     </TextField>
                   ) : (
                     <TextField
                       select
-                      label="प्रशिक्षक छान्नुहोस् (Select Trainer)"
+                      label="Select Trainer"
                       size="small"
                       fullWidth
                       value={simTargetId}
@@ -2695,7 +2695,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     >
                       {(db.trainers || []).map((t) => (
                         <MenuItem key={t.id} value={t.id}>
-                          {t.name} (मेसिन ID: #{t.biometricId || '2001'}) — {t.specialization}
+                          {t.name} (Machine ID: #{t.biometricId || '2001'}) — {t.specialization}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -2704,7 +2704,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
               </DialogContent>
               <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
                 <Button onClick={() => setOpenSimulateDialog(false)} sx={{ fontWeight: 800 }}>
-                  रद्द
+                  Cancel
                 </Button>
                 <Button
                   variant="contained"
@@ -2712,7 +2712,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   onClick={handleRunSimulationPunch}
                   sx={{ fontWeight: 900, bgcolor: '#10B981', '&:hover': { bgcolor: '#059669' } }}
                 >
-                  थम्ब स्क्यान प्रमाणित गर्नुहोस् (Scan Thumb)
+                  Simulate Thumb Scan
                 </Button>
               </DialogActions>
             </Dialog>
@@ -2827,7 +2827,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
               {/* Attendance Timeline Table */}
               <Typography variant="subtitle2" sx={{ fontWeight: 900, mb: 1, color: '#1e293b' }}>
-                दैनिक हाजिरी विवरण (Session-by-Session Log):
+                Session-by-Session Attendance Log:
               </Typography>
 
               <Card sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
@@ -2835,10 +2835,10 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   <Table size="small">
                     <TableHead sx={{ bgcolor: '#f1f5f9' }}>
                       <TableRow>
-                        <TableCell sx={{ fontWeight: 800 }}>मिति (Date)</TableCell>
-                        <TableCell sx={{ fontWeight: 800 }}>बार (Day)</TableCell>
-                        <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>स्थिति (Status)</TableCell>
-                        <TableCell sx={{ fontWeight: 800 }}>कैफियत (Remarks)</TableCell>
+                        <TableCell sx={{ fontWeight: 800 }}>Date</TableCell>
+                        <TableCell sx={{ fontWeight: 800 }}>Day</TableCell>
+                        <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Status</TableCell>
+                        <TableCell sx={{ fontWeight: 800 }}>Remarks</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -2852,7 +2852,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           <TableRow key={att.id} sx={{ '&:hover': { bgcolor: '#f8fafc' } }}>
                             <TableCell sx={{ fontWeight: 800 }}>{att.date}</TableCell>
                             <TableCell sx={{ color: '#64748b' }}>
-                              {new Date(att.date).toLocaleDateString('ne-NP', { weekday: 'short' })}
+                              {new Date(att.date).toLocaleDateString('en-US', { weekday: 'short' })}
                             </TableCell>
                             <TableCell sx={{ textAlign: 'center' }}>
                               <Chip
@@ -2876,7 +2876,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                       {myAtts.length === 0 && (
                         <TableRow>
                           <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4, color: '#94a3b8' }}>
-                            यो विद्यार्थीको कुनै हाजिरी रेकर्ड फेला परेन।
+                            No attendance records found for this student.
                           </TableCell>
                         </TableRow>
                       )}
@@ -2910,7 +2910,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 onClick={() => setCalendarStudentModal(null)}
                 sx={{ fontWeight: 800, bgcolor: '#0d3466' }}
               >
-                बन्द गर्नुहोस् (Close)
+                Close
               </Button>
             </DialogActions>
           </Dialog>

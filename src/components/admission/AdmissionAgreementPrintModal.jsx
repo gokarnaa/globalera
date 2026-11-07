@@ -59,16 +59,16 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
                   lineHeight: 1.2
                 }}
               >
-                ग्लोबल एरा मल्टि सर्भिस प्रा.लि.
+                Global Era Multi Service Pvt. Ltd.
               </Typography>
               <Typography
                 variant="subtitle2"
                 sx={{ fontWeight: 800, color: '#b45309', fontSize: { xs: '0.9rem', sm: '1rem' }, mt: 0.2 }}
               >
-                प्राविधिक स्कुल जोरपाटी (Prabidhik School Jorpati)
+                Technical School Jorpati
               </Typography>
               <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3, fontSize: '0.78rem' }}>
-                गोकर्णेश्वर नगरपालिका-०५, जोरपाटी, काठमाडौँ | फोन: ०१-४९१५५५५, ९८५१०००००० | पान नं: ६०९८७६५४३
+                Gokarneshwor Municipality-05, Jorpati, Kathmandu | Phone: 01-4915555, 9851000000 | PAN No: 609876543
               </Typography>
             </Box>
 
@@ -89,10 +89,10 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
                   textTransform: 'uppercase'
                 }}
               >
-                {isOffice ? 'संस्थाको प्रति (OFFICE COPY)' : 'विद्यार्थीको प्रति (STUDENT COPY)'}
+                {isOffice ? 'OFFICE COPY' : 'STUDENT COPY'}
               </Box>
               <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#64748b', fontSize: '0.72rem' }}>
-                सम्झौता नं: <strong>{admission.agreementNo || 'GE-AGR-001'}</strong>
+                Agreement No: <strong>{admission.agreementNo || 'GE-AGR-001'}</strong>
               </Typography>
             </Box>
           </Box>
@@ -110,10 +110,10 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
               fontSize: { xs: '1rem', sm: '1.1rem' }
             }}
           >
-            विद्यार्थी भर्ना तथा व्यावसायिक तालिम सम्झौता पत्र
+            TRAINEE ADMISSION & VOCATIONAL TRAINING AGREEMENT
           </Typography>
           <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 600, letterSpacing: '0.03em' }}>
-            STUDENT ADMISSION & VOCATIONAL TRAINING AGREEMENT
+            TERMS OF ENROLLMENT, FEE SCHEDULE & TRAINING CODE OF CONDUCT
           </Typography>
         </Box>
 
@@ -132,56 +132,56 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
           }}
         >
           <Box>
-            दर्ता/रोल नं: <strong>{admission.studentId || 'STD-01'} ({admission.tgid || 'TGID-101'})</strong>
+            Registration / Roll No: <strong>{admission.studentId || 'STD-01'} ({admission.tgid || 'TGID-101'})</strong>
           </Box>
           <Box>
-            भर्ना मिति: <strong>{admission.admissionDateBS || admission.admissionDate}</strong> ({admission.admissionDate})
+            Admission Date: <strong>{admission.admissionDateBS || admission.admissionDate}</strong>
           </Box>
           <Box>
-            स्थिति: <strong style={{ color: '#059669' }}>भर्ना सम्पन्न (ENROLLED)</strong>
+            Status: <strong style={{ color: '#059669' }}>ENROLLED</strong>
           </Box>
         </Box>
 
         {/* Section 1: Parties */}
         <Box sx={{ mb: 1.8 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', borderBottom: '1px solid #e2e8f0', pb: 0.3, mb: 0.8, fontSize: '0.85rem' }}>
-            १. सम्झौताका पक्षहरू (Parties to the Agreement):
+            1. Parties to the Agreement:
           </Typography>
           <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#334155' }}>
-            <strong>प्रथम पक्ष (संस्था):</strong> ग्लोबल एरा मल्टि सर्भिस प्रा.लि. (प्राविधिक स्कुल जोरपाटी), गोकर्णेश्वर-०५, काठमाडौँ।
+            <strong>First Party (Institution):</strong> Global Era Multi Service Pvt. Ltd. (Technical School Jorpati), Gokarneshwor-05, Kathmandu.
             <br />
-            <strong>दोस्रो पक्ष (विद्यार्थी):</strong> श्री / सुश्री <strong>{admission.studentName}</strong>, लिङ्ग: <strong>{admission.gender || 'Female'}</strong>, फोन नं: <strong>{admission.phone}</strong> {admission.secondaryPhone ? `(${admission.secondaryPhone})` : ''}, हालको ठेगाना: <strong>{admission.currentAddress || 'काठमाडौँ'}</strong>, स्थायी ठेगाना: <strong>{admission.permanentAddress || 'काठमाडौँ'}</strong>, नागरिकता/परिचयपत्र नं: <strong>{admission.citizenshipNumber || 'उपलब्ध छैन'}</strong>।
+            <strong>Second Party (Trainee):</strong> Mr./Ms. <strong>{admission.studentName}</strong>, Gender: <strong>{admission.gender || 'Female'}</strong>, Phone: <strong>{admission.phone}</strong> {admission.secondaryPhone ? `(${admission.secondaryPhone})` : ''}, Current Address: <strong>{admission.currentAddress || 'Kathmandu'}</strong>, Permanent Address: <strong>{admission.permanentAddress || 'Kathmandu'}</strong>, Citizenship/ID No: <strong>{admission.citizenshipNumber || 'N/A'}</strong>.
           </Typography>
         </Box>
 
         {/* Section 2: Training Details */}
         <Box sx={{ mb: 1.8 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', borderBottom: '1px solid #e2e8f0', pb: 0.3, mb: 0.8, fontSize: '0.85rem' }}>
-            २. तालिम सम्बन्धी विवरण तथा सिकाइ प्रारूप (Course & Training Scope):
+            2. Course & Training Scope:
           </Typography>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 1, bgcolor: '#f8fafc', p: 1.2, borderRadius: 1, border: '1px solid #e2e8f0', fontSize: '0.82rem' }}>
-            <Box>तालिम / कोर्सको नाम: <strong>{admission.courseTitle}</strong></Box>
-            <Box>ब्याच / समूह: <strong>{admission.groupName || 'GRP-01'}</strong></Box>
-            <Box>दैनिक सिफ्ट र समय: <strong>{admission.shift} ({admission.timing})</strong></Box>
-            <Box>कुल तालिम अवधि: <strong>{admission.duration}</strong></Box>
+            <Box>Course Title: <strong>{admission.courseTitle}</strong></Box>
+            <Box>Training Batch: <strong>{admission.groupName || 'GRP-01'}</strong></Box>
+            <Box>Daily Shift & Time: <strong>{admission.shift} ({admission.timing})</strong></Box>
+            <Box>Total Duration: <strong>{admission.duration}</strong></Box>
           </Box>
           <Box sx={{ mt: 0.8, fontSize: '0.8rem', color: '#475569' }}>
-            <strong>तालिममा सिकाइने मुख्य सीपहरू:</strong> {admission.keySkills || 'कोर्सको पाठ्यक्रम अनुसार प्रयोगात्मक तथा सैद्धान्तिक सीपहरू, मेसिन तथा उपकरण सञ्चालन, कार्यस्थल सुरक्षा र व्यावसायिक फिनिसिङ।'}
+            <strong>Curriculum & Key Skills:</strong> {admission.keySkills || 'Theoretical and practical skills according to approved curriculum, machinery and tool operations, occupational safety, and professional finishing.'}
           </Box>
         </Box>
 
         {/* Section 3: OJT & Placement */}
         <Box sx={{ mb: 1.8 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', borderBottom: '1px solid #e2e8f0', pb: 0.3, mb: 0.8, fontSize: '0.85rem' }}>
-            ३. OJT (On-the-Job Training) तथा रोजगारी सहजीकरण:
+            3. On-the-Job Training (OJT) & Industry Facilitation:
           </Typography>
           <Box sx={{ bgcolor: '#f1f5f9', p: 1.2, borderRadius: 1, fontSize: '0.82rem', lineHeight: 1.5 }}>
             <Box sx={{ display: 'flex', gap: 3, mb: 0.5 }}>
-              <span>OJT सुविधा रोजाइ: <strong>{admission.ojtPreference === 'REQUIRED' ? '✓ आवश्यक छ (संस्थाले समन्वय गर्ने)' : '✗ आवश्यक छैन (स्वयं व्यवस्था गर्ने)'}</strong></span>
-              <span>OJT शुल्क: <strong style={{ color: '#059669' }}>निःशुल्क (कोर्स शुल्कमै समावेश)</strong></span>
+              <span>OJT Facility: <strong>{admission.ojtPreference === 'REQUIRED' ? '✓ Required (Coordinated by Institution)' : '✗ Not Required (Self Arranged)'}</strong></span>
+              <span>OJT Fee: <strong style={{ color: '#059669' }}>Complimentary (Included in Course Fee)</strong></span>
             </Box>
             <Typography variant="body2" sx={{ fontSize: '0.78rem', color: '#475569' }}>
-              • तालिम सफलतापूर्वक सम्पन्न गरेपछि विद्यार्थीको सीप, नियमित उपस्थिति तथा अनुशासनको आधारमा संस्थाले सम्बन्धित कम्पनी/उद्योगहरूमा OJT इन्टर्नशिप तथा रोजगार अन्तर्वार्ताका लागि सिफारिस तथा समन्वय गरिदिनेछ।
+              • Upon successful completion of training with regular attendance and satisfactory practical evaluation, the institution shall coordinate and recommend the student for OJT internship and employment interviews at partner industries.
             </Typography>
           </Box>
         </Box>
@@ -189,74 +189,74 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
         {/* Section 4: Fee Structure & 50% Rule */}
         <Box sx={{ mb: 1.8 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', borderBottom: '1px solid #e2e8f0', pb: 0.3, mb: 0.8, fontSize: '0.85rem' }}>
-            ४. शुल्क संरचना तथा किस्ता भुक्तानी सर्तहरू (Fee Structure & Strict Payment Terms):
+            4. Fee Structure & Payment Terms:
           </Typography>
           <Box sx={{ border: '1px solid #cbd5e1', borderRadius: 1, overflow: 'hidden', mb: 1 }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem', textAlign: 'left' }}>
               <thead>
                 <tr style={{ backgroundColor: '#0f2e5a', color: '#ffffff' }}>
-                  <th style={{ padding: '6px 10px', borderRight: '1px solid #334155' }}>विवरण (Particulars)</th>
-                  <th style={{ padding: '6px 10px', borderRight: '1px solid #334155', textAlign: 'right' }}>रकम (रु.)</th>
-                  <th style={{ padding: '6px 10px' }}>भुक्तानी स्थिति / अन्तिम मिति</th>
+                  <th style={{ padding: '6px 10px', borderRight: '1px solid #334155' }}>Particulars</th>
+                  <th style={{ padding: '6px 10px', borderRight: '1px solid #334155', textAlign: 'right' }}>Amount (Rs.)</th>
+                  <th style={{ padding: '6px 10px' }}>Payment Status / Due Date</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  <td style={{ padding: '6px 10px' }}>कुल तोकिएको कोर्स शुल्क</td>
-                  <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>रु. {(Number(admission.totalCourseFee) || 0).toLocaleString()}</td>
-                  <td style={{ padding: '6px 10px', color: '#64748b' }}>नियमित शुल्क</td>
+                  <td style={{ padding: '6px 10px' }}>Standard Course Fee</td>
+                  <td style={{ padding: '6px 10px', textAlign: 'right', fontWeight: 600 }}>Rs. {(Number(admission.totalCourseFee) || 0).toLocaleString()}</td>
+                  <td style={{ padding: '6px 10px', color: '#64748b' }}>Standard Fee</td>
                 </tr>
                 {admission.discountAmount > 0 && (
                   <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#fefce8' }}>
-                    <td style={{ padding: '6px 10px', color: '#b45309' }}>स्वीकृत विशेष छुट / छात्रवृत्ति</td>
-                    <td style={{ padding: '6px 10px', textAlign: 'right', color: '#b45309', fontWeight: 600 }}>- रु. {(Number(admission.discountAmount) || 0).toLocaleString()}</td>
-                    <td style={{ padding: '6px 10px', color: '#b45309' }}>संस्थाद्वारा छुट स्वीकृत</td>
+                    <td style={{ padding: '6px 10px', color: '#b45309' }}>Approved Special Scholarship / Discount</td>
+                    <td style={{ padding: '6px 10px', textAlign: 'right', color: '#b45309', fontWeight: 600 }}>- Rs. {(Number(admission.discountAmount) || 0).toLocaleString()}</td>
+                    <td style={{ padding: '6px 10px', color: '#b45309' }}>Discount Approved</td>
                   </tr>
                 )}
                 <tr style={{ borderBottom: '1px solid #cbd5e1', backgroundColor: '#f8fafc', fontWeight: 700 }}>
-                  <td style={{ padding: '6px 10px' }}>खुद तिर्नुपर्ने शुल्क (Net Payable Fee)</td>
-                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#0f2e5a' }}>रु. {(Number(admission.netPayableFee) || 0).toLocaleString()}</td>
-                  <td style={{ padding: '6px 10px', color: '#0f2e5a' }}>सम्झौता रकम</td>
+                  <td style={{ padding: '6px 10px' }}>Net Payable Fee</td>
+                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#0f2e5a' }}>Rs. {(Number(admission.netPayableFee) || 0).toLocaleString()}</td>
+                  <td style={{ padding: '6px 10px', color: '#0f2e5a' }}>Agreed Fee</td>
                 </tr>
                 <tr style={{ borderBottom: '1px solid #e2e8f0', backgroundColor: '#ecfdf5' }}>
-                  <td style={{ padding: '6px 10px', color: '#065f46', fontWeight: 700 }}>पहिलो किस्ता (भर्नाको समयमा ५०% अग्रिम भुक्तान)</td>
-                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#065f46', fontWeight: 800 }}>रु. {(Number(admission.advancePaid50) || 0).toLocaleString()}</td>
+                  <td style={{ padding: '6px 10px', color: '#065f46', fontWeight: 700 }}>1st Installment (50% Advance at Admission)</td>
+                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#065f46', fontWeight: 800 }}>Rs. {(Number(admission.advancePaid50) || 0).toLocaleString()}</td>
                   <td style={{ padding: '6px 10px', color: '#065f46' }}>
-                    <strong>चुक्ता (रसिद नं: {admission.receiptNo})</strong> | {admission.paymentMethod}
+                    <strong>Paid (Receipt: {admission.receiptNo})</strong> | {admission.paymentMethod}
                   </td>
                 </tr>
                 <tr style={{ backgroundColor: '#fff1f2' }}>
-                  <td style={{ padding: '6px 10px', color: '#991b1b', fontWeight: 700 }}>दोस्रो किस्ता (बाँकी ५०% रकम)</td>
-                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#991b1b', fontWeight: 800 }}>रु. {(Number(admission.dueAmount50) || 0).toLocaleString()}</td>
+                  <td style={{ padding: '6px 10px', color: '#991b1b', fontWeight: 700 }}>2nd Installment (Remaining 50%)</td>
+                  <td style={{ padding: '6px 10px', textAlign: 'right', color: '#991b1b', fontWeight: 800 }}>Rs. {(Number(admission.dueAmount50) || 0).toLocaleString()}</td>
                   <td style={{ padding: '6px 10px', color: '#991b1b', fontWeight: 700 }}>
-                    अन्तिम मिति: {admission.dueDate} (३० दिन भित्र)
+                    Due Date: {admission.dueDate} (Within 30 Days)
                   </td>
                 </tr>
               </tbody>
             </table>
           </Box>
           <Box sx={{ fontSize: '0.78rem', color: '#b91c1c', fontWeight: 600, pl: 0.5 }}>
-            * नियम: भर्ना भएको ३० दिन (१ महिना) भित्र बाँकी ५०% शुल्क अनिवार्य भुक्तानी गरिसक्नुपर्नेछ। तोकिएको अवधिमा शुल्क नबुझाएमा कक्षा प्रवेश रोकिनेछ। भर्ना भइसकेपछि बुझाएको शुल्क कुनै पनि अवस्थामा फिर्ता हुनेछैन (Non-refundable)।
+            * Policy: Remaining 50% course fee must be paid within 30 days of training start. Fees paid are non-refundable under all circumstances.
           </Box>
         </Box>
 
         {/* Section 5: Rules & Regulations */}
         <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', borderBottom: '1px solid #e2e8f0', pb: 0.3, mb: 0.8, fontSize: '0.85rem' }}>
-            ५. संस्थाको आचारसंहिता, ब्याच सार्ने नीति तथा सर्तहरू (Rules & Policies):
+            5. Rules, Code of Conduct & Batch Transfer Policy:
           </Typography>
           <Box component="ol" sx={{ m: 0, pl: 2.5, fontSize: '0.78rem', color: '#334155', lineHeight: 1.5 }}>
-            <li><strong>उपस्थिति:</strong> तालिममा कम्तीमा <strong>८०% उपस्थिति</strong> अनिवार्य छ। बिना जानकारी लगातार ३ दिनभन्दा बढी अनुपस्थित भएमा स्पष्टीकरण सोधिनेछ।</li>
-            <li><strong>सुरक्षा र उपकरण:</strong> तालिममा प्रयोग हुने औजार, मेसिन र कच्चा पदार्थको जतन गर्नुपर्नेछ। लापरवाही वा तोडफोडबाट क्षति भएमा क्षतिपूर्ति विद्यार्थीले व्यहोर्नुपर्नेछ।</li>
-            <li><strong>ब्याच सार्ने सुविधा (Batch Transfer):</strong> विशेष व्यावहारिक वा स्वास्थ्य कारणले नियमित उपस्थित हुन नसकेमा लिखित निवेदन दिई संस्थाको पूर्वस्वीकृति लिएर <strong>१ पटक अर्को ब्याचमा सर्न (Transfer हुन)</strong> पाइनेछ।</li>
-            <li><strong>प्रमाणपत्र प्राप्ति:</strong> सम्पूर्ण शुल्क चुक्ता (Full Clearance) भएको र तोकिएको आन्तरिक प्रयोगात्मक मूल्याङ्कन उत्तीर्ण भएपछि मात्र संस्थाको आधिकारिक प्रमाणपत्र र OJT सिफारिस पत्र प्रदान गरिनेछ।</li>
+            <li><strong>Attendance:</strong> Minimum <strong>80% attendance</strong> is mandatory to be eligible for certification and OJT recommendation.</li>
+            <li><strong>Safety & Equipment:</strong> Trainees must carefully handle all lab equipment, machines, and tools. Any intentional damage or negligence must be compensated by the trainee.</li>
+            <li><strong>Batch Transfer Policy:</strong> In case of unavoidable health or personal emergencies, a trainee may request <strong>1 batch transfer</strong> upon prior written approval from the administration.</li>
+            <li><strong>Certification:</strong> Official course completion certificates and OJT letters are issued only after 100% fee clearance and passing internal skill assessments.</li>
           </Box>
         </Box>
 
         {/* Section 6: Declaration & Signatures */}
         <Box sx={{ mt: 2.5, pt: 1.5, borderTop: '1.5px solid #cbd5e1' }}>
           <Typography variant="body2" sx={{ fontSize: '0.78rem', fontStyle: 'italic', color: '#475569', mb: 3 }}>
-            "मैले माथि उल्लिखित तालिम विवरण, ५०% अग्रिम र बाँकी ५०% एक महिनाभित्र बुझाउने शुल्कका सर्तहरू, संस्थाका नियम तथा आचारसंहिता राम्ररी पढेर/बुझेर पूर्ण सहमतिका साथ यो सम्झौता पत्रमा हस्ताक्षर गरेको छु।"
+            "I have thoroughly read and understood the course scope, fee schedule, 50% advance and 30-day payment term, code of conduct, and institute regulations, and hereby sign this agreement in full concurrence."
           </Typography>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', px: 2 }}>
@@ -264,13 +264,13 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
             <Box sx={{ textAlign: 'center', width: '220px' }}>
               <Box sx={{ borderBottom: '1.5px dashed #475569', height: '40px', mb: 0.5 }}></Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.84rem' }}>
-                विद्यार्थीको हस्ताक्षर
+                Trainee's Signature
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.74rem' }}>
-                नाम: <strong>{admission.studentName}</strong>
+                Name: <strong>{admission.studentName}</strong>
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
-                फोन: {admission.phone}
+                Phone: {admission.phone}
               </Typography>
             </Box>
 
@@ -291,7 +291,7 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
                   mx: 'auto'
                 }}
               >
-                संस्थाको छाप
+                Official Seal
               </Box>
             </Box>
 
@@ -299,13 +299,13 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
             <Box sx={{ textAlign: 'center', width: '220px' }}>
               <Box sx={{ borderBottom: '1.5px dashed #475569', height: '40px', mb: 0.5 }}></Box>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.84rem' }}>
-                संस्था प्रमुख / अधिकृत हस्ताक्षर
+                Authorized Signatory / Principal
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.74rem' }}>
-                ग्लोबल एरा मल्टि सर्भिस प्रा.लि.
+                Global Era Multi Service Pvt. Ltd.
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.72rem' }}>
-                मिति: {admission.admissionDateBS || admission.admissionDate}
+                Date: {admission.admissionDateBS || admission.admissionDate}
               </Typography>
             </Box>
           </Box>
@@ -333,10 +333,10 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
           <SchoolIcon sx={{ color: '#f59e0b' }} />
           <Box>
             <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-              विद्यार्थी भर्ना सम्झौता पत्र (Admission & Training Agreement)
+              Trainee Admission Agreement
             </Typography>
             <Typography variant="caption" sx={{ color: '#cbd5e1' }}>
-              A4 आकारमा २ प्रति (संस्थाको प्रति र विद्यार्थीको प्रति) प्रिन्ट गर्नुहोस्
+              Print dual copies (Office Copy and Student Copy) on standard A4 paper
             </Typography>
           </Box>
         </Stack>
@@ -349,7 +349,7 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
             onClick={handlePrint}
             sx={{ fontWeight: 800, px: 2.5 }}
           >
-            A4 दुई प्रति प्रिन्ट (Print Agreement)
+            Print Dual Copy (A4)
           </Button>
           <IconButton onClick={onClose} sx={{ color: '#cbd5e1' }}>
             <CloseIcon />
@@ -369,11 +369,11 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
 
       <DialogActions className="no-print" sx={{ p: 2, bgcolor: '#ffffff', borderTop: '1px solid #e2e8f0', justifyContent: 'space-between' }}>
         <Typography variant="caption" sx={{ color: '#64748b' }}>
-          * प्रिन्टरमा A4 साइज छनोट गर्नुहोस्। ब्राउजरले स्वतः २ पेजमा दुवै प्रति प्रिन्ट गर्नेछ।
+          * Select A4 size in your print dialogue. Both copies will print automatically across 2 pages.
         </Typography>
         <Stack direction="row" spacing={1.5}>
           <Button onClick={onClose} color="inherit">
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
           <Button
             variant="contained"
@@ -382,7 +382,7 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
             onClick={handlePrint}
             sx={{ fontWeight: 800 }}
           >
-            प्रिन्ट गर्नुहोस् (Print)
+            Print
           </Button>
         </Stack>
       </DialogActions>

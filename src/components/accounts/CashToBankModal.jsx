@@ -30,15 +30,15 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
 
   const [depositAmount, setDepositAmount] = useState('');
   const [targetBank, setTargetBank] = useState('1020'); // 1020: Bank Account
-  const [bankName, setBankName] = useState('Global IME Bank (खाता: ०१२०००१२३४५)');
+  const [bankName, setBankName] = useState('Global IME Bank (A/C: 01200012345)');
   const [slipReference, setSlipReference] = useState('');
   const [remarks, setRemarks] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleBankChange = (code) => {
     setTargetBank(code);
-    if (code === '1020') setBankName('Global IME Bank (खाता: ०१२०००१२३४५)');
-    else setBankName('Nabil Bank Ltd. (खाता: ०१२३४५६७८९०)');
+    if (code === '1020') setBankName('Global IME Bank (A/C: 01200012345)');
+    else setBankName('Nabil Bank Ltd. (A/C: 01234567890)');
   };
 
   const handleDepositSubmit = (e) => {
@@ -46,17 +46,17 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
     const amt = Number(depositAmount) || 0;
 
     if (amt <= 0) {
-      setErrorMsg('कृपया दाखिला गर्ने रकम खुलाउनुहोस्।');
+      setErrorMsg('Please enter the deposit amount.');
       return;
     }
 
     if (amt > currentCashInHand) {
-      setErrorMsg(`दराजमा रु. ${currentCashInHand.toLocaleString()} मात्र छ, सोभन्दा बढी दाखिला गर्न मिल्दैन।`);
+      setErrorMsg(`Only Rs. ${currentCashInHand.toLocaleString()} is available in the drawer; cannot deposit more than that.`);
       return;
     }
 
     const refNo = slipReference.trim() || `DEP-${Date.now().toString().slice(-6)}`;
-    const narrationText = `काउन्टर नगदबाट बैंक दाखिला (Deposit to ${bankName}) - भौचर ${refNo}`;
+    const narrationText = `Bank Deposit from Counter Cash (Deposit to ${bankName}) - Voucher ${refNo}`;
 
     // Post Contra Double-Entry Journal:
     // Debit: Bank Account (1020)
@@ -94,12 +94,12 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
       refNo,
       type: 'BANK_DEPOSIT',
       name: bankName,
-      sub: 'काउन्टरबाट बैंक दाखिला (Contra Entry)',
+      sub: 'Bank Deposit from Counter (Contra Entry)',
       amount: amt,
       isInflow: false,
       date: today,
-      method: 'Bank Deposit (भौतिक दाखिला)',
-      remarks: remarks.trim() || 'दैनिक संकलित नगद बैंकमा दाखिला',
+      method: 'Bank Deposit (Physical Deposit)',
+      remarks: remarks.trim() || 'Daily collected cash deposited to bank',
       createdAt: new Date().toISOString()
     };
 
@@ -118,7 +118,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
     }
 
     if (showToast) {
-      showToast(`बैंक दाखिला रु. ${amt.toLocaleString()} सफलतापूर्वक सम्पन्न भयो (Contra Entry Posted).`, 'success');
+      showToast(`Bank deposit of Rs. ${amt.toLocaleString()} completed successfully (Contra Entry Posted).`, 'success');
     }
 
     onClose();
@@ -172,10 +172,10 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-              काउन्टर नगद बैंक दाखिला (Deposit Cash to Bank)
+              Deposit Cash to Bank
             </Typography>
             <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 600 }}>
-              कन्ट्रा प्रविष्टि (Contra Entry) • दराजको नगद सिधै बैंक खातामा ट्रान्सफर
+              Contra Entry • Direct transfer of drawer cash to bank account
             </Typography>
           </Box>
         </Box>
@@ -209,12 +209,12 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
           >
             {/* Source */}
             <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>स्रोत खाता (Source)</Typography>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Source Account</Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                💵 काउन्टर नगद (1010)
+                💵 Counter Cash (1010)
               </Typography>
               <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
-                मौज्दात: Rs. {currentCashInHand.toLocaleString()}
+                Balance: Rs. {currentCashInHand.toLocaleString()}
               </Typography>
             </Box>
 
@@ -224,9 +224,9 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
 
             {/* Destination */}
             <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>दाखिला खाता (Target)</Typography>
+              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Target Account</Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                🏦 बैंक खाता ({targetBank})
+                🏦 Bank Account ({targetBank})
               </Typography>
               <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800 }}>
                 {targetBank === '1020' ? 'Global IME Bank' : 'Nabil Bank'}
@@ -240,13 +240,13 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
               select
               fullWidth
               size="small"
-              label="दाखिला हुने बैंक खाता छान्नुहोस् (Select Bank Account)"
+              label="Select Bank Account"
               value={targetBank}
               onChange={(e) => handleBankChange(e.target.value)}
               sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
             >
-              <MenuItem value="1020">🏦 ग्लोबल आइएमई बैंक (Global IME Bank - A/C ०१२०००१२३४५)</MenuItem>
-              <MenuItem value="1021">🏦 नबिल बैंक लिमिटेड (Nabil Bank Ltd. - A/C ०१२३४५६७८९०)</MenuItem>
+              <MenuItem value="1020">🏦 Global IME Bank (A/C 01200012345)</MenuItem>
+              <MenuItem value="1021">🏦 Nabil Bank Ltd. (A/C 01234567890)</MenuItem>
             </TextField>
           </Box>
 
@@ -256,7 +256,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
               fullWidth
               required
               type="number"
-              label="बैंकमा दाखिला गरिने नगद रकम (Deposit Amount in Rs.)"
+              label="Deposit Amount (in Rs.)"
               value={depositAmount}
               onChange={(e) => {
                 setDepositAmount(e.target.value);
@@ -265,7 +265,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
               InputProps={{
                 startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
               }}
-              helperText={`अधिकतम दाखिला गर्न मिल्ने रकम: Rs. ${currentCashInHand.toLocaleString()}`}
+              helperText={`Maximum depositable amount: Rs. ${currentCashInHand.toLocaleString()}`}
               sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
             />
           </Box>
@@ -275,7 +275,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
             <TextField
               fullWidth
               size="small"
-              label="बैंक दाखिला भौचर / स्लिप नं. (Deposit Slip Ref No.)"
+              label="Deposit Slip Ref No."
               placeholder="e.g. GIME-DEP-84920"
               value={slipReference}
               onChange={(e) => setSlipReference(e.target.value)}
@@ -296,7 +296,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
             multiline
             rows={2}
             size="small"
-            label="दाखिला कैफियत / टिप्पणी (Remarks)"
+            label="Remarks"
             placeholder="e.g. Deposited excess counter fee collection to Global IME Bank"
             value={remarks}
             onChange={(e) => setRemarks(e.target.value)}
@@ -306,7 +306,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
 
         <DialogActions sx={{ p: 2.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748B', textTransform: 'none' }}>
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             type="submit"
@@ -322,7 +322,7 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
               fontSize: '0.88rem'
             }}
           >
-            🏦 बैंक दाखिला प्रमाणित गर्नुहोस् (Confirm Deposit)
+            🏦 Confirm Deposit
           </Button>
         </DialogActions>
       </form>

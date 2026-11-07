@@ -213,10 +213,10 @@ export default function StudentManager() {
     const std = (db.students || []).find((s) => s.id === id);
     const ok = await confirm({
       type: 'danger',
-      title: 'प्रशिक्षार्थी अभिलेख मेटाउने निश्चित गर्नुहोस् (Delete Trainee)',
-      message: `के तपाईं प्रशिक्षार्थी "${std?.name || id}" (${std?.tgid || ''}) को सम्पूर्ण विवरण मेटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो कार्यपछि प्रशिक्षार्थीको हाजिरी, शुल्क लेजर र मूल्याङ्कन रेकर्ड प्रभावित हुन सक्नेछ।',
-      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      title: 'Confirm Trainee Deletion',
+      message: `Are you sure you want to permanently delete all records for trainee "${std?.name || id}" (${std?.tgid || ''})?`,
+      detail: 'This action will permanently affect the student attendance, ledger fees, and skill evaluation history.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
 
@@ -308,7 +308,7 @@ export default function StudentManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <SchoolIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Student Management & Digital Dossier (विद्यार्थी)
+              Student Management & Digital Dossier
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
@@ -403,15 +403,15 @@ export default function StudentManager() {
               >
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    क्र.सं. (S.N.)
+                    S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रशिक्षार्थी (Student)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम समूह र सिफ्ट (Batch & Shift)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क र WhatsApp</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>शुल्क स्थिति (Fee Status)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भर्ना मिति (Admission Date)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>स्थिति (Status)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch & Shift</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact & WhatsApp</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Fee Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Admission Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -438,7 +438,7 @@ export default function StudentManager() {
                               <Chip
                                 size="small"
                                 icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
-                                label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                                label={`Machine ID: #${std.biometricId || 'N/A'}`}
                                 sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                               />
                             </Typography>
@@ -587,7 +587,7 @@ export default function StudentManager() {
                           <Chip
                             size="small"
                             icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
-                            label={`मेसिन ID: #${std.biometricId || 'N/A'}`}
+                            label={`Machine ID: #${std.biometricId || 'N/A'}`}
                             sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                           />
                         </Typography>
@@ -699,10 +699,10 @@ export default function StudentManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-                {editingItem ? 'विद्यार्थी विवरण सम्पादन (Edit Student Details)' : 'नयाँ विद्यार्थी भर्ना (Enroll New Student)'}
+                {editingItem ? 'Edit Student Details' : 'Enroll New Student'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
-                {editingItem ? 'विद्यार्थीको व्यक्तिगत तथा शैक्षिक विवरण अद्यावधिक गर्नुहोस्' : 'प्रशिक्षार्थीको व्यक्तिगत विवरण र तालिम समूह आबद्धता भर्नुहोस्'}
+                {editingItem ? 'Update trainee personal and academic information' : 'Fill in student details and training group assignment'}
               </Typography>
             </Box>
           </Box>
@@ -730,11 +730,11 @@ export default function StudentManager() {
           }}
         >
           <Stack spacing={2.5}>
-            {/* Section 1: प्राथमिक परिचय तथा समूह आबद्धता */}
+            {/* Section 1: Batch & Identity */}
             <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2E5A' }} />
-                १. प्राथमिक परिचय तथा तालिम समूह आबद्धता (Batch & Identity)
+                1. Batch Assignment & Identity
               </Typography>
 
               <Grid container spacing={2}>
@@ -743,7 +743,7 @@ export default function StudentManager() {
                     label="Student TGID"
                     fullWidth
                     size="small"
-                    placeholder="उदा: TGID-105"
+                    placeholder="e.g. TGID-105"
                     value={formData.tgid}
                     onChange={(e) => setFormData({ ...formData, tgid: e.target.value })}
                     required
@@ -751,10 +751,10 @@ export default function StudentManager() {
                 </Grid>
                 <Grid item xs={12} sm={3.5}>
                   <TextField
-                    label="बायोमेट्रिक मेसिन ID"
+                    label="Biometric Machine ID"
                     fullWidth
                     size="small"
-                    placeholder="उदा: 1005"
+                    placeholder="e.g. 1005"
                     value={formData.biometricId || ''}
                     onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
                     InputProps={{
@@ -764,15 +764,15 @@ export default function StudentManager() {
                         </InputAdornment>
                       )
                     }}
-                    helperText="ZKTeco / WiFi मेसिनमा दर्ता भएको User ID"
+                    helperText="User ID registered on ZKTeco / Biometric device"
                   />
                 </Grid>
                 <Grid item xs={12} sm={5}>
                   <TextField
-                    label="Full Name (देवनागरी / English)"
+                    label="Full Name"
                     fullWidth
                     size="small"
-                    placeholder="उदा: सीता शर्मा / Sita Sharma"
+                    placeholder="e.g. Sita Sharma"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     required
@@ -787,11 +787,11 @@ export default function StudentManager() {
                     size="small"
                     value={formData.groupId}
                     onChange={(e) => handleGroupSelect(e.target.value)}
-                    helperText="समूह चयन गर्दा विद्यार्थी स्वतः सम्बन्धित पाठ्यक्रम, प्रशिक्षक र सिफ्टसँग आबद्ध हुन्छ।"
+                    helperText="Selecting a group links the trainee to course curriculum, trainer, and shift."
                     required
                   >
                     <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                      -- तालिम समूह चयन गर्नुहोस् (Select Group) --
+                      -- Select Training Group --
                     </MenuItem>
                     {myGroups.map((grp) => {
                       const crs = db.courses.find((c) => c.id === grp.courseId);
@@ -806,11 +806,11 @@ export default function StudentManager() {
               </Grid>
             </Paper>
 
-            {/* Section 2: सम्पर्क तथा व्यक्तिगत विवरण */}
+            {/* Section 2: Contact & Demographics */}
             <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
-                २. सम्पर्क तथा व्यक्तिगत विवरण (Contact & Demographics)
+                2. Contact & Demographics
               </Typography>
 
               <Grid container spacing={2}>
@@ -846,11 +846,11 @@ export default function StudentManager() {
                     onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
                   >
                     <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                      -- लिंग चयन गर्नुहोस् --
+                      -- Select Gender --
                     </MenuItem>
-                    <MenuItem value="Female">Female (महिला)</MenuItem>
-                    <MenuItem value="Male">Male (पुरुष)</MenuItem>
-                    <MenuItem value="Other">Other (अन्य)</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Other">Other</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -869,7 +869,7 @@ export default function StudentManager() {
                     label="Citizenship Number"
                     fullWidth
                     size="small"
-                    placeholder="उदा: 27-01-75-XXXXX"
+                    placeholder="e.g. 27-01-75-XXXXX"
                     value={formData.citizenshipNumber}
                     onChange={(e) => setFormData({ ...formData, citizenshipNumber: e.target.value })}
                   />
@@ -877,11 +877,11 @@ export default function StudentManager() {
               </Grid>
             </Paper>
 
-            {/* Section 3: ठेगाना तथा पारिवारिक विवरण */}
+            {/* Section 3: Address & Family */}
             <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
-                ३. ठेगाना तथा पारिवारिक विवरण (Address & Family)
+                3. Address & Family
               </Typography>
 
               <Grid container spacing={2}>
@@ -890,7 +890,7 @@ export default function StudentManager() {
                     label="Permanent Address"
                     fullWidth
                     size="small"
-                    placeholder="उदा: Pokhara-8, Kaski"
+                    placeholder="e.g. Pokhara-8, Kaski"
                     value={formData.permanentAddress}
                     onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
                   />
@@ -900,7 +900,7 @@ export default function StudentManager() {
                     label="Current Address"
                     fullWidth
                     size="small"
-                    placeholder="उदा: Koteshwor, Kathmandu"
+                    placeholder="e.g. Koteshwor, Kathmandu"
                     value={formData.currentAddress}
                     onChange={(e) => setFormData({ ...formData, currentAddress: e.target.value })}
                   />
@@ -910,7 +910,7 @@ export default function StudentManager() {
                     label="Father Name"
                     fullWidth
                     size="small"
-                    placeholder="बुबाको नाम"
+                    placeholder="Father's Name"
                     value={formData.fatherName}
                     onChange={(e) => setFormData({ ...formData, fatherName: e.target.value })}
                   />
@@ -920,7 +920,7 @@ export default function StudentManager() {
                     label="Mother Name"
                     fullWidth
                     size="small"
-                    placeholder="आमाको नाम"
+                    placeholder="Mother's Name"
                     value={formData.motherName}
                     onChange={(e) => setFormData({ ...formData, motherName: e.target.value })}
                   />
@@ -928,11 +928,11 @@ export default function StudentManager() {
               </Grid>
             </Paper>
 
-            {/* Section 4: भर्ना मिति, अवस्था तथा फोटो */}
+            {/* Section 4: Admission & Status */}
             <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#D97706' }} />
-                ४. भर्ना मिति, अवस्था तथा फोटो (Admission & Status)
+                4. Admission & Status
               </Typography>
 
               <Grid container spacing={2}>
@@ -956,11 +956,11 @@ export default function StudentManager() {
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
-                    <MenuItem value="Active">Active (सक्रिय)</MenuItem>
-                    <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
-                    <MenuItem value="OJT">OJT Phase (इन्टर्नसिप)</MenuItem>
-                    <MenuItem value="Placed">Placed (रोजगारीमा)</MenuItem>
-                    <MenuItem value="Dropout">Dropout (छोडेको)</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Completed">Completed</MenuItem>
+                    <MenuItem value="OJT">OJT Phase</MenuItem>
+                    <MenuItem value="Placed">Placed</MenuItem>
+                    <MenuItem value="Dropout">Dropout</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -1001,7 +1001,7 @@ export default function StudentManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F2E5A', borderColor: '#94A3B8' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1022,7 +1022,7 @@ export default function StudentManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Student)
+            Save Student
           </Button>
         </DialogActions>
       </Dialog>

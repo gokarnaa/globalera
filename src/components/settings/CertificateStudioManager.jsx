@@ -73,7 +73,7 @@ import { loadDB, saveDB } from '../../services/storage';
 export const DEFAULT_CERTIFICATE_DESIGN = {
   // 1. Orientation & Dimensions
   orientation: 'landscape', // 'landscape' | 'portrait'
-  templateName: 'आधिकारिक ३ महिने व्यावसायिक तालिम ढाँचा',
+  templateName: 'Official 3-Month Vocational Training Template',
 
   // 2. 10 Background Presets & Custom Backgrounds
   backgroundType: 'clean-white',
@@ -115,13 +115,13 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
 
   // 6. Title & Body Typography
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
-  certificateTitleNp: '(व्यावसायिक तालिम समापन प्रमाणपत्र)',
+  certificateTitleNp: '(VOCATIONAL TRAINING COMPLETION CERTIFICATE)',
   bodyLayoutMode: 'bilingual',
   showStudentPhoto: true,
   showCompetencyBadge: true,
   hoursBadgeText: '390 HRS • LEVEL 1',
 
-  // 7. Dynamic Official Seal (छाप) 4-in-1 Modes
+  // 7. Dynamic Official Seal 4-in-1 Modes
   sealMode: 'blank', // 'blank' | 'scanned' | 'digital' | 'none'
   customSealUrl: '',
   sealWidth: 84,
@@ -132,15 +132,15 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   signatories: [
     {
       id: 'sig-1',
-      name: 'सुमन थापा (Suman Thapa)',
-      title: 'प्रशिक्षक (Lead Instructor)',
+      name: 'Suman Thapa',
+      title: 'Lead Instructor',
       lineStyle: 'dashed',
       signatureUrl: ''
     },
     {
       id: 'sig-2',
-      name: 'गोकर्ण थापा (Gokarna Thapa)',
-      title: 'क्याम्पस प्रमुख / निर्देशक (Director)',
+      name: 'Gokarna Thapa',
+      title: 'Campus Chief / Director',
       lineStyle: 'solid',
       signatureUrl: ''
     }
@@ -171,42 +171,42 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
 
 // 10 Background Presets Definitions
 const BACKGROUND_PRESETS = [
-  { id: 'clean-white', label: 'सादा सेतो (Pure White)' },
-  { id: 'ivory-parchment', label: 'क्लासिक आइभोरी (Ivory Parchment)' },
-  { id: 'guilloche-security', label: 'सेक्युरिटी वेभ (Guilloche Wave)' },
-  { id: 'royal-navy-gold', label: 'शाही नेभी-गोल्डेन (Navy & Gold Glow)' },
-  { id: 'modern-geometric', label: 'आधुनिक ज्यामितीय (Modern Mesh)' },
-  { id: 'damask-floral', label: 'दमास्क फ्लोरल (Damask Floral)' },
-  { id: 'emerald-aristocrat', label: 'मरकत हरियो (Emerald Aristocrat)' },
-  { id: 'maroon-sovereign', label: 'मरुन सार्वभौम (Maroon Sovereign)' },
-  { id: 'technical-grid', label: 'टेक्निकल ग्रिड (Technical Blueprint)' },
-  { id: 'marble-veins', label: 'फाइन मार्बल (Italian Marble)' }
+  { id: 'clean-white', label: 'Pure White' },
+  { id: 'ivory-parchment', label: 'Ivory Parchment' },
+  { id: 'guilloche-security', label: 'Guilloche Security Wave' },
+  { id: 'royal-navy-gold', label: 'Navy & Gold Glow' },
+  { id: 'modern-geometric', label: 'Modern Geometric Mesh' },
+  { id: 'damask-floral', label: 'Damask Floral' },
+  { id: 'emerald-aristocrat', label: 'Emerald Aristocrat' },
+  { id: 'maroon-sovereign', label: 'Maroon Sovereign' },
+  { id: 'technical-grid', label: 'Technical Blueprint Grid' },
+  { id: 'marble-veins', label: 'Italian Marble' }
 ];
 
 // 7 Border Styles Definitions
 const BORDER_STYLES = [
-  { id: 'royal-double', label: 'शाही डबल रेखा (Royal Double Gold)' },
-  { id: 'vintage-filigree', label: 'भिन्टेज ओर्नेट (Vintage Filigree)' },
-  { id: 'modern-executive', label: 'आधुनिक स्लीक (Modern Executive)' },
-  { id: 'greek-key', label: 'ग्रीक मियान्डर (Greek Key Classic)' },
-  { id: 'security-guilloche', label: 'सेक्युरिटी घेरा (Security Frame)' },
-  { id: 'art-deco', label: 'आर्ट डेको (Art Deco Lines)' },
-  { id: 'none', label: 'बोर्डर नराख्ने (None - Preprinted)' }
+  { id: 'royal-double', label: 'Royal Double Gold' },
+  { id: 'vintage-filigree', label: 'Vintage Filigree' },
+  { id: 'modern-executive', label: 'Modern Executive' },
+  { id: 'greek-key', label: 'Greek Key Classic' },
+  { id: 'security-guilloche', label: 'Security Frame' },
+  { id: 'art-deco', label: 'Art Deco Lines' },
+  { id: 'none', label: 'None (Pre-printed)' }
 ];
 
 // Corner Ornaments Definitions
 const CORNER_STYLES = [
-  { id: 'victorian-flourish', label: 'भिक्टोरियन शाही फूलबुट्टा' },
-  { id: 'acanthus-leaf', label: 'रोयल अकान्थस पात' },
-  { id: 'art-deco-bracket', label: 'आर्ट डेको ३-तले कुना' },
-  { id: 'celtic-knot', label: 'सेल्टिक सुनौलो नट' },
-  { id: 'clean-l-bracket', label: 'लक्जरी एल-ब्र्याकेट' },
-  { id: 'none', label: 'कुना नराख्ने (None)' }
+  { id: 'victorian-flourish', label: 'Victorian Royal Flourish' },
+  { id: 'acanthus-leaf', label: 'Royal Acanthus Leaf' },
+  { id: 'art-deco-bracket', label: 'Art Deco 3-Tier Corner' },
+  { id: 'celtic-knot', label: 'Celtic Golden Knot' },
+  { id: 'clean-l-bracket', label: 'Luxury L-Bracket' },
+  { id: 'none', label: 'None' }
 ];
 
 // 5 Curated Luxury Palettes
 const LUXURY_PALETTES = [
-  { name: 'Navy & Gold (आधिकारिक)', primary: '#0B2545', accent: '#C59B27', corner: '#C59B27' },
+  { name: 'Navy & Gold (Official)', primary: '#0B2545', accent: '#C59B27', corner: '#C59B27' },
   { name: 'Burgundy & Champagne', primary: '#6B1D2F', accent: '#D4AF37', corner: '#D4AF37' },
   { name: 'Emerald & Brass (CTEVT)', primary: '#0D472D', accent: '#C59B27', corner: '#C59B27' },
   { name: 'Charcoal & Silver', primary: '#1F2937', accent: '#94A3B8', corner: '#94A3B8' },
@@ -215,28 +215,28 @@ const LUXURY_PALETTES = [
 
 // Available Fonts List
 const FONT_OPTIONS = [
-  { id: 'Times New Roman', label: 'Times New Roman (औपचारिक)' },
-  { id: 'Cinzel', label: 'Cinzel (रोयल सेरिफ)' },
-  { id: 'Playfair Display', label: 'Playfair Display (लक्जरी)' },
-  { id: 'Noto Sans Devanagari', label: 'Noto Sans (नेपाली स्पष्ट)' },
-  { id: 'Georgia', label: 'Georgia (शास्त्रीय)' },
-  { id: 'Inter', label: 'Inter (आधुनिक Sans)' }
+  { id: 'Times New Roman', label: 'Times New Roman (Formal)' },
+  { id: 'Cinzel', label: 'Cinzel (Royal Serif)' },
+  { id: 'Playfair Display', label: 'Playfair Display (Luxury)' },
+  { id: 'Noto Sans Devanagari', label: 'Noto Sans (Clean Sans)' },
+  { id: 'Georgia', label: 'Georgia (Classic)' },
+  { id: 'Inter', label: 'Inter (Modern Sans)' }
 ];
 
 // Human Labels for Canvas Elements
 const ELEMENT_LABELS = {
-  leftLogo: 'बायाँ लोगो (Left Logo)',
-  rightLogo: 'दायाँ ब्याज / लोगो (Right Badge)',
-  headerTitle: 'मुख्य संस्थागत नाम (Institute Title)',
-  headerSub: 'सम्बन्धन / उप-शीर्षक (Accreditation)',
-  headerAddress: 'दर्ता तथा ठेगाना (Regd & Address)',
-  title: 'प्रमाणपत्र मुख्य शीर्षक (Certificate Title)',
-  student: 'विद्यार्थी नाम तथा कोर्स (Trainee Details)',
-  photo: 'विद्यार्थी फोटो फ्रेम (Photo Frame)',
-  body: 'प्रमाणीकरण व्यहोरा (Body Text)',
-  seal: 'आधिकारिक छाप (Official Stamp / Space)',
-  signatories: 'हस्ताक्षरकर्ताहरू (Signatures Group)',
-  qrCode: 'प्रमाणीकरण क्युआर कोड (Verification QR)'
+  leftLogo: 'Left Logo',
+  rightLogo: 'Right Badge / Logo',
+  headerTitle: 'Institute Title',
+  headerSub: 'Accreditation / Subtitle',
+  headerAddress: 'Registration & Address',
+  title: 'Certificate Main Title',
+  student: 'Trainee Name & Course Details',
+  photo: 'Trainee Photo Frame',
+  body: 'Certification Body Text',
+  seal: 'Official Stamp / Space',
+  signatories: 'Signatures Group',
+  qrCode: 'Verification QR Code'
 };
 
 // Corner Ornament SVG Renderer
@@ -329,45 +329,45 @@ function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' 
 const SAMPLE_STUDENTS = [
   {
     nameEn: 'Sunita Sharma',
-    nameNp: 'सुनिता शर्मा',
+    nameNp: 'Sunita Sharma',
     parentEn: 'Mr./Mrs. Hari Sharma',
-    parentNp: 'श्री हरि शर्मा',
+    parentNp: 'Mr. Hari Sharma',
     addressEn: 'Gokarneshwor-05, Kathmandu',
-    addressNp: 'गोकर्णेश्वर-०५, काठमाडौँ',
+    addressNp: 'Gokarneshwor-05, Kathmandu',
     courseEn: 'Basic Beautician Training',
-    courseNp: 'आधारभूत ब्युटिसियन तालिम',
+    courseNp: 'Basic Beautician Training',
     hoursBadge: '390 Hours / 3 Months',
-    hoursNp: '३९० घन्टे',
+    hoursNp: '390 Hours',
     certNo: 'GE-2081-000101',
     tgid: 'TGID-101',
     issueDate: '2026-09-01'
   },
   {
     nameEn: 'Ram Bahadur Singh Thakuri',
-    nameNp: 'राम बहादुर सिंह ठकुरी',
+    nameNp: 'Ram Bahadur Singh Thakuri',
     parentEn: 'Mr. Sher Bahadur Singh Thakuri',
-    parentNp: 'श्री शेर बहादुर सिंह ठकुरी',
+    parentNp: 'Mr. Sher Bahadur Singh Thakuri',
     addressEn: 'Birgunj-12, Parsa, Madhesh',
-    addressNp: 'वीरगन्ज-१२, पर्सा, मधेश',
+    addressNp: 'Birgunj-12, Parsa, Madhesh',
     courseEn: 'Advanced Welding & Fabrication',
-    courseNp: 'एडभान्स वेल्डिङ तथा फेब्रिकेसन तालिम',
+    courseNp: 'Advanced Welding & Fabrication Training',
     hoursBadge: '450 Hours / 4 Months',
-    hoursNp: '४५० घन्टे',
+    hoursNp: '450 Hours',
     certNo: 'GE-2081-000102',
     tgid: 'TGID-102',
     issueDate: '2026-09-01'
   },
   {
     nameEn: 'Dinesh Chaudhary',
-    nameNp: 'दिनेश चौधरी',
+    nameNp: 'Dinesh Chaudhary',
     parentEn: 'Mr. Ram Lal Chaudhary',
-    parentNp: 'श्री राम लाल चौधरी',
+    parentNp: 'Mr. Ram Lal Chaudhary',
     addressEn: 'Dhangadhi-03, Kailali, Sudurpashchim',
-    addressNp: 'धनगढी-०३, कैलाली, सुदूरपश्चिम',
+    addressNp: 'Dhangadhi-03, Kailali, Sudurpashchim',
     courseEn: 'Building Electrician (House Wiring)',
-    courseNp: 'भवन इलेक्ट्रिसियन (हाउस वायरिङ)',
+    courseNp: 'Building Electrician (House Wiring)',
     hoursBadge: '390 Hours / 3 Months',
-    hoursNp: '३९० घन्टे',
+    hoursNp: '390 Hours',
     certNo: 'GE-2081-000103',
     tgid: 'TGID-103',
     issueDate: '2026-09-01'
@@ -382,15 +382,15 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     const defaultSignatories = [
       {
         id: 'sig-1',
-        name: company.leadInstructorName || 'सुमन थापा (Suman Thapa)',
-        title: company.leadInstructorTitle || 'प्रशिक्षक (Lead Instructor)',
+        name: company.leadInstructorName || 'Suman Thapa',
+        title: company.leadInstructorTitle || 'Lead Instructor',
         lineStyle: 'dashed',
         signatureUrl: ''
       },
       {
         id: 'sig-2',
-        name: company.directorName || 'गोकर्ण थापा (Gokarna Thapa)',
-        title: company.directorTitle || 'क्याम्पस प्रमुख / निर्देशक (Managing Director)',
+        name: company.directorName || 'Gokarna Thapa',
+        title: company.directorTitle || 'Campus Chief / Managing Director',
         lineStyle: 'solid',
         signatureUrl: ''
       }
@@ -498,8 +498,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     const newId = `sig-${Date.now()}`;
     const newSig = {
       id: newId,
-      name: 'नयाँ हस्ताक्षरकर्ता (Signatory Name)',
-      title: 'पद (Designation)',
+      name: 'New Signatory Name',
+      title: 'Designation',
       lineStyle: 'solid',
       signatureUrl: ''
     };
@@ -513,7 +513,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
   const handleDeleteSignatory = (id) => {
     if ((design.signatories || []).length <= 1) {
-      alert('कम्तीमा १ जना हस्ताक्षरकर्ता अनिवार्य हुन्छ।');
+      alert('At least 1 signatory is required.');
       return;
     }
     const nextList = (design.signatories || []).filter((s) => s.id !== id);
@@ -600,7 +600,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     if (!file) return;
 
     if (file.size > 3 * 1024 * 1024) {
-      alert('फाइल साइज ३MB भन्दा सानो हुनुपर्छ।');
+      alert('File size must be smaller than 3MB.');
       return;
     }
 
@@ -616,7 +616,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('पृष्ठभूमि फोटोको साइज ५MB भन्दा सानो हुनुपर्छ।');
+      alert('Background image size must be smaller than 5MB.');
       return;
     }
 
@@ -625,12 +625,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       const dataUrl = reader.result;
       const cleanFileName = file.name
         ? file.name.replace(/\.[^/.]+$/, '')
-        : `कस्टम पृष्ठभूमि ${((design.customBackgrounds || []).length + 1)}`;
+        : `Custom Background ${((design.customBackgrounds || []).length + 1)}`;
       const newPreset = {
         id: `custom-bg-${Date.now()}`,
         name: cleanFileName.slice(0, 24),
         url: dataUrl,
-        createdAt: new Date().toLocaleDateString('ne-NP')
+        createdAt: new Date().toLocaleDateString('en-US')
       };
 
       const existingList = design.customBackgrounds || [];
@@ -697,7 +697,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   };
 
   const handleResetDefaults = () => {
-    if (window.confirm('के तपाईं प्रमाणपत्रको सम्पूर्ण डिजाइन सुरुवाती डिफल्टमा फर्काउन चाहनुहुन्छ?')) {
+    if (window.confirm('Are you sure you want to reset the entire certificate design to factory defaults?')) {
       setDesign(DEFAULT_CERTIFICATE_DESIGN);
       const nextDb = {
         ...db,
@@ -875,10 +875,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             <WorkspacePremiumIcon sx={{ color: '#C59B27', fontSize: 38 }} />
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A', lineHeight: 1.2 }}>
-                Certificate Studio & Template Designer (प्रमाणपत्र स्टुडियो)
+                Certificate Studio & Template Designer
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B' }}>
-                पूर्ण चौडाइको क्यानभास: माथिबाट कन्ट्रोल छान्नुहोस् र क्यानभासमा सीधै माउसले जहाँ पनि तान्नुहोस् (Drag & Move)।
+                Full-width canvas: select controls from the top and drag & move any element directly on the canvas with your mouse.
               </Typography>
             </Box>
           </Box>
@@ -894,17 +894,17 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             >
               <ToggleButton value="landscape" sx={{ fontWeight: 900, px: 1.8, gap: 0.8, color: '#0F2E5A' }}>
                 <CropLandscapeIcon fontSize="small" />
-                🖥️ A4 Landscape (तेर्सो)
+                🖥️ A4 Landscape
               </ToggleButton>
               <ToggleButton value="portrait" sx={{ fontWeight: 900, px: 1.8, gap: 0.8, color: '#0F2E5A' }}>
                 <CropPortraitIcon fontSize="small" />
-                📄 A4 Portrait (ठाडो)
+                📄 A4 Portrait
               </ToggleButton>
             </ToggleButtonGroup>
 
             {/* Option 3: Top Bar Simple Panel Toggles (Tools & Inspector) */}
             <Stack direction="row" spacing={0.8} alignItems="center">
-              <Tooltip title={showLeftPanel ? 'बायाँ टूल्स प्यानल लुकाउनुहोस्' : 'बायाँ टूल्स प्यानल देखाउनुहोस्'}>
+              <Tooltip title={showLeftPanel ? 'Hide Left Tools Panel' : 'Show Left Tools Panel'}>
                 <Button
                   size="small"
                   variant={showLeftPanel ? 'contained' : 'outlined'}
@@ -925,11 +925,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     }
                   }}
                 >
-                  🛠️ टूल्स {showLeftPanel ? '✓' : '✗'}
+                  🛠️ Tools {showLeftPanel ? '✓' : '✗'}
                 </Button>
               </Tooltip>
 
-              <Tooltip title={showRightPanel ? 'दायाँ इन्स्पेक्टर लुकाउनुहोस्' : 'दायाँ इन्स्पेक्टर देखाउनुहोस्'}>
+              <Tooltip title={showRightPanel ? 'Hide Right Inspector' : 'Show Right Inspector'}>
                 <Button
                   size="small"
                   variant={showRightPanel ? 'contained' : 'outlined'}
@@ -950,7 +950,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     }
                   }}
                 >
-                  🎨 इन्स्पेक्टर {showRightPanel ? '✓' : '✗'}
+                  🎨 Inspector {showRightPanel ? '✓' : '✗'}
                 </Button>
               </Tooltip>
             </Stack>
@@ -963,7 +963,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               onClick={handleResetDefaults}
               sx={{ fontWeight: 700 }}
             >
-              डिफल्ट
+              Default
             </Button>
 
             <Button
@@ -973,7 +973,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               onClick={handleTestPrint}
               sx={{ fontWeight: 800, borderColor: '#0B2545', color: '#0B2545' }}
             >
-              परीक्षण प्रिन्ट
+              Test Print
             </Button>
 
             <Button
@@ -988,14 +988,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)'
               }}
             >
-              डिजाइन सुरक्षित गर्नुहोस्
+              Save Design
             </Button>
           </Stack>
         </Box>
 
         {savedAlert && (
           <Alert severity="success" sx={{ mt: 1.5, borderRadius: 2, fontWeight: 700 }}>
-            ✓ प्रमाणपत्रको डिजाइन सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्र यसै सरेको स्थिति र फन्टमा प्रिन्ट हुनेछन्।
+            ✓ Certificate design saved successfully! All newly issued certificates will print with these positions and fonts.
           </Alert>
         )}
 
@@ -1035,9 +1035,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             <Box sx={{ p: 1.2, bgcolor: '#0F2E5A', color: '#FFFFFF', borderBottom: '2px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <TuneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-                स्टुडियो टूल्स र विकल्पहरू (Tools)
+                Studio Tools & Options
               </Typography>
-              <Tooltip title="बायाँ टूल्स लुकाउनुहोस् (Hide Tools)">
+              <Tooltip title="Hide Left Tools">
                 <IconButton size="small" onClick={handleToggleLeftPanel} sx={{ color: '#FFFFFF', p: 0.2 }}>
                   <CloseIcon fontSize="small" />
                 </IconButton>
@@ -1048,12 +1048,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           <Box sx={{ p: 1, bgcolor: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
             <Grid container spacing={0.6}>
               {[
-                { id: 0, label: 'लेटरहेड र लोगो', icon: <BrandingWatermarkIcon sx={{ fontSize: 16 }} /> },
-                { id: 1, label: 'पृष्ठभूमि (१०)', icon: <WallpaperIcon sx={{ fontSize: 16 }} /> },
-                { id: 2, label: 'बोर्डर र कुना', icon: <BorderStyleIcon sx={{ fontSize: 16 }} /> },
-                { id: 3, label: 'छाप र हस्ताक्षर', icon: <EditNoteIcon sx={{ fontSize: 16 }} /> },
-                { id: 4, label: 'क्यालिब्रेसन', icon: <TuneIcon sx={{ fontSize: 16 }} /> },
-                { id: 5, label: 'लेयर्स सूची', icon: <LayersIcon sx={{ fontSize: 16 }} /> }
+                { id: 0, label: 'Letterhead & Logo', icon: <BrandingWatermarkIcon sx={{ fontSize: 16 }} /> },
+                { id: 1, label: 'Background (10)', icon: <WallpaperIcon sx={{ fontSize: 16 }} /> },
+                { id: 2, label: 'Border & Corners', icon: <BorderStyleIcon sx={{ fontSize: 16 }} /> },
+                { id: 3, label: 'Stamp & Signatures', icon: <EditNoteIcon sx={{ fontSize: 16 }} /> },
+                { id: 4, label: 'Calibration', icon: <TuneIcon sx={{ fontSize: 16 }} /> },
+                { id: 5, label: 'Layers List', icon: <LayersIcon sx={{ fontSize: 16 }} /> }
               ].map((tab) => (
                 <Grid item xs={6} key={tab.id}>
                   <Button
@@ -1091,21 +1091,21 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
-                    मुख्य संस्थागत नाम (Single Heading):
+                    Main Institutional Name (Single Heading):
                   </Typography>
                   <TextField
                     fullWidth
                     size="small"
                     value={design.instituteName}
                     onChange={(e) => handleUpdate('instituteName', e.target.value)}
-                    placeholder="ग्लोबल एरा प्राविधिक स्कुल"
+                    placeholder="Global Era Technical School"
                     sx={{ bgcolor: '#FFFFFF' }}
                   />
                 </Box>
 
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
-                    सम्बन्धन / उप-शीर्षक (Accreditation / Sub-title):
+                    Accreditation / Sub-title:
                   </Typography>
                   <TextField
                     fullWidth
@@ -1118,7 +1118,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.4 }}>
-                    दर्ता, सम्बन्धन कोड र ठेगाना (Regd & Location):
+                    Registration, Affiliation Code & Location:
                   </Typography>
                   <TextField
                     fullWidth
@@ -1133,36 +1133,36 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    लोगो तथा ब्याज प्रदर्शन:
+                    Logo & Badge Display:
                   </Typography>
                   <Stack spacing={0.6}>
                     <FormControlLabel
                       control={<Switch checked={design.showLeftLogo} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
-                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>बायाँ लोगो देखाउने</Typography>}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Left Logo</Typography>}
                     />
                     <FormControlLabel
                       control={<Switch checked={design.showRightLogo} onChange={(e) => handleUpdate('showRightLogo', e.target.checked)} size="small" />}
-                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>दायाँ ब्याज देखाउने</Typography>}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Right Badge</Typography>}
                     />
                   </Stack>
 
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mt: 1.2, mb: 0.6 }}>
-                    कस्टम लोगो अपलोड (PNG):
+                    Upload Custom Logo (PNG):
                   </Typography>
                   <Stack direction="row" spacing={1}>
                     <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', fontWeight: 700, flex: 1 }}>
-                      बायाँ लोगो
+                      Left Logo
                       <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('leftLogoUrl', e)} />
                     </Button>
                     <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', fontWeight: 700, flex: 1 }}>
-                      दायाँ लोगो
+                      Right Logo
                       <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('rightLogoUrl', e)} />
                     </Button>
                   </Stack>
                 </Box>
 
                 <Alert severity="info" sx={{ fontSize: '0.7rem', py: 0.5, borderRadius: 1.5 }}>
-                  💡 टिप: क्यानभासमा प्रत्येक लोगो र अक्षरमा क्लिक गरेर माउसले जहाँ पनि सार्न सकिन्छ।
+                  💡 Tip: Click on any logo or text on the canvas and drag it anywhere with your mouse.
                 </Alert>
               </Stack>
             )}
@@ -1173,7 +1173,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 {/* 1. Default Built-in Presets */}
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                    🏛️ प्रणालीका १० आधारभूत पृष्ठभूमि प्रिसेटहरू:
+                    🏛️ 10 Default Background Presets:
                   </Typography>
                   <Grid container spacing={0.8}>
                     {BACKGROUND_PRESETS.map((bg) => {
@@ -1213,11 +1213,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      🖼️ मेरो आफ्ना पृष्ठभूमिहरू (Custom Presets):
+                      🖼️ My Custom Backgrounds (Custom Presets):
                     </Typography>
                     {design.backgroundType === 'custom' && (
                       <Chip
-                        label="✓ सक्रिय (Active)"
+                        label="✓ Active"
                         size="small"
                         sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 900, fontSize: '0.65rem', height: 20 }}
                       />
@@ -1243,7 +1243,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       }
                     }}
                   >
-                    + नयाँ पृष्ठभूमि फोटो अपलोड गर्नुहोस् (PNG / JPEG)
+                    + Upload New Background Image (PNG / JPEG)
                     <input type="file" hidden accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleUploadCustomBg} />
                   </Button>
 
@@ -1325,7 +1325,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                                 >
                                   {bgItem.name}
                                 </Typography>
-                                <Tooltip title="यो पृष्ठभूमि हटाउनुहोस्">
+                                <Tooltip title="Delete this background">
                                   <IconButton
                                     size="small"
                                     onClick={(e) => handleDeleteCustomBg(bgItem.id, e)}
@@ -1343,7 +1343,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ) : (
                     <Box sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FFFFFF', borderRadius: 1.5, border: '1px dashed #CBD5E1', mb: 1 }}>
                       <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.7rem' }}>
-                        हालसम्म कुनै कस्टम पृष्ठभूमि फोटो अपलोड गरिएको छैन। माथिको बटनबाट फोटो छनोट गर्नुहोस्।
+                        No custom background images uploaded yet. Choose an image using the button above.
                       </Typography>
                     </Box>
                   )}
@@ -1355,7 +1355,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       <Box sx={{ mb: 1.5 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.3 }}>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.7rem' }}>
-                            पृष्ठभूमि स्पष्टता / गाढापन:
+                            Background Opacity:
                           </Typography>
                           <Typography variant="caption" sx={{ fontWeight: 900, color: '#059669', fontSize: '0.75rem' }}>
                             {design.customBgOpacity !== undefined ? design.customBgOpacity : 100}%
@@ -1374,7 +1374,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       {/* Display Mode / Fit */}
                       <Box>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
-                          प्रदर्शन ढाँचा (Fit Mode):
+                          Display Fit Mode:
                         </Typography>
                         <ToggleButtonGroup
                           value={design.customBgFit || 'cover'}
@@ -1384,10 +1384,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           fullWidth
                         >
                           <ToggleButton value="cover" sx={{ fontSize: '0.65rem', fontWeight: 800, py: 0.4 }}>
-                            पूर्ण पाना (Cover)
+                            Full Page (Cover)
                           </ToggleButton>
                           <ToggleButton value="contain" sx={{ fontSize: '0.65rem', fontWeight: 800, py: 0.4 }}>
-                            अनुपात मिलाउने (Contain)
+                            Fit Ratio (Contain)
                           </ToggleButton>
                         </ToggleButtonGroup>
                       </Box>
@@ -1398,7 +1398,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 {/* 3. Watermark Opacity (Global) */}
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                    लोगो वाटरमार्क गाढापन ({design.watermarkOpacity}%):
+                    Logo Watermark Opacity ({design.watermarkOpacity}%):
                   </Typography>
                   <Slider
                     value={design.watermarkOpacity}
@@ -1417,7 +1417,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.6 }}>
-                    क) ७ बोर्डर ढाँचाहरू (Border Styles):
+                    A) 7 Border Styles:
                   </Typography>
                   <Grid container spacing={0.8}>
                     {BORDER_STYLES.map((b) => (
@@ -1449,7 +1449,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#C59B27', display: 'block', mb: 0.6 }}>
-                    ख) कुनाका बुट्टाहरू (Corner Ornaments):
+                    B) Corner Ornaments:
                   </Typography>
                   <Grid container spacing={0.8}>
                     {CORNER_STYLES.map((c) => (
@@ -1481,7 +1481,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                    बोर्डर मार्जिन ({design.borderMargin} mm):
+                    Border Margin ({design.borderMargin} mm):
                   </Typography>
                   <Slider
                     value={design.borderMargin}
@@ -1492,7 +1492,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     sx={{ color: '#0F2E5A' }}
                   />
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mt: 1, mb: 0.5 }}>
-                    बोर्डर मोटाइ ({design.borderWidth} px):
+                    Border Width ({design.borderWidth} px):
                   </Typography>
                   <Slider
                     value={design.borderWidth}
@@ -1511,7 +1511,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.6 }}>
-                    आधिकारिक छाप मोड (Official Stamp - ४ विकल्पहरू):
+                    Official Stamp Mode (4 Options):
                   </Typography>
                   <ToggleButtonGroup
                     value={design.sealMode}
@@ -1523,26 +1523,26 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     sx={{ bgcolor: '#FFFFFF' }}
                   >
                     <ToggleButton value="blank" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
-                      ⭕ खाली ठाउँ (Wet Stamp - हातले लगाउने)
+                      ⭕ Blank Space (Manual Wet Stamp)
                     </ToggleButton>
                     <ToggleButton value="scanned" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
-                      📷 स्क्यान छाप (Upload Stamp PNG)
+                      📷 Scanned Stamp (Upload Stamp PNG)
                     </ToggleButton>
                     <ToggleButton value="digital" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6 }}>
-                      ★ डिजिटल सिल (Graphic Stamp)
+                      ★ Digital Seal (Graphic Stamp)
                     </ToggleButton>
                     <ToggleButton value="none" sx={{ fontSize: '0.68rem', fontWeight: 800, justifyContent: 'flex-start', py: 0.6, color: '#DC2626' }}>
-                      ❌ छाप नराख्ने (None)
+                      ❌ No Stamp (None)
                     </ToggleButton>
                   </ToggleButtonGroup>
 
                   {design.sealMode === 'scanned' && (
                     <Box sx={{ mt: 1, p: 1, bgcolor: '#F0F9FF', borderRadius: 1.5, border: '1px dashed #0284C7' }}>
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1', display: 'block', mb: 0.5 }}>
-                        संस्थाको वास्तविक रबर छापको स्क्यान फोटो:
+                        Scanned Image of Official Rubber Stamp:
                       </Typography>
                       <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.68rem', width: '100%' }}>
-                        छापको फोटो छान्नुहोस्
+                        Choose Stamp Image
                         <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('customSealUrl', e)} />
                       </Button>
                     </Box>
@@ -1555,7 +1555,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                      हस्ताक्षरकर्ताहरू ({design.signatories?.length || 0} जना):
+                      Signatories ({design.signatories?.length || 0}):
                     </Typography>
                     <Button
                       size="small"
@@ -1564,7 +1564,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       onClick={handleAddSignatory}
                       sx={{ fontSize: '0.65rem', fontWeight: 800, bgcolor: '#059669', py: 0.3 }}
                     >
-                      + थप्नुहोस्
+                      + Add
                     </Button>
                   </Box>
 
@@ -1573,7 +1573,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       <Paper key={sig.id} variant="outlined" sx={{ p: 1, bgcolor: '#F8FAFC', borderRadius: 1.5 }}>
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.5 }}>
                           <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                            हस्ताक्षरकर्ता #{idx + 1}
+                            Signatory #{idx + 1}
                           </Typography>
                           <IconButton size="small" color="error" onClick={() => handleDeleteSignatory(sig.id)} sx={{ p: 0.2 }}>
                             <DeleteOutlineIcon fontSize="small" />
@@ -1582,7 +1582,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         <TextField
                           fullWidth
                           size="small"
-                          label="नाम (Name)"
+                          label="Name"
                           value={sig.name}
                           onChange={(e) => handleUpdateSignatory(sig.id, 'name', e.target.value)}
                           sx={{ mb: 0.8, bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
@@ -1590,7 +1590,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         <TextField
                           fullWidth
                           size="small"
-                          label="पद (Title)"
+                          label="Title"
                           value={sig.title}
                           onChange={(e) => handleUpdateSignatory(sig.id, 'title', e.target.value)}
                           sx={{ bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
@@ -1617,18 +1617,18 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     }
                     label={
                       <Typography variant="caption" sx={{ fontWeight: 800, color: '#92400E' }}>
-                        केवल अक्षरहरू मात्र प्रिन्ट गर्नुहोस् (Text-Only Mode)
+                        Print Text Only (Text-Only Mode)
                       </Typography>
                     }
                   />
                   <Typography variant="caption" sx={{ color: '#78350F', display: 'block', mt: 0.5, fontSize: '0.67rem' }}>
-                    बजारबाट किनिएका वा पहिले नै बोर्डर र संस्थाको नाम छापिएका रेडीमेड पेपरहरूमा तालिमार्थीको नाम र विवरण मात्र प्रिन्ट गर्न यो मोड अन गर्नुहोस्।
+                    Enable this mode to print only the trainee's name and details on pre-printed stationery that already has borders and the institute header.
                   </Typography>
                 </Box>
 
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                    माथि/तल सर्ने क्यालिब्रेसन (Y-Offset: {design.offsetY} mm):
+                    Vertical Shift Calibration (Y-Offset: {design.offsetY} mm):
                   </Typography>
                   <Slider
                     value={design.offsetY}
@@ -1639,7 +1639,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     sx={{ color: '#D97706' }}
                   />
                   <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.67rem' }}>
-                    प्रिन्टरमा कागजको बोर्डरसँग ठ्याक्कै मिलाउन माथि वा तल सार्न सकिन्छ।
+                    Shift vertically up or down to align accurately with pre-printed paper borders in your printer.
                   </Typography>
                 </Box>
               </Stack>
@@ -1649,7 +1649,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             {activeLeftTab === 5 && (
               <Stack spacing={0.8}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block' }}>
-                  क्यानभास लेयर्स सूची (Click to Select & Move):
+                  Canvas Layers List (Click to Select & Move):
                 </Typography>
                 {Object.entries(ELEMENT_LABELS).map(([key, label]) => {
                   const isSelected = selectedElement === key;
@@ -1725,7 +1725,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             {/* Left: Quick Panel Open Buttons + Drag hint badge */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
               {!showLeftPanel && (
-                <Tooltip title="बायाँ टूल्स प्यानल खोल्नुहोस्">
+                <Tooltip title="Open Left Tools Panel">
                   <Button
                     size="small"
                     variant="contained"
@@ -1733,12 +1733,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onClick={handleToggleLeftPanel}
                     sx={{ bgcolor: '#0F2E5A', fontSize: '0.68rem', fontWeight: 800, py: 0.3, px: 1, borderRadius: 1.5 }}
                   >
-                    🛠️ टूल्स खोल्नुहोस्
+                    🛠️ Open Tools
                   </Button>
                 </Tooltip>
               )}
               {!showRightPanel && (
-                <Tooltip title="दायाँ इन्स्पेक्टर प्यानल खोल्नुहोस्">
+                <Tooltip title="Open Right Inspector Panel">
                   <Button
                     size="small"
                     variant="contained"
@@ -1746,20 +1746,20 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onClick={handleToggleRightPanel}
                     sx={{ bgcolor: '#0284C7', fontSize: '0.68rem', fontWeight: 800, py: 0.3, px: 1, borderRadius: 1.5 }}
                   >
-                    🎨 इन्स्पेक्टर खोल्नुहोस्
+                    🎨 Open Inspector
                   </Button>
                 </Tooltip>
               )}
               {!showLeftPanel && !showRightPanel && (
                 <Chip
-                  label="🖥️ पूर्ण ल्यान्डस्केप दृश्य (Full Landscape Focus)"
+                  label="🖥️ Full Landscape Focus"
                   size="small"
                   sx={{ bgcolor: '#059669', color: '#FFFFFF', fontWeight: 900, fontSize: '0.7rem' }}
                 />
               )}
               <Chip
                 icon={<DragIndicatorIcon sx={{ color: '#38BDF8 !important' }} />}
-                label="💡 माउसले तानेर मिलाउनुहोस् (Drag to Move)"
+                label="💡 Drag with mouse to reposition"
                 size="small"
                 sx={{
                   bgcolor: 'rgba(56, 189, 248, 0.12)',
@@ -1771,7 +1771,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               />
               {selectedElement && (
                 <Chip
-                  label={`चयन: ${ELEMENT_LABELS[selectedElement] || selectedElement}`}
+                  label={`Selected: ${ELEMENT_LABELS[selectedElement] || selectedElement}`}
                   size="small"
                   onDelete={() => setSelectedElement(null)}
                   sx={{ bgcolor: '#F59E0B', color: '#0F172A', fontWeight: 900, fontSize: '0.7rem' }}
@@ -1781,7 +1781,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
             {/* Canvas Zoom & Aspect Ratio Controls */}
             <Stack direction="row" spacing={0.6} alignItems="center">
-              <Tooltip title="जुम घटाउनुहोस्">
+              <Tooltip title="Zoom Out">
                 <IconButton
                   size="small"
                   onClick={() => setPreviewScale((p) => Math.max(0.45, Math.round((p - 0.05) * 100) / 100))}
@@ -1795,7 +1795,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 {Math.round(previewScale * 100)}%
               </Typography>
 
-              <Tooltip title="जुम बढाउनुहोस्">
+              <Tooltip title="Zoom In">
                 <IconButton
                   size="small"
                   onClick={() => setPreviewScale((p) => Math.min(1.2, Math.round((p + 0.05) * 100) / 100))}
@@ -1805,7 +1805,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="फिट दृश्य (Fit to View ~72%)">
+              <Tooltip title="Fit to View (~72%)">
                 <IconButton
                   size="small"
                   onClick={() => setPreviewScale(0.72)}
@@ -2212,7 +2212,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   }}
                 >
                   <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                    यो प्रमाणपत्र प्रदान गरिएको छ / This is proudly awarded to:
+                    This is proudly awarded to:
                   </Typography>
                   <Typography
                     variant="h4"
@@ -2352,7 +2352,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       color: design.elementStyles?.body?.color || '#1E293B'
                     }}
                   >
-                    प्रमाणित गरिन्छ कि {currentSample.addressNp} निवासी {currentSample.parentNp}को सन्तान सुश्री/श्री <b>{currentSample.nameNp}</b>ले यस संस्थाद्वारा सञ्चालित <b>{currentSample.hoursNp}</b> <b>"{currentSample.courseNp}"</b> सफलतापूर्वक सम्पन्न गर्नुभएकोले यो <b>व्यावसायिक तालिम समापन प्रमाणपत्र</b> प्रदान गरिएको छ।
+                    This is to officially certify that Ms./Mr. <b>{currentSample.nameNp}</b>, child of {currentSample.parentNp} and resident of {currentSample.addressNp}, has successfully completed the <b>{currentSample.hoursNp}</b> <b>"{currentSample.courseNp}"</b> conducted by this institution and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
                   </Typography>
                 )}
               </Box>
@@ -2438,7 +2438,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       ) : (
                         <Box sx={{ p: '6px 12px', border: '1.5px dashed #0284C7', borderRadius: 2, display: 'inline-block' }}>
                           <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1' }}>
-                            [ स्क्यान गरिएको छाप अपलोड गर्नुहोस् ]
+                            [ Upload Scanned Stamp ]
                           </Typography>
                         </Box>
                       )
@@ -2460,7 +2460,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         }}
                       >
                         <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.58rem', textAlign: 'center', fontStyle: 'italic' }}>
-                          (प्रिन्टपछि हातले<br />छाप लगाउने ठाउँ)
+                          (Space for manual<br />stamp after printing)
                         </Typography>
                       </Box>
                     )}
@@ -2536,14 +2536,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           >
             {/* Top Close Bar for Right Inspector */}
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-              <Tooltip title="दायाँ इन्स्पेक्टर लुकाउनुहोस् (Hide Inspector)">
+              <Tooltip title="Hide Right Inspector">
                 <Button
                   size="small"
                   onClick={handleToggleRightPanel}
                   endIcon={<CloseIcon fontSize="small" />}
                   sx={{ fontSize: '0.68rem', fontWeight: 800, color: '#64748B', p: '2px 8px', bgcolor: '#F1F5F9', borderRadius: 1.5 }}
                 >
-                  इन्स्पेक्टर बन्द गर्नुहोस्
+                  Close Inspector
                 </Button>
               </Tooltip>
             </Box>
@@ -2576,7 +2576,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0369A1' }}>
-                      स्थिति नियन्त्रण (Position):
+                      Position Control:
                     </Typography>
                     <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#0369A1' }}>
                       X:{activeStyle?.x || 0}px Y:{activeStyle?.y || 0}px
@@ -2584,24 +2584,24 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   </Box>
 
                   <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.5 }}>
-                    <Tooltip title="बायाँ (-1px / Shift -5px)">
+                    <Tooltip title="Left (-1px / Shift -5px)">
                       <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, -1, 0)} sx={{ bgcolor: '#F1F5F9' }}>
                         <ArrowBackIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Stack spacing={0.5}>
-                      <Tooltip title="माथि (-1px / Shift -5px)">
+                      <Tooltip title="Up (-1px / Shift -5px)">
                         <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, -1)} sx={{ bgcolor: '#F1F5F9' }}>
                           <ArrowUpwardIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
-                      <Tooltip title="तल (+1px / Shift +5px)">
+                      <Tooltip title="Down (+1px / Shift +5px)">
                         <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 0, 1)} sx={{ bgcolor: '#F1F5F9' }}>
                           <ArrowDownwardIcon fontSize="small" />
                         </IconButton>
                       </Tooltip>
                     </Stack>
-                    <Tooltip title="दायाँ (+1px / Shift +5px)">
+                    <Tooltip title="Right (+1px / Shift +5px)">
                       <IconButton size="small" onClick={() => handleNudgeElement(selectedElement, 1, 0)} sx={{ bgcolor: '#F1F5F9' }}>
                         <ArrowForwardIcon fontSize="small" />
                       </IconButton>
@@ -2612,7 +2612,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   <Stack direction="row" spacing={1} sx={{ mt: 1 }}>
                     <TextField
                       size="small"
-                      label="X स्थिति (px)"
+                      label="X Position (px)"
                       type="number"
                       value={activeStyle?.x || 0}
                       onChange={(e) => handleElementStyleUpdate(selectedElement, 'x', parseInt(e.target.value) || 0)}
@@ -2620,7 +2620,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     />
                     <TextField
                       size="small"
-                      label="Y स्थिति (px)"
+                      label="Y Position (px)"
                       type="number"
                       value={activeStyle?.y || 0}
                       onChange={(e) => handleElementStyleUpdate(selectedElement, 'y', parseInt(e.target.value) || 0)}
@@ -2635,7 +2635,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     onClick={() => handleResetElement(selectedElement)}
                     sx={{ mt: 0.8, fontSize: '0.68rem', fontWeight: 700, bgcolor: '#F8FAFC' }}
                   >
-                    सुरुवाती स्थितिमा फर्काउनुहोस् (Reset)
+                    Reset to Default Position
                   </Button>
                 </Box>
 
@@ -2643,14 +2643,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 {['headerTitle', 'headerSub', 'headerAddress', 'title', 'student', 'body'].includes(selectedElement) && (
                   <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                      टाइपोग्राफी तथा फन्ट स्टाइल:
+                      Typography & Font Style:
                     </Typography>
 
                     <Stack spacing={1}>
                       {/* Font Size & Weight */}
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, bgcolor: '#F8FAFC', p: '2px 6px', borderRadius: 1.5, border: '1px solid #CBD5E1' }}>
-                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>साइज:</Typography>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>Size:</Typography>
                           <Button size="small" sx={{ minWidth: 20, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.max(8, (activeStyle?.fontSize || 20) - 1))}>-</Button>
                           <Typography variant="caption" sx={{ fontWeight: 900, fontFamily: 'monospace' }}>{activeStyle?.fontSize || 20}px</Typography>
                           <Button size="small" sx={{ minWidth: 20, p: 0 }} onClick={() => handleElementStyleUpdate(selectedElement, 'fontSize', Math.min(50, (activeStyle?.fontSize || 20) + 1))}>+</Button>
@@ -2684,7 +2684,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                       {/* Text Alignment */}
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>पङ्क्तिबद्धता:</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>Alignment:</Typography>
                         <Stack direction="row" spacing={0.5}>
                           {['left', 'center', 'right', 'justify'].map((align) => (
                             <IconButton
@@ -2708,10 +2708,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                       {/* Font Family & Color */}
                       <FormControl fullWidth size="small">
-                        <InputLabel sx={{ fontSize: '0.72rem' }}>फन्ट परिवार (Font)</InputLabel>
+                        <InputLabel sx={{ fontSize: '0.72rem' }}>Font Family</InputLabel>
                         <Select
                           value={activeStyle?.fontFamily || 'Times New Roman'}
-                          label="फन्ट परिवार (Font)"
+                          label="Font Family"
                           onChange={(e) => handleElementStyleUpdate(selectedElement, 'fontFamily', e.target.value)}
                           sx={{ height: 32, fontSize: '0.72rem' }}
                         >
@@ -2722,7 +2722,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       </FormControl>
 
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>अक्षरको रङ:</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569' }}>Text Color:</Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                           <input
                             type="color"
@@ -2743,7 +2743,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 {selectedElement === 'photo' && (
                   <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                      विद्यार्थी फोटो फ्रेम नियन्त्रण:
+                      Trainee Photo Frame Controls:
                     </Typography>
                     <ToggleButtonGroup
                       value={activeStyle?.preset || 'right'}
@@ -2753,13 +2753,13 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       fullWidth
                       sx={{ mb: 1 }}
                     >
-                      <ToggleButton value="right" sx={{ fontSize: '0.68rem', py: 0.3 }}>दायाँ कुना</ToggleButton>
-                      <ToggleButton value="center" sx={{ fontSize: '0.68rem', py: 0.3 }}>बीचमा</ToggleButton>
-                      <ToggleButton value="left" sx={{ fontSize: '0.68rem', py: 0.3 }}>बायाँ</ToggleButton>
+                      <ToggleButton value="right" sx={{ fontSize: '0.68rem', py: 0.3 }}>Right Corner</ToggleButton>
+                      <ToggleButton value="center" sx={{ fontSize: '0.68rem', py: 0.3 }}>Center</ToggleButton>
+                      <ToggleButton value="left" sx={{ fontSize: '0.68rem', py: 0.3 }}>Left</ToggleButton>
                     </ToggleButtonGroup>
 
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="caption" sx={{ fontWeight: 700 }}>चौडाइ (Width):</Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 700 }}>Width:</Typography>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                         <Button size="small" onClick={() => handleElementStyleUpdate('photo', 'width', Math.max(60, (activeStyle?.width || 88) - 4))}>-</Button>
                         <Typography variant="caption" sx={{ fontWeight: 900 }}>{activeStyle?.width || 88}px</Typography>
@@ -2773,21 +2773,21 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Box sx={{ textAlign: 'center', py: 1.5 }}>
                 <AutoAwesomeIcon sx={{ color: '#0284C7', fontSize: 32, mb: 0.5 }} />
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5 }}>
-                  एलिमेन्ट इन्स्पेक्टर (Inspector)
+                  Element Inspector
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5, lineHeight: 1.3 }}>
-                  क्यानभासमा कुनै पनि अक्षर वा लोगोमा क्लिक गर्नुहोस्, वा तलका मुख्य एलिमेन्टहरू छान्नुहोस्:
+                  Click on any text or logo on the canvas, or select one of the main elements below:
                 </Typography>
                 <Grid container spacing={0.6}>
                   {[
-                    { key: 'student', label: 'विद्यार्थी नाम' },
-                    { key: 'headerTitle', label: 'संस्थागत नाम' },
-                    { key: 'title', label: 'मुख्य शीर्षक' },
-                    { key: 'photo', label: 'फोटो फ्रेम' },
-                    { key: 'body', label: 'व्यहोरा' },
-                    { key: 'signatories', label: 'हस्ताक्षर' },
-                    { key: 'seal', label: 'आधिकारिक छाप' },
-                    { key: 'qrCode', label: 'क्युआर कोड' }
+                    { key: 'student', label: 'Trainee Name' },
+                    { key: 'headerTitle', label: 'Institute Name' },
+                    { key: 'title', label: 'Main Title' },
+                    { key: 'photo', label: 'Photo Frame' },
+                    { key: 'body', label: 'Body Text' },
+                    { key: 'signatories', label: 'Signatures' },
+                    { key: 'seal', label: 'Official Stamp' },
+                    { key: 'qrCode', label: 'QR Code' }
                   ].map((el) => (
                     <Grid item xs={6} key={el.key}>
                       <Button
@@ -2810,10 +2810,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           <Paper elevation={1} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.8 }}>
               <PersonIcon fontSize="small" sx={{ color: '#059669' }} />
-              नमूना विद्यार्थी छनोट (Preview)
+              Sample Student Preview
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1, fontSize: '0.68rem' }}>
-              विभिन्न नामको लम्बाइ तथा कोर्स अनुसार डिजाइन कस्तो देखिन्छ जाँच गर्नुहोस्:
+              Test how the design looks with varying name lengths and courses:
             </Typography>
             <Stack spacing={0.8}>
               {SAMPLE_STUDENTS.map((st, idx) => (
@@ -2844,7 +2844,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           <Paper elevation={1} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 0.5, display: 'flex', alignItems: 'center', gap: 0.8 }}>
               <PaletteIcon fontSize="small" sx={{ color: '#C59B27' }} />
-              १-क्लिक लक्जरी रङ थिम
+              1-Click Luxury Color Themes
             </Typography>
             <Stack spacing={0.6} sx={{ mb: 1.2 }}>
               {LUXURY_PALETTES.map((pal) => (

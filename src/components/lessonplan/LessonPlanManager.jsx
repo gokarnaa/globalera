@@ -87,13 +87,13 @@ export default function LessonPlanManager() {
     groupId: selectedGroupId,
     objectives: '',
     materialsNeeded: '',
-    introStep: '१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन, सुरक्षा नियम तथा पाठको उद्देश्य परिचय।',
-    demoStep: '३० मिनेट: प्रशिक्षकद्वारा कार्यथलोमा प्रत्यक्ष प्रयोगात्मक प्रदर्शन (Live Demo)।',
-    practiceStep: '६० मिनेट: प्रशिक्षार्थीहरूद्वारा व्यक्तिगत तथा समूहमा प्रत्यक्ष सीप अभ्यास (Hands-on Drill)।',
-    evalStep: '१५ मिनेट: सीप परीक्षण, प्रश्नोत्तर, मूल्याङ्कन तथा गृहकार्य समीक्षा।',
-    assessmentMethod: 'प्रत्यक्ष अवलोकन, सीप चेकलिस्ट रेटिङ तथा मौखिक प्रश्नोत्तर।',
-    homework: 'कार्यविधि अध्ययन गर्ने र दैनिक लगबुक (Log Book) प्रमाणित गराउने।',
-    notes: 'कार्यथलोमा उचित भेन्टिलेसन, PPE किटको अनिवार्य प्रयोग तथा सुरक्षा मापदण्ड पालना गर्ने।'
+    introStep: '15 mins: Prior knowledge review, safety guidelines & lesson objective intro.',
+    demoStep: '30 mins: Live practical demonstration by the trainer.',
+    practiceStep: '60 mins: Hands-on practical skill drill by trainees individually & in groups.',
+    evalStep: '15 mins: Skill assessment, Q&A, evaluation & homework review.',
+    assessmentMethod: 'Direct observation, skill checklist rating & oral Q&A.',
+    homework: 'Study standard operating procedures & get daily logbook verified.',
+    notes: 'Ensure workshop ventilation, mandatory PPE kit usage & strict safety compliance.'
   });
 
   const groupLessonPlans = useMemo(() => {
@@ -151,10 +151,10 @@ export default function LessonPlanManager() {
       groupId: lp.groupId,
       objectives: lp.objectives || '',
       materialsNeeded: lp.materialsNeeded || '',
-      introStep: parts[0] || '१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन तथा सुरक्षा परिचय।',
-      demoStep: parts[1] || '३० मिनेट: प्रशिक्षकद्वारा प्रत्यक्ष प्रयोगात्मक प्रदर्शन।',
-      practiceStep: parts[2] || '६० मिनेट: प्रशिक्षार्थीहरूद्वारा प्रत्यक्ष सीप अभ्यास।',
-      evalStep: parts[3] || '१५ मिनेट: सीप परीक्षण, प्रश्नोत्तर तथा निष्कर्ष।',
+      introStep: parts[0] || '15 mins: Prior knowledge review & safety briefing.',
+      demoStep: parts[1] || '30 mins: Live practical demonstration by instructor.',
+      practiceStep: parts[2] || '60 mins: Hands-on skill practice by trainees.',
+      evalStep: parts[3] || '15 mins: Skill testing, Q&A & summary conclusion.',
       assessmentMethod: lp.assessmentMethod || '',
       homework: lp.homework || '',
       notes: lp.notes || ''
@@ -169,15 +169,15 @@ export default function LessonPlanManager() {
     setFormData((prev) => ({
       ...prev,
       workPlanId: wpId,
-      objectives: syl ? `प्रशिक्षार्थीहरूले ${syl.title} सम्बन्धी प्राविधिक सीप र सुरक्षा नियमहरू सफलतापूर्वक सम्पन्न गर्न सक्नेछन्।` : prev.objectives,
+      objectives: syl ? `Trainees will successfully master technical skills and safety procedures for ${syl.title}.` : prev.objectives,
       materialsNeeded: syl?.toolsAndMaterials || prev.materialsNeeded,
-      demoStep: syl ? `३० मिनेट: प्रशिक्षकद्वारा ${syl.title} को प्रत्यक्ष प्रयोगात्मक प्रदर्शन।` : prev.demoStep
+      demoStep: syl ? `30 mins: Live practical demonstration of ${syl.title} by instructor.` : prev.demoStep
     }));
   };
 
   const handleSave = () => {
     if (!formData.workPlanId || !formData.objectives.trim()) {
-      alert('कृपया सम्बन्धित कार्ययोजना (Work Plan) र सिकाइ उद्देश्यहरू प्रविष्ट गर्नुहोस्।');
+      alert('Please select a related Work Plan and enter learning objectives.');
       return;
     }
 
@@ -224,7 +224,7 @@ export default function LessonPlanManager() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो पाठयोजना मेटिनेछ।')) {
+    if (window.confirm('Are you sure? This lesson plan will be deleted.')) {
       let nextDb = {
         ...db,
         lessonPlans: (db.lessonPlans || []).filter((x) => x.id !== id)
@@ -249,25 +249,25 @@ export default function LessonPlanManager() {
     );
 
     if (unmappedWorkPlans.length === 0) {
-      alert('यस समूहका सबै कार्ययोजनाका लागि पाठयोजनाहरू पहिले नै तयार भइसकेका छन्।');
+      alert('Lesson plans have already been prepared for all work plans in this group.');
       setOpenAutoDraftDialog(false);
       return;
     }
 
     const newDrafts = unmappedWorkPlans.map((wp, idx) => {
       const syl = (db.syllabi || []).find((s) => s.id === wp.syllabusId);
-      const unitTitle = syl?.title || 'व्यावसायिक सीप';
+      const unitTitle = syl?.title || 'Vocational Skills';
 
       return {
         id: `LP-${Date.now()}-${idx}`,
         workPlanId: wp.id,
         groupId: selectedGroupId,
-        objectives: `प्रशिक्षार्थीहरूले ${unitTitle} सम्बन्धी प्राविधिक सीप र सुरक्षा मापदण्डहरू बुझी कार्यथलोमा सफलतापूर्वक प्रदर्शन गर्न सक्षम हुनेछन्।`,
-        materialsNeeded: syl?.toolsAndMaterials || 'मानक व्यावसायिक तालिम औजार, PPE किट, मोडल तथा अभ्यास वर्कबुक।',
-        methodology: `१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन र सुरक्षा | ३० मिनेट: प्रशिक्षकद्वारा ${unitTitle} को प्रत्यक्ष प्रदर्शन | ६० मिनेट: प्रशिक्षार्थीहरूको प्रत्यक्ष सीप अभ्यास | १५ मिनेट: सीप परीक्षण तथा निष्कर्ष`,
-        assessmentMethod: 'प्रत्यक्ष अवलोकन, सीप चेकलिस्ट रेटिङ तथा मौखिक प्रश्नोत्तर।',
-        homework: 'दैनिक कार्यविधि अध्ययन गर्ने र लगबुक अद्यावधिक गर्ने।',
-        notes: 'सुरक्षा नियमहरूको पूर्ण पालना र सबै प्रशिक्षार्थीहरूको समान सहभागिता सुनिश्चित गर्ने।'
+        objectives: `Trainees will understand technical skills and safety standards for ${unitTitle} and execute them effectively on site.`,
+        materialsNeeded: syl?.toolsAndMaterials || 'Standard vocational training tools, PPE kit, working model & practice workbook.',
+        methodology: `15 mins: Prior Knowledge & Safety | 30 mins: Instructor Demo of ${unitTitle} | 60 mins: Trainee Hands-on Practice | 15 mins: Skill Evaluation & Summary`,
+        assessmentMethod: 'Direct observation, skill checklist rating & oral Q&A.',
+        homework: 'Review daily operational guidelines and keep logbook updated.',
+        notes: 'Ensure strict adherence to safety rules and equal participation of all trainees.'
       };
     });
 
@@ -291,21 +291,21 @@ export default function LessonPlanManager() {
     const syl = (db.syllabi || []).find((s) => s.id === wp?.syllabusId);
 
     return (
-      `*ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)*\n` +
-      `📖 *CTEVT आधिकारिक दैनिक पाठ योजना (Lesson Plan)*\n` +
+      `*Global Era Technical School*\n` +
+      `📖 *CTEVT Official Daily Lesson Plan*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `• *समूह (Batch):* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
-      `• *मिति र अवधि:* ${wp?.planDate || '—'} (${wp?.plannedHours || 2} Hours)\n` +
-      `• *पाठ्यक्रम एकाइ:* Unit ${syl?.unitNo || '—'}: ${syl?.title || '—'}\n` +
-      `• *प्रशिक्षक:* ${trainer?.name || 'Assigned Instructor'}\n` +
+      `• *Batch:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
+      `• *Date & Duration:* ${wp?.planDate || '—'} (${wp?.plannedHours || 2} Hours)\n` +
+      `• *Course Unit:* Unit ${syl?.unitNo || '—'}: ${syl?.title || '—'}\n` +
+      `• *Instructor:* ${trainer?.name || 'Assigned Instructor'}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `🎯 *सिकाइ उद्देश्यहरू (Learning Objectives):*\n${lp.objectives}\n\n` +
-      `🛠️ *आवश्यक सामग्री तथा औजार:*\n${lp.materialsNeeded}\n\n` +
-      `📋 *शिक्षण विधि तथा चरणहरू:*\n${lp.methodology}\n\n` +
-      `✅ *सीप मूल्याङ्कन विधि:*\n${lp.assessmentMethod}\n\n` +
-      `📝 *गृहकार्य / अभ्यास:*\n${lp.homework || 'लगबुक प्रमाणित गर्ने'}\n` +
+      `🎯 *Learning Objectives:*\n${lp.objectives}\n\n` +
+      `🛠️ *Required Tools & Materials:*\n${lp.materialsNeeded}\n\n` +
+      `📋 *Teaching Methodology & Steps:*\n${lp.methodology}\n\n` +
+      `✅ *Skill Evaluation Method:*\n${lp.assessmentMethod}\n\n` +
+      `📝 *Homework / Practice:*\n${lp.homework || 'Verify logbook entries'}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_CTEVT राष्ट्रिय सीप मानक शैक्षिक तयारी दस्तावेज।_`
+      `_CTEVT National Skill Standard Instructional Document._`
     );
   };
 
@@ -354,7 +354,7 @@ export default function LessonPlanManager() {
                 }}
               />
               <Chip
-                label={`प्रशिक्षक: ${trainer?.name || 'Assigned Instructor'}`}
+                label={`Instructor: ${trainer?.name || 'Assigned Instructor'}`}
                 size="small"
                 sx={{
                   bgcolor: 'rgba(74, 222, 128, 0.15)',
@@ -377,12 +377,12 @@ export default function LessonPlanManager() {
                 mb: 1
               }}
             >
-              Lesson Plan Studio (दैनिक पाठ योजना / तयारी)
+              Lesson Plan Studio (Daily Lesson Preparation)
             </Typography>
 
             <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              {selectedCourse?.title} को दैनिक शिक्षण-सिकाइ योजना। कार्ययोजना अनुसार कक्षामा जाने पूर्व-तयारी,
-              उद्देश्य, विधि, आवश्यक सामग्री तथा मूल्याङ्कनको आधिकारिक CTEVT ढाँचा।
+              Daily instructional lesson planning for {selectedCourse?.title}. Session preparation based on work plan,
+              learning objectives, methodology, required materials & evaluation in official CTEVT format.
             </Typography>
 
             {/* Quick Actions */}
@@ -405,7 +405,7 @@ export default function LessonPlanManager() {
                   }
                 }}
               >
-                + Prepare Lesson Plan (नयाँ पाठयोजना)
+                + Prepare Lesson Plan
               </Button>
 
               <Button
@@ -505,7 +505,7 @@ export default function LessonPlanManager() {
               />
 
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 2 }}>
-                तयार भएका: <b>{totalPreparedPlans} वटा पाठयोजना</b> • बाँकी: <b>{Math.max(0, totalWorkPlans - totalPreparedPlans)} वटा</b>
+                Prepared: <b>{totalPreparedPlans} Lesson Plans</b> • Remaining: <b>{Math.max(0, totalWorkPlans - totalPreparedPlans)} Plans</b>
               </Typography>
 
               {/* Micro Status Boxes */}
@@ -516,7 +516,7 @@ export default function LessonPlanManager() {
                       PLANS READY
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {totalPreparedPlans} सत्र तयारी पूर्ण
+                      {totalPreparedPlans} Sessions Prepared
                     </Typography>
                   </Box>
                 </Grid>
@@ -526,7 +526,7 @@ export default function LessonPlanManager() {
                       WORK PLANS
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {totalWorkPlans} कुल क्यालेन्डर दिन
+                      {totalWorkPlans} Total Calendar Days
                     </Typography>
                   </Box>
                 </Grid>
@@ -555,7 +555,7 @@ export default function LessonPlanManager() {
             <TextField
               select
               size="small"
-              label="तालिम समूह छान्नुहोस् (Select Training Group)"
+              label="Select Training Group"
               fullWidth
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -577,7 +577,7 @@ export default function LessonPlanManager() {
             <TextField
               size="small"
               fullWidth
-              placeholder="शीर्षक, उद्देश्य, सामग्री वा विधि खोज्नुहोस्..."
+              placeholder="Search topic, objective, tools, or method..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -594,7 +594,7 @@ export default function LessonPlanManager() {
           {/* View Mode Switcher */}
           <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-              दृश्य:
+              View:
             </Typography>
             <ToggleButtonGroup
               value={viewMode}
@@ -660,7 +660,7 @@ export default function LessonPlanManager() {
                         </Typography>
                       </Box>
                       <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.3 }}>
-                        {wp?.dayName} • {wp?.plannedHours || 2} घण्टे सत्र
+                        {wp?.dayName} • {wp?.plannedHours || 2}-Hour Session
                       </Typography>
                     </Box>
 
@@ -674,14 +674,14 @@ export default function LessonPlanManager() {
                   {/* Syllabus Unit Title */}
                   <Box sx={{ px: 2, pb: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.3 }}>
-                      {syl?.title || 'व्यावसायिक पाठयोजना'}
+                      {syl?.title || 'Vocational Lesson Plan'}
                     </Typography>
                   </Box>
 
                   {/* Learning Objectives Box */}
                   <Box sx={{ px: 2, py: 1.5, mx: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #EDF2F7', mb: 1.5 }}>
                     <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 900, display: 'block', mb: 0.4 }}>
-                      🎯 सिकाइ उद्देश्यहरू (Learning Objectives):
+                      🎯 Learning Objectives:
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#334155', fontSize: '0.82rem', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                       {lp.objectives}
@@ -693,14 +693,14 @@ export default function LessonPlanManager() {
                     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.8, mb: 1 }}>
                       <BuildIcon sx={{ fontSize: 15, color: '#94A3B8', mt: 0.2 }} />
                       <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1.3 }}>
-                        <b>सामग्री:</b> {lp.materialsNeeded}
+                        <b>Materials:</b> {lp.materialsNeeded}
                       </Typography>
                     </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.8 }}>
                       <TaskAltIcon sx={{ fontSize: 15, color: '#059669', mt: 0.2 }} />
                       <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1.3 }}>
-                        <b>मूल्याङ्कन:</b> {lp.assessmentMethod}
+                        <b>Evaluation:</b> {lp.assessmentMethod}
                       </Typography>
                     </Box>
                   </Box>
@@ -769,10 +769,10 @@ export default function LessonPlanManager() {
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
                 <AssignmentIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
-                  कुनै पाठयोजना फेला परेन
+                  No lesson plans found
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
-                  तपाईंले नयाँ पाठयोजना थप्न वा "1-Click Auto-Draft" बाट सबै कार्ययोजनाका लागि स्वचालित पाठयोजना तयार गर्न सक्नुहुन्छ।
+                  You can create a new lesson plan or use "1-Click Auto-Draft" to generate plans automatically for all work plan days.
                 </Typography>
                 <Stack direction="row" spacing={1.5} justifyContent="center">
                   <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
@@ -797,13 +797,13 @@ export default function LessonPlanManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>क्र.सं.</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>मिति र बार (Date)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 180 }}>पाठ्यक्रम शीर्षक (Unit)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सिकाइ उद्देश्यहरू (Objectives)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>शिक्षण विधि र सामग्री (Method & Materials)</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 130 }}>मूल्याङ्कन विधि</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right', width: 110 }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>SN</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>Date & Day</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 180 }}>Course Unit & Topic</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Learning Objectives</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Teaching Method & Materials</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 130 }}>Assessment Method</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'right', width: 110 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -839,10 +839,10 @@ export default function LessonPlanManager() {
                       </TableCell>
                       <TableCell sx={{ fontSize: '0.82rem', color: '#334155', maxWidth: 280 }}>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59', display: 'block' }}>
-                          विधि: {lp.methodology}
+                          Method: {lp.methodology}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.3 }}>
-                          सामग्री: {lp.materialsNeeded}
+                          Materials: {lp.materialsNeeded}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ fontSize: '0.82rem', color: '#334155' }}>
@@ -876,7 +876,7 @@ export default function LessonPlanManager() {
                 {filteredLessonPlans.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
-                      कुनै पाठयोजना फेला परेन।
+                      No lesson plans found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -922,10 +922,10 @@ export default function LessonPlanManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'दैनिक पाठयोजना सम्पादन (Edit Lesson Plan)' : 'नयाँ दैनिक पाठयोजना सिर्जना (Create Lesson Plan)'}
+                {editingItem ? 'Edit Lesson Plan' : 'Create Daily Lesson Plan'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                {selectedGroup?.groupCode} • ४-चरणीय शिक्षण विधि र कार्यथलो अभ्यास योजना
+                {selectedGroup?.groupCode} • 4-Step Instructional Method & Practical Drill Plan
               </Typography>
             </Box>
           </Box>
@@ -956,7 +956,7 @@ export default function LessonPlanManager() {
             {/* Work Plan Selector */}
             <TextField
               select
-              label="सम्बन्धित कार्ययोजना दिन (Select Work Plan Date & Unit) *"
+              label="Related Work Plan Date & Unit *"
               fullWidth
               size="small"
               value={formData.workPlanId}
@@ -964,7 +964,7 @@ export default function LessonPlanManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- कार्ययोजना दिन छान्नुहोस् (Select Work Plan) --
+                -- Select Work Plan Day --
               </MenuItem>
               {availableWorkPlans.map((wp) => {
                 const syl = (db.syllabi || []).find((s) => s.id === wp.syllabusId);
@@ -978,68 +978,68 @@ export default function LessonPlanManager() {
 
             {/* Objectives */}
             <TextField
-              label="विशिष्ट सिकाइ उद्देश्यहरू (Specific Learning Objectives / NOS) *"
+              label="Specific Learning Objectives (NOS) *"
               multiline
               rows={2.5}
               fullWidth
               size="small"
-              placeholder="यस सत्र पश्चात विद्यार्थीहरूले के-के सीप हासिल गर्नेछन् र के प्रदर्शन गर्न सक्नेछन्..."
+              placeholder="What skills will trainees acquire and demonstrate after this session..."
               value={formData.objectives}
               onChange={(e) => setFormData({ ...formData, objectives: e.target.value })}
             />
 
             {/* Materials Needed */}
             <TextField
-              label="आवश्यक औजार तथा तालिम सामग्री (Tools, Equipment & Materials) *"
+              label="Tools, Equipment & Training Materials *"
               fullWidth
               size="small"
-              placeholder="उदा: म्यानुअल, PPE किट, प्राथमिक उपचार बक्स, कार्यथलो उपकरण..."
+              placeholder="e.g., Manuals, PPE kit, First Aid box, workshop equipment..."
               value={formData.materialsNeeded}
               onChange={(e) => setFormData({ ...formData, materialsNeeded: e.target.value })}
             />
 
             {/* 4-Step Pedagogical Methodology */}
             <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', pt: 1 }}>
-              ४-चरणीय शिक्षण विधि तथा समय विभाजन (Instructional Steps):
+              4-Step Instructional Methodology & Time Allocation:
             </Typography>
 
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="१. परिचय तथा सुरक्षा (Intro & Safety - 15m)"
+                  label="1. Intro & Safety Briefing (15m)"
                   fullWidth
                   size="small"
-                  placeholder="१५ मिनेट: पूर्व-ज्ञान पुनरावलोकन, सुरक्षा नियम तथा पाठको उद्देश्य परिचय।"
+                  placeholder="15 mins: Prior knowledge review, safety guidelines & lesson objective intro."
                   value={formData.introStep}
                   onChange={(e) => setFormData({ ...formData, introStep: e.target.value })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="२. प्रशिक्षक प्रदर्शन (Trainer Demo - 30m)"
+                  label="2. Trainer Demonstration (30m)"
                   fullWidth
                   size="small"
-                  placeholder="३० मिनेट: प्रशिक्षकद्वारा प्रत्यक्ष प्रयोगात्मक प्रदर्शन (Live Demonstration)।"
+                  placeholder="30 mins: Live practical demonstration by the instructor."
                   value={formData.demoStep}
                   onChange={(e) => setFormData({ ...formData, demoStep: e.target.value })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="३. विद्यार्थी अभ्यास (Trainee Practice - 60m)"
+                  label="3. Trainee Practice & Drill (60m)"
                   fullWidth
                   size="small"
-                  placeholder="६० मिनेट: प्रशिक्षार्थीहरूद्वारा कार्यथलोमा प्रत्यक्ष सीप अभ्यास ड्रिल।"
+                  placeholder="60 mins: Hands-on practical skill practice & drill by trainees."
                   value={formData.practiceStep}
                   onChange={(e) => setFormData({ ...formData, practiceStep: e.target.value })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="४. मूल्याङ्कन र समीक्षा (Review & Q&A - 15m)"
+                  label="4. Evaluation & Review (15m)"
                   fullWidth
                   size="small"
-                  placeholder="१५ मिनेट: सीप दक्षता परीक्षण, प्रश्नोत्तर, मूल्याङ्कन तथा निष्कर्ष।"
+                  placeholder="15 mins: Competency check, Q&A, evaluation and wrap-up."
                   value={formData.evalStep}
                   onChange={(e) => setFormData({ ...formData, evalStep: e.target.value })}
                 />
@@ -1050,20 +1050,20 @@ export default function LessonPlanManager() {
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="सीप मूल्याङ्कन विधि (Assessment Method)"
+                  label="Skill Assessment Method (Evaluation)"
                   fullWidth
                   size="small"
-                  placeholder="उदा: प्रत्यक्ष कार्यथलो अवलोकन, सीप चेकलिस्ट रेटिङ तथा मौखिक प्रश्नोत्तर।"
+                  placeholder="e.g., Direct workshop observation, skill checklist rating & viva."
                   value={formData.assessmentMethod}
                   onChange={(e) => setFormData({ ...formData, assessmentMethod: e.target.value })}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="गृहकार्य / अभ्यास (Homework / Drill)"
+                  label="Homework / Self-Practice"
                   fullWidth
                   size="small"
-                  placeholder="उदा: दैनिक लगबुक (Log Book) अद्यावधिक गर्ने।"
+                  placeholder="e.g., Update daily logbook and verify practical tasks."
                   value={formData.homework}
                   onChange={(e) => setFormData({ ...formData, homework: e.target.value })}
                 />
@@ -1072,10 +1072,10 @@ export default function LessonPlanManager() {
 
             {/* Notes */}
             <TextField
-              label="विशेष निर्देशन तथा सुरक्षा सावधानी (Instructor Notes & Precautions)"
+              label="Instructor Notes & Safety Precautions"
               fullWidth
               size="small"
-              placeholder="उदा: सुरक्षा मापदण्डको पूर्ण पालना र PPE किटको अनिवार्य प्रयोग।"
+              placeholder="e.g., Full adherence to safety standards and mandatory PPE usage."
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             />
@@ -1103,7 +1103,7 @@ export default function LessonPlanManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1123,7 +1123,7 @@ export default function LessonPlanManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Lesson Plan)
+            Save Lesson Plan
           </Button>
         </DialogActions>
       </Dialog>
@@ -1144,18 +1144,18 @@ export default function LessonPlanManager() {
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ color: '#64748B', mb: 2 }}>
-            यस सुविधाले कार्ययोजना (Work Plan) मा रहेका सम्पूर्ण <b>{availableWorkPlans.length}</b> दिनहरूको लागि CTEVT मानक ४-चरणीय शिक्षण विधि, उद्देश्य, सामग्री र मूल्याङ्कन सहितको पाठयोजना स्वतः मस्यौदा (Auto-Draft) तयार गरिदिन्छ।
+            This feature automatically generates CTEVT-standard 4-step instructional lesson plans including objectives, tools, and evaluation for all <b>{availableWorkPlans.length}</b> days in the work plan.
           </Typography>
           <Alert severity="success" sx={{ borderRadius: 2 }}>
-            बाँकी रहेका <b>{Math.max(0, totalWorkPlans - totalPreparedPlans)}</b> सत्रहरूका लागि एकै क्लिकमा पूर्ण पाठयोजना सिर्जना हुनेछ।
+            Complete lesson plans for remaining <b>{Math.max(0, totalWorkPlans - totalPreparedPlans)}</b> sessions will be created in one click.
           </Alert>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenAutoDraftDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द
+            Cancel
           </Button>
           <Button variant="contained" onClick={handleAutoDraftAll} sx={{ fontWeight: 900, bgcolor: '#10B981' }}>
-            ⚡ स्वतः तयार गर्नुहोस् (Generate Plans)
+            ⚡ Generate Plans (Auto-Draft)
           </Button>
         </DialogActions>
       </Dialog>
@@ -1175,7 +1175,7 @@ export default function LessonPlanManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <Chip label="A4 CTEVT Official Lesson Plan" color="primary" size="small" sx={{ fontWeight: 900 }} />
             <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
-              {printTargetItem ? 'एकल पाठयोजना (Single Lesson Plan)' : 'सम्पूर्ण ब्याच पाठयोजना सँगालो (Batch Compilation)'}
+              {printTargetItem ? 'Single Lesson Plan' : 'Full Batch Lesson Plan Compilation'}
             </Typography>
           </Box>
 
@@ -1186,7 +1186,7 @@ export default function LessonPlanManager() {
               onClick={() => window.print()}
               sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}
             >
-              प्रिन्ट (Print / PDF)
+              Print / Export PDF
             </Button>
             <IconButton onClick={() => setOpenPrintModal(false)} sx={{ color: '#64748B' }}>
               <CloseIcon />
@@ -1214,20 +1214,20 @@ export default function LessonPlanManager() {
                 GOVERNMENT REGD • CTEVT ACCREDITED TECHNICAL TRAINING INSTITUTE
               </Typography>
               <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '-0.02em', mt: 0.3 }}>
-                ग्लोबल एरा प्राविधिक स्कुल (GLOBAL ERA TECHNICAL SCHOOL)
+                GLOBAL ERA TECHNICAL INSTITUTE
               </Typography>
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E3E62' }}>
                 KITE CAREGIVER TRAINING CENTER • Chabahil, MitraPark, Kathmandu
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.5 }}>
-                फोन: +९७७-१-४४८१२३४ | इमेल: info@globalera.edu.np | दर्ता नं: १८४९२०/०७८/०७९
+                Phone: +977-1-4481234 | Email: info@globalera.edu.np | Reg No: 184920/078/079
               </Typography>
             </Box>
 
             {/* 2. Document Title Banner */}
             <Box sx={{ my: 2, textAlign: 'center', bgcolor: '#F1F5F9', py: 1, border: '1.5px solid #0F2C59', borderRadius: 1 }}>
               <Typography variant="h6" sx={{ fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.06em', color: '#0F2C59' }}>
-                दैनिक पाठ योजना (OFFICIAL VOCATIONAL LESSON PLAN)
+                OFFICIAL VOCATIONAL LESSON PLAN
               </Typography>
             </Box>
 
@@ -1246,7 +1246,7 @@ export default function LessonPlanManager() {
             >
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  पाठ्यक्रम (Course):
+                  Course:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   {selectedCourse?.title} ({selectedCourse?.totalHours || 390} Hours • {selectedCourse?.level || 'CTEVT Level 1'})
@@ -1255,7 +1255,7 @@ export default function LessonPlanManager() {
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  समूह (Training Batch) &amp; सिफ्ट:
+                  Training Batch &amp; Shift:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   Batch: <b>{selectedGroup?.groupCode}</b> | Shift {selectedGroup?.shift} ({selectedGroup?.startTime} - {selectedGroup?.endTime})
@@ -1264,22 +1264,22 @@ export default function LessonPlanManager() {
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  प्रशिक्षकको नाम (Instructor):
+                  Instructor Name:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900, color: '#1D4ED8' }}>
-                  {trainer?.name || '—'} {trainer?.phone ? `(सम्पर्क: ${trainer.phone})` : ''}
+                  {trainer?.name || '—'} {trainer?.phone ? `(Contact: ${trainer.phone})` : ''}
                 </Typography>
               </Box>
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                  सत्र मिति तथा दिन (Date &amp; Day):
+                  Session Date &amp; Day:
                 </Typography>
                 <Typography variant="body2" sx={{ fontWeight: 900 }}>
                   {printTargetItem ? (() => {
                     const wp = (db.workPlans || []).find((w) => w.id === printTargetItem.workPlanId);
                     return `${wp?.planDate} (${wp?.dayName}) • ${wp?.plannedHours || 2} Hours`;
-                  })() : `${groupLessonPlans.length} वटा पाठयोजनाहरूको सँगालो`}
+                  })() : `Compilation of ${groupLessonPlans.length} Lesson Plans`}
                 </Typography>
               </Box>
             </Box>
@@ -1294,10 +1294,10 @@ export default function LessonPlanManager() {
                 <Box>
                   <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', border: '1.5px solid #0F2C59', mb: 2, borderRadius: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                      विषय / एकाइ: UNIT {syl?.unitNo}: {syl?.title}
+                      Subject / Unit: UNIT {syl?.unitNo}: {syl?.title}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3, fontWeight: 700 }}>
-                      मिति: <b>{wp?.planDate} ({wp?.dayName})</b> • निर्धारित समय: <b>{wp?.plannedHours || 2} घण्टा</b>
+                      Date: <b>{wp?.planDate} ({wp?.dayName})</b> • Allocated Time: <b>{wp?.plannedHours || 2} Hours</b>
                     </Typography>
                   </Box>
 
@@ -1305,7 +1305,7 @@ export default function LessonPlanManager() {
                     <TableBody>
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, width: '32%', bgcolor: '#F1F5F9' }}>
-                          १. विशिष्ट सिकाइ उद्देश्यहरू<br />
+                          1. Specific Learning Objectives<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Specific Learning Objectives)</span>
                         </TableCell>
                         <TableCell sx={{ lineHeight: 1.6 }}>
@@ -1315,7 +1315,7 @@ export default function LessonPlanManager() {
 
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, bgcolor: '#F1F5F9' }}>
-                          २. आवश्यक सामग्री तथा औजारहरू<br />
+                          2. Required Tools & Materials<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Tools, Equipment & Materials)</span>
                         </TableCell>
                         <TableCell sx={{ lineHeight: 1.6 }}>
@@ -1325,28 +1325,28 @@ export default function LessonPlanManager() {
 
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, bgcolor: '#F1F5F9' }}>
-                          ३. शिक्षण विधि तथा समय विभाजन<br />
+                          3. Teaching Methodology & Time Breakdown<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Instructional Steps & Timing)</span>
                         </TableCell>
                         <TableCell>
                           <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#0F2C59', mb: 0.5 }}>
-                            • चरण १ (परिचय): {methodologySteps[0] || '१५ मिनेट पूर्व-ज्ञान र सुरक्षा नियम।'}
+                            • Step 1 (Intro): {methodologySteps[0] || '15 mins: Prior knowledge & safety rules.'}
                           </Typography>
                           <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#0F2C59', mb: 0.5 }}>
-                            • चरण २ (प्रदर्शन): {methodologySteps[1] || '३० मिनेट प्रशिक्षकद्वारा प्रत्यक्ष सीप प्रदर्शन।'}
+                            • Step 2 (Demo): {methodologySteps[1] || '30 mins: Live practical demonstration by trainer.'}
                           </Typography>
                           <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#0F2C59', mb: 0.5 }}>
-                            • चरण ३ (अभ्यास): {methodologySteps[2] || '६० मिनेट विद्यार्थीहरूको प्रत्यक्ष प्रयोगात्मक अभ्यास।'}
+                            • Step 3 (Practice): {methodologySteps[2] || '60 mins: Trainee hands-on practice & drill.'}
                           </Typography>
                           <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#0F2C59' }}>
-                            • चरण ४ (समीक्षा): {methodologySteps[3] || '१५ मिनेट सीप परीक्षण र प्रश्नोत्तर।'}
+                            • Step 4 (Review): {methodologySteps[3] || '15 mins: Skill evaluation & Q&A review.'}
                           </Typography>
                         </TableCell>
                       </TableRow>
 
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, bgcolor: '#F1F5F9' }}>
-                          ४. सीप दक्षता मूल्याङ्कन विधि<br />
+                          4. Skill Competency Assessment Method<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Competency Assessment)</span>
                         </TableCell>
                         <TableCell sx={{ lineHeight: 1.6 }}>
@@ -1356,7 +1356,7 @@ export default function LessonPlanManager() {
 
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, bgcolor: '#F1F5F9' }}>
-                          ५. गृहकार्य तथा स्व-अभ्यास<br />
+                          5. Homework & Self-Practice<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Homework & Drill)</span>
                         </TableCell>
                         <TableCell sx={{ lineHeight: 1.6 }}>
@@ -1366,7 +1366,7 @@ export default function LessonPlanManager() {
 
                       <TableRow>
                         <TableCell sx={{ fontWeight: 900, bgcolor: '#F1F5F9' }}>
-                          ६. विशेष निर्देशन तथा टिप्पणी<br />
+                          6. Special Notes & Safety Precautions<br />
                           <span style={{ fontWeight: 600, color: '#64748B', fontSize: '0.78rem' }}>(Instructor Remarks & Safety Notes)</span>
                         </TableCell>
                         <TableCell sx={{ lineHeight: 1.6 }}>
@@ -1383,12 +1383,12 @@ export default function LessonPlanManager() {
                 <Table size="small">
                   <TableHead sx={{ bgcolor: '#0F2C59' }}>
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 45, textAlign: 'center' }}>क्र.सं.</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 95 }}>मिति र बार</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>पाठ्यक्रम शीर्षक</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सिकाइ उद्देश्यहरू</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>विधि तथा सामग्री</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 100 }}>मूल्याङ्कन</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 45, textAlign: 'center' }}>SN</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 95 }}>Date & Day</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 140 }}>Course Unit Topic</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Learning Objectives</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Method & Materials</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 100 }}>Assessment</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1408,8 +1408,8 @@ export default function LessonPlanManager() {
                           </TableCell>
                           <TableCell>{lp.objectives}</TableCell>
                           <TableCell>
-                            <b>विधि:</b> {lp.methodology}<br />
-                            <b>सामग्री:</b> {lp.materialsNeeded}
+                            <b>Method:</b> {lp.methodology}<br />
+                            <b>Materials:</b> {lp.materialsNeeded}
                           </TableCell>
                           <TableCell>{lp.assessmentMethod}</TableCell>
                         </TableRow>
@@ -1425,7 +1425,7 @@ export default function LessonPlanManager() {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    प्रशिक्षकको दस्तखत (Trainer)
+                    Instructor Signature
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     {trainer?.name || 'Lead Trainer'}<br />Date: {new Date().toISOString().slice(0, 10)}
@@ -1436,7 +1436,7 @@ export default function LessonPlanManager() {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    पाठ्यक्रम संयोजक (Curriculum Coordinator)
+                    Curriculum Coordinator
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     Approved by CTEVT Lead<br />Signature &amp; Date
@@ -1447,7 +1447,7 @@ export default function LessonPlanManager() {
               <Grid item xs={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderTop: '1.5px dashed #0F2C59', pt: 1 }}>
                   <Typography variant="caption" sx={{ fontWeight: 900, display: 'block', color: '#0F2C59' }}>
-                    क्याम्पस प्रमुख / प्रिन्सिपल (Principal)
+                    Campus Chief / Principal
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
                     Official Seal &amp; Signature
@@ -1459,10 +1459,10 @@ export default function LessonPlanManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
           <Button onClick={() => setOpenPrintModal(false)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस्
+            Close
           </Button>
           <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
-            प्रिन्ट गर्नुहोस् (Print A4)
+            Print (A4 Format)
           </Button>
         </DialogActions>
       </Dialog>

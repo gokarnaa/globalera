@@ -302,7 +302,7 @@ export default function OjtManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>क्र.सं. (S.N.)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Student</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Host Employer Partner</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>OJT Dates</TableCell>
@@ -602,10 +602,10 @@ export default function OjtManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'OJT विवरण सम्पादन (Edit OJT Deployment)' : 'विद्यार्थी OJT तैनाथी (Deploy Student to OJT)'}
+                {editingItem ? 'Edit OJT Deployment' : 'Deploy Student to OJT'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                कार्यथलो प्रयोगात्मक अभ्यासका लागि प्रशिक्षार्थी र रोजगार साझेदार आबद्धता
+                Assign trainees to host employer partners for practical workplace training
               </Typography>
             </Box>
           </Box>
@@ -643,7 +643,7 @@ export default function OjtManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- विद्यार्थी छान्नुहोस् (Select Student) --
+                -- Select Student --
               </MenuItem>
               {db.students.map((s) => (
                 <MenuItem key={s.id} value={s.id}>
@@ -662,7 +662,7 @@ export default function OjtManager() {
               required
             >
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- रोजगारदाता संस्था छान्नुहोस् (Select Employer) --
+                -- Select Employer --
               </MenuItem>
               {db.employers.map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
@@ -703,7 +703,7 @@ export default function OjtManager() {
                   label="Site Supervisor Name"
                   fullWidth
                   size="small"
-                  placeholder="सुपरभाइजरको नाम"
+                  placeholder="Supervisor Name"
                   value={formData.relatedPerson}
                   onChange={(e) => setFormData({ ...formData, relatedPerson: e.target.value })}
                 />
@@ -728,10 +728,10 @@ export default function OjtManager() {
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
             >
-              <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
-              <MenuItem value="Ongoing">Ongoing (हाल सञ्चालनमा)</MenuItem>
-              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
-              <MenuItem value="Terminated">Terminated (रद्द गरिएको)</MenuItem>
+              <MenuItem value="Planned">Planned</MenuItem>
+              <MenuItem value="Ongoing">Ongoing</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
+              <MenuItem value="Terminated">Terminated</MenuItem>
             </TextField>
 
             <TextField
@@ -740,7 +740,7 @@ export default function OjtManager() {
               rows={2}
               fullWidth
               size="small"
-              placeholder="विभाग, कार्य विवरण वा विशेष टिप्पणी..."
+              placeholder="Department, job description, or special remarks..."
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
             />
@@ -768,7 +768,7 @@ export default function OjtManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -788,7 +788,7 @@ export default function OjtManager() {
               }
             }}
           >
-            {editingItem ? 'अद्यावधिक गर्नुहोस्' : 'सुरक्षित गर्नुहोस् (Save OJT)'}
+            {editingItem ? 'Update OJT' : 'Save OJT'}
           </Button>
         </DialogActions>
       </Dialog>

@@ -38,18 +38,18 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getWhatsAppUrl, exportToExcel } from '../../services/exportUtils';
 
 export const NEPALI_FISCAL_MONTHS = [
-  { no: '01', key: 'Shrawan', nepali: 'श्रावण', billDate: 'साउन ०१', defaultStatus: 'Paid' },
-  { no: '02', key: 'Bhadra', nepali: 'भाद्र', billDate: 'भदौ ०१', defaultStatus: 'Paid' },
-  { no: '03', key: 'Ashwin', nepali: 'आश्विन', billDate: 'असोज ०१', defaultStatus: 'Paid' },
-  { no: '04', key: 'Kartik', nepali: 'कार्तिक', billDate: 'कात्तिक ०१', defaultStatus: 'Paid' },
-  { no: '05', key: 'Mangsir', nepali: 'मार्गशीर्ष', billDate: 'मंसीर ०१', defaultStatus: 'Paid' },
-  { no: '06', key: 'Poush', nepali: 'पौष', billDate: 'पुस ०१', defaultStatus: 'Paid' },
-  { no: '07', key: 'Magh', nepali: 'माघ', billDate: 'माघ ०१', defaultStatus: 'Paid' },
-  { no: '08', key: 'Falgun', nepali: 'फाल्गुन', billDate: 'फागुन ०१', defaultStatus: 'Paid' },
-  { no: '09', key: 'Chaitra', nepali: 'चैत्र', billDate: 'चैत ०१', defaultStatus: 'Paid' },
-  { no: '10', key: 'Baisakh', nepali: 'वैशाख', billDate: 'वैशाख ०१', defaultStatus: 'Paid' },
-  { no: '11', key: 'Jestha', nepali: 'ज्येष्ठ', billDate: 'जेठ ०१', defaultStatus: 'Due' },
-  { no: '12', key: 'Ashad', nepali: 'आषाढ', billDate: 'असार ०१', defaultStatus: 'Upcoming' }
+  { no: '01', key: 'Shrawan', nepali: 'Shrawan', billDate: 'Shrawan 01', defaultStatus: 'Paid' },
+  { no: '02', key: 'Bhadra', nepali: 'Bhadra', billDate: 'Bhadra 01', defaultStatus: 'Paid' },
+  { no: '03', key: 'Ashwin', nepali: 'Ashwin', billDate: 'Ashwin 01', defaultStatus: 'Paid' },
+  { no: '04', key: 'Kartik', nepali: 'Kartik', billDate: 'Kartik 01', defaultStatus: 'Paid' },
+  { no: '05', key: 'Mangsir', nepali: 'Mangsir', billDate: 'Mangsir 01', defaultStatus: 'Paid' },
+  { no: '06', key: 'Poush', nepali: 'Poush', billDate: 'Poush 01', defaultStatus: 'Paid' },
+  { no: '07', key: 'Magh', nepali: 'Magh', billDate: 'Magh 01', defaultStatus: 'Paid' },
+  { no: '08', key: 'Falgun', nepali: 'Falgun', billDate: 'Falgun 01', defaultStatus: 'Paid' },
+  { no: '09', key: 'Chaitra', nepali: 'Chaitra', billDate: 'Chaitra 01', defaultStatus: 'Paid' },
+  { no: '10', key: 'Baisakh', nepali: 'Baisakh', billDate: 'Baisakh 01', defaultStatus: 'Paid' },
+  { no: '11', key: 'Jestha', nepali: 'Jestha', billDate: 'Jestha 01', defaultStatus: 'Due' },
+  { no: '12', key: 'Ashad', nepali: 'Ashad', billDate: 'Ashad 01', defaultStatus: 'Upcoming' }
 ];
 
 export default function UniversalStatementModal({
@@ -86,7 +86,7 @@ export default function UniversalStatementModal({
     return [
       { id: 'BANK_NABIL', name: 'Nabil Bank Ltd. (Main Operations Account)', raw: { bank: 'Nabil Bank' } },
       { id: 'BANK_GLOBAL', name: 'Global IME Bank Ltd. (Fees Collection)', raw: { bank: 'Global IME' } },
-      { id: 'CASH_BOX', name: 'काउन्टर नगद मौज्दात (Counter Cash Box)', raw: { bank: 'Cash' } }
+      { id: 'CASH_BOX', name: 'Counter Cash Balance (Counter Cash Box)', raw: { bank: 'Cash' } }
     ];
   }, [db, entityType]);
 
@@ -118,7 +118,7 @@ export default function UniversalStatementModal({
       const isDueMonth = idx === 10; // Jestha is Due on 1st
 
       const matchingTxn = partyTxns.find((tx) => tx.monthTarget === m.key) || {
-        date: isPaidMonth ? `२०८२-${m.no}-०५` : '—',
+        date: isPaidMonth ? `2026-${m.no}-05` : '—',
         paymentMethod: 'ConnectIPS',
         txnReference: isPaidMonth ? `CIP-89420${idx + 1}` : '—'
       };
@@ -149,12 +149,12 @@ export default function UniversalStatementModal({
       const rows = [
         {
           sn: 1,
-          date: currentEntity.admissionDateBS || currentEntity.admissionDate || '२०८२-०५-०१',
-          narration: `भर्ना सम्झौता - कुल पाठ्यक्रम शुल्क (${course?.title || 'Vocational Course'})`,
+          date: currentEntity.admissionDateBS || currentEntity.admissionDate || '2026-05-01',
+          narration: `Admission Agreement - Total Course Fee (${course?.title || 'Vocational Course'})`,
           refNo: `ADM-${currentEntity.tgid || 'REG'}`,
           debit: lockedFee,
           credit: 0,
-          method: 'सम्झौता',
+          method: 'Agreement',
           runningBalance: lockedFee,
           status: 'COMMITTED'
         }
@@ -167,7 +167,7 @@ export default function UniversalStatementModal({
         rows.push({
           sn: i + 2,
           date: p.paymentDate || p.date,
-          narration: `शुल्क संकलन रसिद (${p.receiptNo}) - किस्ता भुक्तानी`,
+          narration: `Fee Collection Receipt (${p.receiptNo}) - Installment Payment`,
           refNo: p.receiptNo,
           debit: 0,
           credit: amt,
@@ -189,12 +189,12 @@ export default function UniversalStatementModal({
       const rows = [
         {
           sn: 1,
-          date: '२०८२-०४-१५',
-          narration: `${currentEntity.name} - प्रारम्भिक उधारो सामान खरिद बिल (Bill #1042)`,
+          date: '2026-04-15',
+          narration: `${currentEntity.name} - Opening Credit Purchase Bill (Bill #1042)`,
           refNo: 'INV-1042',
           debit: totalPurchases,
           credit: 0,
-          method: 'उधारो खरिद',
+          method: 'Credit Purchase',
           runningBalance: totalPurchases,
           status: 'BILL_ACCURED'
         }
@@ -207,7 +207,7 @@ export default function UniversalStatementModal({
         rows.push({
           sn: i + 2,
           date: tx.date,
-          narration: `पार्टी बक्यौता भुक्तानी (${tx.refNo}) - ConnectIPS`,
+          narration: `Party Balance Payout (${tx.refNo}) - ConnectIPS`,
           refNo: tx.refNo,
           debit: 0,
           credit: amt,
@@ -224,7 +224,7 @@ export default function UniversalStatementModal({
     return (db.transactions || []).slice(0, 15).map((tx, idx) => ({
       sn: idx + 1,
       date: tx.date,
-      narration: tx.remarks || tx.partyName || 'कारोबार दाखिला',
+      narration: tx.remarks || tx.partyName || 'Transaction Entry',
       refNo: tx.refNo,
       debit: tx.isInflow ? Number(tx.amount) : 0,
       credit: !tx.isInflow ? Number(tx.amount) : 0,
@@ -238,28 +238,28 @@ export default function UniversalStatementModal({
   const handleExportExcel = () => {
     if (entityType === 'LANDLORD') {
       const data = landlordRentSchedule.map((row) => ({
-        'क्र.सं.': row.no,
-        'महिना': `${row.nepali} (${row.key})`,
-        'बिल मिति': row.billDate,
-        'मासिक भाडा (Rs.)': row.monthlyRent,
-        'TDS कट्टी (Rs.)': row.tdsAmount,
-        'खुद भुक्तानी (Rs.)': row.netDisbursed,
-        'भुक्तानी मिति': row.paidDate,
-        'माध्यम र ट्रान्ज्याक्सन आइडी': `${row.paymentMethod} - ${row.txnReference}`,
-        'स्थिति': row.status
+        'S.N.': row.no,
+        'Month': `${row.nepali} (${row.key})`,
+        'Bill Date': row.billDate,
+        'Monthly Rent (Rs.)': row.monthlyRent,
+        'TDS Deducted (Rs.)': row.tdsAmount,
+        'Net Disbursed (Rs.)': row.netDisbursed,
+        'Payment Date': row.paidDate,
+        'Method & Txn ID': `${row.paymentMethod} - ${row.txnReference}`,
+        'Status': row.status
       }));
       exportToExcel(data, `Landlord_Annual_Rent_Statement_${fiscalYear.replace('/', '_')}`);
     } else {
       const data = ledgerEntries.map((r) => ({
-        'क्र.सं.': r.sn,
-        'मिति': r.date,
-        'विवरण': r.narration,
-        'बिल/रसिद नं': r.refNo,
-        'डेबिट (Debit)': r.debit,
-        'क्रेडिट (Credit)': r.credit,
-        'माध्यम': r.method,
-        'बाँकी मौज्दात (Balance)': r.runningBalance,
-        'स्थिति': r.status
+        'S.N.': r.sn,
+        'Date': r.date,
+        'Particulars': r.narration,
+        'Bill/Receipt No': r.refNo,
+        'Debit': r.debit,
+        'Credit': r.credit,
+        'Method': r.method,
+        'Running Balance': r.runningBalance,
+        'Status': r.status
       }));
       exportToExcel(data, `Statement_${entityType}_${selectedId}`);
     }
@@ -268,39 +268,39 @@ export default function UniversalStatementModal({
   const getEntityShareText = () => {
     if (!currentEntity) return '';
     if (entityType === 'LANDLORD') {
-      return `नमस्ते ${currentEntity.name} ज्यू,\n\nग्लोबल एरा प्राविधिक स्कुलबाट आर्थिक वर्ष ${fiscalYear} को घरभाडा वार्षिक स्टेटमेन्ट पठाइएको छ।\n\nमासिक भाडा: रु. ${currentEntity.monthlyRent?.toLocaleString()}\nकुल भुक्तानी: १० महिना चुक्ता (ConnectIPS)\nहाल तिर्न बाँकी: रु. ${(currentEntity.currentDue || 0).toLocaleString()}\n\nविस्तृत स्टेटमेन्टका लागि कार्यालयमा सम्पर्क गर्नुहोस्। धन्यवाद!`;
+      return `Dear ${currentEntity.name},\n\nAnnual Rent Statement for Fiscal Year ${fiscalYear} from Global Era Technical School:\n\nMonthly Rent: Rs. ${currentEntity.monthlyRent?.toLocaleString()}\nTotal Paid: 10 Months Cleared (ConnectIPS)\nCurrent Due: Rs. ${(currentEntity.currentDue || 0).toLocaleString()}\n\nPlease contact the office for the detailed statement. Thank you!`;
     }
-    return `नमस्ते ${currentEntity.name || 'महानुभाव'} ज्यू,\n\nग्लोबल एरा प्राविधिक स्कुलबाट तपाईंको आधिकारिक खातापाना (Statement) पठाइएको छ। धन्यवाद!`;
+    return `Dear ${currentEntity.name || 'Sir/Madam'},\n\nPlease find your official account statement from Global Era Technical School. Thank you!`;
   };
 
   const entityTitle = useMemo(() => {
     switch (entityType) {
       case 'STUDENT':
         return {
-          title: 'विद्यार्थी किस्ता लेजर तथा शुल्क स्टेटमेन्ट (Student Fee Passbook)',
-          subtitle: 'कोर्स शुल्क, किस्ता भुक्तानी रसिद तथा बाँकी बक्यौता विवरण'
+          title: 'Student Fee Passbook & Installment Ledger',
+          subtitle: 'Course fee, installment payment receipts, and remaining due balance'
         };
       case 'LANDLORD':
         return {
-          title: 'आर्थिक वर्ष १२-महिने घरभाडा स्टेटमेन्ट (साउन–असार FY Rent Ledger)',
-          subtitle: 'मासिक भाडा भुक्तानी, १०% TDS कट्टी र ConnectIPS दाखिला ट्रान्ज्याक्सन'
+          title: 'Fiscal Year 12-Month Rent Statement (Shrawan–Ashad FY Rent Ledger)',
+          subtitle: 'Monthly rent payment, 10% TDS deduction, and ConnectIPS transaction history'
         };
       case 'TRAINER':
         return {
-          title: 'प्रशिक्षक पारिश्रमिक तथा कमिसन स्टेटमेन्ट (Trainer Payroll Ledger)',
-          subtitle: 'ब्याच कमिसन, मासिक तलब तथा निकासा भौचर विवरण'
+          title: 'Trainer Remuneration & Commission Statement (Trainer Payroll Ledger)',
+          subtitle: 'Batch commission, monthly salary, and disbursement voucher details'
         };
       case 'SUPPLIER':
       case 'UTILITY':
         return {
-          title: 'पार्टी खाता तथा खरिद स्टेटमेन्ट (Party & Supplier Ledger)',
-          subtitle: 'खरिद बिल, उधारो दायित्व र बैंक भुक्तानी विवरण'
+          title: 'Party Account & Purchase Statement (Party & Supplier Ledger)',
+          subtitle: 'Purchase bills, payable liabilities, and bank payout history'
         };
       case 'BANK':
       default:
         return {
-          title: 'बैंक तथा काउन्टर क्यास पासबुक (Day-Book & Bank Ledger)',
-          subtitle: 'नबिल बैंक, ग्लोबल आइएमई र काउन्टर नगद खातापाना'
+          title: 'Day-Book & Bank Passbook Ledger',
+          subtitle: 'Nabil Bank, Global IME Bank, and Counter Cash ledger'
         };
     }
   }, [entityType]);
@@ -362,7 +362,7 @@ export default function UniversalStatementModal({
             onClick={() => window.print()}
             sx={{ bgcolor: '#F59E0B', color: '#0F172A', fontWeight: 900, textTransform: 'none', '&:hover': { bgcolor: '#D97706' } }}
           >
-            A4 प्रिन्ट
+            Print A4
           </Button>
           {currentEntity?.phone && (
             <IconButton
@@ -404,11 +404,11 @@ export default function UniversalStatementModal({
                   }
                 }}
               >
-                <Tab value="LANDLORD" icon={<HomeWorkIcon />} iconPosition="start" label="🏠 घरबेटी (Landlord)" />
-                <Tab value="STUDENT" icon={<SchoolIcon />} iconPosition="start" label="🎓 विद्यार्थी शुल्क (Student)" />
-                <Tab value="SUPPLIER" icon={<StorefrontIcon />} iconPosition="start" label="🛠️ कच्चा पदार्थ बिक्रेता" />
-                <Tab value="TRAINER" icon={<PersonIcon />} iconPosition="start" label="👨‍🏫 प्रशिक्षक पेरोल" />
-                <Tab value="BANK" icon={<AccountBalanceIcon />} iconPosition="start" label="🏦 बैंक खाता (Day-Book)" />
+                <Tab value="LANDLORD" icon={<HomeWorkIcon />} iconPosition="start" label="🏠 Landlord" />
+                <Tab value="STUDENT" icon={<SchoolIcon />} iconPosition="start" label="🎓 Student Fee" />
+                <Tab value="SUPPLIER" icon={<StorefrontIcon />} iconPosition="start" label="🛠️ Material Suppliers" />
+                <Tab value="TRAINER" icon={<PersonIcon />} iconPosition="start" label="👨‍🏫 Trainer Payroll" />
+                <Tab value="BANK" icon={<AccountBalanceIcon />} iconPosition="start" label="🏦 Bank Account (Day-Book)" />
               </Tabs>
             </Grid>
 
@@ -418,7 +418,7 @@ export default function UniversalStatementModal({
                 select
                 fullWidth
                 size="small"
-                label="सम्बन्धित व्यक्ति / खाता छान्नुहोस्"
+                label="Select Account / Party"
                 value={selectedId}
                 onChange={(e) => setSelectedId(e.target.value)}
               >
@@ -436,12 +436,12 @@ export default function UniversalStatementModal({
                 select
                 fullWidth
                 size="small"
-                label="आर्थिक वर्ष"
+                label="Fiscal Year"
                 value={fiscalYear}
                 onChange={(e) => setFiscalYear(e.target.value)}
               >
-                <MenuItem value="2082/083">आ.व. २०८२/०८३ (चालू)</MenuItem>
-                <MenuItem value="2081/082">आ.व. २०८१/०८२ (गत वर्ष)</MenuItem>
+                <MenuItem value="2082/083">FY 2082/083 (Current)</MenuItem>
+                <MenuItem value="2081/082">FY 2081/082 (Previous)</MenuItem>
               </TextField>
             </Grid>
           </Grid>
@@ -463,13 +463,13 @@ export default function UniversalStatementModal({
             <Grid container spacing={2} alignItems="center">
               <Grid item xs={12} md={4}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-                  खाता विवरण (Party Profile)
+                  Party Profile
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
                   {currentEntity.name}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                  सम्पर्क: {currentEntity.phone || 'N/A'} {currentEntity.panNumber ? `• PAN: ${currentEntity.panNumber}` : ''}
+                  Contact: {currentEntity.phone || 'N/A'} {currentEntity.panNumber ? `• PAN: ${currentEntity.panNumber}` : ''}
                 </Typography>
                 {currentEntity.bankName && (
                   <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 700, display: 'block', mt: 0.3 }}>
@@ -480,37 +480,37 @@ export default function UniversalStatementModal({
 
               <Grid item xs={6} sm={4} md={2.5}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                  कुल सम्झौता / दायित्व:
+                  Total Contract / Liability:
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                  रु. {((entityType === 'LANDLORD' ? (currentEntity.monthlyRent * 12) : currentEntity.totalPurchases || currentEntity.lockedFee || 600000)).toLocaleString()}
+                  Rs. {((entityType === 'LANDLORD' ? (currentEntity.monthlyRent * 12) : currentEntity.totalPurchases || currentEntity.lockedFee || 600000)).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                  आ.व. {fiscalYear}
+                  FY {fiscalYear}
                 </Typography>
               </Grid>
 
               <Grid item xs={6} sm={4} md={2.5}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                  कुल तिरिएको / चुक्ता:
+                  Total Paid / Cleared:
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#059669' }}>
-                  रु. {(currentEntity.totalPaid || (entityType === 'LANDLORD' ? currentEntity.monthlyRent * 10 : 0)).toLocaleString()}
+                  Rs. {(currentEntity.totalPaid || (entityType === 'LANDLORD' ? currentEntity.monthlyRent * 10 : 0)).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                  ConnectIPS तथा बैंकिङ भुक्तानी
+                  ConnectIPS & Bank Payments
                 </Typography>
               </Grid>
 
               <Grid item xs={12} sm={4} md={3} sx={{ textAlign: { sm: 'right' } }}>
                 <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                  हालको बाँकी बक्यौता (Current Due):
+                  Current Due Balance:
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: (currentEntity.currentDue > 0 || entityType === 'LANDLORD') ? '#DC2626' : '#059669' }}>
-                  रु. {(currentEntity.currentDue || (entityType === 'LANDLORD' ? currentEntity.monthlyRent : 0)).toLocaleString()}
+                  Rs. {(currentEntity.currentDue || (entityType === 'LANDLORD' ? currentEntity.monthlyRent : 0)).toLocaleString()}
                 </Typography>
                 <Chip
-                  label={currentEntity.currentDue > 0 || entityType === 'LANDLORD' ? '🔴 बक्यौता बाँकी' : '🟢 पूर्ण चुक्ता'}
+                  label={currentEntity.currentDue > 0 || entityType === 'LANDLORD' ? '🔴 Due Remaining' : '🟢 Fully Cleared'}
                   size="small"
                   sx={{
                     fontWeight: 900,
@@ -545,15 +545,15 @@ export default function UniversalStatementModal({
                   }}
                 >
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>क्र.सं.</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>महिना (Fiscal Month)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>बिल जारी मिति</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>कुल भाडा (Rent)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TDS कट्टी (१०%)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>खुद निकासा रकम</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भुक्तानी मिति</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>माध्यम र ConnectIPS Txn ID</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>भुक्तानी स्थिति</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Fiscal Month</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Bill Issue Date</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Gross Rent</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TDS Deduction (10%)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Net Disbursed</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payment Date</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Method & ConnectIPS Txn ID</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Payment Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -564,9 +564,9 @@ export default function UniversalStatementModal({
                         {row.nepali} <Typography variant="caption" sx={{ color: '#64748B' }}>({row.key})</Typography>
                       </TableCell>
                       <TableCell sx={{ fontSize: '0.85rem', fontWeight: 700 }}>{row.billDate}</TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#0F172A' }}>रु. {row.monthlyRent.toLocaleString()}</TableCell>
-                      <TableCell sx={{ color: '#D97706', fontWeight: 700 }}>रु. {row.tdsAmount.toLocaleString()}</TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#059669' }}>रु. {row.netDisbursed.toLocaleString()}</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#0F172A' }}>Rs. {row.monthlyRent.toLocaleString()}</TableCell>
+                      <TableCell sx={{ color: '#D97706', fontWeight: 700 }}>Rs. {row.tdsAmount.toLocaleString()}</TableCell>
+                      <TableCell sx={{ fontWeight: 900, color: '#059669' }}>Rs. {row.netDisbursed.toLocaleString()}</TableCell>
                       <TableCell sx={{ fontSize: '0.85rem' }}>{row.paidDate}</TableCell>
                       <TableCell>
                         <Typography variant="body2" sx={{ fontWeight: 800, color: '#1E40AF', fontFamily: 'monospace', fontSize: '0.78rem' }}>
@@ -578,10 +578,10 @@ export default function UniversalStatementModal({
                           size="small"
                           label={
                             row.status === 'PAID'
-                              ? '🟢 चुक्ता (Paid)'
+                              ? '🟢 Paid'
                               : row.status === 'DUE'
-                              ? '🔴 तिर्न बाँकी (Due)'
-                              : '⚪ आगामी महिना'
+                              ? '🔴 Due'
+                              : '⚪ Upcoming'
                           }
                           sx={{
                             fontWeight: 900,
@@ -618,14 +618,14 @@ export default function UniversalStatementModal({
                   }}
                 >
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>क्र.सं.</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>कारोबार मिति</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विवरण (Particulars)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>रसिद / बिल नं</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>डेबिट (Debit +)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>क्रेडिट (Credit -)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भुक्तानी माध्यम</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>बाँकी मौज्दात (Balance)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>Transaction Date</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Particulars</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>Receipt / Bill No</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Debit (+)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Credit (-)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payment Method</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Running Balance</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -636,21 +636,21 @@ export default function UniversalStatementModal({
                       <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>{row.narration}</TableCell>
                       <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>{row.refNo}</TableCell>
                       <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: row.debit > 0 ? '#0F2E5A' : '#94A3B8' }}>
-                        {row.debit > 0 ? `रु. ${row.debit.toLocaleString()}` : '—'}
+                        {row.debit > 0 ? `Rs. ${row.debit.toLocaleString()}` : '—'}
                       </TableCell>
                       <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: row.credit > 0 ? '#059669' : '#94A3B8' }}>
-                        {row.credit > 0 ? `रु. ${row.credit.toLocaleString()}` : '—'}
+                        {row.credit > 0 ? `Rs. ${row.credit.toLocaleString()}` : '—'}
                       </TableCell>
                       <TableCell sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#475569' }}>{row.method}</TableCell>
                       <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: row.runningBalance > 0 ? '#DC2626' : '#059669' }}>
-                        रु. {row.runningBalance.toLocaleString()}
+                        Rs. {row.runningBalance.toLocaleString()}
                       </TableCell>
                     </TableRow>
                   ))}
                   {ledgerEntries.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={8} sx={{ textAlign: 'center', py: 4, color: '#94A3B8' }}>
-                        कुनै कारोबार रेकर्ड फेला परेन।
+                        No transaction records found.
                       </TableCell>
                     </TableRow>
                   )}
@@ -667,7 +667,7 @@ export default function UniversalStatementModal({
           onClick={onClose}
           sx={{ bgcolor: '#0F2E5A', borderRadius: 2.5, px: 3.5, fontWeight: 800 }}
         >
-          बन्द गर्नुहोस् (Close)
+          Close
         </Button>
       </DialogActions>
     </Dialog>

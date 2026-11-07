@@ -130,12 +130,12 @@ export default function AdmissionManager() {
   };
 
   const handleDelete = (admissionId, name) => {
-    if (window.confirm(`के तपाईं विद्यार्थी ${name} को भर्ना सम्झौता रद्द गर्न चाहनुहुन्छ?`)) {
+    if (window.confirm(`Are you sure you want to cancel the admission agreement for student ${name}?`)) {
       const updated = admissions.filter((a) => a.id !== admissionId);
       const nextDb = { ...db, admissions: updated };
       saveDB(nextDb);
       setDb(nextDb);
-      showToast(`भर्ना सम्झौता हटाइयो।`, 'info');
+      showToast(`Admission agreement removed.`, 'info');
     }
   };
 
@@ -165,11 +165,11 @@ export default function AdmissionManager() {
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
               <HowToRegIcon sx={{ fontSize: 36, color: '#f59e0b' }} />
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff' }}>
-                विद्यार्थी भर्ना तथा तालिम सम्झौता (Admission & Agreement)
+                Trainee Admission & Agreement
               </Typography>
             </Stack>
             <Typography variant="body2" sx={{ color: '#e2e8f0', maxWidth: '780px', lineHeight: 1.6 }}>
-              ग्लोबल एरा प्राविधिक स्कुल जोरपाटी — विद्यार्थी भर्ना गर्दा ५०% अग्रिम शुल्क सङ्कलन, १ महिनाको बाँकी भाका, निःशुल्क OJT इन्टर्नशिप रोजाइ र कानुनी मान्यता प्राप्त <strong>२-प्रति (Office Copy र Student Copy) A4 सम्झौता पत्र</strong> स्वतः जारी गर्नुहोस्।
+              Global Era Technical School Jorpati — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office & Student Copy) A4 agreement letters</strong>.
             </Typography>
           </Grid>
           <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -189,7 +189,7 @@ export default function AdmissionManager() {
                 '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
               }}
             >
-              + नयाँ भर्ना तथा सम्झौता (New Admission)
+              + New Admission & Agreement
             </Button>
           </Grid>
         </Grid>
@@ -212,13 +212,13 @@ export default function AdmissionManager() {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  कुल भर्ना सम्झौता
+                  Total Agreements
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
                   {totalAdmissionsCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                  विद्यार्थी दर्ता सम्पन्न
+                  Enrolled Trainees
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#eff6ff', borderRadius: 2, color: '#1e40af' }}>
@@ -243,13 +243,13 @@ export default function AdmissionManager() {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  आजको नयाँ भर्ना
+                  Today's Admissions
                 </Typography>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284c7', mt: 0.5 }}>
                   {todayAdmissionsCount}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
-                  मिति: {todayStr}
+                  Date: {todayStr}
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
@@ -274,13 +274,13 @@ export default function AdmissionManager() {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  ५०% अग्रिम सङ्कलन रकम
+                  50% Advance Collected
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
-                  रु. {totalAdvanceCollected.toLocaleString()}
+                  Rs. {totalAdvanceCollected.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                  भर्नाकै बखत प्राप्त रकम
+                  Received at Enrollment
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#ecfdf5', borderRadius: 2, color: '#059669' }}>
@@ -305,13 +305,13 @@ export default function AdmissionManager() {
             <Stack direction="row" justifyContent="space-between" alignItems="center">
               <Box>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  बाँकी किस्ता रकम (३० दिन भित्र)
+                  Installment Due (Within 30 Days)
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: '#dc2626', mt: 0.5 }}>
-                  रु. {totalPendingDue.toLocaleString()}
+                  Rs. {totalPendingDue.toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
-                  १ महिनाभित्र असुल गर्नुपर्ने
+                  Payable within 1 month
                 </Typography>
               </Box>
               <Box sx={{ p: 1.5, bgcolor: '#fef2f2', borderRadius: 2, color: '#dc2626' }}>
@@ -338,7 +338,7 @@ export default function AdmissionManager() {
             <TextField
               fullWidth
               size="small"
-              placeholder="विद्यार्थीको नाम, फोन वा सम्झौता नं खोजी गर्नुहोस्..."
+              placeholder="Search by student name, phone, or agreement no..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               InputProps={{
@@ -356,11 +356,11 @@ export default function AdmissionManager() {
               select
               fullWidth
               size="small"
-              label="कोर्स अनुसार"
+              label="Course Filter"
               value={courseFilter}
               onChange={(e) => setCourseFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै कोर्सहरू (All Courses)</MenuItem>
+              <MenuItem value="ALL">All Courses</MenuItem>
               {(db.courses || []).map((crs) => (
                 <MenuItem key={crs.id} value={crs.id}>
                   {crs.title}
@@ -374,13 +374,13 @@ export default function AdmissionManager() {
               select
               fullWidth
               size="small"
-              label="OJT प्राथमिकता"
+              label="OJT Preference"
               value={ojtFilter}
               onChange={(e) => setOjtFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै (All OJT)</MenuItem>
-              <MenuItem value="REQUIRED">OJT आवश्यक (Yes)</MenuItem>
-              <MenuItem value="NOT_REQUIRED">OJT नचाहिने (No)</MenuItem>
+              <MenuItem value="ALL">All OJT</MenuItem>
+              <MenuItem value="REQUIRED">OJT Required (Yes)</MenuItem>
+              <MenuItem value="NOT_REQUIRED">No OJT (No)</MenuItem>
             </TextField>
           </Grid>
 
@@ -389,13 +389,13 @@ export default function AdmissionManager() {
               select
               fullWidth
               size="small"
-              label="किस्ता स्थिति"
+              label="Payment Status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <MenuItem value="ALL">सबै स्थिति (All)</MenuItem>
-              <MenuItem value="DUE">दोस्रो किस्ता बाँकी (Due)</MenuItem>
-              <MenuItem value="PAID">पूर्ण चुक्ता (Fully Paid)</MenuItem>
+              <MenuItem value="ALL">All Status</MenuItem>
+              <MenuItem value="DUE">2nd Installment Due</MenuItem>
+              <MenuItem value="PAID">Fully Paid</MenuItem>
             </TextField>
           </Grid>
         </Grid>
@@ -420,18 +420,18 @@ export default function AdmissionManager() {
             >
               <TableRow>
                 <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                  क्र.सं. (S.N.)
+                  S.N.
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्झौता नं / मिति</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>विद्यार्थीको विवरण</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>तालिम तथा ब्याच</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>OJT सुविधा</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Agreement No / Date</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Details</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Batch</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>OJT Service</TableCell>
                 <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">
-                  शुल्क / ५०% अग्रिम
+                  Fee / 50% Advance
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>दोस्रो किस्ता / ३०-दिने भाका</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>2nd Installment / Grace Date</TableCell>
                 <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">
-                  कार्यहरू (Actions)
+                  Actions
                 </TableCell>
               </TableRow>
             </TableHead>
@@ -439,7 +439,7 @@ export default function AdmissionManager() {
               {filteredAdmissions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#64748b' }}>
-                    कुनै भर्ना सम्झौता फेला परेन। '+ नयाँ भर्ना तथा सम्झौता' बटन थिचेर पहिलो सम्झौता दर्ता गर्नुहोस्।
+                    No admission agreements found. Click '+ New Admission & Agreement' to register an enrollment.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -454,10 +454,10 @@ export default function AdmissionManager() {
                         {adm.agreementNo}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
-                        भर्ना: {adm.admissionDateBS || adm.admissionDate}
+                        Date: {adm.admissionDateBS || adm.admissionDate}
                       </Typography>
                       <Chip
-                        label="सक्रिय सम्झौता"
+                        label="Active Agreement"
                         size="small"
                         sx={{
                           height: '20px',
@@ -476,10 +476,10 @@ export default function AdmissionManager() {
                         {adm.studentName}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                        फोन: {adm.phone}
+                        Phone: {adm.phone}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                        रोल: {adm.studentId} ({adm.tgid})
+                        ID: {adm.studentId} ({adm.tgid})
                       </Typography>
                     </TableCell>
 
@@ -501,7 +501,7 @@ export default function AdmissionManager() {
                       {adm.ojtPreference === 'REQUIRED' ? (
                         <Chip
                           icon={<WorkIcon sx={{ fontSize: '14px !important' }} />}
-                          label="OJT आवश्यक (निःशुल्क)"
+                          label="OJT Required (Free)"
                           size="small"
                           sx={{
                             fontWeight: 700,
@@ -513,7 +513,7 @@ export default function AdmissionManager() {
                         />
                       ) : (
                         <Chip
-                          label="OJT नचाहिने"
+                          label="No OJT"
                           size="small"
                           sx={{
                             fontWeight: 600,
@@ -528,13 +528,13 @@ export default function AdmissionManager() {
                     {/* Fee & 50% Paid */}
                     <TableCell align="right">
                       <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                        रु. {(Number(adm.netPayableFee) || 0).toLocaleString()}
+                        Rs. {(Number(adm.netPayableFee) || 0).toLocaleString()}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
-                        ५०% भुक्तान: रु. {(Number(adm.advancePaid50) || 0).toLocaleString()}
+                        50% Paid: Rs. {(Number(adm.advancePaid50) || 0).toLocaleString()}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#64748b' }}>
-                        विधि: {adm.paymentMethod}
+                        Method: {adm.paymentMethod}
                       </Typography>
                     </TableCell>
 
@@ -543,18 +543,18 @@ export default function AdmissionManager() {
                       {adm.dueAmount50 > 0 ? (
                         <Box>
                           <Typography variant="body2" sx={{ fontWeight: 800, color: '#dc2626' }}>
-                            बाँकी: रु. {adm.dueAmount50.toLocaleString()}
+                            Due: Rs. {adm.dueAmount50.toLocaleString()}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#991b1b', fontWeight: 700, display: 'block' }}>
-                            भाका: {adm.dueDate}
+                            Due Date: {adm.dueDate}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748b' }}>
-                            (३० दिन भित्र अनिवार्य)
+                            (Payable within 30 days)
                           </Typography>
                         </Box>
                       ) : (
                         <Chip
-                          label="पूर्ण चुक्ता (Paid)"
+                          label="Fully Paid"
                           size="small"
                           sx={{ bgcolor: '#ecfdf5', color: '#047857', fontWeight: 800 }}
                         />
@@ -564,7 +564,7 @@ export default function AdmissionManager() {
                     {/* Action Buttons */}
                     <TableCell align="center">
                       <Stack direction="row" spacing={1} justifyContent="center">
-                        <Tooltip title="Epson L8050 CR-80 प्लास्टिक ID कार्ड प्रिन्ट गर्नुहोस्">
+                        <Tooltip title="Print Epson L8050 CR-80 PVC Trainee ID Card">
                           <Button
                             variant="contained"
                             size="small"
@@ -573,11 +573,11 @@ export default function AdmissionManager() {
                             onClick={() => handleOpenIdCard(adm)}
                             sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6, bgcolor: '#f59e0b', color: '#0f2e5a', '&:hover': { bgcolor: '#d97706', color: '#ffffff' } }}
                           >
-                            ID कार्ड
+                            ID Card
                           </Button>
                         </Tooltip>
 
-                        <Tooltip title="A4 सम्झौता पत्र प्रिन्ट गर्नुहोस् (Print 2-Copy Agreement)">
+                        <Tooltip title="Print Dual-Copy A4 Admission Agreement">
                           <Button
                             variant="contained"
                             size="small"
@@ -586,11 +586,11 @@ export default function AdmissionManager() {
                             onClick={() => handleOpenPrint(adm)}
                             sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6 }}
                           >
-                            सम्झौता
+                            Agreement
                           </Button>
                         </Tooltip>
 
-                        <Tooltip title="सम्झौता रद्द गर्नुहोस्">
+                        <Tooltip title="Cancel Agreement">
                           <IconButton
                             size="small"
                             color="error"

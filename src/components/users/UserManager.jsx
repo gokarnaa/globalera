@@ -87,7 +87,7 @@ export default function UserManager() {
     commissionType: 'FIXED',
     defaultRate: 1000,
     paymentInfo: '',
-    address: 'काठमाडौं',
+    address: 'Kathmandu',
     title: ''
   });
 
@@ -130,16 +130,16 @@ export default function UserManager() {
   const handleToggleStatus = async (user) => {
     const nextStatus = user.status === 'Suspended' ? 'Active' : 'Suspended';
     const isSuspending = nextStatus === 'Suspended';
-    const actionLabel = isSuspending ? 'खाता निलम्बन (Suspend Account)' : 'खाता सक्रिय (Activate Account)';
+    const actionLabel = isSuspending ? 'Suspend Account' : 'Activate Account';
 
     const ok = await confirm({
       type: isSuspending ? 'danger' : 'info',
-      title: `${actionLabel} निश्चित गर्नुहोस्`,
-      message: `के तपाईं प्रयोगकर्ता "${user.name}" को खाता ${isSuspending ? 'निलम्बन' : 'सक्रिय'} गर्न निश्चित हुनुहुन्छ?`,
+      title: `Confirm ${actionLabel}`,
+      message: `Are you sure you want to ${isSuspending ? 'suspend' : 'activate'} user account "${user.name}"?`,
       detail: isSuspending
-        ? 'निलम्बित प्रयोगकर्ताले प्रणालीमा लगइन गर्न पाउने छैनन्।'
-        : 'सक्रिय भएपछि प्रयोगकर्ताले आफ्नो पिन प्रयोग गरी तत्काल लगइन गर्न सक्नेछन्।',
-      confirmText: isSuspending ? 'हो, निलम्बन गर्नुहोस्' : 'हो, सक्रिय गर्नुहोस्',
+        ? 'Suspended users will be blocked from logging into the portal.'
+        : 'Once activated, the user can immediately log in using their credentials.',
+      confirmText: isSuspending ? 'Yes, Suspend' : 'Yes, Activate',
       confirmColor: isSuspending ? '#DC2626' : '#2563EB'
     });
 
@@ -194,7 +194,7 @@ export default function UserManager() {
       commissionType: 'FIXED',
       defaultRate: 1000,
       paymentInfo: '',
-      address: 'काठमाडौं',
+      address: 'Kathmandu',
       title: ''
     });
     setOpenUserModal(true);
@@ -218,7 +218,7 @@ export default function UserManager() {
       commissionType: user.commissionType || ag.commissionType || 'FIXED',
       defaultRate: user.defaultRate || ag.defaultRate || 1000,
       paymentInfo: user.paymentInfo || ag.paymentInfo || '',
-      address: user.address || ag.address || 'काठमाडौं',
+      address: user.address || ag.address || 'Kathmandu',
       title: user.title || ''
     });
     setOpenUserModal(true);
@@ -228,7 +228,7 @@ export default function UserManager() {
   const handleSaveUser = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.phone || !formData.pin) {
-      alert('कृपया नाम, फोन र पिन अनिवार्य रूपमा प्रविष्ट गर्नुहोस्।');
+      alert('Please fill in Name, Phone, and PIN.');
       return;
     }
 
@@ -257,7 +257,7 @@ export default function UserManager() {
               commissionType: formData.commissionType,
               defaultRate: Number(formData.defaultRate) || 1000,
               paymentInfo: formData.paymentInfo || `eSewa: ${formData.phone}`,
-              address: formData.address || 'काठमाडौं',
+              address: formData.address || 'Kathmandu',
               pin: formData.pin,
               status: formData.status
             };
@@ -270,7 +270,7 @@ export default function UserManager() {
           code: agCode,
           name: formData.name,
           phone: formData.phone,
-          address: formData.address || 'काठमाडौं',
+          address: formData.address || 'Kathmandu',
           pin: formData.pin,
           status: formData.status,
           commissionType: formData.commissionType,
@@ -360,10 +360,10 @@ export default function UserManager() {
     const targetUser = usersList.find((u) => u.id === userId);
     const ok = await confirm({
       type: 'danger',
-      title: 'प्रयोगकर्ता मेटाउने निश्चित गर्नुहोस् (Delete User)',
-      message: `के तपाईं प्रयोगकर्ता "${targetUser?.name || userId}" लाई स्थायी रूपमा मेटाउन निश्चित हुनुहुन्छ?`,
-      detail: 'यो प्रयोगकर्ता प्रणालीबाट हट्नेछ र लगइन गर्न असमर्थ हुनेछ। यो कार्य पूर्ववत गर्न सकिने छैन।',
-      confirmText: 'हो, मेटाउनुहोस् (Delete)',
+      title: 'Confirm User Deletion',
+      message: `Are you sure you want to permanently delete user "${targetUser?.name || userId}"?`,
+      detail: 'This user will be permanently removed from the system and unable to log in. This action cannot be undone.',
+      confirmText: 'Yes, Delete',
       confirmColor: '#DC2626'
     });
     if (ok) {
@@ -388,7 +388,7 @@ export default function UserManager() {
     const newAccounts = generated.filter((g) => !existingIds.has(g.id));
 
     if (newAccounts.length === 0) {
-      alert('सबै प्रशिक्षक र विद्यार्थीहरूको खाता पहिले नै सिर्जना भइसकेको छ। (All Accounts Synced)');
+      alert('All trainer and trainee accounts are already synchronized.');
       return;
     }
 
@@ -399,7 +399,7 @@ export default function UserManager() {
 
     saveDB(nextDb);
     setDb(nextDb);
-    alert(`सफलतापूर्वक ${newAccounts.length} नयाँ खाताहरू सिर्जना तथा सिङ्क गरियो!`);
+    alert(`Successfully synchronized ${newAccounts.length} new accounts!`);
   };
 
   // Generate Direct Login Link for User
@@ -431,11 +431,11 @@ export default function UserManager() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <PeopleAltIcon sx={{ color: '#0F2E5A', fontSize: 32 }} />
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              प्रयोगकर्ता तथा पोर्टल पहुँच व्यवस्थापन (User Management)
+              User & Portal Access Management
             </Typography>
           </Box>
           <Typography variant="body2" sx={{ color: '#64748B', mt: 0.5 }}>
-            प्रणालीका सम्पूर्ण एडमिन, प्रशिक्षक र विद्यार्थी खाताहरू, पहुँच अनुमति र लगइन क्युआर कोड नियन्त्रण
+            Manage admin, instructor, student and agent accounts, login credentials, and digital access QR cards.
           </Typography>
         </Box>
 
@@ -455,7 +455,7 @@ export default function UserManager() {
             onClick={handleOpenAdd}
             sx={{ fontWeight: 900, bgcolor: '#0F2E5A', borderRadius: 2 }}
           >
-            + नयाँ प्रयोगकर्ता थप्नुहोस्
+            + Add New User
           </Button>
         </Box>
       </Box>
@@ -472,7 +472,7 @@ export default function UserManager() {
         }}
       >
         <Typography variant="subtitle1" sx={{ fontWeight: 900, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
-          🌐 समर्पित पोर्टल लिङ्क वितरण हब (Public Portal Links Distribution Hub)
+          🌐 Dedicated Portal Links Distribution Hub
         </Typography>
 
         <Grid container spacing={2}>
@@ -489,12 +489,12 @@ export default function UserManager() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
-                  👨‍🏫 प्रशिक्षक पोर्टल लिङ्क (Trainer)
+                  👨‍🏫 Trainer Portal Link
                 </Typography>
                 <Chip label="Trainer Only" size="small" sx={{ bgcolor: '#10B981', color: '#fff', fontWeight: 800 }} />
               </Box>
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                प्रशिक्षकहरूलाई कक्षा हाजिरी, दैनिक लग-बुक र ब्याच सञ्चालनका लागि:
+                For instructors to mark class attendance, log daily lessons, and view assigned batches:
               </Typography>
               <TextField
                 fullWidth
@@ -521,7 +521,7 @@ export default function UserManager() {
                   onClick={() => window.open(`${window.location.origin}/trainer`, '_blank')}
                   sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
                 >
-                  खोल्नुहोस्
+                  Open
                 </Button>
               </Box>
             </Paper>
@@ -540,12 +540,12 @@ export default function UserManager() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#BAE6FD' }}>
-                  🎓 विद्यार्थी पोर्टल लिङ्क (Student)
+                  🎓 Student Portal Link
                 </Typography>
                 <Chip label="Student Only" size="small" sx={{ bgcolor: '#0284C7', color: '#fff', fontWeight: 800 }} />
               </Box>
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                विद्यार्थीहरूलाई हाजिरी %, प्रमाणपत्र र सूचना हेर्नका लागि:
+                For trainees to view their attendance percentage, notices, and certificates:
               </Typography>
               <TextField
                 fullWidth
@@ -572,7 +572,7 @@ export default function UserManager() {
                   onClick={() => window.open(`${window.location.origin}/student`, '_blank')}
                   sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
                 >
-                  खोल्नुहोस्
+                  Open
                 </Button>
               </Box>
             </Paper>
@@ -591,12 +591,12 @@ export default function UserManager() {
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FDE68A' }}>
-                  🤝 एजेन्ट पोर्टल लिङ्क (Agent / Referral)
+                  🤝 Agent / Referral Portal Link
                 </Typography>
                 <Chip label="Referral Only" size="small" sx={{ bgcolor: '#D97706', color: '#fff', fontWeight: 800 }} />
               </Box>
               <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                रेफ़रल साझेदारहरूलाई लिड पठाउन र कमिसन ट्र्याक गर्नका लागि:
+                For recruitment partners and agents to submit leads and monitor commission payouts:
               </Typography>
               <TextField
                 fullWidth
@@ -623,7 +623,7 @@ export default function UserManager() {
                   onClick={() => window.open(`${window.location.origin}/agent`, '_blank')}
                   sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
                 >
-                  खोल्नुहोस्
+                  Open
                 </Button>
               </Box>
             </Paper>
@@ -636,7 +636,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-              कुल प्रयोगकर्ता
+              Total Users
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A', mt: 0.5 }}>
               {totalCount}
@@ -647,7 +647,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1px solid #BBF7D0' }}>
             <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800 }}>
-              सक्रिय (Active)
+              Active
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#15803D', mt: 0.5 }}>
               {activeCount}
@@ -658,7 +658,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FEF2F2', borderRadius: 2.5, border: '1px solid #FECACA' }}>
             <Typography variant="caption" sx={{ color: '#991B1B', fontWeight: 800 }}>
-              निलम्बित (Suspended)
+              Suspended
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#B91C1C', mt: 0.5 }}>
               {suspendedCount}
@@ -669,7 +669,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#EFF6FF', borderRadius: 2.5, border: '1px solid #BFDBFE' }}>
             <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800 }}>
-              प्रशिक्षक (Trainers)
+              Trainers
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#1D4ED8', mt: 0.5 }}>
               {trainerCount}
@@ -680,7 +680,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FAF5FF', borderRadius: 2.5, border: '1px solid #E9D5FF' }}>
             <Typography variant="caption" sx={{ color: '#6B21A8', fontWeight: 800 }}>
-              विद्यार्थी (Students)
+              Students
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#7E22CE', mt: 0.5 }}>
               {studentCount}
@@ -691,7 +691,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.7}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FFFBEB', borderRadius: 2.5, border: '1px solid #FDE68A' }}>
             <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800 }}>
-              एजेन्ट (Agents)
+              Agents
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#B45309', mt: 0.5 }}>
               {agentCount}
@@ -702,7 +702,7 @@ export default function UserManager() {
         <Grid item xs={6} sm={4} md={1.8}>
           <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #CBD5E1' }}>
             <Typography variant="caption" sx={{ color: '#475569', fontWeight: 800 }}>
-              एडमिन / स्टाफ
+              Admin / Staff
             </Typography>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#334155', mt: 0.5 }}>
               {adminStaffCount}
@@ -719,7 +719,7 @@ export default function UserManager() {
             <TextField
               fullWidth
               size="small"
-              placeholder="खोज्नुहोस्: नाम, फोन, कोड..."
+              placeholder="Search by name, phone, code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               InputProps={{
@@ -760,12 +760,12 @@ export default function UserManager() {
                 }
               }}
             >
-              <Tab value="ALL" label="सबै (All)" />
-              <Tab value="TRAINER" label="प्रशिक्षक" />
-              <Tab value="STUDENT" label="विद्यार्थी" />
-              <Tab value="AGENT" label="एजेन्ट (Agents)" />
-              <Tab value="ADMIN" label="एडमिन" />
-              <Tab value="STAFF" label="स्टाफ" />
+              <Tab value="ALL" label="All" />
+              <Tab value="TRAINER" label="Trainers" />
+              <Tab value="STUDENT" label="Students" />
+              <Tab value="AGENT" label="Agents" />
+              <Tab value="ADMIN" label="Admin" />
+              <Tab value="STAFF" label="Staff" />
             </Tabs>
           </Grid>
 
@@ -775,16 +775,16 @@ export default function UserManager() {
               select
               fullWidth
               size="small"
-              label="स्थिति (Status)"
+              label="Status"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               InputProps={{
                 sx: { height: 36, fontSize: '0.8rem', borderRadius: 2 }
               }}
             >
-              <MenuItem value="ALL" sx={{ fontSize: '0.8rem' }}>सबै (All)</MenuItem>
-              <MenuItem value="Active" sx={{ fontSize: '0.8rem' }}>सक्रिय (Active)</MenuItem>
-              <MenuItem value="Suspended" sx={{ fontSize: '0.8rem' }}>निलम्बित (Suspended)</MenuItem>
+              <MenuItem value="ALL" sx={{ fontSize: '0.8rem' }}>All</MenuItem>
+              <MenuItem value="Active" sx={{ fontSize: '0.8rem' }}>Active</MenuItem>
+              <MenuItem value="Suspended" sx={{ fontSize: '0.8rem' }}>Suspended</MenuItem>
             </TextField>
           </Grid>
         </Grid>
@@ -808,21 +808,21 @@ export default function UserManager() {
           >
             <TableRow>
               <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                क्र.सं. (S.N.)
+                S.N.
               </TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>प्रयोगकर्ता (User Profile)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>भूमिका (Role)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>सम्पर्क (Phone/Username)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>४-अङ्कको पिन (PIN)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>स्थिति (Status)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>कार्यहरू (Actions)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>User Profile</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Role</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact (Phone/Username)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>4-Digit PIN</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748B' }}>
-                  कुनै पनि प्रयोगकर्ता फेला परेन।
+                  No users found matching current filters.
                 </TableCell>
               </TableRow>
             ) : (
@@ -870,7 +870,7 @@ export default function UserManager() {
                           </Typography>
                           {(user.role === 'AGENT' || user.agentCode) && (
                             <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 800 }}>
-                              रेफ़रल कोड: {user.agentCode || user.username}
+                              Referral Code: {user.agentCode || user.username}
                             </Typography>
                           )}
                         </Box>
@@ -947,7 +947,7 @@ export default function UserManager() {
 
                     <TableCell sx={{ textAlign: 'center' }}>
                       <Chip
-                        label={isSuspended ? 'निलम्बित (Suspended)' : 'सक्रिय (Active)'}
+                        label={isSuspended ? 'Suspended' : 'Active'}
                         size="small"
                         sx={{
                           fontWeight: 800,
@@ -960,7 +960,7 @@ export default function UserManager() {
                     <TableCell sx={{ textAlign: 'right' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.8 }}>
                         {/* 1-Click Suspend / Activate Toggle */}
-                        <Tooltip title={isSuspended ? 'सक्रिय गर्नुहोस् (Activate)' : 'निलम्बन गर्नुहोस् (Suspend)'}>
+                        <Tooltip title={isSuspended ? 'Activate Account' : 'Suspend Account'}>
                           <IconButton
                             size="small"
                             onClick={() => handleToggleStatus(user)}
@@ -974,7 +974,7 @@ export default function UserManager() {
                         </Tooltip>
 
                         {/* Share & QR Access Modal */}
-                        <Tooltip title="लगइन लिङ्क तथा QR कार्ड (Share & QR)">
+                        <Tooltip title="Share Credentials & QR">
                           <IconButton
                             size="small"
                             onClick={() => setShareUserModal(user)}
@@ -985,7 +985,7 @@ export default function UserManager() {
                         </Tooltip>
 
                         {/* Edit User */}
-                        <Tooltip title="विवरण सम्पादन (Edit)">
+                        <Tooltip title="Edit User">
                           <IconButton
                             size="small"
                             onClick={() => handleOpenEdit(user)}
@@ -997,7 +997,7 @@ export default function UserManager() {
 
                         {/* Delete User */}
                         {user.id !== 'USR-ADMIN' && (
-                          <Tooltip title="मेटाउनुहोस् (Delete)">
+                          <Tooltip title="Delete User">
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteUser(user.id)}
@@ -1021,7 +1021,7 @@ export default function UserManager() {
       <Dialog open={openUserModal} onClose={() => setOpenUserModal(false)} maxWidth="sm" fullWidth>
         <form onSubmit={handleSaveUser}>
           <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', fontWeight: 900, py: 2.2, px: 3, borderBottom: '3px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>{editingUser ? 'प्रयोगकर्ता विवरण सम्पादन (Edit User)' : '+ नयाँ प्रयोगकर्ता थप्नुहोस् (Create User)'}</span>
+            <span>{editingUser ? 'Edit User Profile' : '+ Add New User'}</span>
             <IconButton onClick={() => setOpenUserModal(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
               <CloseIcon fontSize="small" />
             </IconButton>
@@ -1033,7 +1033,7 @@ export default function UserManager() {
                   <TextField
                     select
                     fullWidth
-                    label="भूमिका (Role)"
+                    label="Role"
                     value={formData.role}
                     onChange={(e) => {
                       const val = e.target.value;
@@ -1041,11 +1041,11 @@ export default function UserManager() {
                     }}
                     required
                   >
-                    <MenuItem value="STUDENT">विद्यार्थी (Student)</MenuItem>
-                    <MenuItem value="TRAINER">प्रशिक्षक (Trainer)</MenuItem>
-                    <MenuItem value="AGENT">🤝 रेफ़रल पार्टनर / एजेन्ट (Agent)</MenuItem>
-                    <MenuItem value="STAFF">स्टाफ / फ्रन्ट डेस्क (Staff)</MenuItem>
-                    <MenuItem value="ADMIN">सुपर एडमिन (Admin)</MenuItem>
+                    <MenuItem value="STUDENT">Student</MenuItem>
+                    <MenuItem value="TRAINER">Trainer</MenuItem>
+                    <MenuItem value="AGENT">🤝 Referral Partner / Agent</MenuItem>
+                    <MenuItem value="STAFF">Staff / Front Desk</MenuItem>
+                    <MenuItem value="ADMIN">Super Admin</MenuItem>
                   </TextField>
                 </Grid>
 
@@ -1053,12 +1053,12 @@ export default function UserManager() {
                   <TextField
                     select
                     fullWidth
-                    label="स्थिति (Status)"
+                    label="Status"
                     value={formData.status}
                     onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
-                    <MenuItem value="Active">सक्रिय (Active)</MenuItem>
-                    <MenuItem value="Suspended">निलम्बित (Suspended)</MenuItem>
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Suspended">Suspended</MenuItem>
                   </TextField>
                 </Grid>
               </Grid>
@@ -1067,18 +1067,18 @@ export default function UserManager() {
               {formData.role === 'AGENT' && (
                 <Paper sx={{ p: 2, bgcolor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 2 }}>
                   <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mb: 1.5 }}>
-                    🤝 एजेन्ट कमिसन तथा रेफ़रल सेटिङहरू (Agent Policy Settings)
+                    🤝 Agent Policy Settings
                   </Typography>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
                         fullWidth
                         size="small"
-                        label="एजेन्ट कोड (Agent Referral Code)"
+                        label="Agent Referral Code"
                         value={formData.agentCode}
                         onChange={(e) => setFormData({ ...formData, agentCode: e.target.value })}
-                        placeholder="उदा: AGE-101"
-                        helperText="खाली छाडेमा स्वतः नयाँ कोड जेनेरेट हुनेछ।"
+                        placeholder="e.g. AGE-101"
+                        helperText="Leave empty to auto-generate."
                       />
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -1086,12 +1086,12 @@ export default function UserManager() {
                         select
                         fullWidth
                         size="small"
-                        label="कमिसन प्रकार"
+                        label="Commission Type"
                         value={formData.commissionType}
                         onChange={(e) => setFormData({ ...formData, commissionType: e.target.value })}
                       >
-                        <MenuItem value="FIXED">फिक्स्ड रकम (Fixed Rs.)</MenuItem>
-                        <MenuItem value="PERCENTAGE">प्रतिशत (Percentage %)</MenuItem>
+                        <MenuItem value="FIXED">Fixed Amount (Rs.)</MenuItem>
+                        <MenuItem value="PERCENTAGE">Percentage (%)</MenuItem>
                       </TextField>
                     </Grid>
                     <Grid item xs={12} sm={6}>
@@ -1099,7 +1099,7 @@ export default function UserManager() {
                         type="number"
                         fullWidth
                         size="small"
-                        label={formData.commissionType === 'PERCENTAGE' ? 'कमिसन प्रतिशत (%)' : 'कमिसन रकम (रु.)'}
+                        label={formData.commissionType === 'PERCENTAGE' ? 'Commission Rate (%)' : 'Commission Amount (Rs.)'}
                         value={formData.defaultRate}
                         onChange={(e) => setFormData({ ...formData, defaultRate: e.target.value })}
                       />
@@ -1108,7 +1108,7 @@ export default function UserManager() {
                       <TextField
                         fullWidth
                         size="small"
-                        label="ठेगाना / सहर (City)"
+                        label="City / Address"
                         value={formData.address}
                         onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                       />
@@ -1117,10 +1117,10 @@ export default function UserManager() {
                       <TextField
                         fullWidth
                         size="small"
-                        label="कमिसन पाउने eSewa वा बैंक विवरण"
+                        label="Payment / Bank / eSewa Details"
                         value={formData.paymentInfo}
                         onChange={(e) => setFormData({ ...formData, paymentInfo: e.target.value })}
-                        placeholder="उदा: eSewa: 9841234567 वा Nabil Bank A/C: 0192837..."
+                        placeholder="e.g. eSewa: 9841234567 or Nabil Bank A/C: 0192837..."
                       />
                     </Grid>
                   </Grid>
@@ -1132,7 +1132,7 @@ export default function UserManager() {
                 <TextField
                   select
                   fullWidth
-                  label="प्रशिक्षक प्रोफाइल लिङ्क गर्नुहोस् (Link Trainer)"
+                  label="Link Trainer Profile"
                   value={formData.trainerId}
                   onChange={(e) => {
                     const tId = e.target.value;
@@ -1146,7 +1146,7 @@ export default function UserManager() {
                     });
                   }}
                 >
-                  <MenuItem value="">-- प्रशिक्षक छान्नुहोस् --</MenuItem>
+                  <MenuItem value="">-- Select Trainer --</MenuItem>
                   {(db.trainers || []).map((t) => (
                     <MenuItem key={t.id} value={t.id}>
                       {t.name} ({t.specialization}) - {t.phone}
@@ -1160,7 +1160,7 @@ export default function UserManager() {
                 <TextField
                   select
                   fullWidth
-                  label="विद्यार्थी प्रोफाइल लिङ्क गर्नुहोस् (Link Student)"
+                  label="Link Student Profile"
                   value={formData.studentId}
                   onChange={(e) => {
                     const sId = e.target.value;
@@ -1174,7 +1174,7 @@ export default function UserManager() {
                     });
                   }}
                 >
-                  <MenuItem value="">-- विद्यार्थी छान्नुहोस् --</MenuItem>
+                  <MenuItem value="">-- Select Student --</MenuItem>
                   {(db.students || []).map((s) => (
                     <MenuItem key={s.id} value={s.id}>
                       {s.name} ({s.tgid}) - {s.phone}
@@ -1185,7 +1185,7 @@ export default function UserManager() {
 
               <TextField
                 fullWidth
-                label="पूरा नाम (Full Name)"
+                label="Full Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
@@ -1195,7 +1195,7 @@ export default function UserManager() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="मोबाइल नम्बर (Phone Number)"
+                    label="Phone Number"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     required
@@ -1205,29 +1205,29 @@ export default function UserManager() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="युजरनेम (Username)"
+                    label="Username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="उदा: pooja वा student01"
+                    placeholder="e.g. pooja or student01"
                   />
                 </Grid>
               </Grid>
 
               <TextField
                 fullWidth
-                label="४-अङ्कको पिन कोड (4-Digit Access PIN)"
+                label="4-Digit Access PIN"
                 value={formData.pin}
                 onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
                 inputProps={{ maxLength: 6 }}
                 required
-                helperText="पोर्टलमा लगइन गर्न प्रयोग हुने गोप्य पिन कोड।"
+                helperText="Secret PIN code used to log in to the portal."
               />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ p: 2.5 }}>
-            <Button onClick={() => setOpenUserModal(false)}>रद्द गर्नुहोस्</Button>
+            <Button onClick={() => setOpenUserModal(false)}>Cancel</Button>
             <Button type="submit" variant="contained" sx={{ bgcolor: '#0F2E5A', fontWeight: 800 }}>
-              सुरक्षित गर्नुहोस् (Save User)
+              Save User
             </Button>
           </DialogActions>
         </form>
@@ -1241,12 +1241,12 @@ export default function UserManager() {
         fullWidth
       >
         <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', textAlign: 'center', fontWeight: 900, py: 2.2, borderBottom: '3px solid #F59E0B' }}>
-          प्रयोगकर्ता पहुँच कार्ड तथा लगइन QR
+          User Access Card & Login QR
         </DialogTitle>
         <DialogContent sx={{ p: 3, textAlign: 'center' }}>
           {shareUserModal && (() => {
             const link = getDirectLoginLink(shareUserModal);
-            const waMsg = `नमस्ते ${shareUserModal.name},\nग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School) को अनलाइन पोर्टलमा तपाईंको स्वागत छ!\n\nतपाईंको लगइन विवरण:\n• लगइन आईडी: ${shareUserModal.phone || shareUserModal.username}\n• गोप्य पिन: ${shareUserModal.pin}\n\nसिधै लगइन गर्न यो लिङ्क खोल्नुहोस्:\n${link}`;
+            const waMsg = `Hello ${shareUserModal.name},\nWelcome to the Global Era Technical School Portal!\n\nYour Login Credentials:\n• ID: ${shareUserModal.phone || shareUserModal.username}\n• Access PIN: ${shareUserModal.pin}\n\nDirect Login Link:\n${link}`;
 
             return (
               <Box>
@@ -1291,7 +1291,7 @@ export default function UserManager() {
                 {/* PIN Badge */}
                 <Box sx={{ bgcolor: '#EFF6FF', p: 1.5, borderRadius: 2, border: '1px solid #BFDBFE', mb: 2 }}>
                   <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800, display: 'block' }}>
-                    ४-अङ्कको गोप्य लगइन पिन (ACCESS PIN):
+                    4-Digit ACCESS PIN:
                   </Typography>
                   <Typography variant="h5" sx={{ fontWeight: 900, color: '#1D4ED8', letterSpacing: 4 }}>
                     {shareUserModal.pin}
@@ -1306,7 +1306,7 @@ export default function UserManager() {
                   onClick={() => handleCopyLink(link)}
                   sx={{ mb: 1.5, fontWeight: 800, borderRadius: 2 }}
                 >
-                  {copySuccess ? '✓ लिङ्क प्रतिलिपि भयो (Copied)!' : 'लगइन लिङ्क प्रतिलिपि गर्नुहोस् (Copy Link)'}
+                  {copySuccess ? '✓ Link Copied!' : 'Copy Login Link'}
                 </Button>
 
                 {/* Send via WhatsApp Button */}
@@ -1321,7 +1321,7 @@ export default function UserManager() {
                   }}
                   sx={{ fontWeight: 900, borderRadius: 2 }}
                 >
-                  ह्वाट्सएपमा पठाउनुहोस् (WhatsApp)
+                  Share via WhatsApp
                 </Button>
               </Box>
             );
@@ -1329,7 +1329,7 @@ export default function UserManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2, justifyContent: 'center' }}>
           <Button variant="outlined" onClick={() => setShareUserModal(null)}>
-            बन्द गर्नुहोस् (Close)
+            Close
           </Button>
         </DialogActions>
       </Dialog>

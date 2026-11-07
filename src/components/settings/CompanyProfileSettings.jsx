@@ -96,7 +96,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
     if (!file) return;
 
     if (file.size > 3 * 1024 * 1024) {
-      alert('फाइल साइज ३MB भन्दा सानो हुनुपर्छ।');
+      alert('File size must be smaller than 3MB.');
       return;
     }
 
@@ -189,10 +189,10 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
           <BusinessIcon sx={{ color: '#0F2E5A', fontSize: 36 }} />
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              संस्थागत प्रोफाइल तथा जारी नम्बर सेटिङ (Company Profile & Certificate Numbering)
+              Company Profile & Certificate Numbering
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B' }}>
-              संस्थाको आधिकारिक नाम, दर्ता नं, ठेगाना, संस्था प्रमुख र प्रमाणपत्र जारी नम्बर ढाँचा (GEMS-2026-001) व्यवस्थापन गर्नुहोस्।
+              Manage official institution name, registration number, address, director details, and certificate number format (GEMS-2026-001).
             </Typography>
           </Box>
         </Box>
@@ -208,13 +208,13 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
             boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)'
           }}
         >
-          सुरक्षित गर्नुहोस् (Save Settings)
+          Save Settings
         </Button>
       </Box>
 
       {savedAlert && (
         <Alert severity="success" sx={{ mb: 3, borderRadius: 2, fontWeight: 700 }}>
-          ✓ संस्थागत प्रोफाइल र प्रमाणपत्र जारी नम्बर ढाँचा सफलतापूर्वक सुरक्षित गरियो! अब जारी हुने सबै प्रमाणपत्रमा नयाँ विवरण र नम्बर स्वतः लागु हुनेछन्।
+          ✓ Company profile and certificate number format saved successfully! All newly issued certificates will automatically use the updated details and numbering.
         </Alert>
       )}
 
@@ -229,10 +229,10 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                 <NumbersIcon sx={{ color: '#0F2E5A', fontSize: 28 }} />
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                    प्रमाणपत्र जारी नम्बर इन्जिन (Certificate Number Generation Engine)
+                    Certificate Number Generation Engine
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    नयाँ प्रमाणपत्र जारी गर्दा प्रणालीले कुन ढाँचामा स्वतः नम्बर बनाउने? छनोट गर्नुहोस्:
+                    Select the automatic numbering format used when issuing new certificates:
                   </Typography>
                 </Box>
               </Box>
@@ -252,7 +252,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               >
                 <AutoAwesomeIcon sx={{ color: '#059669', fontSize: 20 }} />
                 <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800 }}>
-                  अर्को जारी हुने प्रमाणपत्र नम्बर:
+                  Next Certificate Number:
                 </Typography>
                 <Typography variant="subtitle2" sx={{ color: '#065F46', fontWeight: 900, fontFamily: 'monospace', fontSize: '1rem' }}>
                   {previewNextNo}
@@ -262,14 +262,14 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
 
             {/* Presets Switcher */}
             <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 1 }}>
-              १-क्लिक ढाँचा प्रिसेटहरू (Format Presets):
+              1-Click Format Presets:
             </Typography>
             <Stack direction="row" spacing={1} sx={{ mb: 2.5, flexWrap: 'wrap', gap: 1 }}>
               {[
-                { id: 'year_seq', label: 'विकल्प क (डिफल्ट): GEMS-2026-001', desc: 'वर्षगत अंग्रेजी' },
-                { id: 'bs_seq', label: 'विकल्प ख: GEMS-2081-001', desc: 'नेपाली वि.सं.' },
-                { id: 'course_batch', label: 'विकल्प ग: GEMS-BTC-B1-001', desc: 'स्मार्ट ब्याच कोड' },
-                { id: 'ctevt_slash', label: 'विकल्प घ: CTEVT-4208/2081/001', desc: 'सिटिइभिटी स्ल्यास' }
+                { id: 'year_seq', label: 'Option A (Default): GEMS-2026-001', desc: 'AD Year Sequence' },
+                { id: 'bs_seq', label: 'Option B: GEMS-2081-001', desc: 'BS Year Sequence' },
+                { id: 'course_batch', label: 'Option C: GEMS-BTC-B1-001', desc: 'Smart Batch Code' },
+                { id: 'ctevt_slash', label: 'Option D: CTEVT-4208/2081/001', desc: 'CTEVT Slash Format' }
               ].map((p) => (
                 <Button
                   key={p.id}
@@ -299,17 +299,17 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                 <TextField
                   fullWidth
                   size="small"
-                  label="प्रिफिक्स (Prefix Code)"
+                  label="Prefix Code"
                   value={numConfig.prefix || 'GEMS'}
                   onChange={(e) => handleNumConfigChange('prefix', e.target.value.toUpperCase())}
-                  helperText="जस्तै: GEMS, GETS, GE"
+                  helperText="e.g. GEMS, GETS, GE"
                   sx={{ bgcolor: '#FFFFFF' }}
                 />
               </Grid>
 
               <Grid item xs={12} sm={3}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block', mb: 0.5 }}>
-                  साल/वर्ष ढाँचा (Year Format):
+                  Year Format:
                 </Typography>
                 <ToggleButtonGroup
                   value={numConfig.yearMode || 'AD'}
@@ -321,13 +321,13 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                 >
                   <ToggleButton value="AD">AD (2026)</ToggleButton>
                   <ToggleButton value="BS">BS (2081)</ToggleButton>
-                  <ToggleButton value="NONE">वर्ष नराख्ने</ToggleButton>
+                  <ToggleButton value="NONE">No Year</ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
 
               <Grid item xs={12} sm={3}>
                 <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', display: 'block', mb: 0.5 }}>
-                  अंकको लम्बाइ (Sequence Digits):
+                  Sequence Digits:
                 </Typography>
                 <ToggleButtonGroup
                   value={Number(numConfig.seqDigits) || 3}
@@ -337,8 +337,8 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   fullWidth
                   sx={{ bgcolor: '#FFFFFF' }}
                 >
-                  <ToggleButton value={3}>३ अंक (001)</ToggleButton>
-                  <ToggleButton value={4}>४ अंक (0001)</ToggleButton>
+                  <ToggleButton value={3}>3 Digits (001)</ToggleButton>
+                  <ToggleButton value={4}>4 Digits (0001)</ToggleButton>
                 </ToggleButtonGroup>
               </Grid>
 
@@ -347,10 +347,10 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   fullWidth
                   size="small"
                   type="number"
-                  label="सुरुवाती नम्बर (Starting Sequence)"
+                  label="Starting Sequence"
                   value={numConfig.startSeq || 1}
                   onChange={(e) => handleNumConfigChange('startSeq', e.target.value)}
-                  helperText="विगतका रेकर्डबाट सुरु गर्न (जस्तै १ वा १०१)"
+                  helperText="Start from a specific number (e.g. 1 or 101)"
                   sx={{ bgcolor: '#FFFFFF' }}
                 />
               </Grid>
@@ -366,7 +366,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2 }}>
               <BusinessIcon sx={{ color: '#1E40AF', fontSize: 24 }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                संस्थाको कानुनी तथा आधिकारिक विवरण (Company Legal Identity)
+                Company Legal Identity
               </Typography>
             </Box>
 
@@ -374,7 +374,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               <TextField
                 fullWidth
                 size="small"
-                label="संस्थाको पूरा नाम (English Legal Name)"
+                label="English Legal Name"
                 value={profile.companyNameEnglish || ''}
                 onChange={(e) => handleProfileChange('companyNameEnglish', e.target.value)}
               />
@@ -382,7 +382,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               <TextField
                 fullWidth
                 size="small"
-                label="संस्थाको पूरा नाम (नेपाली)"
+                label="Secondary / Subtitle Name"
                 value={profile.companyNameNepali || ''}
                 onChange={(e) => handleProfileChange('companyNameNepali', e.target.value)}
               />
@@ -390,7 +390,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               <TextField
                 fullWidth
                 size="small"
-                label="ठेगाना तथा लोकेसन (Official Address)"
+                label="Official Address & Location"
                 value={profile.address || ''}
                 onChange={(e) => handleProfileChange('address', e.target.value)}
               />
@@ -400,7 +400,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   <TextField
                     fullWidth
                     size="small"
-                    label="कम्पनी दर्ता नं (Company Reg No)"
+                    label="Company Registration No."
                     value={profile.companyRegNo || ''}
                     onChange={(e) => handleProfileChange('companyRegNo', e.target.value)}
                   />
@@ -409,7 +409,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   <TextField
                     fullWidth
                     size="small"
-                    label="CTEVT सम्बन्धन कोड (Affiliation Code)"
+                    label="CTEVT Affiliation Code"
                     value={profile.ctevtCode || ''}
                     onChange={(e) => handleProfileChange('ctevtCode', e.target.value)}
                   />
@@ -421,7 +421,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   <TextField
                     fullWidth
                     size="small"
-                    label="सम्पर्क फोन (Phone Numbers)"
+                    label="Contact Phone Numbers"
                     value={profile.contactPhone || ''}
                     onChange={(e) => handleProfileChange('contactPhone', e.target.value)}
                   />
@@ -430,7 +430,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
                   <TextField
                     fullWidth
                     size="small"
-                    label="आधिकारिक इमेल (Official Email)"
+                    label="Official Email"
                     value={profile.email || ''}
                     onChange={(e) => handleProfileChange('email', e.target.value)}
                   />
@@ -448,7 +448,7 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 2 }}>
               <BadgeIcon sx={{ color: '#C59B27', fontSize: 24 }} />
               <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                संस्था प्रमुख तथा आधिकारिक छाप (Leadership & Assets)
+                Institutional Leadership & Official Assets
               </Typography>
             </Box>
 
@@ -456,16 +456,16 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               <TextField
                 fullWidth
                 size="small"
-                label="संस्था प्रमुख / निर्देशकको नाम (Director Name)"
+                label="Campus Chief / Director Name"
                 value={profile.directorName || ''}
                 onChange={(e) => handleProfileChange('directorName', e.target.value)}
-                helperText="सर्टिफिकेटमा Signatory 2 को रूपमा स्वतः आउँछ"
+                helperText="Automatically appears as Signatory 2 on certificates"
               />
 
               <TextField
                 fullWidth
                 size="small"
-                label="प्रमुखको आधिकारिक पद (Designation / Title)"
+                label="Official Designation / Title"
                 value={profile.directorTitle || ''}
                 onChange={(e) => handleProfileChange('directorTitle', e.target.value)}
               />
@@ -475,16 +475,16 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               {/* Upload Official Rubber Stamp */}
               <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                  संस्थाको आधिकारिक रबर छाप (Official Stamp PNG):
+                  Official Rubber Stamp (PNG):
                 </Typography>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.72rem', fontWeight: 700 }}>
-                    छाप फोटो छान्नुहोस्
+                    Choose Stamp Image
                     <input type="file" hidden accept="image/*" onChange={(e) => handleImageUpload('stampUrl', e)} />
                   </Button>
                   {profile.stampUrl && (
                     <Button size="small" color="error" onClick={() => handleProfileChange('stampUrl', '')}>
-                      हटाउनुहोस्
+                      Remove
                     </Button>
                   )}
                 </Stack>
@@ -493,16 +493,16 @@ export default function CompanyProfileSettings({ onSaveSuccess }) {
               {/* Upload Official Institutional Logo */}
               <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.5 }}>
-                  आधिकारिक संस्थागत लोगो (Transparent Logo PNG):
+                  Official Institutional Logo (Transparent PNG):
                 </Typography>
                 <Stack direction="row" spacing={1.5} alignItems="center">
                   <Button variant="outlined" size="small" component="label" startIcon={<UploadFileIcon />} sx={{ fontSize: '0.72rem', fontWeight: 700 }}>
-                    लोगो फोटो छान्नुहोस्
+                    Choose Logo Image
                     <input type="file" hidden accept="image/*" onChange={(e) => handleImageUpload('logoUrl', e)} />
                   </Button>
                   {profile.logoUrl && (
                     <Button size="small" color="error" onClick={() => handleProfileChange('logoUrl', '')}>
-                      हटाउनुहोस्
+                      Remove
                     </Button>
                   )}
                 </Stack>

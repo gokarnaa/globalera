@@ -88,7 +88,7 @@ export default function LeadManager() {
     name: '',
     phone: '',
     email: '',
-    address: 'काठमाडौं',
+    address: 'Kathmandu',
     commissionType: 'FIXED',
     defaultRate: 1000,
     paymentInfo: '',
@@ -114,7 +114,7 @@ export default function LeadManager() {
         const latest = currentLeads[0];
         playLeadChime();
         showToast(
-          `🔔 नयाँ लिड प्राप्त भयो! ${latest?.name || 'विद्यार्थी'} (${latest?.course || latest?.subject || 'कोर्स'}) - ${latest?.source || 'अनलाइन'}`,
+          `🔔 New lead received! ${latest?.name || 'Student'} (${latest?.course || latest?.subject || 'Course'}) - ${latest?.source || 'Online'}`,
           'success'
         );
       }
@@ -196,7 +196,7 @@ export default function LeadManager() {
           if (wasStageChanged) {
             updatedTimeline.push({
               date: new Date().toISOString(),
-              note: `अवस्था परिवर्तन भयो: '${l.stage}' बाट '${formData.stage}' मा`,
+              note: `Stage changed: from '${l.stage}' to '${formData.stage}'`,
               staffName: currentUser?.name || 'Admin'
             });
           }
@@ -208,7 +208,7 @@ export default function LeadManager() {
         }
         return l;
       });
-      showToast('सोधपुछ विवरण सफलतापूर्वक अपडेट भयो (Lead updated successfully).');
+      showToast('Lead updated successfully.');
     } else {
       // Generate Next Sequential ID (L0001 format)
       const existingIds = leads
@@ -226,7 +226,7 @@ export default function LeadManager() {
         timeline: [
           {
             date: new Date().toISOString(),
-            note: `नयाँ सोधपुछ दर्ता: ${formData.source}`,
+            note: `New lead registered: ${formData.source}`,
             staffName: currentUser?.name || 'Staff'
           }
         ],
@@ -234,7 +234,7 @@ export default function LeadManager() {
       };
 
       updatedLeads = [newLead, ...leads];
-      showToast(`नयाँ सोधपुछ (${newId}) दर्ता भयो (New lead registered).`);
+      showToast(`New lead (${newId}) registered.`);
     }
 
     const nextDb = { ...db, leads: updatedLeads };
@@ -246,12 +246,12 @@ export default function LeadManager() {
 
   // Handler: Delete Lead
   const handleDeleteLead = (leadId) => {
-    if (!window.confirm('के तपाईं यो सोधपुछ रेकर्ड मेटाउन निश्चित हुनुहुन्छ? (Confirm Delete)')) return;
+    if (!window.confirm('Are you sure you want to delete this lead record?')) return;
     const updatedLeads = leads.filter((l) => l.id !== leadId);
     const nextDb = { ...db, leads: updatedLeads };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast('सोधपुछ रेकर्ड मेटाइयो (Lead record deleted).', 'info');
+    showToast('Lead record deleted.', 'info');
   };
 
   // Handler: Update Stage directly (e.g. from Details or Kanban)
@@ -263,7 +263,7 @@ export default function LeadManager() {
       ...(targetLead.timeline || []),
       {
         date: new Date().toISOString(),
-        note: `अवस्था अपडेट: '${targetLead.stage}' ➔ '${newStage}'`,
+        note: `Stage updated: '${targetLead.stage}' ➔ '${newStage}'`,
         staffName: currentUser?.name || 'Staff'
       }
     ];
@@ -289,14 +289,14 @@ export default function LeadManager() {
       setDetailsLead({ ...detailsLead, stage: newStage, timeline: updatedTimeline });
     }
 
-    showToast(`अवस्था बदलिएर '${newStage}' बनाइयो।`);
+    showToast(`Stage updated to '${newStage}'.`);
   };
 
   // Handler: Save New Agent
   const handleSaveAgent = (e) => {
     if (e) e.preventDefault();
     if (!agentForm.name.trim() || !agentForm.phone.trim()) {
-      alert('कृपया नाम र फोन नम्बर अनिवार्य लेख्नुहोस्।');
+      alert('Please enter both the agent name and phone number.');
       return;
     }
 
@@ -317,7 +317,7 @@ export default function LeadManager() {
       name: agentForm.name.trim(),
       phone: agentForm.phone.trim(),
       email: agentForm.email.trim() || '',
-      address: agentForm.address.trim() || 'काठमाडौं',
+      address: agentForm.address.trim() || 'Kathmandu',
       pin: agentForm.pin.trim() || '1234',
       status: 'Active',
       commissionType: agentForm.commissionType,
@@ -333,12 +333,12 @@ export default function LeadManager() {
     saveDB(nextDb);
     setDb(nextDb);
     setOpenAddAgentModal(false);
-    showToast(`नयाँ एजेन्ट (${newAgent.name} - ${newCode}) सफलतापूर्वक दर्ता भयो।`);
+    showToast(`New agent (${newAgent.name} - ${newCode}) registered successfully.`);
     setAgentForm({
       name: '',
       phone: '',
       email: '',
-      address: 'काठमाडौं',
+      address: 'Kathmandu',
       commissionType: 'FIXED',
       defaultRate: 1000,
       paymentInfo: '',
@@ -363,7 +363,7 @@ export default function LeadManager() {
     const nextDb = { ...db, leads: updatedLeads };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast('कमिसन भुक्तानी सम्पन्न मार्क गरियो (Commission marked as Paid).');
+    showToast('Commission marked as Paid.');
   };
 
   // Handler: Add Timeline Note
@@ -394,7 +394,7 @@ export default function LeadManager() {
       setDetailsLead({ ...detailsLead, timeline: updatedTimeline });
     }
 
-    showToast('फलो-अप टिप्पणी सुरक्षित भयो (Note logged).');
+    showToast('Follow-up note logged.');
   };
 
   // Handler: Bulk Import
@@ -408,7 +408,7 @@ export default function LeadManager() {
         timeline: [
           {
             date: new Date().toISOString(),
-            note: 'एक्सेल/CSV बाट इम्पोर्ट गरिएको',
+            note: 'Imported from Excel/CSV',
             staffName: currentUser?.name || 'Admin'
           }
         ],
@@ -420,13 +420,13 @@ export default function LeadManager() {
     const nextDb = { ...db, leads: updatedLeads };
     saveDB(nextDb);
     setDb(nextDb);
-    showToast(`${preparedLeads.length} नयाँ सोधपुछहरू सफलतापूर्वक इम्पोर्ट भए!`);
+    showToast(`${preparedLeads.length} new leads imported successfully!`);
   };
 
   // Handler: Export to Excel
   const handleExportExcel = () => {
     if (!filteredLeads.length) {
-      showToast('एक्स्पोर्ट गर्न कुनै डाटा छैन।', 'warning');
+      showToast('No data available to export.', 'warning');
       return;
     }
     const exportData = filteredLeads.map((l) => ({
@@ -448,12 +448,12 @@ export default function LeadManager() {
     }));
 
     exportToExcel(exportData, 'GlobalEra_TVET_Leads_Report');
-    showToast('एक्सेल रिपोर्ट सफलतापूर्वक डाउनलोड भयो।');
+    showToast('Excel report downloaded successfully.');
   };
 
   // Helper for WhatsApp Click
   const getWaLink = (lead) => {
-    const text = `नमस्ते ${lead.name}! ग्लोबल एरा प्राविधिक स्कुलबाट हजुरले सोधपुछ गर्नुभएको '${lead.course || 'व्यावसायिक तालिम'}' सम्बन्धी थप जानकारी तथा भर्ना प्रक्रियाको लागि सम्पर्क गरेका हौँ।`;
+    const text = `Hello ${lead.name}! We are contacting you from Global Era Technical School regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
     return `https://wa.me/977${lead.phone}?text=${encodeURIComponent(text)}`;
   };
 
@@ -492,7 +492,7 @@ export default function LeadManager() {
                 Lead CRM & Inquiry Management
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                विद्यार्थी सोधपुछ, परामर्श, फलो-अप तथा भर्ना रूपान्तरण व्यवस्थापन
+                Student Inquiry, Counseling, Follow-up & Admission Conversion Management
               </Typography>
             </Box>
           </Box>
@@ -513,7 +513,7 @@ export default function LeadManager() {
               '&:hover': { bgcolor: '#F8FAFC', borderColor: '#94A3B8' }
             }}
           >
-            एक्सेल रिपोर्ट (Export)
+            Export Excel
           </Button>
 
           <Button
@@ -530,7 +530,7 @@ export default function LeadManager() {
               '&:hover': { bgcolor: '#EFF6FF', borderColor: '#93C5FD' }
             }}
           >
-            इम्पोर्ट (Bulk Import)
+            Bulk Import
           </Button>
 
           <Button
@@ -549,7 +549,7 @@ export default function LeadManager() {
               textTransform: 'none'
             }}
           >
-            + नयाँ सोधपुछ (New Lead)
+            + New Lead
           </Button>
         </Stack>
       </Box>
@@ -571,13 +571,13 @@ export default function LeadManager() {
           >
             <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#3B82F6' }} />
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              कुल सोधपुछ (Total Leads)
+              Total Leads
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
               {metrics.total}
             </Typography>
             <Typography variant="caption" sx={{ color: '#3B82F6', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <TrendingUpIcon sx={{ fontSize: '1rem' }} /> सबै च्यानलहरूबाट प्राप्त
+              <TrendingUpIcon sx={{ fontSize: '1rem' }} /> Received from all channels
             </Typography>
           </Paper>
         </Grid>
@@ -597,13 +597,13 @@ export default function LeadManager() {
           >
             <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#F59E0B' }} />
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              सक्रिय काउन्सिलिङ (Active Pipeline)
+              Active Pipeline
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, color: '#D97706', my: 0.5 }}>
               {metrics.active}
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              इच्छुक र निरन्तर सम्पर्कमा रहेका
+              Interested & in active contact
             </Typography>
           </Paper>
         </Grid>
@@ -623,13 +623,13 @@ export default function LeadManager() {
           >
             <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#0EA5E9' }} />
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              आजको फलो-अप (Today's Follow-ups)
+              Today's Follow-ups
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284C7', my: 0.5 }}>
               {metrics.todayFollowUps}
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              आज कल वा भेट्ने तालिका
+              Scheduled calls or visits today
             </Typography>
           </Paper>
         </Grid>
@@ -649,13 +649,13 @@ export default function LeadManager() {
           >
             <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#10B981' }} />
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              भर्ना सफलता (Conversion)
+              Conversions
             </Typography>
             <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>
               {metrics.converted} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#10B981' }}>({metrics.convRate}%)</span>
             </Typography>
             <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <CheckCircleIcon sx={{ fontSize: '1rem' }} /> विद्यार्थी समूहमा रूपान्तरित
+              <CheckCircleIcon sx={{ fontSize: '1rem' }} /> Converted to student batches
             </Typography>
           </Paper>
         </Grid>
@@ -681,7 +681,7 @@ export default function LeadManager() {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
           <TextField
             size="small"
-            placeholder="नाम, फोन, कोर्स वा ठेगाना खोज्नुहोस्..."
+            placeholder="Search by name, phone, course, or address..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
@@ -697,12 +697,12 @@ export default function LeadManager() {
           <TextField
             select
             size="small"
-            label="अवस्था (Stage)"
+            label="Stage"
             value={selectedStage}
             onChange={(e) => setSelectedStage(e.target.value)}
             sx={{ minWidth: 160 }}
           >
-            <MenuItem value="ALL">सबै अवस्था (All Stages)</MenuItem>
+            <MenuItem value="ALL">All Stages</MenuItem>
             {LEAD_STAGES.map((s) => (
               <MenuItem key={s.value} value={s.value}>
                 {s.label}
@@ -713,12 +713,12 @@ export default function LeadManager() {
           <TextField
             select
             size="small"
-            label="प्राथमिकता (Priority)"
+            label="Priority"
             value={selectedPriority}
             onChange={(e) => setSelectedPriority(e.target.value)}
             sx={{ minWidth: 150 }}
           >
-            <MenuItem value="ALL">सबै (All Priorities)</MenuItem>
+            <MenuItem value="ALL">All Priorities</MenuItem>
             {LEAD_PRIORITIES.map((p) => (
               <MenuItem key={p.value} value={p.value}>
                 {p.label}
@@ -729,12 +729,12 @@ export default function LeadManager() {
           <TextField
             select
             size="small"
-            label="स्रोत (Source)"
+            label="Source"
             value={selectedSource}
             onChange={(e) => setSelectedSource(e.target.value)}
             sx={{ minWidth: 160 }}
           >
-            <MenuItem value="ALL">सबै स्रोत (All Sources)</MenuItem>
+            <MenuItem value="ALL">All Sources</MenuItem>
             {LEAD_SOURCES.map((src) => (
               <MenuItem key={src} value={src.split(' (')[0]}>
                 {src}
@@ -754,7 +754,7 @@ export default function LeadManager() {
               }}
               sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
             >
-              फिल्टर हटाउनुहोस् (Clear)
+              Clear Filters
             </Button>
           )}
         </Box>
@@ -785,16 +785,16 @@ export default function LeadManager() {
           }}
         >
           <ToggleButton value="table" aria-label="Table View">
-            <ViewListIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> तालिका (Table)
+            <ViewListIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Table
           </ToggleButton>
           <ToggleButton value="card" aria-label="Card View">
-            <ViewModuleIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> कार्ड (Cards)
+            <ViewModuleIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Cards
           </ToggleButton>
           <ToggleButton value="kanban" aria-label="Kanban View">
-            <ViewWeekIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> पाइपलाइन (Kanban)
+            <ViewWeekIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Pipeline (Kanban)
           </ToggleButton>
           <ToggleButton value="agents" aria-label="Agents & Referrals">
-            <HandshakeIcon sx={{ mr: 0.5, fontSize: '1.2rem', color: viewMode === 'agents' ? '#FFFFFF' : '#D97706' }} /> एजेन्ट तथा रेफ़रल
+            <HandshakeIcon sx={{ mr: 0.5, fontSize: '1.2rem', color: viewMode === 'agents' ? '#FFFFFF' : '#D97706' }} /> Agents & Referrals
           </ToggleButton>
         </ToggleButtonGroup>
       </Paper>
@@ -820,28 +820,28 @@ export default function LeadManager() {
                     Lead ID
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    विद्यार्थी (Name & Address)
+                    Student (Name & Address)
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    सम्पर्क (Phone & Actions)
+                    Contact (Phone & Actions)
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    पाठ्यक्रम (Course / Subject)
+                    Course / Subject
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    प्राथमिकता
+                    Priority
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    अवस्था (Stage)
+                    Stage
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    अर्को फलो-अप
+                    Next Follow-up
                   </TableCell>
                   <TableCell align="center" sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    इतिहास
+                    History
                   </TableCell>
                   <TableCell align="right" sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    कार्यहरू (Actions)
+                    Actions
                   </TableCell>
                 </TableRow>
               </TableHead>
@@ -849,7 +849,7 @@ export default function LeadManager() {
                 {filteredLeads.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                      कुनै सोधपुछ रेकर्ड भेटिएन (No leads matching filter).
+                      No leads matching filter.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -889,7 +889,7 @@ export default function LeadManager() {
                             sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 0.3 }}
                           >
                             <LocationOnIcon sx={{ fontSize: '0.85rem', color: '#94A3B8' }} />
-                            {lead.address || 'स्थान नखुलेको'}
+                            {lead.address || 'Location not specified'}
                           </Typography>
                         </TableCell>
 
@@ -901,7 +901,7 @@ export default function LeadManager() {
                             >
                               {lead.phone}
                             </Typography>
-                            <Tooltip title="सिधै कल गर्नुहोस्">
+                            <Tooltip title="Call directly">
                               <IconButton
                                 size="small"
                                 component="a"
@@ -911,7 +911,7 @@ export default function LeadManager() {
                                 <PhoneIcon sx={{ fontSize: '1.1rem' }} />
                               </IconButton>
                             </Tooltip>
-                            <Tooltip title="ह्वाट्सएप सन्देश पठाउनुहोस्">
+                            <Tooltip title="Send WhatsApp message">
                               <IconButton
                                 size="small"
                                 component="a"
@@ -928,7 +928,7 @@ export default function LeadManager() {
 
                         <TableCell>
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                            {lead.course || 'सामान्य'}
+                            {lead.course || 'General'}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
                             {lead.subject ? `${lead.subject} • ` : ''} Rs. {Number(lead.price || 0).toLocaleString()}
@@ -936,7 +936,7 @@ export default function LeadManager() {
                           {(lead.agentName || lead.agentCode) && (
                             <Chip
                               icon={<HandshakeIcon sx={{ fontSize: '13px !important' }} />}
-                              label={`एजेन्ट: ${lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}`}
+                              label={`Agent: ${lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}`}
                               size="small"
                               sx={{
                                 height: 20,
@@ -1002,7 +1002,7 @@ export default function LeadManager() {
 
                         <TableCell align="right">
                           <Stack direction="row" spacing={0.5} justifyContent="flex-end">
-                            <Tooltip title="विस्तृत विवरण तथा फलो-अप लग">
+                            <Tooltip title="Detailed Profile & Follow-up Log">
                               <IconButton
                                 size="small"
                                 onClick={() => setDetailsLead(lead)}
@@ -1013,7 +1013,7 @@ export default function LeadManager() {
                             </Tooltip>
 
                             {lead.stage !== 'Converted' && (
-                              <Tooltip title="विद्यार्थी भर्नामा रूपान्तरण">
+                              <Tooltip title="Convert to Student Admission">
                                 <IconButton
                                   size="small"
                                   onClick={() => setConvertLead(lead)}
@@ -1024,7 +1024,7 @@ export default function LeadManager() {
                               </Tooltip>
                             )}
 
-                            <Tooltip title="सम्पादन">
+                            <Tooltip title="Edit">
                               <IconButton
                                 size="small"
                                 onClick={() => {
@@ -1037,7 +1037,7 @@ export default function LeadManager() {
                               </IconButton>
                             </Tooltip>
 
-                            <Tooltip title="मेटाउनुहोस्">
+                            <Tooltip title="Delete">
                               <IconButton
                                 size="small"
                                 onClick={() => handleDeleteLead(lead.id)}
@@ -1066,7 +1066,7 @@ export default function LeadManager() {
           {filteredLeads.length === 0 ? (
             <Grid item xs={12}>
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 3.5, color: '#94A3B8' }}>
-                कुनै सोधपुछ फेला परेन।
+                No leads found.
               </Paper>
             </Grid>
           ) : (
@@ -1143,12 +1143,12 @@ export default function LeadManager() {
                     {/* Course & Location Info */}
                     <Box sx={{ mb: 2, p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2 }}>
                       <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B', mb: 0.5 }}>
-                        {lead.course || 'सामान्य सोधपुछ'}
+                        {lead.course || 'General Inquiry'}
                       </Typography>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <Typography variant="caption" sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 0.3 }}>
                           <LocationOnIcon sx={{ fontSize: '0.85rem', color: '#94A3B8' }} />
-                          {lead.address || 'स्थान नखुलेको'}
+                          {lead.address || 'Location not specified'}
                         </Typography>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: '#059669' }}>
                           Rs. {Number(lead.price || 0).toLocaleString()}
@@ -1175,7 +1175,7 @@ export default function LeadManager() {
                           '&:hover': { bgcolor: '#F0F9FF', borderColor: '#0284C7' }
                         }}
                       >
-                        कल ({lead.phone})
+                        Call ({lead.phone})
                       </Button>
 
                       <Button
@@ -1197,7 +1197,7 @@ export default function LeadManager() {
                           '&:hover': { bgcolor: '#ECFDF5', borderColor: '#10B981' }
                         }}
                       >
-                        ह्वाट्सएप
+                        WhatsApp
                       </Button>
                     </Box>
 
@@ -1205,7 +1205,7 @@ export default function LeadManager() {
                     {lastNote && (
                       <Box sx={{ mb: 2, px: 1.5, py: 1, bgcolor: '#FEF3C7', borderRadius: 1.5, borderLeft: '3px solid #F59E0B' }}>
                         <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 600, display: 'block', fontSize: '0.72rem' }}>
-                          पछिल्लो टिप्पणी ({lastNote.staffName || 'Staff'}): "{lastNote.note}"
+                          Latest Note ({lastNote.staffName || 'Staff'}): "{lastNote.note}"
                         </Typography>
                       </Box>
                     )}
@@ -1216,7 +1216,7 @@ export default function LeadManager() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Chip
                         icon={<HistoryIcon sx={{ fontSize: '0.9rem !important' }} />}
-                        label={`${lead.timeline?.length || 0} अन्तरक्रिया`}
+                        label={`${lead.timeline?.length || 0} Interactions`}
                         size="small"
                         onClick={() => setDetailsLead(lead)}
                         clickable
@@ -1225,7 +1225,7 @@ export default function LeadManager() {
 
                       <Stack direction="row" spacing={0.5}>
                         {lead.stage !== 'Converted' && (
-                          <Tooltip title="विद्यार्थी भर्नामा बदल्नुहोस्">
+                          <Tooltip title="Convert to Student Admission">
                             <IconButton
                               size="small"
                               onClick={() => setConvertLead(lead)}
@@ -1236,7 +1236,7 @@ export default function LeadManager() {
                           </Tooltip>
                         )}
 
-                        <Tooltip title="सम्पादन">
+                        <Tooltip title="Edit">
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -1249,7 +1249,7 @@ export default function LeadManager() {
                           </IconButton>
                         </Tooltip>
 
-                        <Tooltip title="मेटाउनुहोस्">
+                        <Tooltip title="Delete">
                           <IconButton
                             size="small"
                             onClick={() => handleDeleteLead(lead.id)}
@@ -1339,7 +1339,7 @@ export default function LeadManager() {
                 <Box sx={{ p: 1.5, maxHeight: 650, overflowY: 'auto' }}>
                   {colLeads.length === 0 ? (
                     <Box sx={{ p: 4, textAlign: 'center', color: '#94A3B8' }}>
-                      <Typography variant="caption">कुनै लिड छैन</Typography>
+                      <Typography variant="caption">No leads</Typography>
                     </Box>
                   ) : (
                     colLeads.map((lead) => (
@@ -1379,7 +1379,7 @@ export default function LeadManager() {
                         </Box>
 
                         <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600, display: 'block', mb: 1 }}>
-                          {lead.course || 'सामान्य सोधपुछ'}
+                          {lead.course || 'General Inquiry'}
                         </Typography>
 
                         {/* Phone & WhatsApp Quick Icons */}
@@ -1401,7 +1401,7 @@ export default function LeadManager() {
 
                         {/* Stage Transition Quick Arrows */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <Tooltip title="पछिल्लो चरणमा सार्नुहोस्">
+                          <Tooltip title="Move to previous stage">
                             <span>
                               <IconButton
                                 size="small"
@@ -1423,7 +1423,7 @@ export default function LeadManager() {
                             sx={{ fontWeight: 700, fontSize: '0.68rem', height: 20 }}
                           />
 
-                          <Tooltip title="अर्को चरणमा सार्नुहोस्">
+                          <Tooltip title="Move to next stage">
                             <span>
                               <IconButton
                                 size="small"
@@ -1455,7 +1455,7 @@ export default function LeadManager() {
           <Grid container spacing={2.5} sx={{ mb: 3 }}>
             {(() => {
               const allAgents = db.agents || [];
-              const agentLeads = leads.filter((l) => l.agentId || l.agentCode || (l.source && l.source.includes('एजेन्ट')));
+              const agentLeads = leads.filter((l) => l.agentId || l.agentCode || (l.source && l.source.includes('Agent')));
               const convertedAgentLeads = agentLeads.filter((l) => l.stage === 'Converted');
 
               let totalEarned = 0;
@@ -1480,25 +1480,25 @@ export default function LeadManager() {
                   <Grid item xs={12} sm={6} md={3}>
                     <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
                       <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
-                        कुल दर्ता एजेन्ट (Agents)
+                        Total Registered Agents
                       </Typography>
                       <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', my: 0.5 }}>
                         {allAgents.length}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B' }}>सक्रिय रेफ़रल साझेदारहरू</Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>Active referral partners</Typography>
                     </Paper>
                   </Grid>
 
                   <Grid item xs={12} sm={6} md={3}>
                     <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
                       <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
-                        एजेन्टबाट आएका लिड
+                        Leads from Agents
                       </Typography>
                       <Typography variant="h4" sx={{ fontWeight: 900, color: '#2563EB', my: 0.5 }}>
                         {agentLeads.length}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 700 }}>
-                        {convertedAgentLeads.length} जना भर्ना सम्पन्न ({agentLeads.length > 0 ? Math.round((convertedAgentLeads.length / agentLeads.length) * 100) : 0}%)
+                        {convertedAgentLeads.length} Admitted ({agentLeads.length > 0 ? Math.round((convertedAgentLeads.length / agentLeads.length) * 100) : 0}%)
                       </Typography>
                     </Paper>
                   </Grid>
@@ -1506,24 +1506,24 @@ export default function LeadManager() {
                   <Grid item xs={12} sm={6} md={3}>
                     <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFBEB' }}>
                       <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800, textTransform: 'uppercase' }}>
-                        भुक्तानी गर्न बाँकी कमिसन
+                        Pending Commission Payout
                       </Typography>
                       <Typography variant="h4" sx={{ fontWeight: 900, color: '#B45309', my: 0.5 }}>
-                        रु. {pendingPayout.toLocaleString('ne-NP')}
+                        NPR {pendingPayout.toLocaleString()}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700 }}>स्वीकृत भई दिन बाँकी</Typography>
+                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700 }}>Approved & awaiting payout</Typography>
                     </Paper>
                   </Grid>
 
                   <Grid item xs={12} sm={6} md={3}>
                     <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#ECFDF5' }}>
                       <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
-                        कुल भुक्तानी भइसकेको
+                        Total Paid Out
                       </Typography>
                       <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>
-                        रु. {paidOut.toLocaleString('ne-NP')}
+                        NPR {paidOut.toLocaleString()}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>सम्पन्न भुक्तानी</Typography>
+                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>Completed payouts</Typography>
                     </Paper>
                   </Grid>
                 </>
@@ -1536,10 +1536,10 @@ export default function LeadManager() {
             <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, borderBottom: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
               <Box>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                  🤝 आधिकारिक एजेन्ट तथा रेफ़रल साझेदारहरू
+                  🤝 Official Agents & Referral Partners
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                  एजेन्टहरूको कार्यसम्पादन, सिफारिस लिडहरू तथा कमिसन भुक्तानी व्यवस्थापन
+                  Manage agent performance, referred leads, and commission payouts
                 </Typography>
               </Box>
 
@@ -1556,7 +1556,7 @@ export default function LeadManager() {
                   '&:hover': { bgcolor: '#133E68' }
                 }}
               >
-                + नयाँ एजेन्ट दर्ता गर्नुहोस्
+                + Register New Agent
               </Button>
             </Box>
 
@@ -1564,13 +1564,13 @@ export default function LeadManager() {
               <Table>
                 <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>एजेन्ट विवरण (Name & Code)</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>सम्पर्क नम्बर</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>कमिसन दर (Policy)</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>भुक्तानी खाता (eSewa / Bank)</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>सिफारिस / भर्ना</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 800, color: '#475569' }}>कमिसन (बाँकी / कुल)</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>कार्य (Action)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Agent Details (Name & Code)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Contact Number</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Commission Rate (Policy)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Payout Account (eSewa / Bank)</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>Referred / Admitted</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 800, color: '#475569' }}>Commission (Pending / Total)</TableCell>
+                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1599,7 +1599,7 @@ export default function LeadManager() {
                           </Typography>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.3 }}>
                             <Chip label={ag.code} size="small" sx={{ fontWeight: 800, bgcolor: '#FEF3C7', color: '#92400E', height: 20, fontSize: '0.7rem' }} />
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>{ag.address || 'काठमाडौं'}</Typography>
+                            <Typography variant="caption" sx={{ color: '#64748B' }}>{ag.address || 'Kathmandu'}</Typography>
                           </Box>
                         </TableCell>
 
@@ -1608,13 +1608,13 @@ export default function LeadManager() {
                             {ag.phone}
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#94A3B8' }}>
-                            पिन: {ag.pin || '1234'}
+                            PIN: {ag.pin || '1234'}
                           </Typography>
                         </TableCell>
 
                         <TableCell>
                           <Chip
-                            label={ag.commissionType === 'PERCENTAGE' ? `${ag.defaultRate}% प्रति भर्ना` : `रु. ${Number(ag.defaultRate || 1000).toLocaleString('ne-NP')} प्रति भर्ना`}
+                            label={ag.commissionType === 'PERCENTAGE' ? `${ag.defaultRate}% per admission` : `NPR ${Number(ag.defaultRate || 1000).toLocaleString()} per admission`}
                             size="small"
                             sx={{ fontWeight: 800, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
                           />
@@ -1622,16 +1622,16 @@ export default function LeadManager() {
 
                         <TableCell sx={{ maxWidth: 220 }}>
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
-                            {ag.paymentInfo || 'विवरण भरिएको छैन'}
+                            {ag.paymentInfo || 'Details not provided'}
                           </Typography>
                         </TableCell>
 
                         <TableCell align="center">
                           <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                            {agentLeads.length} लिड
+                            {agentLeads.length} Leads
                           </Typography>
                           <Chip
-                            label={`${converted.length} भर्ना`}
+                            label={`${converted.length} Admitted`}
                             size="small"
                             color={converted.length > 0 ? 'success' : 'default'}
                             sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
@@ -1640,10 +1640,10 @@ export default function LeadManager() {
 
                         <TableCell align="right">
                           <Typography variant="subtitle2" sx={{ fontWeight: 900, color: pending > 0 ? '#B45309' : '#059669' }}>
-                            रु. {pending.toLocaleString('ne-NP')} (बाँकी)
+                            NPR {pending.toLocaleString()} (Pending)
                           </Typography>
                           <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            कुल: रु. {earned.toLocaleString('ne-NP')}
+                            Total: NPR {earned.toLocaleString()}
                           </Typography>
                         </TableCell>
 
@@ -1657,10 +1657,10 @@ export default function LeadManager() {
                                 onClick={() => handleMarkPayoutPaid(ag.code)}
                                 sx={{ fontWeight: 800, fontSize: '0.72rem', borderRadius: 2 }}
                               >
-                                भुक्तानी सम्पन्न मार्क
+                                Mark as Paid
                               </Button>
                             ) : (
-                              <Chip label="बाँकी छैन (Clear)" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
+                              <Chip label="Cleared" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
                             )}
                           </Stack>
                         </TableCell>
@@ -1715,7 +1715,7 @@ export default function LeadManager() {
         db={db}
         onConverted={(newStudent) => {
           setDb(loadDB());
-          showToast(`बधाई छ! ${newStudent.name} सफलतापुर्वक विद्यार्थी समूहमा भर्ना हुनुभयो।`);
+          showToast(`Congratulations! ${newStudent.name} has been successfully enrolled into the student batch.`);
         }}
       />
 
@@ -1736,15 +1736,15 @@ export default function LeadManager() {
       >
         <form onSubmit={handleSaveAgent}>
           <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-            + नयाँ एजेन्ट / रेफ़रल पार्टनर दर्ता (Add Referral Partner)
+            + Add Referral Partner (Agent)
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2.2} sx={{ pt: 1 }}>
               <TextField
                 required
                 fullWidth
-                label="एजेन्टको पूरा नाम (Agent Full Name)"
-                placeholder="उदा: सुवास घिमिरे"
+                label="Agent Full Name"
+                placeholder="e.g., Subash Ghimire"
                 value={agentForm.name}
                 onChange={(e) => setAgentForm({ ...agentForm, name: e.target.value })}
               />
@@ -1754,8 +1754,8 @@ export default function LeadManager() {
                   <TextField
                     required
                     fullWidth
-                    label="सम्पर्क नम्बर (Phone / WhatsApp)"
-                    placeholder="उदा: 9841234567"
+                    label="Phone / WhatsApp Number"
+                    placeholder="e.g., 9841234567"
                     value={agentForm.phone}
                     onChange={(e) => setAgentForm({ ...agentForm, phone: e.target.value })}
                   />
@@ -1763,7 +1763,7 @@ export default function LeadManager() {
                 <Grid item xs={12} sm={6}>
                   <TextField
                     fullWidth
-                    label="इमेल (Email)"
+                    label="Email"
                     placeholder="agent@gmail.com"
                     value={agentForm.email}
                     onChange={(e) => setAgentForm({ ...agentForm, email: e.target.value })}
@@ -1773,7 +1773,7 @@ export default function LeadManager() {
 
               <TextField
                 fullWidth
-                label="ठेगाना / सहर (Address)"
+                label="Address / City"
                 value={agentForm.address}
                 onChange={(e) => setAgentForm({ ...agentForm, address: e.target.value })}
               />
@@ -1783,19 +1783,19 @@ export default function LeadManager() {
                   <TextField
                     select
                     fullWidth
-                    label="कमिसन प्रकार (Commission Type)"
+                    label="Commission Type"
                     value={agentForm.commissionType}
                     onChange={(e) => setAgentForm({ ...agentForm, commissionType: e.target.value })}
                   >
-                    <MenuItem value="FIXED">फिक्स्ड रकम (Fixed Amount)</MenuItem>
-                    <MenuItem value="PERCENTAGE">प्रतिशत (Percentage % of Fee)</MenuItem>
+                    <MenuItem value="FIXED">Fixed Amount</MenuItem>
+                    <MenuItem value="PERCENTAGE">Percentage (% of Fee)</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
                     type="number"
                     fullWidth
-                    label={agentForm.commissionType === 'PERCENTAGE' ? 'कमिसन प्रतिशत (%)' : 'कमिसन रकम (रु.)'}
+                    label={agentForm.commissionType === 'PERCENTAGE' ? 'Commission Percentage (%)' : 'Commission Amount (NPR)'}
                     value={agentForm.defaultRate}
                     onChange={(e) => setAgentForm({ ...agentForm, defaultRate: e.target.value })}
                   />
@@ -1804,8 +1804,8 @@ export default function LeadManager() {
 
               <TextField
                 fullWidth
-                label="कमिसन भुक्तानी खाता (eSewa / Bank Details)"
-                placeholder="उदा: eSewa: 9841234567 वा Global IME Bank: 01928374..."
+                label="Commission Payout Account (eSewa / Bank Details)"
+                placeholder="e.g., eSewa: 9841234567 or Global IME Bank: 01928374..."
                 value={agentForm.paymentInfo}
                 onChange={(e) => setAgentForm({ ...agentForm, paymentInfo: e.target.value })}
               />
@@ -1813,20 +1813,20 @@ export default function LeadManager() {
               <TextField
                 fullWidth
                 type="password"
-                label="लगइन ४-अङ्कको पिन (Login PIN)"
+                label="4-Digit Login PIN"
                 value={agentForm.pin}
                 onChange={(e) => setAgentForm({ ...agentForm, pin: e.target.value })}
                 inputProps={{ maxLength: 6 }}
-                helperText="एजेन्टले /agent पोर्टलमा लगइन गर्दा प्रयोग गर्ने पिन।"
+                helperText="PIN used by the agent to log in to the /agent portal."
               />
             </Stack>
           </DialogContent>
           <DialogActions sx={{ p: 2 }}>
             <Button onClick={() => setOpenAddAgentModal(false)} sx={{ fontWeight: 700 }}>
-              रद्द
+              Cancel
             </Button>
             <Button type="submit" variant="contained" sx={{ bgcolor: '#0B2545', fontWeight: 800, px: 3 }}>
-              एजेन्ट सुरक्षित गर्नुहोस्
+              Save Agent
             </Button>
           </DialogActions>
         </form>

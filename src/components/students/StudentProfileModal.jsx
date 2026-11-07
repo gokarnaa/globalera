@@ -103,7 +103,7 @@ export default function StudentProfileModal({
     let dbToUpdate = db;
     try {
       const { nextDb } = postDoubleEntryJournal(dbToUpdate, {
-        narration: `विद्यार्थी ${newPayment.studentName} शुल्क संकलन (${newPayment.receiptNo})`,
+        narration: `Student ${newPayment.studentName} fee collection (${newPayment.receiptNo})`,
         lines: [
           { accountCode: debitAcc, debit: payAmt, credit: 0, lineNarration: `Receipt ${newPayment.receiptNo}` },
           { accountCode: '4010', debit: 0, credit: payAmt, lineNarration: 'Fee Collection' }
@@ -853,11 +853,11 @@ export default function StudentProfileModal({
             >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                  💰 Fee & Ledger Overview (शुल्क तथा खाता विवरण)
+                  💰 Fee & Ledger Overview
                 </Typography>
                 <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
                   <Chip
-                    label={dueBalance === 0 ? 'Fully Paid (सम्पूर्ण चुक्ता)' : isOverdue ? 'Overdue (>30 Days)' : totalPaid > 0 ? 'Partial Payment (आंशिक)' : 'Unpaid (बाँकी)'}
+                    label={dueBalance === 0 ? 'Fully Paid' : isOverdue ? 'Overdue (>30 Days)' : totalPaid > 0 ? 'Partial Payment' : 'Unpaid'}
                     size="small"
                     sx={{
                       fontWeight: 800,
@@ -873,7 +873,7 @@ export default function StudentProfileModal({
                       onClick={() => setOpenCollectFeeModal(true)}
                       sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
                     >
-                      शुल्क बुझ्नुहोस्
+                      Collect Fee
                     </Button>
                   )}
                   {dueBalance === 0 && (
@@ -884,7 +884,7 @@ export default function StudentProfileModal({
                       onClick={() => setOpenClearanceModal(true)}
                       sx={{ fontWeight: 900, textTransform: 'none', bgcolor: '#f59e0b', color: '#0f2e5a', '&:hover': { bgcolor: '#d97706', color: '#ffffff' } }}
                     >
-                      चुक्ता प्रमाणपत्र
+                      Clearance Certificate
                     </Button>
                   )}
                   <Button
@@ -894,7 +894,7 @@ export default function StudentProfileModal({
                     onClick={() => setOpenTimelineModal(true)}
                     sx={{ fontWeight: 800, textTransform: 'none' }}
                   >
-                    टाइमलाइन
+                    Timeline
                   </Button>
                 </Stack>
               </Box>
@@ -903,7 +903,7 @@ export default function StudentProfileModal({
               <Grid container spacing={2} sx={{ mb: 2.5 }}>
                 <Grid item xs={12} sm={4}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2.5, border: '1px solid #e2e8f0' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>Total Course Fee (कुल शुल्क)</Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>Total Course Fee</Typography>
                     <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f172a', mt: 0.5 }}>
                       Rs. {lockedFee.toLocaleString()}
                     </Typography>
@@ -912,7 +912,7 @@ export default function StudentProfileModal({
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: '#e5f8ee', borderRadius: 2.5, border: '1px solid #bbf7d0' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#16834b' }}>Total Paid (बुझाएको रकम)</Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#16834b' }}>Total Paid</Typography>
                     <Typography variant="h5" sx={{ fontWeight: 900, color: '#16834b', mt: 0.5 }}>
                       Rs. {totalPaid.toLocaleString()}
                     </Typography>
@@ -923,7 +923,7 @@ export default function StudentProfileModal({
                 </Grid>
                 <Grid item xs={12} sm={4}>
                   <Paper sx={{ p: 2, textAlign: 'center', bgcolor: dueBalance > 0 ? '#fef2f2' : '#f8fafc', borderRadius: 2.5, border: dueBalance > 0 ? '1px solid #fecaca' : '1px solid #e2e8f0' }}>
-                    <Typography variant="caption" sx={{ fontWeight: 700, color: dueBalance > 0 ? '#dc2626' : '#64748b' }}>Due Balance (बाँकी रकम)</Typography>
+                    <Typography variant="caption" sx={{ fontWeight: 700, color: dueBalance > 0 ? '#dc2626' : '#64748b' }}>Due Balance</Typography>
                     <Typography variant="h5" sx={{ fontWeight: 900, color: dueBalance > 0 ? '#dc2626' : '#16834b', mt: 0.5 }}>
                       Rs. {dueBalance.toLocaleString()}
                     </Typography>
@@ -936,12 +936,12 @@ export default function StudentProfileModal({
 
               {/* Transactions / Receipts List */}
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 1.5 }}>
-                🧾 Payment Receipts & Audit Trail (रसिदहरू):
+                🧾 Payment Receipts & Audit Trail:
               </Typography>
               {studentPayments.length === 0 ? (
                 <Paper sx={{ p: 3, textAlign: 'center', bgcolor: '#f8fafc', borderRadius: 2, border: '1px dashed #cbd5e1' }}>
                   <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600 }}>
-                    कुनै भुक्तानी रसिद फेला परेन (No payment receipts recorded yet for this student).
+                    No payment receipts recorded yet for this student.
                   </Typography>
                 </Paper>
               ) : (
@@ -1175,7 +1175,7 @@ export default function StudentProfileModal({
                     🏢 On-the-Job Training (OJT)
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748b' }}>
-                    व्यावहारिक कार्यस्थल अभ्यास तथा उद्योग सहकार्य
+                    Practical workplace training & industry collaboration
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -1208,7 +1208,7 @@ export default function StudentProfileModal({
               {ojt ? (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>HOST EMPLOYER (रोजगारदाता)</Typography>
+                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>HOST EMPLOYER</Typography>
                     <Box
                       onClick={() => ojtEmployer && setViewEmployerDetails(ojtEmployer)}
                       sx={{
@@ -1283,7 +1283,7 @@ export default function StudentProfileModal({
                       py: 1
                     }}
                   >
-                    + Assign OJT (कार्यस्थल अभ्यास दर्ता)
+                    + Assign OJT
                   </Button>
                 </Box>
               )}
@@ -1307,7 +1307,7 @@ export default function StudentProfileModal({
                     💼 Job Placement (EPP)
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748b' }}>
-                    रोजगारी तथा श्रम बजार संलग्नता
+                    Employment and labor market linkage
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
@@ -1341,7 +1341,7 @@ export default function StudentProfileModal({
               {placement ? (
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>EMPLOYER / COMPANY (रोजगारदाता)</Typography>
+                    <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>EMPLOYER / COMPANY</Typography>
                     <Box
                       onClick={() => placementEmployer && setViewEmployerDetails(placementEmployer)}
                       sx={{
@@ -1411,7 +1411,7 @@ export default function StudentProfileModal({
                       '&:hover': { bgcolor: '#15803d' }
                     }}
                   >
-                    + Record Job Placement (रोजगारी / EPP दर्ता)
+                    + Record Job Placement
                   </Button>
                 </Box>
               )}
@@ -1591,7 +1591,7 @@ export default function StudentProfileModal({
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               select
-              label="Select Host Employer (रोजगारदाता संस्था)"
+              label="Select Host Employer"
               fullWidth
               value={ojtForm.employerId}
               onChange={(e) => handleOjtEmployerSelect(e.target.value)}
@@ -1608,7 +1608,7 @@ export default function StudentProfileModal({
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="Start Date (सुरु मिति)"
+                  label="Start Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={ojtForm.startDate}
@@ -1619,7 +1619,7 @@ export default function StudentProfileModal({
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="End Date (सम्पन्न मिति)"
+                  label="End Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={ojtForm.endDate}
@@ -1631,7 +1631,7 @@ export default function StudentProfileModal({
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Supervisor Name (सुपरभाइजर)"
+                  label="Supervisor Name"
                   fullWidth
                   value={ojtForm.relatedPerson}
                   onChange={(e) => setOjtForm({ ...ojtForm, relatedPerson: e.target.value })}
@@ -1639,7 +1639,7 @@ export default function StudentProfileModal({
               </Grid>
               <Grid item xs={6}>
                 <TextField
-                  label="Supervisor Phone (फोन)"
+                  label="Supervisor Phone"
                   fullWidth
                   value={ojtForm.contactNumber}
                   onChange={(e) => setOjtForm({ ...ojtForm, contactNumber: e.target.value })}
@@ -1649,18 +1649,18 @@ export default function StudentProfileModal({
 
             <TextField
               select
-              label="Status (अवस्था)"
+              label="Status"
               fullWidth
               value={ojtForm.status}
               onChange={(e) => setOjtForm({ ...ojtForm, status: e.target.value })}
             >
-              <MenuItem value="Ongoing">Ongoing (सञ्चालनमा)</MenuItem>
-              <MenuItem value="Planned">Planned (योजना गरिएको)</MenuItem>
-              <MenuItem value="Completed">Completed (सम्पन्न)</MenuItem>
+              <MenuItem value="Ongoing">Ongoing</MenuItem>
+              <MenuItem value="Planned">Planned</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
             </TextField>
 
             <TextField
-              label="Department / Tasks Remarks (विभाग तथा टिपोट)"
+              label="Department / Tasks Remarks"
               fullWidth
               multiline
               rows={2}
@@ -1686,7 +1686,7 @@ export default function StudentProfileModal({
           <Stack spacing={2} sx={{ mt: 1 }}>
             <TextField
               select
-              label="Select Employer / Recruiting Partner (रोजगारदाता)"
+              label="Select Employer / Recruiting Partner"
               fullWidth
               value={placementForm.employerId}
               onChange={(e) => handlePlacementEmployerSelect(e.target.value)}
@@ -1702,7 +1702,7 @@ export default function StudentProfileModal({
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label="Target Job Role / Designation (पद)"
+                  label="Target Job Role / Designation"
                   fullWidth
                   value={placementForm.targetJob}
                   onChange={(e) => setPlacementForm({ ...placementForm, targetJob: e.target.value })}
@@ -1712,14 +1712,14 @@ export default function StudentProfileModal({
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
-                  label="Employment Type (रोजगारीको प्रकार)"
+                  label="Employment Type"
                   fullWidth
                   value={placementForm.employmentType}
                   onChange={(e) => setPlacementForm({ ...placementForm, employmentType: e.target.value })}
                 >
                   <MenuItem value="Full-Time Employee">Full-Time Employee</MenuItem>
                   <MenuItem value="Part-Time Employee">Part-Time Employee</MenuItem>
-                  <MenuItem value="Foreign Employment">Foreign Employment (वैदेशिक)</MenuItem>
+                  <MenuItem value="Foreign Employment">Foreign Employment</MenuItem>
                   <MenuItem value="Contract Based">Contract Based</MenuItem>
                 </TextField>
               </Grid>
@@ -1728,7 +1728,7 @@ export default function StudentProfileModal({
             <Grid container spacing={2}>
               <Grid item xs={6}>
                 <TextField
-                  label="Monthly Salary / Income (मासिक तलब)"
+                  label="Monthly Salary / Income"
                   fullWidth
                   value={placementForm.expectedSalary}
                   onChange={(e) => setPlacementForm({ ...placementForm, expectedSalary: e.target.value })}
@@ -1737,7 +1737,7 @@ export default function StudentProfileModal({
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="Placement Date (नियुक्ति मिति)"
+                  label="Placement Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={placementForm.placementDate}
@@ -1763,7 +1763,7 @@ export default function StudentProfileModal({
                   value={placementForm.status}
                   onChange={(e) => setPlacementForm({ ...placementForm, status: e.target.value })}
                 >
-                  <MenuItem value="Placed">Placed (नियुक्त भएको)</MenuItem>
+                  <MenuItem value="Placed">Placed</MenuItem>
                   <MenuItem value="Interview Scheduled">Interview Scheduled</MenuItem>
                   <MenuItem value="Offer Issued">Offer Issued</MenuItem>
                   <MenuItem value="Seeking">Seeking</MenuItem>
@@ -1772,7 +1772,7 @@ export default function StudentProfileModal({
             </Grid>
 
             <TextField
-              label="Remarks / Notes (टिपोट)"
+              label="Remarks / Notes"
               fullWidth
               multiline
               rows={2}
@@ -1860,14 +1860,14 @@ export default function StudentProfileModal({
         onClose={() => setOpenClearanceModal(false)}
         student={student}
         ledger={{
-          courseTitle: course?.title || 'व्यावसायिक तालिम',
+          courseTitle: course?.title || 'Vocational Training',
           groupCode: grp?.name || 'Batch',
           lockedFee: lockedFee,
           netFee: lockedFee,
           discountAmount: student.discountAmount || 0,
           totalPaid: totalPaid,
           due: dueBalance,
-          dueDateStr: student.expectedEndDate || '२०८१/०९/३०',
+          dueDateStr: student.expectedEndDate || '2025-12-31',
           paymentStatus: dueBalance === 0 ? 'Paid' : isOverdue ? 'Overdue' : totalPaid > 0 ? 'Partial' : 'Unpaid'
         }}
         payments={db.payments || []}
@@ -1879,14 +1879,14 @@ export default function StudentProfileModal({
         onClose={() => setOpenTimelineModal(false)}
         student={student}
         ledger={{
-          courseTitle: course?.title || 'व्यावसायिक तालिम',
+          courseTitle: course?.title || 'Vocational Training',
           groupCode: grp?.name || 'Batch',
           lockedFee: lockedFee,
           netFee: lockedFee,
           discountAmount: student.discountAmount || 0,
           totalPaid: totalPaid,
           due: dueBalance,
-          dueDateStr: student.expectedEndDate || '२०८१/०९/३०',
+          dueDateStr: student.expectedEndDate || '2025-12-31',
           paymentStatus: dueBalance === 0 ? 'Paid' : isOverdue ? 'Overdue' : totalPaid > 0 ? 'Partial' : 'Unpaid'
         }}
         payments={db.payments || []}

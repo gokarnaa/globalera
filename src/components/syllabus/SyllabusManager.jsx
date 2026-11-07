@@ -63,8 +63,8 @@ import { useAuth } from '../../context/AuthContext';
 const CTEVT_PRESETS = [
   {
     key: 'caregiver',
-    title: 'Caregiver (हेरचाह कार्यकर्ता) – ३९० घण्टा',
-    description: 'CTEVT मान्यता प्राप्त ३ महिने केयरगिभर पाठ्यक्रम (८०% प्रयोगात्मक, १० एकाइहरू)',
+    title: 'Caregiver – 390 Hours',
+    description: 'CTEVT Accredited 3-Month Caregiver Curriculum (80% Practical, 10 Units)',
     targetHours: 390,
     units: [
       { unitNo: 1, title: 'Orientation, Professional Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, learningOutcome: 'Understand institutional norms, personal safety, legal ethics and bio-hazard protocols.', toolsAndMaterials: 'Projector, Whiteboard, PPE Kit, Safety Guidelines' },
@@ -81,8 +81,8 @@ const CTEVT_PRESETS = [
   },
   {
     key: 'beautician',
-    title: 'Beautician & Skin Care (सौन्दर्यकर्मी) – ३९० घण्टा',
-    description: 'CTEVT लेभल-१ ब्यूटीशियन पाठ्यक्रम (८०% प्रयोगात्मक, ८ एकाइहरू)',
+    title: 'Beautician & Skin Care – 390 Hours',
+    description: 'CTEVT Level-1 Beautician Curriculum (80% Practical, 8 Units)',
     targetHours: 390,
     units: [
       { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, learningOutcome: 'Sterilization of salon tools, client consultation and safety standards.', toolsAndMaterials: 'Sterilizer, Sanitizer, Apron, Towels' },
@@ -97,8 +97,8 @@ const CTEVT_PRESETS = [
   },
   {
     key: 'electrician',
-    title: 'Building Electrician (भवन विद्युतीकरण) – ३९० घण्टा',
-    description: 'CTEVT राष्ट्रिय सीप मानक भवन वायरिङ पाठ्यक्रम (८०% प्रयोगात्मक, ८ एकाइहरू)',
+    title: 'Building Electrician – 390 Hours',
+    description: 'CTEVT National Skill Standard Building Wiring Curriculum (80% Practical, 8 Units)',
     targetHours: 390,
     units: [
       { unitNo: 1, title: 'Electrical Safety, Tools & Basic Concepts', theoryHours: 12, practicalHours: 20, learningOutcome: 'Understand Ohm’s Law, earthing, electrical hazards and PPE usage.', toolsAndMaterials: 'Insulated Pliers, Multimeter, Screwdriver Set, Safety Helmet' },
@@ -216,7 +216,7 @@ export default function SyllabusManager() {
 
   const handleSaveSingle = () => {
     if (!formData.title.trim()) {
-      alert('पाठ्यक्रम एकाइको शीर्षक आवश्यक छ (Syllabus unit title is required).');
+      alert('Syllabus unit title is required.');
       return;
     }
 
@@ -252,7 +252,7 @@ export default function SyllabusManager() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('के तपाईं निश्चित हुनुहुन्छ? यो पाठ्यक्रम एकाइ मेटिनेछ।')) {
+    if (window.confirm('Are you sure? This syllabus unit will be deleted.')) {
       const deletedItem = (db.syllabi || []).find((x) => x.id === id);
       let updatedList = (db.syllabi || []).filter((x) => x.id !== id);
       let nextDb = { ...db, syllabi: updatedList };
@@ -303,7 +303,7 @@ export default function SyllabusManager() {
 
   // 1-Click Load CTEVT Preset Handler
   const handleApplyPreset = (preset) => {
-    if (!window.confirm(`के तपाईं "${preset.title}" का ${preset.units.length} वटा आधिकारिक एकाइहरू लोड गर्न चाहनुहुन्छ?`)) {
+    if (!window.confirm(`Do you want to load ${preset.units.length} official units of "${preset.title}"?`)) {
       return;
     }
 
@@ -409,7 +409,7 @@ export default function SyllabusManager() {
 
   const handleConfirmBulkImport = () => {
     if (parsedBulkUnits.length === 0) {
-      setBulkError('कुनै मान्य एकाइ भेटिएन (No valid units found). Format जाँच गर्नुहोस्।');
+      setBulkError('No valid units found. Please check the format.');
       return;
     }
 
@@ -444,17 +444,17 @@ export default function SyllabusManager() {
   // WhatsApp Share Text
   const generateWhatsAppShareText = () => {
     if (!selectedCourse) return '';
-    let msg = `*ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)*\n`;
-    msg += `📚 *पाठ्यक्रम रूपरेखा (Curriculum Outline)*: ${selectedCourse.title}\n`;
-    msg += `⏱ *कुल तालिम अवधि*: ${courseTargetHours} घण्टा (Practical: ${totalPracticalHours} hrs [${practicalRatio}%], Theory: ${totalTheoryHours} hrs [${theoryRatio}%])\n`;
+    let msg = `*Global Era Technical School*\n`;
+    msg += `📚 *Curriculum Outline*: ${selectedCourse.title}\n`;
+    msg += `⏱ *Total Training Duration*: ${courseTargetHours} Hours (Practical: ${totalPracticalHours} hrs [${practicalRatio}%], Theory: ${totalTheoryHours} hrs [${theoryRatio}%])\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-    msg += `*मुख्य पाठ्यक्रम एकाइहरू (Curriculum Units)*:\n`;
+    msg += `*Curriculum Units*:\n`;
     courseSyllabi.forEach((u) => {
       msg += `🔹 *Unit ${u.unitNo}:* ${u.title} (${u.totalHours} hrs - Practical: ${u.practicalHours}h, Theory: ${u.theoryHours}h)\n`;
     });
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-    msg += `📍 *ठेगाना*: मित्रपार्क, काठमाडौँ | 📞 *सम्पर्क*: ९८५१००००००\n`;
-    msg += `🌐 *CTEVT मान्यता प्राप्त प्राविधिक तालिम*`;
+    msg += `📍 *Location*: MitraPark, Kathmandu | 📞 *Contact*: 9851000000\n`;
+    msg += `🌐 *CTEVT Accredited Technical Training*`;
     return msg;
   };
 
@@ -499,7 +499,7 @@ export default function SyllabusManager() {
               />
               <Chip
                 icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
-                label="८०% प्रयोगात्मक अनिवार्य"
+                label="80% Practical Mandatory"
                 size="small"
                 sx={{
                   bgcolor: 'rgba(74, 222, 128, 0.15)',
@@ -536,8 +536,8 @@ export default function SyllabusManager() {
             </Typography>
 
             <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 640, mb: 2.5, lineHeight: 1.6 }}>
-              {selectedCourse?.title} का लागि एकाइगत सीप, सैद्धान्तिक र प्रयोगात्मक घण्टाको प्रत्यक्ष व्यवस्थापन गर्नुहोस्।
-              CTEVT मापदण्ड अनुसार ८०% सीप तालिम सुनिश्चित गरिन्छ।
+              Directly manage unit competencies, theory hours, and practical hours for {selectedCourse?.title}.
+              Ensures 80% practical skill training in accordance with CTEVT standards.
             </Typography>
 
             {/* Top Quick Actions */}
@@ -560,7 +560,7 @@ export default function SyllabusManager() {
                   }
                 }}
               >
-                + Add Unit (एकाइ थप्नुहोस्)
+                + Add Unit
               </Button>
 
               <Button
@@ -692,11 +692,11 @@ export default function SyllabusManager() {
               {/* Status Note */}
               {remainingHours > 0 ? (
                 <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, display: 'block', mb: 2 }}>
-                  ⏳ पाठ्यक्रम पूरा हुन अझै <b>{remainingHours} घण्टा</b> थप्न बाँकी छ।
+                  ⏳ Still <b>{remainingHours} hours</b> remaining to complete the curriculum allocation.
                 </Typography>
               ) : (
                 <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 700, display: 'block', mb: 2 }}>
-                  🎉 कुल तालिम अवधि ३९० घण्टा पूर्ण रूपमा विनियोजन भइसकेको छ।
+                  🎉 Total training duration of 390 hours is fully allocated.
                 </Typography>
               )}
 
@@ -705,7 +705,7 @@ export default function SyllabusManager() {
                 <Grid item xs={6}>
                   <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', p: 1.2, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 800, display: 'block' }}>
-                      PRACTICAL (सीप)
+                      PRACTICAL
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
                       {totalPracticalHours} hrs ({practicalRatio}%)
@@ -715,7 +715,7 @@ export default function SyllabusManager() {
                 <Grid item xs={6}>
                   <Box sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', p: 1.2, borderRadius: 2 }}>
                     <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800, display: 'block' }}>
-                      THEORY (सैद्धान्तिक)
+                      THEORY
                     </Typography>
                     <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
                       {totalTheoryHours} hrs ({theoryRatio}%)
@@ -747,7 +747,7 @@ export default function SyllabusManager() {
             <TextField
               select
               size="small"
-              label="पाठ्यक्रम चयन (Select Course)"
+              label="Select Course"
               fullWidth
               value={selectedCourseId}
               onChange={(e) => setSelectedCourseId(e.target.value)}
@@ -766,7 +766,7 @@ export default function SyllabusManager() {
             <TextField
               size="small"
               fullWidth
-              placeholder="एकाइ, सीप वा औजार खोज्नुहोस्..."
+              placeholder="Search unit, skill, or tools..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               InputProps={{
@@ -783,7 +783,7 @@ export default function SyllabusManager() {
           {/* 3-Way View Switcher */}
           <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: { xs: 'flex-start', md: 'flex-end' }, alignItems: 'center', gap: 1 }}>
             <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-              दृश्य (View):
+              View:
             </Typography>
             <ToggleButtonGroup
               value={viewMode}
@@ -808,7 +808,7 @@ export default function SyllabusManager() {
         <Box sx={{ display: 'flex', gap: 1, mt: 2, flexWrap: 'wrap', pt: 1.5, borderTop: '1px solid #F1F5F9' }}>
           <Chip
             clickable
-            label={`सबै एकाइहरू (${courseSyllabi.length})`}
+            label={`All Units (${courseSyllabi.length})`}
             color={filterType === 'ALL' ? 'primary' : 'default'}
             onClick={() => setFilterType('ALL')}
             size="small"
@@ -816,7 +816,7 @@ export default function SyllabusManager() {
           />
           <Chip
             clickable
-            label="अधिक प्रयोगात्मक (≥३०h)"
+            label="High Practical (≥30h)"
             color={filterType === 'HIGH_PRACTICAL' ? 'success' : 'default'}
             onClick={() => setFilterType('HIGH_PRACTICAL')}
             size="small"
@@ -824,7 +824,7 @@ export default function SyllabusManager() {
           />
           <Chip
             clickable
-            label="सैद्धान्तिक फोकस (≥१०h)"
+            label="Theory Focus (≥10h)"
             color={filterType === 'THEORY' ? 'info' : 'default'}
             onClick={() => setFilterType('THEORY')}
             size="small"
@@ -832,7 +832,7 @@ export default function SyllabusManager() {
           />
           <Chip
             clickable
-            label="औजार/सामग्री उल्लेख भएका"
+            label="With Tools/Materials"
             color={filterType === 'HAS_TOOLS' ? 'secondary' : 'default'}
             onClick={() => setFilterType('HAS_TOOLS')}
             size="small"
@@ -886,7 +886,7 @@ export default function SyllabusManager() {
                   <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                       <Chip
-                        label={`UNIT ०${syl.unitNo}`}
+                        label={`UNIT 0${syl.unitNo}`}
                         size="small"
                         sx={{
                           bgcolor: '#0F2C59',
@@ -897,7 +897,7 @@ export default function SyllabusManager() {
                         }}
                       />
                       <Chip
-                        label={`${totalH} घण्टा`}
+                        label={`${totalH} hrs`}
                         size="small"
                         sx={{
                           bgcolor: '#F1F5F9',
@@ -974,10 +974,10 @@ export default function SyllabusManager() {
                   {/* Learning Outcomes Box */}
                   <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', mx: 2, borderRadius: 2.5, border: '1px solid #EDF2F7', mb: 1.5 }}>
                     <Typography variant="caption" sx={{ fontWeight: 900, color: '#475569', display: 'block', mb: 0.4 }}>
-                      🎯 सिकाइ उपलब्धि (Learning Outcomes / NOS):
+                      🎯 Learning Outcomes / NOS:
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#1E293B', fontSize: '0.82rem', lineHeight: 1.5 }}>
-                      {syl.learningOutcome || 'CTEVT कार्यथलो सीप तथा मापदण्ड अनुरुपका सीपहरु।'}
+                      {syl.learningOutcome || 'Workplace competencies and skills in accordance with CTEVT standards.'}
                     </Typography>
                   </Box>
 
@@ -986,7 +986,7 @@ export default function SyllabusManager() {
                     <Box sx={{ px: 2, pb: 1.5, display: 'flex', alignItems: 'flex-start', gap: 1 }}>
                       <BuildIcon sx={{ fontSize: 16, color: '#94A3B8', mt: 0.2 }} />
                       <Typography variant="caption" sx={{ color: '#64748B', lineHeight: 1.4 }}>
-                        <b>औजार/सामग्री:</b> {syl.toolsAndMaterials}
+                        <b>Tools / Materials:</b> {syl.toolsAndMaterials}
                       </Typography>
                     </Box>
                   )}
@@ -999,10 +999,10 @@ export default function SyllabusManager() {
                     <Button
                       size="small"
                       startIcon={<AssignmentTurnedInIcon sx={{ fontSize: 16 }} />}
-                      onClick={() => alert(`"${syl.title}" को पाठयोजना तयार गर्न Lesson Plan खण्डमा जानुहोस्।`)}
+                      onClick={() => alert(`Go to the Lesson Plan section to prepare a lesson plan for "${syl.title}".`)}
                       sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'none' }}
                     >
-                      पाठयोजना बनाउनुहोस्
+                      Create Lesson Plan
                     </Button>
                   </Box>
                 </Card>
@@ -1015,10 +1015,10 @@ export default function SyllabusManager() {
               <Paper sx={{ p: 6, textAlign: 'center', borderRadius: 4, border: '1px dashed #CBD5E1', bgcolor: '#FFFFFF' }}>
                 <MenuBookIcon sx={{ fontSize: 52, color: '#94A3B8', mb: 1.5 }} />
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#1E293B', mb: 0.5 }}>
-                  कुनै पाठ्यक्रम एकाइ फेला परेन
+                  No Syllabus Units Found
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-                  तपाईंले नयाँ एकाइ थप्न वा एकै क्लिकमा CTEVT मानक टेम्प्लेट लोड गर्न सक्नुहुन्छ।
+                  You can add a new unit or load a standard CTEVT template with 1-Click.
                 </Typography>
                 <Stack direction="row" spacing={1.5} justifyContent="center">
                   <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
@@ -1127,14 +1127,14 @@ export default function SyllabusManager() {
                   </Box>
 
                   <Typography variant="body2" sx={{ color: '#334155', mb: 1.5, lineHeight: 1.5 }}>
-                    <b>सिकाइ उपलब्धि:</b> {syl.learningOutcome || 'प्रयोगात्मक सीप तथा कार्यथलो सुरक्षा प्रोटोकलहरू।'}
+                    <b>Learning Outcomes:</b> {syl.learningOutcome || 'Practical skills and workplace safety protocols.'}
                   </Typography>
 
                   {syl.toolsAndMaterials && (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                       <BuildIcon sx={{ fontSize: 15, color: '#94A3B8' }} />
                       <Typography variant="caption" sx={{ color: '#64748B' }}>
-                        <b>आवश्यक सामग्री:</b> {syl.toolsAndMaterials}
+                        <b>Required Materials:</b> {syl.toolsAndMaterials}
                       </Typography>
                     </Box>
                   )}
@@ -1154,14 +1154,14 @@ export default function SyllabusManager() {
             <Table>
               <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, width: 70, textAlign: 'center' }}>एकाइ #</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>पाठ्यक्रम एकाइ शीर्षक (Unit Title)</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, width: 70, textAlign: 'center' }}>Unit #</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Unit Title</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
                   <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>औजार र सामग्री (Tools)</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'right' }}>कार्य (Actions)</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Learning Outcomes / NOS</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Tools &amp; Materials</TableCell>
+                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1204,7 +1204,7 @@ export default function SyllabusManager() {
                 {filteredSyllabi.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
-                      कुनै एकाइ फेला परेन।
+                      No units found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -1250,10 +1250,10 @@ export default function SyllabusManager() {
             </Avatar>
             <Box>
               <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
-                {editingItem ? 'पाठ्यक्रम एकाइ सम्पादन गर्नुहोस् (Edit Unit)' : 'नयाँ पाठ्यक्रम एकाइ दर्ता (Add Syllabus Unit)'}
+                {editingItem ? 'Edit Syllabus Unit' : 'Add Syllabus Unit'}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                {selectedCourse?.title} • एकाइ # {formData.unitNo} को सैद्धान्तिक र प्रयोगात्मक घण्टा विवरण
+                {selectedCourse?.title} • Theory and Practical Hour Details for Unit # {formData.unitNo}
               </Typography>
             </Box>
           </Box>
@@ -1283,7 +1283,7 @@ export default function SyllabusManager() {
           <Grid container spacing={2}>
             <Grid item xs={12} sm={3}>
               <TextField
-                label="एकाइ नम्बर (Unit No)"
+                label="Unit No"
                 type="number"
                 fullWidth
                 size="small"
@@ -1293,10 +1293,10 @@ export default function SyllabusManager() {
             </Grid>
             <Grid item xs={12} sm={9}>
               <TextField
-                label="एकाइ शीर्षक (Unit Title) *"
+                label="Unit Title *"
                 fullWidth
                 size="small"
-                placeholder="उदा: Vital Signs Monitoring & Assessment"
+                placeholder="e.g. Vital Signs Monitoring & Assessment"
                 value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               />
@@ -1304,37 +1304,37 @@ export default function SyllabusManager() {
 
             <Grid item xs={12} sm={6}>
               <TextField
-                label="प्रयोगात्मक घण्टा (Practical Hours) *"
+                label="Practical Hours *"
                 type="number"
                 fullWidth
                 size="small"
-                placeholder="उदा: 32"
+                placeholder="e.g. 32"
                 value={formData.practicalHours}
                 onChange={(e) => setFormData({ ...formData, practicalHours: e.target.value === '' ? '' : Number(e.target.value) })}
-                helperText="८०% सीप मापदण्ड अनुरुप हुनुपर्ने"
+                helperText="Should align with 80% practical skill standard"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
               <TextField
-                label="सैद्धान्तिक घण्टा (Theory Hours) *"
+                label="Theory Hours *"
                 type="number"
                 fullWidth
                 size="small"
-                placeholder="उदा: 8"
+                placeholder="e.g. 8"
                 value={formData.theoryHours}
                 onChange={(e) => setFormData({ ...formData, theoryHours: e.target.value === '' ? '' : Number(e.target.value) })}
-                helperText="२०% सिद्धान्त मापदण्ड"
+                helperText="20% theory standard"
               />
             </Grid>
 
             <Grid item xs={12}>
               <TextField
-                label="सिकाइ उपलब्धि तथा मुख्य कार्यहरू (Learning Outcomes / NOS) *"
+                label="Learning Outcomes / Key Tasks (NOS) *"
                 fullWidth
                 multiline
                 rows={3}
                 size="small"
-                placeholder="यस एकाइ पश्चात विद्यार्थीले के सीप प्रदर्शन गर्न सक्नेछन्..."
+                placeholder="What competencies will trainees be able to demonstrate after completing this unit..."
                 value={formData.learningOutcome}
                 onChange={(e) => setFormData({ ...formData, learningOutcome: e.target.value })}
               />
@@ -1342,10 +1342,10 @@ export default function SyllabusManager() {
 
             <Grid item xs={12}>
               <TextField
-                label="आवश्यक औजार तथा तालिम सामग्री (Tools, Equipment & Materials)"
+                label="Tools, Equipment & Training Materials"
                 fullWidth
                 size="small"
-                placeholder="उदा: Sphygmomanometer, Stethoscope, PPE Kit, First Aid Box"
+                placeholder="e.g. Sphygmomanometer, Stethoscope, PPE Kit, First Aid Box"
                 value={formData.toolsAndMaterials}
                 onChange={(e) => setFormData({ ...formData, toolsAndMaterials: e.target.value })}
               />
@@ -1374,7 +1374,7 @@ export default function SyllabusManager() {
               '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
             }}
           >
-            रद्द गर्नुहोस् (Cancel)
+            Cancel
           </Button>
           <Button
             variant="contained"
@@ -1394,7 +1394,7 @@ export default function SyllabusManager() {
               }
             }}
           >
-            सुरक्षित गर्नुहोस् (Save Unit)
+            Save Unit
           </Button>
         </DialogActions>
       </Dialog>
@@ -1414,8 +1414,8 @@ export default function SyllabusManager() {
         </DialogTitle>
         <DialogContent dividers>
           <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-            नयाँ पाठ्यक्रम तुरुन्तै सेटअप गर्न आधिकारिक CTEVT ३९०-घण्टे मापदण्डका एकाइहरू छान्नुहोस्।
-            यसले ८०% प्रयोगात्मक र २०% सैद्धान्तिक अनुपातको साथ आवश्यक सम्पूर्ण एकाइहरू स्वतः लोड गरिदिन्छ।
+            Select official CTEVT 390-hour standard units to set up a new curriculum instantly.
+            This automatically loads all required units with an 80% practical and 20% theory ratio.
           </Typography>
 
           <Grid container spacing={2}>
@@ -1470,7 +1470,7 @@ export default function SyllabusManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenPresetDialog(false)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस्
+            Close
           </Button>
         </DialogActions>
       </Dialog>
@@ -1486,15 +1486,15 @@ export default function SyllabusManager() {
         PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
       >
         <DialogTitle sx={{ fontWeight: 900, color: '#0F2C59' }}>
-          बल्क इम्पोर्ट (Bulk CSV / Excel Import)
+          Bulk CSV / Excel Import
         </DialogTitle>
         <DialogContent dividers>
           <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="body2" sx={{ color: '#64748B' }}>
-              Excel वा CSV बाट सीधै पेस्ट गर्नुहोस् वा फाइल अपलोड गर्नुहोस्।
+              Paste directly from Excel or CSV, or upload a file.
             </Typography>
             <Button size="small" startIcon={<DownloadIcon />} onClick={handleDownloadSampleCSV}>
-              नमूना CSV डाउनलोड (Sample)
+              Download Sample CSV
             </Button>
           </Box>
 
@@ -1508,7 +1508,7 @@ export default function SyllabusManager() {
             />
             <label htmlFor="bulk-syllabus-file">
               <Button variant="outlined" component="span" startIcon={<FileUploadIcon />}>
-                फाइल छान्नुहोस् (.csv / .txt)
+                Choose File (.csv / .txt)
               </Button>
             </label>
           </Box>
@@ -1525,14 +1525,14 @@ export default function SyllabusManager() {
 
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-              इम्पोर्ट विधि:
+              Import Mode:
             </Typography>
             <Button
               variant={bulkMode === 'append' ? 'contained' : 'outlined'}
               size="small"
               onClick={() => setBulkMode('append')}
             >
-              हालकोमा थप्ने (Append)
+              Append to Existing
             </Button>
             <Button
               variant={bulkMode === 'replace' ? 'contained' : 'outlined'}
@@ -1540,13 +1540,13 @@ export default function SyllabusManager() {
               color="error"
               onClick={() => setBulkMode('replace')}
             >
-              प्रतिस्थापन गर्ने (Replace All)
+              Replace All
             </Button>
           </Box>
 
           {parsedBulkUnits.length > 0 && (
             <Alert severity="success" sx={{ mt: 2 }}>
-              <b>{parsedBulkUnits.length}</b> वटा पाठ्यक्रम एकाइ फेला पर्यो।
+              <b>{parsedBulkUnits.length}</b> syllabus units detected.
             </Alert>
           )}
 
@@ -1558,10 +1558,10 @@ export default function SyllabusManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenBulkDialog(false)} sx={{ fontWeight: 700 }}>
-            रद्द गर्नुहोस्
+            Cancel
           </Button>
           <Button variant="contained" onClick={handleConfirmBulkImport} sx={{ fontWeight: 800, bgcolor: '#0F2C59' }}>
-            इम्पोर्ट पुष्टि गर्नुहोस्
+            Confirm Import
           </Button>
         </DialogActions>
       </Dialog>
@@ -1578,17 +1578,17 @@ export default function SyllabusManager() {
       >
         <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-            आधिकारिक पाठ्यक्रम दस्तावेज (Official CTEVT Format)
+            Official Curriculum Document (CTEVT Format)
           </Typography>
           <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ fontWeight: 800 }}>
-            प्रिन्ट गर्नुहोस् (Print)
+            Print
           </Button>
         </DialogTitle>
         <DialogContent dividers>
           {/* Institutional Header */}
           <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px solid #0F2C59', mb: 3 }}>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-              ग्लोबल एरा प्राविधिक स्कुल (Global Era Technical School)
+              Global Era Technical School
             </Typography>
             <Typography variant="subtitle2" sx={{ color: '#475569', fontWeight: 700 }}>
               KITE CAREGIVER TRAINING CENTER • MitraPark, Kathmandu
@@ -1601,7 +1601,7 @@ export default function SyllabusManager() {
           <Grid container spacing={2} sx={{ mb: 3, p: 2, bgcolor: '#F8FAFC', borderRadius: 2 }}>
             <Grid item xs={6} sm={3}>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                पाठ्यक्रम (Course):
+                Course:
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
                 {selectedCourse?.title}
@@ -1609,7 +1609,7 @@ export default function SyllabusManager() {
             </Grid>
             <Grid item xs={6} sm={3}>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                कुल तालिम अवधि:
+                Total Training Duration:
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
                 {courseTargetHours} Hours (3 Months)
@@ -1617,7 +1617,7 @@ export default function SyllabusManager() {
             </Grid>
             <Grid item xs={6} sm={3}>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                सैद्धान्तिक (Theory):
+                Theory:
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#2563EB' }}>
                 {totalTheoryHours} Hours ({theoryRatio}%)
@@ -1625,7 +1625,7 @@ export default function SyllabusManager() {
             </Grid>
             <Grid item xs={6} sm={3}>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                प्रयोगात्मक (Practical):
+                Practical:
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
                 {totalPracticalHours} Hours ({practicalRatio}%)
@@ -1638,11 +1638,11 @@ export default function SyllabusManager() {
               <TableHead sx={{ bgcolor: '#0F2C59' }}>
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>Unit</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सीप / एकाइ शीर्षक (Competency / Task Title)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Competency / Task Title</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>सिकाइ उपलब्धि (Learning Outcomes / NOS)</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Learning Outcomes / NOS</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1658,7 +1658,7 @@ export default function SyllabusManager() {
                 ))}
                 <TableRow sx={{ bgcolor: '#F8FAFC' }}>
                   <TableCell colSpan={2} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                    कुल जम्मा (Total Allocated Hours):
+                    Total Allocated Hours:
                   </TableCell>
                   <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#2563EB' }}>
                     {totalTheoryHours}h
@@ -1670,7 +1670,7 @@ export default function SyllabusManager() {
                     {totalSyllabusHours}h
                   </TableCell>
                   <TableCell sx={{ fontWeight: 800, color: '#64748B' }}>
-                    लक्ष्य: {courseTargetHours} Hours ({hoursPercentage}% Met)
+                    Target: {courseTargetHours} Hours ({hoursPercentage}% Met)
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -1681,7 +1681,7 @@ export default function SyllabusManager() {
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
               <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  पाठ्यक्रम संयोजक (Curriculum In-charge)
+                  Curriculum In-charge
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Signature &amp; Date
@@ -1691,7 +1691,7 @@ export default function SyllabusManager() {
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
               <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  प्रशिक्षक (Lead Instructor)
+                  Lead Instructor
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Signature &amp; Date
@@ -1701,7 +1701,7 @@ export default function SyllabusManager() {
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
               <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  प्रिन्सिपल / क्याम्पस प्रमुख (Principal)
+                  Principal
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Official Stamp &amp; Signature
@@ -1712,7 +1712,7 @@ export default function SyllabusManager() {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setOpenDocDialog(false)} sx={{ fontWeight: 700 }}>
-            बन्द गर्नुहोस्
+            Close
           </Button>
         </DialogActions>
       </Dialog>

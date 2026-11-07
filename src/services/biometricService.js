@@ -137,9 +137,9 @@ export function resolveBiometricEntity(db, rawId, fallbackName = null, fallbackR
 
   // Built-in staff IDs 3001-3003
   const builtInStaff = {
-    '3001': 'गोकर्ण थापा (Gokarna Thapa)',
-    '3002': 'रिसेप्सन तथा इन्क्वायरी अफिसर',
-    '3003': 'लेखा अधिकृत (Accountant Staff)'
+    '3001': 'Gokarna Thapa',
+    '3002': 'Reception & Inquiry Officer',
+    '3003': 'Accountant Staff'
   };
   if (builtInStaff[clean]) {
     return {
@@ -224,7 +224,7 @@ export function syncBiometricAttendance(targetDate = new Date().toISOString().sl
       }
     }
 
-    const checkOutNote = lastPunch && lastPunch.timestamp !== finalCheckIn ? ` • बाहिरिएको (Out): ${lastPunch.timestamp}` : '';
+    const checkOutNote = lastPunch && lastPunch.timestamp !== finalCheckIn ? ` • Checked Out: ${lastPunch.timestamp}` : '';
 
     const recordObj = {
       id: existingIdx >= 0 ? newAttendances[existingIdx].id : `ATT-BIO-${Date.now()}-${Math.floor(Math.random() * 900 + 100)}`,
@@ -238,7 +238,7 @@ export function syncBiometricAttendance(targetDate = new Date().toISOString().sl
       biometricId: String(student.biometricId || firstPunch.biometricId),
       verifiedBy: firstPunch.device || 'ZKTeco K40 Biometric / RFID',
       remarks:
-        (finalStatus === 'late' ? 'बायोमेट्रिक ढिलो आगमन (Late Check-in)' : 'समयमै बायोमेट्रिक/RFID प्रमाणित (On Time)') +
+        (finalStatus === 'late' ? 'Biometric Late Check-in' : 'Biometric / RFID Verified On Time') +
         checkOutNote
     };
 
