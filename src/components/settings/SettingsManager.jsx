@@ -85,6 +85,24 @@ export default function SettingsManager() {
 
       const res = await testSupabaseConnection(url, key);
       setTestResult(res);
+
+      if (res.ok) {
+        // Automatically save verified credentials so top Navbar and entire system connect instantly
+        const freshDb = loadDB();
+        const nextDb = {
+          ...freshDb,
+          settings: {
+            ...(freshDb.settings || {}),
+            supabaseUrl: url,
+            supabaseAnonKey: key
+          }
+        };
+        saveDB(nextDb);
+        setDb(nextDb);
+        setSettings(nextDb.settings);
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 4000);
+      }
     } catch (err) {
       setTestResult({ ok: false, message: err.message });
     } finally {
@@ -127,7 +145,16 @@ export default function SettingsManager() {
   };
 
   const handleSaveSettings = () => {
-    const nextDb = { ...db, settings };
+    const freshDb = loadDB();
+    const nextDb = {
+      ...freshDb,
+      settings: {
+        ...(freshDb.settings || {}),
+        ...settings,
+        supabaseUrl: (settings.supabaseUrl || '').trim(),
+        supabaseAnonKey: (settings.supabaseAnonKey || '').trim()
+      }
+    };
     saveDB(nextDb);
     setDb(nextDb);
     setSavedSuccess(true);

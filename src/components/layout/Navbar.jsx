@@ -46,20 +46,11 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
   });
 
   useEffect(() => {
-    const handleUpdate = () => setDb(loadDB());
-    window.addEventListener('kite_db_updated', handleUpdate);
-    window.addEventListener('storage', handleUpdate);
-    return () => {
-      window.removeEventListener('kite_db_updated', handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
-    };
-  }, []);
-
-  useEffect(() => {
     let isMounted = true;
     const checkSupabaseHealth = async () => {
       try {
         const currentDb = loadDB();
+        setDb(currentDb);
         const url = currentDb.settings?.supabaseUrl;
         const key = currentDb.settings?.supabaseAnonKey;
 
@@ -106,12 +97,17 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
     };
 
     checkSupabaseHealth();
-    const interval = setInterval(checkSupabaseHealth, 30000);
+    window.addEventListener('kite_db_updated', checkSupabaseHealth);
+    window.addEventListener('storage', checkSupabaseHealth);
+    const interval = setInterval(checkSupabaseHealth, 25000);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('kite_db_updated', checkSupabaseHealth);
+      window.removeEventListener('storage', checkSupabaseHealth);
       clearInterval(interval);
     };
-  }, [db.settings?.supabaseUrl, db.settings?.supabaseAnonKey]);
+  }, []);
 
   const handleOpenUser = (e) => setAnchorUser(e.currentTarget);
   const handleCloseUser = () => setAnchorUser(null);

@@ -103,20 +103,11 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
   const [cloudStatus, setCloudStatus] = React.useState('checking');
 
   React.useEffect(() => {
-    const handleUpdate = () => setDb(loadDB());
-    window.addEventListener('kite_db_updated', handleUpdate);
-    window.addEventListener('storage', handleUpdate);
-    return () => {
-      window.removeEventListener('kite_db_updated', handleUpdate);
-      window.removeEventListener('storage', handleUpdate);
-    };
-  }, []);
-
-  React.useEffect(() => {
     let isMounted = true;
     const checkStatus = async () => {
       try {
         const currentDb = loadDB();
+        setDb(currentDb);
         const url = currentDb.settings?.supabaseUrl;
         const key = currentDb.settings?.supabaseAnonKey;
         if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
@@ -131,10 +122,16 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
         if (isMounted) setCloudStatus('offline');
       }
     };
+
     checkStatus();
-    const interval = setInterval(checkStatus, 30000);
+    window.addEventListener('kite_db_updated', checkStatus);
+    window.addEventListener('storage', checkStatus);
+    const interval = setInterval(checkStatus, 25000);
+
     return () => {
       isMounted = false;
+      window.removeEventListener('kite_db_updated', checkStatus);
+      window.removeEventListener('storage', checkStatus);
       clearInterval(interval);
     };
   }, []);
