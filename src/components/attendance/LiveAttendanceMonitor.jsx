@@ -91,10 +91,12 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
   const [roleFilter, setRoleFilter] = useState('ALL');
   const [selectedBatchId, setSelectedBatchId] = useState(db.trainingGroups?.[0]?.id || 'ALL');
 
-  // Simulation modal
+  // Simulation modal & Instant RFID/Biometric Card Tap state
   const [openSimulateModal, setOpenSimulateModal] = useState(false);
   const [simTargetId, setSimTargetId] = useState('');
   const [simTargetRole, setSimTargetRole] = useState('STUDENT');
+  const [rfidQuickInput, setRfidQuickInput] = useState('');
+  const [rfidFeedback, setRfidFeedback] = useState(null);
 
   // Reactive listener for storage updates (such as external pushes or live punches)
   useEffect(() => {
@@ -178,7 +180,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
     alert(`📡 बायोमेट्रिक मेसिन सिङ्क सफल!\n${res.syncedCount} वटा नयाँ लगहरू सिङ्क गरियो।`);
   };
 
-  // Handle Live Thumb Simulation
+  // Handle Live Thumb / RFID Simulation
   const handleRunSimulation = () => {
     if (!simTargetId) {
       alert('कृपया विद्यार्थी वा प्रशिक्षक छान्नुहोस्।');
@@ -186,32 +188,65 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
     }
 
     let targetName = 'Enrolled User';
+    let targetBioId = simTargetId;
     let role = simTargetRole;
 
     if (role === 'STUDENT') {
       const s = students.find((x) => x.id === simTargetId || String(x.biometricId) === String(simTargetId));
-      if (s) targetName = s.name;
-    } else {
+      if (s) {
+        targetName = s.name;
+        targetBioId = s.biometricId || s.id;
+      }
+    } else if (role === 'TRAINER') {
       const t = trainers.find((x) => x.id === simTargetId || String(x.biometricId) === String(simTargetId));
-      if (t) targetName = `${t.name} (Trainer)`;
+      if (t) {
+        targetName = t.name;
+        targetBioId = t.biometricId || t.id;
+      }
     }
 
-    const log = recordLiveBiometricPunch({
-      biometricId: simTargetId,
+    recordLiveBiometricPunch({
+      biometricId: targetBioId,
       name: targetName,
       role: role,
-      device: `${settings.deviceName || 'ZKTeco K40 WiFi'} (Gate Scan)`
+      device: `${settings.deviceName || 'ZKTeco K40 WiFi / RFID'} (Gate Scan)`,
+      playSound: soundEnabled
     });
 
     const refreshed = loadDB();
     setDb(refreshed);
     setOpenSimulateModal(false);
 
-    if (soundEnabled) {
-      playBiometricBeep(true);
-    }
     try {
       confetti({ particleCount: 60, spread: 60, origin: { y: 0.7 } });
+    } catch (_) {}
+  };
+
+  // Handle Instant USB RFID Card Tap or Machine ID Scan
+  const handleQuickRfidPunch = (e) => {
+    if (e) e.preventDefault();
+    const rawCode = rfidQuickInput.trim();
+    if (!rawCode) return;
+
+    const newLog = recordLiveBiometricPunch({
+      biometricId: rawCode,
+      device: 'RFID / Biometric Gate Scanner',
+      playSound: soundEnabled
+    });
+
+    const refreshed = loadDB();
+    setDb(refreshed);
+    setRfidQuickInput('');
+    setRfidFeedback({
+      name: newLog.name,
+      biometricId: newLog.biometricId,
+      time: newLog.timestamp,
+      role: newLog.role
+    });
+    setTimeout(() => setRfidFeedback(null), 5000);
+
+    try {
+      confetti({ particleCount: 45, spread: 55, origin: { y: 0.75 } });
     } catch (_) {}
   };
 
@@ -682,6 +717,71 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               ======================================================= */}
           {activeTab === 0 && (
             <Box>
+              {/* Instant RFID Card / Biometric ID Quick-Scan Bar */}
+              <Paper
+                component="form"
+                onSubmit={handleQuickRfidPunch}
+                elevation={0}
+                sx={{
+                  p: 1.5,
+                  mb: 2,
+                  borderRadius: 2.5,
+                  bgcolor: '#F8FAFC',
+                  border: '1px dashed #93C5FD',
+                  display: 'flex',
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  alignItems: { xs: 'stretch', sm: 'center' },
+                  justifyContent: 'space-between',
+                  gap: 1.5
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                  <FingerprintIcon sx={{ color: '#0F2E5A', fontSize: 22 }} />
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', lineHeight: 1.2 }}>
+                      💳 द्रुत RFID कार्ड / बायोमेट्रिक ID हाजिरी (Instant RFID / ID Punch)
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                      USB RFID रिडर ट्याप गर्नुहोस् वा बायोमेट्रिक ID (#1001, #2001, TGID-101) टाइप गरी Enter थिच्नुहोस्
+                    </Typography>
+                  </Box>
+                </Box>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: { sm: 340 } }}>
+                  <TextField
+                    size="small"
+                    fullWidth
+                    placeholder="बायोमेट्रिक ID / RFID ट्याप (उदा: 1001)..."
+                    value={rfidQuickInput}
+                    onChange={(e) => setRfidQuickInput(e.target.value)}
+                    sx={{ bgcolor: '#FFFFFF' }}
+                  />
+                  <Button
+                    type="submit"
+                    variant="contained"
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      fontWeight: 800,
+                      textTransform: 'none',
+                      whiteSpace: 'nowrap',
+                      px: 2,
+                      '&:hover': { bgcolor: '#1E3A8A' }
+                    }}
+                  >
+                    हाजिरी टिप्नुहोस्
+                  </Button>
+                </Stack>
+              </Paper>
+
+              {rfidFeedback && (
+                <Alert
+                  severity={rfidFeedback.type}
+                  onClose={() => setRfidFeedback(null)}
+                  sx={{ mb: 2, fontWeight: 800, borderRadius: 2 }}
+                >
+                  {rfidFeedback.message}
+                </Alert>
+              )}
+
               {/* Controls Bar */}
               <Grid container spacing={1.5} alignItems="center" sx={{ mb: 2.5 }}>
                 <Grid item xs={12} sm={4}>
@@ -1244,53 +1344,87 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 170 }}>
                         आगमन समय (Check-in)
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
-                        स्थिति
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 220 }}>
+                        स्थिति / कार्य
                       </TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {[
-                      { id: 'STF-01', name: 'गोकर्ण थापा (Gokarna Thapa)', bioId: '3001', role: 'क्याम्पस प्रमुख / निर्देशक', time: '०६:४५ AM', status: 'present' },
-                      { id: 'STF-02', name: 'रिसेप्सन तथा इन्क्वायरी अफिसर', bioId: '3002', role: 'अगाडि डेस्क / काउन्टर', time: '०६:५० AM', status: 'present' },
-                      { id: 'STF-03', name: 'लेखा अधिकृत (Accountant Staff)', bioId: '3003', role: 'लेखा तथा नगद संकलन', time: '०६:५५ AM', status: 'present' }
-                    ].map((stf, idx) => (
-                      <TableRow key={stf.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
-                          {idx + 1}
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                            {stf.name}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Chip
-                            icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
-                            label={`#${stf.bioId}`}
-                            size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                            {stf.role}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                            🕒 {stf.time}
-                          </Typography>
-                        </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Chip
-                            label="🟢 समयमै प्रमाणित"
-                            size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                      { id: 'STF-01', name: 'गोकर्ण थापा (Gokarna Thapa)', bioId: '3001', role: 'क्याम्पस प्रमुख / निर्देशक', defaultTime: '06:45 AM' },
+                      { id: 'STF-02', name: 'रिसेप्सन तथा इन्क्वायरी अफिसर', bioId: '3002', role: 'अगाडि डेस्क / काउन्टर', defaultTime: '06:50 AM' },
+                      { id: 'STF-03', name: 'लेखा अधिकृत (Accountant Staff)', bioId: '3003', role: 'लेखा तथा नगद संकलन', defaultTime: '06:55 AM' }
+                    ].map((stf, idx) => {
+                      const staffLog = allLogs.find(
+                        (l) => l.date === selectedDate && (String(l.biometricId) === stf.bioId || l.entityId === stf.id)
+                      );
+                      const checkInTime = staffLog ? staffLog.punchTime12h : (selectedDate === new Date().toISOString().slice(0, 10) ? stf.defaultTime : null);
+                      const isPresent = Boolean(checkInTime);
+                      return (
+                        <TableRow key={stf.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                              {stf.name}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Chip
+                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                              label={`#${stf.bioId}`}
+                              size="small"
+                              sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              {stf.role}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: isPresent ? '#0F2E5A' : '#94A3B8' }}>
+                              {isPresent ? `🕒 ${checkInTime}` : '— बायोमेट्रिक प्रतीक्षा —'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+                              <Chip
+                                label={isPresent ? '🟢 समयमै प्रमाणित' : '⏳ बाँकी'}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  bgcolor: isPresent ? '#DCFCE7' : '#F1F5F9',
+                                  color: isPresent ? '#15803D' : '#64748B'
+                                }}
+                              />
+                              <Button
+                                size="small"
+                                variant="outlined"
+                                onClick={() => {
+                                  const now = new Date();
+                                  const time24 = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                                  recordLiveBiometricPunch({
+                                    biometricId: stf.bioId,
+                                    role: 'STAFF',
+                                    entityId: stf.id,
+                                    name: stf.name,
+                                    date: selectedDate,
+                                    punchTime24h: time24,
+                                    verifyMode: 'FINGERPRINT_THUMB'
+                                  });
+                                  refreshAllData(false);
+                                }}
+                                sx={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'none', py: 0.2, px: 1 }}
+                              >
+                                पंच
+                              </Button>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </TableContainer>

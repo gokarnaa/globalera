@@ -30,7 +30,13 @@ import PaymentsIcon from '@mui/icons-material/Payments';
 import WorkIcon from '@mui/icons-material/Work';
 import confetti from 'canvas-confetti';
 
-import { saveDB, calculateExpectedEndDate, postDoubleEntryJournal } from '../../services/storage';
+import {
+  saveDB,
+  calculateExpectedEndDate,
+  postDoubleEntryJournal,
+  getNextSequentialId,
+  getNextBiometricId
+} from '../../services/storage';
 
 export default function NewAdmissionModal({ open, onClose, db, setDb, showToast, onAdmissionCreated }) {
   // Personal Info
@@ -160,24 +166,22 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     const courseObj = (db.courses || []).find((c) => c.id === selectedCourseId);
     const groupObj = (db.trainingGroups || []).find((g) => g.id === selectedGroupId) || availableGroups[0] || {};
 
-    // Auto-generate TGID
-    const existingTgids = (db.students || [])
-      .map((s) => {
-        const match = s.tgid && s.tgid.match(/\d+/);
-        return match ? parseInt(match[0], 10) : 0;
-      })
-      .filter((n) => !isNaN(n));
-    const nextNum = existingTgids.length ? Math.max(...existingTgids) + 1 : 101;
-    const generatedTgid = `TGID-${nextNum}`;
-    const studentId = `STD-${String(nextNum).padStart(2, '0')}`;
+    // Auto-generate collision-free TGID, Student ID, and Biometric ID
+    const generatedTgid = getNextSequentialId(db.students || [], 'TGID-', 3, 'tgid', 101);
+    const studentId = getNextSequentialId(db.students || [], 'STD-', 2, 'id', 1);
+    const biometricId = getNextBiometricId(db.students || [], 1001);
 
     // Expected End Date
-    const endDate = groupObj.endDate || calculateExpectedEndDate(admissionDate, courseObj?.durationValue || 3, courseObj?.durationUnit || 'Months');
+    const endDate =
+      groupObj.expectedEndDate ||
+      groupObj.endDate ||
+      calculateExpectedEndDate(admissionDate, courseObj?.durationValue || 3, courseObj?.durationUnit || 'Months');
 
-    // 1. Create Student record
+    // 1. Create Student record (with fee breakdown & biometric ID synced)
     const newStudent = {
       id: studentId,
       tgid: generatedTgid,
+      biometricId,
       name: name.trim(),
       phone: phone.trim(),
       secondaryPhone: secondaryPhone.trim(),
@@ -194,7 +198,11 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       guardianContact: guardianContact.trim() || phone.trim(),
       groupId: groupObj.id || 'GRP-01',
       admissionDate,
-      status: 'Active'
+      status: 'Active',
+      originalFee: Number(totalCourseFee) || 0,
+      discountAmount: Number(discountAmount) || 0,
+      admissionFee: 0,
+      lockedCourseFee: netPayableFee
     };
 
     // 2. Create Receipt & Payment Record (50% Advance)
@@ -202,12 +210,17 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     const newPayment = {
       id: `PMT-${Date.now()}`,
       studentId,
+      studentName: name.trim(),
+      tgid: generatedTgid,
       groupId: groupObj.id || 'GRP-01',
+      courseName: courseObj?.title || 'व्यावसायिक तालिम',
       amount: Number(advancePaid) || 0,
       paymentMethod,
       paymentDate: admissionDate,
+      paymentMonth: '२०८१ मंसिर',
       receiptNo,
       remarks: `${remarks} (${name.trim()})`,
+      receivedBy: 'Admission Desk',
       collectedBy: 'Admission Desk'
     };
 
@@ -236,7 +249,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       courseId: courseObj?.id || selectedCourseId,
       courseTitle: courseObj?.title || 'व्यावसायिक तालिम',
       groupId: groupObj.id || 'GRP-01',
-      groupName: groupObj.name || 'Batch 1',
+      groupName: groupObj.groupCode || groupObj.name || 'Batch 1',
       shift: groupObj.shift || 'Shift A',
       timing: groupObj.timing || '07:00 AM – 09:00 AM',
       duration: `${courseObj?.durationValue || 3} ${courseObj?.durationUnit || 'Months'} (${courseObj?.totalHours || 390} घण्टा)`,
@@ -274,7 +287,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       return g;
     });
 
-    const nextDb = {
+    let finalDb = {
       ...db,
       students: updatedStudents,
       payments: updatedPayments,
@@ -282,39 +295,41 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       admissions: updatedAdmissions
     };
 
-    // Post double entry journal for 50% advance fee
-    try {
-      postDoubleEntryJournal(
-        nextDb,
-        {
-          date: admissionDate,
-          voucherType: 'RECEIPT',
-          referenceNo: receiptNo,
+    // Post double entry journal for 50% advance fee without losing the journal entry
+    const advanceAmt = Number(advancePaid) || 0;
+    if (advanceAmt > 0) {
+      try {
+        const { nextDb: dbWithJournal } = postDoubleEntryJournal(finalDb, {
+          entryDate: admissionDate,
+          sourceModule: 'ADMISSION',
+          sourceId: receiptNo,
           narration: `विद्यार्थी भर्ना ५०% अग्रिम शुल्क: ${name.trim()} (${courseObj?.title || ''}) सम्झौता नं ${agreementNo}`,
           createdBy: 'Admission Desk',
           lines: [
             {
-              accountCode: paymentMethod === 'Bank' ? '1020' : '1010', // Bank or Cash
-              description: `५०% भर्ना शुल्क संकलन (${paymentMethod})`,
-              debit: Number(advancePaid) || 0,
+              accountCode: paymentMethod !== 'Cash' ? '1020' : '1010',
+              lineNarration: `५०% भर्ना शुल्क संकलन (${paymentMethod})`,
+              debit: advanceAmt,
               credit: 0
             },
             {
-              accountCode: '4010', // Student Tuition & Training Revenue
-              description: `विद्यार्थी भर्ना आम्दानी - ${name.trim()}`,
+              accountCode: '4100',
+              lineNarration: `विद्यार्थी भर्ना आम्दानी - ${name.trim()}`,
               debit: 0,
-              credit: Number(advancePaid) || 0
+              credit: advanceAmt
             }
           ]
-        },
-        () => {}
-      );
-    } catch (err) {
-      console.warn('Journal post notice:', err);
+        });
+        if (dbWithJournal) {
+          finalDb = dbWithJournal;
+        }
+      } catch (err) {
+        console.warn('Journal post notice:', err);
+      }
     }
 
-    saveDB(nextDb);
-    setDb(nextDb);
+    saveDB(finalDb);
+    setDb(finalDb);
 
     confetti({
       particleCount: 80,

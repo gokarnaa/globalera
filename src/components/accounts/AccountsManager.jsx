@@ -96,6 +96,16 @@ export default function AccountsManager({ initialTab = 0 }) {
     }
   }, [initialTab]);
 
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
+
   // Modals state
   const [openDayOpenModal, setOpenDayOpenModal] = useState(false);
   const [openCashToBankModal, setOpenCashToBankModal] = useState(false);
@@ -600,10 +610,10 @@ export default function AccountsManager({ initialTab = 0 }) {
       // Search match
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
-        const matchName = st.name.toLowerCase().includes(q);
-        const matchTgid = st.tgid.toLowerCase().includes(q);
-        const matchPhone = st.phone.includes(q);
-        const matchCourse = l.courseTitle.toLowerCase().includes(q);
+        const matchName = (st.name || '').toLowerCase().includes(q);
+        const matchTgid = (st.tgid || '').toLowerCase().includes(q);
+        const matchPhone = (st.phone || '').includes(q);
+        const matchCourse = (l.courseTitle || '').toLowerCase().includes(q);
         if (!matchName && !matchTgid && !matchPhone && !matchCourse) return false;
       }
 
@@ -643,34 +653,37 @@ export default function AccountsManager({ initialTab = 0 }) {
   // Combined Transactions Audit Log
   const combinedTransactions = useMemo(() => {
     const list = [
-      ...payments.map((p) => ({
-        id: p.id,
-        refNo: p.receiptNo,
-        type: 'FEE_RECEIPT',
-        name: p.studentName,
-        sub: `${p.tgid || 'Student'} • ${p.courseName || ''}`,
-        amount: p.amount,
-        isInflow: true,
-        date: p.paymentDate,
-        month: p.paymentMonth,
-        method: p.paymentMethod || 'Cash',
-        remarks: p.remarks,
-        user: p.receivedBy,
-        rawObj: p
-      })),
+      ...payments.map((p) => {
+        const matchedStudent = students.find((s) => s.id === p.studentId);
+        return {
+          id: p.id,
+          refNo: p.receiptNo || p.id || '',
+          type: 'FEE_RECEIPT',
+          name: p.studentName || matchedStudent?.name || 'प्रशिक्षार्थी',
+          sub: `${p.tgid || matchedStudent?.tgid || 'Student'} • ${p.courseName || ''}`,
+          amount: p.amount,
+          isInflow: true,
+          date: p.paymentDate,
+          month: p.paymentMonth,
+          method: p.paymentMethod || 'Cash',
+          remarks: p.remarks || '',
+          user: p.receivedBy || p.collectedBy || 'लेखा शाखा',
+          rawObj: p
+        };
+      }),
       ...trainerPayouts.map((tp) => ({
         id: tp.id,
-        refNo: tp.voucherNo,
+        refNo: tp.voucherNo || tp.id || '',
         type: 'TRAINER_PAYOUT',
-        name: tp.trainerName,
+        name: tp.trainerName || 'प्रशिक्षक',
         sub: tp.payoutType === 'COMMISSION' ? `ब्याच कमिसन (${tp.groupName})` : 'मासिक तलब निकासा',
         amount: tp.amount,
         isInflow: false,
         date: tp.payoutDate,
         month: tp.payoutMonth,
         method: tp.paymentMethod || 'Bank Transfer',
-        remarks: tp.remarks,
-        user: tp.disbursedBy,
+        remarks: tp.remarks || '',
+        user: tp.disbursedBy || 'लेखा शाखा',
         rawObj: tp
       }))
     ];
@@ -682,15 +695,15 @@ export default function AccountsManager({ initialTab = 0 }) {
         if (txSearch.trim()) {
           const q = txSearch.toLowerCase();
           return (
-            tx.refNo.toLowerCase().includes(q) ||
-            tx.name.toLowerCase().includes(q) ||
-            tx.remarks?.toLowerCase().includes(q)
+            (tx.refNo || '').toLowerCase().includes(q) ||
+            (tx.name || '').toLowerCase().includes(q) ||
+            (tx.remarks || '').toLowerCase().includes(q)
           );
         }
         return true;
       })
       .sort((a, b) => new Date(b.date) - new Date(a.date));
-  }, [payments, trainerPayouts, txTypeFilter, txSearch]);
+  }, [payments, trainerPayouts, students, txTypeFilter, txSearch]);
 
   // Save new Student Payment with Auto Double-Entry Posting
   const handleSavePayment = (newPayment) => {

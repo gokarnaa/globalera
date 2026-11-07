@@ -22,7 +22,12 @@ import SchoolIcon from '@mui/icons-material/School';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import PersonIcon from '@mui/icons-material/Person';
 import confetti from 'canvas-confetti';
-import { saveDB, calculateExpectedEndDate } from '../../services/storage';
+import {
+  saveDB,
+  calculateExpectedEndDate,
+  getNextSequentialId,
+  getNextBiometricId
+} from '../../services/storage';
 
 export default function ConvertToStudentModal({
   open,
@@ -45,22 +50,17 @@ export default function ConvertToStudentModal({
   useEffect(() => {
     if (!open || !lead) return;
 
-    // Generate next TGID
-    const existingTgids = (db.students || [])
-      .map((s) => {
-        const match = s.tgid && s.tgid.match(/\d+/);
-        return match ? parseInt(match[0], 10) : 0;
-      })
-      .filter((n) => !isNaN(n));
-    const nextNum = existingTgids.length ? Math.max(...existingTgids) + 1 : 101;
-    setTgid(`TGID-${nextNum}`);
+    // Generate next collision-free TGID
+    setTgid(getNextSequentialId(db.students || [], 'TGID-', 3, 'tgid', 101));
 
     // Try to auto-match Training Group by course
-    const activeGroups = (db.trainingGroups || []).filter((g) => g.status === 'Ongoing' || g.status === 'Upcoming' || !g.status);
+    const activeGroups = (db.trainingGroups || []).filter(
+      (g) => g.status === 'Running' || g.status === 'Ongoing' || g.status === 'Upcoming' || !g.status
+    );
     let matchedGroup = null;
     if (lead.course) {
       const courseObj = (db.courses || []).find(
-        (c) => c.title.toLowerCase() === lead.course.toLowerCase()
+        (c) => (c.title || '').toLowerCase() === lead.course.toLowerCase()
       );
       if (courseObj) {
         matchedGroup = activeGroups.find((g) => g.courseId === courseObj.id);
@@ -69,8 +69,9 @@ export default function ConvertToStudentModal({
     const defaultGroup = matchedGroup || activeGroups[0] || (db.trainingGroups || [])[0];
     if (defaultGroup) {
       setSelectedGroupId(defaultGroup.id);
-      if (defaultGroup.endDate) {
-        setExpectedEndDate(defaultGroup.endDate);
+      const grpEnd = defaultGroup.expectedEndDate || defaultGroup.endDate;
+      if (grpEnd) {
+        setExpectedEndDate(grpEnd);
       } else {
         setExpectedEndDate(calculateExpectedEndDate(admissionDate, 3, 'Months'));
       }
@@ -83,8 +84,9 @@ export default function ConvertToStudentModal({
   const handleGroupChange = (grpId) => {
     setSelectedGroupId(grpId);
     const grp = (db.trainingGroups || []).find((g) => g.id === grpId);
-    if (grp && grp.endDate) {
-      setExpectedEndDate(grp.endDate);
+    const grpEnd = grp?.expectedEndDate || grp?.endDate;
+    if (grpEnd) {
+      setExpectedEndDate(grpEnd);
     }
   };
 
@@ -103,8 +105,9 @@ export default function ConvertToStudentModal({
 
     // Create new student record
     const newStudent = {
-      id: `STD-${Date.now().toString().slice(-4)}`,
+      id: getNextSequentialId(db.students || [], 'STD-', 2, 'id', 1),
       tgid: tgid.trim(),
+      biometricId: getNextBiometricId(db.students || [], 1001),
       name: lead.name.trim(),
       phone: lead.phone.trim(),
       secondaryPhone: '',
@@ -131,11 +134,12 @@ export default function ConvertToStudentModal({
     };
 
     // Update lead status to Converted and append to timeline
+    const batchLabel = selectedGroup?.groupCode || selectedGroup?.name || selectedGroupId;
     const updatedTimeline = [
       ...(lead.timeline || []),
       {
         date: new Date().toISOString(),
-        note: `भर्ना सम्पन्न (Converted to Student: ${tgid} in Batch: ${selectedGroup?.name || selectedGroupId})`,
+        note: `भर्ना सम्पन्न (Converted to Student: ${tgid} in Batch: ${batchLabel})`,
         staffName: 'Admin / Counselor'
       }
     ];
@@ -350,7 +354,7 @@ export default function ConvertToStudentModal({
                   const courseObj = (db.courses || []).find((c) => c.id === grp.courseId);
                   return (
                     <MenuItem key={grp.id} value={grp.id}>
-                      {grp.name} — {courseObj?.title || grp.courseId} (Shift: {grp.shift || 'A'})
+                      {grp.groupCode || grp.name || grp.id} — {courseObj?.title || grp.courseId} (Shift: {grp.shift || 'A'})
                     </MenuItem>
                   );
                 })}

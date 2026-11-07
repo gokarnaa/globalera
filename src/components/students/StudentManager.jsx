@@ -47,7 +47,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import { QRCodeSVG } from 'qrcode.react';
-import { loadDB, saveDB } from '../../services/storage';
+import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
@@ -58,6 +58,16 @@ export default function StudentManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
   const { confirm, alert } = useDialog();
+
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -108,33 +118,33 @@ export default function StudentManager() {
     const q = searchQuery.toLowerCase();
     filteredStudents = filteredStudents.filter(
       (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.tgid.toLowerCase().includes(q) ||
+        (s.name || '').toLowerCase().includes(q) ||
+        (s.tgid || '').toLowerCase().includes(q) ||
         (s.biometricId && String(s.biometricId).toLowerCase().includes(q)) ||
-        s.phone.includes(q)
+        (s.phone || '').includes(q)
     );
   }
 
   const handleOpenAdd = () => {
     setEditingItem(null);
     setFormData({
-      tgid: '',
-      biometricId: String(1001 + (db.students || []).length),
+      tgid: getNextSequentialId(db.students || [], 'TGID-', 3, 'tgid', 101),
+      biometricId: getNextBiometricId(db.students || [], 1001),
       name: '',
       phone: '',
       secondaryPhone: '',
       email: '',
-      gender: '',
-      dateOfBirth: '',
+      gender: 'Female',
+      dateOfBirth: '2002-01-01',
       citizenshipNumber: '',
-      citizenshipDistrict: '',
+      citizenshipDistrict: 'Kathmandu',
       permanentAddress: '',
       currentAddress: '',
       fatherName: '',
       motherName: '',
       guardianContact: '',
       groupId: '',
-      admissionDate: '',
+      admissionDate: new Date().toISOString().slice(0, 10),
       expectedEndDate: '',
       status: 'Active',
       photoUrl: ''
@@ -153,7 +163,7 @@ export default function StudentManager() {
     setFormData((prev) => ({
       ...prev,
       groupId: grpId,
-      expectedEndDate: grp ? grp.expectedEndDate : prev.expectedEndDate
+      expectedEndDate: grp ? grp.expectedEndDate || grp.endDate : prev.expectedEndDate
     }));
   };
 
@@ -171,8 +181,15 @@ export default function StudentManager() {
         x.id === editingItem.id ? { ...x, ...formData } : x
       );
     } else {
-      const newId = `STD-${String(updatedList.length + 1).padStart(2, '0')}`;
-      const newStudent = { id: newId, ...formData };
+      const newId = getNextSequentialId(updatedList, 'STD-', 2, 'id', 1);
+      const nextTgid = (formData.tgid || '').trim() || getNextSequentialId(updatedList, 'TGID-', 3, 'tgid', 101);
+      const nextBioId = (formData.biometricId || '').toString().trim() || getNextBiometricId(updatedList, 1001);
+      const newStudent = {
+        ...formData,
+        id: newId,
+        tgid: nextTgid,
+        biometricId: nextBioId
+      };
       updatedList.push(newStudent);
 
       // Automated Timeline Event!

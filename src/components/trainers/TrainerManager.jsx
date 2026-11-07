@@ -42,7 +42,7 @@ import BusinessIcon from '@mui/icons-material/Business';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
 import { QRCodeSVG } from 'qrcode.react';
-import { loadDB, saveDB } from '../../services/storage';
+import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useDialog } from '../../context/DialogContext';
 
@@ -50,6 +50,16 @@ export default function TrainerManager() {
   const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
+
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
   const [editingItem, setEditingItem] = useState(null);
   const [qrModalItem, setQrModalItem] = useState(null);
   const [profileTrainer, setProfileTrainer] = useState(null);
@@ -70,10 +80,10 @@ export default function TrainerManager() {
     setEditingItem(null);
     setFormData({
       name: '',
-      biometricId: String(2001 + (db.trainers || []).length),
+      biometricId: getNextBiometricId(db.trainers || [], 2001),
       phone: '',
       occupationId: '',
-      pin: '',
+      pin: '1234',
       specialization: '',
       status: 'Active',
       photo: ''
@@ -97,14 +107,15 @@ export default function TrainerManager() {
       return;
     }
 
-    let updatedList = [...db.trainers];
+    let updatedList = [...(db.trainers || [])];
     if (editingItem) {
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...formData } : x
       );
     } else {
-      const newId = `TRN-${String(updatedList.length + 1).padStart(2, '0')}`;
-      updatedList.push({ id: newId, ...formData });
+      const newId = getNextSequentialId(updatedList, 'TRN-', 2, 'id', 1);
+      const nextBioId = (formData.biometricId || '').toString().trim() || getNextBiometricId(updatedList, 2001);
+      updatedList.push({ ...formData, id: newId, biometricId: nextBioId });
     }
 
     const nextDb = { ...db, trainers: updatedList };

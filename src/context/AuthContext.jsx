@@ -23,7 +23,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   // Universal Unified Login (Phone / Username / TGID / ID + PIN)
-  const login = (identifier, pin) => {
+  const login = (identifier, pin, preferredRole = null) => {
     if (!identifier && !pin) {
       return { success: false, message: 'कृपया युजरनेम/फोन र पिन प्रविष्ट गर्नुहोस्।' };
     }
@@ -32,11 +32,25 @@ export function AuthProvider({ children }) {
     const cleanId = (identifier || '').trim().toLowerCase();
     const cleanPhone = (identifier || '').trim().replace(/[^0-9]/g, '');
     const cleanPin = (pin || '').trim();
+    const targetRole = preferredRole ? preferredRole.toUpperCase() : null;
 
-    // 1. Check in db.users collection
-    const users = currentDb.users || [];
+    const isPhoneMatch = (storedPhone) => {
+      const p = (storedPhone || '').trim().replace(/[^0-9]/g, '');
+      if (cleanPhone.length < 7 || p.length < 7) return false;
+      return p === cleanPhone || p.endsWith(cleanPhone) || cleanPhone.endsWith(p);
+    };
+
+    // 1. Check in db.users collection (prioritizing preferredRole if provided)
+    const users = [...(currentDb.users || [])];
+    if (targetRole) {
+      users.sort((a, b) => {
+        const aMatch = a.role === targetRole || (targetRole === 'ADMIN' && a.role === 'STAFF') ? 0 : 1;
+        const bMatch = b.role === targetRole || (targetRole === 'ADMIN' && b.role === 'STAFF') ? 0 : 1;
+        return aMatch - bMatch;
+      });
+    }
+
     const matchedUser = users.find((u) => {
-      const uPhone = (u.phone || '').trim().replace(/[^0-9]/g, '');
       const uUsername = (u.username || '').trim().toLowerCase();
       const uId = (u.id || '').trim().toLowerCase();
       const uStudentId = (u.studentId || '').trim().toLowerCase();
@@ -46,7 +60,7 @@ export function AuthProvider({ children }) {
       const uTgid = (u.tgid || '').trim().toLowerCase();
 
       return (
-        (cleanPhone && (uPhone === cleanPhone || uPhone.endsWith(cleanPhone) || cleanPhone.endsWith(uPhone))) ||
+        isPhoneMatch(u.phone) ||
         (cleanId && (uUsername === cleanId || uId === cleanId || uStudentId === cleanId || uTrainerId === cleanId || uAgentId === cleanId || uAgentCode === cleanId || uTgid === cleanId))
       );
     });
@@ -137,11 +151,10 @@ export function AuthProvider({ children }) {
 
     // 2. Direct Fallback: Check Trainers table
     const trainer = (currentDb.trainers || []).find((t) => {
-      const p = (t.phone || '').trim().replace(/[^0-9]/g, '');
-      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || t.id.toLowerCase() === cleanId;
+      return isPhoneMatch(t.phone) || (t.id || '').toLowerCase() === cleanId;
     });
 
-    if (trainer) {
+    if (trainer && (!targetRole || targetRole === 'TRAINER')) {
       if (trainer.status === 'Inactive' || trainer.status === 'Suspended') {
         return { success: false, message: 'प्रशिक्षक खाता निलम्बित गरिएको छ।' };
       }
@@ -167,12 +180,11 @@ export function AuthProvider({ children }) {
 
     // 3. Direct Fallback: Check Students table
     const student = (currentDb.students || []).find((s) => {
-      const p = (s.phone || '').trim().replace(/[^0-9]/g, '');
       const tgid = (s.tgid || '').trim().toLowerCase();
-      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || tgid === cleanId || s.id.toLowerCase() === cleanId;
+      return isPhoneMatch(s.phone) || (tgid && tgid === cleanId) || (s.id || '').toLowerCase() === cleanId;
     });
 
-    if (student) {
+    if (student && (!targetRole || targetRole === 'STUDENT')) {
       if (student.status === 'Dropout' || student.status === 'Suspended') {
         return { success: false, message: 'विद्यार्थी खाता निष्क्रिय वा निलम्बित गरिएको छ।' };
       }
@@ -184,9 +196,8 @@ export function AuthProvider({ children }) {
 
     // 4. Direct Fallback: Check Agents table
     const agent = (currentDb.agents || []).find((a) => {
-      const p = (a.phone || '').trim().replace(/[^0-9]/g, '');
       const code = (a.code || '').trim().toLowerCase();
-      return (cleanPhone && (p === cleanPhone || p.endsWith(cleanPhone))) || code === cleanId || a.id.toLowerCase() === cleanId;
+      return isPhoneMatch(a.phone) || (code && code === cleanId) || (a.id || '').toLowerCase() === cleanId;
     });
 
     if (agent) {
@@ -214,8 +225,8 @@ export function AuthProvider({ children }) {
       return { success: false, message: 'पिन कोड मिलेन।' };
     }
 
-    // 4. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
-    if (cleanId === '1111' || cleanPin === '1111' || (cleanId === 'admin' && (cleanPin === 'admin123' || cleanPin === '1111'))) {
+    // 5. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
+    if (cleanId === '1111' || (cleanId === 'admin' && (cleanPin === 'admin123' || cleanPin === '1111'))) {
       const user = {
         id: 'USR-ADMIN',
         username: 'admin',
@@ -229,7 +240,7 @@ export function AuthProvider({ children }) {
       return { success: true, user };
     }
 
-    if (cleanId === '2222' || cleanPin === '2222') {
+    if (cleanId === '2222' || (cleanId === 'staff' && cleanPin === '2222')) {
       const user = {
         id: 'USR-STAFF',
         name: 'Front Desk Officer',
@@ -251,12 +262,19 @@ export function AuthProvider({ children }) {
   // Check URL query parameters on mount for frictionless Direct Link / QR Code login
   useEffect(() => {
     try {
+      const path = window.location.pathname.toLowerCase();
       const params = new URLSearchParams(window.location.search);
-      const portalParam = params.get('portal'); // 'trainer' | 'student'
-      const idParam = params.get('id'); // 'TRN-01', 'STD-01'
+      const portalParam = params.get('portal'); // 'trainer' | 'student' | 'agent'
+      const idParam = params.get('id'); // 'TRN-01', 'STD-01', 'AGE-101'
       const pinParam = params.get('pin');
       const userParam = params.get('user') || params.get('login');
       const logoutParam = params.get('logout');
+
+      let roleHint = null;
+      if (path.includes('agent') || portalParam === 'agent') roleHint = 'AGENT';
+      else if (path.includes('trainer') || portalParam === 'trainer') roleHint = 'TRAINER';
+      else if (path.includes('student') || portalParam === 'student') roleHint = 'STUDENT';
+      else if (path.includes('admin') || portalParam === 'admin') roleHint = 'ADMIN';
 
       if (logoutParam === 'true') {
         logout();
@@ -265,14 +283,14 @@ export function AuthProvider({ children }) {
       }
 
       if (idParam && pinParam) {
-        login(idParam, pinParam);
+        login(idParam, pinParam, roleHint);
       } else if (userParam && pinParam) {
-        login(userParam, pinParam);
+        login(userParam, pinParam, roleHint);
       } else if (portalParam === 'trainer' && idParam) {
         const currentDb = loadDB();
         const t = (currentDb.trainers || []).find((x) => x.id === idParam);
         if (t) {
-          login(t.phone || t.id, t.pin || '1234');
+          login(t.phone || t.id, t.pin || '1234', 'TRAINER');
         }
       } else if (portalParam === 'student' && idParam) {
         loginAsStudent(idParam);

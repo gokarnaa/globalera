@@ -46,11 +46,21 @@ import { loadDB, saveDB } from '../../services/storage';
 import A4LandscapeCertificateModal from '../certificates/A4LandscapeCertificateModal';
 import PublicCertificateVerify from '../certificates/PublicCertificateVerify';
 
-export default function StudentPortal() {
+export default function StudentPortal({ onLogout }) {
   const { currentUser, logout } = useAuth();
   const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
+
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   // Job Application Modal
   const [selectedJob, setSelectedJob] = useState(null);
@@ -88,7 +98,7 @@ export default function StudentPortal() {
 
   // Attendance metrics
   const attendanceStats = useMemo(() => {
-    if (!student?.id || !group?.id) return { total: 0, present: 0, absent: 0, late: 0, percent: 100 };
+    if (!student?.id || !group?.id) return { total: 0, present: 0, absent: 0, late: 0, percent: 100, records: [] };
     const records = (db.attendances || []).filter(
       (a) => a.studentId === student.id && a.groupId === group.id
     );
@@ -259,7 +269,11 @@ export default function StudentPortal() {
                     confirmColor: '#EF4444'
                   });
                   if (ok) {
-                    logout();
+                    if (onLogout) {
+                      onLogout();
+                    } else {
+                      logout();
+                    }
                   }
                 }}
                 sx={{

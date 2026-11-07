@@ -103,7 +103,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     setError('');
 
     setTimeout(() => {
-      const res = login(identifier, pin);
+      const res = login(identifier, pin, portalMode);
       setLoading(false);
       if (res.success) {
         if (onLoginSuccess) onLoginSuccess(res.user);

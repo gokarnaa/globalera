@@ -119,8 +119,8 @@ export default function CertificateManager() {
   const filteredData = studentCertificateData.filter((item) => {
     const q = searchTerm.toLowerCase();
     const matchSearch =
-      item.student.name.toLowerCase().includes(q) ||
-      item.student.tgid.toLowerCase().includes(q) ||
+      (item.student.name || '').toLowerCase().includes(q) ||
+      (item.student.tgid || '').toLowerCase().includes(q) ||
       (item.certificate?.certificateNo || '').toLowerCase().includes(q);
 
     if (!matchSearch) return false;
@@ -136,7 +136,7 @@ export default function CertificateManager() {
     const existingList = db.certificates || [];
     const newCertNo = computeNextCertificateNumber(db, 0, {
       courseCode: selectedCourse?.code,
-      batchCode: selectedGroup?.code || selectedGroup?.name
+      batchCode: selectedGroup?.groupCode || selectedGroup?.code || selectedGroup?.name
     });
 
     const newCertificate = {
@@ -195,7 +195,7 @@ export default function CertificateManager() {
     eligibleStudents.forEach((item, index) => {
       const newCertNo = computeNextCertificateNumber(db, index, {
         courseCode: selectedCourse?.code,
-        batchCode: selectedGroup?.code || selectedGroup?.name
+        batchCode: selectedGroup?.groupCode || selectedGroup?.code || selectedGroup?.name
       });
 
       existingList.unshift({

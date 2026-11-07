@@ -64,6 +64,16 @@ export default function Dashboard({ onNavigate }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
+  useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
+
   // 1. Live second-by-second ticking digital clock
   const [currentTime, setCurrentTime] = useState(new Date());
   useEffect(() => {

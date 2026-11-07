@@ -146,6 +146,9 @@ export default function UserManager() {
     if (ok) {
       const nextUsers = usersList.map((u) => (u.id === user.id ? { ...u, status: nextStatus } : u));
       let nextAgents = db.agents || [];
+      let nextTrainers = db.trainers || [];
+      let nextStudents = db.students || [];
+
       if (user.role === 'AGENT' || user.agentCode || user.agentId) {
         nextAgents = nextAgents.map((ag) =>
           ag.id === user.agentId || ag.code === user.agentCode || ag.code === user.username
@@ -153,8 +156,23 @@ export default function UserManager() {
             : ag
         );
       }
-      const nextDb = { ...db, users: nextUsers, agents: nextAgents };
-      saveDB(nextDb);
+      if (user.role === 'TRAINER' && user.trainerId) {
+        nextTrainers = nextTrainers.map((tr) =>
+          tr.id === user.trainerId ? { ...tr, status: nextStatus === 'Suspended' ? 'Inactive' : 'Active' } : tr
+        );
+      }
+      if (user.role === 'STUDENT' && user.studentId) {
+        nextStudents = nextStudents.map((st) =>
+          st.id === user.studentId ? { ...st, status: nextStatus === 'Suspended' ? 'Suspended' : 'Active' } : st
+        );
+      }
+      const nextDb = saveDB({
+        ...db,
+        users: nextUsers,
+        agents: nextAgents,
+        trainers: nextTrainers,
+        students: nextStudents
+      });
       setDb(nextDb);
     }
   };
@@ -268,6 +286,39 @@ export default function UserManager() {
       formData.username = agCode.toLowerCase();
     }
 
+    let nextTrainers = [...(db.trainers || [])];
+    let nextStudents = [...(db.students || [])];
+
+    if (formData.role === 'TRAINER' && (formData.trainerId || editingUser?.trainerId)) {
+      const targetTrnId = formData.trainerId || editingUser?.trainerId;
+      nextTrainers = nextTrainers.map((tr) =>
+        tr.id === targetTrnId
+          ? {
+              ...tr,
+              name: formData.name,
+              phone: formData.phone,
+              pin: formData.pin,
+              status: formData.status === 'Suspended' ? 'Inactive' : 'Active'
+            }
+          : tr
+      );
+    }
+
+    if (formData.role === 'STUDENT' && (formData.studentId || editingUser?.studentId)) {
+      const targetStdId = formData.studentId || editingUser?.studentId;
+      nextStudents = nextStudents.map((st) =>
+        st.id === targetStdId
+          ? {
+              ...st,
+              name: formData.name,
+              phone: formData.phone,
+              pin: formData.pin,
+              status: formData.status === 'Suspended' ? 'Suspended' : 'Active'
+            }
+          : st
+      );
+    }
+
     if (editingUser) {
       nextUsers = nextUsers.map((u) =>
         u.id === editingUser.id
@@ -289,8 +340,13 @@ export default function UserManager() {
       });
     }
 
-    const nextDb = { ...db, users: nextUsers, agents: nextAgents };
-    saveDB(nextDb);
+    const nextDb = saveDB({
+      ...db,
+      users: nextUsers,
+      agents: nextAgents,
+      trainers: nextTrainers,
+      students: nextStudents
+    });
     setDb(nextDb);
     setOpenUserModal(false);
 
@@ -655,11 +711,11 @@ export default function UserManager() {
         </Grid>
       </Grid>
 
-      {/* 3. Search & Filter Bar (Compact & Balanced Layout) */}
+      {/* 3. Search & Filter Bar (Compact & Balanced Layout - Zero Scroll Arrows) */}
       <Card sx={{ p: 1.5, mb: 3, borderRadius: 2.5, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
-        <Grid container spacing={1.5} alignItems="center">
+        <Grid container spacing={1.2} alignItems="center">
           {/* Compact Search Box */}
-          <Grid item xs={12} sm={4} md={2.8}>
+          <Grid item xs={12} sm={4} md={2.5}>
             <TextField
               fullWidth
               size="small"
@@ -669,31 +725,34 @@ export default function UserManager() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 19 }} />
+                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                   </InputAdornment>
                 ),
-                sx: { height: 38, fontSize: '0.82rem', borderRadius: 2 }
+                sx: { height: 36, fontSize: '0.8rem', borderRadius: 2 }
               }}
             />
           </Grid>
 
-          {/* Expanded Role Tabs (All 6 Roles visible without scroll arrows) */}
-          <Grid item xs={12} sm={8} md={7.2}>
+          {/* Expanded Role Tabs (All 6 Roles visible cleanly without scroll arrows) */}
+          <Grid item xs={12} sm={8} md={7.7}>
             <Tabs
               value={roleFilter}
               onChange={(e, val) => setRoleFilter(val)}
               variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
+              scrollButtons={false}
               sx={{
-                minHeight: 38,
+                minHeight: 36,
+                '& .MuiTabs-flexContainer': {
+                  justifyContent: { xs: 'flex-start', md: 'space-around' },
+                  gap: 0.5
+                },
                 '& .MuiTabs-indicator': { height: 3, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
                 '& .MuiTab-root': {
                   fontWeight: 800,
-                  fontSize: '0.82rem',
-                  minHeight: 38,
+                  fontSize: '0.8rem',
+                  minHeight: 36,
                   py: 0.5,
-                  px: { xs: 1, sm: 1.6 },
+                  px: { xs: 1, sm: 1.2 },
                   minWidth: 'auto',
                   textTransform: 'none',
                   color: '#64748B',
@@ -711,7 +770,7 @@ export default function UserManager() {
           </Grid>
 
           {/* Compact Status Filter */}
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid item xs={12} sm={6} md={1.8}>
             <TextField
               select
               fullWidth
@@ -720,12 +779,12 @@ export default function UserManager() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               InputProps={{
-                sx: { height: 38, fontSize: '0.82rem', borderRadius: 2 }
+                sx: { height: 36, fontSize: '0.8rem', borderRadius: 2 }
               }}
             >
-              <MenuItem value="ALL" sx={{ fontSize: '0.82rem' }}>सबै स्थिति (All)</MenuItem>
-              <MenuItem value="Active" sx={{ fontSize: '0.82rem' }}>सक्रिय (Active)</MenuItem>
-              <MenuItem value="Suspended" sx={{ fontSize: '0.82rem' }}>निलम्बित (Suspended)</MenuItem>
+              <MenuItem value="ALL" sx={{ fontSize: '0.8rem' }}>सबै (All)</MenuItem>
+              <MenuItem value="Active" sx={{ fontSize: '0.8rem' }}>सक्रिय (Active)</MenuItem>
+              <MenuItem value="Suspended" sx={{ fontSize: '0.8rem' }}>निलम्बित (Suspended)</MenuItem>
             </TextField>
           </Grid>
         </Grid>

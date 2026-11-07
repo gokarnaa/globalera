@@ -82,14 +82,14 @@ export function generateDefaultUsers(trainers = [], students = []) {
       id: 'AGT-01',
       code: 'AGE-101',
       name: 'रमेश श्रेष्ठ (Ramesh Shrestha)',
-      phone: '9841234567',
+      phone: '9841778899',
       email: 'ramesh.agent@gmail.com',
       address: 'चाबहिल, काठमाडौं',
       pin: '1234',
       status: 'Active',
       commissionType: 'FIXED', // 'FIXED' or 'PERCENTAGE'
       defaultRate: 1000,
-      paymentInfo: 'eSewa: 9841234567',
+      paymentInfo: 'eSewa: 9841778899',
       joinedDate: '2026-01-15'
     },
     {
@@ -1109,14 +1109,14 @@ export const INITIAL_SEED_DATA = {
       id: 'AGT-01',
       code: 'AGE-101',
       name: 'रमेश श्रेष्ठ (Ramesh Shrestha)',
-      phone: '9841234567',
+      phone: '9841778899',
       email: 'ramesh.agent@gmail.com',
       address: 'चाबहिल, काठमाडौं',
       pin: '1234',
       status: 'Active',
       commissionType: 'FIXED',
       defaultRate: 1000,
-      paymentInfo: 'eSewa: 9841234567',
+      paymentInfo: 'eSewa: 9841778899',
       joinedDate: '2026-01-15'
     },
     {
@@ -1589,53 +1589,189 @@ INITIAL_SEED_DATA.users = generateDefaultUsers(INITIAL_SEED_DATA.trainers, INITI
 
 const DB_KEY = 'kite_tvet_erp_data_v1';
 
+/**
+ * Helper to generate safe collision-free sequential IDs (e.g. STD-09, TRN-05, TGID-108)
+ */
+export function getNextSequentialId(list = [], prefix = 'STD-', padDigits = 2, startNum = 1, field = 'id') {
+  const nums = (list || [])
+    .map((item) => {
+      const val = String(item?.[field] || '');
+      const match = val.match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    })
+    .filter((n) => !isNaN(n) && n > 0);
+  const nextNum = nums.length > 0 ? Math.max(...nums) + 1 : startNum;
+  return `${prefix}${String(nextNum).padStart(padDigits, '0')}`;
+}
+
+/**
+ * Helper to generate collision-free Biometric Machine IDs (1001+ for students, 2001+ for trainers)
+ */
+export function getNextBiometricId(list = [], baseNum = 1001) {
+  const nums = (list || [])
+    .map((item) => parseInt(String(item?.biometricId || '').replace(/\D/g, ''), 10))
+    .filter((n) => !isNaN(n) && n >= baseNum && n < baseNum + 900);
+  return String(nums.length > 0 ? Math.max(...nums) + 1 : baseNum + (list || []).length);
+}
+
+/**
+ * Reconcile & Two-Way Sync db.users with db.students, db.trainers, and db.agents
+ */
+export function reconcileUsersWithEntities(data) {
+  const students = (data.students || []).map((s, idx) => ({
+    ...s,
+    tgid: s.tgid || `TGID-${101 + idx}`,
+    biometricId: s.biometricId || String(1001 + idx),
+    pin: s.pin || '1234'
+  }));
+
+  const trainers = (data.trainers || []).map((t, idx) => ({
+    ...t,
+    biometricId: t.biometricId || String(2001 + idx),
+    pin: t.pin || '1234'
+  }));
+
+  // Heal legacy duplicate phone between AGT-01 and TRN-01
+  const agents = (data.agents || []).map((a) => {
+    if (a.id === 'AGT-01' && a.phone === '9841234567') {
+      return { ...a, phone: '9841778899', paymentInfo: 'eSewa: 9841778899' };
+    }
+    return a;
+  });
+
+  const existingUsers = Array.isArray(data.users) && data.users.length > 0
+    ? data.users
+    : generateDefaultUsers(trainers, students);
+
+  const studentIds = new Set(students.map((s) => s.id));
+  const trainerIds = new Set(trainers.map((t) => t.id));
+  const agentIds = new Set(agents.map((a) => a.id));
+
+  // Keep Admin, Staff, and custom non-orphaned users
+  const baseUsers = existingUsers.filter((u) => {
+    if (u.role === 'STUDENT' && u.studentId && !studentIds.has(u.studentId)) return false;
+    if (u.role === 'TRAINER' && u.trainerId && !trainerIds.has(u.trainerId)) return false;
+    if (u.role === 'AGENT' && u.agentId && !agentIds.has(u.agentId)) return false;
+    return true;
+  });
+
+  const userMap = new Map();
+  baseUsers.forEach((u) => userMap.set(u.id, { ...u }));
+
+  // Sync Trainers -> Users
+  trainers.forEach((t, idx) => {
+    const existing = Array.from(userMap.values()).find(
+      (u) => u.trainerId === t.id || u.id === `USR-${t.id}`
+    );
+    const uid = existing?.id || `USR-${t.id}`;
+    userMap.set(uid, {
+      ...(existing || {}),
+      id: uid,
+      username: existing?.username || (t.name.split(' ')[0] || `trainer${idx + 1}`).toLowerCase().replace(/[^a-z0-9]/g, ''),
+      phone: t.phone || existing?.phone || '',
+      name: t.name,
+      role: 'TRAINER',
+      trainerId: t.id,
+      biometricId: t.biometricId,
+      pin: t.pin || existing?.pin || '1234',
+      status: t.status === 'Inactive' || t.status === 'Suspended' ? 'Suspended' : (existing?.status || 'Active'),
+      specialization: t.specialization || existing?.specialization || 'Instructor',
+      createdAt: existing?.createdAt || '2026-01-01'
+    });
+  });
+
+  // Sync Students -> Users
+  students.forEach((s, idx) => {
+    const existing = Array.from(userMap.values()).find(
+      (u) => u.studentId === s.id || u.id === `USR-${s.id}`
+    );
+    const uid = existing?.id || `USR-${s.id}`;
+    userMap.set(uid, {
+      ...(existing || {}),
+      id: uid,
+      username: existing?.username || (s.tgid || `std${idx + 1}`).toLowerCase().replace(/[^a-z0-9]/g, ''),
+      phone: s.phone || existing?.phone || '',
+      name: s.name,
+      role: 'STUDENT',
+      studentId: s.id,
+      biometricId: s.biometricId,
+      pin: s.pin || existing?.pin || '1234',
+      status: s.status === 'Dropout' || s.status === 'Suspended' ? 'Suspended' : (existing?.status || 'Active'),
+      tgid: s.tgid,
+      groupId: s.groupId,
+      createdAt: existing?.createdAt || s.admissionDate || '2026-01-01'
+    });
+  });
+
+  // Sync Agents -> Users
+  agents.forEach((a, idx) => {
+    const existing = Array.from(userMap.values()).find(
+      (u) => u.agentId === a.id || u.agentCode === a.code || u.id === `USR-${a.id}`
+    );
+    const uid = existing?.id || `USR-${a.id}`;
+    userMap.set(uid, {
+      ...(existing || {}),
+      id: uid,
+      username: (a.code || existing?.username || `agent${idx + 1}`).toLowerCase(),
+      phone: a.phone === '9841234567' && a.id === 'AGT-01' ? '9841778899' : (a.phone || existing?.phone || ''),
+      name: a.name,
+      role: 'AGENT',
+      agentId: a.id,
+      agentCode: a.code,
+      pin: a.pin || existing?.pin || '1234',
+      status: a.status === 'Suspended' ? 'Suspended' : 'Active',
+      title: 'Referral Partner / Agent',
+      createdAt: existing?.createdAt || a.joinedDate || '2026-01-01'
+    });
+  });
+
+  return {
+    ...data,
+    students,
+    trainers,
+    agents,
+    users: Array.from(userMap.values())
+  };
+}
+
 export function loadDB() {
   try {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) {
-      localStorage.setItem(DB_KEY, JSON.stringify(INITIAL_SEED_DATA));
-      return INITIAL_SEED_DATA;
+      const seeded = reconcileUsersWithEntities(INITIAL_SEED_DATA);
+      localStorage.setItem(DB_KEY, JSON.stringify(seeded));
+      return seeded;
     }
     const parsed = JSON.parse(raw);
-    const existingUsers = (parsed.users && parsed.users.length > 0)
-      ? parsed.users
-      : generateDefaultUsers(parsed.trainers || INITIAL_SEED_DATA.trainers, parsed.students || INITIAL_SEED_DATA.students);
 
-    return {
+    const merged = {
       ...INITIAL_SEED_DATA,
       ...parsed,
-      biometricLogs: (parsed.biometricLogs && parsed.biometricLogs.length > 0)
+      biometricLogs: Array.isArray(parsed.biometricLogs)
         ? parsed.biometricLogs
         : INITIAL_SEED_DATA.biometricLogs || [],
-      students: (parsed.students || INITIAL_SEED_DATA.students).map((s, idx) => ({
-        ...s,
-        biometricId: s.biometricId || String(1001 + idx)
-      })),
-      trainers: (parsed.trainers || INITIAL_SEED_DATA.trainers).map((t, idx) => ({
-        ...t,
-        biometricId: t.biometricId || String(2001 + idx)
-      })),
-      users: existingUsers,
-      jobOpenings: parsed.jobOpenings || INITIAL_SEED_DATA.jobOpenings || [],
-      jobApplications: parsed.jobApplications || INITIAL_SEED_DATA.jobApplications || [],
-      holidays: parsed.holidays || INITIAL_SEED_DATA.holidays,
-      notices: parsed.notices || INITIAL_SEED_DATA.notices,
-      smsTemplates: parsed.smsTemplates || INITIAL_SEED_DATA.smsTemplates,
-      communicationLogs: parsed.communicationLogs || INITIAL_SEED_DATA.communicationLogs,
-      snapshots: parsed.snapshots || INITIAL_SEED_DATA.snapshots,
-      auditLogs: parsed.auditLogs || INITIAL_SEED_DATA.auditLogs,
-      studentNotes: parsed.studentNotes || INITIAL_SEED_DATA.studentNotes || [],
-      leads: parsed.leads || INITIAL_SEED_DATA.leads || [],
-      agents: (parsed.agents && parsed.agents.length > 0) ? parsed.agents : INITIAL_SEED_DATA.agents || [],
-      admissions: parsed.admissions || INITIAL_SEED_DATA.admissions || [],
-      parties: (parsed.parties && parsed.parties.length > 0) ? parsed.parties : INITIAL_SEED_DATA.parties || [],
-      payments: parsed.payments || INITIAL_SEED_DATA.payments || [],
-      trainerPayouts: parsed.trainerPayouts || INITIAL_SEED_DATA.trainerPayouts || [],
-      chartOfAccounts: parsed.chartOfAccounts || INITIAL_SEED_DATA.chartOfAccounts || [],
-      journalEntries: parsed.journalEntries || INITIAL_SEED_DATA.journalEntries || [],
-      expenses: parsed.expenses || INITIAL_SEED_DATA.expenses || [],
-      projectContracts: parsed.projectContracts || INITIAL_SEED_DATA.projectContracts || [],
-      cashClosings: parsed.cashClosings || INITIAL_SEED_DATA.cashClosings || [],
+      students: Array.isArray(parsed.students) ? parsed.students : INITIAL_SEED_DATA.students,
+      trainers: Array.isArray(parsed.trainers) ? parsed.trainers : INITIAL_SEED_DATA.trainers,
+      jobOpenings: Array.isArray(parsed.jobOpenings) ? parsed.jobOpenings : INITIAL_SEED_DATA.jobOpenings || [],
+      jobApplications: Array.isArray(parsed.jobApplications) ? parsed.jobApplications : INITIAL_SEED_DATA.jobApplications || [],
+      holidays: Array.isArray(parsed.holidays) ? parsed.holidays : INITIAL_SEED_DATA.holidays,
+      notices: Array.isArray(parsed.notices) ? parsed.notices : INITIAL_SEED_DATA.notices,
+      smsTemplates: Array.isArray(parsed.smsTemplates) ? parsed.smsTemplates : INITIAL_SEED_DATA.smsTemplates,
+      communicationLogs: Array.isArray(parsed.communicationLogs) ? parsed.communicationLogs : INITIAL_SEED_DATA.communicationLogs,
+      snapshots: Array.isArray(parsed.snapshots) ? parsed.snapshots : INITIAL_SEED_DATA.snapshots,
+      auditLogs: Array.isArray(parsed.auditLogs) ? parsed.auditLogs : INITIAL_SEED_DATA.auditLogs,
+      studentNotes: Array.isArray(parsed.studentNotes) ? parsed.studentNotes : INITIAL_SEED_DATA.studentNotes || [],
+      leads: Array.isArray(parsed.leads) ? parsed.leads : INITIAL_SEED_DATA.leads || [],
+      agents: Array.isArray(parsed.agents) ? parsed.agents : INITIAL_SEED_DATA.agents || [],
+      admissions: Array.isArray(parsed.admissions) ? parsed.admissions : INITIAL_SEED_DATA.admissions || [],
+      parties: Array.isArray(parsed.parties) ? parsed.parties : INITIAL_SEED_DATA.parties || [],
+      payments: Array.isArray(parsed.payments) ? parsed.payments : INITIAL_SEED_DATA.payments || [],
+      trainerPayouts: Array.isArray(parsed.trainerPayouts) ? parsed.trainerPayouts : INITIAL_SEED_DATA.trainerPayouts || [],
+      chartOfAccounts: Array.isArray(parsed.chartOfAccounts) ? parsed.chartOfAccounts : INITIAL_SEED_DATA.chartOfAccounts || [],
+      journalEntries: Array.isArray(parsed.journalEntries) ? parsed.journalEntries : INITIAL_SEED_DATA.journalEntries || [],
+      expenses: Array.isArray(parsed.expenses) ? parsed.expenses : INITIAL_SEED_DATA.expenses || [],
+      projectContracts: Array.isArray(parsed.projectContracts) ? parsed.projectContracts : INITIAL_SEED_DATA.projectContracts || [],
+      cashClosings: Array.isArray(parsed.cashClosings) ? parsed.cashClosings : INITIAL_SEED_DATA.cashClosings || [],
       settings: {
         ...INITIAL_SEED_DATA.settings,
         ...(parsed.settings || {}),
@@ -1655,6 +1791,8 @@ export function loadDB() {
         supabaseAnonKey: parsed.settings?.supabaseAnonKey || INITIAL_SEED_DATA.settings.supabaseAnonKey
       }
     };
+
+    return reconcileUsersWithEntities(merged);
   } catch (err) {
     console.error('Error loading database:', err);
     return INITIAL_SEED_DATA;
@@ -1663,10 +1801,13 @@ export function loadDB() {
 
 export function saveDB(data) {
   try {
-    localStorage.setItem(DB_KEY, JSON.stringify(data));
+    const reconciled = reconcileUsersWithEntities(data);
+    localStorage.setItem(DB_KEY, JSON.stringify(reconciled));
     window.dispatchEvent(new Event('kite_db_updated'));
+    return reconciled;
   } catch (err) {
     console.error('Error saving database:', err);
+    return data;
   }
 }
 

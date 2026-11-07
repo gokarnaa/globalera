@@ -395,6 +395,14 @@ export default function App() {
     );
   }
 
+  const handleLoginSuccessNavigate = (loggedUser) => {
+    if (!loggedUser) return;
+    if (loggedUser.role === 'AGENT') navigateTo('agent');
+    else if (loggedUser.role === 'TRAINER') navigateTo('trainer');
+    else if (loggedUser.role === 'STUDENT') navigateTo('student');
+    else if (loggedUser.role === 'ADMIN' || loggedUser.role === 'STAFF') navigateTo('admin');
+  };
+
   // 2. DEDICATED AGENT / REFERRAL PORTAL ROUTE (/agent)
   if (currentRoute === 'agent') {
     if (!currentUser || currentUser?.role !== 'AGENT') {
@@ -404,6 +412,7 @@ export default function App() {
           <UnifiedLoginScreen
             initialMode="agent"
             allowedModes={['agent', 'trainer', 'student']}
+            onLoginSuccess={handleLoginSuccessNavigate}
             onBackHome={() => navigateTo('home')}
           />
         </Box>
@@ -426,6 +435,7 @@ export default function App() {
           <UnifiedLoginScreen
             initialMode="trainer"
             allowedModes={['trainer', 'student']}
+            onLoginSuccess={handleLoginSuccessNavigate}
             onBackHome={() => navigateTo('home')}
           />
         </Box>
@@ -450,6 +460,7 @@ export default function App() {
           <UnifiedLoginScreen
             initialMode="student"
             allowedModes={['student', 'trainer']}
+            onLoginSuccess={handleLoginSuccessNavigate}
             onBackHome={() => navigateTo('home')}
           />
         </Box>
@@ -473,6 +484,7 @@ export default function App() {
         <UnifiedLoginScreen
           initialMode="admin"
           allowedModes={['admin']}
+          onLoginSuccess={handleLoginSuccessNavigate}
           onBackHome={() => navigateTo('home')}
         />
       </Box>

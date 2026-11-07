@@ -54,11 +54,21 @@ import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { syncBiometricAttendance } from '../../services/biometricService';
 
-export default function TrainerPortal() {
+export default function TrainerPortal({ onLogout }) {
   const { currentUser, logout } = useAuth();
   const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
+
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   // Identify current trainer profile
   const trainer = useMemo(() => {
@@ -398,7 +408,11 @@ export default function TrainerPortal() {
                     confirmColor: '#EF4444'
                   });
                   if (ok) {
-                    logout();
+                    if (onLogout) {
+                      onLogout();
+                    } else {
+                      logout();
+                    }
                   }
                 }}
                 sx={{
