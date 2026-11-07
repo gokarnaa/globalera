@@ -1,5 +1,5 @@
 // Local-first TVET Database with Automatic Cascading & Realistic Seed Data
-import { pushLocalDBToSupabase, pullRemoteDBFromSupabase } from './supabaseClient';
+import { pushLocalDBToSupabase, pullRemoteDBFromSupabase } from './supabaseClient.js';
 
 export const SHIFT_DEFINITIONS = [
   { code: 'A', name: 'Shift A', time: '07:00 AM – 09:00 AM', startTime: '07:00', endTime: '09:00' },
@@ -204,8 +204,8 @@ export const INITIAL_SEED_DATA = {
     aakashSmsToken: '',
     enableAutoSmsOnAbsent: true,
     enableWhatsAppDirect: true,
-    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co',
-    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO',
+    supabaseUrl: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || 'https://yycybsmwuixixfmocrcz.supabase.co',
+    supabaseAnonKey: (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_ANON_KEY) || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO',
     companyProfile: {
       companyNameEnglish: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
       companyNameNepali: 'Global Era Technical School',
@@ -406,6 +406,9 @@ export function reconcileUsersWithEntities(data) {
 
 export function loadDB() {
   try {
+    if (typeof localStorage === 'undefined') {
+      return INITIAL_SEED_DATA;
+    }
     // Purge legacy demo storage keys if present
     if (localStorage.getItem('kite_tvet_erp_data_v1')) {
       localStorage.removeItem('kite_tvet_erp_data_v1');
