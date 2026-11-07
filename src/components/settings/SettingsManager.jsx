@@ -35,11 +35,13 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import BusinessIcon from '@mui/icons-material/Business';
+import ShieldIcon from '@mui/icons-material/Shield';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
 import { loadDB, saveDB, resetDB, syncWithCloud } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
+  generateSupabaseSecurityHardeningSQL,
   testSupabaseConnection,
   pushLocalDBToSupabase,
   pullRemoteDBFromSupabase
@@ -50,6 +52,7 @@ export default function SettingsManager() {
   const [db, setDb] = useState(loadDB());
   const [settings, setSettings] = useState(db.settings || {});
   const [copiedSql, setCopiedSql] = useState(false);
+  const [copiedSecuritySql, setCopiedSecuritySql] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
   const [showKey, setShowKey] = useState(false);
@@ -167,6 +170,24 @@ export default function SettingsManager() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `kite_tvet_supabase_migration.sql`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleCopySecuritySql = () => {
+    const sql = generateSupabaseSecurityHardeningSQL();
+    navigator.clipboard.writeText(sql);
+    setCopiedSecuritySql(true);
+    setTimeout(() => setCopiedSecuritySql(false), 3000);
+  };
+
+  const handleDownloadSecuritySql = () => {
+    const sql = generateSupabaseSecurityHardeningSQL();
+    const blob = new Blob([sql], { type: 'text/sql' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `supabase_security_hardening.sql`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -343,10 +364,20 @@ export default function SettingsManager() {
                 >
                   Download supabase_schema.sql
                 </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="warning"
+                  startIcon={<ShieldIcon />}
+                  onClick={handleCopySecuritySql}
+                  sx={{ fontWeight: 800 }}
+                >
+                  {copiedSecuritySql ? '✓ Copied RLS Hardening SQL!' : 'Copy RLS Security Lockdown SQL'}
+                </Button>
               </Box>
 
               <Alert severity="info" sx={{ py: 0.5, fontSize: '0.78rem', bgcolor: '#F0F9FF', border: '1px solid #BAE6FD' }}>
-                <strong>How to setup Supabase:</strong> Open your Supabase Dashboard &rarr; <b>SQL Editor</b> &rarr; New Query &rarr; Paste the schema &rarr; Click <b>Run</b>. Then enter your Project URL and Anon Key above and click Save.
+                <strong>How to setup Supabase:</strong> Open your Supabase Dashboard &rarr; <b>SQL Editor</b> &rarr; New Query &rarr; Paste the schema &rarr; Click <b>Run</b>. Then click <b>Copy RLS Security Lockdown SQL</b> to protect financial accounts and student privacy!
               </Alert>
             </Box>
 

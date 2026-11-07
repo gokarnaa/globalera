@@ -3,6 +3,45 @@ import { loadDB, saveDB } from '../services/storage';
 
 const AuthContext = createContext();
 
+const ATTEMPT_STORAGE_KEY = 'kite_auth_rate_limit_v1';
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes lockout
+
+function getRateLimitState(key) {
+  try {
+    const raw = sessionStorage.getItem(ATTEMPT_STORAGE_KEY);
+    const store = raw ? JSON.parse(raw) : {};
+    return store[key] || { count: 0, lockedUntil: 0 };
+  } catch (_) {
+    return { count: 0, lockedUntil: 0 };
+  }
+}
+
+function registerFailedAttempt(key) {
+  try {
+    const raw = sessionStorage.getItem(ATTEMPT_STORAGE_KEY);
+    const store = raw ? JSON.parse(raw) : {};
+    const curr = store[key] || { count: 0, lockedUntil: 0 };
+    const nextCount = curr.count + 1;
+    const lockedUntil = nextCount >= MAX_LOGIN_ATTEMPTS ? Date.now() + LOCKOUT_WINDOW_MS : 0;
+    store[key] = { count: nextCount, lockedUntil };
+    sessionStorage.setItem(ATTEMPT_STORAGE_KEY, JSON.stringify(store));
+    return { count: nextCount, lockedUntil, remaining: Math.max(0, MAX_LOGIN_ATTEMPTS - nextCount) };
+  } catch (_) {
+    return { count: 1, lockedUntil: 0, remaining: MAX_LOGIN_ATTEMPTS - 1 };
+  }
+}
+
+function clearRateLimitState(key) {
+  try {
+    const raw = sessionStorage.getItem(ATTEMPT_STORAGE_KEY);
+    if (!raw) return;
+    const store = JSON.parse(raw);
+    delete store[key];
+    sessionStorage.setItem(ATTEMPT_STORAGE_KEY, JSON.stringify(store));
+  } catch (_) {}
+}
+
 export function AuthProvider({ children }) {
   const [db, setDb] = useState(loadDB());
   const [currentUser, setCurrentUser] = useState(() => {
@@ -33,6 +72,39 @@ export function AuthProvider({ children }) {
     const cleanPhone = (identifier || '').trim().replace(/[^0-9]/g, '');
     const cleanPin = (pin || '').trim();
     const targetRole = preferredRole ? preferredRole.toUpperCase() : null;
+    const rateLimitKey = cleanPhone || cleanId || 'anonymous_user';
+
+    // 0. Check Security Rate Limiting / Lockout
+    const limit = getRateLimitState(rateLimitKey);
+    if (limit.lockedUntil && Date.now() < limit.lockedUntil) {
+      const remainingMin = Math.ceil((limit.lockedUntil - Date.now()) / 60000);
+      return {
+        success: false,
+        message: `Account is temporarily locked due to multiple incorrect PIN attempts. Please wait ${remainingMin} minute(s) before trying again.`
+      };
+    }
+
+    const handleAuthSuccess = (userObj) => {
+      clearRateLimitState(rateLimitKey);
+      setCurrentUser(userObj);
+      sessionStorage.setItem('kite_current_user', JSON.stringify(userObj));
+      setIsLocked(false);
+      return { success: true, user: userObj };
+    };
+
+    const handlePinFailure = () => {
+      const fail = registerFailedAttempt(rateLimitKey);
+      if (fail.lockedUntil) {
+        return {
+          success: false,
+          message: 'Too many incorrect PIN attempts. For security reasons, this account is temporarily locked for 10 minutes.'
+        };
+      }
+      return {
+        success: false,
+        message: `Invalid PIN code. ${fail.remaining} attempt(s) remaining before security lockout.`
+      };
+    };
 
     const isPhoneMatch = (storedPhone) => {
       const p = (storedPhone || '').trim().replace(/[^0-9]/g, '');
@@ -139,12 +211,9 @@ export function AuthProvider({ children }) {
           };
         }
 
-        setCurrentUser(userObj);
-        sessionStorage.setItem('kite_current_user', JSON.stringify(userObj));
-        setIsLocked(false);
-        return { success: true, user: userObj };
+        return handleAuthSuccess(userObj);
       } else {
-        return { success: false, message: 'Invalid PIN code. Please enter your 4-digit PIN.' };
+        return handlePinFailure();
       }
     }
 
@@ -169,12 +238,9 @@ export function AuthProvider({ children }) {
           phone: trainer.phone,
           title: `Trainer (${trainer.specialization || 'Instructor'})`
         };
-        setCurrentUser(user);
-        sessionStorage.setItem('kite_current_user', JSON.stringify(user));
-        setIsLocked(false);
-        return { success: true, user };
+        return handleAuthSuccess(user);
       }
-      return { success: false, message: 'Invalid PIN code.' };
+      return handlePinFailure();
     }
 
     // 3. Direct Fallback: Check Students table
@@ -188,9 +254,10 @@ export function AuthProvider({ children }) {
         return { success: false, message: 'Student account is inactive or suspended.' };
       }
       if (cleanPin === (student.pin || '1234')) {
+        clearRateLimitState(rateLimitKey);
         return loginAsStudent(student.id);
       }
-      return { success: false, message: 'Invalid PIN code.' };
+      return handlePinFailure();
     }
 
     // 4. Direct Fallback: Check Agents table
@@ -216,12 +283,9 @@ export function AuthProvider({ children }) {
           defaultRate: agent.defaultRate,
           title: 'Referral Partner / Agent'
         };
-        setCurrentUser(user);
-        sessionStorage.setItem('kite_current_user', JSON.stringify(user));
-        setIsLocked(false);
-        return { success: true, user };
+        return handleAuthSuccess(user);
       }
-      return { success: false, message: 'Invalid PIN code.' };
+      return handlePinFailure();
     }
 
     // 5. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
@@ -233,10 +297,7 @@ export function AuthProvider({ children }) {
         role: 'ADMIN',
         title: 'Institute Administrator'
       };
-      setCurrentUser(user);
-      sessionStorage.setItem('kite_current_user', JSON.stringify(user));
-      setIsLocked(false);
-      return { success: true, user };
+      return handleAuthSuccess(user);
     }
 
     if (cleanId === '2222' || (cleanId === 'staff' && cleanPin === '2222')) {
@@ -246,10 +307,7 @@ export function AuthProvider({ children }) {
         role: 'STAFF',
         title: 'Admissions & Inquiries'
       };
-      setCurrentUser(user);
-      sessionStorage.setItem('kite_current_user', JSON.stringify(user));
-      setIsLocked(false);
-      return { success: true, user };
+      return handleAuthSuccess(user);
     }
 
     return {
