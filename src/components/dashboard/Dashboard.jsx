@@ -96,13 +96,13 @@ export default function Dashboard({ onNavigate }) {
 
   const totalStudents = students.length;
   const femaleCount = students.filter((s) => (s.gender || '').toLowerCase() === 'female').length;
-  const femalePct = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 80;
+  const femalePct = totalStudents > 0 ? Math.round((femaleCount / totalStudents) * 100) : 0;
   const activeGroups = groups.filter((g) => g.status === 'Running').length;
 
   // Calculate attendance rate
   const totalAttendances = (db.attendances || []).length;
   const presentCount = (db.attendances || []).filter((a) => a.status === 'present').length;
-  const overallAttRate = totalAttendances > 0 ? Math.round((presentCount / totalAttendances) * 100) : 92;
+  const overallAttRate = totalAttendances > 0 ? Math.round((presentCount / totalAttendances) * 100) : 0;
 
   // Placements count
   const placedCount = (db.placements || []).filter((p) => p.status === 'Placed' || p.status === 'Ongoing').length;

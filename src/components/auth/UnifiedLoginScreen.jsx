@@ -441,7 +441,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                   : 'एडमिन प्रणालीमा प्रवेश गर्नुहोस् (Sign In to ERP)'}
               </Button>
 
-              {/* Quick Demo Credentials & Agent Sign Up */}
+              {/* Agent Sign Up */}
               {portalMode === 'agent' && (
                 <Stack spacing={1} sx={{ pt: 1 }}>
                   <Button
@@ -459,15 +459,6 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                     }}
                   >
                     ✨ नयाँ रेफ़रल पार्टनर / एजेन्ट दर्ता (Sign Up)
-                  </Button>
-
-                  <Button
-                    size="small"
-                    variant="text"
-                    onClick={() => handleQuickDemo('AGE-101', '1234')}
-                    sx={{ fontWeight: 700, fontSize: '0.76rem', color: '#64748B' }}
-                  >
-                    💡 परीक्षण गर्नुहोस्: डेमो एजेन्ट (AGE-101 / 1234)
                   </Button>
                 </Stack>
               )}

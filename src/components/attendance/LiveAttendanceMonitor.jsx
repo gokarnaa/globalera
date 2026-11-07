@@ -152,8 +152,8 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
     const manualCount = todayAttendances.filter((a) => a.source === 'TRAINER_MANUAL' || a.source === 'ADMIN_MANUAL').length;
 
     const lateCount = todayAttendances.filter((a) => a.status === 'late' || a.status === 'L').length;
-    const totalEnrolled = students.length || 1;
-    const attPercent = Math.round((presentStudentsCount / totalEnrolled) * 100);
+    const totalEnrolled = students.length;
+    const attPercent = totalEnrolled > 0 ? Math.round((presentStudentsCount / totalEnrolled) * 100) : 0;
 
     return {
       totalPunches,
@@ -1358,7 +1358,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                       const staffLog = allLogs.find(
                         (l) => l.date === selectedDate && (String(l.biometricId) === stf.bioId || l.entityId === stf.id)
                       );
-                      const checkInTime = staffLog ? staffLog.punchTime12h : (selectedDate === new Date().toISOString().slice(0, 10) ? stf.defaultTime : null);
+                      const checkInTime = staffLog ? staffLog.punchTime12h : null;
                       const isPresent = Boolean(checkInTime);
                       return (
                         <TableRow key={stf.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>

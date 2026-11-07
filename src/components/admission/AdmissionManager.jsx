@@ -63,69 +63,16 @@ export default function AdmissionManager() {
     return db.admissions || [];
   }, [db.admissions]);
 
-  // Seed sample admissions if empty and students exist
+  // Keep Admissions reactive across tabs/modals
   React.useEffect(() => {
-    if ((!db.admissions || db.admissions.length === 0) && (db.students || []).length > 0) {
-      const initialAdmissions = (db.students || []).slice(0, 3).map((st, idx) => {
-        const grp = (db.trainingGroups || []).find((g) => g.id === st.groupId) || {};
-        const crs = (db.courses || []).find((c) => c.id === grp.courseId) || (db.courses || [])[0] || {};
-        const fee = crs.price || 15000;
-        const advance = Math.round(fee * 0.5);
-        const due = fee - advance;
-        const admDate = st.admissionDate || '2026-09-01';
-        const d = new Date(admDate);
-        d.setDate(d.getDate() + 30);
-        const dueDate = d.toISOString().slice(0, 10);
-
-        return {
-          id: `ADM-SEED-${idx + 1}`,
-          agreementNo: `GE-AGR-2081-${String(idx + 1).padStart(3, '0')}`,
-          studentId: st.id,
-          tgid: st.tgid || `TGID-${101 + idx}`,
-          studentName: st.name,
-          phone: st.phone,
-          secondaryPhone: st.secondaryPhone || '',
-          gender: st.gender || 'Female',
-          citizenshipNumber: st.citizenshipNumber || '',
-          currentAddress: st.currentAddress || 'Kathmandu',
-          permanentAddress: st.permanentAddress || 'Kathmandu',
-          fatherName: st.fatherName || '',
-          guardianContact: st.guardianContact || st.phone,
-
-          courseId: crs.id,
-          courseTitle: crs.title || 'Basic Beautician',
-          groupId: grp.id || 'GRP-01',
-          groupName: grp.name || 'Batch 1',
-          shift: grp.shift || 'Shift A',
-          timing: grp.timing || '07:00 AM – 09:00 AM',
-          duration: `${crs.durationValue || 3} ${crs.durationUnit || 'Months'} (${crs.totalHours || 390} घण्टा)`,
-          keySkills: crs.description || 'पाठ्यक्रम अनुसार प्रयोगात्मक तथा सैद्धान्तिक सीपहरू।',
-
-          ojtPreference: idx % 2 === 0 ? 'REQUIRED' : 'NOT_REQUIRED',
-          ojtFee: 0,
-          batchTransferAllowed: true,
-
-          totalCourseFee: fee,
-          discountAmount: 0,
-          netPayableFee: fee,
-          advancePaid50: advance,
-          dueAmount50: due,
-          dueDate,
-          paymentMethod: 'Cash',
-          receiptNo: `REC-ADM-00${idx + 1}`,
-
-          admissionDate: admDate,
-          admissionDateBS: '२०८१/०६/' + String(10 + idx * 2),
-          status: 'ACTIVE',
-          createdAt: new Date().toISOString()
-        };
-      });
-
-      const nextDb = { ...db, admissions: initialAdmissions };
-      saveDB(nextDb);
-      setDb(nextDb);
-    }
-  }, [db]);
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   // KPI Calculations
   const totalAdmissionsCount = admissions.length;
