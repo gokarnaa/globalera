@@ -15,14 +15,19 @@ import {
   CircularProgress,
   Chip,
   Tabs,
-  Tab
+  Tab,
+  InputAdornment,
+  IconButton
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import SmsIcon from '@mui/icons-material/Sms';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -47,6 +52,7 @@ export default function SettingsManager() {
   const [copiedSql, setCopiedSql] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [showKey, setShowKey] = useState(false);
 
   // Supabase test and sync state
   const [testingConnection, setTestingConnection] = useState(false);
@@ -58,7 +64,26 @@ export default function SettingsManager() {
     setTestingConnection(true);
     setTestResult(null);
     try {
-      const res = await testSupabaseConnection(settings.supabaseUrl, settings.supabaseAnonKey);
+      const url = (settings.supabaseUrl || '').trim();
+      const key = (settings.supabaseAnonKey || '').trim();
+
+      if (!url || !key) {
+        setTestResult({
+          ok: false,
+          message: 'Please enter your Supabase Project URL and Anon Public Key.'
+        });
+        return;
+      }
+
+      if (url.includes('yycybsmwuixixfmocrcz')) {
+        setTestResult({
+          ok: false,
+          message: 'The URL "yycybsmwuixixfmocrcz.supabase.co" is a demo placeholder that does not exist. Please create your project at supabase.com and paste your real Project URL.'
+        });
+        return;
+      }
+
+      const res = await testSupabaseConnection(url, key);
       setTestResult(res);
     } catch (err) {
       setTestResult({ ok: false, message: err.message });
@@ -219,25 +244,57 @@ export default function SettingsManager() {
                 Supabase Cloud Database
               </Typography>
             </Box>
-            <Typography variant="body2" sx={{ color: '#647089', mb: 2.5 }}>
+            <Typography variant="body2" sx={{ color: '#647089', mb: 2 }}>
               Connect your live Supabase project to sync this local system with Postgres Cloud.
             </Typography>
+
+            {(!settings.supabaseUrl || settings.supabaseUrl.includes('yycybsmwuixixfmocrcz')) ? (
+              <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                  Cloud Sync is in Local Storage Mode (Offline)
+                </Typography>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem', mt: 0.5 }}>
+                  The default address <code>yycybsmwuixixfmocrcz</code> was an unconfigured placeholder. Please paste your own real <b>Supabase Project URL</b> and <b>Anon Public API Key</b> from your <b>supabase.com</b> dashboard to activate cross-browser cloud sync.
+                </Typography>
+              </Alert>
+            ) : (
+              <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2 }}>
+                <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
+                  Configured Project: <b>{settings.supabaseUrl.replace(/^https?:\/\//, '').split('/')[0]}</b>. Click <b>Test Connection</b> to check live status.
+                </Typography>
+              </Alert>
+            )}
 
             <Stack spacing={2} sx={{ mb: 3 }}>
               <TextField
                 label="Supabase Project URL"
                 fullWidth
-                placeholder="https://xyzcompany.supabase.co"
+                placeholder="https://yourprojectid.supabase.co"
                 value={settings.supabaseUrl || ''}
-                onChange={(e) => setSettings({ ...settings, supabaseUrl: e.target.value })}
+                onChange={(e) => setSettings({ ...settings, supabaseUrl: e.target.value.trim() })}
+                helperText="Found under Project Settings -> API -> Project URL at supabase.com"
               />
               <TextField
                 label="Supabase Anon Public API Key"
                 fullWidth
-                type="password"
+                type={showKey ? 'text' : 'password'}
                 placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                 value={settings.supabaseAnonKey || ''}
-                onChange={(e) => setSettings({ ...settings, supabaseAnonKey: e.target.value })}
+                onChange={(e) => setSettings({ ...settings, supabaseAnonKey: e.target.value.trim() })}
+                helperText="Found under Project Settings -> API -> Project API Keys (anon public)"
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        size="small"
+                        onClick={() => setShowKey(!showKey)}
+                        edge="end"
+                      >
+                        {showKey ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
               />
             </Stack>
 

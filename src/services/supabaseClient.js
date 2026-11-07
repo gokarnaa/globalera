@@ -10,8 +10,10 @@ const getEnvVar = (name, fallback = '') => {
   return fallback;
 };
 
-const DEFAULT_SUPABASE_URL = getEnvVar('VITE_SUPABASE_URL', 'https://yycybsmwuixixfmocrcz.supabase.co');
-const DEFAULT_SUPABASE_ANON_KEY = getEnvVar('VITE_SUPABASE_ANON_KEY', 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO');
+const rawEnvUrl = getEnvVar('VITE_SUPABASE_URL', '');
+const rawEnvKey = getEnvVar('VITE_SUPABASE_ANON_KEY', '');
+const DEFAULT_SUPABASE_URL = rawEnvUrl.includes('yycybsmwuixixfmocrcz') ? '' : rawEnvUrl;
+const DEFAULT_SUPABASE_ANON_KEY = rawEnvKey.includes('e8g5bAQNbCGpuI3aC0P1SA') ? '' : rawEnvKey;
 
 export function getSupabaseConfig() {
   try {
@@ -58,6 +60,12 @@ export const supabase = getSupabaseClient();
 
 export async function testSupabaseConnection(url, key) {
   try {
+    if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+      return {
+        ok: false,
+        message: 'No real Supabase project connected. The placeholder "yycybsmwuixixfmocrcz" is not a valid project. Please enter your real Supabase Project URL and Anon Public API Key from your supabase.com project.'
+      };
+    }
     const client = getSupabaseClient(url, key);
     if (!client) return { ok: false, message: 'Invalid URL or Key format.' };
 
@@ -67,7 +75,7 @@ export async function testSupabaseConnection(url, key) {
         return {
           ok: true,
           tableMissing: true,
-          message: 'Connected to Supabase project! Please run the SQL schema migration in Supabase SQL Editor.'
+          message: 'Connected to Supabase project! Database tables are empty. Please run the SQL schema migration in Supabase SQL Editor.'
         };
       }
       return { ok: false, message: error.message };

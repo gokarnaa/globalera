@@ -35,6 +35,8 @@ import ForumIcon from '@mui/icons-material/Forum';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -93,9 +95,49 @@ const NAV_ITEMS = [
   { id: 'reports', label: 'Reports & Analytics', icon: <BarChartIcon />, roles: ['ADMIN', 'STAFF'] }
 ];
 
+import { testSupabaseConnection } from '../../services/supabaseClient';
+
 export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobile }) {
   const { currentUser, isTrainer, isAdmin, isStudent, isEmployer } = useAuth();
-  const db = loadDB();
+  const [db, setDb] = React.useState(() => loadDB());
+  const [cloudStatus, setCloudStatus] = React.useState('checking');
+
+  React.useEffect(() => {
+    const handleUpdate = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('kite_db_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    let isMounted = true;
+    const checkStatus = async () => {
+      try {
+        const currentDb = loadDB();
+        const url = currentDb.settings?.supabaseUrl;
+        const key = currentDb.settings?.supabaseAnonKey;
+        if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+          if (isMounted) setCloudStatus('offline');
+          return;
+        }
+        const res = await testSupabaseConnection(url, key);
+        if (isMounted) {
+          setCloudStatus(res.ok && !res.tableMissing ? 'connected' : res.ok && res.tableMissing ? 'setup_needed' : 'offline');
+        }
+      } catch {
+        if (isMounted) setCloudStatus('offline');
+      }
+    };
+    checkStatus();
+    const interval = setInterval(checkStatus, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   const filteredItems = NAV_ITEMS.filter((item) => {
     if (item.section) {
@@ -272,29 +314,68 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       {/* Footer System Status Card */}
       <Box sx={{ p: 2, borderTop: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
         <Box
+          onClick={() => onSelectTab && onSelectTab('settings')}
           sx={{
             p: 1.5,
             borderRadius: 2.5,
             bgcolor: '#FFFFFF',
             border: '1px solid #E2E8F0',
-            boxShadow: '0 1px 3px rgba(15,23,42,0.04)'
+            boxShadow: '0 1px 3px rgba(15,23,42,0.04)',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            '&:hover': {
+              borderColor: '#CBD5E1',
+              bgcolor: '#F1F5F9'
+            }
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-              <CloudDoneIcon sx={{ fontSize: 16, color: '#059669' }} />
+              {cloudStatus === 'connected' ? (
+                <CloudDoneIcon sx={{ fontSize: 16, color: '#059669' }} />
+              ) : cloudStatus === 'setup_needed' ? (
+                <CloudSyncIcon sx={{ fontSize: 16, color: '#D97706' }} />
+              ) : (
+                <ErrorOutlineIcon sx={{ fontSize: 16, color: '#DC2626' }} />
+              )}
               <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.72rem' }}>
-                Supabase Connected
+                {cloudStatus === 'connected'
+                  ? 'Supabase Connected'
+                  : cloudStatus === 'setup_needed'
+                  ? 'Supabase Setup Needed'
+                  : 'Supabase Offline'}
               </Typography>
             </Box>
             <Chip
-              label="Live"
+              label={
+                cloudStatus === 'connected'
+                  ? 'Live'
+                  : cloudStatus === 'setup_needed'
+                  ? 'Setup'
+                  : 'Local Only'
+              }
               size="small"
-              sx={{ height: 16, fontSize: '0.6rem', bgcolor: '#ECFDF5', color: '#059669', fontWeight: 900 }}
+              sx={{
+                height: 16,
+                fontSize: '0.6rem',
+                bgcolor:
+                  cloudStatus === 'connected'
+                    ? '#ECFDF5'
+                    : cloudStatus === 'setup_needed'
+                    ? '#FEF3C7'
+                    : '#FEE2E2',
+                color:
+                  cloudStatus === 'connected'
+                    ? '#059669'
+                    : cloudStatus === 'setup_needed'
+                    ? '#92400E'
+                    : '#DC2626',
+                fontWeight: 900
+              }}
             />
           </Box>
           <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-            Active Batches: <b>8 Groups</b> • MitraPark Hub
+            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • MitraPark Hub
           </Typography>
         </Box>
       </Box>
