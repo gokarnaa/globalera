@@ -405,7 +405,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   label="Full Name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Sunita Sharma"
+                  placeholder="e.g. Student Full Name"
                   size="small"
                 />
               </Grid>

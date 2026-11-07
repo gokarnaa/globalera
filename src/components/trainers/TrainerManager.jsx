@@ -384,7 +384,7 @@ export default function TrainerManager() {
               label="Trainer Full Name"
               fullWidth
               size="small"
-              placeholder="e.g. Pooja Rajbanshi"
+              placeholder="e.g. Trainer Full Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required

@@ -55,7 +55,7 @@ export default function StudentIdCardModal({ open, onClose, student, admission }
   if (!student && !admission) return null;
 
   // Resolve fields from either student or admission record
-  const studentName = student?.name || admission?.studentName || 'Sunita Sharma';
+  const studentName = student?.name || admission?.studentName || 'Student Name';
   const studentId = student?.id || admission?.studentId || 'STD-01';
   const tgid = student?.tgid || admission?.tgid || 'TGID-101';
   const phone = student?.phone || admission?.phone || '98XXXXXXXX';

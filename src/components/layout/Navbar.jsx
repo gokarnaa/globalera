@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AppBar,
   Toolbar,
@@ -17,6 +17,9 @@ import {
 import MenuIcon from '@mui/icons-material/Menu';
 import LockIcon from '@mui/icons-material/Lock';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import SchoolIcon from '@mui/icons-material/School';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -25,16 +28,90 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ShieldIcon from '@mui/icons-material/Shield';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PublicIcon from '@mui/icons-material/Public';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { loadDB, resetDB } from '../../services/storage';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
+import { testSupabaseConnection } from '../../services/supabaseClient';
 
-export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
+export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSelectTab }) {
   const { currentUser, switchUser, logout, isAdmin, isTrainer, isStudent, isEmployer } = useAuth();
   const { confirm, alert } = useDialog();
   const [anchorUser, setAnchorUser] = useState(null);
-  const db = loadDB();
+  const [db, setDb] = useState(() => loadDB());
+  const [cloudStatus, setCloudStatus] = useState({
+    status: 'checking',
+    message: 'Testing Supabase Cloud connection...'
+  });
+
+  useEffect(() => {
+    const handleUpdate = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('kite_db_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    const checkSupabaseHealth = async () => {
+      try {
+        const currentDb = loadDB();
+        const url = currentDb.settings?.supabaseUrl;
+        const key = currentDb.settings?.supabaseAnonKey;
+
+        // If no credentials configured or still dummy placeholder
+        if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+          if (isMounted) {
+            setCloudStatus({
+              status: 'offline',
+              message: 'Supabase URL/Key not configured. System is operating safely in Local Storage mode. Click to open Settings.'
+            });
+          }
+          return;
+        }
+
+        const res = await testSupabaseConnection(url, key);
+        if (!isMounted) return;
+
+        if (res.ok) {
+          if (res.tableMissing) {
+            setCloudStatus({
+              status: 'setup_needed',
+              message: 'Connected to Supabase project, but database tables need schema migration. Click to open Settings.'
+            });
+          } else {
+            setCloudStatus({
+              status: 'connected',
+              message: `Supabase Cloud Connected & Live (${url.replace(/^https?:\/\//, '').split('/')[0]}). Real-time multi-browser sync active.`
+            });
+          }
+        } else {
+          setCloudStatus({
+            status: 'offline',
+            message: `Supabase Disconnected: ${res.message || 'Network unreachable'}. Local storage is active. Click to open Settings.`
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          setCloudStatus({
+            status: 'offline',
+            message: 'Supabase unreachable. Operating in local-first mode. Click to open Settings.'
+          });
+        }
+      }
+    };
+
+    checkSupabaseHealth();
+    const interval = setInterval(checkSupabaseHealth, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [db.settings?.supabaseUrl, db.settings?.supabaseAnonKey]);
 
   const handleOpenUser = (e) => setAnchorUser(e.currentTarget);
   const handleCloseUser = () => setAnchorUser(null);
@@ -178,18 +255,64 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             }}
           />
 
-          {/* Supabase Status */}
-          <Tooltip title={`Supabase PostgreSQL Cloud: ${db.settings?.supabaseUrl ? db.settings.supabaseUrl.replace(/^https?:\/\//, '').split('/')[0] : 'Cloud Sync Engine'} • Multi-Browser & Device Synchronization Active`}>
+          {/* Supabase Status Indicator (Dynamic Live Check) */}
+          <Tooltip title={`${cloudStatus.message} • Click to open Supabase Settings`}>
             <Chip
-              icon={<CloudDoneIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />}
-              label="Supabase Cloud Live"
+              onClick={() => onSelectTab && onSelectTab('settings')}
+              icon={
+                cloudStatus.status === 'connected' ? (
+                  <CloudDoneIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />
+                ) : cloudStatus.status === 'setup_needed' ? (
+                  <CloudSyncIcon sx={{ fontSize: '15px !important', color: '#D97706 !important' }} />
+                ) : cloudStatus.status === 'checking' ? (
+                  <CloudSyncIcon sx={{ fontSize: '15px !important', color: '#64748B !important' }} />
+                ) : (
+                  <ErrorOutlineIcon sx={{ fontSize: '15px !important', color: '#DC2626 !important' }} />
+                )
+              }
+              label={
+                cloudStatus.status === 'connected'
+                  ? 'Supabase Connected'
+                  : cloudStatus.status === 'setup_needed'
+                  ? 'Supabase Setup Needed'
+                  : cloudStatus.status === 'checking'
+                  ? 'Supabase Checking...'
+                  : 'Supabase Offline (Local Only)'
+              }
               size="small"
               sx={{
-                bgcolor: '#ECFDF5',
-                color: '#065F46',
-                border: '1px solid #A7F3D0',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                bgcolor:
+                  cloudStatus.status === 'connected'
+                    ? '#ECFDF5'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FEF3C7'
+                    : cloudStatus.status === 'checking'
+                    ? '#F1F5F9'
+                    : '#FEF2F2',
+                color:
+                  cloudStatus.status === 'connected'
+                    ? '#065F46'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#92400E'
+                    : cloudStatus.status === 'checking'
+                    ? '#475569'
+                    : '#991B1B',
+                border:
+                  cloudStatus.status === 'connected'
+                    ? '1px solid #A7F3D0'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '1px solid #FDE68A'
+                    : cloudStatus.status === 'checking'
+                    ? '1px solid #E2E8F0'
+                    : '1px solid #FECACA',
                 fontWeight: 800,
-                fontSize: '0.75rem'
+                fontSize: '0.75rem',
+                '&:hover': {
+                  opacity: 0.9,
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                }
               }}
             />
           </Tooltip>
@@ -315,17 +438,49 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             }
           }}
         >
-          <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 1 }}>
+          <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 1, border: '1px solid #E2E8F0' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-              {currentUser?.name}
+              {currentUser?.name || 'Administrator'}
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-              Role: <b>{currentUser?.role}</b> • Global Era TVET
+              Role: <b>{currentUser?.role || 'ADMIN'}</b> • Global Era TVET
             </Typography>
+            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B' }}>
+                Cloud Database:
+              </Typography>
+              <Chip
+                size="small"
+                label={
+                  cloudStatus.status === 'connected'
+                    ? 'Connected'
+                    : cloudStatus.status === 'setup_needed'
+                    ? 'Setup Needed'
+                    : 'Local Only'
+                }
+                sx={{
+                  height: 18,
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  bgcolor:
+                    cloudStatus.status === 'connected'
+                      ? '#DCFCE7'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#FEF3C7'
+                      : '#FEE2E2',
+                  color:
+                    cloudStatus.status === 'connected'
+                      ? '#166534'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#92400E'
+                      : '#991B1B'
+                }}
+              />
+            </Box>
           </Box>
 
           <Typography variant="overline" sx={{ px: 2, color: '#94A3B8', fontWeight: 800, fontSize: '0.68rem' }}>
-            QUICK ROLE SWITCH
+            ACTIVE SYSTEM ACCOUNTS
           </Typography>
 
           <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
@@ -338,42 +493,103 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
+          <MenuItem onClick={() => { switchUser('STAFF'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>P</Avatar>
+              <Avatar sx={{ bgcolor: '#1E40AF', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>S</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>Trainer Pooja Rajbanshi</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>Beautician Batch (PIN: 1234)</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Front Desk Officer (PIN: 2222)</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Admissions, inquiries & billing</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('TRAINER', 'TRN-02'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>A</Avatar>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>Trainer Anita Thapa</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>Caregiver Batch (PIN: 2345)</Typography>
+          {/* Dynamic Registered Real Trainers */}
+          {(db.trainers || []).slice(0, 3).map((trainer) => (
+            <MenuItem
+              key={trainer.id}
+              onClick={() => { switchUser('TRAINER', trainer.id); handleCloseUser(); }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
+                  {trainer.name?.[0] || 'T'}
+                </Avatar>
+                <Box sx={{ overflow: 'hidden' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Trainer: {trainer.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    {trainer.specialization || 'TVET Instructor'} {trainer.pin ? `(PIN: ${trainer.pin})` : ''}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          </MenuItem>
+            </MenuItem>
+          ))}
 
-          <MenuItem onClick={() => { switchUser('STUDENT', 'STD-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#0D9488', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>S</Avatar>
-              <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>Student: Sunita Sharma</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>Phone: 9841000001 (Job Apply Active)</Typography>
+          {/* Dynamic Registered Real Students */}
+          {(db.students || []).slice(0, 2).map((student) => (
+            <MenuItem
+              key={student.id}
+              onClick={() => { switchUser('STUDENT', student.id); handleCloseUser(); }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#0D9488', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
+                  {student.name?.[0] || 'S'}
+                </Avatar>
+                <Box sx={{ overflow: 'hidden' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Student: {student.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    Roll: {student.rollNo || student.id} • {student.phone || 'Active'}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          </MenuItem>
+            </MenuItem>
+          ))}
 
-          <MenuItem onClick={() => { switchUser('EMPLOYER', 'EMP-01'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
+          {/* Dynamic Registered Real Employers */}
+          {(db.employers || []).slice(0, 2).map((employer) => (
+            <MenuItem
+              key={employer.id}
+              onClick={() => { switchUser('EMPLOYER', employer.id); handleCloseUser(); }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#7C3AED', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
+                  {employer.name?.[0] || 'E'}
+                </Avatar>
+                <Box sx={{ overflow: 'hidden' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Employer: {employer.name}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    {employer.industry || employer.contactPerson || 'TVET Partner'}
+                  </Typography>
+                </Box>
+              </Box>
+            </MenuItem>
+          ))}
+
+          <MenuItem
+            onClick={() => {
+              handleCloseUser();
+              if (onSelectTab) onSelectTab('users');
+            }}
+            sx={{
+              borderRadius: 2,
+              mt: 1,
+              bgcolor: '#F1F5F9',
+              border: '1px dashed #CBD5E1',
+              '&:hover': { bgcolor: '#E2E8F0' }
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#7C3AED', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>E</Avatar>
+              <ManageAccountsIcon fontSize="small" sx={{ color: '#0F2C59' }} />
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>Employer: Norvic Hospital</Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>Post Job & Hire TVET Trainees</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2C59' }}>Manage Users & Roles</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Add real staff, trainers & accounts</Typography>
               </Box>
             </Box>
           </MenuItem>

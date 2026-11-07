@@ -32,7 +32,7 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
   const lastClosingCash = db?.cashClosings?.[0]?.physicalCount ?? 44000;
 
   const [openingCash, setOpeningCash] = useState(String(lastClosingCash));
-  const [cashierName, setCashierName] = useState('Sunita Sharma (Cashier)');
+  const [cashierName, setCashierName] = useState('Authorized Cashier');
   const [openingNotes, setOpeningNotes] = useState('Counter opened after verifying morning opening cash.');
 
   useEffect(() => {

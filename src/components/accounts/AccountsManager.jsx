@@ -836,7 +836,7 @@ export default function AccountsManager({ initialTab = 0 }) {
               
               {/* Counter Open / Closed Status Badge */}
               {db?.counterStatus?.isOpen !== false ? (
-                <Tooltip title={`Counter Opened: ${db?.counterStatus?.openedDate || 'Today'} • Cashier: ${db?.counterStatus?.openedBy || 'Sunita Sharma'}`}>
+                <Tooltip title={`Counter Opened: ${db?.counterStatus?.openedDate || 'Today'} • Cashier: ${db?.counterStatus?.openedBy || 'Authorized Cashier'}`}>
                   <Chip
                     label="🟢 Counter Open • FY 2081/82"
                     size="small"

@@ -303,7 +303,7 @@ export default function LeadModal({
                 fullWidth
                 required
                 label="Full Name"
-                placeholder="e.g. Sunita Sharma"
+                placeholder="e.g. Full Name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 InputProps={{

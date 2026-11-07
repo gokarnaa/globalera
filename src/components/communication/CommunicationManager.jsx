@@ -146,7 +146,7 @@ export default function CommunicationManager() {
       .replace(/\{date\}/g, today)
       .replace(/\{time\}/g, group?.startTime || '10:00 AM')
       .replace(/\{certNo\}/g, cert?.certificateNo || 'GETS-2026-0001')
-      .replace(/\{employer\}/g, 'Norvic Hospital')
+      .replace(/\{employer\}/g, (db.employers && db.employers[0]?.name) || 'Partner Employer')
       .replace(/\{supervisor\}/g, 'Supervisor')
       .replace(/\{phone\}/g, recipient.phone || '')
       .replace(/\{jobTitle\}/g, 'Specialist Caregiver')
@@ -613,7 +613,7 @@ export default function CommunicationManager() {
                       fullWidth
                       value={callNotes}
                       onChange={(e) => setCallNotes(e.target.value)}
-                      placeholder="e.g. Inquired about OJT preference in Norvic Hospital, confirmed available next Monday."
+                      placeholder="e.g. Inquired about OJT preference with partner employer, confirmed available next Monday."
                     />
 
                     <TextField

@@ -865,10 +865,10 @@ export default function EmployerManager() {
         >
           <Stack spacing={2.5}>
             <TextField
-              label="Organization Name (e.g. Norvic Hospital) *"
+              label="Organization / Company Name *"
               fullWidth
               size="small"
-              placeholder="e.g. Norvic International Hospital"
+              placeholder="e.g. Organization Name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required

@@ -328,8 +328,8 @@ function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' 
 // Sample Student Data for Live Preview
 const SAMPLE_STUDENTS = [
   {
-    nameEn: 'Sunita Sharma',
-    nameNp: 'Sunita Sharma',
+    nameEn: 'Trainee Full Name',
+    nameNp: 'Trainee Full Name',
     parentEn: 'Mr./Mrs. Hari Sharma',
     parentNp: 'Mr. Hari Sharma',
     addressEn: 'Gokarneshwor-05, Kathmandu',

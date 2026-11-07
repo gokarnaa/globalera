@@ -1208,7 +1208,7 @@ export default function UserManager() {
                     label="Username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="e.g. pooja or student01"
+                    placeholder="e.g. staff01 or trainer01"
                   />
                 </Grid>
               </Grid>

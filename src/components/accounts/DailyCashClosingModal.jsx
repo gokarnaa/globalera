@@ -168,7 +168,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
         coins: Number(denominations.coins) || 0
       },
       notes: closingNotes.trim() || (variance === 0 ? 'Counter cash matched exactly' : `Cash variance: Rs. ${variance}`),
-      closedBy: db?.counterStatus?.openedBy || 'Sunita Sharma (Cashier)',
+      closedBy: db?.counterStatus?.openedBy || 'Authorized Cashier',
       closedAt: new Date().toISOString(),
       status: variance === 0 ? 'EXACT_MATCH' : variance > 0 ? 'EXCESS' : 'SHORTAGE'
     };

@@ -540,6 +540,7 @@ export default function App() {
           onToggleSidebar={handleToggleSidebar}
           onOpenPinModal={() => setPinModalOpen(true)}
           onGoHome={() => navigateTo('home')}
+          onSelectTab={handleSelectTab}
         />
 
         <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative', overflowX: 'hidden' }}>
