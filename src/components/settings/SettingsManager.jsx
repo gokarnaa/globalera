@@ -75,14 +75,6 @@ export default function SettingsManager() {
         return;
       }
 
-      if (url.includes('yycybsmwuixixfmocrcz')) {
-        setTestResult({
-          ok: false,
-          message: 'The URL "yycybsmwuixixfmocrcz.supabase.co" is a demo placeholder that does not exist. Please create your project at supabase.com and paste your real Project URL.'
-        });
-        return;
-      }
-
       const res = await testSupabaseConnection(url, key);
       setTestResult(res);
 
@@ -275,19 +267,19 @@ export default function SettingsManager() {
               Connect your live Supabase project to sync this local system with Postgres Cloud.
             </Typography>
 
-            {(!settings.supabaseUrl || settings.supabaseUrl.includes('yycybsmwuixixfmocrcz')) ? (
+            {(!settings.supabaseUrl || !settings.supabaseAnonKey) ? (
               <Alert severity="warning" sx={{ mb: 2.5, borderRadius: 2 }}>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                   Cloud Sync is in Local Storage Mode (Offline)
                 </Typography>
                 <Typography variant="body2" sx={{ fontSize: '0.8rem', mt: 0.5 }}>
-                  The default address <code>yycybsmwuixixfmocrcz</code> was an unconfigured placeholder. Please paste your own real <b>Supabase Project URL</b> and <b>Anon Public API Key</b> from your <b>supabase.com</b> dashboard to activate cross-browser cloud sync.
+                  Please paste your <b>Supabase Project URL</b> and <b>Anon Public API Key</b> below to activate cross-browser cloud sync.
                 </Typography>
               </Alert>
             ) : (
-              <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2 }}>
+              <Alert severity="success" sx={{ mb: 2.5, borderRadius: 2 }}>
                 <Typography variant="body2" sx={{ fontSize: '0.8rem' }}>
-                  Configured Project: <b>{settings.supabaseUrl.replace(/^https?:\/\//, '').split('/')[0]}</b>. Click <b>Test Connection</b> to check live status.
+                  Target Project: <b>{settings.supabaseUrl.replace(/^https?:\/\//, '').split('/')[0]}</b>. Click <b>Test Connection</b> to check live status.
                 </Typography>
               </Alert>
             )}

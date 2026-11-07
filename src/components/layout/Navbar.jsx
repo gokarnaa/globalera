@@ -54,8 +54,8 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         const url = currentDb.settings?.supabaseUrl;
         const key = currentDb.settings?.supabaseAnonKey;
 
-        // If no credentials configured or still dummy placeholder
-        if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+        // If no credentials configured
+        if (!url || !key) {
           if (isMounted) {
             setCloudStatus({
               status: 'offline',

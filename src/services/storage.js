@@ -204,8 +204,8 @@ export const INITIAL_SEED_DATA = {
     aakashSmsToken: '',
     enableAutoSmsOnAbsent: true,
     enableWhatsAppDirect: true,
-    supabaseUrl: (import.meta.env.VITE_SUPABASE_URL || '').includes('yycybsmwuixixfmocrcz') ? '' : (import.meta.env.VITE_SUPABASE_URL || ''),
-    supabaseAnonKey: (import.meta.env.VITE_SUPABASE_ANON_KEY || '').includes('e8g5bAQNbCGpuI3aC0P1SA') ? '' : (import.meta.env.VITE_SUPABASE_ANON_KEY || ''),
+    supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co',
+    supabaseAnonKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO',
     companyProfile: {
       companyNameEnglish: 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
       companyNameNepali: 'Global Era Technical School',
@@ -464,8 +464,8 @@ export function loadDB() {
           ...INITIAL_SEED_DATA.settings.certificateNumberFormat,
           ...(parsed.settings?.certificateNumberFormat || {})
         },
-        supabaseUrl: (parsed.settings?.supabaseUrl || '').includes('yycybsmwuixixfmocrcz') ? '' : (parsed.settings?.supabaseUrl || INITIAL_SEED_DATA.settings.supabaseUrl),
-        supabaseAnonKey: (parsed.settings?.supabaseAnonKey || '').includes('e8g5bAQNbCGpuI3aC0P1SA') ? '' : (parsed.settings?.supabaseAnonKey || INITIAL_SEED_DATA.settings.supabaseAnonKey)
+        supabaseUrl: parsed.settings?.supabaseUrl || INITIAL_SEED_DATA.settings.supabaseUrl,
+        supabaseAnonKey: parsed.settings?.supabaseAnonKey || INITIAL_SEED_DATA.settings.supabaseAnonKey
       }
     };
 

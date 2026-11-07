@@ -110,7 +110,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
         setDb(currentDb);
         const url = currentDb.settings?.supabaseUrl;
         const key = currentDb.settings?.supabaseAnonKey;
-        if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+        if (!url || !key) {
           if (isMounted) setCloudStatus('offline');
           return;
         }

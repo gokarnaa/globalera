@@ -10,10 +10,8 @@ const getEnvVar = (name, fallback = '') => {
   return fallback;
 };
 
-const rawEnvUrl = getEnvVar('VITE_SUPABASE_URL', '');
-const rawEnvKey = getEnvVar('VITE_SUPABASE_ANON_KEY', '');
-const DEFAULT_SUPABASE_URL = rawEnvUrl.includes('yycybsmwuixixfmocrcz') ? '' : rawEnvUrl;
-const DEFAULT_SUPABASE_ANON_KEY = rawEnvKey.includes('e8g5bAQNbCGpuI3aC0P1SA') ? '' : rawEnvKey;
+const DEFAULT_SUPABASE_URL = getEnvVar('VITE_SUPABASE_URL', 'https://yycybsmwuixixfmocrcz.supabase.co');
+const DEFAULT_SUPABASE_ANON_KEY = getEnvVar('VITE_SUPABASE_ANON_KEY', 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO');
 
 export function getSupabaseConfig() {
   try {
@@ -60,13 +58,17 @@ export const supabase = getSupabaseClient();
 
 export async function testSupabaseConnection(url, key) {
   try {
-    if (!url || !key || url.includes('yycybsmwuixixfmocrcz')) {
+    const config = getSupabaseConfig();
+    const targetUrl = url || config.url;
+    const targetKey = key || config.key;
+
+    if (!targetUrl || !targetKey) {
       return {
         ok: false,
-        message: 'No real Supabase project connected. The placeholder "yycybsmwuixixfmocrcz" is not a valid project. Please enter your real Supabase Project URL and Anon Public API Key from your supabase.com project.'
+        message: 'Supabase URL or Anon Key is missing. Please enter your credentials.'
       };
     }
-    const client = getSupabaseClient(url, key);
+    const client = getSupabaseClient(targetUrl, targetKey);
     if (!client) return { ok: false, message: 'Invalid URL or Key format.' };
 
     const { data, error } = await client.from('organizations').select('id, name').limit(1);
