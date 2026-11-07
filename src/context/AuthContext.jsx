@@ -78,8 +78,7 @@ export function AuthProvider({ children }) {
       const userPin = matchedUser.pin || '1234';
       const isPinMatch =
         cleanPin === userPin ||
-        (matchedUser.role === 'ADMIN' && (cleanPin === 'admin123' || cleanPin === '1111')) ||
-        cleanPin === '1111';
+        (matchedUser.role === 'ADMIN' && (cleanPin === 'admin123' || cleanPin === '1111'));
 
       if (isPinMatch) {
         let userObj = { ...matchedUser };
@@ -158,7 +157,7 @@ export function AuthProvider({ children }) {
       if (trainer.status === 'Inactive' || trainer.status === 'Suspended') {
         return { success: false, message: 'Trainer account is suspended.' };
       }
-      if (cleanPin === (trainer.pin || '1234') || cleanPin === '1111') {
+      if (cleanPin === (trainer.pin || '1234')) {
         const user = {
           id: trainer.id,
           name: trainer.name,
@@ -188,7 +187,7 @@ export function AuthProvider({ children }) {
       if (student.status === 'Dropout' || student.status === 'Suspended') {
         return { success: false, message: 'Student account is inactive or suspended.' };
       }
-      if (cleanPin === (student.pin || '1234') || cleanPin === '1111' || cleanPin === '3333') {
+      if (cleanPin === (student.pin || '1234')) {
         return loginAsStudent(student.id);
       }
       return { success: false, message: 'Invalid PIN code.' };
@@ -204,7 +203,7 @@ export function AuthProvider({ children }) {
       if (agent.status === 'Suspended') {
         return { success: false, message: 'Agent account is suspended.' };
       }
-      if (cleanPin === (agent.pin || '1234') || cleanPin === '1111') {
+      if (cleanPin === (agent.pin || '1234')) {
         const user = {
           id: `USR-${agent.id}`,
           agentId: agent.id,
@@ -286,15 +285,8 @@ export function AuthProvider({ children }) {
         login(idParam, pinParam, roleHint);
       } else if (userParam && pinParam) {
         login(userParam, pinParam, roleHint);
-      } else if (portalParam === 'trainer' && idParam) {
-        const currentDb = loadDB();
-        const t = (currentDb.trainers || []).find((x) => x.id === idParam);
-        if (t) {
-          login(t.phone || t.id, t.pin || '1234', 'TRAINER');
-        }
-      } else if (portalParam === 'student' && idParam) {
-        loginAsStudent(idParam);
       }
+      // Security Enforcement: Never auto-login without PIN verification
     } catch (_) {}
   }, []);
 
