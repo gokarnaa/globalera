@@ -52,7 +52,7 @@ import AgentPortal from './components/portal/AgentPortal';
 import PublicWebsite from './components/portal/PublicWebsite';
 import UserManager from './components/users/UserManager';
 import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
-import { loadDB } from './services/storage';
+import { loadDB, syncWithCloud } from './services/storage';
 import { playLeadChime } from './services/soundUtils';
 import { verifyCertificateRemote } from './services/supabaseClient';
 import { useAuth } from './context/AuthContext';
@@ -230,6 +230,11 @@ export default function App() {
   }, [verifyParam, remoteVerifyData]);
 
   const [globalLeadAlert, setGlobalLeadAlert] = useState(null);
+
+  // Auto-sync with Supabase on app mount
+  React.useEffect(() => {
+    syncWithCloud();
+  }, []);
 
   // Global Real-time Lead Listener across all tabs and routes
   React.useEffect(() => {

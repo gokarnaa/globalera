@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
@@ -31,11 +32,12 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import BusinessIcon from '@mui/icons-material/Business';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
-import { loadDB, saveDB, resetDB } from '../../services/storage';
+import { loadDB, saveDB, resetDB, syncWithCloud } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
   testSupabaseConnection,
-  pushLocalDBToSupabase
+  pushLocalDBToSupabase,
+  pullRemoteDBFromSupabase
 } from '../../services/supabaseClient';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 
@@ -75,6 +77,27 @@ export default function SettingsManager() {
       setSyncResult({ ok: false, message: err.message });
     } finally {
       setSyncingData(false);
+    }
+  };
+
+  const [pullingData, setPullingData] = useState(false);
+  const [pullResult, setPullResult] = useState(null);
+
+  const handlePullFromSupabase = async () => {
+    setPullingData(true);
+    setPullResult(null);
+    try {
+      const res = await syncWithCloud(false);
+      if (res.ok) {
+        setDb(loadDB());
+        setPullResult({ ok: true, message: 'Successfully pulled latest records from Supabase Cloud!' });
+      } else {
+        setPullResult({ ok: false, message: res.message || 'Could not fetch records. Please verify table migration.' });
+      }
+    } catch (err) {
+      setPullResult({ ok: false, message: err.message });
+    } finally {
+      setPullingData(false);
     }
   };
 
@@ -218,14 +241,14 @@ export default function SettingsManager() {
               />
             </Stack>
 
-            <Box sx={{ bgcolor: '#f8fafc', p: 2, borderRadius: 2.5, border: '1px solid #e2e8f0', mb: 3 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5 }}>
-                Ready-to-Run PostgreSQL Migration Script
+            <Box sx={{ bgcolor: '#f8fafc', p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', mb: 3 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 0.5, color: '#0F172A' }}>
+                Complete Multi-Tenant Relational PostgreSQL Schema (36 Tables)
               </Typography>
-              <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 1.5 }}>
-                Copy and run this in your Supabase SQL Editor to auto-create all 15 relational tables with foreign keys.
+              <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 1.5, lineHeight: 1.5 }}>
+                Includes all 8 related table sections: Organizations, Users, Courses & Syllabi, CTEVT Work & Lesson Plans, Trainees & Biometrics, CRM Leads & Admissions, Double-Entry Accounting & Payroll, and Industry Placements.
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', mb: 1.5 }}>
                 <Button
                   variant="outlined"
                   size="small"
@@ -233,7 +256,7 @@ export default function SettingsManager() {
                   onClick={handleCopySql}
                   sx={{ fontWeight: 700 }}
                 >
-                  {copiedSql ? '✓ Copied to Clipboard!' : 'Copy SQL Schema'}
+                  {copiedSql ? '✓ Copied SQL to Clipboard!' : 'Copy Complete SQL Schema'}
                 </Button>
                 <Button
                   variant="outlined"
@@ -242,9 +265,13 @@ export default function SettingsManager() {
                   onClick={handleDownloadSql}
                   sx={{ fontWeight: 700 }}
                 >
-                  Download .sql File
+                  Download supabase_schema.sql
                 </Button>
               </Box>
+
+              <Alert severity="info" sx={{ py: 0.5, fontSize: '0.78rem', bgcolor: '#F0F9FF', border: '1px solid #BAE6FD' }}>
+                <strong>How to setup Supabase:</strong> Open your Supabase Dashboard &rarr; <b>SQL Editor</b> &rarr; New Query &rarr; Paste the schema &rarr; Click <b>Run</b>. Then enter your Project URL and Anon Key above and click Save.
+              </Alert>
             </Box>
 
             <Stack direction="row" spacing={1.5} sx={{ mb: 2 }}>
@@ -278,35 +305,55 @@ export default function SettingsManager() {
 
             <Divider sx={{ my: 2 }} />
 
-            <Box sx={{ bgcolor: '#eff6ff', p: 2, borderRadius: 2.5, border: '1px solid #bfdbfe' }}>
+            <Box sx={{ bgcolor: '#eff6ff', p: 2.5, borderRadius: 2.5, border: '1px solid #bfdbfe' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e40af', mb: 0.5 }}>
-                Localhost ↔ Supabase Cloud Sync Engine
+                Two-Way Multi-Browser Cloud Synchronization
               </Typography>
-              <Typography variant="caption" sx={{ color: '#3b82f6', display: 'block', mb: 1.5 }}>
-                Push all current LocalStorage data (Curricula, Batches, Students, Attendance, Evaluations, Jobs) into Supabase PostgreSQL Cloud.
+              <Typography variant="caption" sx={{ color: '#3b82f6', display: 'block', mb: 2 }}>
+                Synchronize between your local browser cache and Supabase PostgreSQL. This ensures your data is permanently preserved and identical across different browsers and devices.
               </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleSyncToSupabase}
-                disabled={syncingData}
-                startIcon={syncingData ? <CircularProgress size={16} color="inherit" /> : <CloudSyncIcon />}
-                sx={{ fontWeight: 800, bgcolor: '#2563eb' }}
-              >
-                {syncingData ? 'Syncing to Supabase Cloud...' : 'Push All Local Data to Supabase'}
-              </Button>
+
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+                <Button
+                  variant="contained"
+                  onClick={handleSyncToSupabase}
+                  disabled={syncingData}
+                  startIcon={syncingData ? <CircularProgress size={16} color="inherit" /> : <CloudUploadIcon />}
+                  sx={{ fontWeight: 800, bgcolor: '#2563eb' }}
+                >
+                  {syncingData ? 'Pushing to Cloud...' : 'Push Local Data to Supabase'}
+                </Button>
+
+                <Button
+                  variant="outlined"
+                  onClick={handlePullFromSupabase}
+                  disabled={pullingData}
+                  startIcon={pullingData ? <CircularProgress size={16} /> : <CloudDownloadIcon />}
+                  sx={{ fontWeight: 800, color: '#1E40AF', borderColor: '#93C5FD' }}
+                >
+                  {pullingData ? 'Pulling from Cloud...' : 'Pull Cloud Data to Browser'}
+                </Button>
+              </Stack>
 
               {syncResult && (
                 <Box sx={{ mt: 1.5 }}>
                   {syncResult.ok ? (
                     <Alert severity="success" sx={{ borderRadius: 2, fontSize: '0.82rem', fontWeight: 600 }}>
-                      Data synced successfully! Occupations: {syncResult.counts.occupations}, Courses: {syncResult.counts.courses}, Batches: {syncResult.counts.training_groups}, Students: {syncResult.counts.students}, Syllabi: {syncResult.counts.syllabi}, Attendance: {syncResult.counts.attendances}.
+                      Data pushed successfully to Supabase! All 36 relational tables are synced with your cloud database.
                     </Alert>
                   ) : (
                     <Alert severity="error" sx={{ borderRadius: 2, fontSize: '0.82rem' }}>
-                      Sync failed: {syncResult.message}. (Make sure you have run the migration SQL script in your Supabase SQL Editor first!)
+                      Push failed: {syncResult.message}. (Make sure you have run the migration SQL script in your Supabase SQL Editor first!)
                     </Alert>
                   )}
+                </Box>
+              )}
+
+              {pullResult && (
+                <Box sx={{ mt: 1.5 }}>
+                  <Alert severity={pullResult.ok ? 'success' : 'error'} sx={{ borderRadius: 2, fontSize: '0.82rem', fontWeight: 600 }}>
+                    {pullResult.message}
+                  </Alert>
                 </Box>
               )}
             </Box>

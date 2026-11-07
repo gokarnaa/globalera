@@ -179,7 +179,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome }) {
           />
 
           {/* Supabase Status */}
-          <Tooltip title="Supabase PostgreSQL Cloud: yycybsmwuixixfmocrcz.supabase.co (Active & Synchronized)">
+          <Tooltip title={`Supabase PostgreSQL Cloud: ${db.settings?.supabaseUrl ? db.settings.supabaseUrl.replace(/^https?:\/\//, '').split('/')[0] : 'Cloud Sync Engine'} • Multi-Browser & Device Synchronization Active`}>
             <Chip
               icon={<CloudDoneIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />}
               label="Supabase Cloud Live"

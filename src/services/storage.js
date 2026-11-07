@@ -1,4 +1,5 @@
 // Local-first TVET Database with Automatic Cascading & Realistic Seed Data
+import { pushLocalDBToSupabase, pullRemoteDBFromSupabase } from './supabaseClient';
 
 export const SHIFT_DEFINITIONS = [
   { code: 'A', name: 'Shift A', time: '07:00 AM – 09:00 AM', startTime: '07:00', endTime: '09:00' },
@@ -475,11 +476,63 @@ export function loadDB() {
   }
 }
 
+let cloudSyncDebounceTimer = null;
+
+export function triggerBackgroundCloudPush(data) {
+  if (typeof window === 'undefined') return;
+  if (cloudSyncDebounceTimer) clearTimeout(cloudSyncDebounceTimer);
+  cloudSyncDebounceTimer = setTimeout(async () => {
+    try {
+      await pushLocalDBToSupabase(data);
+      console.log('[Cloud Sync] Background sync to Supabase completed.');
+    } catch (e) {
+      // Offline or network error - fail silently to preserve offline UX
+      console.debug('[Cloud Sync] Background push notice:', e.message);
+    }
+  }, 2500);
+}
+
+export async function syncWithCloud(forcePush = false) {
+  if (typeof window === 'undefined') return { ok: false };
+  try {
+    const local = loadDB();
+
+    if (forcePush) {
+      const pushed = await pushLocalDBToSupabase(local);
+      return { ok: true, action: 'pushed', results: pushed };
+    }
+
+    const cloudData = await pullRemoteDBFromSupabase();
+    if (cloudData) {
+      const merged = reconcileUsersWithEntities({
+        ...local,
+        ...cloudData,
+        settings: {
+          ...local.settings,
+          ...(cloudData.settings || {})
+        }
+      });
+      localStorage.setItem(DB_KEY, JSON.stringify(merged));
+      window.dispatchEvent(new Event('kite_db_updated'));
+      console.log('[Cloud Sync] Hydrated local DB from Supabase Cloud successfully.');
+      return { ok: true, action: 'pulled', data: merged };
+    } else {
+      // Cloud has no data yet; seed cloud with local data
+      const pushed = await pushLocalDBToSupabase(local);
+      return { ok: true, action: 'seeded_cloud', results: pushed };
+    }
+  } catch (err) {
+    console.debug('[Cloud Sync] Notice:', err.message);
+    return { ok: false, message: err.message };
+  }
+}
+
 export function saveDB(data) {
   try {
     const reconciled = reconcileUsersWithEntities(data);
     localStorage.setItem(DB_KEY, JSON.stringify(reconciled));
     window.dispatchEvent(new Event('kite_db_updated'));
+    triggerBackgroundCloudPush(reconciled);
     return reconciled;
   } catch (err) {
     console.error('Error saving database:', err);
