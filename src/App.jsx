@@ -177,6 +177,7 @@ export default function App() {
 
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [attendanceGroupId, setAttendanceGroupId] = useState(null);
+  const [pendingAdmissionLead, setPendingAdmissionLead] = useState(null);
 
   // Online QR Code Verification trigger from URL (?verify=...)
   const [verifyParam, setVerifyParam] = useState(() => {
@@ -296,9 +297,21 @@ export default function App() {
       case 'syllabus':
         return <SyllabusManager />;
       case 'leads':
-        return <LeadManager />;
+        return (
+          <LeadManager
+            onNavigateToAdmission={(lead) => {
+              setPendingAdmissionLead(lead);
+              setCurrentTab('admission');
+            }}
+          />
+        );
       case 'admission':
-        return <AdmissionManager />;
+        return (
+          <AdmissionManager
+            pendingLead={pendingAdmissionLead}
+            onClearPendingLead={() => setPendingAdmissionLead(null)}
+          />
+        );
       case 'students':
         return <StudentManager />;
       case 'fees':

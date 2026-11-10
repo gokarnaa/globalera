@@ -21,12 +21,14 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupWorkIcon from '@mui/icons-material/GroupWork';
 import PersonIcon from '@mui/icons-material/Person';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import confetti from 'canvas-confetti';
 import {
   saveDB,
   calculateExpectedEndDate,
   getNextSequentialId,
-  getNextBiometricId
+  getNextBiometricId,
+  postDoubleEntryJournal
 } from '../../services/storage';
 
 export default function ConvertToStudentModal({
@@ -34,7 +36,8 @@ export default function ConvertToStudentModal({
   onClose,
   lead,
   db,
-  onConverted
+  onConverted,
+  onNavigateToAdmission
 }) {
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [tgid, setTgid] = useState('');
@@ -44,9 +47,12 @@ export default function ConvertToStudentModal({
   const [fatherName, setFatherName] = useState('');
   const [motherName, setMotherName] = useState('');
   const [guardianContact, setGuardianContact] = useState('');
+  const [totalCourseFee, setTotalCourseFee] = useState(15000);
+  const [advancePaid, setAdvancePaid] = useState(7500);
+  const [paymentMethod, setPaymentMethod] = useState('Cash');
   const [errorMsg, setErrorMsg] = useState('');
 
-  // Auto-generate TGID and suggest matching training group
+  // Auto-generate TGID, fee and suggest matching training group
   useEffect(() => {
     if (!open || !lead) return;
 
@@ -58,12 +64,13 @@ export default function ConvertToStudentModal({
       (g) => g.status === 'Running' || g.status === 'Ongoing' || g.status === 'Upcoming' || !g.status
     );
     let matchedGroup = null;
+    let matchedCourse = null;
     if (lead.course) {
-      const courseObj = (db.courses || []).find(
-        (c) => (c.title || '').toLowerCase() === lead.course.toLowerCase()
+      matchedCourse = (db.courses || []).find(
+        (c) => (c.title || '').toLowerCase() === lead.course.toLowerCase() || c.id === lead.course
       );
-      if (courseObj) {
-        matchedGroup = activeGroups.find((g) => g.courseId === courseObj.id);
+      if (matchedCourse) {
+        matchedGroup = activeGroups.find((g) => g.courseId === matchedCourse.id);
       }
     }
     const defaultGroup = matchedGroup || activeGroups[0] || (db.trainingGroups || [])[0];
@@ -76,6 +83,12 @@ export default function ConvertToStudentModal({
         setExpectedEndDate(calculateExpectedEndDate(admissionDate, 3, 'Months'));
       }
     }
+
+    const price = Number(lead.price) || matchedCourse?.price || 15000;
+    setTotalCourseFee(price);
+    const disc = Number(lead.discount) || 0;
+    const net = Math.max(0, price - disc);
+    setAdvancePaid(Math.round(net * 0.5));
 
     setErrorMsg('');
   }, [open, lead, db]);
@@ -101,13 +114,16 @@ export default function ConvertToStudentModal({
       return;
     }
 
-    const selectedGroup = (db.trainingGroups || []).find((g) => g.id === selectedGroupId);
+    const selectedGroup = (db.trainingGroups || []).find((g) => g.id === selectedGroupId) || {};
+    const courseObj = (db.courses || []).find((c) => c.id === selectedGroup.courseId) || {};
+    const studentId = getNextSequentialId(db.students || [], 'STD-', 2, 'id', 1);
+    const biometricId = getNextBiometricId(db.students || [], 1001);
 
-    // Create new student record
+    // 1. Create new student record
     const newStudent = {
-      id: getNextSequentialId(db.students || [], 'STD-', 2, 'id', 1),
+      id: studentId,
       tgid: tgid.trim(),
-      biometricId: getNextBiometricId(db.students || [], 1001),
+      biometricId,
       name: lead.name.trim(),
       phone: lead.phone.trim(),
       secondaryPhone: '',
@@ -127,19 +143,93 @@ export default function ConvertToStudentModal({
       status: 'Active',
       photoUrl: '',
       convertedFromLeadId: lead.id,
-      originalFee: Number(lead.price) || 15000,
-      lockedCourseFee: Number(lead.price) || 15000,
+      originalFee: Number(totalCourseFee) || 15000,
+      lockedCourseFee: Number(totalCourseFee) || 15000,
       admissionFee: 0,
       discountAmount: 0
     };
 
-    // Update lead status to Converted and append to timeline
+    // 2. Create Receipt & Payment Record (50% Advance)
+    const receiptNo = `REC-ADM-${Date.now().toString().slice(-6)}`;
+    const newPayment = {
+      id: `PMT-${Date.now()}`,
+      studentId,
+      studentName: lead.name.trim(),
+      tgid: tgid.trim(),
+      groupId: selectedGroupId,
+      courseName: courseObj?.title || 'Vocational Training',
+      amount: Number(advancePaid) || 0,
+      paymentMethod,
+      paymentDate: admissionDate,
+      paymentMonth: 'Admission',
+      receiptNo,
+      remarks: `Lead Admission - 50% Advance Fee (${lead.name.trim()})`,
+      receivedBy: 'Admission Desk',
+      collectedBy: 'Admission Desk'
+    };
+
+    // 3. Create Admission Agreement Record (db.admissions)
+    const agreementCount = (db.admissions || []).length + 1;
+    const agreementNo = `GE-AGR-2025-${String(agreementCount).padStart(3, '0')}`;
+    const netFee = Number(totalCourseFee) || 15000;
+    const advPaid = Number(advancePaid) || 0;
+    const dueAmt = Math.max(0, netFee - advPaid);
+
+    const newAdmission = {
+      id: `ADM-${Date.now()}`,
+      agreementNo,
+      studentId,
+      tgid: tgid.trim(),
+      studentName: lead.name.trim(),
+      phone: lead.phone.trim(),
+      secondaryPhone: '',
+      gender: gender || 'Female',
+      bloodGroup: 'O+ve',
+      photoUrl: '',
+      expectedEndDate: expectedEndDate || '',
+      citizenshipNumber: '',
+      currentAddress: lead.address || '',
+      permanentAddress: lead.address || '',
+      fatherName: fatherName.trim(),
+      guardianContact: guardianContact.trim() || lead.phone,
+
+      courseId: courseObj?.id || selectedGroup.courseId || 'CRS-01',
+      courseTitle: courseObj?.title || 'Vocational Training',
+      groupId: selectedGroupId,
+      groupName: selectedGroup.groupCode || selectedGroup.name || 'Batch 1',
+      shift: selectedGroup.shift || 'Shift A',
+      timing: selectedGroup.timing || '07:00 AM – 09:00 AM',
+      duration: `${courseObj?.durationValue || 3} ${courseObj?.durationUnit || 'Months'}`,
+      keySkills: courseObj?.description || '',
+
+      ojtPreference: 'REQUIRED',
+      ojtFee: 0,
+      batchTransferAllowed: true,
+
+      totalCourseFee: netFee,
+      discountAmount: 0,
+      netPayableFee: netFee,
+      advancePaid50: advPaid,
+      dueAmount50: dueAmt,
+      dueDate: expectedEndDate || '',
+      paymentMethod,
+      receiptNo,
+
+      admissionDate,
+      admissionDateBS: admissionDate,
+      status: 'ACTIVE',
+      createdAt: new Date().toISOString(),
+      convertedFromLeadId: lead.id,
+      admissionSource: 'Lead Inquiry'
+    };
+
+    // 4. Update lead status to Converted and append timeline
     const batchLabel = selectedGroup?.groupCode || selectedGroup?.name || selectedGroupId;
     const updatedTimeline = [
       ...(lead.timeline || []),
       {
         date: new Date().toISOString(),
-        note: `Admission Completed (Converted to Student: ${tgid} in Batch: ${batchLabel})`,
+        note: `Admission Completed (Agreement #${agreementNo}, TGID: ${tgid} in Batch: ${batchLabel}) with 50% advance fee paid.`,
         staffName: 'Admin / Counselor'
       }
     ];
@@ -151,6 +241,7 @@ export default function ConvertToStudentModal({
           stage: 'Converted',
           commissionStatus: (l.agentId || l.agentCode) ? 'approved' : l.commissionStatus,
           convertedToStudentId: newStudent.id,
+          convertedToAdmissionId: newAdmission.id,
           timeline: updatedTimeline
         };
       }
@@ -158,12 +249,57 @@ export default function ConvertToStudentModal({
     });
 
     const updatedStudents = [newStudent, ...(db.students || [])];
+    const updatedAdmissions = [newAdmission, ...(db.admissions || [])];
+    const updatedPayments = [newPayment, ...(db.payments || [])];
 
-    const nextDb = {
+    // Update group trainees count
+    const updatedGroups = (db.trainingGroups || []).map((g) => {
+      if (g.id === selectedGroupId) {
+        return { ...g, currentTrainees: (g.currentTrainees || 0) + 1 };
+      }
+      return g;
+    });
+
+    let nextDb = {
       ...db,
       students: updatedStudents,
+      admissions: updatedAdmissions,
+      payments: updatedPayments,
+      trainingGroups: updatedGroups,
       leads: updatedLeads
     };
+
+    // Post double entry journal for 50% advance fee
+    if (advPaid > 0) {
+      try {
+        const { nextDb: dbWithJournal } = postDoubleEntryJournal(nextDb, {
+          entryDate: admissionDate,
+          sourceModule: 'ADMISSION',
+          sourceId: receiptNo,
+          narration: `Lead Converted Admission 50% Advance Fee: ${lead.name.trim()} Agreement No ${agreementNo}`,
+          createdBy: 'Admission Desk',
+          lines: [
+            {
+              accountCode: paymentMethod !== 'Cash' ? '1020' : '1010',
+              lineNarration: `50% Admission Fee Collection (${paymentMethod})`,
+              debit: advPaid,
+              credit: 0
+            },
+            {
+              accountCode: '4100',
+              lineNarration: `Trainee Admission Revenue - ${lead.name.trim()}`,
+              debit: 0,
+              credit: advPaid
+            }
+          ]
+        });
+        if (dbWithJournal) {
+          nextDb = dbWithJournal;
+        }
+      } catch (err) {
+        console.warn('Journal post notice:', err);
+      }
+    }
 
     saveDB(nextDb);
 
@@ -402,6 +538,47 @@ export default function ConvertToStudentModal({
                 onChange={(e) => setGuardianContact(e.target.value)}
               />
             </Grid>
+
+            {/* Fee & Payment Details */}
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="Total Course Fee (NPR)"
+                value={totalCourseFee}
+                onChange={(e) => {
+                  const val = Number(e.target.value) || 0;
+                  setTotalCourseFee(val);
+                  setAdvancePaid(Math.round(val * 0.5));
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <TextField
+                fullWidth
+                type="number"
+                label="50% Advance Paid (NPR)"
+                value={advancePaid}
+                onChange={(e) => setAdvancePaid(Number(e.target.value) || 0)}
+                helperText={`Due: NPR ${Math.max(0, (Number(totalCourseFee) || 0) - (Number(advancePaid) || 0))}`}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={4}>
+              <TextField
+                select
+                fullWidth
+                label="Payment Method"
+                value={paymentMethod}
+                onChange={(e) => setPaymentMethod(e.target.value)}
+              >
+                <MenuItem value="Cash">Cash (Counter)</MenuItem>
+                <MenuItem value="Fonepay">Fonepay / QR</MenuItem>
+                <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                <MenuItem value="eSewa">eSewa</MenuItem>
+              </TextField>
+            </Grid>
           </Grid>
         </DialogContent>
 
@@ -419,9 +596,26 @@ export default function ConvertToStudentModal({
             zIndex: 10
           }}
         >
-          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-            Cancel
-          </Button>
+          <Stack direction="row" spacing={1}>
+            <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+              Cancel
+            </Button>
+            {onNavigateToAdmission && (
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<OpenInNewIcon />}
+                onClick={() => {
+                  onClose();
+                  onNavigateToAdmission(lead);
+                }}
+                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+              >
+                Open Full Admission Desk
+              </Button>
+            )}
+          </Stack>
+
           <Button
             type="submit"
             variant="contained"
@@ -435,7 +629,7 @@ export default function ConvertToStudentModal({
               boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
             }}
           >
-            Confirm Admission
+            Confirm Admission & Generate Agreement
           </Button>
         </DialogActions>
       </Box>

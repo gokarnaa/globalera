@@ -38,7 +38,7 @@ import {
   getNextBiometricId
 } from '../../services/storage';
 
-export default function NewAdmissionModal({ open, onClose, db, setDb, showToast, onAdmissionCreated }) {
+export default function NewAdmissionModal({ open, onClose, db, setDb, showToast, onAdmissionCreated, initialLead = null }) {
   // Personal Info
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -88,25 +88,64 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   const selectedCourseObj = (db.courses || []).find((c) => c.id === selectedCourseId);
   const isFullOnlyCourse = selectedCourseObj?.feeStructure?.paymentMode === 'FULL_ONLY';
 
-  // Auto-select first course on open
+  // Initialize or pre-populate on open
   useEffect(() => {
     if (!open) return;
     setErrorMsg('');
-    if (db.courses && db.courses.length > 0 && !selectedCourseId) {
-      const firstCourse = db.courses[0];
-      setSelectedCourseId(firstCourse.id);
-      const fs = firstCourse.feeStructure;
-      const price = firstCourse.price || 15000;
-      setTotalCourseFee(price);
-      setKeySkills(firstCourse.description || '');
-      if (fs?.paymentMode === 'FULL_ONLY') {
+
+    if (initialLead) {
+      setName(initialLead.name || '');
+      setPhone(initialLead.phone || '');
+      setCurrentAddress(initialLead.address || 'Gokarneshwor, Kathmandu');
+      setPermanentAddress(initialLead.address || '');
+      setFatherName(initialLead.fatherName || '');
+      setGuardianContact(initialLead.guardianContact || initialLead.phone || '');
+      if (initialLead.gender) setGender(initialLead.gender);
+
+      // Match course by title or id
+      let matchedCourse = null;
+      if (initialLead.course) {
+        matchedCourse = (db.courses || []).find(
+          (c) => (c.title || '').toLowerCase() === (initialLead.course || '').toLowerCase() || c.id === initialLead.course
+        );
+      }
+      const courseToUse = matchedCourse || (db.courses && db.courses[0]);
+      if (courseToUse) {
+        setSelectedCourseId(courseToUse.id);
+        const price = Number(initialLead.price) || courseToUse.price || 15000;
+        setTotalCourseFee(price);
+        setKeySkills(courseToUse.description || '');
+        const disc = Number(initialLead.discount) || 0;
+        setDiscountAmount(disc);
+        const net = Math.max(0, price - disc);
+        if (courseToUse.feeStructure?.paymentMode === 'FULL_ONLY') {
+          setAdvancePaid(net);
+        } else {
+          setAdvancePaid(Math.round(net * 0.5));
+        }
+
+        const matchingGroup = (db.trainingGroups || []).find((g) => g.courseId === courseToUse.id);
+        setSelectedGroupId(matchingGroup?.id || '');
+      }
+    } else {
+      if (db.courses && db.courses.length > 0) {
+        const firstCourse = db.courses[0];
+        setSelectedCourseId(firstCourse.id);
+        const fs = firstCourse.feeStructure;
+        const price = firstCourse.price || 15000;
+        setTotalCourseFee(price);
         setDiscountAmount(0);
-        setAdvancePaid(price);
-      } else {
-        setAdvancePaid(Math.round(price * 0.5));
+        setKeySkills(firstCourse.description || '');
+        if (fs?.paymentMode === 'FULL_ONLY') {
+          setAdvancePaid(price);
+        } else {
+          setAdvancePaid(Math.round(price * 0.5));
+        }
+        const matchingGroup = (db.trainingGroups || []).find((g) => g.courseId === firstCourse.id);
+        setSelectedGroupId(matchingGroup?.id || '');
       }
     }
-  }, [open, db.courses]);
+  }, [open, initialLead, db.courses, db.trainingGroups]);
 
   // When course changes, update groups and price
   const handleCourseChange = (courseId) => {
@@ -199,6 +238,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       groupId: groupObj.id || 'GRP-01',
       admissionDate,
       status: 'Active',
+      convertedFromLeadId: initialLead?.id || null,
       originalFee: Number(totalCourseFee) || 0,
       discountAmount: Number(discountAmount) || 0,
       admissionFee: 0,
@@ -271,7 +311,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       admissionDate,
       admissionDateBS: admissionDate,
       status: 'ACTIVE',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      convertedFromLeadId: initialLead?.id || null,
+      admissionSource: initialLead ? 'Lead Inquiry' : 'Direct Walk-in'
     };
 
     // 4. Update Database
@@ -287,12 +329,40 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       return g;
     });
 
+    // Update lead stage to Converted if admitted from lead
+    let updatedLeads = db.leads || [];
+    if (initialLead) {
+      const batchLabel = groupObj.groupCode || groupObj.name || groupObj.id || 'Batch 1';
+      updatedLeads = (db.leads || []).map((l) => {
+        if (l.id === initialLead.id) {
+          const updatedTimeline = [
+            ...(l.timeline || []),
+            {
+              date: new Date().toISOString(),
+              note: `Formal Admission Agreement Generated (#${agreementNo}) in Batch: ${batchLabel} with 50% advance fee paid.`,
+              staffName: 'Admission Desk'
+            }
+          ];
+          return {
+            ...l,
+            stage: 'Converted',
+            commissionStatus: (l.agentId || l.agentCode) ? 'approved' : l.commissionStatus,
+            convertedToStudentId: studentId,
+            convertedToAdmissionId: newAdmission.id,
+            timeline: updatedTimeline
+          };
+        }
+        return l;
+      });
+    }
+
     let finalDb = {
       ...db,
       students: updatedStudents,
       payments: updatedPayments,
       trainingGroups: updatedGroups,
-      admissions: updatedAdmissions
+      admissions: updatedAdmissions,
+      leads: updatedLeads
     };
 
     // Post double entry journal for 50% advance fee without losing the journal entry
@@ -381,6 +451,23 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
       </DialogTitle>
 
       <DialogContent sx={{ p: { xs: 2, sm: 3.5 }, bgcolor: '#f8fafc' }}>
+        {initialLead && (
+          <Alert
+            severity="info"
+            icon={<HowToRegIcon fontSize="small" sx={{ color: '#1D4ED8' }} />}
+            sx={{
+              mb: 2.5,
+              borderRadius: 2.5,
+              border: '1px solid #BFDBFE',
+              bgcolor: '#EFF6FF',
+              fontWeight: 700,
+              color: '#1E3A8A'
+            }}
+          >
+            Admitting from Lead Inquiry #{initialLead.id} ({initialLead.name}) — Information pre-populated. Confirming will generate Agreement #{`GE-AGR-2025-${String((db.admissions || []).length + 1).padStart(3, '0')}`} and automatically update lead stage to Converted.
+          </Alert>
+        )}
+
         {errorMsg && (
           <Alert severity="error" sx={{ mb: 2.5 }}>
             {errorMsg}

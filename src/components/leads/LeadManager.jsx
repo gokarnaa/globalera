@@ -50,6 +50,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import FilterAltOffIcon from '@mui/icons-material/FilterAltOff';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
@@ -64,7 +65,7 @@ import LeadDetailsModal from './LeadDetailsModal';
 import ConvertToStudentModal from './ConvertToStudentModal';
 import LeadImportModal from './LeadImportModal';
 
-export default function LeadManager() {
+export default function LeadManager({ onNavigateToAdmission }) {
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
 
@@ -1013,15 +1014,28 @@ export default function LeadManager() {
                             </Tooltip>
 
                             {lead.stage !== 'Converted' && (
-                              <Tooltip title="Convert to Student Admission">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => setConvertLead(lead)}
-                                  sx={{ color: '#059669' }}
-                                >
-                                  <HowToRegIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
+                              <Stack direction="row" spacing={0.5}>
+                                <Tooltip title="Convert & Quick Admit">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => setConvertLead(lead)}
+                                    sx={{ color: '#059669', bgcolor: '#ECFDF5' }}
+                                  >
+                                    <HowToRegIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                                {onNavigateToAdmission && (
+                                  <Tooltip title="Send to Admission Desk (Full A4 Agreement Desk)">
+                                    <IconButton
+                                      size="small"
+                                      onClick={() => onNavigateToAdmission(lead)}
+                                      sx={{ color: '#2563EB', bgcolor: '#EFF6FF' }}
+                                    >
+                                      <OpenInNewIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                )}
+                              </Stack>
                             )}
 
                             <Tooltip title="Edit">
@@ -1225,15 +1239,28 @@ export default function LeadManager() {
 
                       <Stack direction="row" spacing={0.5}>
                         {lead.stage !== 'Converted' && (
-                          <Tooltip title="Convert to Student Admission">
-                            <IconButton
-                              size="small"
-                              onClick={() => setConvertLead(lead)}
-                              sx={{ color: '#059669', bgcolor: '#ECFDF5' }}
-                            >
-                              <HowToRegIcon sx={{ fontSize: '1.1rem' }} />
-                            </IconButton>
-                          </Tooltip>
+                          <>
+                            <Tooltip title="Convert & Quick Admit">
+                              <IconButton
+                                size="small"
+                                onClick={() => setConvertLead(lead)}
+                                sx={{ color: '#059669', bgcolor: '#ECFDF5' }}
+                              >
+                                <HowToRegIcon sx={{ fontSize: '1.1rem' }} />
+                              </IconButton>
+                            </Tooltip>
+                            {onNavigateToAdmission && (
+                              <Tooltip title="Send to Admission Desk (Full A4 Agreement Desk)">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => onNavigateToAdmission(lead)}
+                                  sx={{ color: '#2563EB', bgcolor: '#EFF6FF' }}
+                                >
+                                  <OpenInNewIcon sx={{ fontSize: '1.1rem' }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                          </>
                         )}
 
                         <Tooltip title="Edit">
@@ -1713,9 +1740,10 @@ export default function LeadManager() {
         onClose={() => setConvertLead(null)}
         lead={convertLead}
         db={db}
-        onConverted={(newStudent) => {
+        onNavigateToAdmission={onNavigateToAdmission}
+        onConverted={({ newStudent, newAdmission }) => {
           setDb(loadDB());
-          showToast(`Congratulations! ${newStudent.name} has been successfully enrolled into the student batch.`);
+          showToast(`Congratulations! ${newStudent.name} has been enrolled under Admission Agreement ${newAdmission?.agreementNo || ''}.`);
         }}
       />
 

@@ -19,7 +19,12 @@ import {
   Tooltip,
   Paper,
   InputAdornment,
-  Alert
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Avatar
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -31,13 +36,17 @@ import WorkIcon from '@mui/icons-material/Work';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import BadgeIcon from '@mui/icons-material/Badge';
+import CloseIcon from '@mui/icons-material/Close';
+import SyncIcon from '@mui/icons-material/Sync';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import ContactsIcon from '@mui/icons-material/Contacts';
 
 import { loadDB, saveDB } from '../../services/storage';
 import NewAdmissionModal from './NewAdmissionModal';
 import AdmissionAgreementPrintModal from './AdmissionAgreementPrintModal';
 import StudentIdCardModal from './StudentIdCardModal';
 
-export default function AdmissionManager() {
+export default function AdmissionManager({ pendingLead = null, onClearPendingLead }) {
   const [db, setDb] = useState(() => loadDB());
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('ALL');
@@ -45,6 +54,10 @@ export default function AdmissionManager() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   const [newAdmissionOpen, setNewAdmissionOpen] = useState(false);
+  const [selectedLeadForAdmission, setSelectedLeadForAdmission] = useState(null);
+  const [admitFromLeadOpen, setAdmitFromLeadOpen] = useState(false);
+  const [leadSearchQuery, setLeadSearchQuery] = useState('');
+
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedAdmission, setSelectedAdmission] = useState(null);
   const [idCardModalOpen, setIdCardModalOpen] = useState(false);
@@ -59,9 +72,106 @@ export default function AdmissionManager() {
     setTimeout(() => setToastMsg(''), 4500);
   };
 
+  // If redirected from LeadManager with pendingLead
+  React.useEffect(() => {
+    if (pendingLead) {
+      setSelectedLeadForAdmission(pendingLead);
+      setNewAdmissionOpen(true);
+      if (onClearPendingLead) {
+        onClearPendingLead();
+      }
+    }
+  }, [pendingLead, onClearPendingLead]);
+
   const admissions = useMemo(() => {
     return db.admissions || [];
   }, [db.admissions]);
+
+  // Unconverted leads for quick admission
+  const unconvertedLeads = useMemo(() => {
+    return (db.leads || []).filter((l) => l.stage !== 'Converted');
+  }, [db.leads]);
+
+  // Check for past converted students that are missing an admission agreement
+  const unsyncedStudents = useMemo(() => {
+    const studentList = db.students || [];
+    const admList = db.admissions || [];
+    return studentList.filter((s) => {
+      if (!s.convertedFromLeadId) return false;
+      const alreadyInAdm = admList.some(
+        (a) => a.studentId === s.id || (a.convertedFromLeadId && a.convertedFromLeadId === s.convertedFromLeadId)
+      );
+      return !alreadyInAdm;
+    });
+  }, [db.students, db.admissions]);
+
+  const handleAutoSyncConvertedStudents = () => {
+    if (unsyncedStudents.length === 0) return;
+    const currentAdmissions = [...(db.admissions || [])];
+    const newAdmissions = [];
+
+    unsyncedStudents.forEach((student, idx) => {
+      const agreementCount = currentAdmissions.length + newAdmissions.length + 1;
+      const agreementNo = `GE-AGR-2025-${String(agreementCount).padStart(3, '0')}`;
+      const groupObj = (db.trainingGroups || []).find((g) => g.id === student.groupId) || {};
+      const courseObj = (db.courses || []).find((c) => c.id === groupObj.courseId) || {};
+      const totalFee = Number(student.lockedCourseFee || student.originalFee) || 15000;
+      const advancePaid50 = Math.round(totalFee * 0.5);
+      const dueAmount50 = Math.max(0, totalFee - advancePaid50);
+
+      newAdmissions.push({
+        id: `ADM-SYNC-${Date.now()}-${idx}`,
+        agreementNo,
+        studentId: student.id,
+        tgid: student.tgid,
+        studentName: student.name,
+        phone: student.phone,
+        secondaryPhone: student.secondaryPhone || '',
+        gender: student.gender || 'Female',
+        bloodGroup: student.bloodGroup || 'O+ve',
+        photoUrl: student.photoUrl || '',
+        expectedEndDate: student.expectedEndDate || '',
+        citizenshipNumber: student.citizenshipNumber || '',
+        currentAddress: student.currentAddress || '',
+        permanentAddress: student.permanentAddress || student.currentAddress || '',
+        fatherName: student.fatherName || '',
+        guardianContact: student.guardianContact || student.phone,
+        courseId: courseObj.id || groupObj.courseId || 'CRS-01',
+        courseTitle: courseObj.title || groupObj.courseName || 'Vocational Training',
+        groupId: groupObj.id || student.groupId || 'GRP-01',
+        groupName: groupObj.groupCode || groupObj.name || 'Batch 1',
+        shift: groupObj.shift || 'Shift A',
+        timing: groupObj.timing || '07:00 AM – 09:00 AM',
+        duration: `${courseObj.durationValue || 3} ${courseObj.durationUnit || 'Months'}`,
+        keySkills: courseObj.description || '',
+        ojtPreference: 'REQUIRED',
+        ojtFee: 0,
+        batchTransferAllowed: true,
+        totalCourseFee: totalFee,
+        discountAmount: Number(student.discountAmount) || 0,
+        netPayableFee: totalFee,
+        advancePaid50,
+        dueAmount50,
+        dueDate: student.expectedEndDate || '',
+        paymentMethod: 'Cash',
+        receiptNo: `REC-SYNC-${Date.now().toString().slice(-6)}`,
+        admissionDate: student.admissionDate || new Date().toISOString().slice(0, 10),
+        admissionDateBS: student.admissionDate || new Date().toISOString().slice(0, 10),
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString(),
+        convertedFromLeadId: student.convertedFromLeadId,
+        admissionSource: 'Lead Inquiry'
+      });
+    });
+
+    const nextDb = {
+      ...db,
+      admissions: [...newAdmissions, ...currentAdmissions]
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    showToast(`Successfully synced ${newAdmissions.length} converted student(s) into Admission Agreements!`, 'success');
+  };
 
   // Keep Admissions reactive across tabs/modals
   React.useEffect(() => {
@@ -172,28 +282,74 @@ export default function AdmissionManager() {
               Global Era Technical School Jorpati — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office & Student Copy) A4 agreement letters</strong>.
             </Typography>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<AddIcon />}
-              onClick={() => setNewAdmissionOpen(true)}
-              sx={{
-                bgcolor: '#f59e0b',
-                color: '#0f2e5a',
-                fontWeight: 900,
-                fontSize: '0.95rem',
-                px: 3,
-                py: 1.4,
-                boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
-                '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
-              }}
-            >
-              + New Admission & Agreement
-            </Button>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+              <Button
+                variant="outlined"
+                size="large"
+                startIcon={<ContactsIcon />}
+                onClick={() => setAdmitFromLeadOpen(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.35)',
+                  fontWeight: 800,
+                  fontSize: '0.88rem',
+                  px: 2.2,
+                  py: 1.2,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)', borderColor: '#ffffff' }
+                }}
+              >
+                Admit From Leads ({unconvertedLeads.length})
+              </Button>
+
+              <Button
+                variant="contained"
+                size="large"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setSelectedLeadForAdmission(null);
+                  setNewAdmissionOpen(true);
+                }}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 900,
+                  fontSize: '0.92rem',
+                  px: 2.5,
+                  py: 1.2,
+                  boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Direct Walk-in Admission
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
+
+      {/* Retroactive Auto-Sync Banner for previously converted leads */}
+      {unsyncedStudents.length > 0 && (
+        <Alert
+          severity="warning"
+          icon={<SyncIcon />}
+          action={
+            <Button
+              color="inherit"
+              size="small"
+              variant="outlined"
+              onClick={handleAutoSyncConvertedStudents}
+              sx={{ fontWeight: 800, textTransform: 'none' }}
+            >
+              Sync All ({unsyncedStudents.length}) Now
+            </Button>
+          }
+          sx={{ mb: 3.5, borderRadius: 2.5, fontWeight: 600, border: '1px solid #FDE68A' }}
+        >
+          <strong>{unsyncedStudents.length} student(s)</strong> were previously converted from leads into trainees without an official Admission Agreement. Click &quot;Sync All Now&quot; to generate their formal agreement numbers and show them in Admissions.
+        </Alert>
+      )}
 
       {/* 4 Top KPI Cards */}
       <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
@@ -456,18 +612,48 @@ export default function AdmissionManager() {
                       <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
                         Date: {adm.admissionDateBS || adm.admissionDate}
                       </Typography>
-                      <Chip
-                        label="Active Agreement"
-                        size="small"
-                        sx={{
-                          height: '20px',
-                          fontSize: '0.68rem',
-                          fontWeight: 700,
-                          bgcolor: '#ecfdf5',
-                          color: '#065f46',
-                          mt: 0.5
-                        }}
-                      />
+                      <Stack direction="row" spacing={0.6} sx={{ mt: 0.6 }} flexWrap="wrap">
+                        <Chip
+                          label="Active"
+                          size="small"
+                          sx={{
+                            height: '20px',
+                            fontSize: '0.66rem',
+                            fontWeight: 700,
+                            bgcolor: '#ecfdf5',
+                            color: '#065f46'
+                          }}
+                        />
+                        {adm.convertedFromLeadId ? (
+                          <Tooltip title={`Admitted from Lead Inquiry #${adm.convertedFromLeadId}`}>
+                            <Chip
+                              label={`Lead #${adm.convertedFromLeadId}`}
+                              size="small"
+                              sx={{
+                                height: '20px',
+                                fontSize: '0.66rem',
+                                fontWeight: 700,
+                                bgcolor: '#eff6ff',
+                                color: '#1d4ed8',
+                                border: '1px solid #bfdbfe'
+                              }}
+                            />
+                          </Tooltip>
+                        ) : (
+                          <Chip
+                            label="Walk-in"
+                            size="small"
+                            sx={{
+                              height: '20px',
+                              fontSize: '0.66rem',
+                              fontWeight: 700,
+                              bgcolor: '#f8fafc',
+                              color: '#64748b',
+                              border: '1px solid #e2e8f0'
+                            }}
+                          />
+                        )}
+                      </Stack>
                     </TableCell>
 
                     {/* Student Info */}
@@ -612,15 +798,168 @@ export default function AdmissionManager() {
       {/* New Admission Modal */}
       <NewAdmissionModal
         open={newAdmissionOpen}
-        onClose={() => setNewAdmissionOpen(false)}
+        onClose={() => {
+          setNewAdmissionOpen(false);
+          setSelectedLeadForAdmission(null);
+        }}
         db={db}
         setDb={setDb}
         showToast={showToast}
+        initialLead={selectedLeadForAdmission}
         onAdmissionCreated={(createdAdmission) => {
           setSelectedAdmission(createdAdmission);
           setPrintModalOpen(true);
         }}
       />
+
+      {/* Quick Admit From Lead Modal */}
+      <Dialog
+        open={admitFromLeadOpen}
+        onClose={() => setAdmitFromLeadOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3, p: 0.5 } }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            bgcolor: '#0f2e5a',
+            color: '#ffffff',
+            borderRadius: '10px 10px 0 0',
+            py: 2,
+            px: 3
+          }}
+        >
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#f59e0b', width: 38, height: 38 }}>
+              <ContactsIcon fontSize="small" />
+            </Avatar>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+                Select Active Lead for Admission
+              </Typography>
+              <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
+                Pre-populate applicant details and generate formal training agreement
+              </Typography>
+            </Box>
+          </Stack>
+          <IconButton onClick={() => setAdmitFromLeadOpen(false)} sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent sx={{ p: 3, bgcolor: '#f8fafc' }}>
+          <Box sx={{ mb: 2.5, mt: 1 }}>
+            <TextField
+              fullWidth
+              size="small"
+              placeholder="Search leads by trainee name, phone, or course..."
+              value={leadSearchQuery}
+              onChange={(e) => setLeadSearchQuery(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8' }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+          </Box>
+
+          {unconvertedLeads.length === 0 ? (
+            <Alert severity="info" sx={{ borderRadius: 2 }}>
+              There are no pending unconverted leads. All inquiries have been processed or converted.
+            </Alert>
+          ) : (
+            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #e2e8f0', borderRadius: 2, maxHeight: 380 }}>
+              <Table size="small" stickyHeader>
+                <TableHead>
+                  <TableRow sx={{ '& th': { bgcolor: '#f1f5f9', fontWeight: 800, color: '#0f2e5a' } }}>
+                    <TableCell>Lead ID</TableCell>
+                    <TableCell>Trainee Name</TableCell>
+                    <TableCell>Mobile Phone</TableCell>
+                    <TableCell>Target Course</TableCell>
+                    <TableCell>Current Stage</TableCell>
+                    <TableCell align="center">Action</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {unconvertedLeads
+                    .filter((ld) => {
+                      if (!leadSearchQuery.trim()) return true;
+                      const q = leadSearchQuery.toLowerCase();
+                      return (
+                        (ld.name || '').toLowerCase().includes(q) ||
+                        (ld.phone || '').includes(q) ||
+                        (ld.course || '').toLowerCase().includes(q)
+                      );
+                    })
+                    .map((ld) => (
+                      <TableRow key={ld.id} hover>
+                        <TableCell sx={{ fontWeight: 800, color: '#64748b' }}>
+                          #{ld.id}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 700, color: '#1e293b' }}>
+                          {ld.name}
+                        </TableCell>
+                        <TableCell sx={{ color: '#475569' }}>
+                          {ld.phone}
+                        </TableCell>
+                        <TableCell sx={{ color: '#0f2e5a', fontWeight: 600 }}>
+                          {ld.course || 'Vocational Training'}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={ld.stage || 'Inquiry'}
+                            size="small"
+                            sx={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              bgcolor: ld.stage === 'Interested' ? '#ecfdf5' : '#eff6ff',
+                              color: ld.stage === 'Interested' ? '#065f46' : '#1d4ed8'
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="center">
+                          <Button
+                            variant="contained"
+                            size="small"
+                            startIcon={<HowToRegIcon />}
+                            onClick={() => {
+                              setSelectedLeadForAdmission(ld);
+                              setAdmitFromLeadOpen(false);
+                              setNewAdmissionOpen(true);
+                            }}
+                            sx={{
+                              bgcolor: '#059669',
+                              color: '#ffffff',
+                              fontWeight: 800,
+                              fontSize: '0.74rem',
+                              textTransform: 'none',
+                              py: 0.5,
+                              px: 1.5,
+                              boxShadow: 'none',
+                              '&:hover': { bgcolor: '#047857' }
+                            }}
+                          >
+                            Admit Trainee
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+          <Button onClick={() => setAdmitFromLeadOpen(false)} sx={{ fontWeight: 700, color: '#64748b' }}>
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* A4 2-Copy Printable Modal */}
       <AdmissionAgreementPrintModal
