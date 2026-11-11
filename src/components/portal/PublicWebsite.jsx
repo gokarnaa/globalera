@@ -96,6 +96,54 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   });
   const [employerSuccess, setEmployerSuccess] = useState(null);
 
+  // Active Syllabus Preview Modal State for Prospective Trainees & Counselors
+  const [selectedSyllabusCourse, setSelectedSyllabusCourse] = useState(null);
+
+  const activeSyllabusUnits = useMemo(() => {
+    if (!selectedSyllabusCourse) return [];
+    const direct = (db.syllabi || []).filter((s) => s.courseId === selectedSyllabusCourse.id);
+    if (direct.length > 0) return direct.sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
+
+    const title = (selectedSyllabusCourse.title || '').toLowerCase();
+    if (title.includes('beauty') || title.includes('beautician')) {
+      return [
+        { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Sterilizer, Sanitizer, Apron' },
+        { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Pack' },
+        { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Shears, Blow Dryer, Curling Iron' },
+        { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Straightener, Chemical Bowls, Brushes' },
+        { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Makeup Palette, Brush Set, HD Base' },
+        { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Lamp' },
+        { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Cotton Thread, Wax Heater, Strips' },
+        { unitNo: 8, title: 'Salon Management & Client Care', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Appointment System, Client Records' }
+      ];
+    }
+    if (title.includes('tailor') || title.includes('dress') || title.includes('fashion') || title.includes('stitch')) {
+      return [
+        { unitNo: 1, title: 'Garment Technology & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Measuring Tape, Chalk, Shears' },
+        { unitNo: 2, title: 'Industrial Sewing Machine Operation & Maintenance', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Industrial Lockstitch Machine, Needles' },
+        { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Pattern Paper, L-Square, French Curve' },
+        { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Fabric, Interlining, Hooks, Iron' },
+        { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper' },
+        { unitNo: 6, title: 'Western Wear: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, toolsAndMaterials: 'Fabric, Zippers, Collar Stiffener' },
+        { unitNo: 7, title: 'Overlocking, Edge Finishing & Quality Pressing', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Overlock Machine, Steam Iron' },
+        { unitNo: 8, title: 'Boutique Management & Cost Calculation', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'Order Book, Costing Sheet' }
+      ];
+    }
+    // Default Caregiver
+    return [
+      { unitNo: 1, title: 'Orientation, Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'PPE Kit, Whiteboard' },
+      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Hospital Bed, Linens, Basin, Gloves' },
+      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Oximeter' },
+      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets' },
+      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt' },
+      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box' },
+      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock' },
+      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, toolsAndMaterials: 'Pill Organizer, Medication Chart' },
+      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Air Mattress, Position Wedges' },
+      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, toolsAndMaterials: 'Log Book, Uniform, Skill Rubric' }
+    ];
+  }, [selectedSyllabusCourse, db.syllabi]);
+
   // Certificate Verification Search State
   const [certSearchId, setCertSearchId] = useState('');
   const [verifying, setVerifying] = useState(false);
@@ -920,24 +968,42 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       </Box>
                     </CardContent>
 
-                    {/* Action Button */}
+                    {/* Action Buttons */}
                     <Box sx={{ p: 2, pt: 0 }}>
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        onClick={() => handleSelectCourseForInquiry(crs.id)}
-                        sx={{
-                          bgcolor: '#059669',
-                          color: '#FFFFFF',
-                          fontWeight: 800,
-                          py: 1,
-                          fontSize: '0.82rem',
-                          boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
-                          '&:hover': { bgcolor: '#047857' }
-                        }}
-                      >
-                        Inquire About This Course
-                      </Button>
+                      <Stack spacing={1}>
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          onClick={() => handleSelectCourseForInquiry(crs.id)}
+                          sx={{
+                            bgcolor: '#059669',
+                            color: '#FFFFFF',
+                            fontWeight: 800,
+                            py: 0.9,
+                            fontSize: '0.82rem',
+                            boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                            '&:hover': { bgcolor: '#047857' }
+                          }}
+                        >
+                          Inquire About This Course
+                        </Button>
+                        <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={<MenuBookIcon sx={{ fontSize: 16 }} />}
+                          onClick={() => setSelectedSyllabusCourse(crs)}
+                          sx={{
+                            borderColor: '#0F2C59',
+                            color: '#0F2C59',
+                            fontWeight: 800,
+                            py: 0.7,
+                            fontSize: '0.78rem',
+                            '&:hover': { bgcolor: 'rgba(15, 44, 89, 0.06)', borderColor: '#0F2C59' }
+                          }}
+                        >
+                          View Syllabus &amp; Brochure
+                        </Button>
+                      </Stack>
                     </Box>
                   </Card>
                 </Grid>
@@ -1520,6 +1586,266 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           </Box>
         </Container>
       </Box>
+
+      {/* ============================================================== */}
+      {/* 7. OFFICIAL SYLLABUS & COUNSELING BROCHURE MODAL                */}
+      {/* ============================================================== */}
+      {selectedSyllabusCourse && (
+        <Dialog
+          open={Boolean(selectedSyllabusCourse)}
+          onClose={() => setSelectedSyllabusCourse(null)}
+          maxWidth="md"
+          fullWidth
+          PaperProps={{ sx: { borderRadius: 3.5, p: { xs: 1.5, sm: 2.5 } } }}
+        >
+          {(() => {
+            const cTitle = (selectedSyllabusCourse.title || '').toLowerCase();
+            const isBeautician = cTitle.includes('beauty') || cTitle.includes('beautician');
+            const isTailoring = cTitle.includes('tailor') || cTitle.includes('dress') || cTitle.includes('fashion') || cTitle.includes('stitch');
+
+            const themePrimary = isBeautician ? '#9D174D' : isTailoring ? '#92400E' : '#0F2C59';
+            const themeSecondary = isBeautician ? '#E11D48' : isTailoring ? '#D97706' : '#2563EB';
+            const themeLightBg = isBeautician ? '#FFF1F2' : isTailoring ? '#FFFBEB' : '#F8FAFC';
+            const themeBorder = isBeautician ? '#FECDD3' : isTailoring ? '#FDE68A' : '#CBD5E1';
+
+            const totalTheory = activeSyllabusUnits.reduce((acc, u) => acc + (Number(u.theoryHours) || 0), 0);
+            const totalPractical = activeSyllabusUnits.reduce((acc, u) => acc + (Number(u.practicalHours) || 0), 0);
+            const totalHours = totalTheory + totalPractical || selectedSyllabusCourse.totalHours || 390;
+            const pRatio = totalHours > 0 ? Math.round((totalPractical / totalHours) * 100) : 80;
+
+            const handleWhatsAppShare = () => {
+              const phone = company.phone || '01410715';
+              const unitsSummary = activeSyllabusUnits
+                .slice(0, 6)
+                .map((u) => `• Unit ${u.unitNo}: ${u.title} (${(Number(u.theoryHours) || 0) + (Number(u.practicalHours) || 0)}h)`)
+                .join('\n');
+
+              const text = `🌟 *Global Era Technical School — Official Course Syllabus* 🌟\n\n` +
+                `📘 *Course:* ${selectedSyllabusCourse.title}\n` +
+                `⏱️ *Duration:* ${totalHours} Hours (${pRatio}% Practical Hands-on Training)\n` +
+                `📊 *Hours Breakdown:* ${totalTheory}h Theory + ${totalPractical}h Practical (${activeSyllabusUnits.length} Units)\n\n` +
+                `🗓️ *Daily 2-Hour Flexible Shifts:*\n` +
+                `• Shift A: 7:00 AM – 9:00 AM\n` +
+                `• Shift B: 10:00 AM – 12:00 PM\n` +
+                `• Shift C: 12:00 PM – 2:00 PM\n` +
+                `• Shift D: 2:00 PM – 4:00 PM\n` +
+                `• Shift E: 4:00 PM – 6:00 PM\n` +
+                `• Weekend / Holiday Fast-Track Batch\n\n` +
+                `💼 *Key Syllabus Units:*\n${unitsSummary}\n\n` +
+                `💳 *Fee:* NPR ${selectedSyllabusCourse.feeCalc.totalEffectiveFee.toLocaleString()} (Affordable 2-Installment Option Available)\n\n` +
+                `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
+                `📞 *Phone / WhatsApp:* ${phone}`;
+
+              window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+            };
+
+            return (
+              <>
+                <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+                  <Box>
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: themePrimary }}>
+                      Official Course Syllabus &amp; Counseling Brochure
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                      CTEVT Accredited Competency Framework • Jorpati Campus
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<WhatsAppIcon sx={{ color: '#25D366' }} />}
+                      onClick={handleWhatsAppShare}
+                      sx={{ fontWeight: 800, borderColor: '#25D366', color: '#166534', bgcolor: 'rgba(37, 211, 102, 0.08)' }}
+                    >
+                      WhatsApp Share
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      startIcon={<PrintIcon />}
+                      onClick={() => window.print()}
+                      sx={{ bgcolor: themePrimary, fontWeight: 800, '&:hover': { bgcolor: themeSecondary } }}
+                    >
+                      Print A4
+                    </Button>
+                  </Stack>
+                </DialogTitle>
+
+                <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
+                  {/* Institutional Header Banner */}
+                  <Box
+                    sx={{
+                      textAlign: 'center',
+                      p: 2.5,
+                      borderRadius: 3,
+                      bgcolor: themeLightBg,
+                      border: `1.5px solid ${themeBorder}`,
+                      mb: 2.5
+                    }}
+                  >
+                    <Typography variant="h5" sx={{ fontWeight: 900, color: themePrimary }}>
+                      Global Era Technical School
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ color: '#334155', fontWeight: 700 }}>
+                      GLOBAL ERA MULTI SERVICE PVT. LTD. • Jorpati, Gokarneshwor, Kathmandu
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1 }}>
+                      CTEVT Affiliation Code: 4208 • Phone: 01410715 • Email: globaleramultiservice@gmail.com
+                    </Typography>
+                    <Chip
+                      label="OFFICIAL VOCATIONAL SKILL CURRICULUM SPECIFICATION"
+                      size="small"
+                      sx={{ bgcolor: themePrimary, color: '#FFFFFF', fontWeight: 900, fontSize: '0.72rem' }}
+                    />
+                  </Box>
+
+                  {/* Course Summary & Practical Ratio */}
+                  <Grid container spacing={2} sx={{ mb: 2.5 }}>
+                    <Grid item xs={12} sm={4}>
+                      <Box sx={{ p: 2, bgcolor: '#FFFFFF', border: `1px solid ${themeBorder}`, borderRadius: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
+                          PROGRAM TITLE:
+                        </Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: themePrimary, mt: 0.5 }}>
+                          {selectedSyllabusCourse.title}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.5 }}>
+                          Level: <b>{selectedSyllabusCourse.level || 'Level 1'}</b> • Units: <b>{activeSyllabusUnits.length} Modules</b>
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={4}>
+                      <Box sx={{ p: 2, bgcolor: '#FFFFFF', border: `1px solid ${themeBorder}`, borderRadius: 2 }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
+                          TRAINING RATIO:
+                        </Typography>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
+                          {totalHours} Hours ({pRatio}% Practical Hands-on)
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.5 }}>
+                          Practical: <b>{totalPractical}h</b> | Classroom Theory: <b>{totalTheory}h</b>
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid item xs={12} sm={4}>
+                      <Box sx={{ p: 2, bgcolor: themeLightBg, border: `1px solid ${themeBorder}`, borderRadius: 2 }}>
+                        <Typography variant="caption" sx={{ color: themePrimary, fontWeight: 900, display: 'block' }}>
+                          2-HOUR SHIFT SYSTEM:
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#1E293B', display: 'block', fontWeight: 700, mt: 0.3 }}>
+                          • Shift A: 7-9 AM | B: 10-12 PM
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#1E293B', display: 'block', fontWeight: 700 }}>
+                          • Shift C: 12-2 PM | D: 2-4 PM | E: 4-6 PM
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
+                          ✓ Weekend Batch Available
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  {/* Fee Policy Banner */}
+                  <Box sx={{ p: 2, mb: 2.5, bgcolor: '#ECFDF5', border: '1px solid #BBF7D0', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, display: 'block' }}>
+                      💳 Transparent Fee Schedule: Total Net NPR {selectedSyllabusCourse.feeCalc.totalEffectiveFee.toLocaleString()} (All Taxes Included)
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#047857', display: 'block', mt: 0.3 }}>
+                      Payable in 2 installments: <b>50% on Enrollment</b> + <b>50% Mid-Course clearance before OJT &amp; Certificate</b>. Includes practice consumables, tools, and job placement assistance.
+                    </Typography>
+                  </Box>
+
+                  {/* Units Table */}
+                  <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, mb: 2.5 }}>
+                    <Table size="small">
+                      <TableHead sx={{ bgcolor: themePrimary }}>
+                        <TableRow>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 50, textAlign: 'center' }}>Unit</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Competency / Core Module Title</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>Theory</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>Practical</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 75 }}>Total</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Tools / Equipment Provided</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {activeSyllabusUnits.map((u) => {
+                          const tH = Number(u.theoryHours) || 0;
+                          const pH = Number(u.practicalHours) || 0;
+                          return (
+                            <TableRow key={u.unitNo} sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                              <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: themePrimary }}>
+                                0{u.unitNo}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 800, fontSize: '0.82rem' }}>
+                                {u.title}
+                              </TableCell>
+                              <TableCell sx={{ textAlign: 'center', color: '#2563EB', fontWeight: 700 }}>{tH}h</TableCell>
+                              <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#059669' }}>{pH}h</TableCell>
+                              <TableCell sx={{ textAlign: 'center', fontWeight: 900 }}>{tH + pH}h</TableCell>
+                              <TableCell sx={{ fontSize: '0.76rem', color: '#64748B' }}>
+                                {u.toolsAndMaterials || 'Standard Tool Set'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+
+                  {/* Signatures */}
+                  <Grid container spacing={3} sx={{ pt: 2, borderTop: `1px dashed ${themeBorder}` }}>
+                    <Grid item xs={4} sx={{ textAlign: 'center' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                        Curriculum Department
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        Global Era Technical School
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4} sx={{ textAlign: 'center' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                        Lead Technical Trainer
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        Trade Instructor
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={4} sx={{ textAlign: 'center' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                        Principal / Director
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        Official Accreditation Stamp
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                </DialogContent>
+
+                <DialogActions sx={{ p: 2 }}>
+                  <Button onClick={() => setSelectedSyllabusCourse(null)} sx={{ fontWeight: 700 }}>
+                    Close
+                  </Button>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      const cId = selectedSyllabusCourse.id;
+                      setSelectedSyllabusCourse(null);
+                      handleSelectCourseForInquiry(cId);
+                    }}
+                    sx={{ bgcolor: '#059669', fontWeight: 800, '&:hover': { bgcolor: '#047857' } }}
+                  >
+                    Apply for this Course
+                  </Button>
+                </DialogActions>
+              </>
+            );
+          })()}
+        </Dialog>
+      )}
     </Box>
   );
 }

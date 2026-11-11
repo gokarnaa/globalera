@@ -276,10 +276,41 @@ export default function SyllabusManager() {
 
   const selectedCourse = db.courses?.find((c) => c.id === selectedCourseId);
   const courseSyllabi = useMemo(() => {
-    return (db.syllabi || [])
+    const list = (db.syllabi || [])
       .filter((s) => s.courseId === selectedCourseId)
       .sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
-  }, [db.syllabi, selectedCourseId]);
+
+    if (list.length > 0) return list;
+
+    // Fallback: Auto-match CTEVT standard preset for preview if no custom units saved yet
+    const cTitle = (selectedCourse?.title || '').toLowerCase();
+    let matchedPreset = null;
+    if (cTitle.includes('beauty') || cTitle.includes('beautician') || cTitle.includes('parlor') || cTitle.includes('cosmetology')) {
+      matchedPreset = CTEVT_PRESETS.find((p) => p.key === 'beautician');
+    } else if (cTitle.includes('tailor') || cTitle.includes('dress') || cTitle.includes('fashion') || cTitle.includes('garment')) {
+      matchedPreset = CTEVT_PRESETS.find((p) => p.key === 'tailoring');
+    } else if (cTitle.includes('care') || cTitle.includes('nurse') || cTitle.includes('health') || cTitle.includes('elderly')) {
+      matchedPreset = CTEVT_PRESETS.find((p) => p.key === 'caregiver');
+    } else if (cTitle.includes('electric') || cTitle.includes('wire')) {
+      matchedPreset = CTEVT_PRESETS.find((p) => p.key === 'electrician');
+    }
+
+    if (matchedPreset) {
+      return matchedPreset.units.map((u, i) => ({
+        id: `SYL-PRESET-${i + 1}`,
+        courseId: selectedCourseId,
+        unitNo: u.unitNo,
+        title: u.title,
+        theoryHours: u.theoryHours,
+        practicalHours: u.practicalHours,
+        totalHours: u.theoryHours + u.practicalHours,
+        learningOutcome: u.learningOutcome,
+        toolsAndMaterials: u.toolsAndMaterials
+      }));
+    }
+
+    return [];
+  }, [db.syllabi, selectedCourseId, selectedCourse]);
 
   // Filtered List based on Search and Filter Pills
   const filteredSyllabi = useMemo(() => {
