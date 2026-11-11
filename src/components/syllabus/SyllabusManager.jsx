@@ -67,16 +67,16 @@ const CTEVT_PRESETS = [
     description: 'CTEVT Accredited 3-Month Caregiver Curriculum (80% Practical, 10 Units)',
     targetHours: 390,
     units: [
-      { unitNo: 1, title: 'Orientation, Professional Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, learningOutcome: 'Understand institutional norms, personal safety, legal ethics and bio-hazard protocols.', toolsAndMaterials: 'Projector, Whiteboard, PPE Kit, Safety Guidelines' },
-      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master sponge bathing, bed making, oral hygiene, and sterile hand washing.', toolsAndMaterials: 'Hospital Bed, Linens, Basin, Sterile Gloves, Antiseptic' },
-      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, learningOutcome: 'Accurately measure Blood Pressure, Radial Pulse, Temperature and SpO2 levels.', toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Digital Thermometer, Pulse Oximeter' },
-      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, learningOutcome: 'Prepare diabetic/renal soft meals and assist dysphagia patients safely.', toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets, Measuring Cup, Apron' },
-      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, learningOutcome: 'Safely transfer patients bed-to-wheelchair, use walkers and crutches.', toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt, Crutches' },
-      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, learningOutcome: 'Perform high-quality CPR, manage choking (Heimlich), burns and bleeding.', toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box, Crepe Bandages' },
-      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, learningOutcome: 'Support Alzheimer/Dementia patients with patience, memory cues and sensory care.', toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock, Flashcards' },
-      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, learningOutcome: 'Administer oral medications following 5-Rights and maintain clinical records.', toolsAndMaterials: 'Pill Organizer, Medication Chart, Prescription Samples' },
-      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, learningOutcome: 'Prevent bedsore (pressure ulcers), reposition every 2 hours, and dignity care.', toolsAndMaterials: 'Air Mattress, Position Wedges, Barrier Creams' },
-      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, learningOutcome: 'Hospital & Care Home etiquette, client communication, and final skill exam.', toolsAndMaterials: 'Log Book, Uniform, Skill Rubric Sheet' }
+      { unitNo: 1, title: 'Orientation, Professional Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, learningOutcome: 'Understand institutional norms, personal safety, legal ethics and bio-hazard protocols.', toolsAndMaterials: 'Projector, Whiteboard, PPE Kit, Safety Guidelines', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master sponge bathing, bed making, oral hygiene, and sterile hand washing.', toolsAndMaterials: 'Hospital Bed, Linens, Basin, Sterile Gloves, Antiseptic', imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, learningOutcome: 'Accurately measure Blood Pressure, Radial Pulse, Temperature and SpO2 levels.', toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Digital Thermometer, Pulse Oximeter', imageUrl: 'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, learningOutcome: 'Prepare diabetic/renal soft meals and assist dysphagia patients safely.', toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets, Measuring Cup, Apron', imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, learningOutcome: 'Safely transfer patients bed-to-wheelchair, use walkers and crutches.', toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt, Crutches', imageUrl: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, learningOutcome: 'Perform high-quality CPR, manage choking (Heimlich), burns and bleeding.', toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box, Crepe Bandages', imageUrl: 'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, learningOutcome: 'Support Alzheimer/Dementia patients with patience, memory cues and sensory care.', toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock, Flashcards', imageUrl: 'https://images.unsplash.com/photo-1576765608629-87a14cb4a8f3?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, learningOutcome: 'Administer oral medications following 5-Rights and maintain clinical records.', toolsAndMaterials: 'Pill Organizer, Medication Chart, Prescription Samples', imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, learningOutcome: 'Prevent bedsore (pressure ulcers), reposition every 2 hours, and dignity care.', toolsAndMaterials: 'Air Mattress, Position Wedges, Barrier Creams', imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, learningOutcome: 'Hospital & Care Home etiquette, client communication, and final skill exam.', toolsAndMaterials: 'Log Book, Uniform, Skill Rubric Sheet', imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=600&q=80' }
     ]
   },
   {
@@ -85,14 +85,14 @@ const CTEVT_PRESETS = [
     description: 'CTEVT Level-1 Beautician Curriculum (80% Practical, 8 Units)',
     targetHours: 390,
     units: [
-      { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, learningOutcome: 'Sterilization of salon tools, client consultation and safety standards.', toolsAndMaterials: 'Sterilizer, Sanitizer, Apron, Towels' },
-      { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, learningOutcome: 'Perform galvanic facial, ultrasonic scrubbing, fruit clean-up and skin analysis.', toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Facial Creams, Pack' },
-      { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, learningOutcome: 'Execute basic layers, feather cut, blow-dry styling and tong curls.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Curling Iron, Section Clips' },
-      { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Apply rebonding cream, neutralizer, straightening iron safely.', toolsAndMaterials: 'Ceramic Straightener, Chemical Bowls, Tint Brushes, Gloves' },
-      { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Base correction, contouring, eye makeup, false lashes and bridal draping.', toolsAndMaterials: 'Professional Makeup Palette, Brush Set, HD Foundations' },
-      { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, learningOutcome: 'Nail shaping, cuticle treatment, hand/foot massage and gel polish application.', toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Nail Lamp, Gel Polish' },
-      { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, learningOutcome: 'Eyebrow shaping, upper lip threading, and warm/cold wax application.', toolsAndMaterials: 'Cotton Thread, Wax Heater, Wax Strips, Soothing Lotion' },
-      { unitNo: 8, title: 'Salon Management, Client Care & Entrepreneurship', theoryHours: 12, practicalHours: 18, learningOutcome: 'Billing, appointment scheduling, inventory management and business setup.', toolsAndMaterials: 'Cash Book, Menu Cards, Client Records' }
+      { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, learningOutcome: 'Sterilization of salon tools, client consultation and safety standards.', toolsAndMaterials: 'Sterilizer, Sanitizer, Apron, Towels', imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, learningOutcome: 'Perform galvanic facial, ultrasonic scrubbing, fruit clean-up and skin analysis.', toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Facial Creams, Pack', imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, learningOutcome: 'Execute basic layers, feather cut, blow-dry styling and tong curls.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Curling Iron, Section Clips', imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Apply rebonding cream, neutralizer, straightening iron safely.', toolsAndMaterials: 'Ceramic Straightener, Chemical Bowls, Tint Brushes, Gloves', imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, learningOutcome: 'Base correction, contouring, eye makeup, false lashes and bridal draping.', toolsAndMaterials: 'Professional Makeup Palette, Brush Set, HD Foundations', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, learningOutcome: 'Nail shaping, cuticle treatment, hand/foot massage and gel polish application.', toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Nail Lamp, Gel Polish', imageUrl: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, learningOutcome: 'Eyebrow shaping, upper lip threading, and warm/cold wax application.', toolsAndMaterials: 'Cotton Thread, Wax Heater, Wax Strips, Soothing Lotion', imageUrl: 'https://images.unsplash.com/photo-1512290900672-1f02d4493eb9?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 8, title: 'Salon Management, Client Care & Entrepreneurship', theoryHours: 12, practicalHours: 18, learningOutcome: 'Billing, appointment scheduling, inventory management and business setup.', toolsAndMaterials: 'Cash Book, Menu Cards, Client Records', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=600&q=80' }
     ]
   },
   {
@@ -101,14 +101,14 @@ const CTEVT_PRESETS = [
     description: 'CTEVT National Skill Standard Building Wiring Curriculum (80% Practical, 8 Units)',
     targetHours: 390,
     units: [
-      { unitNo: 1, title: 'Electrical Safety, Tools & Basic Concepts', theoryHours: 12, practicalHours: 20, learningOutcome: 'Understand Ohm’s Law, earthing, electrical hazards and PPE usage.', toolsAndMaterials: 'Insulated Pliers, Multimeter, Screwdriver Set, Safety Helmet' },
-      { unitNo: 2, title: 'Conduit Piping & Domestic Surface Wiring', theoryHours: 10, practicalHours: 50, learningOutcome: 'Install PVC conduit pipes, junction boxes and 2-way switch control.', toolsAndMaterials: 'PVC Pipes, Bending Spring, Chisel, Hammer, Switches' },
-      { unitNo: 3, title: 'Distribution Board (DB), MCB & RCCB Installation', theoryHours: 10, practicalHours: 50, learningOutcome: 'Wire Main Switch, MCB, RCCB/ELCB, and load balancing.', toolsAndMaterials: 'DB Box, Single/Double Pole MCB, RCCB, Bus Bar' },
-      { unitNo: 4, title: 'Earthing Systems (Pipe & Plate Earthing)', theoryHours: 8, practicalHours: 42, learningOutcome: 'Excavate pit, install GI/Copper pipe, salt-charcoal earthing layer.', toolsAndMaterials: 'GI Pipe, Copper Strip, Earth Tester, Charcoal, Salt' },
-      { unitNo: 5, title: 'Lighting Fixtures, Inverter & UPS Integration', theoryHours: 10, practicalHours: 45, learningOutcome: 'Install LED panels, fans, chandeliers, and inverter backup wiring.', toolsAndMaterials: 'Inverter, Battery, Ceiling Fan, LED Downlights' },
-      { unitNo: 6, title: 'Motor & Water Pump Control Wiring', theoryHours: 8, practicalHours: 40, learningOutcome: 'Connect single-phase induction motor with automatic water level controller.', toolsAndMaterials: 'Water Pump Motor, Float Switch, Starter, Contactors' },
-      { unitNo: 7, title: 'Troubleshooting, Short Circuit & Insulation Testing', theoryHours: 10, practicalHours: 40, learningOutcome: 'Use Megger for insulation test, detect earth leakage and phase neutral reverse.', toolsAndMaterials: 'Megger (Insulation Tester), Test Lamp, Continuity Tester' },
-      { unitNo: 8, title: 'Cost Estimation, Single Line Diagram (SLD) & Rules', theoryHours: 10, practicalHours: 25, learningOutcome: 'Read architectural electrical plans, estimate cables and billing.', toolsAndMaterials: 'Blueprints, Estimation Sheet, NEA Wiring Regulations' }
+      { unitNo: 1, title: 'Electrical Safety, Tools & Basic Concepts', theoryHours: 12, practicalHours: 20, learningOutcome: 'Understand Ohm’s Law, earthing, electrical hazards and PPE usage.', toolsAndMaterials: 'Insulated Pliers, Multimeter, Screwdriver Set, Safety Helmet', imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Conduit Piping & Domestic Surface Wiring', theoryHours: 10, practicalHours: 50, learningOutcome: 'Install PVC conduit pipes, junction boxes and 2-way switch control.', toolsAndMaterials: 'PVC Pipes, Bending Spring, Chisel, Hammer, Switches', imageUrl: 'https://images.unsplash.com/photo-1544725176-7c40e5a71c5e?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Distribution Board (DB), MCB & RCCB Installation', theoryHours: 10, practicalHours: 50, learningOutcome: 'Wire Main Switch, MCB, RCCB/ELCB, and load balancing.', toolsAndMaterials: 'DB Box, Single/Double Pole MCB, RCCB, Bus Bar', imageUrl: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Earthing Systems (Pipe & Plate Earthing)', theoryHours: 8, practicalHours: 42, learningOutcome: 'Excavate pit, install GI/Copper pipe, salt-charcoal earthing layer.', toolsAndMaterials: 'GI Pipe, Copper Strip, Earth Tester, Charcoal, Salt', imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 5, title: 'Lighting Fixtures, Inverter & UPS Integration', theoryHours: 10, practicalHours: 45, learningOutcome: 'Install LED panels, fans, chandeliers, and inverter backup wiring.', toolsAndMaterials: 'Inverter, Battery, Ceiling Fan, LED Downlights', imageUrl: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 6, title: 'Motor & Water Pump Control Wiring', theoryHours: 8, practicalHours: 40, learningOutcome: 'Connect single-phase induction motor with automatic water level controller.', toolsAndMaterials: 'Water Pump Motor, Float Switch, Starter, Contactors', imageUrl: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 7, title: 'Troubleshooting, Short Circuit & Insulation Testing', theoryHours: 10, practicalHours: 40, learningOutcome: 'Use Megger for insulation test, detect earth leakage and phase neutral reverse.', toolsAndMaterials: 'Megger (Insulation Tester), Test Lamp, Continuity Tester', imageUrl: 'https://images.unsplash.com/photo-1581092162384-8987c1d64718?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 8, title: 'Cost Estimation, Single Line Diagram (SLD) & Rules', theoryHours: 10, practicalHours: 25, learningOutcome: 'Read architectural electrical plans, estimate cables and billing.', toolsAndMaterials: 'Blueprints, Estimation Sheet, NEA Wiring Regulations', imageUrl: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=80' }
     ]
   },
   {
@@ -117,14 +117,14 @@ const CTEVT_PRESETS = [
     description: 'CTEVT Level-1 Tailoring & Garment Construction (80% Practical, 8 Units)',
     targetHours: 390,
     units: [
-      { unitNo: 1, title: 'Garment Technology, Workshop Safety & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, learningOutcome: 'Operate tailoring tools safely, take precision body measurements and read sizing charts.', toolsAndMaterials: 'Measuring Tape, Tailoring Chalk, Tracing Wheel, Cutting Table' },
-      { unitNo: 2, title: 'Industrial Sewing Machine Operation, Threading & Maintenance', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master single-needle lockstitch, bobbin winding, tension adjustment and oiling.', toolsAndMaterials: 'Industrial Lockstitch Machine, Bobbin, Needles, Machine Oil' },
-      { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout Techniques', theoryHours: 12, practicalHours: 58, learningOutcome: 'Draft master bodice, sleeve, collar patterns and optimize fabric layout with zero waste.', toolsAndMaterials: 'Pattern Paper, L-Square, French Curve, Tailor Shears' },
-      { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction (Simple & Designer)', theoryHours: 10, practicalHours: 60, learningOutcome: 'Cut and construct 4-dart, katori, princess-cut blouses with neck piping and hook-eyes.', toolsAndMaterials: 'Cotton/Silk Fabric, Interlining, Hooks, Eye Tape, Pressing Iron' },
-      { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, learningOutcome: 'Draft, cut and assemble straight kurtha, A-line kurtha, churidar and patiala salwar.', toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper, Elastic Bands' },
-      { unitNo: 6, title: 'Western & Children’s Garments: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, learningOutcome: 'Construct collared shirts, pleated skirts, trousers with zipper fly and baby frocks.', toolsAndMaterials: 'Denim/Twill Fabric, YKK Zippers, Collar Stiffener, Buttons' },
-      { unitNo: 7, title: 'Overlocking, Edge Finishing, Hemming & Quality Pressing', theoryHours: 6, practicalHours: 34, learningOutcome: 'Operate 3/4-thread overlock machine, buttonhole machine, and professional steam pressing.', toolsAndMaterials: 'Overlock Machine, Buttonhole Foot, Steam Iron, Ironing Board' },
-      { unitNo: 8, title: 'Boutique Management, Fabric Costing & Client Consultation', theoryHours: 10, practicalHours: 20, learningOutcome: 'Calculate fabric consumption, prepare client orders, cost estimation and boutique setup.', toolsAndMaterials: 'Order Book, Costing Sheet, Sample Garment Rack' }
+      { unitNo: 1, title: 'Garment Technology, Workshop Safety & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, learningOutcome: 'Operate tailoring tools safely, take precision body measurements and read sizing charts.', toolsAndMaterials: 'Measuring Tape, Tailoring Chalk, Tracing Wheel, Cutting Table', imageUrl: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Industrial Sewing Machine Operation, Threading & Maintenance', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master single-needle lockstitch, bobbin winding, tension adjustment and oiling.', toolsAndMaterials: 'Industrial Lockstitch Machine, Bobbin, Needles, Machine Oil', imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout Techniques', theoryHours: 12, practicalHours: 58, learningOutcome: 'Draft master bodice, sleeve, collar patterns and optimize fabric layout with zero waste.', toolsAndMaterials: 'Pattern Paper, L-Square, French Curve, Tailor Shears', imageUrl: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction (Simple & Designer)', theoryHours: 10, practicalHours: 60, learningOutcome: 'Cut and construct 4-dart, katori, princess-cut blouses with neck piping and hook-eyes.', toolsAndMaterials: 'Cotton/Silk Fabric, Interlining, Hooks, Eye Tape, Pressing Iron', imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, learningOutcome: 'Draft, cut and assemble straight kurtha, A-line kurtha, churidar and patiala salwar.', toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper, Elastic Bands', imageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 6, title: 'Western & Children’s Garments: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, learningOutcome: 'Construct collared shirts, pleated skirts, trousers with zipper fly and baby frocks.', toolsAndMaterials: 'Denim/Twill Fabric, YKK Zippers, Collar Stiffener, Buttons', imageUrl: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 7, title: 'Overlocking, Edge Finishing, Hemming & Quality Pressing', theoryHours: 6, practicalHours: 34, learningOutcome: 'Operate 3/4-thread overlock machine, buttonhole machine, and professional steam pressing.', toolsAndMaterials: 'Overlock Machine, Buttonhole Foot, Steam Iron, Ironing Board', imageUrl: 'https://images.unsplash.com/photo-1584297091622-af8e5fd852c0?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 8, title: 'Boutique Management, Fabric Costing & Client Consultation', theoryHours: 10, practicalHours: 20, learningOutcome: 'Calculate fabric consumption, prepare client orders, cost estimation and boutique setup.', toolsAndMaterials: 'Order Book, Costing Sheet, Sample Garment Rack', imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80' }
     ]
   },
   {
@@ -133,10 +133,10 @@ const CTEVT_PRESETS = [
     description: '1-Month Budget Friendly Beginner Course (80% Practical, 4 Units)',
     targetHours: 100,
     units: [
-      { unitNo: 1, title: 'Machine Operation, Needles, Threads & Safety', theoryHours: 6, practicalHours: 14, learningOutcome: 'Control machine speed, straight stitch practice, and troubleshoot thread breakage.', toolsAndMaterials: 'Sewing Machine, Practice Cloth, Thread, Scissors' },
-      { unitNo: 2, title: 'Hand Stitches, Button Attachment & Edge Hemming', theoryHours: 4, practicalHours: 26, learningOutcome: 'Execute running stitch, hem stitch, buttonhole, and hook attachment.', toolsAndMaterials: 'Hand Needles, Buttons, Hooks, Chalk, Rulers' },
-      { unitNo: 3, title: 'Simple Blouse & Petticoat Cutting & Stitching', theoryHours: 6, practicalHours: 24, learningOutcome: 'Cut 6-kaliko petticoat and simple 4-dart blouse with neat stitching.', toolsAndMaterials: 'Cotton Fabric, Measuring Tape, Tailor Scissors' },
-      { unitNo: 4, title: 'Simple Kurtha & Pyjama Construction', theoryHours: 4, practicalHours: 16, learningOutcome: 'Assemble daily-wear kurtha with side slits and elastic pyjama.', toolsAndMaterials: 'Kurtha Fabric, Elastic, Ironing Box' }
+      { unitNo: 1, title: 'Machine Operation, Needles, Threads & Safety', theoryHours: 6, practicalHours: 14, learningOutcome: 'Control machine speed, straight stitch practice, and troubleshoot thread breakage.', toolsAndMaterials: 'Sewing Machine, Practice Cloth, Thread, Scissors', imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Hand Stitches, Button Attachment & Edge Hemming', theoryHours: 4, practicalHours: 26, learningOutcome: 'Execute running stitch, hem stitch, buttonhole, and hook attachment.', toolsAndMaterials: 'Hand Needles, Buttons, Hooks, Chalk, Rulers', imageUrl: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Simple Blouse & Petticoat Cutting & Stitching', theoryHours: 6, practicalHours: 24, learningOutcome: 'Cut 6-kaliko petticoat and simple 4-dart blouse with neat stitching.', toolsAndMaterials: 'Cotton Fabric, Measuring Tape, Tailor Scissors', imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Simple Kurtha & Pyjama Construction', theoryHours: 4, practicalHours: 16, learningOutcome: 'Assemble daily-wear kurtha with side slits and elastic pyjama.', toolsAndMaterials: 'Kurtha Fabric, Elastic, Ironing Box', imageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' }
     ]
   },
   {
@@ -145,10 +145,10 @@ const CTEVT_PRESETS = [
     description: '1-Month Budget Friendly Salon Starter Course (80% Practical, 4 Units)',
     targetHours: 100,
     units: [
-      { unitNo: 1, title: 'Sanitation, Client Care & Basic Salon Equipment', theoryHours: 6, practicalHours: 14, learningOutcome: 'Sterilize tools, maintain hygiene, understand skin types and client interaction.', toolsAndMaterials: 'Sanitizer, Dettol, Towels, Clean-up Kits' },
-      { unitNo: 2, title: 'Eyebrow Threading, Face Bleach & Waxing', theoryHours: 4, practicalHours: 26, learningOutcome: 'Perform painless eyebrow threading, upper lip hair removal and wax strip application.', toolsAndMaterials: 'Organic Thread, Wax Heater, Strips, After-Wax Gel' },
-      { unitNo: 3, title: 'Fruit Facial, Face Clean-up & Head Massage', theoryHours: 6, practicalHours: 24, learningOutcome: 'Execute 7-step facial massage, scrubbing, steaming and soothing pack.', toolsAndMaterials: 'Facial Steamer, Scrub, Fruit Pack, Massage Cream' },
-      { unitNo: 4, title: 'Basic Hair Trimming, Blow-Dry & Everyday Makeup', theoryHours: 4, practicalHours: 16, learningOutcome: 'Straight cut, U-cut, paddle blow-dry, BB-cream base and daily makeup application.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Round Brush, Basic Makeup Kit' }
+      { unitNo: 1, title: 'Sanitation, Client Care & Basic Salon Equipment', theoryHours: 6, practicalHours: 14, learningOutcome: 'Sterilize tools, maintain hygiene, understand skin types and client interaction.', toolsAndMaterials: 'Sanitizer, Dettol, Towels, Clean-up Kits', imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Eyebrow Threading, Face Bleach & Waxing', theoryHours: 4, practicalHours: 26, learningOutcome: 'Perform painless eyebrow threading, upper lip hair removal and wax strip application.', toolsAndMaterials: 'Organic Thread, Wax Heater, Strips, After-Wax Gel', imageUrl: 'https://images.unsplash.com/photo-1512290900672-1f02d4493eb9?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Fruit Facial, Face Clean-up & Head Massage', theoryHours: 6, practicalHours: 24, learningOutcome: 'Execute 7-step facial massage, scrubbing, steaming and soothing pack.', toolsAndMaterials: 'Facial Steamer, Scrub, Fruit Pack, Massage Cream', imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Basic Hair Trimming, Blow-Dry & Everyday Makeup', theoryHours: 4, practicalHours: 16, learningOutcome: 'Straight cut, U-cut, paddle blow-dry, BB-cream base and daily makeup application.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Round Brush, Basic Makeup Kit', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80' }
     ]
   }
 ];
@@ -225,7 +225,8 @@ export default function SyllabusManager() {
     practicalHours: 30,
     learningOutcome: '',
     toolsAndMaterials: '',
-    keyTasks: ''
+    keyTasks: '',
+    imageUrl: ''
   });
 
   // Bulk Import State
@@ -239,9 +240,6 @@ export default function SyllabusManager() {
       .filter((s) => s.courseId === selectedCourseId)
       .sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
 
-    if (list.length > 0) return list;
-
-    // Fallback: Auto-match CTEVT standard preset for preview if no custom units saved yet
     const cTitle = (selectedCourse?.title || '').toLowerCase();
     let matchedPreset = null;
     if (cTitle.includes('beauty') || cTitle.includes('beautician') || cTitle.includes('parlor') || cTitle.includes('cosmetology')) {
@@ -254,6 +252,16 @@ export default function SyllabusManager() {
       matchedPreset = CTEVT_PRESETS.find((p) => p.key === 'electrician');
     }
 
+    if (list.length > 0) {
+      return list.map((s) => {
+        const presetUnit = matchedPreset?.units?.find((u) => Number(u.unitNo) === Number(s.unitNo));
+        return {
+          ...s,
+          imageUrl: s.imageUrl || presetUnit?.imageUrl || ''
+        };
+      });
+    }
+
     if (matchedPreset) {
       return matchedPreset.units.map((u, i) => ({
         id: `SYL-PRESET-${i + 1}`,
@@ -264,7 +272,8 @@ export default function SyllabusManager() {
         practicalHours: u.practicalHours,
         totalHours: u.theoryHours + u.practicalHours,
         learningOutcome: u.learningOutcome,
-        toolsAndMaterials: u.toolsAndMaterials
+        toolsAndMaterials: u.toolsAndMaterials,
+        imageUrl: u.imageUrl || ''
       }));
     }
 
@@ -355,7 +364,8 @@ export default function SyllabusManager() {
       practicalHours: '',
       learningOutcome: '',
       toolsAndMaterials: '',
-      keyTasks: ''
+      keyTasks: '',
+      imageUrl: ''
     });
     setOpenSingleDialog(true);
   };
@@ -367,7 +377,8 @@ export default function SyllabusManager() {
       theoryHours: item.theoryHours || 0,
       practicalHours: item.practicalHours || 0,
       toolsAndMaterials: item.toolsAndMaterials || '',
-      keyTasks: item.keyTasks || ''
+      keyTasks: item.keyTasks || '',
+      imageUrl: item.imageUrl || ''
     });
     setOpenSingleDialog(true);
   };
@@ -1040,6 +1051,24 @@ export default function SyllabusManager() {
                     }}
                   />
 
+                  {/* Visual Photo Banner */}
+                  {syl.imageUrl && (
+                    <Box sx={{ position: 'relative', height: 130, bgcolor: '#F1F5F9', overflow: 'hidden', borderBottom: '1px solid #E2E8F0' }}>
+                      <Box
+                        component="img"
+                        src={syl.imageUrl}
+                        alt={syl.title}
+                        sx={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                          transition: 'transform 0.3s ease',
+                          '&:hover': { transform: 'scale(1.04)' }
+                        }}
+                      />
+                    </Box>
+                  )}
+
                   {/* Header */}
                   <Box sx={{ p: 2, pb: 1, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -1508,6 +1537,100 @@ export default function SyllabusManager() {
                 onChange={(e) => setFormData({ ...formData, toolsAndMaterials: e.target.value })}
               />
             </Grid>
+
+            {/* Unit Photo / Garment / Technique Picture */}
+            <Grid item xs={12}>
+              <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A', display: 'block', mb: 1 }}>
+                  📸 Unit Visual Picture / Garment / Technique Photo
+                </Typography>
+                <Grid container spacing={2} alignItems="center">
+                  <Grid item xs={12} sm={8}>
+                    <TextField
+                      label="Image Web URL"
+                      fullWidth
+                      size="small"
+                      placeholder="https://... or upload local image"
+                      value={formData.imageUrl || ''}
+                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      helperText="Paste direct picture URL or choose local file from device"
+                    />
+                    <Box sx={{ mt: 1 }}>
+                      <Button
+                        variant="outlined"
+                        component="label"
+                        size="small"
+                        sx={{ fontWeight: 800, fontSize: '0.75rem', textTransform: 'none' }}
+                      >
+                        📁 Choose Photo from Device
+                        <input
+                          type="file"
+                          accept="image/*"
+                          hidden
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const reader = new FileReader();
+                              reader.onload = (uploadEvent) => {
+                                setFormData((prev) => ({ ...prev, imageUrl: uploadEvent.target.result }));
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </Button>
+                      {formData.imageUrl && (
+                        <Button
+                          size="small"
+                          color="error"
+                          onClick={() => setFormData((prev) => ({ ...prev, imageUrl: '' }))}
+                          sx={{ ml: 1, fontSize: '0.75rem', textTransform: 'none', fontWeight: 700 }}
+                        >
+                          Clear Photo
+                        </Button>
+                      )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
+                    <Box sx={{ textAlign: 'center' }}>
+                      {formData.imageUrl ? (
+                        <Box
+                          component="img"
+                          src={formData.imageUrl}
+                          alt="Preview"
+                          sx={{
+                            width: 100,
+                            height: 100,
+                            objectFit: 'cover',
+                            borderRadius: 2,
+                            border: '1.5px solid #CBD5E1',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                          }}
+                        />
+                      ) : (
+                        <Box
+                          sx={{
+                            width: 100,
+                            height: 100,
+                            mx: 'auto',
+                            bgcolor: '#E2E8F0',
+                            borderRadius: 2,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#94A3B8',
+                            fontSize: '0.72rem',
+                            fontWeight: 700
+                          }}
+                        >
+                          No Photo
+                        </Box>
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+              </Box>
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions
@@ -1930,12 +2053,25 @@ export default function SyllabusManager() {
                       0{u.unitNo}
                     </TableCell>
                     <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>
-                      {u.title}
-                      {u.toolsAndMaterials && (
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.7rem' }}>
-                          🛠️ Tools: {u.toolsAndMaterials}
-                        </Typography>
-                      )}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {u.imageUrl && (
+                          <Avatar
+                            src={u.imageUrl}
+                            variant="rounded"
+                            sx={{ width: 44, height: 44, border: '1px solid #CBD5E1', flexShrink: 0 }}
+                          />
+                        )}
+                        <Box>
+                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.25 }}>
+                            {u.title}
+                          </Typography>
+                          {u.toolsAndMaterials && (
+                            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.7rem', mt: 0.3 }}>
+                              🛠️ Tools: {u.toolsAndMaterials}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
                     </TableCell>
                     <TableCell sx={{ textAlign: 'center', color: '#2563EB', fontWeight: 700 }}>
                       {u.theoryHours}h

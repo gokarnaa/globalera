@@ -79,8 +79,8 @@ class ErrorBoundary extends React.Component {
             <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
               System Rendering Notice
             </Typography>
-            <Typography variant="body2" sx={{ fontFamily: 'monospace', mt: 0.5 }}>
-              {this.state.error?.message || 'Unexpected issue'}
+            <Typography variant="body2" sx={{ fontFamily: 'monospace', mt: 0.5, whiteSpace: 'pre-wrap', textAlign: 'left', fontSize: '0.75rem', maxHeight: 200, overflowY: 'auto' }}>
+              {this.state.error?.stack || this.state.error?.message || 'Unexpected issue'}
             </Typography>
           </Alert>
           <Button
@@ -150,6 +150,11 @@ export default function App() {
   }, []);
 
   const [currentTab, setCurrentTab] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam) return tabParam;
+    } catch (_) {}
     if (currentUser?.role === 'TRAINER') return 'trainer_portal';
     if (currentUser?.role === 'STUDENT') return 'student_portal';
     if (currentUser?.role === 'EMPLOYER') return 'employer_portal';

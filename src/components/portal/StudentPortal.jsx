@@ -120,16 +120,49 @@ export default function StudentPortal({ onLogout }) {
     return { total, present, absent, late, percent, records };
   }, [db.attendances, student, group]);
 
-  // Syllabus and evaluations
+  // Syllabus and evaluations with trade photo fallbacks
   const syllabusEvaluations = useMemo(() => {
     if (!course?.id) return [];
     const syllabi = (db.syllabi || []).filter((s) => s.courseId === course.id);
     const evals = (db.evaluations || []).filter((e) => e.studentId === student?.id);
+    const cTitle = (course.title || '').toLowerCase();
 
-    return syllabi.map((syl) => {
+    // Curated trade photos for vocational visual representation
+    const tradePhotoPool = cTitle.includes('tailor') || cTitle.includes('dress') || cTitle.includes('fashion')
+      ? [
+          'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1598532163257-ae3c6b2524b6?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1520006403909-838d6b92c22e?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1605518216938-7c31b7b14ad0?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80'
+        ]
+      : cTitle.includes('beauty') || cTitle.includes('beautician') || cTitle.includes('parlor')
+      ? [
+          'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1516975080664-ed2fc6a32937?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=600&q=80'
+        ]
+      : [
+          'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1532938911079-1b06ac7ceec7?auto=format&fit=crop&w=600&q=80',
+          'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=600&q=80'
+        ];
+
+    return syllabi.map((syl, idx) => {
       const match = evals.find((e) => e.syllabusId === syl.id);
       return {
         ...syl,
+        imageUrl: syl.imageUrl || tradePhotoPool[idx % tradePhotoPool.length],
         evaluation: match || null,
         mastered: match ? Boolean(match.mastered) : false
       };
@@ -622,14 +655,25 @@ export default function StudentPortal({ onLogout }) {
                       Unit {item.unitNo}
                     </TableCell>
                     <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-                        {item.title}
-                      </Typography>
-                      {item.learningOutcome && (
-                        <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                          🎯 {item.learningOutcome}
-                        </Typography>
-                      )}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {item.imageUrl && (
+                          <Avatar
+                            src={item.imageUrl}
+                            variant="rounded"
+                            sx={{ width: 44, height: 44, border: '1px solid #CBD5E1', flexShrink: 0 }}
+                          />
+                        )}
+                        <Box>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.25 }}>
+                            {item.title}
+                          </Typography>
+                          {item.learningOutcome && (
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 0.2 }}>
+                              🎯 {item.learningOutcome}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="caption" sx={{ fontWeight: 700 }}>
@@ -1359,7 +1403,20 @@ export default function StudentPortal({ onLogout }) {
                         0{item.unitNo}
                       </TableCell>
                       <TableCell sx={{ fontWeight: 700, fontSize: '0.82rem' }}>
-                        {item.title}
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          {item.imageUrl && (
+                            <Avatar
+                              src={item.imageUrl}
+                              variant="rounded"
+                              sx={{ width: 34, height: 34, border: '1px solid #CBD5E1', flexShrink: 0 }}
+                            />
+                          )}
+                          <Box>
+                            <Typography variant="body2" sx={{ fontWeight: 800, fontSize: '0.82rem', color: '#0F172A' }}>
+                              {item.title}
+                            </Typography>
+                          </Box>
+                        </Box>
                       </TableCell>
                       <TableCell sx={{ textAlign: 'center' }}>{item.theoryHours}h</TableCell>
                       <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#059669' }}>{item.practicalHours}h</TableCell>
@@ -1606,7 +1663,20 @@ export default function StudentPortal({ onLogout }) {
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#0F2C59' }}>
                       0{u.unitNo}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700 }}>{u.title}</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                        {u.imageUrl && (
+                          <Avatar
+                            src={u.imageUrl}
+                            variant="rounded"
+                            sx={{ width: 38, height: 38, border: '1px solid #CBD5E1', flexShrink: 0 }}
+                          />
+                        )}
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                          {u.title}
+                        </Typography>
+                      </Box>
+                    </TableCell>
                     <TableCell sx={{ textAlign: 'center' }}>{u.theoryHours}h</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#059669' }}>{u.practicalHours}h</TableCell>
                     <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>{u.totalHours}h</TableCell>

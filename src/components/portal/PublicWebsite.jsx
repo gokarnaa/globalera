@@ -124,49 +124,90 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   // Active Syllabus Preview Modal State for Prospective Trainees & Counselors
   const [selectedSyllabusCourse, setSelectedSyllabusCourse] = useState(null);
   const [brochureTab, setBrochureTab] = useState(0);
+  const [brochureGalleryMode, setBrochureGalleryMode] = useState('gallery');
 
   const activeSyllabusUnits = useMemo(() => {
     if (!selectedSyllabusCourse) return [];
     const direct = (db.syllabi || []).filter((s) => s.courseId === selectedSyllabusCourse.id);
-    if (direct.length > 0) return direct.sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
+    const titleLower = (selectedSyllabusCourse.title || '').toLowerCase();
+    const isBeauty = titleLower.includes('beauty') || titleLower.includes('beautician');
+    const isTailor = titleLower.includes('tailor') || titleLower.includes('dress') || titleLower.includes('fashion') || titleLower.includes('stitch');
+
+    const defaultImages = isBeauty ? [
+      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1512290900672-1f02d4493eb9?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=600&q=80'
+    ] : isTailor ? [
+      'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1584297091622-af8e5fd852c0?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80'
+    ] : [
+      'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1576765608629-87a14cb4a8f3?auto=format&fit=crop&w=600&q=80',
+      'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80'
+    ];
+
+    if (direct.length > 0) {
+      const sorted = direct.sort((a, b) => Number(a.unitNo) - Number(b.unitNo));
+      return sorted.map((u) => {
+        if (u.imageUrl) return u;
+        const idx = Math.max(0, (Number(u.unitNo) || 1) - 1) % defaultImages.length;
+        return { ...u, imageUrl: defaultImages[idx] };
+      });
+    }
 
     const title = (selectedSyllabusCourse.title || '').toLowerCase();
     if (title.includes('beauty') || title.includes('beautician')) {
       return [
-        { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Sterilizer, Sanitizer, Apron' },
-        { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Pack' },
-        { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Shears, Blow Dryer, Curling Iron' },
-        { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Straightener, Chemical Bowls, Brushes' },
-        { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Makeup Palette, Brush Set, HD Base' },
-        { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Lamp' },
-        { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Cotton Thread, Wax Heater, Strips' },
-        { unitNo: 8, title: 'Salon Management & Client Care', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Appointment System, Client Records' }
+        { unitNo: 1, title: 'Introduction to Beauty Culture, Sanitation & Hygiene', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Sterilizer, Sanitizer, Apron', imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 2, title: 'Skin Anatomy, Facial Treatments & Clean-up', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Facial Bed, Steamer, Scrub, Pack', imageUrl: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 3, title: 'Hair Cutting, Styling & Thermal Setting', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Shears, Blow Dryer, Curling Iron', imageUrl: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 4, title: 'Hair Chemical Treatments (Rebonding & Smoothening)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Straightener, Chemical Bowls, Brushes', imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 5, title: 'Professional Makeup (Day, Evening & Bridal HD)', theoryHours: 10, practicalHours: 50, toolsAndMaterials: 'Makeup Palette, Brush Set, HD Base', imageUrl: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 6, title: 'Manicure, Pedicure & Nail Art Techniques', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Pedicure Tub, Cuticle Nipper, UV Lamp', imageUrl: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 7, title: 'Hair Removal (Waxing & Threading)', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Cotton Thread, Wax Heater, Strips', imageUrl: 'https://images.unsplash.com/photo-1512290900672-1f02d4493eb9?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 8, title: 'Salon Management & Client Care', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Appointment System, Client Records', imageUrl: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?auto=format&fit=crop&w=600&q=80' }
       ];
     }
     if (title.includes('tailor') || title.includes('dress') || title.includes('fashion') || title.includes('stitch')) {
       return [
-        { unitNo: 1, title: 'Garment Technology & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Measuring Tape, Chalk, Shears' },
-        { unitNo: 2, title: 'Industrial Sewing Machine Operation & Maintenance', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Industrial Lockstitch Machine, Needles' },
-        { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Pattern Paper, L-Square, French Curve' },
-        { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Fabric, Interlining, Hooks, Iron' },
-        { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper' },
-        { unitNo: 6, title: 'Western Wear: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, toolsAndMaterials: 'Fabric, Zippers, Collar Stiffener' },
-        { unitNo: 7, title: 'Overlocking, Edge Finishing & Quality Pressing', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Overlock Machine, Steam Iron' },
-        { unitNo: 8, title: 'Boutique Management & Cost Calculation', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'Order Book, Costing Sheet' }
+        { unitNo: 1, title: 'Garment Technology & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, toolsAndMaterials: 'Measuring Tape, Chalk, Shears', imageUrl: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 2, title: 'Industrial Sewing Machine Operation & Maintenance', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Industrial Lockstitch Machine, Needles', imageUrl: 'https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout', theoryHours: 12, practicalHours: 58, toolsAndMaterials: 'Pattern Paper, L-Square, French Curve', imageUrl: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Fabric, Interlining, Hooks, Iron', imageUrl: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper', imageUrl: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 6, title: 'Western Wear: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, toolsAndMaterials: 'Fabric, Zippers, Collar Stiffener', imageUrl: 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 7, title: 'Overlocking, Edge Finishing & Quality Pressing', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Overlock Machine, Steam Iron', imageUrl: 'https://images.unsplash.com/photo-1584297091622-af8e5fd852c0?auto=format&fit=crop&w=600&q=80' },
+        { unitNo: 8, title: 'Boutique Management & Cost Calculation', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'Order Book, Costing Sheet', imageUrl: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80' }
       ];
     }
     // Default Caregiver
     return [
-      { unitNo: 1, title: 'Orientation, Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'PPE Kit, Whiteboard' },
-      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Hospital Bed, Linens, Basin, Gloves' },
-      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Oximeter' },
-      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets' },
-      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt' },
-      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box' },
-      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock' },
-      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, toolsAndMaterials: 'Pill Organizer, Medication Chart' },
-      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Air Mattress, Position Wedges' },
-      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, toolsAndMaterials: 'Log Book, Uniform, Skill Rubric' }
+      { unitNo: 1, title: 'Orientation, Ethics & Safety Measures', theoryHours: 10, practicalHours: 20, toolsAndMaterials: 'PPE Kit, Whiteboard', imageUrl: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 2, title: 'Fundamental Patient Care, Hygiene & Infection Control', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Hospital Bed, Linens, Basin, Gloves', imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 3, title: 'Vital Signs Monitoring & Health Assessment', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'Sphygmomanometer, Stethoscope, Oximeter', imageUrl: 'https://images.unsplash.com/photo-1584982751601-97dcc096659c?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 4, title: 'Nutrition, Therapeutic Diets & Meal Assistance', theoryHours: 10, practicalHours: 30, toolsAndMaterials: 'Feeding Tray, Pureed Meal Sets', imageUrl: 'https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 5, title: 'Patient Mobility, Transfers & Assistive Devices', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Wheelchair, Walking Frame, Transfer Belt', imageUrl: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 6, title: 'Emergency First Aid, Wound Care & Adult CPR', theoryHours: 8, practicalHours: 32, toolsAndMaterials: 'CPR Resusci Anne Mannequin, First Aid Box', imageUrl: 'https://images.unsplash.com/photo-1516574187841-cb9cc2ca948b?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 7, title: 'Geriatric Care & Dementia Support', theoryHours: 10, practicalHours: 40, toolsAndMaterials: 'Sensory Therapy Kit, Orientation Clock', imageUrl: 'https://images.unsplash.com/photo-1576765608629-87a14cb4a8f3?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 8, title: 'Medication Administration & Daily Log Book', theoryHours: 8, practicalHours: 22, toolsAndMaterials: 'Pill Organizer, Medication Chart', imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 9, title: 'Palliative, End-of-Life & Bedridden Care', theoryHours: 6, practicalHours: 34, toolsAndMaterials: 'Air Mattress, Position Wedges', imageUrl: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80' },
+      { unitNo: 10, title: 'Clinical Demonstration & OJT Internship Preparation', theoryHours: 4, practicalHours: 26, toolsAndMaterials: 'Log Book, Uniform, Skill Rubric', imageUrl: 'https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=600&q=80' }
     ];
   }, [selectedSyllabusCourse, db.syllabi]);
 
@@ -2133,7 +2174,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   {/* TAB 0: CURRICULUM MODULES TABLE & CARDS */}
                   {brochureTab === 0 && (
                     <Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
                         <Box>
                           <Typography variant="subtitle1" sx={{ fontWeight: 900, color: theme.primary }}>
                             CTEVT National Vocational Standard Curriculum Units
@@ -2142,64 +2183,257 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                             Every unit includes practical execution demonstrations, log-book documentation, and instructor assessment.
                           </Typography>
                         </Box>
-                        <Chip
-                          label={`Total: ${totalHours} Hours (${totalPractical}h Practical + ${totalTheory}h Theory)`}
-                          size="small"
-                          sx={{ bgcolor: theme.cardBg, color: theme.primary, border: `1px solid ${theme.border}`, fontWeight: 900 }}
-                        />
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                          <Chip
+                            label={`Total: ${totalHours} Hours (${totalPractical}h Practical + ${totalTheory}h Theory)`}
+                            size="small"
+                            sx={{ bgcolor: theme.cardBg, color: theme.primary, border: `1px solid ${theme.border}`, fontWeight: 900 }}
+                          />
+                          <Box sx={{ display: 'flex', bgcolor: '#F1F5F9', p: 0.4, borderRadius: 2 }}>
+                            <Button
+                              size="small"
+                              variant={brochureGalleryMode === 'gallery' ? 'contained' : 'text'}
+                              onClick={() => setBrochureGalleryMode('gallery')}
+                              sx={{
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                textTransform: 'none',
+                                borderRadius: 1.5,
+                                px: 1.5,
+                                py: 0.3,
+                                bgcolor: brochureGalleryMode === 'gallery' ? theme.primary : 'transparent',
+                                color: brochureGalleryMode === 'gallery' ? '#FFFFFF' : '#475569',
+                                '&:hover': { bgcolor: brochureGalleryMode === 'gallery' ? theme.primary : '#E2E8F0' }
+                              }}
+                            >
+                              📸 Visual Gallery
+                            </Button>
+                            <Button
+                              size="small"
+                              variant={brochureGalleryMode === 'table' ? 'contained' : 'text'}
+                              onClick={() => setBrochureGalleryMode('table')}
+                              sx={{
+                                fontSize: '0.74rem',
+                                fontWeight: 800,
+                                textTransform: 'none',
+                                borderRadius: 1.5,
+                                px: 1.5,
+                                py: 0.3,
+                                bgcolor: brochureGalleryMode === 'table' ? theme.primary : 'transparent',
+                                color: brochureGalleryMode === 'table' ? '#FFFFFF' : '#475569',
+                                '&:hover': { bgcolor: brochureGalleryMode === 'table' ? theme.primary : '#E2E8F0' }
+                              }}
+                            >
+                              📋 Academic Table
+                            </Button>
+                          </Box>
+                        </Box>
                       </Box>
 
-                      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
-                        <Table size="small">
-                          <TableHead sx={{ bgcolor: theme.primary }}>
-                            <TableRow>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>Unit</TableCell>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Module Title &amp; Competency Objectives</TableCell>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 85 }}>Theory</TableCell>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 95 }}>Practical</TableCell>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 80 }}>Total</TableCell>
-                              <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Tools &amp; Equipment Provided</TableCell>
-                            </TableRow>
-                          </TableHead>
-                          <TableBody>
-                            {activeSyllabusUnits.map((u) => {
-                              const tH = Number(u.theoryHours) || 0;
-                              const pH = Number(u.practicalHours) || 0;
-                              const tot = tH + pH;
-                              return (
-                                <TableRow key={u.unitNo} sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                                  <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: theme.primary }}>
-                                    <Chip
-                                      label={`0${u.unitNo}`}
-                                      size="small"
-                                      sx={{ bgcolor: theme.cardBg, color: theme.primary, fontWeight: 900, fontSize: '0.72rem', height: 22 }}
+                      {/* 1. Visual Illustrated Gallery Grid */}
+                      {brochureGalleryMode === 'gallery' && (
+                        <Grid container spacing={2}>
+                          {activeSyllabusUnits.map((u) => {
+                            const tH = Number(u.theoryHours) || 0;
+                            const pH = Number(u.practicalHours) || 0;
+                            const tot = tH + pH;
+                            const pRatio = tot > 0 ? Math.round((pH / tot) * 100) : 80;
+                            return (
+                              <Grid item xs={12} sm={6} key={u.unitNo}>
+                                <Card
+                                  variant="outlined"
+                                  sx={{
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    borderRadius: 3,
+                                    borderColor: theme.border,
+                                    overflow: 'hidden',
+                                    transition: 'all 0.25s ease',
+                                    bgcolor: '#FFFFFF',
+                                    '&:hover': {
+                                      transform: 'translateY(-3px)',
+                                      boxShadow: '0 10px 24px -6px rgba(0,0,0,0.08)',
+                                      borderColor: theme.primary
+                                    }
+                                  }}
+                                >
+                                  {/* Unit Photo Banner */}
+                                  <Box sx={{ position: 'relative', height: 140, bgcolor: '#0F172A', overflow: 'hidden' }}>
+                                    <Box
+                                      component="img"
+                                      src={u.imageUrl || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80'}
+                                      alt={u.title}
+                                      loading="lazy"
+                                      sx={{
+                                        width: '100%',
+                                        height: '100%',
+                                        objectFit: 'cover',
+                                        transition: 'transform 0.4s ease',
+                                        '&:hover': { transform: 'scale(1.05)' }
+                                      }}
                                     />
-                                  </TableCell>
-                                  <TableCell sx={{ fontWeight: 800, fontSize: '0.84rem', color: '#0F172A' }}>
-                                    {u.title}
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: 'center', color: '#2563EB', fontWeight: 700, fontSize: '0.82rem' }}>
-                                    {tH}h
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#059669', fontSize: '0.84rem' }}>
-                                    {pH}h
-                                  </TableCell>
-                                  <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#0F172A', fontSize: '0.84rem' }}>
-                                    {tot}h
-                                  </TableCell>
-                                  <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
-                                    <Chip
-                                      label={u.toolsAndMaterials || 'Workshop Tool Set'}
-                                      size="small"
-                                      sx={{ bgcolor: '#F1F5F9', color: '#334155', fontWeight: 600, fontSize: '0.7rem' }}
+                                    {/* Overlay Gradient */}
+                                    <Box
+                                      sx={{
+                                        position: 'absolute',
+                                        inset: 0,
+                                        background: 'linear-gradient(to top, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.2) 60%, transparent 100%)'
+                                      }}
                                     />
-                                  </TableCell>
-                                </TableRow>
-                              );
-                            })}
-                          </TableBody>
-                        </Table>
-                      </TableContainer>
+                                    {/* Badge Pills over Image */}
+                                    <Box sx={{ position: 'absolute', top: 10, left: 10 }}>
+                                      <Chip
+                                        label={`MODULE 0${u.unitNo}`}
+                                        size="small"
+                                        sx={{
+                                          bgcolor: theme.primary,
+                                          color: '#FFFFFF',
+                                          fontWeight: 900,
+                                          fontSize: '0.68rem',
+                                          letterSpacing: '0.04em',
+                                          height: 22,
+                                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
+                                        }}
+                                      />
+                                    </Box>
+                                    <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
+                                      <Chip
+                                        label={`${tot}h Total`}
+                                        size="small"
+                                        sx={{
+                                          bgcolor: 'rgba(255,255,255,0.92)',
+                                          color: '#0F172A',
+                                          fontWeight: 800,
+                                          fontSize: '0.68rem',
+                                          height: 22
+                                        }}
+                                      />
+                                    </Box>
+                                    <Box sx={{ position: 'absolute', bottom: 8, left: 12, right: 12 }}>
+                                      <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 800, lineHeight: 1.25, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+                                        {u.title}
+                                      </Typography>
+                                    </Box>
+                                  </Box>
+
+                                  {/* Card Body */}
+                                  <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+                                    {/* Hours Distribution Bar */}
+                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                      <Box sx={{ flex: 1, bgcolor: '#ECFDF5', p: 0.8, borderRadius: 1.5, border: '1px solid #A7F3D0', textAlign: 'center' }}>
+                                        <Typography variant="caption" sx={{ color: '#047857', fontWeight: 900, fontSize: '0.76rem', display: 'block' }}>
+                                          🛠️ {pH}h Practical
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.65rem' }}>
+                                          {pRatio}% Hands-on
+                                        </Typography>
+                                      </Box>
+                                      <Box sx={{ flex: 1, bgcolor: '#EFF6FF', p: 0.8, borderRadius: 1.5, border: '1px solid #BFDBFE', textAlign: 'center' }}>
+                                        <Typography variant="caption" sx={{ color: '#1D4ED8', fontWeight: 900, fontSize: '0.76rem', display: 'block' }}>
+                                          📖 {tH}h Theory
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ color: '#2563EB', fontSize: '0.65rem' }}>
+                                          Principles & Safety
+                                        </Typography>
+                                      </Box>
+                                    </Box>
+
+                                    {/* Tools & Equipment */}
+                                    {u.toolsAndMaterials && (
+                                      <Box sx={{ bgcolor: '#F8FAFC', p: 1, borderRadius: 1.5, border: '1px dashed #CBD5E1' }}>
+                                        <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.7rem', display: 'block', lineHeight: 1.35 }}>
+                                          <strong style={{ color: '#0F172A' }}>Workshop Gear:</strong> {u.toolsAndMaterials}
+                                        </Typography>
+                                      </Box>
+                                    )}
+
+                                    {/* Learning Outcome */}
+                                    {u.learningOutcome && (
+                                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.72rem', lineHeight: 1.4, mt: 'auto' }}>
+                                        🎯 {u.learningOutcome}
+                                      </Typography>
+                                    )}
+                                  </Box>
+                                </Card>
+                              </Grid>
+                            );
+                          })}
+                        </Grid>
+                      )}
+
+                      {/* 2. Academic Table View */}
+                      {brochureGalleryMode === 'table' && (
+                        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+                          <Table size="small">
+                            <TableHead sx={{ bgcolor: theme.primary }}>
+                              <TableRow>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>Unit</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Module Title &amp; Competency Objectives</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 85 }}>Theory</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 95 }}>Practical</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center', width: 80 }}>Total</TableCell>
+                                <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Tools &amp; Equipment Provided</TableCell>
+                              </TableRow>
+                            </TableHead>
+                            <TableBody>
+                              {activeSyllabusUnits.map((u) => {
+                                const tH = Number(u.theoryHours) || 0;
+                                const pH = Number(u.practicalHours) || 0;
+                                const tot = tH + pH;
+                                return (
+                                  <TableRow key={u.unitNo} sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                                    <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: theme.primary }}>
+                                      <Chip
+                                        label={`0${u.unitNo}`}
+                                        size="small"
+                                        sx={{ bgcolor: theme.cardBg, color: theme.primary, fontWeight: 900, fontSize: '0.72rem', height: 22 }}
+                                      />
+                                    </TableCell>
+                                    <TableCell sx={{ fontWeight: 800, fontSize: '0.84rem', color: '#0F172A' }}>
+                                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                                        {u.imageUrl && (
+                                          <Avatar
+                                            src={u.imageUrl}
+                                            variant="rounded"
+                                            sx={{ width: 44, height: 44, border: '1px solid #CBD5E1', flexShrink: 0 }}
+                                          />
+                                        )}
+                                        <Box>
+                                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.25 }}>
+                                            {u.title}
+                                          </Typography>
+                                          {u.learningOutcome && (
+                                            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.7rem', mt: 0.2 }}>
+                                              🎯 {u.learningOutcome}
+                                            </Typography>
+                                          )}
+                                        </Box>
+                                      </Box>
+                                    </TableCell>
+                                    <TableCell sx={{ textAlign: 'center', color: '#2563EB', fontWeight: 700, fontSize: '0.82rem' }}>
+                                      {tH}h
+                                    </TableCell>
+                                    <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#059669', fontSize: '0.84rem' }}>
+                                      {pH}h
+                                    </TableCell>
+                                    <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#0F172A', fontSize: '0.84rem' }}>
+                                      {tot}h
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                                      <Chip
+                                        label={u.toolsAndMaterials || 'Workshop Tool Set'}
+                                        size="small"
+                                        sx={{ bgcolor: '#F1F5F9', color: '#334155', fontWeight: 600, fontSize: '0.7rem' }}
+                                      />
+                                    </TableCell>
+                                  </TableRow>
+                                );
+                              })}
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      )}
                     </Box>
                   )}
 
