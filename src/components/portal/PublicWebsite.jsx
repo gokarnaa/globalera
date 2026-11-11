@@ -255,7 +255,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       {/* ============================================================== */}
       <Box
         sx={{
-          bgcolor: '#081B33',
+          bgcolor: '#071A36',
           color: '#E2E8F0',
           py: 0.8,
           px: { xs: 1.5, sm: 3 },
@@ -362,7 +362,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       {/* ============================================================== */}
       {/* 1. TOP HEADER & NAVIGATION BAR                                  */}
       {/* ============================================================== */}
-      <Box sx={{ bgcolor: '#0B2545', color: '#FFFFFF', borderBottom: '3px solid #F59E0B', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
+      <Box sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', borderBottom: '3px solid #F59E0B', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
         <Container maxWidth="xl">
           <Box sx={{ py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.5 }}>
             {/* Brand Logo & Name */}
@@ -373,7 +373,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Avatar
                 sx={{
                   bgcolor: '#F59E0B',
-                  color: '#0B2545',
+                  color: '#0F2C59',
                   width: 44,
                   height: 44,
                   boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)'
@@ -418,14 +418,17 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Button
                 variant="outlined"
                 size="small"
-                startIcon={<HandshakeIcon />}
+                startIcon={<HandshakeIcon sx={{ fontSize: 16 }} />}
                 onClick={() => onNavigate('agent')}
                 sx={{
-                  borderColor: '#F59E0B',
-                  color: '#F59E0B',
-                  fontWeight: 800,
-                  fontSize: '0.75rem',
-                  '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.15)', borderColor: '#D97706' }
+                  borderColor: 'rgba(255, 255, 255, 0.25)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  borderRadius: 1.5,
+                  px: 1.3,
+                  py: 0.5,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.12)', borderColor: 'rgba(255, 255, 255, 0.4)' }
                 }}
               >
                 Agent Portal
@@ -434,29 +437,36 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Button
                 variant="outlined"
                 size="small"
-                startIcon={<PeopleAltIcon />}
+                startIcon={<PeopleAltIcon sx={{ fontSize: 16 }} />}
                 onClick={() => onNavigate('trainer')}
                 sx={{
-                  borderColor: '#10B981',
-                  color: '#10B981',
-                  fontWeight: 800,
-                  fontSize: '0.75rem',
-                  '&:hover': { bgcolor: 'rgba(16, 185, 129, 0.1)', borderColor: '#059669' }
+                  borderColor: 'rgba(255, 255, 255, 0.25)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  borderRadius: 1.5,
+                  px: 1.3,
+                  py: 0.5,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.12)', borderColor: 'rgba(255, 255, 255, 0.4)' }
                 }}
               >
                 Trainer Portal
               </Button>
 
               <Button
-                variant="contained"
+                variant="outlined"
                 size="small"
-                startIcon={<SchoolIcon />}
+                startIcon={<SchoolIcon sx={{ fontSize: 16 }} />}
                 onClick={() => onNavigate('student')}
                 sx={{
-                  bgcolor: '#0284C7',
-                  fontWeight: 800,
-                  fontSize: '0.75rem',
-                  '&:hover': { bgcolor: '#0369A1' }
+                  borderColor: 'rgba(255, 255, 255, 0.25)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  borderRadius: 1.5,
+                  px: 1.3,
+                  py: 0.5,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.12)', borderColor: 'rgba(255, 255, 255, 0.4)' }
                 }}
               >
                 Student Portal
@@ -483,7 +493,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       {/* ============================================================== */}
       <Box
         sx={{
-          background: 'linear-gradient(135deg, #0B2545 0%, #0F2E5A 50%, #1E3A8A 100%)',
+          background: 'linear-gradient(135deg, #071A36 0%, #0F2C59 50%, #1E3A8A 100%)',
           color: '#FFFFFF',
           pt: { xs: 5, md: 8 },
           pb: { xs: 6, md: 9 },
@@ -602,10 +612,10 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     variant="contained"
                     disabled={verifying || !certSearchId.trim()}
                     sx={{
-                      bgcolor: '#0B2545',
+                      bgcolor: '#0F2C59',
                       fontWeight: 800,
                       py: 1,
-                      '&:hover': { bgcolor: '#07182C' }
+                      '&:hover': { bgcolor: '#071A36' }
                     }}
                   >
                     {verifying ? 'Verifying...' : '🔍 Verify Certificate'}
@@ -741,7 +751,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     }}
                   >
                     {/* Header */}
-                    <Box sx={{ p: 2.5, bgcolor: '#0F2E5A', color: '#FFFFFF', borderBottom: '3px solid #F59E0B' }}>
+                    <Box sx={{ p: 2.5, bgcolor: '#0F2C59', color: '#FFFFFF', borderBottom: '3px solid #F59E0B' }}>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.8 }}>
                         <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.3 }}>
                           {crs.title}
@@ -749,7 +759,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         <Chip
                           label={crs.level || 'Level 1'}
                           size="small"
-                          sx={{ bgcolor: '#F59E0B', color: '#0F2E5A', fontWeight: 900, fontSize: '0.68rem', height: 22 }}
+                          sx={{ bgcolor: '#F59E0B', color: '#0F2C59', fontWeight: 900, fontSize: '0.68rem', height: 22 }}
                         />
                       </Box>
                       <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'flex', alignItems: 'center', gap: 0.5 }}>
@@ -818,11 +828,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         variant="contained"
                         onClick={() => handleSelectCourseForInquiry(crs.id)}
                         sx={{
-                          bgcolor: '#0B2545',
+                          bgcolor: '#059669',
+                          color: '#FFFFFF',
                           fontWeight: 800,
                           py: 1,
-                          fontSize: '0.8rem',
-                          '&:hover': { bgcolor: '#059669' }
+                          fontSize: '0.82rem',
+                          boxShadow: '0 2px 8px rgba(5, 150, 105, 0.25)',
+                          '&:hover': { bgcolor: '#047857' }
                         }}
                       >
                         Inquire About This Course
@@ -963,7 +975,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       {/* ============================================================== */}
       {/* 6. FOOTER SECTION                                              */}
       {/* ============================================================== */}
-      <Box sx={{ mt: 'auto', bgcolor: '#07182C', color: '#94A3B8', pt: 5, pb: 3, borderTop: '2px solid #1E293B' }}>
+      <Box sx={{ mt: 'auto', bgcolor: '#071A36', color: '#94A3B8', pt: 5, pb: 3, borderTop: '2px solid #1E293B' }}>
         <Container maxWidth="xl">
           <Grid container spacing={4} sx={{ mb: 4 }}>
             {/* Col 1: Institute Info */}
