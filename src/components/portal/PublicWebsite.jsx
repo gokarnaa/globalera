@@ -37,6 +37,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import EmailIcon from '@mui/icons-material/Email';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import BusinessIcon from '@mui/icons-material/Business';
+import WorkIcon from '@mui/icons-material/Work';
+import StarIcon from '@mui/icons-material/Star';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { calculateFeeBreakdown } from '../courses/CourseFeeManager';
@@ -78,6 +81,20 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
     notes: ''
   });
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+
+  // Employer Partner Registration State
+  const [employerForm, setEmployerForm] = useState({
+    name: '',
+    industry: 'Beauty Parlor & Cosmetology',
+    contactPerson: '',
+    phone: '',
+    email: '',
+    location: 'Kathmandu',
+    jobRole: 'Beautician / Hair Stylist',
+    vacancies: 2,
+    pin: '1234'
+  });
+  const [employerSuccess, setEmployerSuccess] = useState(null);
 
   // Certificate Verification Search State
   const [certSearchId, setCertSearchId] = useState('');
@@ -183,6 +200,58 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       courseId: db.courses?.[0]?.id || '',
       preferredShift: 'Morning',
       notes: ''
+    });
+  };
+
+  // Handle Employer Self-Registration
+  const handleEmployerRegister = (e) => {
+    e.preventDefault();
+    if (!employerForm.name.trim() || !employerForm.phone.trim()) {
+      alert('Please enter both Company/Salon/Hospital Name and Contact Phone Number.');
+      return;
+    }
+    const empId = `EMP-${Date.now()}`;
+    const newEmp = {
+      id: empId,
+      name: employerForm.name.trim(),
+      industry: employerForm.industry,
+      location: employerForm.location.trim() || 'Kathmandu',
+      contactPerson: employerForm.contactPerson.trim() || 'Hiring Manager',
+      phone: employerForm.phone.trim(),
+      email: employerForm.email.trim(),
+      pin: employerForm.pin.trim() || '1234',
+      status: 'Active',
+      remarks: 'Self-registered via Website Employer Partnership Portal'
+    };
+
+    let newJobOpening = null;
+    if (employerForm.jobRole) {
+      newJobOpening = {
+        id: `JOB-${Date.now()}`,
+        employerId: empId,
+        employerName: newEmp.name,
+        title: employerForm.jobRole,
+        vacancies: Number(employerForm.vacancies) || 1,
+        salaryRange: 'Negotiable / Market Rate',
+        location: newEmp.location,
+        employmentType: 'Full-Time',
+        status: 'Open',
+        description: `Immediate requirement for trained vocational graduates from Global Era Technical School.`,
+        postedDate: new Date().toISOString().slice(0, 10)
+      };
+    }
+
+    const nextDb = {
+      ...db,
+      employers: [newEmp, ...(db.employers || [])],
+      jobOpenings: newJobOpening ? [newJobOpening, ...(db.jobOpenings || [])] : (db.jobOpenings || [])
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setEmployerSuccess({
+      id: empId,
+      name: newEmp.name,
+      pin: newEmp.pin
     });
   };
 
@@ -416,6 +485,17 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               </Button>
 
               <Button
+                size="small"
+                onClick={() => {
+                  const el = document.getElementById('employer-partner-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                sx={{ color: '#E2E8F0', fontWeight: 700, fontSize: '0.78rem', display: { xs: 'none', lg: 'inline-flex' } }}
+              >
+                Hire Graduates
+              </Button>
+
+              <Button
                 variant="outlined"
                 size="small"
                 startIcon={<HandshakeIcon sx={{ fontSize: 16 }} />}
@@ -470,6 +550,25 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 }}
               >
                 Student Portal
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<BusinessIcon sx={{ fontSize: 16 }} />}
+                onClick={() => onNavigate('employer')}
+                sx={{
+                  borderColor: 'rgba(255, 255, 255, 0.25)',
+                  color: '#FFFFFF',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  borderRadius: 1.5,
+                  px: 1.3,
+                  py: 0.5,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.12)', borderColor: 'rgba(255, 255, 255, 0.4)' }
+                }}
+              >
+                Employer Portal
               </Button>
             </Stack>
           </Box>
@@ -973,6 +1072,324 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       </Box>
 
       {/* ============================================================== */}
+      {/* 5.1 EMPLOYER PARTNER NETWORK & RECRUITMENT SECTION              */}
+      {/* ============================================================== */}
+      <Box id="employer-partner-section" sx={{ py: 7, bgcolor: '#0B1E38', color: '#FFFFFF', borderTop: '2px solid #F59E0B' }}>
+        <Container maxWidth="lg">
+          {/* Section Header */}
+          <Box sx={{ textAlign: 'center', mb: 5 }}>
+            <Chip
+              icon={<BusinessIcon sx={{ fontSize: 16, color: '#0F2C59 !important' }} />}
+              label="Employer Partner Network & Job Placement"
+              size="small"
+              sx={{ bgcolor: '#F59E0B', color: '#0F2C59', fontWeight: 900, mb: 1.5, px: 1 }}
+            />
+            <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1, fontSize: { xs: '1.8rem', md: '2.4rem' } }}>
+              Hire Certified Technical & Vocational Graduates
+            </Typography>
+            <Typography variant="body1" sx={{ color: '#94A3B8', maxWidth: 720, mx: 'auto', lineHeight: 1.6 }}>
+              Partner with Global Era Technical School to recruit skilled professionals in Beautician, Tailoring, Caregiver, and Electrical trades.
+              Enjoy 100% verified credentials, zero recruitment commission, and direct access to top talent.
+            </Typography>
+          </Box>
+
+          <Grid container spacing={4} alignItems="stretch">
+            {/* Left: Why Partner With Us (Value Props) */}
+            <Grid item xs={12} md={5}>
+              <Stack spacing={2.5} sx={{ height: '100%', justifyContent: 'space-between' }}>
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 3,
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(245, 158, 11, 0.2)', color: '#F59E0B', width: 42, height: 42 }}>
+                      <WorkspacePremiumIcon />
+                    </Avatar>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
+                      80% Practical CTEVT Standard
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: '#CBD5E1', lineHeight: 1.6 }}>
+                    Every candidate completes 390 hours of competency-based training on authentic industrial tools, machines, and clinical protocols.
+                  </Typography>
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 3,
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(16, 185, 129, 0.2)', color: '#10B981', width: 42, height: 42 }}>
+                      <CheckCircleIcon />
+                    </Avatar>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
+                      Pre-Screened & Verified Portfolios
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: '#CBD5E1', lineHeight: 1.6 }}>
+                    Instant QR-code verified certificates, attendance metrics (≥80%), and detailed unit competency scorecards for every graduate.
+                  </Typography>
+                </Paper>
+
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 2.5,
+                    bgcolor: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    borderRadius: 3,
+                    backdropFilter: 'blur(10px)'
+                  }}
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                    <Avatar sx={{ bgcolor: 'rgba(56, 189, 248, 0.2)', color: '#38BDF8', width: 42, height: 42 }}>
+                      <HandshakeIcon />
+                    </Avatar>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
+                      OJT & Internship Hosting
+                    </Typography>
+                  </Box>
+                  <Typography variant="body2" sx={{ color: '#CBD5E1', lineHeight: 1.6 }}>
+                    Trial candidates on-site during their concurrent or post-training On-the-Job Training (OJT) practicum before offering permanent employment.
+                  </Typography>
+                </Paper>
+
+                <Box sx={{ p: 2, bgcolor: 'rgba(245, 158, 11, 0.1)', borderRadius: 2.5, border: '1px dashed #F59E0B', textAlign: 'center' }}>
+                  <Typography variant="caption" sx={{ color: '#FDE68A', fontWeight: 800, display: 'block' }}>
+                    Already have an Employer Account?
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    startIcon={<BusinessIcon />}
+                    onClick={() => onNavigate('employer')}
+                    sx={{
+                      mt: 1,
+                      bgcolor: '#F59E0B',
+                      color: '#0F2C59',
+                      fontWeight: 900,
+                      '&:hover': { bgcolor: '#D97706' }
+                    }}
+                  >
+                    Enter Employer Portal
+                  </Button>
+                </Box>
+              </Stack>
+            </Grid>
+
+            {/* Right: Registration & Immediate Hiring Form */}
+            <Grid item xs={12} md={7}>
+              <Paper
+                elevation={6}
+                sx={{
+                  p: { xs: 3, sm: 4 },
+                  borderRadius: 3.5,
+                  bgcolor: '#FFFFFF',
+                  color: '#0F172A',
+                  border: '1px solid #E2E8F0',
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+                }}
+              >
+                <Box sx={{ mb: 2.5 }}>
+                  <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2C59', mb: 0.5 }}>
+                    Register as an Employer Partner
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#64748B' }}>
+                    Register your salon, boutique, clinic, hospital or workshop to post vacancies and interview qualified graduates.
+                  </Typography>
+                </Box>
+
+                {employerSuccess ? (
+                  <Box sx={{ p: 3, textAlign: 'center', bgcolor: '#F0FDF4', borderRadius: 3, border: '2px solid #059669' }}>
+                    <CheckCircleIcon sx={{ fontSize: 52, color: '#059669', mb: 1 }} />
+                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#065F46', mb: 0.5 }}>
+                      Welcome, {employerSuccess.name}!
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: '#047857', mb: 2 }}>
+                      Your organization is now registered as an official hiring partner. Your Employer Access Code is:
+                    </Typography>
+
+                    <Box sx={{ display: 'inline-block', p: 2, bgcolor: '#FFFFFF', borderRadius: 2, border: '1.5px dashed #059669', mb: 2.5 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
+                        EMPLOYER ID & DEFAULT PIN:
+                      </Typography>
+                      <Typography variant="h5" sx={{ fontWeight: 900, color: '#065F46', letterSpacing: '0.05em' }}>
+                        {employerSuccess.id} | PIN: {employerSuccess.pin}
+                      </Typography>
+                    </Box>
+
+                    <Stack direction="row" spacing={1.5} justifyContent="center">
+                      <Button
+                        variant="contained"
+                        startIcon={<BusinessIcon />}
+                        onClick={() => onNavigate('employer')}
+                        sx={{ bgcolor: '#059669', fontWeight: 900, '&:hover': { bgcolor: '#047857' } }}
+                      >
+                        Launch Employer Portal
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        onClick={() => setEmployerSuccess(null)}
+                        sx={{ fontWeight: 800, borderColor: '#CBD5E1', color: '#475569' }}
+                      >
+                        Register Another
+                      </Button>
+                    </Stack>
+                  </Box>
+                ) : (
+                  <form onSubmit={handleEmployerRegister}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Company / Salon / Business Name *"
+                          fullWidth
+                          size="small"
+                          required
+                          placeholder="e.g., Glamour Beauty Parlor"
+                          value={employerForm.name}
+                          onChange={(e) => setEmployerForm({ ...employerForm, name: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          label="Industry / Trade Category *"
+                          value={employerForm.industry}
+                          onChange={(e) => setEmployerForm({ ...employerForm, industry: e.target.value })}
+                        >
+                          <MenuItem value="Beauty Parlor & Cosmetology">Beauty Parlor & Cosmetology</MenuItem>
+                          <MenuItem value="Fashion Boutique & Tailoring">Fashion Boutique & Tailoring</MenuItem>
+                          <MenuItem value="Hospital, Clinic & Elderly Care">Hospital, Clinic & Elderly Care</MenuItem>
+                          <MenuItem value="Electrical & Technical Workshop">Electrical & Technical Workshop</MenuItem>
+                          <MenuItem value="Hospitality & Customer Service">Hospitality & Customer Service</MenuItem>
+                          <MenuItem value="Other Commercial Enterprise">Other Commercial Enterprise</MenuItem>
+                        </TextField>
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Contact Person Name *"
+                          fullWidth
+                          size="small"
+                          required
+                          placeholder="e.g., Sunita Sharma (Proprietor)"
+                          value={employerForm.contactPerson}
+                          onChange={(e) => setEmployerForm({ ...employerForm, contactPerson: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Official Phone / Mobile *"
+                          fullWidth
+                          size="small"
+                          required
+                          placeholder="e.g., 98XXXXXXXX"
+                          value={employerForm.phone}
+                          onChange={(e) => setEmployerForm({ ...employerForm, phone: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Email Address (Optional)"
+                          fullWidth
+                          size="small"
+                          placeholder="e.g., info@company.com"
+                          value={employerForm.email}
+                          onChange={(e) => setEmployerForm({ ...employerForm, email: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Office / Salon Location *"
+                          fullWidth
+                          size="small"
+                          required
+                          placeholder="e.g., Jorpati / Chabahil, Kathmandu"
+                          value={employerForm.location}
+                          onChange={(e) => setEmployerForm({ ...employerForm, location: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label="Immediate Role to Hire *"
+                          fullWidth
+                          size="small"
+                          placeholder="e.g., Junior Beautician / Dress Maker"
+                          value={employerForm.jobRole}
+                          onChange={(e) => setEmployerForm({ ...employerForm, jobRole: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={6} sm={3}>
+                        <TextField
+                          type="number"
+                          label="Vacancies"
+                          fullWidth
+                          size="small"
+                          inputProps={{ min: 1, max: 50 }}
+                          value={employerForm.vacancies}
+                          onChange={(e) => setEmployerForm({ ...employerForm, vacancies: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={6} sm={3}>
+                        <TextField
+                          label="Portal PIN"
+                          fullWidth
+                          size="small"
+                          inputProps={{ maxLength: 6 }}
+                          value={employerForm.pin}
+                          onChange={(e) => setEmployerForm({ ...employerForm, pin: e.target.value })}
+                        />
+                      </Grid>
+
+                      <Grid item xs={12}>
+                        <Button
+                          fullWidth
+                          type="submit"
+                          variant="contained"
+                          size="large"
+                          startIcon={<WorkIcon />}
+                          sx={{
+                            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+                            fontWeight: 900,
+                            py: 1.3,
+                            fontSize: '0.95rem',
+                            boxShadow: '0 4px 15px rgba(15, 44, 89, 0.3)'
+                          }}
+                        >
+                          Register Company & Connect With Graduates
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </form>
+                )}
+              </Paper>
+            </Grid>
+          </Grid>
+        </Container>
+      </Box>
+
+      {/* ============================================================== */}
       {/* 6. FOOTER SECTION                                              */}
       {/* ============================================================== */}
       <Box sx={{ mt: 'auto', bgcolor: '#071A36', color: '#94A3B8', pt: 5, pb: 3, borderTop: '2px solid #1E293B' }}>
@@ -1064,6 +1481,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   sx={{ color: '#38BDF8', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
                 >
                   🎓 Student Portal (Login)
+                </Button>
+                <Button
+                  size="small"
+                  onClick={() => onNavigate('employer')}
+                  sx={{ color: '#F59E0B', justifyContent: 'flex-start', p: 0, fontWeight: 700 }}
+                >
+                  🏢 Employer Partner Hub
                 </Button>
               </Stack>
             </Grid>

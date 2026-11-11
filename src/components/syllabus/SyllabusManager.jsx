@@ -110,6 +110,46 @@ const CTEVT_PRESETS = [
       { unitNo: 7, title: 'Troubleshooting, Short Circuit & Insulation Testing', theoryHours: 10, practicalHours: 40, learningOutcome: 'Use Megger for insulation test, detect earth leakage and phase neutral reverse.', toolsAndMaterials: 'Megger (Insulation Tester), Test Lamp, Continuity Tester' },
       { unitNo: 8, title: 'Cost Estimation, Single Line Diagram (SLD) & Rules', theoryHours: 10, practicalHours: 25, learningOutcome: 'Read architectural electrical plans, estimate cables and billing.', toolsAndMaterials: 'Blueprints, Estimation Sheet, NEA Wiring Regulations' }
     ]
+  },
+  {
+    key: 'tailoring',
+    title: 'Tailoring & Fashion Designing (Dress Maker) – 390 Hours',
+    description: 'CTEVT Level-1 Tailoring & Garment Construction (80% Practical, 8 Units)',
+    targetHours: 390,
+    units: [
+      { unitNo: 1, title: 'Garment Technology, Workshop Safety & Measurement Fundamentals', theoryHours: 12, practicalHours: 18, learningOutcome: 'Operate tailoring tools safely, take precision body measurements and read sizing charts.', toolsAndMaterials: 'Measuring Tape, Tailoring Chalk, Tracing Wheel, Cutting Table' },
+      { unitNo: 2, title: 'Industrial Sewing Machine Operation, Threading & Maintenance', theoryHours: 10, practicalHours: 40, learningOutcome: 'Master single-needle lockstitch, bobbin winding, tension adjustment and oiling.', toolsAndMaterials: 'Industrial Lockstitch Machine, Bobbin, Needles, Machine Oil' },
+      { unitNo: 3, title: 'Pattern Drafting, Freehand Paper Cutting & Layout Techniques', theoryHours: 12, practicalHours: 58, learningOutcome: 'Draft master bodice, sleeve, collar patterns and optimize fabric layout with zero waste.', toolsAndMaterials: 'Pattern Paper, L-Square, French Curve, Tailor Shears' },
+      { unitNo: 4, title: 'Women’s Traditional Wear: Blouse Construction (Simple & Designer)', theoryHours: 10, practicalHours: 60, learningOutcome: 'Cut and construct 4-dart, katori, princess-cut blouses with neck piping and hook-eyes.', toolsAndMaterials: 'Cotton/Silk Fabric, Interlining, Hooks, Eye Tape, Pressing Iron' },
+      { unitNo: 5, title: 'Traditional Wear: Kurtha, Suruwal & Salwar Construction', theoryHours: 10, practicalHours: 60, learningOutcome: 'Draft, cut and assemble straight kurtha, A-line kurtha, churidar and patiala salwar.', toolsAndMaterials: 'Suit Fabric, Thread Sets, Fusing Paper, Elastic Bands' },
+      { unitNo: 6, title: 'Western & Children’s Garments: Shirts, Trousers & Frocks', theoryHours: 8, practicalHours: 52, learningOutcome: 'Construct collared shirts, pleated skirts, trousers with zipper fly and baby frocks.', toolsAndMaterials: 'Denim/Twill Fabric, YKK Zippers, Collar Stiffener, Buttons' },
+      { unitNo: 7, title: 'Overlocking, Edge Finishing, Hemming & Quality Pressing', theoryHours: 6, practicalHours: 34, learningOutcome: 'Operate 3/4-thread overlock machine, buttonhole machine, and professional steam pressing.', toolsAndMaterials: 'Overlock Machine, Buttonhole Foot, Steam Iron, Ironing Board' },
+      { unitNo: 8, title: 'Boutique Management, Fabric Costing & Client Consultation', theoryHours: 10, practicalHours: 20, learningOutcome: 'Calculate fabric consumption, prepare client orders, cost estimation and boutique setup.', toolsAndMaterials: 'Order Book, Costing Sheet, Sample Garment Rack' }
+    ]
+  },
+  {
+    key: 'basic_tailoring',
+    title: 'Basic Tailoring & Stitching – 100 Hours',
+    description: '1-Month Budget Friendly Beginner Course (80% Practical, 4 Units)',
+    targetHours: 100,
+    units: [
+      { unitNo: 1, title: 'Machine Operation, Needles, Threads & Safety', theoryHours: 6, practicalHours: 14, learningOutcome: 'Control machine speed, straight stitch practice, and troubleshoot thread breakage.', toolsAndMaterials: 'Sewing Machine, Practice Cloth, Thread, Scissors' },
+      { unitNo: 2, title: 'Hand Stitches, Button Attachment & Edge Hemming', theoryHours: 4, practicalHours: 26, learningOutcome: 'Execute running stitch, hem stitch, buttonhole, and hook attachment.', toolsAndMaterials: 'Hand Needles, Buttons, Hooks, Chalk, Rulers' },
+      { unitNo: 3, title: 'Simple Blouse & Petticoat Cutting & Stitching', theoryHours: 6, practicalHours: 24, learningOutcome: 'Cut 6-kaliko petticoat and simple 4-dart blouse with neat stitching.', toolsAndMaterials: 'Cotton Fabric, Measuring Tape, Tailor Scissors' },
+      { unitNo: 4, title: 'Simple Kurtha & Pyjama Construction', theoryHours: 4, practicalHours: 16, learningOutcome: 'Assemble daily-wear kurtha with side slits and elastic pyjama.', toolsAndMaterials: 'Kurtha Fabric, Elastic, Ironing Box' }
+    ]
+  },
+  {
+    key: 'basic_beautician',
+    title: 'Basic Beautician & Parlor Art – 100 Hours',
+    description: '1-Month Budget Friendly Salon Starter Course (80% Practical, 4 Units)',
+    targetHours: 100,
+    units: [
+      { unitNo: 1, title: 'Sanitation, Client Care & Basic Salon Equipment', theoryHours: 6, practicalHours: 14, learningOutcome: 'Sterilize tools, maintain hygiene, understand skin types and client interaction.', toolsAndMaterials: 'Sanitizer, Dettol, Towels, Clean-up Kits' },
+      { unitNo: 2, title: 'Eyebrow Threading, Face Bleach & Waxing', theoryHours: 4, practicalHours: 26, learningOutcome: 'Perform painless eyebrow threading, upper lip hair removal and wax strip application.', toolsAndMaterials: 'Organic Thread, Wax Heater, Strips, After-Wax Gel' },
+      { unitNo: 3, title: 'Fruit Facial, Face Clean-up & Head Massage', theoryHours: 6, practicalHours: 24, learningOutcome: 'Execute 7-step facial massage, scrubbing, steaming and soothing pack.', toolsAndMaterials: 'Facial Steamer, Scrub, Fruit Pack, Massage Cream' },
+      { unitNo: 4, title: 'Basic Hair Trimming, Blow-Dry & Everyday Makeup', theoryHours: 4, practicalHours: 16, learningOutcome: 'Straight cut, U-cut, paddle blow-dry, BB-cream base and daily makeup application.', toolsAndMaterials: 'Hair Shears, Blow Dryer, Round Brush, Basic Makeup Kit' }
+    ]
   }
 ];
 
@@ -129,6 +169,93 @@ export default function SyllabusManager() {
   const [openBulkDialog, setOpenBulkDialog] = useState(false);
   const [openDocDialog, setOpenDocDialog] = useState(false);
   const [openPresetDialog, setOpenPresetDialog] = useState(false);
+
+  // Brochure Color Theme State for Counseling & Printing
+  const [brochureTheme, setBrochureTheme] = useState('AUTO'); // 'AUTO' | 'NAVY' | 'ROSE' | 'AMBER' | 'EMERALD'
+
+  const THEME_PALETTES = {
+    NAVY: {
+      primary: '#0F2C59',
+      secondary: '#2563EB',
+      accent: '#F59E0B',
+      lightBg: '#F8FAFC',
+      border: '#CBD5E1',
+      badgeBg: '#DBEAFE',
+      badgeColor: '#1E40AF',
+      name: 'Executive Navy (Healthcare / Caregiver)'
+    },
+    ROSE: {
+      primary: '#9D174D',
+      secondary: '#E11D48',
+      accent: '#F43F5E',
+      lightBg: '#FFF1F2',
+      border: '#FECDD3',
+      badgeBg: '#FFE4E6',
+      badgeColor: '#9F1239',
+      name: 'Rose Berry (Salon / Beautician)'
+    },
+    AMBER: {
+      primary: '#92400E',
+      secondary: '#D97706',
+      accent: '#B45309',
+      lightBg: '#FFFBEB',
+      border: '#FDE68A',
+      badgeBg: '#FEF3C7',
+      badgeColor: '#92400E',
+      name: 'Warm Amber (Fashion / Tailoring)'
+    },
+    EMERALD: {
+      primary: '#065F46',
+      secondary: '#059669',
+      accent: '#10B981',
+      lightBg: '#F0FDF4',
+      border: '#A7F3D0',
+      badgeBg: '#D1FAE5',
+      badgeColor: '#065F46',
+      name: 'Emerald Green (Vocational Standard)'
+    }
+  };
+
+  const activePalette = useMemo(() => {
+    let key = brochureTheme;
+    if (key === 'AUTO') {
+      const title = (selectedCourse?.title || '').toLowerCase();
+      if (title.includes('beauty') || title.includes('beautician') || title.includes('skin') || title.includes('hair') || title.includes('parlor')) key = 'ROSE';
+      else if (title.includes('tailor') || title.includes('dress') || title.includes('stitch') || title.includes('fashion') || title.includes('garment')) key = 'AMBER';
+      else if (title.includes('electric') || title.includes('wire') || title.includes('techn')) key = 'EMERALD';
+      else key = 'NAVY';
+    }
+    return THEME_PALETTES[key] || THEME_PALETTES.NAVY;
+  }, [brochureTheme, selectedCourse]);
+
+  const handleShareWhatsAppBrochure = () => {
+    const company = db.settings?.companyProfile || {};
+    const phone = company.phone || '01410715';
+    const cTitle = selectedCourse?.title || 'Vocational Training';
+    const unitsSummary = courseSyllabi
+      .slice(0, 6)
+      .map((u) => `• Unit ${u.unitNo}: ${u.title} (${u.totalHours}h)`)
+      .join('\n');
+
+    const text = `🌟 *Global Era Technical School — Official Course Syllabus* 🌟\n\n` +
+      `📘 *Course:* ${cTitle}\n` +
+      `⏱️ *Duration:* ${courseTargetHours} Hours (80% Practical Hands-on Training)\n` +
+      `📊 *Hours Breakdown:* ${totalTheoryHours}h Theory + ${totalPracticalHours}h Practical (${courseSyllabi.length} Competency Units)\n\n` +
+      `🗓️ *Daily 2-Hour Flexible Shifts:*\n` +
+      `• Shift A: 7:00 AM – 9:00 AM\n` +
+      `• Shift B: 10:00 AM – 12:00 PM\n` +
+      `• Shift C: 12:00 PM – 2:00 PM\n` +
+      `• Shift D: 2:00 PM – 4:00 PM\n` +
+      `• Shift E: 4:00 PM – 6:00 PM\n` +
+      `• Weekend / Holiday Fast-Track Batch\n\n` +
+      `💼 *Key Syllabus Units:*\n${unitsSummary}\n${courseSyllabi.length > 6 ? `...and ${courseSyllabi.length - 6} more specialized units\n` : ''}\n` +
+      `💳 *Affordable Fee Policy:* 50% on Enrollment + 50% Mid-Course (No hidden fees, includes workshop tools & OJT support!)\n\n` +
+      `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
+      `📞 *Phone / WhatsApp Inquiries:* ${phone}`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
 
   // Single Unit Form
   const [formData, setFormData] = useState({
@@ -1567,98 +1694,235 @@ export default function SyllabusManager() {
       </Dialog>
 
       {/* =======================================================
-          MODAL 4: OFFICIAL DOCUMENT PRINT / PDF DIALOG
+          MODAL 4: OFFICIAL DOCUMENT PRINT / PDF & BROCHURE DIALOG
           ======================================================= */}
       <Dialog
         open={openDocDialog}
         onClose={() => setOpenDocDialog(false)}
         maxWidth="lg"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 2 } }}
+        PaperProps={{ sx: { borderRadius: 3.5, p: { xs: 1.5, sm: 2.5 } } }}
       >
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-            Official Curriculum Document (CTEVT Format)
-          </Typography>
-          <Button variant="contained" startIcon={<PrintIcon />} onClick={() => window.print()} sx={{ fontWeight: 800 }}>
-            Print
-          </Button>
-        </DialogTitle>
-        <DialogContent dividers>
-          {/* Institutional Header */}
-          <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px solid #0F2C59', mb: 3 }}>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-              Global Era Technical School
+        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, pb: 1.5 }}>
+          <Box>
+            <Typography variant="h6" sx={{ fontWeight: 900, color: activePalette.primary }}>
+              Official Curriculum & Counseling Brochure
             </Typography>
-            <Typography variant="subtitle2" sx={{ color: '#475569', fontWeight: 700 }}>
-              KITE CAREGIVER TRAINING CENTER • MitraPark, Kathmandu
-            </Typography>
-            <Typography variant="overline" sx={{ fontWeight: 900, color: '#166534', bgcolor: '#DCFCE7', px: 1.5, py: 0.3, borderRadius: 2 }}>
-              CTEVT RECOGNIZED VOCATIONAL TRAINING CURRICULUM
+            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+              CTEVT Standard Skill Specification • Shareable Student Counseling Document
             </Typography>
           </Box>
 
-          <Grid container spacing={2} sx={{ mb: 3, p: 2, bgcolor: '#F8FAFC', borderRadius: 2 }}>
-            <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                Course:
-              </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                {selectedCourse?.title}
-              </Typography>
+          {/* Theme Switcher & Actions */}
+          <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+            <ToggleButtonGroup
+              size="small"
+              value={brochureTheme}
+              exclusive
+              onChange={(_, val) => val && setBrochureTheme(val)}
+              sx={{ bgcolor: '#F1F5F9', borderRadius: 2 }}
+            >
+              <ToggleButton value="AUTO" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1 }}>
+                Auto
+              </ToggleButton>
+              <ToggleButton value="NAVY" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1, color: '#0F2C59' }}>
+                Navy
+              </ToggleButton>
+              <ToggleButton value="ROSE" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1, color: '#9D174D' }}>
+                Rose (Salon)
+              </ToggleButton>
+              <ToggleButton value="AMBER" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1, color: '#92400E' }}>
+                Amber (Boutique)
+              </ToggleButton>
+              <ToggleButton value="EMERALD" sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1, color: '#065F46' }}>
+                Emerald
+              </ToggleButton>
+            </ToggleButtonGroup>
+
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<WhatsAppIcon sx={{ color: '#25D366' }} />}
+              onClick={handleShareWhatsAppBrochure}
+              sx={{ fontWeight: 800, borderColor: '#25D366', color: '#166534', bgcolor: 'rgba(37, 211, 102, 0.08)' }}
+            >
+              WhatsApp Share
+            </Button>
+
+            <Button
+              variant="contained"
+              size="small"
+              startIcon={<PrintIcon />}
+              onClick={() => window.print()}
+              sx={{ fontWeight: 800, bgcolor: activePalette.primary, '&:hover': { bgcolor: activePalette.secondary } }}
+            >
+              Print A4
+            </Button>
+          </Stack>
+        </DialogTitle>
+
+        <DialogContent dividers sx={{ p: { xs: 2, sm: 3 } }}>
+          {/* Institutional Header Banner */}
+          <Box
+            sx={{
+              textAlign: 'center',
+              pb: 2.5,
+              borderBottom: `3px solid ${activePalette.primary}`,
+              mb: 3,
+              bgcolor: activePalette.lightBg,
+              p: 2.5,
+              borderRadius: 3,
+              border: `1px solid ${activePalette.border}`
+            }}
+          >
+            <Typography variant="h4" sx={{ fontWeight: 900, color: activePalette.primary, letterSpacing: '0.02em', mb: 0.5 }}>
+              Global Era Technical School
+            </Typography>
+            <Typography variant="subtitle1" sx={{ color: '#334155', fontWeight: 700 }}>
+              GLOBAL ERA MULTI SERVICE PVT. LTD. • Jorpati, Gokarneshwor, Kathmandu
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.2 }}>
+              CTEVT Affiliation Code: 4208 • Phone: 01410715 • Email: globaleramultiservice@gmail.com
+            </Typography>
+            <Chip
+              label="CTEVT RECOGNIZED VOCATIONAL TRAINING CURRICULUM"
+              size="small"
+              sx={{
+                fontWeight: 900,
+                color: activePalette.badgeColor,
+                bgcolor: activePalette.badgeBg,
+                px: 1.5,
+                py: 0.3,
+                borderRadius: 2
+              }}
+            />
+          </Box>
+
+          {/* Course Summary & Ratio Snapshot */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} sm={4}>
+              <Box sx={{ p: 2, bgcolor: '#FFFFFF', border: `1.5px solid ${activePalette.border}`, borderRadius: 2.5, height: '100%' }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
+                  TARGET TRADE & COURSE:
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: activePalette.primary, mt: 0.5 }}>
+                  {selectedCourse?.title}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.5 }}>
+                  Level: <b>{selectedCourse?.level || 'CTEVT Level 1'}</b> • Units: <b>{courseSyllabi.length} Competencies</b>
+                </Typography>
+              </Box>
             </Grid>
-            <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                Total Training Duration:
-              </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                {courseTargetHours} Hours (3 Months)
-              </Typography>
+
+            <Grid item xs={12} sm={4}>
+              <Box sx={{ p: 2, bgcolor: '#FFFFFF', border: `1.5px solid ${activePalette.border}`, borderRadius: 2.5, height: '100%' }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
+                  DURATION & PRACTICAL WEIGHTAGE:
+                </Typography>
+                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
+                  {courseTargetHours} Hours ({practicalRatio}% Practical Hands-on)
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.5 }}>
+                  Practical: <b>{totalPracticalHours}h</b> | Classroom Theory: <b>{totalTheoryHours}h</b>
+                </Typography>
+              </Box>
             </Grid>
-            <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                Theory:
-              </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#2563EB' }}>
-                {totalTheoryHours} Hours ({theoryRatio}%)
-              </Typography>
-            </Grid>
-            <Grid item xs={6} sm={3}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                Practical:
-              </Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                {totalPracticalHours} Hours ({practicalRatio}%)
-              </Typography>
+
+            <Grid item xs={12} sm={4}>
+              <Box sx={{ p: 2, bgcolor: activePalette.lightBg, border: `1.5px solid ${activePalette.border}`, borderRadius: 2.5, height: '100%' }}>
+                <Typography variant="caption" sx={{ color: activePalette.primary, fontWeight: 900, display: 'block' }}>
+                  FLEXIBLE 2-HOUR SHIFT SYSTEM:
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#1E293B', display: 'block', fontWeight: 700, mt: 0.4 }}>
+                  • Shift A: 7-9 AM | Shift B: 10-12 PM
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#1E293B', display: 'block', fontWeight: 700 }}>
+                  • Shift C: 12-2 PM | Shift D: 2-4 PM | Shift E: 4-6 PM
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block', mt: 0.2 }}>
+                  ✓ Saturday &amp; Holiday Fast-Track Batch Available
+                </Typography>
+              </Box>
             </Grid>
           </Grid>
 
-          <TableContainer sx={{ border: '1px solid #CBD5E1', borderRadius: 2, mb: 3 }}>
+          {/* Student Counseling & Two-Installment Fee Guarantee Card */}
+          <Box
+            sx={{
+              p: 2.5,
+              mb: 3,
+              borderRadius: 2.5,
+              bgcolor: activePalette.lightBg,
+              border: `1.5px dashed ${activePalette.secondary}`,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: 2
+            }}
+          >
+            <Box sx={{ maxWidth: 700 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: activePalette.primary, mb: 0.5 }}>
+                💳 Transparent Student Fee Policy (Zero Hidden Charges)
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#334155', lineHeight: 1.6, display: 'block' }}>
+                • <b>1st Installment (50% on Enrollment):</b> Secures classroom seat, biometric registration, starter tools and syllabus guidebook.<br />
+                • <b>2nd Installment (50% Mid-Course):</b> Cleared before final practical evaluation, Hospital/Salon OJT placement, and CTEVT certificate printing.
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: 'right' }}>
+              <Chip
+                label="OJT & Placement Support Included"
+                size="small"
+                sx={{ bgcolor: '#059669', color: '#FFFFFF', fontWeight: 900 }}
+              />
+            </Box>
+          </Box>
+
+          {/* Curriculum Competency Table */}
+          <TableContainer sx={{ border: `1.5px solid ${activePalette.border}`, borderRadius: 2.5, mb: 3 }}>
             <Table size="small">
-              <TableHead sx={{ bgcolor: '#0F2C59' }}>
+              <TableHead sx={{ bgcolor: activePalette.primary }}>
                 <TableRow>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, width: 60, textAlign: 'center' }}>Unit</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Competency / Task Title</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
                   <TableCell sx={{ color: '#FFFFFF', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Learning Outcomes / NOS</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF', fontWeight: 900 }}>Learning Outcomes / Industrial Standard</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {courseSyllabi.map((u) => (
-                  <TableRow key={u.id}>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center' }}>{u.unitNo}</TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>{u.title}</TableCell>
-                    <TableCell sx={{ textAlign: 'center' }}>{u.theoryHours}h</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>{u.practicalHours}h</TableCell>
-                    <TableCell sx={{ textAlign: 'center', fontWeight: 900 }}>{u.totalHours}h</TableCell>
-                    <TableCell sx={{ fontSize: '0.82rem', color: '#334155' }}>{u.learningOutcome}</TableCell>
+                  <TableRow key={u.id} sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: activePalette.primary }}>
+                      0{u.unitNo}
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>
+                      {u.title}
+                      {u.toolsAndMaterials && (
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.7rem' }}>
+                          🛠️ Tools: {u.toolsAndMaterials}
+                        </Typography>
+                      )}
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center', color: '#2563EB', fontWeight: 700 }}>
+                      {u.theoryHours}h
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#059669' }}>
+                      {u.practicalHours}h
+                    </TableCell>
+                    <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#0F172A' }}>
+                      {u.totalHours}h
+                    </TableCell>
+                    <TableCell sx={{ fontSize: '0.8rem', color: '#334155', lineHeight: 1.5 }}>
+                      {u.learningOutcome}
+                    </TableCell>
                   </TableRow>
                 ))}
-                <TableRow sx={{ bgcolor: '#F8FAFC' }}>
-                  <TableCell colSpan={2} sx={{ fontWeight: 900, textAlign: 'right' }}>
-                    Total Allocated Hours:
+                <TableRow sx={{ bgcolor: activePalette.lightBg }}>
+                  <TableCell colSpan={2} sx={{ fontWeight: 900, textAlign: 'right', color: activePalette.primary }}>
+                    Total Program Hours:
                   </TableCell>
                   <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#2563EB' }}>
                     {totalTheoryHours}h
@@ -1666,22 +1930,33 @@ export default function SyllabusManager() {
                   <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#059669' }}>
                     {totalPracticalHours}h
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0F2C59', fontSize: '0.95rem' }}>
+                  <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: activePalette.primary, fontSize: '0.95rem' }}>
                     {totalSyllabusHours}h
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 800, color: '#64748B' }}>
-                    Target: {courseTargetHours} Hours ({hoursPercentage}% Met)
+                  <TableCell sx={{ fontWeight: 800, color: '#475569' }}>
+                    CTEVT Target: {courseTargetHours} Hours ({hoursPercentage}% Met)
                   </TableCell>
                 </TableRow>
               </TableBody>
             </Table>
           </TableContainer>
 
-          <Grid container spacing={4} sx={{ pt: 4 }}>
+          {/* Signatures & Certification Block */}
+          <Grid container spacing={4} sx={{ pt: 3 }}>
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  Curriculum In-charge
+              <Box sx={{ borderTop: `1px dashed ${activePalette.border}`, pt: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                  Curriculum Coordinator
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                  Signature &amp; Verification
+                </Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={4} sx={{ textAlign: 'center' }}>
+              <Box sx={{ borderTop: `1px dashed ${activePalette.border}`, pt: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                  Lead Technical Instructor
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
                   Signature &amp; Date
@@ -1689,30 +1964,29 @@ export default function SyllabusManager() {
               </Box>
             </Grid>
             <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  Lead Instructor
+              <Box sx={{ borderTop: `1px dashed ${activePalette.border}`, pt: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', color: '#0F172A' }}>
+                  Managing Director / Principal
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
-                  Signature &amp; Date
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={4} sx={{ textAlign: 'center' }}>
-              <Box sx={{ borderTop: '1px dashed #64748B', pt: 1 }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
-                  Principal
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>
-                  Official Stamp &amp; Signature
+                  Official Seal &amp; Approval
                 </Typography>
               </Box>
             </Grid>
           </Grid>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setOpenDocDialog(false)} sx={{ fontWeight: 700 }}>
+
+        <DialogActions sx={{ p: 2, bgcolor: '#F8FAFC' }}>
+          <Button onClick={() => setOpenDocDialog(false)} sx={{ fontWeight: 700, color: '#64748B' }}>
             Close
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<PrintIcon />}
+            onClick={() => window.print()}
+            sx={{ fontWeight: 800, bgcolor: activePalette.primary, '&:hover': { bgcolor: activePalette.secondary } }}
+          >
+            Print A4 Brochure
           </Button>
         </DialogActions>
       </Dialog>

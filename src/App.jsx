@@ -117,6 +117,7 @@ export default function App() {
     if (portal === 'agent' || path === '/agent') return 'agent';
     if (portal === 'trainer' || path === '/trainer') return 'trainer';
     if (portal === 'student' || path === '/student') return 'student';
+    if (portal === 'employer' || path === '/employer') return 'employer';
     if (portal === 'admin' || path === '/admin' || path === '/ge-admin' || path === '/office' || path === '/mgmt') return 'admin';
     return 'home'; // default is official website!
   };
@@ -131,6 +132,7 @@ export default function App() {
         agent: '/agent',
         trainer: '/trainer',
         student: '/student',
+        employer: '/employer',
         admin: '/ge-admin',
         verify: '/verify'
       };
@@ -494,6 +496,21 @@ export default function App() {
     );
   }
 
+  // 3.1 DEDICATED EMPLOYER PORTAL ROUTE (/employer)
+  if (currentRoute === 'employer') {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <EmployerPortal
+            onLogout={() => { logout(); navigateTo('home'); }}
+            onGoHome={() => navigateTo('home')}
+          />
+        </Box>
+      </Box>
+    );
+  }
+
   // 4. ADMIN & MANAGEMENT ROUTE (/ge-admin or /admin)
   if (!currentUser) {
     return (
@@ -505,6 +522,21 @@ export default function App() {
           onLoginSuccess={handleLoginSuccessNavigate}
           onBackHome={() => navigateTo('home')}
         />
+      </Box>
+    );
+  }
+
+  // Role Enforcement: If logged in user is an Employer, lock to Employer Portal
+  if (currentUser?.role === 'EMPLOYER') {
+    return (
+      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+        <CssBaseline />
+        <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
+          <EmployerPortal
+            onLogout={() => { logout(); navigateTo('home'); }}
+            onGoHome={() => navigateTo('home')}
+          />
+        </Box>
       </Box>
     );
   }

@@ -45,8 +45,11 @@ import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import StudentProfileModal from '../students/StudentProfileModal';
 
-export default function EmployerPortal() {
-  const { currentUser } = useAuth();
+import HomeIcon from '@mui/icons-material/Home';
+import LogoutIcon from '@mui/icons-material/Logout';
+
+export default function EmployerPortal({ onLogout, onGoHome }) {
+  const { currentUser, logout } = useAuth();
   const [db, setDb] = useState(loadDB());
   const [activeTab, setActiveTab] = useState(0);
 
@@ -233,7 +236,7 @@ export default function EmployerPortal() {
           </Grid>
 
           <Grid item xs={12} md="auto">
-            <Stack direction="row" spacing={1.5}>
+            <Stack direction="row" spacing={1.5} flexWrap="wrap" gap={1}>
               <Button
                 variant="contained"
                 startIcon={<AddIcon />}
@@ -253,8 +256,41 @@ export default function EmployerPortal() {
                   '&:hover': { borderColor: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' }
                 }}
               >
-                Register New Company
+                Register Company
               </Button>
+              {onGoHome && (
+                <Button
+                  variant="outlined"
+                  startIcon={<HomeIcon />}
+                  onClick={onGoHome}
+                  sx={{
+                    color: '#ffffff',
+                    borderColor: 'rgba(255,255,255,0.4)',
+                    fontWeight: 700,
+                    '&:hover': { borderColor: '#ffffff', bgcolor: 'rgba(255,255,255,0.1)' }
+                  }}
+                >
+                  Website
+                </Button>
+              )}
+              {currentUser && (
+                <Button
+                  variant="outlined"
+                  startIcon={<LogoutIcon />}
+                  onClick={() => {
+                    if (onLogout) onLogout();
+                    else logout();
+                  }}
+                  sx={{
+                    color: '#EF4444',
+                    borderColor: 'rgba(239,68,68,0.5)',
+                    fontWeight: 800,
+                    '&:hover': { borderColor: '#EF4444', bgcolor: 'rgba(239,68,68,0.15)' }
+                  }}
+                >
+                  Logout
+                </Button>
+              )}
             </Stack>
           </Grid>
         </Grid>
