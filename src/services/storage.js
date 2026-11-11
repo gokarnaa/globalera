@@ -544,10 +544,24 @@ export function saveDB(data) {
   }
 }
 
+import { generateSimulation105Dataset } from './simulationData';
+
 export function resetDB() {
   localStorage.setItem(DB_KEY, JSON.stringify(INITIAL_SEED_DATA));
   window.dispatchEvent(new Event('kite_db_updated'));
   return INITIAL_SEED_DATA;
+}
+
+export function loadSimulationDB() {
+  const current = loadDB();
+  const sim = generateSimulation105Dataset();
+  const merged = {
+    ...current,
+    ...sim,
+    settings: current.settings || INITIAL_SEED_DATA.settings
+  };
+  saveDB(merged);
+  return merged;
 }
 
 // System Helpers for Holidays, Audits, Snapshots & Communication

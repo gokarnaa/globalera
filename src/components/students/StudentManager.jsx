@@ -103,9 +103,10 @@ export default function StudentManager() {
   });
 
   // Filter students based on trainer role & search
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
   let filteredStudents = db.students || [];
   if (isTrainer) {
@@ -159,7 +160,7 @@ export default function StudentManager() {
   };
 
   const handleGroupSelect = (grpId) => {
-    const grp = db.trainingGroups.find((g) => g.id === grpId);
+    const grp = (db.trainingGroups || []).find((g) => g.id === grpId);
     setFormData((prev) => ({
       ...prev,
       groupId: grpId,
@@ -198,7 +199,7 @@ export default function StudentManager() {
         studentId: newId,
         eventType: 'Admission',
         title: 'New Student Enrolled',
-        description: `Enrolled into Group code: ${db.trainingGroups.find((g) => g.id === formData.groupId)?.groupCode || 'Group'}`,
+        description: `Enrolled into Group code: ${(db.trainingGroups || []).find((g) => g.id === formData.groupId)?.groupCode || 'Group'}`,
         createdAt: new Date().toISOString()
       });
     }
@@ -223,7 +224,7 @@ export default function StudentManager() {
     if (ok) {
       const nextDb = {
         ...db,
-        students: db.students.filter((x) => x.id !== id)
+        students: (db.students || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -232,8 +233,8 @@ export default function StudentManager() {
 
   const handleExportExcel = () => {
     const exportData = filteredStudents.map((s) => {
-      const grp = db.trainingGroups.find((g) => g.id === s.groupId);
-      const course = db.courses.find((c) => c.id === grp?.courseId);
+      const grp = (db.trainingGroups || []).find((g) => g.id === s.groupId);
+      const course = (db.courses || []).find((c) => c.id === grp?.courseId);
       return {
         TGID: s.tgid,
         Name: s.name,
@@ -262,10 +263,10 @@ export default function StudentManager() {
     const total = atts.length;
     const rate = total > 0 ? Math.round((present / total) * 100) : 100;
 
-    const grp = db.trainingGroups.find((g) => g.id === std.groupId);
-    const trainer = db.trainers.find((t) => t.id === grp?.trainerId);
-    const syllabi = db.syllabi.filter((s) => s.courseId === grp?.courseId);
-    const evals = db.evaluations.filter((e) => e.studentId === std.id && e.mastered);
+    const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+    const trainer = (db.trainers || []).find((t) => t.id === grp?.trainerId);
+    const syllabi = (db.syllabi || []).filter((s) => s.courseId === grp?.courseId);
+    const evals = (db.evaluations || []).filter((e) => e.studentId === std.id && e.mastered);
     const ojt = (db.ojts || []).find((o) => o.studentId === std.id);
     const ojtEmployer = ojt ? (db.employers || []).find((e) => e.id === ojt.employerId) : null;
     const placement = (db.placements || []).find((p) => p.studentId === std.id);
@@ -416,8 +417,8 @@ export default function StudentManager() {
               </TableHead>
               <TableBody>
                 {filteredStudents.map((std, idx) => {
-                  const grp = db.trainingGroups.find((g) => g.id === std.groupId);
-                  const course = db.courses.find((c) => c.id === grp?.courseId);
+                  const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+                  const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
                   return (
                     <TableRow key={std.id} hover>
@@ -538,8 +539,8 @@ export default function StudentManager() {
         /* Card View */
         <Grid container spacing={2}>
           {filteredStudents.map((std, idx) => {
-            const grp = db.trainingGroups.find((g) => g.id === std.groupId);
-            const course = db.courses.find((c) => c.id === grp?.courseId);
+            const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+            const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
             return (
               <Grid item xs={12} sm={6} md={4} key={std.id}>
@@ -794,7 +795,7 @@ export default function StudentManager() {
                       -- Select Training Group --
                     </MenuItem>
                     {myGroups.map((grp) => {
-                      const crs = db.courses.find((c) => c.id === grp.courseId);
+                      const crs = (db.courses || []).find((c) => c.id === grp.courseId);
                       return (
                         <MenuItem key={grp.id} value={grp.id}>
                           {grp.groupCode} — {crs?.title} (Shift {grp.shift}: {grp.startTime} – {grp.endTime})

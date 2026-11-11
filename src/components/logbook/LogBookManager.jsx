@@ -49,11 +49,12 @@ export default function LogBookManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
 
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
-  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || db.trainingGroups[0]?.id || '');
+  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || allGroups[0]?.id || '');
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
@@ -63,9 +64,9 @@ export default function LogBookManager() {
   const [officialModalOpen, setOfficialModalOpen] = useState(false);
   const [modalTargetItem, setModalTargetItem] = useState(null); // null = batch, item = single log entry
 
-  const selectedGroup = db.trainingGroups.find((g) => g.id === selectedGroupId);
-  const selectedCourse = db.courses.find((c) => c.id === selectedGroup?.courseId);
-  const trainer = db.trainers.find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
+  const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
+  const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
+  const trainer = (db.trainers || []).find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
 
   const availableLessonPlans = (db.lessonPlans || []).filter((lp) => lp.groupId === selectedGroupId);
 
@@ -288,7 +289,7 @@ export default function LogBookManager() {
               onChange={(e) => setSelectedGroupId(e.target.value)}
             >
               {myGroups.map((grp) => {
-                const c = db.courses.find((x) => x.id === grp.courseId);
+                const c = (db.courses || []).find((x) => x.id === grp.courseId);
                 return (
                   <MenuItem key={grp.id} value={grp.id}>
                     {grp.groupCode} — {c?.title} (Shift {grp.shift}: {grp.startTime}-{grp.endTime})

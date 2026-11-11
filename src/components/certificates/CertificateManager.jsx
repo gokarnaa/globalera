@@ -55,11 +55,12 @@ export default function CertificateManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
-  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || db.trainingGroups[0]?.id || '');
+  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || allGroups[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL'); // 'ALL' | 'ISSUED' | 'ELIGIBLE' | 'INELIGIBLE'
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
@@ -73,9 +74,9 @@ export default function CertificateManager() {
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
   const [verifyTargetItem, setVerifyTargetItem] = useState(null);
 
-  const selectedGroup = db.trainingGroups.find((g) => g.id === selectedGroupId);
-  const selectedCourse = db.courses.find((c) => c.id === selectedGroup?.courseId);
-  const trainer = db.trainers.find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
+  const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
+  const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
+  const trainer = (db.trainers || []).find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
   const groupStudents = (db.students || []).filter((s) => s.groupId === selectedGroupId);
 
   // Existing Certificates list
@@ -296,7 +297,7 @@ export default function CertificateManager() {
               onChange={(e) => setSelectedGroupId(e.target.value)}
             >
               {myGroups.map((grp) => {
-                const c = db.courses.find((x) => x.id === grp.courseId);
+                const c = (db.courses || []).find((x) => x.id === grp.courseId);
                 return (
                   <MenuItem key={grp.id} value={grp.id}>
                     {grp.groupCode} — {c?.title} (Shift {grp.shift})

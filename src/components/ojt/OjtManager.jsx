@@ -103,9 +103,10 @@ export default function OjtManager() {
       updatedList.push({ id: newId, ...formData });
 
       // Add to Student Timeline
-      const std = db.students.find((s) => s.id === formData.studentId);
-      const emp = db.employers.find((e) => e.id === formData.employerId);
-      db.studentTimelines.unshift({
+      const std = (db.students || []).find((s) => s.id === formData.studentId);
+      const emp = (db.employers || []).find((e) => e.id === formData.employerId);
+      const updatedTimelines = [...(db.studentTimelines || [])];
+      updatedTimelines.unshift({
         id: `TL-${Date.now()}`,
         studentId: formData.studentId,
         eventType: 'OJT',
@@ -113,6 +114,7 @@ export default function OjtManager() {
         description: `Hands-on apprenticeship from ${formData.startDate} to ${formData.endDate}. Supervisor: ${formData.relatedPerson}`,
         createdAt: new Date().toISOString()
       });
+      nextDb.studentTimelines = updatedTimelines;
     }
 
     const nextDb = { ...db, ojts: updatedList };
@@ -153,8 +155,8 @@ export default function OjtManager() {
   const plannedOjts = (db.ojts || []).filter((o) => o.status === 'Planned').length;
 
   const filteredOjts = (db.ojts || []).filter((ojt) => {
-    const std = db.students.find((s) => s.id === ojt.studentId);
-    const emp = db.employers.find((e) => e.id === ojt.employerId);
+    const std = (db.students || []).find((s) => s.id === ojt.studentId);
+    const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
     const q = searchTerm.toLowerCase();
 
     const matchesSearch =
@@ -313,8 +315,8 @@ export default function OjtManager() {
               </TableHead>
               <TableBody>
                 {filteredOjts.map((ojt, idx) => {
-                  const std = db.students.find((s) => s.id === ojt.studentId);
-                  const emp = db.employers.find((e) => e.id === ojt.employerId);
+                  const std = (db.students || []).find((s) => s.id === ojt.studentId);
+                  const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
 
                   return (
                     <TableRow key={ojt.id} hover>
@@ -409,8 +411,8 @@ export default function OjtManager() {
         <Box>
           <Grid container spacing={2.5}>
             {filteredOjts.map((ojt, idx) => {
-              const std = db.students.find((s) => s.id === ojt.studentId);
-              const emp = db.employers.find((e) => e.id === ojt.employerId);
+              const std = (db.students || []).find((s) => s.id === ojt.studentId);
+              const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
 
               return (
                 <Grid item xs={12} sm={6} md={4} key={ojt.id}>
@@ -645,7 +647,7 @@ export default function OjtManager() {
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                 -- Select Student --
               </MenuItem>
-              {db.students.map((s) => (
+              {(db.students || []).map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   {s.name} ({s.tgid})
                 </MenuItem>

@@ -98,9 +98,10 @@ export default function PlacementManager() {
       updatedList.push({ id: newId, ...formData });
 
       // Add to Student Timeline
-      const std = db.students.find((s) => s.id === formData.studentId);
-      const emp = db.employers.find((e) => e.id === formData.employerId);
-      db.studentTimelines.unshift({
+      const std = (db.students || []).find((s) => s.id === formData.studentId);
+      const emp = (db.employers || []).find((e) => e.id === formData.employerId);
+      const updatedTimelines = [...(db.studentTimelines || [])];
+      updatedTimelines.unshift({
         id: `TL-${Date.now()}`,
         studentId: formData.studentId,
         eventType: 'Placement',
@@ -108,6 +109,7 @@ export default function PlacementManager() {
         description: `Company: ${emp?.name || 'Partner'}, Expected Salary: ${formData.expectedSalary}, Status: ${formData.status}`,
         createdAt: new Date().toISOString()
       });
+      nextDb.studentTimelines = updatedTimelines;
     }
 
     const nextDb = { ...db, placements: updatedList };
@@ -150,8 +152,8 @@ export default function PlacementManager() {
   const ongoingCount = (db.placements || []).filter((p) => p.status === 'Ongoing').length;
 
   const filteredPlacements = (db.placements || []).filter((plc) => {
-    const std = db.students.find((s) => s.id === plc.studentId);
-    const emp = db.employers.find((e) => e.id === plc.employerId);
+    const std = (db.students || []).find((s) => s.id === plc.studentId);
+    const emp = (db.employers || []).find((e) => e.id === plc.employerId);
     const q = searchTerm.toLowerCase();
 
     const matchesSearch =
@@ -310,8 +312,8 @@ export default function PlacementManager() {
               </TableHead>
               <TableBody>
                 {filteredPlacements.map((plc, idx) => {
-                  const std = db.students.find((s) => s.id === plc.studentId);
-                  const emp = db.employers.find((e) => e.id === plc.employerId);
+                  const std = (db.students || []).find((s) => s.id === plc.studentId);
+                  const emp = (db.employers || []).find((e) => e.id === plc.employerId);
 
                   return (
                     <TableRow key={plc.id} hover>
@@ -394,8 +396,8 @@ export default function PlacementManager() {
         <Box>
           <Grid container spacing={2.5}>
             {filteredPlacements.map((plc, idx) => {
-              const std = db.students.find((s) => s.id === plc.studentId);
-              const emp = db.employers.find((e) => e.id === plc.employerId);
+              const std = (db.students || []).find((s) => s.id === plc.studentId);
+              const emp = (db.employers || []).find((e) => e.id === plc.employerId);
 
               return (
                 <Grid item xs={12} sm={6} md={4} key={plc.id}>
@@ -636,7 +638,7 @@ export default function PlacementManager() {
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                 -- Select Student --
               </MenuItem>
-              {db.students.map((s) => (
+              {(db.students || []).map((s) => (
                 <MenuItem key={s.id} value={s.id}>
                   {s.name} ({s.tgid})
                 </MenuItem>

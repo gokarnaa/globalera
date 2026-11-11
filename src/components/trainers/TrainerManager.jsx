@@ -150,7 +150,7 @@ export default function TrainerManager() {
     if (ok) {
       const nextDb = {
         ...db,
-        trainers: db.trainers.filter((x) => x.id !== id)
+        trainers: (db.trainers || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -206,8 +206,8 @@ export default function TrainerManager() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {db.trainers.map((trn, idx) => {
-                const occ = db.occupations.find((o) => o.id === trn.occupationId);
+              {(db.trainers || []).map((trn, idx) => {
+                const occ = (db.occupations || []).find((o) => o.id === trn.occupationId);
                 const assignedGroups = (db.trainingGroups || []).filter((g) => g.trainerId === trn.id);
 
                 return (
@@ -689,7 +689,7 @@ export default function TrainerManager() {
                 {profileTab === 1 && (
                   <Stack spacing={1.5}>
                     {assignedGroups.map((grp) => {
-                      const course = db.courses.find((c) => c.id === grp.courseId);
+                      const course = (db.courses || []).find((c) => c.id === grp.courseId);
                       const stdCount = (db.students || []).filter((s) => s.groupId === grp.id).length;
                       return (
                         <Paper key={grp.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
@@ -732,7 +732,7 @@ export default function TrainerManager() {
                 {profileTab === 2 && (
                   <Stack spacing={1}>
                     {myStudents.map((std) => {
-                      const grp = db.trainingGroups.find((g) => g.id === std.groupId);
+                      const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
                       const atts = (db.attendances || []).filter((a) => a.studentId === std.id);
                       const present = atts.filter((a) => a.status === 'present').length;
                       const attRate = atts.length > 0 ? Math.round((present / atts.length) * 100) : 100;
@@ -790,8 +790,8 @@ export default function TrainerManager() {
                           </Typography>
                           <Stack spacing={1}>
                             {myOjts.map((ojt) => {
-                              const std = db.students.find((s) => s.id === ojt.studentId);
-                              const emp = db.employers.find((e) => e.id === ojt.employerId);
+                              const std = (db.students || []).find((s) => s.id === ojt.studentId);
+                              const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
                               return (
                                 <Box key={ojt.id} sx={{ p: 1, bgcolor: '#f8fafc', borderRadius: 1.5 }}>
                                   <Typography variant="body2" sx={{ fontWeight: 800 }}>{std?.name || 'Student'}</Typography>
@@ -818,8 +818,8 @@ export default function TrainerManager() {
                           </Typography>
                           <Stack spacing={1}>
                             {myPlacements.map((plc) => {
-                              const std = db.students.find((s) => s.id === plc.studentId);
-                              const emp = db.employers.find((e) => e.id === plc.employerId);
+                              const std = (db.students || []).find((s) => s.id === plc.studentId);
+                              const emp = (db.employers || []).find((e) => e.id === plc.employerId);
                               return (
                                 <Box key={plc.id} sx={{ p: 1, bgcolor: '#f8fafc', borderRadius: 1.5 }}>
                                   <Typography variant="body2" sx={{ fontWeight: 800 }}>{std?.name || 'Student'}</Typography>

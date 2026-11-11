@@ -74,13 +74,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
   // Top Tabs: 0 = Mark Attendance, 1 = Saved Records, 2 = Reports & Analytics
   const [activeTab, setActiveTab] = useState(0);
 
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
   // Selected Group and Date for Mark Attendance
   const [selectedGroupId, setSelectedGroupId] = useState(
-    initialGroupId || myGroups[0]?.id || db.trainingGroups[0]?.id || ''
+    initialGroupId || myGroups[0]?.id || allGroups[0]?.id || ''
   );
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10));
 
@@ -89,17 +90,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [reopenNotice, setReopenNotice] = useState(null);
 
-  const selectedGroup = db.trainingGroups.find((g) => g.id === selectedGroupId);
-  const selectedCourse = db.courses.find((c) => c.id === selectedGroup?.courseId);
+  const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
+  const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
   const groupStudents = (db.students || []).filter((s) => s.groupId === selectedGroupId);
 
-  const holidayInfo = getHolidayInfo(selectedDate, db.holidays);
+  const holidayInfo = getHolidayInfo(selectedDate, db.holidays || []);
 
   // Load existing attendances when Group or Date changes
   useEffect(() => {
     if (!selectedGroupId || !selectedDate) return;
 
-    const existingAtts = db.attendances.filter(
+    const existingAtts = (db.attendances || []).filter(
       (a) => a.groupId === selectedGroupId && a.date === selectedDate
     );
 
@@ -180,9 +181,9 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
       const key = `${att.groupId}__${att.date}`;
       if (!sessionMap[key]) {
-        const grp = db.trainingGroups.find((g) => g.id === att.groupId);
-        const crs = db.courses.find((c) => c.id === grp?.courseId);
-        const trn = db.trainers.find((t) => t.id === grp?.trainerId);
+        const grp = (db.trainingGroups || []).find((g) => g.id === att.groupId);
+        const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+        const trn = (db.trainers || []).find((t) => t.id === grp?.trainerId);
 
         sessionMap[key] = {
           id: key,
@@ -241,8 +242,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
   // ----------------------------------------------------
   // COMPUTED: REPORTS & ANALYTICS DATA (FOR TAB 2)
   // ----------------------------------------------------
-  const reportGroup = db.trainingGroups.find((g) => g.id === reportGroupId);
-  const reportCourse = db.courses.find((c) => c.id === reportGroup?.courseId);
+  const reportGroup = (db.trainingGroups || []).find((g) => g.id === reportGroupId);
+  const reportCourse = (db.courses || []).find((c) => c.id === reportGroup?.courseId);
   const reportStudents = (db.students || []).filter((s) => s.groupId === reportGroupId);
 
   const reportData = useMemo(() => {

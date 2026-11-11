@@ -52,15 +52,16 @@ export default function ReportsManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
 
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
   // Active Tab State (0: Attendance, 1: Dropout Red Alert, 2: Syllabus Progress, 3: NSTB Competency, 4: OJT/Placement)
   const [activeTab, setActiveTab] = useState(0);
 
   // Common Filters
-  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || db.trainingGroups[0]?.id || '');
+  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || allGroups[0]?.id || '');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('2026-10'); // YYYY-MM
 
@@ -68,9 +69,9 @@ export default function ReportsManager() {
   const [officialModalOpen, setOfficialModalOpen] = useState(false);
   const [reportDocType, setReportDocType] = useState('ATTENDANCE'); // ATTENDANCE | DROPOUT | SYLLABUS | NSTB | PLACEMENT
 
-  const selectedGroup = db.trainingGroups.find((g) => g.id === selectedGroupId);
-  const selectedCourse = db.courses.find((c) => c.id === selectedGroup?.courseId);
-  const trainer = db.trainers.find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
+  const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
+  const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
+  const trainer = (db.trainers || []).find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Instructor', phone: '' };
   const groupStudents = (db.students || []).filter((s) => s.groupId === selectedGroupId);
   const availableSyllabi = (db.syllabi || []).filter((s) => s.courseId === selectedCourse?.id);
 
@@ -458,7 +459,7 @@ export default function ReportsManager() {
               onChange={(e) => setSelectedGroupId(e.target.value)}
             >
               {myGroups.map((grp) => {
-                const c = db.courses.find((x) => x.id === grp.courseId);
+                const c = (db.courses || []).find((x) => x.id === grp.courseId);
                 return (
                   <MenuItem key={grp.id} value={grp.id}>
                     {grp.groupCode} — {c?.title} (Shift {grp.shift})
@@ -1074,8 +1075,8 @@ export default function ReportsManager() {
                 </TableHead>
                 <TableBody>
                   {outcomeStats.groupPlacements.map((p, idx) => {
-                    const std = db.students.find((s) => s.id === p.studentId);
-                    const emp = db.employers.find((e) => e.id === p.employerId);
+                    const std = (db.students || []).find((s) => s.id === p.studentId);
+                    const emp = (db.employers || []).find((e) => e.id === p.employerId);
                     return (
                       <TableRow key={p.id} hover>
                         <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
@@ -1321,8 +1322,8 @@ export default function ReportsManager() {
               </TableHead>
               <TableBody>
                 {outcomeStats.groupPlacements.map((p, idx) => {
-                  const std = db.students.find((s) => s.id === p.studentId);
-                  const emp = db.employers.find((e) => e.id === p.employerId);
+                  const std = (db.students || []).find((s) => s.id === p.studentId);
+                  const emp = (db.employers || []).find((e) => e.id === p.employerId);
                   return (
                     <TableRow key={p.id}>
                       <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>{idx + 1}</TableCell>

@@ -50,15 +50,15 @@ export default function CommunicationManager() {
 
   // --- Tab 1: Dispatch State ---
   const [targetAudience, setTargetAudience] = useState('GROUP'); // 'GROUP', 'ABSENT_TODAY', 'ALL_STUDENTS', 'UNPLACED', 'EMPLOYERS', 'TRAINERS', 'SINGLE'
-  const [selectedGroupId, setSelectedGroupId] = useState(db.trainingGroups[0]?.id || '');
-  const [selectedSingleStudentId, setSelectedSingleStudentId] = useState(db.students[0]?.id || '');
+  const [selectedGroupId, setSelectedGroupId] = useState((db.trainingGroups || [])[0]?.id || '');
+  const [selectedSingleStudentId, setSelectedSingleStudentId] = useState((db.students || [])[0]?.id || '');
   const [channel, setChannel] = useState('WhatsApp'); // 'WhatsApp' | 'SMS'
-  const [selectedTemplateId, setSelectedTemplateId] = useState(db.smsTemplates[0]?.id || '');
-  const [messageBody, setMessageBody] = useState(db.smsTemplates[0]?.content || '');
+  const [selectedTemplateId, setSelectedTemplateId] = useState((db.smsTemplates || [])[0]?.id || '');
+  const [messageBody, setMessageBody] = useState((db.smsTemplates || [])[0]?.content || '');
   const [dispatchStatus, setDispatchStatus] = useState(null);
 
   // --- Tab 2: Call Log State ---
-  const [callStudentId, setCallStudentId] = useState(db.students[0]?.id || '');
+  const [callStudentId, setCallStudentId] = useState((db.students || [])[0]?.id || '');
   const [callStatus, setCallStatus] = useState('Connected'); // 'Connected' | 'No Answer' | 'Busy' | 'Call Back Later'
   const [callNotes, setCallNotes] = useState('');
   const [nextFollowUpDate, setNextFollowUpDate] = useState('');
@@ -339,8 +339,8 @@ export default function CommunicationManager() {
                       value={selectedGroupId}
                       onChange={(e) => setSelectedGroupId(e.target.value)}
                     >
-                      {db.trainingGroups.map((g) => {
-                        const c = db.courses.find((x) => x.id === g.courseId);
+                      {(db.trainingGroups || []).map((g) => {
+                        const c = (db.courses || []).find((x) => x.id === g.courseId);
                         return (
                           <MenuItem key={g.id} value={g.id}>
                             {g.groupCode} — {c?.title} (Shift {g.shift})
@@ -358,7 +358,7 @@ export default function CommunicationManager() {
                       value={selectedSingleStudentId}
                       onChange={(e) => setSelectedSingleStudentId(e.target.value)}
                     >
-                      {db.students.map((s) => (
+                      {(db.students || []).map((s) => (
                         <MenuItem key={s.id} value={s.id}>
                           {s.name} ({s.tgid}) • {s.phone}
                         </MenuItem>
@@ -558,7 +558,7 @@ export default function CommunicationManager() {
                       value={callStudentId}
                       onChange={(e) => setCallStudentId(e.target.value)}
                     >
-                      {db.students.map((s) => (
+                      {(db.students || []).map((s) => (
                         <MenuItem key={s.id} value={s.id}>
                           {s.name} ({s.tgid}) • {s.phone}
                         </MenuItem>
@@ -566,7 +566,7 @@ export default function CommunicationManager() {
                     </TextField>
 
                     {(() => {
-                      const std = db.students.find((s) => s.id === callStudentId);
+                      const std = (db.students || []).find((s) => s.id === callStudentId);
                       return std ? (
                         <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>

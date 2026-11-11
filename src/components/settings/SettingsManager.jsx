@@ -33,12 +33,13 @@ import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import BusinessIcon from '@mui/icons-material/Business';
 import ShieldIcon from '@mui/icons-material/Shield';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
-import { loadDB, saveDB, resetDB, syncWithCloud } from '../../services/storage';
+import { loadDB, saveDB, resetDB, loadSimulationDB, syncWithCloud } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
   generateSupabaseSecurityHardeningSQL,
@@ -202,6 +203,14 @@ export default function SettingsManager() {
       setDb(fresh);
       setSettings(fresh.settings);
       alert('Data reset successfully.');
+    }
+  };
+
+  const handleLoadSimulation = () => {
+    if (window.confirm('Load 100+ realistic trainees simulation dataset with complete admissions, accounting vouchers, batches, attendances & CRM leads?')) {
+      const data = loadSimulationDB();
+      setDb(data);
+      alert(`Simulation data loaded successfully! Enrolled ${data.students?.length} trainees across ${data.trainingGroups?.length} batches with ${data.admissions?.length} admission agreements and ${data.payments?.length} vouchers.`);
     }
   };
 
@@ -545,19 +554,38 @@ export default function SettingsManager() {
             <Divider sx={{ my: 2 }} />
 
             <Box>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#d5372f', mb: 0.5 }}>
-                System Maintenance
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 0.5 }}>
+                ERP Simulation & Maintenance
               </Typography>
-              <Button
-                variant="outlined"
-                color="error"
-                size="small"
-                startIcon={<RestartAltIcon />}
-                onClick={handleResetData}
-                sx={{ fontWeight: 700 }}
-              >
-                Reset All Sample Database
-              </Button>
+              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.5 }}>
+                Seed 100+ realistic trainee records across 8 batches, admissions, vouchers, and attendances for stress testing.
+              </Typography>
+              <Stack direction="row" spacing={1.5} flexWrap="wrap">
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<RocketLaunchIcon />}
+                  onClick={handleLoadSimulation}
+                  sx={{
+                    fontWeight: 800,
+                    bgcolor: '#0F2E5A',
+                    color: '#FFFFFF',
+                    '&:hover': { bgcolor: '#1E40AF' }
+                  }}
+                >
+                  Load 100+ Trainee Simulation Data
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  startIcon={<RestartAltIcon />}
+                  onClick={handleResetData}
+                  sx={{ fontWeight: 700 }}
+                >
+                  Reset Sample Database
+                </Button>
+              </Stack>
             </Box>
           </Card>
         </Grid>

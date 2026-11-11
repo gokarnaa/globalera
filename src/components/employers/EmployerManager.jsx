@@ -1149,9 +1149,9 @@ export default function EmployerManager() {
                     </Box>
                     <Stack spacing={1.5}>
                       {employerOjts.map((ojt) => {
-                        const std = db.students.find((s) => s.id === ojt.studentId);
-                        const grp = db.trainingGroups.find((g) => g.id === std?.groupId);
-                        const course = db.courses.find((c) => c.id === grp?.courseId);
+                        const std = (db.students || []).find((s) => s.id === ojt.studentId);
+                        const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+                        const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
                         return (
                           <Paper key={ojt.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
@@ -1241,9 +1241,9 @@ export default function EmployerManager() {
                     </Box>
                     <Stack spacing={1.5}>
                       {employerPlacements.map((plc) => {
-                        const std = db.students.find((s) => s.id === plc.studentId);
-                        const grp = db.trainingGroups.find((g) => g.id === std?.groupId);
-                        const course = db.courses.find((c) => c.id === grp?.courseId);
+                        const std = (db.students || []).find((s) => s.id === plc.studentId);
+                        const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+                        const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
                         return (
                           <Paper key={plc.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>

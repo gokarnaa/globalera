@@ -52,11 +52,12 @@ export default function EvaluationManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
 
+  const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
-    ? db.trainingGroups.filter((g) => g.trainerId === currentUser?.trainerId)
-    : db.trainingGroups;
+    ? allGroups.filter((g) => g.trainerId === currentUser?.trainerId)
+    : allGroups;
 
-  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || db.trainingGroups[0]?.id || '');
+  const [selectedGroupId, setSelectedGroupId] = useState(myGroups[0]?.id || allGroups[0]?.id || '');
   const [selectedStudentId, setSelectedStudentId] = useState('ALL');
   const [openDialog, setOpenDialog] = useState(false);
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'card'
@@ -66,11 +67,11 @@ export default function EvaluationManager() {
   const [officialModalOpen, setOfficialModalOpen] = useState(false);
   const [modalTargetStudent, setModalTargetStudent] = useState(null); // null = entire group, studentObj = individual student dossier
 
-  const selectedGroup = db.trainingGroups.find((g) => g.id === selectedGroupId);
-  const selectedCourse = db.courses.find((c) => c.id === selectedGroup?.courseId);
+  const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
+  const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
   const groupStudents = (db.students || []).filter((s) => s.groupId === selectedGroupId);
   const availableSyllabi = (db.syllabi || []).filter((s) => s.courseId === selectedCourse?.id);
-  const trainer = db.trainers.find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Trainer', phone: '' };
+  const trainer = (db.trainers || []).find((t) => t.id === selectedGroup?.trainerId) || { name: 'Assigned Trainer', phone: '' };
 
   const [formData, setFormData] = useState({
     groupId: selectedGroupId,
@@ -89,8 +90,8 @@ export default function EvaluationManager() {
   }
 
   const filteredEvaluations = groupEvaluations.filter((evl) => {
-    const std = db.students.find((s) => s.id === evl.studentId);
-    const syl = db.syllabi.find((s) => s.id === evl.syllabusId);
+    const std = (db.students || []).find((s) => s.id === evl.studentId);
+    const syl = (db.syllabi || []).find((s) => s.id === evl.syllabusId);
     const q = searchTerm.toLowerCase();
     return (
       (std?.name || '').toLowerCase().includes(q) ||
@@ -228,7 +229,7 @@ export default function EvaluationManager() {
             startIcon={<PrintIcon />}
             onClick={() => {
               if (selectedStudentId !== 'ALL') {
-                const std = db.students.find((s) => s.id === selectedStudentId);
+                const std = (db.students || []).find((s) => s.id === selectedStudentId);
                 setModalTargetStudent(std || null);
               } else {
                 setModalTargetStudent(null);
@@ -249,7 +250,7 @@ export default function EvaluationManager() {
             href={getWhatsAppUrl(
               trainer?.phone || '',
               selectedStudentId !== 'ALL'
-                ? getSingleStudentShareText(db.students.find((s) => s.id === selectedStudentId) || {})
+                ? getSingleStudentShareText((db.students || []).find((s) => s.id === selectedStudentId) || {})
                 : getBatchAssessmentShareText()
             )}
             target="_blank"
@@ -279,7 +280,7 @@ export default function EvaluationManager() {
               }}
             >
               {myGroups.map((grp) => {
-                const c = db.courses.find((x) => x.id === grp.courseId);
+                const c = (db.courses || []).find((x) => x.id === grp.courseId);
                 return (
                   <MenuItem key={grp.id} value={grp.id}>
                     {grp.groupCode} — {c?.title} (Shift {grp.shift})
@@ -427,8 +428,8 @@ export default function EvaluationManager() {
               </TableHead>
               <TableBody>
                 {filteredEvaluations.map((evl, index) => {
-                  const std = db.students.find((s) => s.id === evl.studentId);
-                  const syl = db.syllabi.find((s) => s.id === evl.syllabusId);
+                  const std = (db.students || []).find((s) => s.id === evl.studentId);
+                  const syl = (db.syllabi || []).find((s) => s.id === evl.syllabusId);
 
                   return (
                     <TableRow key={evl.id} hover>
@@ -527,8 +528,8 @@ export default function EvaluationManager() {
         /* 2. CARD VIEW */
         <Grid container spacing={2}>
           {filteredEvaluations.map((evl, index) => {
-            const std = db.students.find((s) => s.id === evl.studentId);
-            const syl = db.syllabi.find((s) => s.id === evl.syllabusId);
+            const std = (db.students || []).find((s) => s.id === evl.studentId);
+            const syl = (db.syllabi || []).find((s) => s.id === evl.syllabusId);
 
             return (
               <Grid item xs={12} sm={6} md={4} key={evl.id}>
@@ -949,8 +950,8 @@ export default function EvaluationManager() {
               </TableHead>
               <TableBody>
                 {groupEvaluations.map((evl, idx) => {
-                  const std = db.students.find((s) => s.id === evl.studentId);
-                  const syl = db.syllabi.find((s) => s.id === evl.syllabusId);
+                  const std = (db.students || []).find((s) => s.id === evl.studentId);
+                  const syl = (db.syllabi || []).find((s) => s.id === evl.syllabusId);
                   return (
                     <TableRow key={evl.id}>
                       <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>{idx + 1}</TableCell>
