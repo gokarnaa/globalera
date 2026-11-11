@@ -24,7 +24,8 @@ import {
   Tooltip,
   InputAdornment,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  Alert
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -40,8 +41,23 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import PersonIcon from '@mui/icons-material/Person';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+
+// Helper: Check student fee clearance status (2nd installment due rule)
+export const getStudentFeeDue = (studentId, db) => {
+  if (!studentId || !db) return { lockedFee: 0, totalPaid: 0, due: 0, isCleared: true };
+  const std = (db.students || []).find((s) => s.id === studentId);
+  if (!std) return { lockedFee: 0, totalPaid: 0, due: 0, isCleared: true };
+  const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+  const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+  const lockedFee = Number(std.lockedCourseFee) || Number(crs?.price) || 15000;
+  const studentPayments = (db.payments || []).filter((p) => p.studentId === studentId);
+  const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  const due = Math.max(0, lockedFee - totalPaid);
+  return { lockedFee, totalPaid, due, isCleared: due <= 0 };
+};
 
 export default function OjtManager() {
   const [db, setDb] = useState(loadDB());
@@ -52,8 +68,8 @@ export default function OjtManager() {
   const [viewMode, setViewMode] = useState('table');
 
   const [formData, setFormData] = useState({
-    studentId: db.students[0]?.id || '',
-    employerId: db.employers[0]?.id || '',
+    studentId: db.students?.[0]?.id || '',
+    employerId: db.employers?.[0]?.id || '',
     startDate: new Date().toISOString().slice(0, 10),
     endDate: '',
     relatedPerson: '',
@@ -78,7 +94,7 @@ export default function OjtManager() {
   };
 
   const handleEmployerSelect = (empId) => {
-    const emp = db.employers.find((e) => e.id === empId);
+    const emp = (db.employers || []).find((e) => e.id === empId);
     setFormData((prev) => ({
       ...prev,
       employerId: empId,
@@ -93,7 +109,16 @@ export default function OjtManager() {
       return;
     }
 
-    let updatedList = [...db.ojts];
+    // Strict Institutional Rule: Block OJT deployment if 2nd installment fee is unpaid
+    const feeStatus = getStudentFeeDue(formData.studentId, db);
+    if (!feeStatus.isCleared) {
+      alert(`⛔ OJT Placement Blocked!\n\nTrainee has an unpaid 2nd installment balance of NPR ${feeStatus.due.toLocaleString()}.\n\nInstitutional policy strictly prohibits hospital OJT placement until all training fees are 100% settled.`);
+      return;
+    }
+
+    let updatedList = [...(db.ojts || [])];
+    let updatedTimelines = [...(db.studentTimelines || [])];
+
     if (editingItem) {
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...formData } : x
@@ -105,7 +130,6 @@ export default function OjtManager() {
       // Add to Student Timeline
       const std = (db.students || []).find((s) => s.id === formData.studentId);
       const emp = (db.employers || []).find((e) => e.id === formData.employerId);
-      const updatedTimelines = [...(db.studentTimelines || [])];
       updatedTimelines.unshift({
         id: `TL-${Date.now()}`,
         studentId: formData.studentId,
@@ -114,10 +138,9 @@ export default function OjtManager() {
         description: `Hands-on apprenticeship from ${formData.startDate} to ${formData.endDate}. Supervisor: ${formData.relatedPerson}`,
         createdAt: new Date().toISOString()
       });
-      nextDb.studentTimelines = updatedTimelines;
     }
 
-    const nextDb = { ...db, ojts: updatedList };
+    const nextDb = { ...db, ojts: updatedList, studentTimelines: updatedTimelines };
     saveDB(nextDb);
     setDb(nextDb);
     setOpenDialog(false);
@@ -332,8 +355,16 @@ export default function OjtManager() {
                             <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
                               {std?.name || 'Student'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089' }}>
-                              {std?.tgid}
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.2 }}>
+                              <span>{std?.tgid}</span>
+                              {(() => {
+                                const f = getStudentFeeDue(std?.id, db);
+                                return f.due > 0 ? (
+                                  <Chip label={`Due: NPR ${f.due.toLocaleString()}`} size="small" sx={{ height: 18, fontSize: '0.64rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }} />
+                                ) : (
+                                  <Chip label="Fee Cleared" size="small" sx={{ height: 18, fontSize: '0.64rem', fontWeight: 800, bgcolor: '#ECFDF5', color: '#059669' }} />
+                                );
+                              })()}
                             </Typography>
                           </Box>
                         </Box>
@@ -635,24 +666,59 @@ export default function OjtManager() {
           }}
         >
           <Stack spacing={2.5}>
-            <TextField
-              select
-              label="Select Student *"
-              fullWidth
-              size="small"
-              value={formData.studentId}
-              onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
-              required
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- Select Student --
-              </MenuItem>
-              {(db.students || []).map((s) => (
-                <MenuItem key={s.id} value={s.id}>
-                  {s.name} ({s.tgid})
-                </MenuItem>
-              ))}
-            </TextField>
+            {(() => {
+              const selectedFee = getStudentFeeDue(formData.studentId, db);
+              const isLocked = Boolean(formData.studentId && !selectedFee.isCleared);
+
+              return (
+                <>
+                  <TextField
+                    select
+                    label="Select Student *"
+                    fullWidth
+                    size="small"
+                    value={formData.studentId}
+                    onChange={(e) => setFormData({ ...formData, studentId: e.target.value })}
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Student --
+                    </MenuItem>
+                    {(db.students || []).map((s) => {
+                      const f = getStudentFeeDue(s.id, db);
+                      return (
+                        <MenuItem key={s.id} value={s.id} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 }}>
+                          <span>{s.name} ({s.tgid})</span>
+                          {f.due > 0 ? (
+                            <Chip
+                              label={`Due: NPR ${f.due.toLocaleString()} (Lock)`}
+                              size="small"
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
+                            />
+                          ) : (
+                            <Chip
+                              label="✓ Cleared"
+                              size="small"
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#ECFDF5', color: '#059669' }}
+                            />
+                          )}
+                        </MenuItem>
+                      );
+                    })}
+                  </TextField>
+
+                  {isLocked && (
+                    <Alert
+                      severity="error"
+                      icon={<WarningAmberIcon />}
+                      sx={{ fontWeight: 700, fontSize: '0.8rem', borderRadius: 2 }}
+                    >
+                      ⛔ OJT Deployment Blocked: Trainee has an unpaid 2nd installment balance of <b>NPR {selectedFee.due.toLocaleString()}</b>. Institutional rules mandate 100% fee clearance before clinical or hospital placement.
+                    </Alert>
+                  )}
+                </>
+              );
+            })()}
 
             <TextField
               select
@@ -666,7 +732,7 @@ export default function OjtManager() {
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                 -- Select Employer --
               </MenuItem>
-              {db.employers.map((emp) => (
+              {(db.employers || []).map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
                   {emp.name} ({emp.location})
                 </MenuItem>
@@ -772,26 +838,33 @@ export default function OjtManager() {
           >
             Cancel
           </Button>
-          <Button
-            variant="contained"
-            startIcon={<CheckCircleIcon />}
-            onClick={handleSave}
-            sx={{
-              fontWeight: 800,
-              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
-              color: '#FFFFFF',
-              borderRadius: 2,
-              px: 3,
-              boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
-              textTransform: 'none',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
-                boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
-              }
-            }}
-          >
-            {editingItem ? 'Update OJT' : 'Save OJT'}
-          </Button>
+          {(() => {
+            const feeCheck = getStudentFeeDue(formData.studentId, db);
+            const isLocked = Boolean(formData.studentId && !feeCheck.isCleared);
+
+            return (
+              <Button
+                variant="contained"
+                disabled={isLocked}
+                startIcon={<CheckCircleIcon />}
+                onClick={handleSave}
+                sx={{
+                  fontWeight: 800,
+                  bgcolor: isLocked ? '#94A3B8 !important' : '#059669',
+                  color: '#FFFFFF',
+                  borderRadius: 2,
+                  px: 3,
+                  boxShadow: isLocked ? 'none' : '0 4px 12px rgba(5, 150, 105, 0.25)',
+                  textTransform: 'none',
+                  '&:hover': {
+                    bgcolor: isLocked ? '#94A3B8' : '#047857'
+                  }
+                }}
+              >
+                {isLocked ? 'Blocked (Fee Due)' : (editingItem ? 'Update OJT' : 'Save OJT')}
+              </Button>
+            );
+          })()}
         </DialogActions>
       </Dialog>
     </Box>

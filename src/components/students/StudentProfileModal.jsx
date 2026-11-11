@@ -19,7 +19,8 @@ import {
   Tooltip,
   Stack,
   Divider,
-  Paper
+  Paper,
+  Alert
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -39,6 +40,9 @@ import PrintIcon from '@mui/icons-material/Print';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedIcon from '@mui/icons-material/Verified';
+import LockIcon from '@mui/icons-material/Lock';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import ReceiptModal from '../accounts/ReceiptModal';
 import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
@@ -227,6 +231,10 @@ export default function StudentProfileModal({
 
   // OJT Dialog Handlers
   const handleOpenAddOjt = () => {
+    if (dueBalance > 0) {
+      alert(`⛔ Hospital OJT Deployment Blocked!\n\nTrainee "${student.name}" has an unpaid 2nd installment fee due of NPR ${dueBalance.toLocaleString()}.\n\nInstitutional rules strictly require 100% fee clearance before hospital placement. Please clear fee in the Fees tab.`);
+      return;
+    }
     const defaultEmp = ojtEmployer || (db.employers || [])[0];
     setOjtForm({
       employerId: ojt?.employerId || defaultEmp?.id || '',
@@ -251,6 +259,10 @@ export default function StudentProfileModal({
   };
 
   const handleSaveOjt = () => {
+    if (dueBalance > 0) {
+      alert(`⛔ Hospital OJT Deployment Blocked!\n\nTrainee "${student.name}" has an unpaid 2nd installment fee due of NPR ${dueBalance.toLocaleString()}.\n\nInstitutional rules strictly require 100% fee clearance before hospital placement.`);
+      return;
+    }
     if (!ojtForm.employerId || !ojtForm.startDate) {
       alert('Employer and Start Date are required.');
       return;
@@ -666,6 +678,189 @@ export default function StudentProfileModal({
             </Grid>
           </Grid>
         </Card>
+
+        {/* ============================================================== */}
+        {/* 2.5 INSTITUTIONAL 10-STEP LIFECYCLE PROGRESS STEPPER            */}
+        {/* ============================================================== */}
+        {(() => {
+          const admissionRecord = (db.admissions || []).find((a) => a.studentId === student.id || a.tgid === student.tgid);
+          const certRecord = (db.certificates || []).find((c) => c.studentId === student.id);
+          const isAdvancePaid = totalPaid >= Math.round(lockedFee * 0.5);
+          const isFullFeeCleared = dueBalance === 0 && totalPaid >= lockedFee;
+          const isAttendanceEligible = attendanceRate >= 80 && totalSessions > 0;
+          const isSkillMastered = masteredUnits.length >= Math.max(1, Math.round(syllabi.length * 0.6)) || (evaluations.length > 0 && masteredUnits.length > 0);
+          const isOjtAssigned = Boolean(ojt);
+          const isCertified = Boolean(certRecord);
+          const isJobPlaced = Boolean(placement) || student.status === 'Placed';
+
+          const journeySteps = [
+            { id: 1, label: 'Lead Inquiry', sub: student.convertedFromLeadId ? 'From Lead' : 'Direct', done: true, keyTab: 'Profile' },
+            { id: 2, label: 'Admission Agr.', sub: admissionRecord?.agreementNo || 'Signed', done: Boolean(admissionRecord) || Boolean(student.admissionDate), keyTab: 'Profile' },
+            { id: 3, label: '50% Advance', sub: isAdvancePaid ? `Paid (Rs. ${totalPaid.toLocaleString()})` : 'Pending', done: isAdvancePaid, keyTab: 'Fees' },
+            { id: 4, label: 'Biometric ID', sub: student.biometricId ? `#${student.biometricId}` : 'Mapped', done: Boolean(student.biometricId), keyTab: 'Profile' },
+            { id: 5, label: 'Attendance', sub: `${attendanceRate}% (${presentCount}d)`, done: isAttendanceEligible, keyTab: 'Attendance' },
+            { id: 6, label: '2nd Installment', sub: isFullFeeCleared ? 'Cleared' : `Due: Rs. ${dueBalance.toLocaleString()}`, done: isFullFeeCleared, isCriticalLock: !isFullFeeCleared, keyTab: 'Fees' },
+            { id: 7, label: 'Skill Mastery', sub: `${masteredUnits.length}/${syllabi.length || 0} Units`, done: isSkillMastered, keyTab: 'Evaluation' },
+            { id: 8, label: 'Hospital OJT', sub: ojt ? (ojt.status || 'Active') : (!isFullFeeCleared ? 'Locked (Fee Due)' : 'Pending'), done: isOjtAssigned, isLocked: !isFullFeeCleared, keyTab: 'OJT' },
+            { id: 9, label: 'Certificate', sub: certRecord ? certRecord.certificateNo : (!isFullFeeCleared ? 'Locked (Fee Due)' : 'Pending'), done: isCertified, isLocked: !isFullFeeCleared, keyTab: 'Profile' },
+            { id: 10, label: 'Job Placement', sub: placement ? (placement.status || 'Placed') : 'Open', done: isJobPlaced, keyTab: 'EPP' }
+          ];
+
+          const completedCount = journeySteps.filter(s => s.done).length;
+
+          return (
+            <Card
+              sx={{
+                p: 2.2,
+                mt: 2,
+                borderRadius: 3.5,
+                bgcolor: '#ffffff',
+                border: '1px solid #e2e8f0',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccountTreeIcon sx={{ color: '#0F2C59', fontSize: 20 }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.95rem' }}>
+                    Institutional Lifecycle Journey (10-Step Workflow)
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Chip
+                    label={`${completedCount} of 10 Steps Complete`}
+                    size="small"
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: '0.74rem',
+                      bgcolor: completedCount === 10 ? '#ECFDF5' : '#EFF6FF',
+                      color: completedCount === 10 ? '#059669' : '#1E40AF',
+                      border: '1px solid',
+                      borderColor: completedCount === 10 ? '#A7F3D0' : '#BFDBFE'
+                    }}
+                  />
+                  {!isFullFeeCleared && (
+                    <Chip
+                      icon={<LockIcon sx={{ fontSize: '13px !important', color: '#DC2626 !important' }} />}
+                      label={`OJT & Certificate Locked (Rs. ${dueBalance.toLocaleString()} Due)`}
+                      size="small"
+                      sx={{
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        bgcolor: '#FEF2F2',
+                        color: '#DC2626',
+                        border: '1px solid #FECACA'
+                      }}
+                    />
+                  )}
+                </Box>
+              </Box>
+
+              {/* Horizontal Stepper Row */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'stretch',
+                  overflowX: 'auto',
+                  pb: 0.8,
+                  gap: 1,
+                  '&::-webkit-scrollbar': { height: 4 },
+                  '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 }
+                }}
+              >
+                {journeySteps.map((step) => {
+                  const isDone = step.done;
+                  const isLocked = step.isLocked;
+                  const isCriticalLock = step.isCriticalLock;
+
+                  return (
+                    <Box
+                      key={step.id}
+                      onClick={() => step.keyTab && setActiveTab(step.keyTab)}
+                      sx={{
+                        minWidth: 118,
+                        flex: '1 0 118px',
+                        p: 1.1,
+                        borderRadius: 2.2,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        border: '1.5px solid',
+                        borderColor: isDone
+                          ? '#10B981'
+                          : isCriticalLock
+                          ? '#F59E0B'
+                          : isLocked
+                          ? '#EF4444'
+                          : '#E2E8F0',
+                        bgcolor: isDone
+                          ? '#F0FDF4'
+                          : isCriticalLock
+                          ? '#FFFBEB'
+                          : isLocked
+                          ? '#FEF2F2'
+                          : '#F8FAFC',
+                        '&:hover': {
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.06)'
+                        }
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.4 }}>
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontWeight: 900,
+                            fontSize: '0.66rem',
+                            color: isDone ? '#047857' : isCriticalLock ? '#B45309' : isLocked ? '#B91C1C' : '#64748B'
+                          }}
+                        >
+                          STEP {step.id}
+                        </Typography>
+                        {isDone ? (
+                          <CheckCircleIcon sx={{ fontSize: 15, color: '#10B981' }} />
+                        ) : isLocked ? (
+                          <LockIcon sx={{ fontSize: 14, color: '#DC2626' }} />
+                        ) : isCriticalLock ? (
+                          <WarningAmberIcon sx={{ fontSize: 15, color: '#D97706' }} />
+                        ) : (
+                          <HourglassEmptyIcon sx={{ fontSize: 14, color: '#94A3B8' }} />
+                        )}
+                      </Box>
+
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: '0.76rem',
+                          lineHeight: 1.2,
+                          color: isDone ? '#065F46' : isCriticalLock ? '#92400E' : isLocked ? '#991B1B' : '#0F172A',
+                          mb: 0.2
+                        }}
+                      >
+                        {step.label}
+                      </Typography>
+
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontSize: '0.66rem',
+                          fontWeight: 700,
+                          display: 'block',
+                          color: isDone ? '#059669' : isCriticalLock ? '#D97706' : isLocked ? '#DC2626' : '#64748B',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                      >
+                        {step.sub}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            </Card>
+          );
+        })()}
 
         {/* 3. Navigation Tab Pills */}
         <Card
@@ -1190,20 +1385,33 @@ export default function StudentProfileModal({
                   <Button
                     size="small"
                     variant={ojt ? 'outlined' : 'contained'}
-                    startIcon={ojt ? <EditIcon /> : <AddIcon />}
+                    disabled={dueBalance > 0 && !ojt}
+                    startIcon={ojt ? <EditIcon /> : (dueBalance > 0 ? <LockIcon /> : <AddIcon />)}
                     onClick={handleOpenAddOjt}
                     sx={{
                       fontWeight: 800,
                       textTransform: 'none',
                       borderRadius: 2,
-                      bgcolor: ojt ? 'transparent' : '#1a56b0',
-                      color: ojt ? '#1a56b0' : '#fff'
+                      bgcolor: dueBalance > 0 && !ojt ? '#94a3b8' : (ojt ? 'transparent' : '#1a56b0'),
+                      color: dueBalance > 0 && !ojt ? '#fff' : (ojt ? '#1a56b0' : '#fff')
                     }}
                   >
-                    {ojt ? 'Edit OJT' : '+ Assign OJT'}
+                    {ojt ? 'Edit OJT' : (dueBalance > 0 ? 'OJT Locked (Fee Due)' : '+ Assign OJT')}
                   </Button>
                 </Box>
               </Box>
+
+              {dueBalance > 0 && (
+                <Alert
+                  severity="error"
+                  icon={<LockIcon />}
+                  sx={{ mb: 2.5, borderRadius: 2.5, fontWeight: 700 }}
+                >
+                  ⛔ OJT Placement Blocked (2nd Installment Fee Due):
+                  This trainee has an outstanding balance of <b>NPR {dueBalance.toLocaleString()}</b>.
+                  Institutional regulations require 100% fee clearance before hospital/clinical deployment. Please collect fee under the <b>Fees</b> tab.
+                </Alert>
+              )}
 
               {ojt ? (
                 <Grid container spacing={2}>

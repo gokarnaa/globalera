@@ -82,7 +82,7 @@ export default function CertificateManager() {
   // Existing Certificates list
   const existingCertificates = db.certificates || [];
 
-  // Compute student eligibility based on attendance (>= 80%)
+  // Compute student eligibility based on attendance (>= 80%) AND fee clearance (2nd installment paid)
   const studentCertificateData = useMemo(() => {
     return groupStudents.map((student) => {
       // Calculate student attendance %
@@ -94,21 +94,32 @@ export default function CertificateManager() {
       const totalDays = studentAtts.length;
       const attPercent = totalDays > 0 ? Math.round(((pCount + lCount * 0.5) / totalDays) * 100) : 100;
 
+      // Calculate fee due (2nd installment rule)
+      const lockedFee = Number(student.lockedCourseFee) || Number(selectedCourse?.price) || 15000;
+      const studentPayments = (db.payments || []).filter((p) => p.studentId === student.id);
+      const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      const feeDue = Math.max(0, lockedFee - totalPaid);
+      const isFeeCleared = feeDue <= 0;
+
       // Check if already issued
       const cert = existingCertificates.find((c) => c.studentId === student.id);
       const isIssued = Boolean(cert);
-      const isEligible = attPercent >= 80;
+
+      // Student is eligible ONLY if attendance >= 80% AND 100% fees cleared
+      const isEligible = attPercent >= 80 && isFeeCleared;
 
       return {
         student,
         attPercent,
         totalDays,
+        feeDue,
+        isFeeCleared,
         isIssued,
         isEligible,
         certificate: cert || null
       };
     });
-  }, [groupStudents, selectedGroupId, db.attendances, existingCertificates]);
+  }, [groupStudents, selectedGroupId, selectedCourse, db.attendances, db.payments, existingCertificates]);
 
   // KPI Metrics
   const totalCount = studentCertificateData.length;
@@ -134,6 +145,17 @@ export default function CertificateManager() {
 
   // Issue Certificate for single student
   const handleIssueCertificate = (student) => {
+    // Strict Institutional Rule: Block certificate generation if 2nd installment is unpaid
+    const lockedFee = Number(student.lockedCourseFee) || Number(selectedCourse?.price) || 15000;
+    const studentPayments = (db.payments || []).filter((p) => p.studentId === student.id);
+    const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const feeDue = Math.max(0, lockedFee - totalPaid);
+
+    if (feeDue > 0) {
+      alert(`⛔ Certificate Generation Blocked!\n\nTrainee "${student.name}" (${student.tgid}) has an unpaid 2nd installment fee due of NPR ${feeDue.toLocaleString()}.\n\nInstitutional rules strictly require 100% fee clearance prior to generating and issuing the official certificate.`);
+      return;
+    }
+
     const existingList = db.certificates || [];
     const newCertNo = computeNextCertificateNumber(db, 0, {
       courseCode: selectedCourse?.code,
@@ -502,6 +524,13 @@ export default function CertificateManager() {
                             color="success"
                             sx={{ fontWeight: 800 }}
                           />
+                        ) : item.feeDue > 0 ? (
+                          <Chip
+                            icon={<WarningAmberIcon />}
+                            label={`Due: NPR ${item.feeDue.toLocaleString()} (Lock)`}
+                            size="small"
+                            sx={{ fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
+                          />
                         ) : isEligible ? (
                           <Chip
                             label="Eligible (Ready)"
@@ -595,6 +624,10 @@ export default function CertificateManager() {
                           >
                             + Issue Certificate
                           </Button>
+                        ) : item.feeDue > 0 ? (
+                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800 }}>
+                            ⛔ Fee Due (Locked)
+                          </Typography>
                         ) : (
                           <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
                             Attendance under 80%
