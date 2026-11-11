@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Box,
   Card,
@@ -28,7 +28,8 @@ import {
   Tooltip,
   ToggleButton,
   ToggleButtonGroup,
-  InputAdornment
+  InputAdornment,
+  TablePagination
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -76,8 +77,11 @@ export default function StudentManager() {
   const [profileTab, setProfileTab] = useState(0);
 
   const [filterGroup, setFilterGroup] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState('table');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [formData, setFormData] = useState({
     tgid: '',
@@ -115,6 +119,9 @@ export default function StudentManager() {
   if (filterGroup !== 'ALL') {
     filteredStudents = filteredStudents.filter((s) => s.groupId === filterGroup);
   }
+  if (statusFilter !== 'ALL') {
+    filteredStudents = filteredStudents.filter((s) => (s.status || '').toLowerCase() === statusFilter.toLowerCase());
+  }
   if (searchQuery.trim()) {
     const q = searchQuery.toLowerCase();
     filteredStudents = filteredStudents.filter(
@@ -122,9 +129,15 @@ export default function StudentManager() {
         (s.name || '').toLowerCase().includes(q) ||
         (s.tgid || '').toLowerCase().includes(q) ||
         (s.biometricId && String(s.biometricId).toLowerCase().includes(q)) ||
+        (s.citizenshipNumber && s.citizenshipNumber.toLowerCase().includes(q)) ||
         (s.phone || '').includes(q)
     );
   }
+
+  const paginatedStudents = useMemo(() => {
+    const start = page * rowsPerPage;
+    return filteredStudents.slice(start, start + rowsPerPage);
+  }, [filteredStudents, page, rowsPerPage]);
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -329,30 +342,43 @@ export default function StudentManager() {
       {/* Filter & Search Bar */}
       <Card sx={{ p: 2, mb: 3 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={3.5}>
             <TextField
               size="small"
-              placeholder="Search by Name, TGID, Phone..."
+              placeholder="Search by Name, TGID, Phone, ID..."
               fullWidth
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0);
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon sx={{ color: '#647089', fontSize: 20 }} />
                   </InputAdornment>
-                )
+                ),
+                endAdornment: searchQuery ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => { setSearchQuery(''); setPage(0); }}>
+                      <CloseIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
               }}
             />
           </Grid>
-          <Grid item xs={12} sm={3.5}>
+          <Grid item xs={12} sm={3}>
             <TextField
               select
               size="small"
               label="Filter by Training Group"
               fullWidth
               value={filterGroup}
-              onChange={(e) => setFilterGroup(e.target.value)}
+              onChange={(e) => {
+                setFilterGroup(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="ALL">All Training Groups ({myGroups.length})</MenuItem>
               {myGroups.map((grp) => (
@@ -362,10 +388,30 @@ export default function StudentManager() {
               ))}
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={4.5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1.5 }}>
-            <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700, display: { xs: 'none', md: 'block' } }}>
-              {filteredStudents.length} Students
-            </Typography>
+          <Grid item xs={6} sm={2}>
+            <TextField
+              select
+              size="small"
+              label="Status"
+              fullWidth
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
+            >
+              <MenuItem value="ALL">All Status</MenuItem>
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Completed">Completed</MenuItem>
+              <MenuItem value="Dropped">Dropped</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item xs={6} sm={3.5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1.5 }}>
+            <Chip
+              label={`${filteredStudents.length} Students`}
+              size="small"
+              sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#0f2e5a', display: { xs: 'none', md: 'inline-flex' } }}
+            />
             <ToggleButtonGroup
               value={viewMode}
               exclusive
@@ -416,15 +462,23 @@ export default function StudentManager() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredStudents.map((std, idx) => {
-                  const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
-                  const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+                {filteredStudents.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94a3b8', fontWeight: 600 }}>
+                      No students found matching your criteria.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  paginatedStudents.map((std, idx) => {
+                    const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+                    const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+                    const serialNo = page * rowsPerPage + idx + 1;
 
-                  return (
-                    <TableRow key={std.id} hover>
-                      <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
-                        {idx + 1}
-                      </TableCell>
+                    return (
+                      <TableRow key={std.id} hover>
+                        <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
+                          {serialNo}
+                        </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                           <Avatar src={std.photoUrl} sx={{ width: 44, height: 44, bgcolor: '#1a56b0', fontWeight: 800 }}>
@@ -530,20 +584,45 @@ export default function StudentManager() {
                       </TableCell>
                     </TableRow>
                   );
-                })}
+                }))}
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 50, 100]}
+            component="div"
+            count={filteredStudents.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={(e, newPage) => setPage(newPage)}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
+            sx={{
+              borderTop: '1px solid #E2E8F0',
+              bgcolor: '#F8FAFC'
+            }}
+          />
         </Card>
       ) : (
         /* Card View */
-        <Grid container spacing={2}>
-          {filteredStudents.map((std, idx) => {
-            const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
-            const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+        <Box>
+          <Grid container spacing={2}>
+            {filteredStudents.length === 0 ? (
+              <Grid item xs={12}>
+                <Paper sx={{ p: 6, textAlign: 'center', color: '#94a3b8', borderRadius: 3 }}>
+                  No students found matching your criteria.
+                </Paper>
+              </Grid>
+            ) : (
+              paginatedStudents.map((std, idx) => {
+                const grp = (db.trainingGroups || []).find((g) => g.id === std.groupId);
+                const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+                const serialNo = page * rowsPerPage + idx + 1;
 
-            return (
-              <Grid item xs={12} sm={6} md={4} key={std.id}>
+                return (
+                  <Grid item xs={12} sm={6} md={4} key={std.id}>
                 <Card
                   sx={{
                     p: 2.2,
@@ -563,7 +642,7 @@ export default function StudentManager() {
                 >
                   <Box>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                      <Chip label={`S.N. ${idx + 1}`} size="small" sx={{ bgcolor: '#f1f5f9', fontWeight: 900, color: '#475569' }} />
+                      <Chip label={`S.N. ${serialNo}`} size="small" sx={{ bgcolor: '#f1f5f9', fontWeight: 900, color: '#475569' }} />
                       <Chip
                         label={std.status}
                         size="small"
@@ -654,16 +733,29 @@ export default function StudentManager() {
                 </Card>
               </Grid>
             );
-          })}
-          {filteredStudents.length === 0 && (
-            <Grid item xs={12}>
-              <Paper sx={{ p: 6, textAlign: 'center', color: '#94a3b8', borderRadius: 3 }}>
-                No students found matching your criteria.
-              </Paper>
-            </Grid>
-          )}
+          }))}
         </Grid>
-      )}
+        {filteredStudents.length > 0 && (
+          <Card sx={{ mt: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#fff', overflow: 'hidden' }}>
+            <TablePagination
+              rowsPerPageOptions={[10, 25, 50, 100]}
+              component="div"
+              count={filteredStudents.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={(e, newPage) => setPage(newPage)}
+              onRowsPerPageChange={(e) => {
+                setRowsPerPage(parseInt(e.target.value, 10));
+                setPage(0);
+              }}
+              sx={{
+                bgcolor: '#F8FAFC'
+              }}
+            />
+          </Card>
+        )}
+      </Box>
+    )}
 
       {/* Enroll / Edit Student Dialog */}
       <Dialog

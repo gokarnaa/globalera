@@ -24,7 +24,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Avatar
+  Avatar,
+  TablePagination
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -52,6 +53,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
   const [courseFilter, setCourseFilter] = useState('ALL');
   const [ojtFilter, setOjtFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
 
   const [newAdmissionOpen, setNewAdmissionOpen] = useState(false);
   const [selectedLeadForAdmission, setSelectedLeadForAdmission] = useState(null);
@@ -228,6 +231,11 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
       return true;
     });
   }, [admissions, search, courseFilter, ojtFilter, statusFilter]);
+
+  const paginatedAdmissions = useMemo(() => {
+    const start = page * rowsPerPage;
+    return filteredAdmissions.slice(start, start + rowsPerPage);
+  }, [filteredAdmissions, page, rowsPerPage]);
 
   const handleOpenPrint = (admission) => {
     setSelectedAdmission(admission);
@@ -490,19 +498,29 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={5}>
+          <Grid item xs={12} sm={4.5}>
             <TextField
               fullWidth
               size="small"
-              placeholder="Search by student name, phone, or agreement no..."
+              placeholder="Search by student name, phone, agreement no..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
                     <SearchIcon sx={{ color: '#94a3b8' }} />
                   </InputAdornment>
-                )
+                ),
+                endAdornment: search ? (
+                  <InputAdornment position="end">
+                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
+                      <CloseIcon sx={{ fontSize: 18 }} />
+                    </IconButton>
+                  </InputAdornment>
+                ) : null
               }}
             />
           </Grid>
@@ -514,7 +532,10 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               size="small"
               label="Course Filter"
               value={courseFilter}
-              onChange={(e) => setCourseFilter(e.target.value)}
+              onChange={(e) => {
+                setCourseFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="ALL">All Courses</MenuItem>
               {(db.courses || []).map((crs) => (
@@ -525,14 +546,17 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
             </TextField>
           </Grid>
 
-          <Grid item xs={6} sm={2.2}>
+          <Grid item xs={6} sm={2}>
             <TextField
               select
               fullWidth
               size="small"
               label="OJT Preference"
               value={ojtFilter}
-              onChange={(e) => setOjtFilter(e.target.value)}
+              onChange={(e) => {
+                setOjtFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="ALL">All OJT</MenuItem>
               <MenuItem value="REQUIRED">OJT Required (Yes)</MenuItem>
@@ -540,19 +564,30 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
             </TextField>
           </Grid>
 
-          <Grid item xs={6} sm={2.3}>
+          <Grid item xs={6} sm={2}>
             <TextField
               select
               fullWidth
               size="small"
               label="Payment Status"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(0);
+              }}
             >
               <MenuItem value="ALL">All Status</MenuItem>
               <MenuItem value="DUE">2nd Installment Due</MenuItem>
               <MenuItem value="PAID">Fully Paid</MenuItem>
             </TextField>
+          </Grid>
+
+          <Grid item xs={12} sm={1} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Chip
+              label={`${filteredAdmissions.length}`}
+              size="small"
+              sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#0f2e5a' }}
+            />
           </Grid>
         </Grid>
       </Card>
@@ -599,10 +634,12 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredAdmissions.map((adm, idx) => (
-                  <TableRow key={adm.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
-                      {idx + 1}
+                paginatedAdmissions.map((adm, idx) => {
+                  const serialNo = page * rowsPerPage + idx + 1;
+                  return (
+                    <TableRow key={adm.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                        {serialNo}
                     </TableCell>
                     {/* Agreement No & Date */}
                     <TableCell>
@@ -788,12 +825,29 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                       </Stack>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+                );
+              })
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <TablePagination
+        rowsPerPageOptions={[10, 25, 50, 100]}
+        component="div"
+        count={filteredAdmissions.length}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(e, newPage) => setPage(newPage)}
+        onRowsPerPageChange={(e) => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+        sx={{
+          borderTop: '1px solid #e2e8f0',
+          bgcolor: '#f8fafc'
+        }}
+      />
+    </Card>
 
       {/* New Admission Modal */}
       <NewAdmissionModal
