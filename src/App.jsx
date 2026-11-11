@@ -373,12 +373,14 @@ export default function App() {
     return (
       <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
         <CssBaseline />
-        <PublicWebsite
-          onNavigate={navigateTo}
-          onVerifyCertificate={(certId) => {
-            setVerifyParam(certId);
-          }}
-        />
+        <ErrorBoundary onReset={() => window.location.reload()}>
+          <PublicWebsite
+            onNavigate={navigateTo}
+            onVerifyCertificate={(certId) => {
+              setVerifyParam(certId);
+            }}
+          />
+        </ErrorBoundary>
 
         {/* Online Verification Modal triggered by QR scan (?verify=...) or direct verify */}
         {verifyData && (

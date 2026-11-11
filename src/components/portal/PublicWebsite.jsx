@@ -1149,7 +1149,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     >
                       {courses.map((crs) => (
                         <MenuItem key={crs.id} value={crs.id}>
-                          {crs.title} ({crs.level || 'Level 1'}) — NPR {crs.feeCalc.totalEffectiveFee.toLocaleString()}
+                          {crs.title} ({crs.level || 'Level 1'}) — NPR {(crs.feeCalc?.totalEffectiveFee || crs.price || 0).toLocaleString()}
                         </MenuItem>
                       ))}
                     </TextField>
@@ -1685,6 +1685,14 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             const totalHours = totalTheory + totalPractical || selectedSyllabusCourse.totalHours || 390;
             const pRatio = totalHours > 0 ? Math.round((totalPractical / totalHours) * 100) : 80;
 
+            const feeCalc = selectedSyllabusCourse.feeCalc || calculateFeeBreakdown(selectedSyllabusCourse.feeStructure || {
+              basePrice: selectedSyllabusCourse.price || 30000,
+              discountPercent: 70,
+              admissionFee: 1500,
+              vatPercent: 13,
+              paymentMode: 'TWO_INSTALLMENTS'
+            });
+
             const theme = isBeautician
               ? {
                   tradeName: 'Beautician & Cosmetology',
@@ -1801,8 +1809,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 `✓ 100% Guaranteed On-the-Job (OJT) Internship\n` +
                 `✓ Direct Employer Placement & Referral Assistance\n\n` +
                 `💳 *Transparent Fee Schedule (13% VAT Included):*\n` +
-                `• Total Net Fee: NPR ${selectedSyllabusCourse.feeCalc.totalEffectiveFee.toLocaleString()}\n` +
-                `• Affordable 2-Installments: NPR ${selectedSyllabusCourse.feeCalc.installment1.toLocaleString()} on Admission + NPR ${selectedSyllabusCourse.feeCalc.installment2.toLocaleString()} Mid-Course clearance\n\n` +
+                `• Total Net Fee: NPR ${(feeCalc.totalEffectiveFee || 0).toLocaleString()}\n` +
+                `• Affordable 2-Installments: NPR ${(feeCalc.installment1 || 0).toLocaleString()} on Admission + NPR ${(feeCalc.installment2 || 0).toLocaleString()} Mid-Course clearance\n\n` +
                 `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu (Near Mitra Park)\n` +
                 `📞 *Call / WhatsApp:* ${phone}`;
 
@@ -2072,7 +2080,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                           </Typography>
                         </Box>
                         <Typography variant="h6" sx={{ fontWeight: 900, color: '#059669', my: 0.2 }}>
-                          NPR {selectedSyllabusCourse.feeCalc.totalEffectiveFee.toLocaleString()}
+                          NPR {(feeCalc.totalEffectiveFee || 0).toLocaleString()}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>
                           50% Admission + 50% Mid-Course
@@ -2403,7 +2411,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                               sx={{ bgcolor: '#059669', color: '#FFFFFF', fontWeight: 900, fontSize: '0.68rem', mb: 1.5 }}
                             />
                             <Typography variant="h5" sx={{ fontWeight: 900, color: '#065F46', mb: 0.5 }}>
-                              NPR {selectedSyllabusCourse.feeCalc.installment1.toLocaleString()}
+                              NPR {(feeCalc.installment1 || 0).toLocaleString()}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#047857', display: 'block', fontWeight: 700, mb: 1 }}>
                               Paid upon Admission &amp; Workstation Booking
@@ -2431,7 +2439,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                               sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 900, fontSize: '0.68rem', mb: 1.5 }}
                             />
                             <Typography variant="h5" sx={{ fontWeight: 900, color: '#075985', mb: 0.5 }}>
-                              NPR {selectedSyllabusCourse.feeCalc.installment2.toLocaleString()}
+                              NPR {(feeCalc.installment2 || 0).toLocaleString()}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#0369A1', display: 'block', fontWeight: 700, mb: 1 }}>
                               Paid at Mid-Course (Day 30–35) Before OJT Dispatch
@@ -2451,26 +2459,26 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         <Stack spacing={0.8} sx={{ fontSize: '0.8rem', color: '#475569' }}>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span>Base Tuition Fee (Theory + Practical Hours):</span>
-                            <b>NPR {selectedSyllabusCourse.feeCalc.basePrice.toLocaleString()}</b>
+                            <b>NPR {(feeCalc.basePrice || 0).toLocaleString()}</b>
                           </Box>
-                          {selectedSyllabusCourse.feeCalc.discountPercent > 0 && (
+                          {(feeCalc.discountPercent || 0) > 0 && (
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#DC2626' }}>
-                              <span>Campaign Merit Scholarship ({selectedSyllabusCourse.feeCalc.discountPercent}%):</span>
-                              <b>(-) NPR {selectedSyllabusCourse.feeCalc.discountAmount.toLocaleString()}</b>
+                              <span>Campaign Merit Scholarship ({feeCalc.discountPercent}%):</span>
+                              <b>(-) NPR {(feeCalc.discountAmount || 0).toLocaleString()}</b>
                             </Box>
                           )}
                           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span>Official Registration &amp; Examination Charge:</span>
-                            <b>(+) NPR {selectedSyllabusCourse.feeCalc.admissionFee.toLocaleString()}</b>
+                            <b>(+) NPR {(feeCalc.admissionFee || 0).toLocaleString()}</b>
                           </Box>
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', color: '#D97706', fontWeight: 700 }}>
                             <span>Government Value Added Tax (13% VAT):</span>
-                            <b>(+) NPR {selectedSyllabusCourse.feeCalc.vatAmount.toLocaleString()}</b>
+                            <b>(+) NPR {(feeCalc.vatAmount || 0).toLocaleString()}</b>
                           </Box>
                           <Divider />
                           <Box sx={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.95rem', color: '#059669', fontWeight: 900 }}>
                             <span>Total Final Net Effective Fee:</span>
-                            <span>NPR {selectedSyllabusCourse.feeCalc.totalEffectiveFee.toLocaleString()}</span>
+                            <span>NPR {(feeCalc.totalEffectiveFee || 0).toLocaleString()}</span>
                           </Box>
                         </Stack>
                       </Paper>

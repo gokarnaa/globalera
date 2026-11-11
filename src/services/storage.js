@@ -1,5 +1,6 @@
 // Local-first TVET Database with Automatic Cascading & Realistic Seed Data
 import { pushLocalDBToSupabase, pullRemoteDBFromSupabase } from './supabaseClient.js';
+import { generateSimulation105Dataset } from './simulationData.js';
 
 export const SHIFT_DEFINITIONS = [
   { code: 'A', name: 'Shift A', time: '07:00 AM – 09:00 AM', startTime: '07:00', endTime: '09:00' },
@@ -543,8 +544,6 @@ export function saveDB(data) {
     return data;
   }
 }
-
-import { generateSimulation105Dataset } from './simulationData';
 
 export function resetDB() {
   localStorage.setItem(DB_KEY, JSON.stringify(INITIAL_SEED_DATA));
