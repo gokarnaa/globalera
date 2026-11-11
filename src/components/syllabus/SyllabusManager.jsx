@@ -153,6 +153,49 @@ const CTEVT_PRESETS = [
   }
 ];
 
+const THEME_PALETTES = {
+  NAVY: {
+    primary: '#0F2C59',
+    secondary: '#2563EB',
+    accent: '#F59E0B',
+    lightBg: '#F8FAFC',
+    border: '#CBD5E1',
+    badgeBg: '#DBEAFE',
+    badgeColor: '#1E40AF',
+    name: 'Executive Navy (Healthcare / Caregiver)'
+  },
+  ROSE: {
+    primary: '#9D174D',
+    secondary: '#E11D48',
+    accent: '#F43F5E',
+    lightBg: '#FFF1F2',
+    border: '#FECDD3',
+    badgeBg: '#FFE4E6',
+    badgeColor: '#9F1239',
+    name: 'Rose Berry (Salon / Beautician)'
+  },
+  AMBER: {
+    primary: '#92400E',
+    secondary: '#D97706',
+    accent: '#B45309',
+    lightBg: '#FFFBEB',
+    border: '#FDE68A',
+    badgeBg: '#FEF3C7',
+    badgeColor: '#92400E',
+    name: 'Warm Amber (Fashion / Tailoring)'
+  },
+  EMERALD: {
+    primary: '#065F46',
+    secondary: '#059669',
+    accent: '#10B981',
+    lightBg: '#F0FDF4',
+    border: '#A7F3D0',
+    badgeBg: '#D1FAE5',
+    badgeColor: '#065F46',
+    name: 'Emerald Green (Vocational Standard)'
+  }
+};
+
 export default function SyllabusManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
@@ -172,90 +215,6 @@ export default function SyllabusManager() {
 
   // Brochure Color Theme State for Counseling & Printing
   const [brochureTheme, setBrochureTheme] = useState('AUTO'); // 'AUTO' | 'NAVY' | 'ROSE' | 'AMBER' | 'EMERALD'
-
-  const THEME_PALETTES = {
-    NAVY: {
-      primary: '#0F2C59',
-      secondary: '#2563EB',
-      accent: '#F59E0B',
-      lightBg: '#F8FAFC',
-      border: '#CBD5E1',
-      badgeBg: '#DBEAFE',
-      badgeColor: '#1E40AF',
-      name: 'Executive Navy (Healthcare / Caregiver)'
-    },
-    ROSE: {
-      primary: '#9D174D',
-      secondary: '#E11D48',
-      accent: '#F43F5E',
-      lightBg: '#FFF1F2',
-      border: '#FECDD3',
-      badgeBg: '#FFE4E6',
-      badgeColor: '#9F1239',
-      name: 'Rose Berry (Salon / Beautician)'
-    },
-    AMBER: {
-      primary: '#92400E',
-      secondary: '#D97706',
-      accent: '#B45309',
-      lightBg: '#FFFBEB',
-      border: '#FDE68A',
-      badgeBg: '#FEF3C7',
-      badgeColor: '#92400E',
-      name: 'Warm Amber (Fashion / Tailoring)'
-    },
-    EMERALD: {
-      primary: '#065F46',
-      secondary: '#059669',
-      accent: '#10B981',
-      lightBg: '#F0FDF4',
-      border: '#A7F3D0',
-      badgeBg: '#D1FAE5',
-      badgeColor: '#065F46',
-      name: 'Emerald Green (Vocational Standard)'
-    }
-  };
-
-  const activePalette = useMemo(() => {
-    let key = brochureTheme;
-    if (key === 'AUTO') {
-      const title = (selectedCourse?.title || '').toLowerCase();
-      if (title.includes('beauty') || title.includes('beautician') || title.includes('skin') || title.includes('hair') || title.includes('parlor')) key = 'ROSE';
-      else if (title.includes('tailor') || title.includes('dress') || title.includes('stitch') || title.includes('fashion') || title.includes('garment')) key = 'AMBER';
-      else if (title.includes('electric') || title.includes('wire') || title.includes('techn')) key = 'EMERALD';
-      else key = 'NAVY';
-    }
-    return THEME_PALETTES[key] || THEME_PALETTES.NAVY;
-  }, [brochureTheme, selectedCourse]);
-
-  const handleShareWhatsAppBrochure = () => {
-    const company = db.settings?.companyProfile || {};
-    const phone = company.phone || '01410715';
-    const cTitle = selectedCourse?.title || 'Vocational Training';
-    const unitsSummary = courseSyllabi
-      .slice(0, 6)
-      .map((u) => `• Unit ${u.unitNo}: ${u.title} (${u.totalHours}h)`)
-      .join('\n');
-
-    const text = `🌟 *Global Era Technical School — Official Course Syllabus* 🌟\n\n` +
-      `📘 *Course:* ${cTitle}\n` +
-      `⏱️ *Duration:* ${courseTargetHours} Hours (80% Practical Hands-on Training)\n` +
-      `📊 *Hours Breakdown:* ${totalTheoryHours}h Theory + ${totalPracticalHours}h Practical (${courseSyllabi.length} Competency Units)\n\n` +
-      `🗓️ *Daily 2-Hour Flexible Shifts:*\n` +
-      `• Shift A: 7:00 AM – 9:00 AM\n` +
-      `• Shift B: 10:00 AM – 12:00 PM\n` +
-      `• Shift C: 12:00 PM – 2:00 PM\n` +
-      `• Shift D: 2:00 PM – 4:00 PM\n` +
-      `• Shift E: 4:00 PM – 6:00 PM\n` +
-      `• Weekend / Holiday Fast-Track Batch\n\n` +
-      `💼 *Key Syllabus Units:*\n${unitsSummary}\n${courseSyllabi.length > 6 ? `...and ${courseSyllabi.length - 6} more specialized units\n` : ''}\n` +
-      `💳 *Affordable Fee Policy:* 50% on Enrollment + 50% Mid-Course (No hidden fees, includes workshop tools & OJT support!)\n\n` +
-      `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
-      `📞 *Phone / WhatsApp Inquiries:* ${phone}`;
-
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
-  };
 
   // Single Unit Form
   const [formData, setFormData] = useState({
@@ -343,6 +302,47 @@ export default function SyllabusManager() {
   const practicalRatio = totalSyllabusHours > 0 ? Math.round((totalPracticalHours / totalSyllabusHours) * 100) : 80;
   const theoryRatio = 100 - practicalRatio;
   const isCtevtBalanced = practicalRatio >= 75 && practicalRatio <= 85;
+
+  const activePalette = useMemo(() => {
+    let key = brochureTheme;
+    if (key === 'AUTO') {
+      const title = (selectedCourse?.title || '').toLowerCase();
+      if (title.includes('beauty') || title.includes('beautician') || title.includes('skin') || title.includes('hair') || title.includes('parlor')) key = 'ROSE';
+      else if (title.includes('tailor') || title.includes('dress') || title.includes('stitch') || title.includes('fashion') || title.includes('garment')) key = 'AMBER';
+      else if (title.includes('electric') || title.includes('wire') || title.includes('techn')) key = 'EMERALD';
+      else key = 'NAVY';
+    }
+    return THEME_PALETTES[key] || THEME_PALETTES.NAVY;
+  }, [brochureTheme, selectedCourse]);
+
+  const handleShareWhatsAppBrochure = () => {
+    const company = db.settings?.companyProfile || {};
+    const phone = company.phone || '01410715';
+    const cTitle = selectedCourse?.title || 'Vocational Training';
+    const unitsSummary = courseSyllabi
+      .slice(0, 6)
+      .map((u) => `• Unit ${u.unitNo}: ${u.title} (${u.totalHours}h)`)
+      .join('\n');
+
+    const text = `🌟 *Global Era Technical School — Official Course Syllabus* 🌟\n\n` +
+      `📘 *Course:* ${cTitle}\n` +
+      `⏱️ *Duration:* ${courseTargetHours} Hours (80% Practical Hands-on Training)\n` +
+      `📊 *Hours Breakdown:* ${totalTheoryHours}h Theory + ${totalPracticalHours}h Practical (${courseSyllabi.length} Competency Units)\n\n` +
+      `🗓️ *Daily 2-Hour Flexible Shifts:*\n` +
+      `• Shift A: 7:00 AM – 9:00 AM\n` +
+      `• Shift B: 10:00 AM – 12:00 PM\n` +
+      `• Shift C: 12:00 PM – 2:00 PM\n` +
+      `• Shift D: 2:00 PM – 4:00 PM\n` +
+      `• Shift E: 4:00 PM – 6:00 PM\n` +
+      `• Weekend / Holiday Fast-Track Batch\n\n` +
+      `💼 *Key Syllabus Units:*\n${unitsSummary}\n${courseSyllabi.length > 6 ? `...and ${courseSyllabi.length - 6} more specialized units\n` : ''}\n` +
+      `💳 *Affordable Fee Policy:* 50% on Enrollment + 50% Mid-Course (No hidden fees, includes workshop tools & OJT support!)\n\n` +
+      `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
+      `📞 *Phone / WhatsApp Inquiries:* ${phone}`;
+
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
+  };
 
   // Single Add / Edit Handlers
   const handleOpenAdd = () => {
