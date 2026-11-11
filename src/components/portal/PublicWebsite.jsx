@@ -35,6 +35,8 @@ import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import CloseIcon from '@mui/icons-material/Close';
 import HandshakeIcon from '@mui/icons-material/Handshake';
+import EmailIcon from '@mui/icons-material/Email';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { calculateFeeBreakdown } from '../courses/CourseFeeManager';
@@ -248,6 +250,115 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC', color: '#0F172A', display: 'flex', flexDirection: 'column' }}>
+      {/* ============================================================== */}
+      {/* 0. TOP ANNOUNCEMENT & CONTACT BAR                               */}
+      {/* ============================================================== */}
+      <Box
+        sx={{
+          bgcolor: '#081B33',
+          color: '#E2E8F0',
+          py: 0.8,
+          px: { xs: 1.5, sm: 3 },
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          fontSize: '0.78rem'
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: 1.2
+            }}
+          >
+            {/* Left: Location & Operating Hours */}
+            <Stack direction="row" spacing={{ xs: 1.5, md: 2.5 }} alignItems="center" flexWrap="wrap">
+              <Stack direction="row" spacing={0.6} alignItems="center">
+                <LocationOnIcon sx={{ fontSize: 15, color: '#F59E0B' }} />
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: '0.76rem' }}>
+                  Global Era Multi Service — Jorpati, Gokarneshwor, Kathmandu
+                </Typography>
+              </Stack>
+
+              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', display: { xs: 'none', md: 'block' } }} />
+
+              <Stack direction="row" spacing={0.6} alignItems="center">
+                <AccessTimeIcon sx={{ fontSize: 14, color: '#10B981' }} />
+                <Typography variant="caption" sx={{ fontWeight: 600, color: '#CBD5E1', fontSize: '0.74rem' }}>
+                  Office Hours: 7:00 AM – 6:00 PM (Sun – Fri)
+                </Typography>
+              </Stack>
+            </Stack>
+
+            {/* Right: Phone, Email & WhatsApp Direct Connect */}
+            <Stack direction="row" spacing={{ xs: 1.5, sm: 2.2 }} alignItems="center" flexWrap="wrap">
+              <Box
+                component="a"
+                href="tel:01410715"
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 0.6,
+                  color: '#FFFFFF',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  '&:hover': { color: '#F59E0B' }
+                }}
+              >
+                <PhoneIcon sx={{ fontSize: 14, color: '#F59E0B' }} />
+                <span>01410715</span>
+              </Box>
+
+              <Box
+                component="a"
+                href="mailto:globaleramultiservice@gmail.com"
+                sx={{
+                  display: { xs: 'none', sm: 'flex' },
+                  alignItems: 'center',
+                  gap: 0.6,
+                  color: '#E2E8F0',
+                  textDecoration: 'none',
+                  fontWeight: 600,
+                  fontSize: '0.74rem',
+                  '&:hover': { color: '#F59E0B' }
+                }}
+              >
+                <EmailIcon sx={{ fontSize: 14, color: '#38BDF8' }} />
+                <span>globaleramultiservice@gmail.com</span>
+              </Box>
+
+              <Box
+                component="a"
+                href="https://wa.me/97701410715?text=Hello%20Global%20Era!%20I%20am%20inquiring%20about%20Caregiver%20and%20Vocational%20Training."
+                target="_blank"
+                rel="noreferrer"
+                sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                  bgcolor: 'rgba(37, 211, 102, 0.15)',
+                  color: '#25D366',
+                  px: 1.2,
+                  py: 0.3,
+                  borderRadius: 1.5,
+                  border: '1px solid rgba(37, 211, 102, 0.3)',
+                  textDecoration: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  '&:hover': { bgcolor: 'rgba(37, 211, 102, 0.25)' }
+                }}
+              >
+                <WhatsAppIcon sx={{ fontSize: 13 }} />
+                <span>WhatsApp</span>
+              </Box>
+            </Stack>
+          </Box>
+        </Container>
+      </Box>
+
       {/* ============================================================== */}
       {/* 1. TOP HEADER & NAVIGATION BAR                                  */}
       {/* ============================================================== */}
@@ -872,16 +983,42 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             {/* Col 2: Contact Info */}
             <Grid item xs={12} md={4}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF', mb: 1.5 }}>
-                Contact & Address
+                Contact & Campus Location
               </Typography>
-              <Stack spacing={1}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <LocationOnIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-                  <Typography variant="body2">{company.address || 'Mitrapark, Chabahil, Kathmandu, Nepal'}</Typography>
+              <Stack spacing={1.2}>
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                  <LocationOnIcon fontSize="small" sx={{ color: '#F59E0B', mt: 0.2 }} />
+                  <Typography variant="body2" sx={{ color: '#E2E8F0' }}>
+                    {company.address || 'Global Era Multi Service — Jorpati, Gokarneshwor, Kathmandu, Nepal'}
+                  </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <PhoneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
-                  <Typography variant="body2">{company.phone || '01-4469000 / 9851000000'}</Typography>
+                  <Typography
+                    component="a"
+                    href="tel:01410715"
+                    variant="body2"
+                    sx={{ color: '#E2E8F0', textDecoration: 'none', '&:hover': { color: '#F59E0B' } }}
+                  >
+                    01410715
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <EmailIcon fontSize="small" sx={{ color: '#38BDF8' }} />
+                  <Typography
+                    component="a"
+                    href="mailto:globaleramultiservice@gmail.com"
+                    variant="body2"
+                    sx={{ color: '#E2E8F0', textDecoration: 'none', '&:hover': { color: '#F59E0B' } }}
+                  >
+                    globaleramultiservice@gmail.com
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <AccessTimeIcon fontSize="small" sx={{ color: '#10B981' }} />
+                  <Typography variant="body2" sx={{ color: '#CBD5E1' }}>
+                    7:00 AM – 6:00 PM (Sunday to Friday)
+                  </Typography>
                 </Box>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block', pt: 0.5 }}>
                   CTEVT Affiliation Code: {company.ctevtCode || '4208'} • Reg No: {company.regNo || '184920/078/079'}
