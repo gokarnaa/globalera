@@ -37,6 +37,9 @@ import RocketLaunchIcon from '@mui/icons-material/RocketLaunch';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import BusinessIcon from '@mui/icons-material/Business';
 import ShieldIcon from '@mui/icons-material/Shield';
+import BoltIcon from '@mui/icons-material/Bolt';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import CodeIcon from '@mui/icons-material/Code';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
 import { loadDB, saveDB, resetDB, loadSimulationDB, syncWithCloud } from '../../services/storage';
@@ -48,6 +51,7 @@ import {
   pullRemoteDBFromSupabase
 } from '../../services/supabaseClient';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
+import { executeGraphQL, GRAPHQL_QUERIES } from '../../services/graphqlClient';
 
 export default function SettingsManager() {
   const [db, setDb] = useState(loadDB());
@@ -63,6 +67,42 @@ export default function SettingsManager() {
   const [testResult, setTestResult] = useState(null);
   const [syncingData, setSyncingData] = useState(false);
   const [syncResult, setSyncResult] = useState(null);
+
+  // GraphQL API Playground State
+  const [gqlQuery, setGqlQuery] = useState(GRAPHQL_QUERIES.GET_STUDENT_DOSSIER);
+  const [gqlVariables, setGqlVariables] = useState('{\n  "studentId": "STD-001"\n}');
+  const [gqlResponse, setGqlResponse] = useState(null);
+  const [gqlExecuting, setGqlExecuting] = useState(false);
+  const [gqlExecutionStats, setGqlExecutionStats] = useState(null);
+
+  const handleRunGraphQL = async () => {
+    setGqlExecuting(true);
+    setGqlResponse(null);
+    const start = performance.now();
+    try {
+      let parsedVars = {};
+      if (gqlVariables.trim()) {
+        try {
+          parsedVars = JSON.parse(gqlVariables);
+        } catch (e) {
+          setGqlResponse({ error: `Invalid Variables JSON: ${e.message}` });
+          setGqlExecuting(false);
+          return;
+        }
+      }
+      const res = await executeGraphQL(gqlQuery, parsedVars);
+      const durationMs = (performance.now() - start).toFixed(1);
+      setGqlExecutionStats({
+        durationMs,
+        source: res.source === 'supabase_pg_graphql' ? 'Supabase pg_graphql (Cloud Network)' : 'Local-First Engine (Zero-Latency Offline)'
+      });
+      setGqlResponse(res.data);
+    } catch (err) {
+      setGqlResponse({ error: err.message });
+    } finally {
+      setGqlExecuting(false);
+    }
+  };
 
   const handleTestConnection = async () => {
     setTestingConnection(true);
@@ -271,6 +311,11 @@ export default function SettingsManager() {
             icon={<CloudUploadIcon sx={{ mr: 1, fontSize: 20 }} />}
             iconPosition="start"
             label="Cloud & System Integrations"
+          />
+          <Tab
+            icon={<BoltIcon sx={{ mr: 1, fontSize: 20, color: '#D97706' }} />}
+            iconPosition="start"
+            label="GraphQL API Studio"
           />
         </Tabs>
       </Paper>
@@ -590,6 +635,213 @@ export default function SettingsManager() {
           </Card>
         </Grid>
       </Grid>
+      )}
+
+      {/* TAB 3: GRAPHQL API STUDIO & PG_GRAPHQL ARCHITECTURE */}
+      {activeTab === 3 && (
+        <Box>
+          {/* Executive Architecture Banner */}
+          <Card
+            sx={{
+              p: 3,
+              mb: 3,
+              borderRadius: 3.5,
+              background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F2E5A 100%)',
+              color: '#FFFFFF',
+              boxShadow: '0 12px 32px rgba(15, 23, 42, 0.25)',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+              <Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
+                  <BoltIcon sx={{ color: '#F59E0B', fontSize: 30 }} />
+                  <Typography variant="h5" sx={{ fontWeight: 900, letterSpacing: '0.02em' }}>
+                    GraphQL API Architecture &amp; Playground
+                  </Typography>
+                  <Chip
+                    label="Hybrid Mode: Option A (pg_graphql + Local-First)"
+                    size="small"
+                    sx={{ bgcolor: 'rgba(245, 158, 11, 0.2)', color: '#FCD34D', fontWeight: 800, border: '1px solid #F59E0B' }}
+                  />
+                </Box>
+                <Typography variant="body2" sx={{ color: '#94A3B8', maxWidth: 840, lineHeight: 1.6 }}>
+                  High-efficiency relational queries for graduation dossiers, employer talent search, and illustrated course syllabi. Combines Supabase Postgres <code style={{ color: '#38BDF8' }}>pg_graphql</code> with zero-latency offline client fallback.
+                </Typography>
+              </Box>
+              <Chip
+                label="Single Endpoint: /graphql/v1"
+                sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 900, px: 1 }}
+              />
+            </Box>
+          </Card>
+
+          <Grid container spacing={3}>
+            {/* Left Panel: Query Presets & Editor */}
+            <Grid item xs={12} lg={6}>
+              <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #CBD5E1', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1 }}>
+                  1. Ready Query Presets
+                </Typography>
+                <Stack direction="row" spacing={1} sx={{ mb: 2, flexWrap: 'wrap', gap: 1 }}>
+                  <Button
+                    size="small"
+                    variant={gqlQuery === GRAPHQL_QUERIES.GET_STUDENT_DOSSIER ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      setGqlQuery(GRAPHQL_QUERIES.GET_STUDENT_DOSSIER);
+                      setGqlVariables('{\n  "studentId": "STD-001"\n}');
+                    }}
+                    sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
+                  >
+                    🎓 Student Dossier
+                  </Button>
+                  <Button
+                    size="small"
+                    variant={gqlQuery === GRAPHQL_QUERIES.GET_EMPLOYER_TALENT_POOL ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      setGqlQuery(GRAPHQL_QUERIES.GET_EMPLOYER_TALENT_POOL);
+                      setGqlVariables('{\n  "minAttendance": 75\n}');
+                    }}
+                    sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
+                  >
+                    🏢 Employer Talent Pool
+                  </Button>
+                  <Button
+                    size="small"
+                    variant={gqlQuery === GRAPHQL_QUERIES.GET_COURSE_SYLLABUS ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      setGqlQuery(GRAPHQL_QUERIES.GET_COURSE_SYLLABUS);
+                      setGqlVariables('{\n  "courseId": "CRS-01"\n}');
+                    }}
+                    sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 2 }}
+                  >
+                    📖 Illustrated Syllabus
+                  </Button>
+                </Stack>
+
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.5 }}>
+                  GRAPHQL QUERY (DOCUMENT):
+                </Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={10}
+                  maxRows={14}
+                  value={gqlQuery}
+                  onChange={(e) => setGqlQuery(e.target.value)}
+                  sx={{
+                    fontFamily: 'monospace',
+                    mb: 2,
+                    '& .MuiInputBase-input': {
+                      fontFamily: 'Consolas, monospace',
+                      fontSize: '0.8rem',
+                      bgcolor: '#F8FAFC',
+                      p: 1.5,
+                      borderRadius: 1.5
+                    }
+                  }}
+                />
+
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.5 }}>
+                  QUERY VARIABLES (JSON):
+                </Typography>
+                <TextField
+                  fullWidth
+                  multiline
+                  minRows={3}
+                  value={gqlVariables}
+                  onChange={(e) => setGqlVariables(e.target.value)}
+                  sx={{
+                    fontFamily: 'monospace',
+                    mb: 2,
+                    '& .MuiInputBase-input': {
+                      fontFamily: 'Consolas, monospace',
+                      fontSize: '0.82rem',
+                      bgcolor: '#F8FAFC',
+                      p: 1.2,
+                      borderRadius: 1.5
+                    }
+                  }}
+                />
+
+                <Box sx={{ mt: 'auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Button
+                    variant="contained"
+                    startIcon={gqlExecuting ? <CircularProgress size={18} color="inherit" /> : <PlayArrowIcon />}
+                    onClick={handleRunGraphQL}
+                    disabled={gqlExecuting}
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      fontWeight: 800,
+                      px: 3,
+                      borderRadius: 2,
+                      '&:hover': { bgcolor: '#1E40AF' }
+                    }}
+                  >
+                    {gqlExecuting ? 'Executing Query...' : 'Execute GraphQL Query'}
+                  </Button>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                    Safe Execution • Zero Network Stall
+                  </Typography>
+                </Box>
+              </Card>
+            </Grid>
+
+            {/* Right Panel: Execution Result & Benchmarking */}
+            <Grid item xs={12} lg={6}>
+              <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #CBD5E1', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                    2. Response JSON Output
+                  </Typography>
+                  {gqlExecutionStats && (
+                    <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Chip
+                        label={`⚡ ${gqlExecutionStats.durationMs} ms`}
+                        size="small"
+                        sx={{ bgcolor: '#ECFDF5', color: '#047857', fontWeight: 900 }}
+                      />
+                      <Chip
+                        label={gqlExecutionStats.source}
+                        size="small"
+                        sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800 }}
+                      />
+                    </Box>
+                  )}
+                </Box>
+
+                <Paper
+                  variant="outlined"
+                  sx={{
+                    flex: 1,
+                    minHeight: 380,
+                    maxHeight: 520,
+                    overflow: 'auto',
+                    p: 2,
+                    bgcolor: '#0B1120',
+                    color: '#38BDF8',
+                    fontFamily: 'Consolas, monospace',
+                    fontSize: '0.82rem',
+                    borderRadius: 2
+                  }}
+                >
+                  <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                    {gqlResponse ? JSON.stringify(gqlResponse, null, 2) : '// Click [Execute GraphQL Query] on the left to see live result...'}
+                  </pre>
+                </Paper>
+
+                <Box sx={{ mt: 2, p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 0.5 }}>
+                    💡 How to Enable Native pg_graphql on Supabase SQL Editor:
+                  </Typography>
+                  <code style={{ fontSize: '0.74rem', color: '#0F2E5A', background: '#E2E8F0', padding: '3px 8px', borderRadius: 4, display: 'block' }}>
+                    CREATE EXTENSION IF NOT EXISTS pg_graphql WITH SCHEMA extensions;
+                  </code>
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
+        </Box>
       )}
     </Box>
   );

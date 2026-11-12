@@ -1300,11 +1300,18 @@ export default function StudentPortal({ onLogout }) {
             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1 }}>
               CTEVT Affiliation Code: 4208 • Reg No: 184920/078/079 • Phone: 01410715
             </Typography>
-            <Chip
-              label="OFFICIAL TVET GRADUATE PORTFOLIO & COMPETENCY DOSSIER"
-              size="small"
-              sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 900, fontSize: '0.72rem' }}
-            />
+            <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" sx={{ gap: 0.5 }}>
+              <Chip
+                label="OFFICIAL TVET GRADUATE PORTFOLIO & COMPETENCY DOSSIER"
+                size="small"
+                sx={{ bgcolor: '#DBEAFE', color: '#1E40AF', fontWeight: 900, fontSize: '0.72rem' }}
+              />
+              <Chip
+                label="⚡ GraphQL Accelerated"
+                size="small"
+                sx={{ bgcolor: '#ECFDF5', color: '#047857', fontWeight: 800, fontSize: '0.72rem', border: '1px solid #A7F3D0' }}
+              />
+            </Stack>
           </Box>
 
           {/* Trainee Profile Snapshot */}
