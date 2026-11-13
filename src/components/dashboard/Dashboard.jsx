@@ -208,15 +208,16 @@ export default function Dashboard({ onNavigate }) {
       {/* 1. HERO BANNER - Completely Redesigned for Crystal-Clear Text & Zero Empty Space */}
       <Card
         sx={{
-          mb: 3.5,
+          mb: 2.5,
           background: 'linear-gradient(135deg, #071933 0%, #0D284F 50%, #153E75 100%)',
           color: '#FFFFFF',
           borderRadius: 4,
-          p: { xs: 2, sm: 2.5, md: 3 },
+          py: { xs: 2, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
           position: 'relative',
           overflow: 'hidden',
           border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 12px 32px -8px rgba(7, 25, 51, 0.35)'
+          boxShadow: '0 10px 28px -8px rgba(7, 25, 51, 0.32)'
         }}
       >
         {/* Subtle Decorative Ambient Background Glow */}
@@ -233,10 +234,10 @@ export default function Dashboard({ onNavigate }) {
           }}
         />
 
-        <Grid container spacing={3} alignItems="flex-start">
-          {/* Left Column: Top-Aligned Authority Badges, Clear Text & 5 Eye-Friendly Action Buttons */}
+        <Grid container spacing={2.5} alignItems="center">
+          {/* Left Column: Compact Top-Aligned Badges, Clear Text & 5 Eye-Friendly Action Buttons */}
           <Grid item xs={12} md={7.5} lg={8.2}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.4, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
               <Chip
                 icon={<ShieldIcon sx={{ fontSize: '15px !important', color: '#FDE047 !important' }} />}
                 label="Global Era Technical School"
@@ -280,8 +281,8 @@ export default function Dashboard({ onNavigate }) {
               sx={{
                 fontWeight: 800,
                 color: '#FFFFFF',
-                mb: 0.8,
-                fontSize: { xs: '1.5rem', sm: '1.95rem', md: '2.15rem' },
+                mb: 0.5,
+                fontSize: { xs: '1.4rem', sm: '1.75rem', md: '1.9rem' },
                 lineHeight: 1.2
               }}
             >
@@ -292,10 +293,10 @@ export default function Dashboard({ onNavigate }) {
               variant="body1"
               sx={{
                 color: '#CBD5E1',
-                lineHeight: 1.55,
-                fontSize: { xs: '0.9rem', sm: '0.98rem' },
-                maxWidth: 680,
-                mb: 2.2
+                lineHeight: 1.45,
+                fontSize: { xs: '0.85rem', sm: '0.92rem' },
+                maxWidth: 660,
+                mb: 1.8
               }}
             >
               {isTrainer
@@ -438,30 +439,30 @@ export default function Dashboard({ onNavigate }) {
             </Box>
           </Grid>
 
-          {/* Right Column: Live Real-Time Institutional Hub Widget */}
+          {/* Right Column: Compact Live Real-Time Institutional Hub Widget */}
           <Grid item xs={12} md={4.5} lg={3.8}>
             <Box
               sx={{
                 bgcolor: 'rgba(15, 30, 60, 0.65)',
                 backdropFilter: 'blur(16px)',
-                p: { xs: 2.5, sm: 3 },
-                borderRadius: 3.5,
-                border: '1.5px solid rgba(255, 255, 255, 0.16)',
-                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)',
+                p: { xs: 1.75, sm: 2 },
+                borderRadius: 3,
+                border: '1px solid rgba(255, 255, 255, 0.16)',
+                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.25)',
                 textAlign: 'left'
               }}
             >
               {/* Real-time Ticking Digital Clock Header */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-                <Typography variant="overline" sx={{ color: '#93C5FD', letterSpacing: '0.08em', fontWeight: 900, fontSize: '0.7rem' }}>
-                  ⏱️ LIVE SYSTEM CLOCK
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.7 }}>
+                <Typography variant="overline" sx={{ color: '#93C5FD', letterSpacing: '0.08em', fontWeight: 900, fontSize: '0.68rem', lineHeight: 1.2 }}>
+                  LIVE SYSTEM CLOCK
                 </Typography>
                 <Chip
                   label="Online"
                   size="small"
                   sx={{
-                    height: 20,
-                    fontSize: '0.65rem',
+                    height: 18,
+                    fontSize: '0.64rem',
                     bgcolor: '#059669',
                     color: '#FFFFFF',
                     fontWeight: 900
@@ -475,61 +476,56 @@ export default function Dashboard({ onNavigate }) {
                   fontFamily: 'monospace',
                   fontWeight: 900,
                   color: '#FFFFFF',
-                  letterSpacing: '0.04em',
-                  lineHeight: 1,
-                  mb: 0.8,
-                  fontSize: { xs: '1.8rem', sm: '2.1rem' }
+                  letterSpacing: '0.03em',
+                  lineHeight: 1.05,
+                  mb: 0.3,
+                  fontSize: { xs: '1.5rem', sm: '1.7rem' }
                 }}
               >
                 {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
               </Typography>
 
-              <Typography variant="body2" sx={{ color: '#CBD5E1', fontWeight: 700, mb: 2 }}>
+              <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 700, display: 'block', mb: 1.2 }}>
                 {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </Typography>
 
-              <Divider sx={{ my: 1.8, borderColor: 'rgba(255, 255, 255, 0.15)' }} />
-
-              {/* Active Shift Indicator with Glowing Beacon */}
-              <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', p: 1.8, borderRadius: 2.5, border: '1px solid rgba(52, 211, 153, 0.3)', mb: 2 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+              {/* Active Shift Indicator */}
+              <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', px: 1.25, py: 0.9, borderRadius: 2, border: '1px solid rgba(52, 211, 153, 0.28)', mb: 1.2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                   <Box
                     sx={{
-                      width: 10,
-                      height: 10,
+                      width: 8,
+                      height: 8,
                       borderRadius: '50%',
                       bgcolor: '#34D399',
-                      boxShadow: '0 0 10px #34D399'
+                      flexShrink: 0
                     }}
                   />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#6EE7B7', fontSize: '0.76rem' }}>
                     SHIFT {activeShiftCode} LIVE ({activeShiftTime})
                   </Typography>
                 </Box>
-                <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', fontWeight: 600 }}>
-                  Vocational Training Sessions in Operation
-                </Typography>
               </Box>
 
               {/* Live Metric Badges */}
               <Grid container spacing={1}>
                 <Grid item xs={6}>
-                  <Box sx={{ p: 1.2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, textAlign: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: '#38BDF8', lineHeight: 1.1 }}>
+                  <Box sx={{ py: 0.8, px: 1, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 1.8, textAlign: 'center' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#38BDF8', lineHeight: 1.15, fontSize: '0.95rem' }}>
                       {groups.length} Batches
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
+                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.65rem', fontWeight: 700, display: 'block' }}>
                       Active Batches
                     </Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
-                  <Box sx={{ p: 1.2, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 2, textAlign: 'center' }}>
-                    <Typography variant="h6" sx={{ fontWeight: 900, color: overallAttRate >= 80 ? '#34D399' : '#FBBF24', lineHeight: 1.1 }}>
+                  <Box sx={{ py: 0.8, px: 1, bgcolor: 'rgba(255,255,255,0.08)', borderRadius: 1.8, textAlign: 'center' }}>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: overallAttRate >= 80 ? '#34D399' : '#FBBF24', lineHeight: 1.15, fontSize: '0.95rem' }}>
                       {overallAttRate}%
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem', fontWeight: 700 }}>
-                      Avg. Attendance Rate
+                    <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.65rem', fontWeight: 700, display: 'block' }}>
+                      Avg. Attendance
                     </Typography>
                   </Box>
                 </Grid>
