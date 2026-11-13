@@ -237,6 +237,8 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       expected_end_date: g.expectedEndDate || new Date().toISOString().slice(0, 10),
       classroom_lab: g.classroomLab || g.room,
       max_capacity: Number(g.maxCapacity) || 25,
+      batch_mode: g.batchMode || 'ROLLING',
+      schedule_mode: g.scheduleMode || 'REGULAR',
       status: g.status || 'Running'
     })));
   }
@@ -266,6 +268,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       syllabus_id: w.syllabusId,
       plan_date: w.planDate,
       day_name: w.dayName || 'Day',
+      cycle_day: w.cycleDay != null ? Number(w.cycleDay) : null,
       theory_aspect: w.theoryAspect,
       practical_aspect: w.practicalAspect,
       planned_hours: Number(w.plannedHours) || 2,
@@ -715,6 +718,59 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     })));
   }
 
+  // 33. Student Timelines
+  if (db.studentTimelines?.length) {
+    results.student_timelines = await safeUpsert('student_timelines', db.studentTimelines.map(tl => ({
+      id: tl.id,
+      organization_id: orgId,
+      student_id: tl.studentId,
+      event_type: tl.eventType || tl.type || 'Update',
+      title: tl.title || 'Timeline Event',
+      description: tl.description || '',
+      created_at: tl.createdAt || new Date().toISOString()
+    })));
+  }
+
+  // 34. Student Notes
+  if (db.studentNotes?.length) {
+    results.student_notes = await safeUpsert('student_notes', db.studentNotes.map(sn => ({
+      id: sn.id,
+      organization_id: orgId,
+      student_id: sn.studentId,
+      text: sn.text || '',
+      author: sn.author || 'Staff',
+      created_at: sn.createdAt || new Date().toISOString()
+    })));
+  }
+
+  // 35. Communication Logs
+  if (db.communicationLogs?.length) {
+    results.communication_logs = await safeUpsert('communication_logs', db.communicationLogs.map(cl => ({
+      id: cl.id,
+      organization_id: orgId,
+      channel: cl.channel || 'SMS',
+      recipient_name: cl.recipientName || cl.name || '',
+      recipient_phone: cl.recipientPhone || cl.phone || '0000000000',
+      message: cl.message || '',
+      status: cl.status || 'Sent',
+      sent_at: cl.sentAt || cl.timestamp || new Date().toISOString()
+    })));
+  }
+
+  // 36. Audit Logs (keep recent 500 to avoid oversized payloads)
+  if (db.auditLogs?.length) {
+    results.audit_logs = await safeUpsert('audit_logs', db.auditLogs.slice(0, 500).map(al => ({
+      id: al.id,
+      organization_id: orgId,
+      user_id: al.userId || al.actor || 'System',
+      action: al.action || 'ACTION',
+      entity: al.entity || 'System',
+      entity_id: al.entityId || '',
+      details: al.details || '',
+      timestamp: al.timestamp || new Date().toISOString()
+    })));
+  }
+
   return results;
 }
 
@@ -777,7 +833,11 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
     evals,
     certificates,
     holidays,
-    notices
+    notices,
+    studentTimelines,
+    studentNotes,
+    communicationLogs,
+    auditLogs
   ] = await Promise.all([
     fetchTable('users'),
     fetchTable('occupations'),
@@ -810,7 +870,11 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
     fetchTable('evaluations'),
     fetchTable('certificates'),
     fetchTable('holidays'),
-    fetchTable('notices')
+    fetchTable('notices'),
+    fetchTable('student_timelines'),
+    fetchTable('student_notes'),
+    fetchTable('communication_logs'),
+    fetchTable('audit_logs')
   ]);
 
   // If Supabase has zero records in critical tables, don't wipe out local database!
@@ -889,6 +953,8 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       expectedEndDate: g.expected_end_date,
       classroomLab: g.classroom_lab,
       maxCapacity: g.max_capacity,
+      batchMode: g.batch_mode || 'ROLLING',
+      scheduleMode: g.schedule_mode || 'REGULAR',
       status: g.status
     })),
     syllabi: syllabi.map(s => ({
@@ -908,6 +974,7 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       syllabusId: w.syllabus_id,
       planDate: w.plan_date,
       dayName: w.day_name,
+      cycleDay: w.cycle_day,
       theoryAspect: w.theory_aspect,
       practicalAspect: w.practical_aspect,
       plannedHours: w.planned_hours,
@@ -1229,6 +1296,39 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       publishDate: n.publish_date,
       isUrgent: n.is_urgent,
       createdBy: n.created_by
+    })),
+    studentTimelines: studentTimelines.map(tl => ({
+      id: tl.id,
+      studentId: tl.student_id,
+      eventType: tl.event_type,
+      title: tl.title,
+      description: tl.description,
+      createdAt: tl.created_at
+    })),
+    studentNotes: studentNotes.map(sn => ({
+      id: sn.id,
+      studentId: sn.student_id,
+      text: sn.text,
+      author: sn.author,
+      createdAt: sn.created_at
+    })),
+    communicationLogs: communicationLogs.map(cl => ({
+      id: cl.id,
+      channel: cl.channel,
+      recipientName: cl.recipient_name,
+      recipientPhone: cl.recipient_phone,
+      message: cl.message,
+      status: cl.status,
+      sentAt: cl.sent_at
+    })),
+    auditLogs: auditLogs.map(al => ({
+      id: al.id,
+      userId: al.user_id,
+      action: al.action,
+      entity: al.entity,
+      entityId: al.entity_id,
+      details: al.details,
+      timestamp: al.timestamp
     }))
   };
 
@@ -1423,13 +1523,15 @@ CREATE TABLE IF NOT EXISTS training_groups (
   group_code TEXT NOT NULL,
   course_id TEXT REFERENCES courses(id) ON DELETE CASCADE,
   trainer_id TEXT REFERENCES trainers(id) ON DELETE SET NULL,
-  shift TEXT NOT NULL CHECK (shift IN ('A', 'B', 'C', 'D', 'E')),
+  shift TEXT NOT NULL CHECK (shift IN ('A', 'B', 'C', 'D', 'E', 'F')),
   start_time TEXT NOT NULL,
   end_time TEXT NOT NULL,
   start_date DATE NOT NULL,
   expected_end_date DATE NOT NULL,
   classroom_lab TEXT,
   max_capacity INT DEFAULT 25,
+  batch_mode TEXT DEFAULT 'ROLLING' CHECK (batch_mode IN ('ROLLING', 'FIXED')),
+  schedule_mode TEXT DEFAULT 'REGULAR' CHECK (schedule_mode IN ('REGULAR', 'WEEKEND_ONLY')),
   status TEXT DEFAULT 'Running' CHECK (status IN ('Upcoming', 'Running', 'OJT Phase', 'Completed')),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -1462,6 +1564,7 @@ CREATE TABLE IF NOT EXISTS work_plans (
   syllabus_id TEXT REFERENCES syllabi(id) ON DELETE CASCADE,
   plan_date DATE NOT NULL,
   day_name TEXT NOT NULL,
+  cycle_day INT,
   theory_aspect TEXT,
   practical_aspect TEXT,
   planned_hours INT DEFAULT 2,
@@ -1941,6 +2044,42 @@ CREATE TABLE IF NOT EXISTS audit_logs (
   timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 37. Student Journey Timelines
+CREATE TABLE IF NOT EXISTS student_timelines (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
+  event_type TEXT DEFAULT 'Update',
+  title TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 38. Student Counselor & Trainer Notes
+CREATE TABLE IF NOT EXISTS student_notes (
+  id TEXT PRIMARY KEY,
+  organization_id TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
+  student_id TEXT REFERENCES students(id) ON DELETE CASCADE,
+  text TEXT NOT NULL,
+  author TEXT DEFAULT 'Staff',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ==============================================================================
+-- SECTION 8B: IDEMPOTENT COLUMN & CONSTRAINT UPGRADES FOR EXISTING DATABASES
+-- ==============================================================================
+
+ALTER TABLE training_groups ADD COLUMN IF NOT EXISTS batch_mode TEXT DEFAULT 'ROLLING';
+ALTER TABLE training_groups ADD COLUMN IF NOT EXISTS schedule_mode TEXT DEFAULT 'REGULAR';
+ALTER TABLE work_plans ADD COLUMN IF NOT EXISTS cycle_day INT;
+
+DO $$
+BEGIN
+  ALTER TABLE training_groups DROP CONSTRAINT IF EXISTS training_groups_shift_check;
+  ALTER TABLE training_groups ADD CONSTRAINT training_groups_shift_check CHECK (shift IN ('A', 'B', 'C', 'D', 'E', 'F'));
+EXCEPTION WHEN OTHERS THEN
+END $$;
+
 -- ==============================================================================
 -- SECTION 9: INDEXES FOR MAXIMUM QUERY PERFORMANCE
 -- ==============================================================================
@@ -1999,6 +2138,8 @@ ALTER TABLE holidays ENABLE ROW LEVEL SECURITY;
 ALTER TABLE notices ENABLE ROW LEVEL SECURITY;
 ALTER TABLE communication_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE student_timelines ENABLE ROW LEVEL SECURITY;
+ALTER TABLE student_notes ENABLE ROW LEVEL SECURITY;
 
 -- Grant Full Permissive Access for Frontend Anon Key & Service Role
 DO $$ 
@@ -2012,7 +2153,7 @@ DECLARE
     'trainer_payouts', 'journal_entries', 'expenses', 'project_contracts',
     'cash_closings', 'employers', 'job_openings', 'job_applications',
     'ojts', 'placements', 'evaluations', 'certificates', 'holidays',
-    'notices', 'communication_logs', 'audit_logs'
+    'notices', 'communication_logs', 'audit_logs', 'student_timelines', 'student_notes'
   ];
 BEGIN
   FOREACH tbl IN ARRAY tbls LOOP
@@ -2106,8 +2247,10 @@ DECLARE
   ops_tbl text;
   ops_tables text[] := ARRAY[
     'organizations', 'users', 'training_groups', 'trainers', 'students',
-    'work_plans', 'lesson_plans', 'evaluations', 'holidays', 'leads',
-    'agents', 'admissions', 'employers', 'placements', 'system_settings', 'biometric_logs'
+    'work_plans', 'lesson_plans', 'log_books', 'evaluations', 'holidays', 'leads',
+    'agents', 'admissions', 'employers', 'job_openings', 'job_applications', 'ojts',
+    'placements', 'system_settings', 'biometric_logs',
+    'student_timelines', 'student_notes', 'communication_logs', 'audit_logs'
   ];
 BEGIN
   FOREACH ops_tbl IN ARRAY ops_tables LOOP
