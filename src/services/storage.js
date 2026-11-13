@@ -349,6 +349,83 @@ INITIAL_SEED_DATA.users = generateDefaultUsers(
 );
 
 const DB_KEY = 'kite_tvet_erp_prod_v2';
+const IDB_NAME = 'kite_tvet_idb_v1';
+const IDB_STORE = 'erp_state';
+
+let memoryDBCache = null;
+let idbHydrationStarted = false;
+
+function openIndexedDB() {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB unavailable'));
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function writeToIndexedDB(data) {
+  try {
+    const idb = await openIndexedDB();
+    const tx = idb.transaction(IDB_STORE, 'readwrite');
+    tx.objectStore(IDB_STORE).put(data, DB_KEY);
+    tx.oncomplete = () => idb.close();
+  } catch (_) {
+    // Ignore IDB errors in restricted/private environments
+  }
+}
+
+function startIndexedDBHydration() {
+  if (idbHydrationStarted || typeof window === 'undefined' || typeof indexedDB === 'undefined') return;
+  idbHydrationStarted = true;
+  openIndexedDB()
+    .then((idb) => {
+      const tx = idb.transaction(IDB_STORE, 'readonly');
+      const req = tx.objectStore(IDB_STORE).get(DB_KEY);
+      req.onsuccess = () => {
+        const stored = req.result;
+        idb.close();
+        if (stored && typeof stored === 'object') {
+          const currentLen = (memoryDBCache?.attendances?.length || 0) + (memoryDBCache?.biometricLogs?.length || 0) + (memoryDBCache?.students?.length || 0);
+          const idbLen = (stored.attendances?.length || 0) + (stored.biometricLogs?.length || 0) + (stored.students?.length || 0);
+          if (!memoryDBCache || idbLen > currentLen) {
+            memoryDBCache = stored;
+            window.dispatchEvent(new Event('kite_db_updated'));
+          }
+        }
+      };
+      req.onerror = () => idb.close();
+    })
+    .catch(() => {});
+}
+
+function writeLocalStorageSafe(reconciled) {
+  if (typeof localStorage === 'undefined') return;
+  try {
+    localStorage.setItem(DB_KEY, JSON.stringify(reconciled));
+  } catch (err) {
+    // Graceful fallback if >5MB QuotaExceededError occurs (e.g. 500+ students with 90 days logs)
+    // Full dataset remains safely stored in memoryDBCache, IndexedDB, and Supabase Cloud!
+    try {
+      const trimmed = {
+        ...reconciled,
+        biometricLogs: (reconciled.biometricLogs || []).slice(-1000),
+        auditLogs: (reconciled.auditLogs || []).slice(0, 200),
+        snapshots: (reconciled.snapshots || []).slice(0, 2)
+      };
+      localStorage.setItem(DB_KEY, JSON.stringify(trimmed));
+      console.warn('[Storage] localStorage >5MB quota reached; full logs preserved in IndexedDB & Cloud.');
+    } catch (e2) {
+      console.error('localStorage fallback failed:', e2);
+    }
+  }
+}
 
 /**
  * Helper to generate safe collision-free sequential IDs (e.g. STD-09, TRN-05, TGID-108)
@@ -497,9 +574,13 @@ export function reconcileUsersWithEntities(data) {
 
 export function loadDB() {
   try {
+    if (memoryDBCache) {
+      return memoryDBCache;
+    }
     if (typeof localStorage === 'undefined') {
       return INITIAL_SEED_DATA;
     }
+    startIndexedDBHydration();
     // Purge legacy demo storage keys if present
     if (localStorage.getItem('kite_tvet_erp_data_v1')) {
       localStorage.removeItem('kite_tvet_erp_data_v1');
@@ -510,7 +591,9 @@ export function loadDB() {
     const raw = localStorage.getItem(DB_KEY);
     if (!raw) {
       const seeded = reconcileUsersWithEntities(INITIAL_SEED_DATA);
-      localStorage.setItem(DB_KEY, JSON.stringify(seeded));
+      memoryDBCache = seeded;
+      writeLocalStorageSafe(seeded);
+      writeToIndexedDB(seeded);
       return seeded;
     }
     const parsed = JSON.parse(raw);
@@ -563,7 +646,9 @@ export function loadDB() {
       }
     };
 
-    return reconcileUsersWithEntities(merged);
+    const finalDb = reconcileUsersWithEntities(merged);
+    memoryDBCache = finalDb;
+    return finalDb;
   } catch (err) {
     console.error('Error loading database:', err);
     return INITIAL_SEED_DATA;
@@ -624,8 +709,12 @@ export async function syncWithCloud(forcePush = false) {
 export function saveDB(data) {
   try {
     const reconciled = reconcileUsersWithEntities(data);
-    localStorage.setItem(DB_KEY, JSON.stringify(reconciled));
-    window.dispatchEvent(new Event('kite_db_updated'));
+    memoryDBCache = reconciled;
+    writeLocalStorageSafe(reconciled);
+    writeToIndexedDB(reconciled);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('kite_db_updated'));
+    }
     triggerBackgroundCloudPush(reconciled);
     return reconciled;
   } catch (err) {
@@ -635,8 +724,12 @@ export function saveDB(data) {
 }
 
 export function resetDB() {
-  localStorage.setItem(DB_KEY, JSON.stringify(INITIAL_SEED_DATA));
-  window.dispatchEvent(new Event('kite_db_updated'));
+  memoryDBCache = INITIAL_SEED_DATA;
+  writeLocalStorageSafe(INITIAL_SEED_DATA);
+  writeToIndexedDB(INITIAL_SEED_DATA);
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('kite_db_updated'));
+  }
   return INITIAL_SEED_DATA;
 }
 

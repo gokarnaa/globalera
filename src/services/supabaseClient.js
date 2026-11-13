@@ -101,20 +101,26 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
 
   const results = {};
 
-  // Helper for batch upserts
+  // Helper for chunked batch upserts (handles 500+ students & 45,000+ attendance rows safely)
   const safeUpsert = async (table, payload, conflictKey) => {
     if (!payload || !payload.length) return 0;
+    const CHUNK_SIZE = 500;
+    let totalSaved = 0;
+    const opts = conflictKey ? { onConflict: conflictKey } : undefined;
     try {
-      const opts = conflictKey ? { onConflict: conflictKey } : undefined;
-      const { error } = await client.from(table).upsert(payload, opts);
-      if (error) {
-        console.warn(`[Supabase Push] ${table} warning:`, error.message);
-        return 0;
+      for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
+        const chunk = payload.slice(i, i + CHUNK_SIZE);
+        const { error } = await client.from(table).upsert(chunk, opts);
+        if (error) {
+          console.warn(`[Supabase Push] ${table} chunk warning:`, error.message);
+        } else {
+          totalSaved += chunk.length;
+        }
       }
-      return payload.length;
+      return totalSaved;
     } catch (e) {
       console.warn(`[Supabase Push] ${table} exception:`, e.message);
-      return 0;
+      return totalSaved;
     }
   };
 
