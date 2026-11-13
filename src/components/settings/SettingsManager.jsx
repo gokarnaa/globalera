@@ -17,8 +17,10 @@ import {
   Tabs,
   Tab,
   InputAdornment,
-  IconButton
+  IconButton,
+  MenuItem
 } from '@mui/material';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
@@ -83,6 +85,43 @@ export default function SettingsManager() {
 
   // Meta WhatsApp Cloud API State
   const [waSettings, setWaSettings] = useState(getWhatsAppSettings);
+
+  // Biometric & Gate Hardware Settings State
+  const [bioConfig, setBioConfig] = useState(() => ({
+    enabled: true,
+    connectionMode: 'ADMS_CLOUD',
+    deviceName: 'Global Era Biometric Terminal (ADMS)',
+    deviceIp: '192.168.1.201',
+    devicePort: 4370,
+    serialNo: 'ZK-GE-2026-8891',
+    cloudPushUrl: 'https://globalera.com.np/api/iclock/cdata',
+    lateGraceMinutes: 15,
+    allowTrainerManualOverride: true,
+    autoSmsOnAbsent: true,
+    ...(db.settings?.biometricSettings || {})
+  }));
+  const [copiedAdmsUrl, setCopiedAdmsUrl] = useState(false);
+
+  const handleSaveBiometricConfig = () => {
+    const latest = loadDB();
+    const updated = {
+      ...latest,
+      settings: {
+        ...(latest.settings || {}),
+        biometricSettings: {
+          ...(latest.settings?.biometricSettings || {}),
+          ...bioConfig,
+          devicePort: Number(bioConfig.devicePort) || 4370,
+          lateGraceMinutes: Number(bioConfig.lateGraceMinutes) || 15
+        }
+      }
+    };
+    saveDB(updated);
+    setDb(updated);
+    setSettings(updated.settings);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
   const [waTestPhone, setWaTestPhone] = useState('9851000000');
   const [waSending, setWaSending] = useState(false);
   const [waSendResult, setWaSendResult] = useState(null);
@@ -348,6 +387,8 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
         <Tabs
           value={activeTab}
           onChange={(e, next) => setActiveTab(next)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
             '& .MuiTab-root': {
               fontWeight: 800,
@@ -385,6 +426,11 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
             icon={<BoltIcon sx={{ mr: 1, fontSize: 20, color: '#D97706' }} />}
             iconPosition="start"
             label="GraphQL API Studio"
+          />
+          <Tab
+            icon={<FingerprintIcon sx={{ mr: 1, fontSize: 20, color: '#059669' }} />}
+            iconPosition="start"
+            label="Biometric & Gate Hardware"
           />
         </Tabs>
       </Paper>
@@ -1020,6 +1066,214 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
             </Grid>
           </Grid>
         </Box>
+      )}
+
+      {/* TAB 4: BIOMETRIC & GATE HARDWARE SETTINGS */}
+      {activeTab === 4 && (
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={7}>
+            <Card variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Box>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <FingerprintIcon sx={{ color: '#059669' }} /> Biometric Terminal & Gate Configuration
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>
+                    Supports ADMS Cloud Push (ZKTeco / eSSL), Local LAN Bridge, and Web Gate Kiosk mode.
+                  </Typography>
+                </Box>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={bioConfig.enabled !== false}
+                      onChange={(e) => setBioConfig({ ...bioConfig, enabled: e.target.checked })}
+                      color="success"
+                    />
+                  }
+                  label={<Typography variant="caption" sx={{ fontWeight: 800 }}>Active</Typography>}
+                />
+              </Stack>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Connection Mode"
+                    value={bioConfig.connectionMode || 'ADMS_CLOUD'}
+                    onChange={(e) => setBioConfig({ ...bioConfig, connectionMode: e.target.value })}
+                  >
+                    <MenuItem value="ADMS_CLOUD">ADMS Cloud Push (Recommended — Real-Time Direct to Cloud)</MenuItem>
+                    <MenuItem value="LOCAL_BRIDGE">Local LAN Bridge (School Reception PC Agent)</MenuItem>
+                    <MenuItem value="WEB_KIOSK">Web Gate Kiosk Only (No Physical Hardware Yet)</MenuItem>
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Device Name / Model"
+                    value={bioConfig.deviceName || ''}
+                    onChange={(e) => setBioConfig({ ...bioConfig, deviceName: e.target.value })}
+                    placeholder="e.g. ZKTeco K40 Pro ADMS"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Device Serial Number"
+                    value={bioConfig.serialNo || ''}
+                    onChange={(e) => setBioConfig({ ...bioConfig, serialNo: e.target.value })}
+                    placeholder="e.g. ZK-GE-2026-8891"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={8}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Local Device IP (For LAN Bridge)"
+                    value={bioConfig.deviceIp || ''}
+                    onChange={(e) => setBioConfig({ ...bioConfig, deviceIp: e.target.value })}
+                    placeholder="192.168.1.201"
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    label="TCP Port"
+                    value={bioConfig.devicePort || 4370}
+                    onChange={(e) => setBioConfig({ ...bioConfig, devicePort: e.target.value })}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="ADMS Cloud Push Endpoint URL"
+                    value={bioConfig.cloudPushUrl || 'https://globalera.com.np/api/iclock/cdata'}
+                    onChange={(e) => setBioConfig({ ...bioConfig, cloudPushUrl: e.target.value })}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              navigator.clipboard?.writeText(bioConfig.cloudPushUrl || 'https://globalera.com.np/api/iclock/cdata');
+                              setCopiedAdmsUrl(true);
+                              setTimeout(() => setCopiedAdmsUrl(false), 2000);
+                            }}
+                          >
+                            <ContentCopyIcon fontSize="small" />
+                          </IconButton>
+                        </InputAdornment>
+                      )
+                    }}
+                    helperText={copiedAdmsUrl ? 'Copied ADMS URL to clipboard!' : 'Enter this URL in your ADMS-enabled biometric device Cloud Server setting.'}
+                  />
+                </Grid>
+              </Grid>
+
+              <Divider sx={{ my: 2.5 }} />
+
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.5 }}>
+                Shift A–F Attendance & Notification Rules
+              </Typography>
+
+              <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    label="Late Grace Minutes"
+                    value={bioConfig.lateGraceMinutes ?? 15}
+                    onChange={(e) => setBioConfig({ ...bioConfig, lateGraceMinutes: e.target.value })}
+                    helperText="Minutes after Shift A–F start"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={bioConfig.allowTrainerManualOverride !== false}
+                        onChange={(e) => setBioConfig({ ...bioConfig, allowTrainerManualOverride: e.target.checked })}
+                      />
+                    }
+                    label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Allow Trainer Override</Typography>}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={bioConfig.autoSmsOnAbsent !== false}
+                        onChange={(e) => setBioConfig({ ...bioConfig, autoSmsOnAbsent: e.target.checked })}
+                      />
+                    }
+                    label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Auto Alert on Absent</Typography>}
+                  />
+                </Grid>
+              </Grid>
+
+              <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveBiometricConfig}
+                  startIcon={<CheckCircleIcon />}
+                  sx={{ bgcolor: '#0F2E5A', fontWeight: 800, px: 3, '&:hover': { bgcolor: '#1E3A8A' } }}
+                >
+                  Save Biometric Hardware Settings
+                </Button>
+              </Box>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={5}>
+            <Card variant="outlined" sx={{ p: 3, borderRadius: 3, bgcolor: '#F8FAFC' }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 1.5 }}>
+                Hardware Buying & Setup Guide
+              </Typography>
+              <Stack spacing={1.5}>
+                <Alert severity="info" sx={{ borderRadius: 2 }}>
+                  <strong>Recommended Hardware:</strong> Any ZKTeco or eSSL terminal with <b>ADMS / Cloud Push</b> support (e.g. ZKTeco K40 Pro ADMS, MB10-VL, or eSSL X990 ADMS).
+                </Alert>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: '#FFFFFF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#059669', display: 'block', mb: 0.5 }}>
+                    1. ADMS Cloud Push Mode
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
+                    No dedicated PC needed. Connect the device to WiFi/LAN and set the Server URL to <code>globalera.com.np/api/iclock/cdata</code>.
+                  </Typography>
+                </Paper>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: '#FFFFFF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#1D4ED8', display: 'block', mb: 0.5 }}>
+                    2. Local LAN Bridge Mode
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
+                    For non-ADMS LAN devices. A lightweight Node bridge on the reception PC polls the device IP/Port and pushes punches to Supabase.
+                  </Typography>
+                </Paper>
+                <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, bgcolor: '#FFFFFF' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#D97706', display: 'block', mb: 0.5 }}>
+                    3. Web Gate Kiosk (Active Now)
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
+                    Works immediately without hardware via <b>Live Biometric Monitor</b> using Biometric ID or QR ID Card scan.
+                  </Typography>
+                </Paper>
+              </Stack>
+            </Card>
+          </Grid>
+        </Grid>
       )}
     </Box>
   );
