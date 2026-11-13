@@ -16,7 +16,9 @@ import {
   InputAdornment,
   Divider,
   Stack,
-  Chip
+  Chip,
+  FormControlLabel,
+  Checkbox
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -25,8 +27,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import PersonIcon from '@mui/icons-material/Person';
 import PaymentIcon from '@mui/icons-material/Payment';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
+import { sendMetaWhatsAppMessage } from '../../services/whatsappCloudApi';
 
 export const PAYMENT_METHODS = [
   'Cash',
@@ -53,6 +57,7 @@ export default function RecordPaymentModal({
   const [paymentMethod, setPaymentMethod] = useState('Fonepay / QR');
   const [remarks, setRemarks] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [sendWhatsApp, setSendWhatsApp] = useState(true);
 
   const students = db?.students || [];
   const courses = db?.courses || [];
@@ -187,6 +192,29 @@ export default function RecordPaymentModal({
       try {
         confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
       } catch (err) {}
+    }
+
+    // Auto WhatsApp payment voucher dispatch
+    if (sendWhatsApp && selectedStudent?.phone) {
+      const remainingDue = Math.max(0, selectedBalance.due - payNum);
+      const text = `🧾 *Official Tuition Fee Payment Voucher*\n` +
+        `Global Era Technical School (CTEVT Accredited)\n\n` +
+        `Dear *${selectedStudent.name}*,\n` +
+        `Your fee payment of *Rs. ${payNum.toLocaleString()}* has been successfully recorded!\n\n` +
+        `• *Receipt No:* ${receiptNo}\n` +
+        `• *Course:* ${selectedBalance.courseName}\n` +
+        `• *Payment Method:* ${paymentMethod.split(' (')[0]}\n` +
+        `• *Date:* ${paymentDate}\n` +
+        `• *Remaining Due Balance:* Rs. ${remainingDue.toLocaleString()}\n` +
+        (remainingDue <= 0 ? `• *Status:* Fee Fully Cleared 🎉\n` : `• *Status:* Partially Paid\n`) +
+        `• *Received By:* ${currentUser?.name || 'Accounts Office'}\n\n` +
+        `Thank you for training with Global Era Technical School!`;
+
+      sendMetaWhatsAppMessage({
+        to: selectedStudent.phone,
+        type: 'text',
+        text: text
+      }).catch((e) => console.warn('Payment WhatsApp notice failed:', e));
     }
 
     onSavePayment(newPayment);
@@ -432,6 +460,25 @@ export default function RecordPaymentModal({
                   )
                 }}
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box sx={{ p: 1.5, bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <FormControlLabel
+                  control={<Checkbox checked={sendWhatsApp} onChange={(e) => setSendWhatsApp(e.target.checked)} color="success" />}
+                  label={
+                    <Box>
+                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#166534' }}>
+                        Dispatch Official Receipt Voucher to Trainee WhatsApp
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#15803D' }}>
+                        Sends official receipt with remaining balance to trainee mobile
+                      </Typography>
+                    </Box>
+                  }
+                />
+                <Chip icon={<WhatsAppIcon sx={{ color: '#25D366 !important' }} />} label="Live 1-Click" size="small" sx={{ bgcolor: '#DCFCE7', color: '#166534', fontWeight: 800 }} />
+              </Box>
             </Grid>
           </Grid>
         </DialogContent>

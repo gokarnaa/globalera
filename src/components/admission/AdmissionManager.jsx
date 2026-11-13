@@ -41,8 +41,11 @@ import CloseIcon from '@mui/icons-material/Close';
 import SyncIcon from '@mui/icons-material/Sync';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ContactsIcon from '@mui/icons-material/Contacts';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 import { loadDB, saveDB } from '../../services/storage';
+import { getWhatsAppUrl } from '../../services/exportUtils';
+import { sendMetaWhatsAppMessage } from '../../services/whatsappCloudApi';
 import NewAdmissionModal from './NewAdmissionModal';
 import AdmissionAgreementPrintModal from './AdmissionAgreementPrintModal';
 import StudentIdCardModal from './StudentIdCardModal';
@@ -186,6 +189,53 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
       window.removeEventListener('storage', refreshDb);
     };
   }, []);
+
+  const [sendingWaAdmId, setSendingWaAdmId] = useState(null);
+
+  const handleSendWhatsAppReceipt = async (adm) => {
+    const student = (db.students || []).find((s) => s.id === adm.studentId) || { phone: adm.phone || adm.studentPhone, name: adm.studentName };
+    const phone = adm.phone || adm.studentPhone || student?.phone;
+    if (!phone) {
+      showToast('Trainee phone number is missing.', 'error');
+      return;
+    }
+
+    const course = (db.courses || []).find((c) => c.id === adm.courseId);
+    const receiptText = `📜 *Official Admission Confirmation & Fee Receipt*\n` +
+      `Global Era Technical School (CTEVT Accredited Institute)\n\n` +
+      `Dear *${adm.studentName}*,\n` +
+      `Your admission enrollment has been confirmed successfully!\n\n` +
+      `• *Agreement No:* ${adm.agreementNo || 'GETS-ADM'}\n` +
+      `• *Course:* ${adm.courseTitle || course?.title || 'Vocational Training'}\n` +
+      `• *Batch:* Shift ${adm.shift || 'A'}\n` +
+      `• *Trainee ID (TGID):* ${student.tgid || adm.tgid || 'GETS-TGID'}\n` +
+      `• *Total Net Fee:* Rs. ${(Number(adm.netPayableFee) || 0).toLocaleString()}\n` +
+      `• *50% Advance Paid:* Rs. ${(Number(adm.advancePaid50) || 0).toLocaleString()}\n` +
+      (adm.dueAmount50 > 0 ? `• *Mid-Course 50% Due:* Rs. ${Number(adm.dueAmount50).toLocaleString()} (Due Date: ${adm.dueDate || 'Within 30 Days'})\n` : `• *Payment Status:* Fully Settled\n`) +
+      `• *Campus Location:* Jorpati, Gokarneshwor, Kathmandu (Phone: 01-410715)\n\n` +
+      `Please present this confirmation voucher on your first class day. Welcome to Global Era!`;
+
+    try {
+      setSendingWaAdmId(adm.id);
+      const res = await sendMetaWhatsAppMessage({
+        to: phone,
+        type: 'text',
+        text: receiptText
+      });
+      if (res && (res.messages || res.wamid)) {
+        showToast(`WhatsApp receipt delivered successfully to ${adm.studentName} (${phone})!`, 'success');
+      } else {
+        // Fallback to WhatsApp Web
+        window.open(getWhatsAppUrl(phone, receiptText), '_blank');
+        showToast(`Opening WhatsApp Web for 1-click personal dispatch to ${adm.studentName}...`, 'info');
+      }
+    } catch (err) {
+      window.open(getWhatsAppUrl(phone, receiptText), '_blank');
+      showToast(`Opening WhatsApp Web for 1-click personal chat: ${err.message}`, 'info');
+    } finally {
+      setSendingWaAdmId(null);
+    }
+  };
 
   // KPI Calculations
   const totalAdmissionsCount = admissions.length;
@@ -810,6 +860,27 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                             sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6 }}
                           >
                             Agreement
+                          </Button>
+                        </Tooltip>
+
+                        <Tooltip title="Send Official Admission Confirmation & Fee Receipt to WhatsApp">
+                          <Button
+                            variant="contained"
+                            size="small"
+                            color="success"
+                            disabled={sendingWaAdmId === adm.id}
+                            startIcon={<WhatsAppIcon />}
+                            onClick={() => handleSendWhatsAppReceipt(adm)}
+                            sx={{
+                              fontWeight: 800,
+                              fontSize: '0.78rem',
+                              py: 0.6,
+                              bgcolor: '#25D366',
+                              color: '#ffffff',
+                              '&:hover': { bgcolor: '#1ebc59' }
+                            }}
+                          >
+                            {sendingWaAdmId === adm.id ? 'Sending...' : 'WhatsApp'}
                           </Button>
                         </Tooltip>
 
