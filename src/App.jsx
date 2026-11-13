@@ -583,11 +583,11 @@ export default function App() {
   }
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#f4f7fb' }}>
+    <Box sx={{ display: 'flex', minHeight: '100dvh', bgcolor: '#F4F7FB' }}>
       <CssBaseline />
 
       {/* Top Application Bar */}
-      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+      <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
         <Navbar
           onToggleSidebar={handleToggleSidebar}
           onOpenPinModal={() => setPinModalOpen(true)}
@@ -612,13 +612,13 @@ export default function App() {
               flexGrow: 1,
               minWidth: 0,
               p: { xs: 1.5, sm: 2.5, md: 3 },
-              minHeight: 'calc(100vh - 70px)',
+              minHeight: 'calc(100dvh - 70px)',
               position: 'relative',
               zIndex: 1,
-              pb: { xs: 12, md: 5 } // Padding for mobile bottom nav
+              pb: { xs: 'calc(84px + env(safe-area-inset-bottom))', md: 5 }
             }}
           >
-            <Box sx={{ width: '100%', maxWidth: '1720px', mx: 'auto', px: { xs: 0, sm: 1 } }}>
+            <Box sx={{ width: '100%', maxWidth: '1520px', mx: 'auto', px: { xs: 0, sm: 1 } }}>
               <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('dashboard')}>
                 {renderContent()}
               </ErrorBoundary>
