@@ -212,11 +212,11 @@ export default function Dashboard({ onNavigate }) {
           background: 'linear-gradient(135deg, #071933 0%, #0D284F 50%, #153E75 100%)',
           color: '#FFFFFF',
           borderRadius: 4,
-          p: { xs: 2.5, sm: 3.5, md: 4 },
+          p: { xs: 2, sm: 2.5, md: 3 },
           position: 'relative',
           overflow: 'hidden',
           border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 16px 40px -8px rgba(7, 25, 51, 0.45)'
+          boxShadow: '0 12px 32px -8px rgba(7, 25, 51, 0.35)'
         }}
       >
         {/* Subtle Decorative Ambient Background Glow */}
@@ -233,10 +233,10 @@ export default function Dashboard({ onNavigate }) {
           }}
         />
 
-        <Grid container spacing={3.5} alignItems="center">
-          {/* Left Column: Clear Text, Authority Badges & 4 Distinct High-Contrast Action Buttons */}
-          <Grid item xs={12} md={7.5} lg={8}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.8, flexWrap: 'wrap' }}>
+        <Grid container spacing={3} alignItems="flex-start">
+          {/* Left Column: Top-Aligned Authority Badges, Clear Text & 5 Eye-Friendly Action Buttons */}
+          <Grid item xs={12} md={7.5} lg={8.2}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.4, flexWrap: 'wrap' }}>
               <Chip
                 icon={<ShieldIcon sx={{ fontSize: '15px !important', color: '#FDE047 !important' }} />}
                 label="Global Era Technical School"
@@ -278,12 +278,11 @@ export default function Dashboard({ onNavigate }) {
             <Typography
               variant="h3"
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 color: '#FFFFFF',
-                mb: 1.2,
-                fontSize: { xs: '1.6rem', sm: '2.1rem', md: '2.3rem' },
-                letterSpacing: '-0.02em',
-                lineHeight: 1.15
+                mb: 0.8,
+                fontSize: { xs: '1.5rem', sm: '1.95rem', md: '2.15rem' },
+                lineHeight: 1.2
               }}
             >
               Welcome, {currentUser?.name}!
@@ -292,11 +291,11 @@ export default function Dashboard({ onNavigate }) {
             <Typography
               variant="body1"
               sx={{
-                color: '#E2E8F0',
-                lineHeight: 1.65,
-                fontSize: { xs: '0.92rem', sm: '1.02rem' },
+                color: '#CBD5E1',
+                lineHeight: 1.55,
+                fontSize: { xs: '0.9rem', sm: '0.98rem' },
                 maxWidth: 680,
-                mb: 3
+                mb: 2.2
               }}
             >
               {isTrainer
@@ -304,130 +303,143 @@ export default function Dashboard({ onNavigate }) {
                 : 'Official TVET ERP for managing occupations, curricula, daily work plans, biometric attendance, and CTEVT certifications.'}
             </Typography>
 
-            {/* 4 Distinct Action Buttons with Guaranteed Contrast & Crisp Typography */}
-            <Stack direction="row" spacing={1.5} flexWrap="wrap" useFlexGap sx={{ mt: 1 }}>
-              {/* Button 1: Emerald Vibrant Hero Action */}
+            {/* 5 Eye-Friendly Action Buttons Aligned on a Single Desktop Row */}
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: { xs: 'wrap', lg: 'nowrap' },
+                gap: 1,
+                alignItems: 'center'
+              }}
+            >
+              {/* Button 1: Primary Calm Emerald Action */}
               <Button
                 variant="contained"
                 onClick={() => onNavigate('attendance')}
-                startIcon={<FactCheckIcon sx={{ fontSize: '20px !important' }} />}
+                startIcon={<FactCheckIcon sx={{ fontSize: '18px !important' }} />}
                 sx={{
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
+                  bgcolor: '#059669 !important',
                   color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.9rem',
-                  py: 1.2,
-                  px: 2.4,
-                  borderRadius: 2.5,
-                  boxShadow: '0 6px 20px rgba(16, 185, 129, 0.45)',
-                  border: '1px solid #34D399',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  py: 0.9,
+                  px: 1.6,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  border: '1px solid rgba(52, 211, 153, 0.5)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important',
-                    boxShadow: '0 8px 25px rgba(16, 185, 129, 0.6)'
+                    bgcolor: '#047857 !important'
                   }
                 }}
               >
                 Take Attendance
               </Button>
 
-              {/* Button 2: Crisp Solid White Button */}
+              {/* Button 2: Soft Frosted Slate Pill */}
               <Button
-                variant="contained"
+                variant="outlined"
                 onClick={() => onNavigate('lessonplan')}
-                startIcon={<AssignmentIcon sx={{ color: '#0F2C59' }} />}
+                startIcon={<AssignmentIcon sx={{ fontSize: '17px !important', color: '#93C5FD' }} />}
                 sx={{
-                  background: '#FFFFFF !important',
-                  color: '#0F2C59 !important',
-                  fontWeight: 900,
-                  fontSize: '0.9rem',
-                  py: 1.2,
-                  px: 2,
-                  borderRadius: 2.5,
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.25)',
+                  borderColor: 'rgba(255, 255, 255, 0.24) !important',
+                  color: '#F8FAFC !important',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  py: 0.9,
+                  px: 1.5,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
                   '&:hover': {
-                    background: '#F1F5F9 !important',
-                    color: '#071A36 !important'
+                    borderColor: 'rgba(255, 255, 255, 0.45) !important',
+                    bgcolor: 'rgba(255, 255, 255, 0.18)'
                   }
                 }}
               >
                 Lesson Plan
               </Button>
 
-              {/* Button 3: Leads CRM Button */}
+              {/* Button 3: Inquiry CRM Pill */}
               <Button
                 variant="outlined"
                 onClick={() => onNavigate('leads')}
-                startIcon={<ContactPhoneIcon sx={{ color: '#93C5FD' }} />}
+                startIcon={<ContactPhoneIcon sx={{ fontSize: '17px !important', color: '#7DD3FC' }} />}
                 sx={{
-                  borderColor: 'rgba(147, 197, 253, 0.6) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
-                  py: 1.2,
-                  px: 2,
-                  borderRadius: 2.5,
-                  bgcolor: 'rgba(30, 64, 175, 0.35)',
-                  backdropFilter: 'blur(8px)',
+                  borderColor: 'rgba(125, 211, 252, 0.35) !important',
+                  color: '#F8FAFC !important',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  py: 0.9,
+                  px: 1.5,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  bgcolor: 'rgba(30, 64, 175, 0.28)',
                   '&:hover': {
-                    borderColor: '#93C5FD !important',
-                    bgcolor: 'rgba(30, 64, 175, 0.55)'
+                    borderColor: '#7DD3FC !important',
+                    bgcolor: 'rgba(30, 64, 175, 0.45)'
                   }
                 }}
               >
                 Inquiry CRM ({db.leads?.length || 0})
               </Button>
 
-              {/* Button 4: Frosted White Border Pill */}
+              {/* Button 4: Add Student Pill */}
               <Button
                 variant="outlined"
                 onClick={() => onNavigate('students')}
-                startIcon={<PersonAddAlt1Icon sx={{ color: '#FFFFFF' }} />}
+                startIcon={<PersonAddAlt1Icon sx={{ fontSize: '17px !important', color: '#E2E8F0' }} />}
                 sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.6) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
-                  py: 1.2,
-                  px: 2,
-                  borderRadius: 2.5,
-                  bgcolor: 'rgba(255, 255, 255, 0.12)',
-                  backdropFilter: 'blur(8px)',
+                  borderColor: 'rgba(255, 255, 255, 0.24) !important',
+                  color: '#F8FAFC !important',
+                  fontWeight: 700,
+                  fontSize: '0.8rem',
+                  py: 0.9,
+                  px: 1.5,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  bgcolor: 'rgba(255, 255, 255, 0.08)',
                   '&:hover': {
-                    borderColor: '#FFFFFF !important',
-                    bgcolor: 'rgba(255, 255, 255, 0.22)'
+                    borderColor: 'rgba(255, 255, 255, 0.45) !important',
+                    bgcolor: 'rgba(255, 255, 255, 0.16)'
                   }
                 }}
               >
                 Add Student
               </Button>
 
-              {/* Button 4: Amber CTEVT Certificate Button */}
+              {/* Button 5: Soft Warm Amber-Tinted Certificates Pill */}
               <Button
-                variant="contained"
+                variant="outlined"
                 onClick={() => onNavigate('certificates')}
-                startIcon={<WorkspacePremiumIcon sx={{ color: '#78350F' }} />}
+                startIcon={<WorkspacePremiumIcon sx={{ fontSize: '17px !important', color: '#FBBF24' }} />}
                 sx={{
-                  background: 'linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%) !important',
-                  color: '#78350F !important',
-                  fontWeight: 900,
-                  fontSize: '0.88rem',
-                  py: 1.2,
-                  px: 2,
-                  borderRadius: 2.5,
-                  boxShadow: '0 6px 18px rgba(245, 158, 11, 0.35)',
-                  border: '1px solid #FDE68A',
+                  borderColor: 'rgba(251, 191, 36, 0.45) !important',
+                  color: '#FEF3C7 !important',
+                  fontWeight: 800,
+                  fontSize: '0.8rem',
+                  py: 0.9,
+                  px: 1.5,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
                   '&:hover': {
-                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%) !important'
+                    borderColor: '#FBBF24 !important',
+                    bgcolor: 'rgba(245, 158, 11, 0.26)'
                   }
                 }}
               >
-                CTEVT Certificates (A4)
+                Certificates (A4)
               </Button>
-            </Stack>
+            </Box>
           </Grid>
 
-          {/* Right Column: Fills Empty Space with Live Real-Time Institutional Hub Widget */}
-          <Grid item xs={12} md={4.5} lg={4}>
+          {/* Right Column: Live Real-Time Institutional Hub Widget */}
+          <Grid item xs={12} md={4.5} lg={3.8}>
             <Box
               sx={{
                 bgcolor: 'rgba(15, 30, 60, 0.65)',
