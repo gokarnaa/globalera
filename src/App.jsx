@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense, lazy } from 'react';
 import {
   Box,
   CssBaseline,
@@ -8,50 +8,62 @@ import {
   Alert,
   Button,
   Typography,
-  Snackbar
+  Snackbar,
+  CircularProgress
 } from '@mui/material';
 import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import MobileNav from './components/layout/MobileNav';
 import PinLockDialog from './components/layout/PinLockDialog';
 
-import Dashboard from './components/dashboard/Dashboard';
-import OccupationManager from './components/occupations/OccupationManager';
-import CourseManager from './components/courses/CourseManager';
-import TrainerManager from './components/trainers/TrainerManager';
-import TrainingGroupManager from './components/groups/TrainingGroupManager';
-import SyllabusManager from './components/syllabus/SyllabusManager';
-import StudentManager from './components/students/StudentManager';
-import LeadManager from './components/leads/LeadManager';
-import AdmissionManager from './components/admission/AdmissionManager';
-import CourseFeeManager from './components/courses/CourseFeeManager';
-import AccountsManager from './components/accounts/AccountsManager';
-import WorkPlanManager from './components/workplan/WorkPlanManager';
-import LessonPlanManager from './components/lessonplan/LessonPlanManager';
-import AttendanceManager from './components/attendance/AttendanceManager';
-import LiveAttendanceMonitor from './components/attendance/LiveAttendanceMonitor';
-import LogBookManager from './components/logbook/LogBookManager';
-import EvaluationManager from './components/evaluation/EvaluationManager';
-import EmployerManager from './components/employers/EmployerManager';
-import OjtManager from './components/ojt/OjtManager';
-import PlacementManager from './components/placements/PlacementManager';
-import ReportsManager from './components/reports/ReportsManager';
-import CertificateManager from './components/certificates/CertificateManager';
-import CertificateStudioManager from './components/settings/CertificateStudioManager';
-import PublicCertificateVerify from './components/certificates/PublicCertificateVerify';
-import A4LandscapeCertificateModal from './components/certificates/A4LandscapeCertificateModal';
-import HolidayManager from './components/holidays/HolidayManager';
-import CommunicationManager from './components/communication/CommunicationManager';
-import NoticeManager from './components/notices/NoticeManager';
-import SnapshotAuditManager from './components/snapshots/SnapshotAuditManager';
-import SettingsManager from './components/settings/SettingsManager';
-import StudentPortal from './components/portal/StudentPortal';
-import EmployerPortal from './components/portal/EmployerPortal';
-import TrainerPortal from './components/portal/TrainerPortal';
-import AgentPortal from './components/portal/AgentPortal';
-import PublicWebsite from './components/portal/PublicWebsite';
-import UserManager from './components/users/UserManager';
-import UnifiedLoginScreen from './components/auth/UnifiedLoginScreen';
+const Dashboard = lazy(() => import('./components/dashboard/Dashboard'));
+const OccupationManager = lazy(() => import('./components/occupations/OccupationManager'));
+const CourseManager = lazy(() => import('./components/courses/CourseManager'));
+const TrainerManager = lazy(() => import('./components/trainers/TrainerManager'));
+const TrainingGroupManager = lazy(() => import('./components/groups/TrainingGroupManager'));
+const SyllabusManager = lazy(() => import('./components/syllabus/SyllabusManager'));
+const StudentManager = lazy(() => import('./components/students/StudentManager'));
+const LeadManager = lazy(() => import('./components/leads/LeadManager'));
+const AdmissionManager = lazy(() => import('./components/admission/AdmissionManager'));
+const CourseFeeManager = lazy(() => import('./components/courses/CourseFeeManager'));
+const AccountsManager = lazy(() => import('./components/accounts/AccountsManager'));
+const WorkPlanManager = lazy(() => import('./components/workplan/WorkPlanManager'));
+const LessonPlanManager = lazy(() => import('./components/lessonplan/LessonPlanManager'));
+const AttendanceManager = lazy(() => import('./components/attendance/AttendanceManager'));
+const LiveAttendanceMonitor = lazy(() => import('./components/attendance/LiveAttendanceMonitor'));
+const LogBookManager = lazy(() => import('./components/logbook/LogBookManager'));
+const EvaluationManager = lazy(() => import('./components/evaluation/EvaluationManager'));
+const EmployerManager = lazy(() => import('./components/employers/EmployerManager'));
+const OjtManager = lazy(() => import('./components/ojt/OjtManager'));
+const PlacementManager = lazy(() => import('./components/placements/PlacementManager'));
+const ReportsManager = lazy(() => import('./components/reports/ReportsManager'));
+const CertificateManager = lazy(() => import('./components/certificates/CertificateManager'));
+const CertificateStudioManager = lazy(() => import('./components/settings/CertificateStudioManager'));
+const PublicCertificateVerify = lazy(() => import('./components/certificates/PublicCertificateVerify'));
+const A4LandscapeCertificateModal = lazy(() => import('./components/certificates/A4LandscapeCertificateModal'));
+const HolidayManager = lazy(() => import('./components/holidays/HolidayManager'));
+const CommunicationManager = lazy(() => import('./components/communication/CommunicationManager'));
+const NoticeManager = lazy(() => import('./components/notices/NoticeManager'));
+const SnapshotAuditManager = lazy(() => import('./components/snapshots/SnapshotAuditManager'));
+const SettingsManager = lazy(() => import('./components/settings/SettingsManager'));
+const StudentPortal = lazy(() => import('./components/portal/StudentPortal'));
+const EmployerPortal = lazy(() => import('./components/portal/EmployerPortal'));
+const TrainerPortal = lazy(() => import('./components/portal/TrainerPortal'));
+const AgentPortal = lazy(() => import('./components/portal/AgentPortal'));
+const PublicWebsite = lazy(() => import('./components/portal/PublicWebsite'));
+const UserManager = lazy(() => import('./components/users/UserManager'));
+const UnifiedLoginScreen = lazy(() => import('./components/auth/UnifiedLoginScreen'));
+
+function PageLoader() {
+  return (
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '45dvh', gap: 1.5 }}>
+      <CircularProgress size={32} thickness={4} sx={{ color: '#0F2C59' }} />
+      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+        Loading module...
+      </Typography>
+    </Box>
+  );
+}
 import { loadDB, syncWithCloud } from './services/storage';
 import { playLeadChime } from './services/soundUtils';
 import { verifyCertificateRemote } from './services/supabaseClient';
@@ -379,17 +391,19 @@ export default function App() {
       <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC' }}>
         <CssBaseline />
         <ErrorBoundary onReset={() => window.location.reload()}>
-          <PublicWebsite
-            onNavigate={navigateTo}
-            onVerifyCertificate={(certId) => {
-              setVerifyParam(certId);
-            }}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <PublicWebsite
+              onNavigate={navigateTo}
+              onVerifyCertificate={(certId) => {
+                setVerifyParam(certId);
+              }}
+            />
+          </Suspense>
         </ErrorBoundary>
 
         {/* Online Verification Modal triggered by QR scan (?verify=...) or direct verify */}
         {verifyData && (
-          <>
+          <Suspense fallback={null}>
             <PublicCertificateVerify
               open={Boolean(verifyParam)}
               onClose={() => {
@@ -416,7 +430,7 @@ export default function App() {
                 trainer={verifyData.trainer}
               />
             )}
-          </>
+          </Suspense>
         )}
       </Box>
     );
@@ -434,22 +448,26 @@ export default function App() {
   if (currentRoute === 'agent') {
     if (!currentUser || currentUser?.role !== 'AGENT') {
       return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#431407' }}>
+        <Box sx={{ minHeight: '100dvh', bgcolor: '#431407' }}>
           <CssBaseline />
-          <UnifiedLoginScreen
-            initialMode="agent"
-            allowedModes={['agent', 'trainer', 'student']}
-            onLoginSuccess={handleLoginSuccessNavigate}
-            onBackHome={() => navigateTo('home')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <UnifiedLoginScreen
+              initialMode="agent"
+              allowedModes={['agent', 'trainer', 'student']}
+              onLoginSuccess={handleLoginSuccessNavigate}
+              onBackHome={() => navigateTo('home')}
+            />
+          </Suspense>
         </Box>
       );
     }
     return (
-      <AgentPortal
-        onLogout={() => { logout(); navigateTo('home'); }}
-        onGoHome={() => navigateTo('home')}
-      />
+      <Suspense fallback={<PageLoader />}>
+        <AgentPortal
+          onLogout={() => { logout(); navigateTo('home'); }}
+          onGoHome={() => navigateTo('home')}
+        />
+      </Suspense>
     );
   }
 
@@ -457,22 +475,26 @@ export default function App() {
   if (currentRoute === 'trainer') {
     if (!currentUser || currentUser?.role !== 'TRAINER') {
       return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#064E3B' }}>
+        <Box sx={{ minHeight: '100dvh', bgcolor: '#064E3B' }}>
           <CssBaseline />
-          <UnifiedLoginScreen
-            initialMode="trainer"
-            allowedModes={['trainer', 'student']}
-            onLoginSuccess={handleLoginSuccessNavigate}
-            onBackHome={() => navigateTo('home')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <UnifiedLoginScreen
+              initialMode="trainer"
+              allowedModes={['trainer', 'student']}
+              onLoginSuccess={handleLoginSuccessNavigate}
+              onBackHome={() => navigateTo('home')}
+            />
+          </Suspense>
         </Box>
       );
     }
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          <Suspense fallback={<PageLoader />}>
+            <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -482,22 +504,26 @@ export default function App() {
   if (currentRoute === 'student') {
     if (!currentUser || currentUser?.role !== 'STUDENT') {
       return (
-        <Box sx={{ minHeight: '100vh', bgcolor: '#1E3A8A' }}>
+        <Box sx={{ minHeight: '100dvh', bgcolor: '#1E3A8A' }}>
           <CssBaseline />
-          <UnifiedLoginScreen
-            initialMode="student"
-            allowedModes={['student', 'trainer']}
-            onLoginSuccess={handleLoginSuccessNavigate}
-            onBackHome={() => navigateTo('home')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <UnifiedLoginScreen
+              initialMode="student"
+              allowedModes={['student', 'trainer']}
+              onLoginSuccess={handleLoginSuccessNavigate}
+              onBackHome={() => navigateTo('home')}
+            />
+          </Suspense>
         </Box>
       );
     }
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          <Suspense fallback={<PageLoader />}>
+            <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -506,13 +532,15 @@ export default function App() {
   // 3.1 DEDICATED EMPLOYER PORTAL ROUTE (/employer)
   if (currentRoute === 'employer') {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <EmployerPortal
-            onLogout={() => { logout(); navigateTo('home'); }}
-            onGoHome={() => navigateTo('home')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <EmployerPortal
+              onLogout={() => { logout(); navigateTo('home'); }}
+              onGoHome={() => navigateTo('home')}
+            />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -521,14 +549,16 @@ export default function App() {
   // 4. ADMIN & MANAGEMENT ROUTE (/ge-admin or /admin)
   if (!currentUser) {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#0F2E5A' }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#0F2E5A' }}>
         <CssBaseline />
-        <UnifiedLoginScreen
-          initialMode="admin"
-          allowedModes={['admin']}
-          onLoginSuccess={handleLoginSuccessNavigate}
-          onBackHome={() => navigateTo('home')}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <UnifiedLoginScreen
+            initialMode="admin"
+            allowedModes={['admin']}
+            onLoginSuccess={handleLoginSuccessNavigate}
+            onBackHome={() => navigateTo('home')}
+          />
+        </Suspense>
       </Box>
     );
   }
@@ -536,13 +566,15 @@ export default function App() {
   // Role Enforcement: If logged in user is an Employer, lock to Employer Portal
   if (currentUser?.role === 'EMPLOYER') {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <EmployerPortal
-            onLogout={() => { logout(); navigateTo('home'); }}
-            onGoHome={() => navigateTo('home')}
-          />
+          <Suspense fallback={<PageLoader />}>
+            <EmployerPortal
+              onLogout={() => { logout(); navigateTo('home'); }}
+              onGoHome={() => navigateTo('home')}
+            />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -551,10 +583,12 @@ export default function App() {
   // Role Enforcement: If logged in user is a Trainer, lock to Trainer Portal
   if (currentUser?.role === 'TRAINER') {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          <Suspense fallback={<PageLoader />}>
+            <TrainerPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -563,10 +597,12 @@ export default function App() {
   // Role Enforcement: If logged in user is a Student, lock to Student Portal
   if (currentUser?.role === 'STUDENT') {
     return (
-      <Box sx={{ minHeight: '100vh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
-          <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          <Suspense fallback={<PageLoader />}>
+            <StudentPortal onLogout={() => { logout(); navigateTo('home'); }} />
+          </Suspense>
         </Box>
       </Box>
     );
@@ -575,10 +611,12 @@ export default function App() {
   // Role Enforcement: If logged in user is an Agent, lock to Agent Portal
   if (currentUser?.role === 'AGENT') {
     return (
-      <AgentPortal
-        onLogout={() => { logout(); navigateTo('home'); }}
-        onGoHome={() => navigateTo('home')}
-      />
+      <Suspense fallback={<PageLoader />}>
+        <AgentPortal
+          onLogout={() => { logout(); navigateTo('home'); }}
+          onGoHome={() => navigateTo('home')}
+        />
+      </Suspense>
     );
   }
 
@@ -620,7 +658,9 @@ export default function App() {
           >
             <Box sx={{ width: '100%', maxWidth: '1520px', mx: 'auto', px: { xs: 0, sm: 1 } }}>
               <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('dashboard')}>
-                {renderContent()}
+                <Suspense fallback={<PageLoader />}>
+                  {renderContent()}
+                </Suspense>
               </ErrorBoundary>
             </Box>
           </Box>
@@ -642,7 +682,7 @@ export default function App() {
 
       {/* Online Verification Modal triggered by QR scan (?verify=...) */}
       {verifyData && (
-        <>
+        <Suspense fallback={null}>
           <PublicCertificateVerify
             open={Boolean(verifyParam)}
             onClose={() => {
@@ -669,7 +709,7 @@ export default function App() {
               trainer={verifyData.trainer}
             />
           )}
-        </>
+        </Suspense>
       )}
 
       {/* Global Real-Time Incoming Lead Alert */}
