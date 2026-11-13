@@ -40,6 +40,7 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import BoltIcon from '@mui/icons-material/Bolt';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import CodeIcon from '@mui/icons-material/Code';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
 import { loadDB, saveDB, resetDB, loadSimulationDB, syncWithCloud } from '../../services/storage';
@@ -52,6 +53,11 @@ import {
 } from '../../services/supabaseClient';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 import { executeGraphQL, GRAPHQL_QUERIES } from '../../services/graphqlClient';
+import {
+  sendMetaWhatsAppMessage,
+  getWhatsAppSettings,
+  saveWhatsAppSettings
+} from '../../services/whatsappCloudApi';
 
 export default function SettingsManager() {
   const [db, setDb] = useState(loadDB());
@@ -74,6 +80,69 @@ export default function SettingsManager() {
   const [gqlResponse, setGqlResponse] = useState(null);
   const [gqlExecuting, setGqlExecuting] = useState(false);
   const [gqlExecutionStats, setGqlExecutionStats] = useState(null);
+
+  // Meta WhatsApp Cloud API State
+  const [waSettings, setWaSettings] = useState(getWhatsAppSettings);
+  const [waTestPhone, setWaTestPhone] = useState('9851000000');
+  const [waSending, setWaSending] = useState(false);
+  const [waSendResult, setWaSendResult] = useState(null);
+  const [copiedWaSql, setCopiedWaSql] = useState(false);
+
+  const handleSaveWhatsApp = () => {
+    saveWhatsAppSettings(waSettings);
+    setSavedSuccess(true);
+    setTimeout(() => setSavedSuccess(false), 3000);
+  };
+
+  const handleTestWhatsApp = async () => {
+    setWaSending(true);
+    setWaSendResult(null);
+    try {
+      const res = await sendMetaWhatsAppMessage({
+        to: waTestPhone,
+        type: 'text',
+        text: '🌟 Welcome to Global Era Technical School! Your Meta WhatsApp Business Cloud API is connected and working perfectly with our TVET ERP.'
+      });
+      setWaSendResult({ ok: true, message: `Message sent successfully! Recipient: ${res.recipient}, Meta Message ID: ${res.messageId}` });
+    } catch (err) {
+      setWaSendResult({ ok: false, message: err.message });
+    } finally {
+      setWaSending(false);
+    }
+  };
+
+  const handleCopyWaSql = () => {
+    const sql = `-- ==============================================================================
+-- GLOBAL ERA TECHNICAL SCHOOL: SUPABASE WHATSAPP CLOUD API & WEBHOOK
+-- ==============================================================================
+CREATE TABLE IF NOT EXISTS public.whatsapp_logs (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    phone TEXT NOT NULL,
+    direction TEXT NOT NULL DEFAULT 'outbound',
+    message_type TEXT NOT NULL DEFAULT 'text',
+    status TEXT NOT NULL DEFAULT 'sent',
+    content TEXT,
+    meta_message_id TEXT
+);
+CREATE TABLE IF NOT EXISTS public.whatsapp_inbound_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    sender_phone TEXT NOT NULL,
+    sender_name TEXT,
+    message_text TEXT,
+    meta_message_id TEXT UNIQUE,
+    bot_reply_sent TEXT,
+    lead_id TEXT
+);
+ALTER TABLE public.whatsapp_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.whatsapp_inbound_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Full access to whatsapp_logs" ON public.whatsapp_logs FOR ALL TO authenticated USING (true);
+CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inbound_events FOR ALL TO authenticated USING (true);`;
+    navigator.clipboard.writeText(sql);
+    setCopiedWaSql(true);
+    setTimeout(() => setCopiedWaSql(false), 3000);
+  };
 
   const handleRunGraphQL = async () => {
     setGqlExecuting(true);
@@ -574,6 +643,115 @@ export default function SettingsManager() {
                 }
               />
             </Stack>
+
+            <Divider sx={{ my: 2.5 }} />
+
+            {/* Meta WhatsApp Cloud API & Supabase Webhook Section */}
+            <Box sx={{ p: 2, bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1.5px solid #BBF7D0', mb: 2.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, flexWrap: 'wrap', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <WhatsAppIcon sx={{ color: '#16A34A', fontSize: 24 }} />
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#14532D' }}>
+                    Meta WhatsApp Business Cloud API
+                  </Typography>
+                </Box>
+                <Chip
+                  label="Meta Cloud Verified"
+                  size="small"
+                  sx={{ bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.68rem', border: '1px solid #86EFAC' }}
+                />
+              </Box>
+              <Typography variant="caption" sx={{ color: '#166534', display: 'block', mb: 1.5 }}>
+                Official automated messaging: Send brochures, fee receipts, and attendance warnings directly from your institute's WhatsApp.
+              </Typography>
+
+              <Stack spacing={1.5} sx={{ mb: 2 }}>
+                <TextField
+                  label="Meta WhatsApp Cloud API Access Token"
+                  fullWidth
+                  size="small"
+                  type="password"
+                  value={waSettings.accessToken}
+                  onChange={(e) => setWaSettings({ ...waSettings, accessToken: e.target.value })}
+                  helperText="User Token: whatapp web hook (App ID: 2196399894585939)"
+                />
+
+                <TextField
+                  label="WhatsApp Phone Number ID"
+                  fullWidth
+                  size="small"
+                  placeholder="e.g. 105829384910293 (from Meta Developer API Setup)"
+                  value={waSettings.phoneNumberId}
+                  onChange={(e) => setWaSettings({ ...waSettings, phoneNumberId: e.target.value })}
+                  helperText="Find in Meta Developers > WhatsApp > API Setup > Phone number ID"
+                />
+
+                <Box sx={{ p: 1.5, bgcolor: '#FFFFFF', borderRadius: 1.5, border: '1px dashed #86EFAC' }}>
+                  <Typography variant="caption" sx={{ color: '#334155', fontWeight: 800, display: 'block', mb: 0.5 }}>
+                    SUPABASE 24/7 WHATSAPP WEBHOOK URL:
+                  </Typography>
+                  <code style={{ fontSize: '0.72rem', color: '#0F2E5A', wordBreak: 'break-all', display: 'block', mb: 0.5 }}>
+                    {waSettings.webhookUrl}
+                  </code>
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    Verify Token: <strong>{waSettings.verifyToken}</strong>
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<ContentCopyIcon />}
+                    onClick={handleCopyWaSql}
+                    sx={{ fontWeight: 700, fontSize: '0.75rem' }}
+                  >
+                    {copiedWaSql ? '✓ Copied SQL!' : 'Copy Supabase Webhook SQL'}
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    onClick={handleSaveWhatsApp}
+                    sx={{ bgcolor: '#16A34A', color: '#FFFFFF', fontWeight: 800, fontSize: '0.75rem', '&:hover': { bgcolor: '#15803D' } }}
+                  >
+                    Save WhatsApp Config
+                  </Button>
+                </Box>
+              </Stack>
+
+              {/* Test Live Message */}
+              <Divider sx={{ my: 1.5, borderColor: '#DCFCE7' }} />
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#14532D', display: 'block', mb: 1 }}>
+                TEST LIVE WHATSAPP MESSAGE:
+              </Typography>
+              <Stack direction="row" spacing={1} sx={{ mb: 1 }}>
+                <TextField
+                  size="small"
+                  placeholder="Mobile (e.g. 9851000000)"
+                  value={waTestPhone}
+                  onChange={(e) => setWaTestPhone(e.target.value)}
+                  sx={{ width: 170 }}
+                />
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={waSending || !waSettings.phoneNumberId}
+                  onClick={handleTestWhatsApp}
+                  sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', fontWeight: 800, fontSize: '0.74rem', whiteSpace: 'nowrap' }}
+                >
+                  {waSending ? 'Sending...' : '⚡ Send Test WhatsApp'}
+                </Button>
+              </Stack>
+
+              {waSendResult && (
+                <Alert
+                  severity={waSendResult.ok ? 'success' : 'error'}
+                  sx={{ py: 0.5, fontSize: '0.75rem', fontWeight: 700, borderRadius: 1.5 }}
+                >
+                  {waSendResult.message}
+                </Alert>
+              )}
+            </Box>
 
             <Divider sx={{ my: 2.5 }} />
 
