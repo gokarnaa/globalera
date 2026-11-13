@@ -185,23 +185,24 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
       {/* Employer Header Banner */}
       <Card
         sx={{
-          p: { xs: 2.5, md: 3.5 },
-          mb: 3,
+          py: { xs: 1.75, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
+          mb: 2.5,
           background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
           color: '#ffffff',
-          borderRadius: 3,
-          boxShadow: '0 8px 30px rgba(15,23,42,0.25)'
+          borderRadius: 4,
+          boxShadow: '0 10px 28px -8px rgba(15,23,42,0.25)'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={2.5} alignItems="center">
           <Grid item>
             <Avatar
               sx={{
-                width: { xs: 68, md: 84 },
-                height: { xs: 68, md: 84 },
+                width: { xs: 58, md: 70 },
+                height: { xs: 58, md: 70 },
                 bgcolor: '#0284c7',
                 border: '3px solid rgba(255,255,255,0.7)',
-                fontSize: '2rem'
+                fontSize: '1.65rem'
               }}
             >
               🏢

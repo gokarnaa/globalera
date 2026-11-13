@@ -278,24 +278,25 @@ export default function StudentPortal({ onLogout }) {
       {/* Student Banner */}
       <Card
         sx={{
-          p: { xs: 2.5, md: 3.5 },
-          mb: 3,
+          py: { xs: 1.75, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
+          mb: 2.5,
           background: 'linear-gradient(135deg, #152238 0%, #1a56b0 100%)',
           color: '#ffffff',
-          borderRadius: 3,
-          boxShadow: '0 8px 30px rgba(26,86,176,0.2)'
+          borderRadius: 4,
+          boxShadow: '0 10px 28px -8px rgba(26,86,176,0.22)'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={2.5} alignItems="center">
           <Grid item>
             <Avatar
               src={student?.photoUrl}
               sx={{
-                width: { xs: 72, md: 90 },
-                height: { xs: 72, md: 90 },
+                width: { xs: 60, md: 72 },
+                height: { xs: 60, md: 72 },
                 border: '3px solid rgba(255,255,255,0.85)',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
-                fontSize: '2rem',
+                fontSize: '1.7rem',
                 bgcolor: '#0d9488'
               }}
             >

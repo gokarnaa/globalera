@@ -303,18 +303,19 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
           ======================================================= */}
       <Card
         sx={{
-          mb: 3,
+          mb: 2.5,
           borderRadius: 4,
           background: 'linear-gradient(135deg, #071933 0%, #0D284F 50%, #153E75 100%)',
           color: '#FFFFFF',
-          p: { xs: 2.5, sm: 3.5 },
-          boxShadow: '0 12px 35px rgba(7, 25, 51, 0.35)',
+          py: { xs: 1.75, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
+          boxShadow: '0 10px 28px -8px rgba(7, 25, 51, 0.32)',
           border: '1px solid rgba(255, 255, 255, 0.12)',
           position: 'relative',
           overflow: 'hidden'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={2.5} alignItems="center">
           {/* Left Column: Brand & Device Information */}
           <Grid item xs={12} md={7} lg={7.5}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>

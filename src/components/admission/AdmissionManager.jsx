@@ -320,12 +320,13 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
       <Card
         elevation={0}
         sx={{
-          p: { xs: 2.5, sm: 3.5 },
-          mb: 3.5,
-          borderRadius: 3,
+          py: { xs: 1.75, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
+          mb: 2.5,
+          borderRadius: 4,
           background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
           color: '#ffffff',
-          boxShadow: '0 10px 25px rgba(15,46,90,0.18)'
+          boxShadow: '0 10px 28px -8px rgba(15,46,90,0.22)'
         }}
       >
         <Grid container spacing={2} alignItems="center">

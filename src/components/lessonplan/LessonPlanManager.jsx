@@ -316,18 +316,19 @@ export default function LessonPlanManager() {
           ======================================================= */}
       <Card
         sx={{
-          mb: 3,
-          p: { xs: 2.5, sm: 3.5 },
+          mb: 2.5,
+          py: { xs: 1.75, sm: 2.25 },
+          px: { xs: 2, sm: 2.5, md: 3 },
           borderRadius: 4,
           background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
           color: '#FFFFFF',
           border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 16px 40px -10px rgba(7, 25, 51, 0.4)',
+          boxShadow: '0 10px 28px -8px rgba(7, 25, 51, 0.32)',
           position: 'relative',
           overflow: 'hidden'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
+        <Grid container spacing={2.5} alignItems="center">
           {/* Left Title & Batch Details */}
           <Grid item xs={12} lg={7}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
