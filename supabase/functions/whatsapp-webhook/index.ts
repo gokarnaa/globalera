@@ -7,6 +7,7 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL") || "";
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
 const WHATSAPP_VERIFY_TOKEN = Deno.env.get("WHATSAPP_VERIFY_TOKEN") || "globalera_tvet_whatsapp_verify_2026";
 const WHATSAPP_ACCESS_TOKEN = Deno.env.get("WHATSAPP_ACCESS_TOKEN") || "EAAfNnTOAYlMBS2hlBdjXhFtlm6LRZAT17r5o01sqPalD82sDqegG7vcM0McAXXZCM07wiAQF913m4OTHDiZCU6TcpPTZBQRgHc1k9GxmXTM79l2tRW1ZCjkj3oKsgHwMfLNxL1QVnt5RwImV7Gzx1OnW0bHshrBWg6BJNhNDEwGwIZB76q2E2LLyOf3EbwMjoxUcX7Yr8MZAmeBuMknkBoAcFHY7SArMeb5cEgjL4UFdbCleouJVKVlYfMqEH8mVJHJ3ZAAgGGQ5IiEzjguCg9ez2nHebcBa1lorIwZDZD";
+const WHATSAPP_PHONE_NUMBER_ID = Deno.env.get("WHATSAPP_PHONE_NUMBER_ID") || "1419057191293304";
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -98,8 +99,9 @@ serve(async (req) => {
       });
 
       // Send automated reply back via Meta Cloud API
-      if (phoneNumberId && WHATSAPP_ACCESS_TOKEN) {
-        await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
+      const targetPhoneId = phoneNumberId || WHATSAPP_PHONE_NUMBER_ID;
+      if (targetPhoneId && WHATSAPP_ACCESS_TOKEN) {
+        await fetch(`https://graph.facebook.com/v19.0/${targetPhoneId}/messages`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

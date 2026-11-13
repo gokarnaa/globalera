@@ -4,6 +4,8 @@ import { getSupabaseConfig, getSupabaseClient } from './supabaseClient.js';
 import { loadDB, saveDB } from './storage.js';
 
 export const DEFAULT_META_TOKEN = 'EAAfNnTOAYlMBS2hlBdjXhFtlm6LRZAT17r5o01sqPalD82sDqegG7vcM0McAXXZCM07wiAQF913m4OTHDiZCU6TcpPTZBQRgHc1k9GxmXTM79l2tRW1ZCjkj3oKsgHwMfLNxL1QVnt5RwImV7Gzx1OnW0bHshrBWg6BJNhNDEwGwIZB76q2E2LLyOf3EbwMjoxUcX7Yr8MZAmeBuMknkBoAcFHY7SArMeb5cEgjL4UFdbCleouJVKVlYfMqEH8mVJHJ3ZAAgGGQ5IiEzjguCg9ez2nHebcBa1lorIwZDZD';
+export const DEFAULT_PHONE_NUMBER_ID = '1419057191293304';
+export const DEFAULT_WABA_ID = '1798468784761287';
 export const DEFAULT_VERIFY_TOKEN = 'globalera_tvet_whatsapp_verify_2026';
 
 /**
@@ -14,8 +16,8 @@ export function getWhatsAppSettings() {
   const wa = db.settings?.whatsapp || {};
   return {
     accessToken: (wa.accessToken || DEFAULT_META_TOKEN).trim(),
-    phoneNumberId: (wa.phoneNumberId || '').trim(),
-    wabaId: (wa.wabaId || '').trim(),
+    phoneNumberId: (wa.phoneNumberId || DEFAULT_PHONE_NUMBER_ID).trim(),
+    wabaId: (wa.wabaId || DEFAULT_WABA_ID).trim(),
     verifyToken: (wa.verifyToken || DEFAULT_VERIFY_TOKEN).trim(),
     webhookUrl: wa.webhookUrl || 'https://yycybsmwuixixfmocrcz.supabase.co/functions/v1/whatsapp-webhook',
     enabled: Boolean(wa.enabled ?? true)
