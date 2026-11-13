@@ -1358,7 +1358,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                       const staffLog = allLogs.find(
                         (l) => l.date === selectedDate && (String(l.biometricId) === stf.bioId || l.entityId === stf.id)
                       );
-                      const checkInTime = staffLog ? staffLog.punchTime12h : null;
+                      const checkInTime = staffLog ? (staffLog.timestamp || staffLog.punchTime12h) : null;
                       const isPresent = Boolean(checkInTime);
                       return (
                         <TableRow key={stf.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
@@ -1403,18 +1403,14 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                                 size="small"
                                 variant="outlined"
                                 onClick={() => {
-                                  const now = new Date();
-                                  const time24 = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                                   recordLiveBiometricPunch({
                                     biometricId: stf.bioId,
-                                    role: 'STAFF',
-                                    entityId: stf.id,
                                     name: stf.name,
-                                    date: selectedDate,
-                                    punchTime24h: time24,
-                                    verifyMode: 'FINGERPRINT_THUMB'
+                                    role: 'STAFF',
+                                    device: `${settings.deviceName || 'ZKTeco K40'} (Staff Gate)`,
+                                    playSound: soundEnabled
                                   });
-                                  refreshAllData(false);
+                                  setDb(loadDB());
                                 }}
                                 sx={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'none', py: 0.2, px: 1 }}
                               >
