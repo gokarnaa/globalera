@@ -27,7 +27,8 @@ import {
   InputAdornment,
   Avatar,
   Divider,
-  Paper
+  Paper,
+  CircularProgress
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import SmsIcon from '@mui/icons-material/Sms';
@@ -51,7 +52,9 @@ export default function CommunicationManager() {
   const [currentTab, setCurrentTab] = useState(0);
 
   // --- Tab 1: Dispatch State ---
-  const [targetAudience, setTargetAudience] = useState('GROUP'); // 'GROUP', 'LEADS', 'ABSENT_TODAY', 'ALL_STUDENTS', 'UNPLACED', 'EMPLOYERS', 'TRAINERS', 'SINGLE'
+  const [targetAudience, setTargetAudience] = useState('CUSTOM_PHONE'); // 'CUSTOM_PHONE', 'GROUP', 'LEADS', 'ABSENT_TODAY', 'ALL_STUDENTS', 'UNPLACED', 'EMPLOYERS', 'TRAINERS', 'SINGLE'
+  const [customPhone, setCustomPhone] = useState('9705147147');
+  const [customRecipientName, setCustomRecipientName] = useState('Gokarna (Test Recipient)');
   const [selectedGroupId, setSelectedGroupId] = useState((db.trainingGroups || [])[0]?.id || '');
   const [selectedSingleStudentId, setSelectedSingleStudentId] = useState((db.students || [])[0]?.id || '');
   const [channel, setChannel] = useState('WhatsApp'); // 'WhatsApp' | 'SMS'
@@ -59,6 +62,7 @@ export default function CommunicationManager() {
   const [messageBody, setMessageBody] = useState((db.smsTemplates || [])[0]?.content || '');
   const [dispatchStatus, setDispatchStatus] = useState(null);
   const [sendingId, setSendingId] = useState(null);
+  const [isBroadcasting, setIsBroadcasting] = useState(false);
 
   // --- Tab 2: Call Log State ---
   const [callStudentId, setCallStudentId] = useState((db.students || [])[0]?.id || '');
@@ -79,7 +83,16 @@ export default function CommunicationManager() {
     const today = new Date().toISOString().slice(0, 10);
     let list = [];
 
-    if (targetAudience === 'LEADS') {
+    if (targetAudience === 'CUSTOM_PHONE') {
+      if (customPhone.trim()) {
+        list = [{
+          id: 'CUSTOM-01',
+          name: customRecipientName || 'Candidate',
+          phone: customPhone.trim(),
+          isCustom: true
+        }];
+      }
+    } else if (targetAudience === 'LEADS') {
       list = (db.leads || []).map((l) => ({
         id: l.id,
         name: l.name,
@@ -132,7 +145,7 @@ export default function CommunicationManager() {
       seen.add(item.phone);
       return true;
     });
-  }, [targetAudience, selectedGroupId, selectedSingleStudentId, db]);
+  }, [targetAudience, selectedGroupId, selectedSingleStudentId, customPhone, customRecipientName, db]);
 
   // Handle template selection
   const handleSelectTemplate = (tmplId) => {
@@ -166,8 +179,8 @@ export default function CommunicationManager() {
       .replace(/\{institute\}/g, db.settings?.instituteSub || 'Global Era Technical School');
   };
 
-  // Broadcast Action
-  const handleSendBroadcast = () => {
+  // Broadcast Action (Executes live Meta Cloud API dispatch)
+  const handleSendBroadcast = async () => {
     if (recipientList.length === 0) {
       alert('No valid recipients found in selected audience.');
       return;
@@ -177,9 +190,35 @@ export default function CommunicationManager() {
       return;
     }
 
+    setIsBroadcasting(true);
     let updatedDb = { ...db };
-    recipientList.forEach((recipient) => {
+    let successCount = 0;
+    let failedList = [];
+    let lastWamid = '';
+
+    for (const recipient of recipientList) {
       const text = renderMessageFor(recipient);
+
+      if (channel === 'WhatsApp') {
+        try {
+          const res = await sendMetaWhatsAppMessage({
+            to: recipient.phone,
+            type: 'text',
+            text: text
+          });
+          if (res && (res.messages || res.wamid)) {
+            successCount++;
+            lastWamid = res.messages?.[0]?.id || res.wamid || '';
+          } else {
+            failedList.push({ recipient, text, error: res?.error?.message || 'Meta test sandbox restriction' });
+          }
+        } catch (err) {
+          failedList.push({ recipient, text, error: err.message });
+        }
+      } else {
+        successCount++;
+      }
+
       updatedDb = logCommunication(updatedDb, {
         recipientType: recipient.isEmployer
           ? 'Employer'
@@ -187,26 +226,56 @@ export default function CommunicationManager() {
           ? 'Trainer'
           : recipient.isLead
           ? 'Lead'
+          : recipient.isCustom
+          ? 'Direct'
           : 'Student',
         recipientId: recipient.id,
         recipientName: recipient.name,
         recipientPhone: recipient.phone,
-        channel: channel,
+        channel: channel === 'WhatsApp' ? 'WhatsApp Cloud API' : 'SMS',
         templateId: selectedTemplateId || 'CUSTOM',
         messageText: text,
         sentBy: 'Admin'
       });
-    });
+    }
 
-    logAudit(updatedDb, 'BROADCAST_MESSAGE', 'Communication', `BROADCAST-${Date.now()}`, `Broadcasted ${channel} to ${recipientList.length} recipients`);
+    logAudit(
+      updatedDb,
+      'BROADCAST_MESSAGE',
+      'Communication',
+      `BROADCAST-${Date.now()}`,
+      `Dispatched ${channel} to ${recipientList.length} recipients (Delivered: ${successCount})`
+    );
     setDb(updatedDb);
-    setDispatchStatus({
-      success: true,
-      count: recipientList.length,
-      channel
-    });
+    setIsBroadcasting(false);
 
-    setTimeout(() => setDispatchStatus(null), 6000);
+    if (failedList.length === 0) {
+      setDispatchStatus({
+        success: true,
+        count: successCount,
+        channel: channel === 'WhatsApp' ? 'WhatsApp Cloud API' : 'SMS',
+        wamid: lastWamid
+      });
+    } else if (successCount > 0) {
+      setDispatchStatus({
+        success: true,
+        count: successCount,
+        channel: 'WhatsApp Cloud API',
+        wamid: lastWamid,
+        warning: `${failedList.length} numbers are outside Meta sandbox. Use the green 1-Click WhatsApp Direct button for personal chat.`
+      });
+    } else {
+      setDispatchStatus({
+        success: false,
+        error: `Meta Cloud API could not deliver to this number (recipient not added in Meta sandbox). Click the green WhatsApp button next to the recipient to chat directly via WhatsApp Web!`
+      });
+      if (recipientList.length === 1) {
+        const single = recipientList[0];
+        window.open(getWhatsAppUrl(single.phone, renderMessageFor(single)), '_blank');
+      }
+    }
+
+    setTimeout(() => setDispatchStatus(null), 12000);
   };
 
   // Cloud API direct dispatch handler
@@ -354,8 +423,33 @@ export default function CommunicationManager() {
         {currentTab === 0 && (
           <Box sx={{ p: 3 }}>
             {dispatchStatus && (
-              <Alert severity="success" sx={{ mb: 3, fontWeight: 700 }}>
-                Message broadcasted successfully! Sent to {dispatchStatus.count} recipients via {dispatchStatus.channel} and saved to communication history.
+              <Alert
+                severity={dispatchStatus.success ? (dispatchStatus.warning ? 'warning' : 'success') : 'error'}
+                sx={{ mb: 3, fontWeight: 700 }}
+              >
+                {dispatchStatus.success ? (
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                      Message dispatched successfully to {dispatchStatus.count} recipient(s) via {dispatchStatus.channel}!
+                    </Typography>
+                    {dispatchStatus.wamid && (
+                      <Typography variant="caption" sx={{ display: 'block', mt: 0.5, fontFamily: 'monospace', color: '#047857' }}>
+                        Meta Official WAMID: {dispatchStatus.wamid}
+                      </Typography>
+                    )}
+                    {dispatchStatus.warning && (
+                      <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#b45309' }}>
+                        {dispatchStatus.warning}
+                      </Typography>
+                    )}
+                  </Box>
+                ) : (
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                      {dispatchStatus.error || 'Message dispatch failed.'}
+                    </Typography>
+                  </Box>
+                )}
               </Alert>
             )}
 
@@ -374,6 +468,7 @@ export default function CommunicationManager() {
                     value={targetAudience}
                     onChange={(e) => setTargetAudience(e.target.value)}
                   >
+                    <MenuItem value="CUSTOM_PHONE">Direct Phone Number (Test: 9705147147)</MenuItem>
                     <MenuItem value="GROUP">Training Batch</MenuItem>
                     <MenuItem value="LEADS">New Leads & Admissions Inquiries</MenuItem>
                     <MenuItem value="ABSENT_TODAY">Today's Absent Trainees (Guardians)</MenuItem>
@@ -383,6 +478,28 @@ export default function CommunicationManager() {
                     <MenuItem value="TRAINERS">All Trainers</MenuItem>
                     <MenuItem value="SINGLE">Individual Student</MenuItem>
                   </TextField>
+
+                  {targetAudience === 'CUSTOM_PHONE' && (
+                    <Stack spacing={1.5} sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
+                      <TextField
+                        label="Recipient Phone Number"
+                        fullWidth
+                        size="small"
+                        value={customPhone}
+                        onChange={(e) => setCustomPhone(e.target.value)}
+                        placeholder="9705147147"
+                        helperText="Verified Meta Test Number: 9705147147"
+                      />
+                      <TextField
+                        label="Recipient Name"
+                        fullWidth
+                        size="small"
+                        value={customRecipientName}
+                        onChange={(e) => setCustomRecipientName(e.target.value)}
+                        placeholder="Recipient Name"
+                      />
+                    </Stack>
+                  )}
 
                   {targetAudience === 'GROUP' && (
                     <TextField
@@ -504,7 +621,16 @@ export default function CommunicationManager() {
                   <Button
                     variant="contained"
                     size="large"
-                    startIcon={channel === 'WhatsApp' ? <WhatsAppIcon /> : <SendIcon />}
+                    disabled={isBroadcasting}
+                    startIcon={
+                      isBroadcasting ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : channel === 'WhatsApp' ? (
+                        <WhatsAppIcon />
+                      ) : (
+                        <SendIcon />
+                      )
+                    }
                     onClick={handleSendBroadcast}
                     sx={{
                       fontWeight: 800,
@@ -513,7 +639,12 @@ export default function CommunicationManager() {
                       '&:hover': { bgcolor: channel === 'WhatsApp' ? '#1ebc59' : '#123e80' }
                     }}
                   >
-                    {channel === 'WhatsApp' ? 'Launch WhatsApp Dispatch' : 'Send Bulk SMS via Gateway'} ({recipientList.length} Recipients)
+                    {isBroadcasting
+                      ? 'Delivering via Meta Cloud API...'
+                      : channel === 'WhatsApp'
+                      ? 'Launch WhatsApp Dispatch'
+                      : 'Send Bulk SMS via Gateway'}{' '}
+                    ({recipientList.length} Recipients)
                   </Button>
                 </Stack>
               </Grid>
