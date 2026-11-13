@@ -2392,7 +2392,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   {design.showQrVerification && (
                     <>
                       <Box sx={{ p: 0.5, bgcolor: '#FFFFFF', border: `1.5px solid ${design.primaryColor}`, borderRadius: 1 }}>
-                        <QRCodeSVG value={`https://globalera.edu.np/verify?cert=${currentSample.certNo}`} size={design.elementStyles?.qrCode?.qrSize || 54} level="M" />
+                        <QRCodeSVG value={`https://globalera.com.np/verify?cert=${currentSample.certNo}`} size={design.elementStyles?.qrCode?.qrSize || 54} level="M" />
                       </Box>
                       <Box>
                         <Typography variant="caption" sx={{ fontWeight: 800, color: design.primaryColor, display: 'block', fontSize: '0.68rem' }}>

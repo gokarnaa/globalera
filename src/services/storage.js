@@ -302,7 +302,7 @@ export const INITIAL_SEED_DATA = {
       address: 'Jorpati, Gokarneshwor, Kathmandu, Nepal',
       contactPhone: '01410715',
       email: 'globaleramultiservice@gmail.com',
-      website: 'https://globalera.edu.np',
+      website: 'https://globalera.com.np',
       officeHours: '7:00 AM – 6:00 PM',
       companyRegNo: '184920/078/079',
       ctevtCode: '4208',
@@ -632,11 +632,21 @@ export function loadDB() {
         ...(parsed.settings || {}),
         biometricSettings: {
           ...INITIAL_SEED_DATA.settings.biometricSettings,
-          ...(parsed.settings?.biometricSettings || {})
+          ...(parsed.settings?.biometricSettings || {}),
+          cloudPushUrl:
+            !parsed.settings?.biometricSettings?.cloudPushUrl ||
+            parsed.settings.biometricSettings.cloudPushUrl.includes('globalera.edu.np')
+              ? 'https://globalera.com.np/api/iclock/cdata'
+              : parsed.settings.biometricSettings.cloudPushUrl
         },
         companyProfile: {
           ...INITIAL_SEED_DATA.settings.companyProfile,
-          ...(parsed.settings?.companyProfile || {})
+          ...(parsed.settings?.companyProfile || {}),
+          website:
+            !parsed.settings?.companyProfile?.website ||
+            parsed.settings.companyProfile.website.includes('globalera.edu.np')
+              ? 'https://globalera.com.np'
+              : parsed.settings.companyProfile.website
         },
         certificateNumberFormat: {
           ...INITIAL_SEED_DATA.settings.certificateNumberFormat,
