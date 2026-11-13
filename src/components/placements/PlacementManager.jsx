@@ -239,6 +239,55 @@ export default function PlacementManager() {
         </Grid>
       </Card>
 
+      {/* Ready / Graduating Trainees Smart EPP Queue */}
+      {(() => {
+        const placedIds = new Set((db.placements || []).map((p) => p.studentId));
+        const inSevenDays = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
+        const readyTrainees = (db.students || [])
+          .filter((s) => {
+            if (placedIds.has(s.id) || s.status === 'Dropout') return false;
+            return s.status === 'Completed' || s.status === 'OJT' || (s.expectedEndDate && s.expectedEndDate <= inSevenDays);
+          })
+          .slice(0, 6);
+        if (readyTrainees.length === 0) return null;
+        return (
+          <Card sx={{ p: 2, mb: 3, bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 3 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#166534', mb: 1 }}>
+              Ready / Graduating Trainees for Placement ({readyTrainees.length})
+            </Typography>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+              {readyTrainees.map((st) => {
+                const grp = (db.trainingGroups || []).find((g) => g.id === st.groupId);
+                const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+                return (
+                  <Chip
+                    key={st.id}
+                    label={`${st.name} (${crs?.title || st.tgid}) • End: ${st.expectedEndDate || 'Ready'}`}
+                    onClick={() => {
+                      setEditingItem(null);
+                      setFormData({
+                        studentId: st.id,
+                        employerId: db.employers?.[0]?.id || '',
+                        targetJob: `${crs?.title || 'Vocational'} Specialist`,
+                        preferredLocation: 'Kathmandu',
+                        expectedSalary: 'NPR 22,000 / month',
+                        employmentType: 'Full-Time Employee',
+                        workSchedule: 'Day Shift',
+                        paymentType: 'Monthly Salary',
+                        status: 'Planned',
+                        remarks: 'Matched from Graduating EPP Queue'
+                      });
+                      setOpenDialog(true);
+                    }}
+                    sx={{ fontWeight: 800, bgcolor: '#FFFFFF', border: '1px solid #86EFAC', color: '#15803D', cursor: 'pointer' }}
+                  />
+                );
+              })}
+            </Stack>
+          </Card>
+        );
+      })()}
+
       {/* Filter & View Switcher Bar */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>

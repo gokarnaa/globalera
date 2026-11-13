@@ -84,6 +84,39 @@ export default function LogBookManager() {
 
   const groupLogBooks = (db.logBooks || []).filter((lb) => lb.groupId === selectedGroupId);
 
+  // 1-Click Log Today's Lesson from Lesson Plan / Work Plan
+  const handleQuickLogToday = () => {
+    const today = new Date().toISOString().slice(0, 10);
+    const loggedLessonIds = new Set(groupLogBooks.map((lb) => lb.lessonPlanId).filter(Boolean));
+    const nextLesson = availableLessonPlans.find((lp) => !loggedLessonIds.has(lp.id)) || availableLessonPlans[0];
+    const groupWps = (db.workPlans || []).filter((wp) => wp.groupId === selectedGroupId);
+    const linkedWp = nextLesson
+      ? groupWps.find((wp) => wp.id === nextLesson.workPlanId)
+      : groupWps.find((wp) => wp.status !== 'Completed') || groupWps[0];
+
+    const topicsText = nextLesson?.objectives || linkedWp?.theoryAspect || linkedWp?.practicalAspect || `${selectedCourse?.title || 'Vocational'} Daily Session`;
+    const newEntry = {
+      id: `LOG-${Date.now()}`,
+      lessonPlanId: nextLesson?.id || '',
+      groupId: selectedGroupId,
+      deliveryDate: today,
+      topicsCovered: topicsText,
+      materialsUsed: nextLesson?.materialsNeeded || 'Standard Lab & Training Kit',
+      skillsLearned: linkedWp?.practicalAspect || 'Hands-on practical competency demonstrated',
+      actualHours: linkedWp?.plannedHours || 2,
+      isDelivered: true,
+      trainerNotes: `Quick-logged by ${currentUser?.name || trainer.name} on ${today}`
+    };
+
+    const nextDb = {
+      ...db,
+      logBooks: [newEntry, ...(db.logBooks || [])]
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    alert(`Logged today's session: ${topicsText}`);
+  };
+
   const filteredLogBooks = groupLogBooks.filter((lb) => {
     const q = searchTerm.toLowerCase();
     return (
@@ -269,6 +302,16 @@ export default function LogBookManager() {
             sx={{ fontWeight: 700 }}
           >
             WhatsApp Share
+          </Button>
+
+          <Button
+            variant="contained"
+            color="success"
+            startIcon={<CheckCircleOutlineIcon />}
+            onClick={handleQuickLogToday}
+            sx={{ fontWeight: 800 }}
+          >
+            1-Click Log Today
           </Button>
 
           <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>

@@ -256,6 +256,8 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
 
     const generatedPlans = [];
     const dailyHours = Number(autoScheduleConfig.dailyHours) || 2;
+    const isWeekendOnlyGroup = selectedGroup?.scheduleMode === 'WEEKEND_ONLY';
+    let cycleDayCounter = 0;
 
     // Remove existing plans for this group if replacing
     const otherWorkPlans = (db.workPlans || []).filter((wp) => wp.groupId !== selectedGroupId);
@@ -272,17 +274,25 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           const dateStr = currentDate.toISOString().slice(0, 10);
           const holidayInfo = getHolidayInfo(dateStr, db.holidays || []);
 
-          if (autoScheduleConfig.skipSaturdays && isSat) {
-            currentDate.setDate(currentDate.getDate() + 1);
-            continue;
-          }
-          if (autoScheduleConfig.skipHolidays && holidayInfo.isHoliday) {
-            currentDate.setDate(currentDate.getDate() + 1);
-            continue;
+          if (isWeekendOnlyGroup) {
+            if (!isSat && !holidayInfo.isHoliday) {
+              currentDate.setDate(currentDate.getDate() + 1);
+              continue;
+            }
+          } else {
+            if (autoScheduleConfig.skipSaturdays && isSat) {
+              currentDate.setDate(currentDate.getDate() + 1);
+              continue;
+            }
+            if (autoScheduleConfig.skipHolidays && holidayInfo.isHoliday) {
+              currentDate.setDate(currentDate.getDate() + 1);
+              continue;
+            }
           }
           break;
         }
 
+        cycleDayCounter += 1;
         const planDateStr = currentDate.toISOString().slice(0, 10);
         const dayNameStr = daysOfWeek[currentDate.getDay()];
 
@@ -290,6 +300,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
           id: `WP-${Date.now()}-${sylIdx}-${s}`,
           groupId: selectedGroupId,
           syllabusId: syl.id,
+          cycleDay: cycleDayCounter,
           planDate: planDateStr,
           dayName: dayNameStr,
           theoryAspect: `Theoretical Knowledge: ${syl.title} - Session ${s}/${sessionsNeeded} (Fundamental Theory)`,
