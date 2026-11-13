@@ -76,12 +76,19 @@ export default function ConvertToStudentModal({
     const defaultGroup = matchedGroup || activeGroups[0] || (db.trainingGroups || [])[0];
     if (defaultGroup) {
       setSelectedGroupId(defaultGroup.id);
-      const grpEnd = defaultGroup.expectedEndDate || defaultGroup.endDate;
-      if (grpEnd) {
-        setExpectedEndDate(grpEnd);
-      } else {
-        setExpectedEndDate(calculateExpectedEndDate(admissionDate, 3, 'Months'));
-      }
+      const grpCourse = (db.courses || []).find((c) => c.id === defaultGroup.courseId);
+      const isFixedBatch = defaultGroup.batchMode === 'FIXED';
+      const grpEnd = isFixedBatch ? (defaultGroup.expectedEndDate || defaultGroup.endDate) : '';
+      setExpectedEndDate(
+        grpEnd ||
+        calculateExpectedEndDate(
+          admissionDate,
+          grpCourse?.durationValue || 3,
+          grpCourse?.durationUnit || 'Months',
+          db.holidays || [],
+          defaultGroup.scheduleMode || 'REGULAR'
+        )
+      );
     }
 
     const price = Number(lead.price) || matchedCourse?.price || 15000;
@@ -97,10 +104,19 @@ export default function ConvertToStudentModal({
   const handleGroupChange = (grpId) => {
     setSelectedGroupId(grpId);
     const grp = (db.trainingGroups || []).find((g) => g.id === grpId);
-    const grpEnd = grp?.expectedEndDate || grp?.endDate;
-    if (grpEnd) {
-      setExpectedEndDate(grpEnd);
-    }
+    const grpCourse = (db.courses || []).find((c) => c.id === grp?.courseId);
+    const isFixedBatch = grp?.batchMode === 'FIXED';
+    const grpEnd = isFixedBatch ? (grp?.expectedEndDate || grp?.endDate) : '';
+    setExpectedEndDate(
+      grpEnd ||
+      calculateExpectedEndDate(
+        admissionDate,
+        grpCourse?.durationValue || 3,
+        grpCourse?.durationUnit || 'Months',
+        db.holidays || [],
+        grp?.scheduleMode || 'REGULAR'
+      )
+    );
   };
 
   const handleConvert = (e) => {
@@ -139,7 +155,15 @@ export default function ConvertToStudentModal({
       guardianContact: guardianContact.trim() || lead.phone,
       groupId: selectedGroupId,
       admissionDate: admissionDate,
-      expectedEndDate: expectedEndDate || calculateExpectedEndDate(admissionDate, 3, 'Months'),
+      expectedEndDate:
+        expectedEndDate ||
+        calculateExpectedEndDate(
+          admissionDate,
+          courseObj.durationValue || 3,
+          courseObj.durationUnit || 'Months',
+          db.holidays || [],
+          selectedGroup.scheduleMode || 'REGULAR'
+        ),
       status: 'Active',
       photoUrl: '',
       convertedFromLeadId: lead.id,

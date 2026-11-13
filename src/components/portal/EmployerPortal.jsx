@@ -296,6 +296,12 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
         </Grid>
       </Card>
 
+      {employer?.status !== 'Active' && (
+        <Alert severity="warning" sx={{ mb: 2.5, fontWeight: 700 }}>
+          Account Status: <b>{employer?.status || 'Pending Approval'}</b> — Your organization is awaiting Admin verification. Trainee direct phone numbers remain masked until your Hiring Partner account is approved.
+        </Alert>
+      )}
+
       {/* Tabs */}
       <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
         <Tabs
@@ -380,7 +386,7 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
                               {student?.name}
                             </Typography>
                             <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                              {course?.title || 'Training Batch'} • {student?.phone}
+                              {course?.title || 'Training Batch'} • {employer?.status === 'Active' ? student?.phone : 'Verified Contact (Masked)'}
                             </Typography>
                             <Chip
                               size="small"
@@ -462,7 +468,7 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
                               Hire
                             </Button>
                           )}
-                          {student?.phone && (
+                          {student?.phone && employer?.status === 'Active' && (
                             <Tooltip title="Direct WhatsApp Message">
                               <IconButton
                                 size="small"
@@ -578,7 +584,7 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
                       {crs?.title || 'Vocational Training'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#647089', display: 'block', mb: 1.5 }}>
-                      Batch: {grp?.groupCode} • {std.phone}
+                      Batch: {grp?.groupCode} • {employer?.status === 'Active' ? std.phone : 'Contact Masked Until Approved'}
                     </Typography>
                     <Button
                       size="small"

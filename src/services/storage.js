@@ -8,12 +8,26 @@ export const SHIFT_DEFINITIONS = [
   { code: 'C', name: 'Shift C', time: '12:00 PM – 02:00 PM', startTime: '12:00', endTime: '14:00' },
   { code: 'D', name: 'Shift D', time: '02:00 PM – 04:00 PM', startTime: '14:00', endTime: '16:00' },
   { code: 'E', name: 'Shift E', time: '04:00 PM – 06:00 PM', startTime: '16:00', endTime: '18:00' },
+  { code: 'F', name: 'Shift F', time: '06:00 PM – 08:00 PM', startTime: '18:00', endTime: '20:00' },
 ];
 
-export function calculateExpectedEndDate(startDateStr, durationValue, durationUnit) {
-  if (!startDateStr) return '';
-  const date = new Date(startDateStr);
-  if (isNaN(date.getTime())) return '';
+export const COURSE_TIERS = ['Basic', 'Intermediate', 'Advance', 'Master', 'CTEVT Level 1', 'CTEVT Level 2'];
+
+export const DURATION_PRESETS = [
+  { label: '7 Days', durationValue: 7, durationUnit: 'Days' },
+  { label: '15 Days', durationValue: 15, durationUnit: 'Days' },
+  { label: '1 Month', durationValue: 1, durationUnit: 'Months' },
+  { label: '45 Days', durationValue: 45, durationUnit: 'Days' },
+  { label: '2 Months', durationValue: 2, durationUnit: 'Months' },
+  { label: '3 Months', durationValue: 3, durationUnit: 'Months' },
+  { label: '6 Months', durationValue: 6, durationUnit: 'Months' },
+];
+
+export function calculateStudentCourseTimeline(startDateStr, durationValue, durationUnit, holidays = [], scheduleMode = 'REGULAR') {
+  if (!startDateStr) return { startDate: '', baseEndDate: '', holidayDaysAdded: 0, expectedEndDate: '' };
+  const date = new Date(`${startDateStr}T00:00:00`);
+  if (isNaN(date.getTime())) return { startDate: startDateStr, baseEndDate: '', holidayDaysAdded: 0, expectedEndDate: '' };
+
   const val = Number(durationValue) || 1;
   const unit = (durationUnit || 'months').toLowerCase();
 
@@ -24,7 +38,58 @@ export function calculateExpectedEndDate(startDateStr, durationValue, durationUn
   } else if (unit.startsWith('day')) {
     date.setDate(date.getDate() + val);
   }
-  return date.toISOString().slice(0, 10);
+
+  const formatYMD = (d) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const baseEndDate = formatYMD(date);
+  let holidayDaysAdded = 0;
+
+  if (scheduleMode !== 'WEEKEND_ONLY' && Array.isArray(holidays) && holidays.length > 0) {
+    const holidaySet = new Set(
+      holidays
+        .map((h) => h?.date)
+        .filter((dStr) => {
+          if (!dStr) return false;
+          const hd = new Date(`${dStr}T00:00:00`);
+          return !isNaN(hd.getTime()) && hd.getDay() !== 6; // Exclude Saturdays (already part of calendar duration)
+        })
+    );
+
+    holidaySet.forEach((hDate) => {
+      if (hDate >= startDateStr && hDate <= baseEndDate) {
+        holidayDaysAdded += 1;
+      }
+    });
+
+    if (holidayDaysAdded > 0) {
+      date.setDate(date.getDate() + holidayDaysAdded);
+    }
+  }
+
+  return {
+    startDate: startDateStr,
+    baseEndDate,
+    holidayDaysAdded,
+    expectedEndDate: formatYMD(date)
+  };
+}
+
+export function calculateExpectedEndDate(startDateStr, durationValue, durationUnit, holidays = [], scheduleMode = 'REGULAR') {
+  return calculateStudentCourseTimeline(startDateStr, durationValue, durationUnit, holidays, scheduleMode).expectedEndDate;
+}
+
+export function getActiveGroupTrainees(students = [], groupId, asOfDate = new Date().toISOString().slice(0, 10)) {
+  return (students || []).filter((s) => {
+    if (s.groupId !== groupId) return false;
+    if (s.status === 'Completed' || s.status === 'Dropout') return false;
+    if (s.expectedEndDate && s.expectedEndDate < asOfDate) return false;
+    return true;
+  });
 }
 
 export function generateDefaultUsers(trainers = [], students = [], agents = []) {

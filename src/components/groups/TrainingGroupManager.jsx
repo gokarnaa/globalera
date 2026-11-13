@@ -50,7 +50,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
-import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, logAudit } from '../../services/storage';
+import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, getActiveGroupTrainees, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 
@@ -85,6 +85,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     startDate: new Date().toISOString().slice(0, 10),
     expectedEndDate: '',
     capacity: 20,
+    batchMode: 'ROLLING',
+    scheduleMode: 'REGULAR',
     status: 'Running'
   });
 
@@ -175,9 +177,11 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
       shift: '',
       startTime: '',
       endTime: '',
-      startDate: '',
+      startDate: new Date().toISOString().slice(0, 10),
       expectedEndDate: '',
-      capacity: '',
+      capacity: 20,
+      batchMode: 'ROLLING',
+      scheduleMode: 'REGULAR',
       status: 'Running'
     });
     setOpenDialog(true);
@@ -195,6 +199,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
       startDate: grp.startDate || '',
       expectedEndDate: grp.expectedEndDate || '',
       capacity: grp.capacity || '',
+      batchMode: grp.batchMode || 'ROLLING',
+      scheduleMode: grp.scheduleMode || 'REGULAR',
       status: grp.status || 'Running'
     });
     setOpenDialog(true);
@@ -203,7 +209,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   const handleCourseChange = (courseId) => {
     const course = (db.courses || []).find((c) => c.id === courseId);
     const calcEnd = course && formData.startDate
-      ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit)
+      ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit, db.holidays || [], formData.scheduleMode || 'REGULAR')
       : '';
 
     setFormData((prev) => ({
@@ -237,10 +243,23 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   const handleStartDateChange = (startDate) => {
     const course = (db.courses || []).find((c) => c.id === formData.courseId);
     const calcEnd = course
-      ? calculateExpectedEndDate(startDate, course.durationValue, course.durationUnit)
+      ? calculateExpectedEndDate(startDate, course.durationValue, course.durationUnit, db.holidays || [], formData.scheduleMode || 'REGULAR')
       : '';
     setFormData((prev) => ({ ...prev, startDate, expectedEndDate: calcEnd }));
   };
+
+  const trainerClashGroup = useMemo(() => {
+    if (!formData.trainerId || !formData.shift) return null;
+    const targetMode = formData.scheduleMode || 'REGULAR';
+    return (db.trainingGroups || []).find(
+      (g) =>
+        g.id !== editingItem?.id &&
+        (g.status === 'Running' || g.status === 'OJT Phase') &&
+        g.trainerId === formData.trainerId &&
+        g.shift === formData.shift &&
+        (g.scheduleMode || 'REGULAR') === targetMode
+    ) || null;
+  }, [db.trainingGroups, formData.trainerId, formData.shift, formData.scheduleMode, editingItem]);
 
   const handleSave = () => {
     if (!formData.groupCode.trim() || !formData.courseId || !formData.trainerId) {
@@ -1250,6 +1269,51 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 </MenuItem>
               ))}
             </TextField>
+
+            {trainerClashGroup && (
+              <Alert severity="warning" sx={{ py: 0.5, fontWeight: 700, fontSize: '0.78rem' }}>
+                Schedule Clash Warning: This trainer is already assigned to active batch <b>{trainerClashGroup.groupCode}</b> in Shift {trainerClashGroup.shift} ({(trainerClashGroup.scheduleMode || 'REGULAR') === 'WEEKEND_ONLY' ? 'Weekend/Holiday-Only' : 'Regular Sun–Fri'}).
+              </Alert>
+            )}
+
+            {/* Batch Mode & Schedule Mode */}
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="Batch Mode"
+                  fullWidth
+                  size="small"
+                  value={formData.batchMode || 'ROLLING'}
+                  onChange={(e) => setFormData({ ...formData, batchMode: e.target.value })}
+                  helperText="Rolling: trainees follow personal enroll-to-end timeline"
+                >
+                  <MenuItem value="ROLLING">Rolling / Continuous Batch (Default)</MenuItem>
+                  <MenuItem value="FIXED">Fixed Cohort Batch (All Same Dates)</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  label="Class Schedule Mode"
+                  fullWidth
+                  size="small"
+                  value={formData.scheduleMode || 'REGULAR'}
+                  onChange={(e) => {
+                    const nextMode = e.target.value;
+                    const course = (db.courses || []).find((c) => c.id === formData.courseId);
+                    const calcEnd = course && formData.startDate
+                      ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit, db.holidays || [], nextMode)
+                      : formData.expectedEndDate;
+                    setFormData({ ...formData, scheduleMode: nextMode, expectedEndDate: calcEnd });
+                  }}
+                  helperText="Regular: Sun-Fri (Sat & Holidays Off) | Weekend: Sat & Holidays Only"
+                >
+                  <MenuItem value="REGULAR">Regular (Sun–Fri, Sat &amp; Holidays Off)</MenuItem>
+                  <MenuItem value="WEEKEND_ONLY">Special Weekend / Public Holiday Only</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
 
             {/* Shift Selection -> Auto fills Start and End Time */}
             <Grid container spacing={2}>

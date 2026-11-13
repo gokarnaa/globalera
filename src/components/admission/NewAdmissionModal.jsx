@@ -210,11 +210,17 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
     const studentId = getNextSequentialId(db.students || [], 'STD-', 2, 'id', 1);
     const biometricId = getNextBiometricId(db.students || [], 1001);
 
-    // Expected End Date
+    // Expected End Date (Rolling Batch uses student's own enrollDate + Course Duration + Holidays; Fixed Batch uses batch end date)
+    const isFixedBatch = groupObj.batchMode === 'FIXED';
     const endDate =
-      groupObj.expectedEndDate ||
-      groupObj.endDate ||
-      calculateExpectedEndDate(admissionDate, courseObj?.durationValue || 3, courseObj?.durationUnit || 'Months');
+      (isFixedBatch && (groupObj.expectedEndDate || groupObj.endDate)) ||
+      calculateExpectedEndDate(
+        admissionDate,
+        courseObj?.durationValue || 3,
+        courseObj?.durationUnit || 'Months',
+        db.holidays || [],
+        groupObj.scheduleMode || 'REGULAR'
+      );
 
     // 1. Create Student record (with fee breakdown & biometric ID synced)
     const newStudent = {

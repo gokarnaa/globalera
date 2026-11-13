@@ -49,7 +49,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
-import { loadDB, saveDB, logAudit } from '../../services/storage';
+import { loadDB, saveDB, logAudit, COURSE_TIERS, DURATION_PRESETS } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 
@@ -1119,19 +1119,23 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               />
             </Grid>
 
-            {/* CTEVT Level */}
+            {/* Course Tier / CTEVT Level */}
             <Grid item xs={12} sm={4}>
               <TextField
                 select
-                label="Level"
+                label="Course Tier / Level"
                 fullWidth
                 size="small"
                 value={formData.level}
                 onChange={(e) => setFormData({ ...formData, level: e.target.value })}
               >
                 <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- Select Level --
+                  -- Select Tier / Level --
                 </MenuItem>
+                <MenuItem value="Basic">Basic</MenuItem>
+                <MenuItem value="Intermediate">Intermediate</MenuItem>
+                <MenuItem value="Advance">Advance</MenuItem>
+                <MenuItem value="Master">Master</MenuItem>
                 <MenuItem value="CTEVT Level 1">CTEVT Level 1 (Basic)</MenuItem>
                 <MenuItem value="CTEVT Level 2">CTEVT Level 2 (Intermediate)</MenuItem>
                 <MenuItem value="Short Term">Short Term</MenuItem>
@@ -1165,6 +1169,41 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', display: 'block' }}>
                   💡 Detailed breakdown, campaign discounts, and installment policies are managed in the "Course Fee Structure" module.
                 </Typography>
+              </Box>
+            </Grid>
+
+            {/* Quick Duration Presets */}
+            <Grid item xs={12}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.8 }}>
+                Quick Timing / Duration Presets:
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                {DURATION_PRESETS.map((preset) => {
+                  const isActive =
+                    Number(formData.durationValue) === preset.durationValue &&
+                    formData.durationUnit === preset.durationUnit;
+                  return (
+                    <Chip
+                      key={preset.label}
+                      label={preset.label}
+                      size="small"
+                      clickable
+                      onClick={() =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          durationValue: preset.durationValue,
+                          durationUnit: preset.durationUnit
+                        }))
+                      }
+                      sx={{
+                        fontWeight: 800,
+                        bgcolor: isActive ? '#0F2E5A' : '#F1F5F9',
+                        color: isActive ? '#FFFFFF' : '#334155',
+                        '&:hover': { bgcolor: isActive ? '#0F2E5A' : '#E2E8F0' }
+                      }}
+                    />
+                  );
+                })}
               </Box>
             </Grid>
 

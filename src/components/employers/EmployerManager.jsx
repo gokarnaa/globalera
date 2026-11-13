@@ -427,7 +427,7 @@ export default function EmployerManager() {
           />
 
           <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Active', 'Inactive'].map((status) => (
+            {['All', 'Active', 'Pending Approval', 'Inactive'].map((status) => (
               <Chip
                 key={status}
                 label={status}
@@ -549,13 +549,32 @@ export default function EmployerManager() {
                           label={emp.status}
                           size="small"
                           sx={{
-                            bgcolor: emp.status === 'Active' ? '#e5f8ee' : '#fdeceb',
-                            color: emp.status === 'Active' ? '#16834b' : '#d5372f',
+                            bgcolor: emp.status === 'Active' ? '#e5f8ee' : emp.status === 'Pending Approval' ? '#FEF3C7' : '#fdeceb',
+                            color: emp.status === 'Active' ? '#16834b' : emp.status === 'Pending Approval' ? '#B45309' : '#d5372f',
                             fontWeight: 700
                           }}
                         />
                       </TableCell>
                       <TableCell sx={{ textAlign: 'right' }}>
+                        {emp.status === 'Pending Approval' && (
+                          <Tooltip title="Approve Partner Employer">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                const updated = (db.employers || []).map((x) =>
+                                  x.id === emp.id ? { ...x, status: 'Active' } : x
+                                );
+                                let nextDb = { ...db, employers: updated };
+                                nextDb = logAudit(nextDb, 'UPDATE', 'Employer', emp.id, `Approved Employer Partner: ${emp.name}`, 'Admin');
+                                saveDB(nextDb);
+                                setDb(nextDb);
+                              }}
+                              sx={{ color: '#16834b' }}
+                            >
+                              <CheckCircleIcon fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                         <Tooltip title="View Employer 360° Profile">
                           <IconButton
                             size="small"
@@ -941,6 +960,7 @@ export default function EmployerManager() {
                   onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 >
                   <MenuItem value="Active">Active Partner</MenuItem>
+                  <MenuItem value="Pending Approval">Pending Approval</MenuItem>
                   <MenuItem value="Inactive">Inactive</MenuItem>
                 </TextField>
               </Grid>

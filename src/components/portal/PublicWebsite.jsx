@@ -335,7 +335,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       phone: employerForm.phone.trim(),
       email: employerForm.email.trim(),
       pin: employerForm.pin.trim() || '1234',
-      status: 'Active',
+      status: 'Pending Approval',
       remarks: 'Self-registered via Website Employer Partnership Portal'
     };
 
