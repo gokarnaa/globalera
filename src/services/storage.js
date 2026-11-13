@@ -150,6 +150,30 @@ export const INITIAL_SEED_DATA = {
       title: 'Placement Interview Notice',
       category: 'Placement',
       content: 'Dear {name}, your job interview for {jobTitle} at {employer} is scheduled on {date} at {time}. Contact: {phone}. - {institute}'
+    },
+    {
+      id: 'TPL-06',
+      title: 'Lead Welcome & Course Brochure',
+      category: 'Leads',
+      content: 'Hello {name}! Thank you for inquiring about {course} at {institute}. Our 390-hour CTEVT curriculum features 80% practical training. Fee structure: 50% advance on admission + 50% mid-course. Reply YES for instant counseling or visit us in Jorpati.'
+    },
+    {
+      id: 'TPL-07',
+      title: 'Admission Agreement & Enrollment Voucher',
+      category: 'Admission',
+      content: 'Official Admission Confirmation: Dear {name}, your enrollment in {course} (Shift {shift}) at {institute} has been confirmed. Please keep this digital receipt for verification.'
+    },
+    {
+      id: 'TPL-08',
+      title: 'Fee Installment Due Notice',
+      category: 'Accounts',
+      content: 'Dear {name}, this is a gentle reminder that your mid-course 50% tuition installment for {course} is due. Please visit the account counter or contact {phone}. - {institute}'
+    },
+    {
+      id: 'TPL-09',
+      title: 'Trainer Batch Routine & Schedule',
+      category: 'Trainers',
+      content: 'Dear Trainer {name}, your {course} practical training batch is scheduled from {date} in Shift {shift} at {institute}. Trainee roster and workshop tools are ready in Lab.'
     }
   ],
 

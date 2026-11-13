@@ -41,21 +41,24 @@ import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import { loadDB, saveDB, logCommunication, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { sendMetaWhatsAppMessage } from '../../services/whatsappCloudApi';
 
 export default function CommunicationManager() {
   const [db, setDb] = useState(loadDB());
   const [currentTab, setCurrentTab] = useState(0);
 
   // --- Tab 1: Dispatch State ---
-  const [targetAudience, setTargetAudience] = useState('GROUP'); // 'GROUP', 'ABSENT_TODAY', 'ALL_STUDENTS', 'UNPLACED', 'EMPLOYERS', 'TRAINERS', 'SINGLE'
+  const [targetAudience, setTargetAudience] = useState('GROUP'); // 'GROUP', 'LEADS', 'ABSENT_TODAY', 'ALL_STUDENTS', 'UNPLACED', 'EMPLOYERS', 'TRAINERS', 'SINGLE'
   const [selectedGroupId, setSelectedGroupId] = useState((db.trainingGroups || [])[0]?.id || '');
   const [selectedSingleStudentId, setSelectedSingleStudentId] = useState((db.students || [])[0]?.id || '');
   const [channel, setChannel] = useState('WhatsApp'); // 'WhatsApp' | 'SMS'
   const [selectedTemplateId, setSelectedTemplateId] = useState((db.smsTemplates || [])[0]?.id || '');
   const [messageBody, setMessageBody] = useState((db.smsTemplates || [])[0]?.content || '');
   const [dispatchStatus, setDispatchStatus] = useState(null);
+  const [sendingId, setSendingId] = useState(null);
 
   // --- Tab 2: Call Log State ---
   const [callStudentId, setCallStudentId] = useState((db.students || [])[0]?.id || '');
@@ -76,7 +79,16 @@ export default function CommunicationManager() {
     const today = new Date().toISOString().slice(0, 10);
     let list = [];
 
-    if (targetAudience === 'GROUP') {
+    if (targetAudience === 'LEADS') {
+      list = (db.leads || []).map((l) => ({
+        id: l.id,
+        name: l.name,
+        phone: l.phone,
+        courseName: l.course,
+        status: l.status,
+        isLead: true
+      }));
+    } else if (targetAudience === 'GROUP') {
       list = (db.students || []).filter((s) => s.groupId === selectedGroupId);
     } else if (targetAudience === 'ALL_STUDENTS') {
       list = db.students || [];
@@ -137,11 +149,12 @@ export default function CommunicationManager() {
     const group = (db.trainingGroups || []).find((g) => g.id === recipient.groupId);
     const course = (db.courses || []).find((c) => c.id === group?.courseId);
     const cert = (db.certificates || []).find((c) => c.studentId === recipient.id);
+    const courseTitle = course?.title || recipient.courseName || 'Vocational Training';
 
     return messageBody
-      .replace(/\{name\}/g, recipient.name || 'Student')
+      .replace(/\{name\}/g, recipient.name || 'Candidate')
       .replace(/\{parent\}/g, recipient.fatherName || recipient.motherName || 'Guardian')
-      .replace(/\{course\}/g, course?.title || 'Vocational Training')
+      .replace(/\{course\}/g, courseTitle)
       .replace(/\{shift\}/g, group?.shift || 'A')
       .replace(/\{date\}/g, today)
       .replace(/\{time\}/g, group?.startTime || '10:00 AM')
@@ -168,7 +181,13 @@ export default function CommunicationManager() {
     recipientList.forEach((recipient) => {
       const text = renderMessageFor(recipient);
       updatedDb = logCommunication(updatedDb, {
-        recipientType: recipient.isEmployer ? 'Employer' : recipient.isTrainer ? 'Trainer' : 'Student',
+        recipientType: recipient.isEmployer
+          ? 'Employer'
+          : recipient.isTrainer
+          ? 'Trainer'
+          : recipient.isLead
+          ? 'Lead'
+          : 'Student',
         recipientId: recipient.id,
         recipientName: recipient.name,
         recipientPhone: recipient.phone,
@@ -188,6 +207,39 @@ export default function CommunicationManager() {
     });
 
     setTimeout(() => setDispatchStatus(null), 6000);
+  };
+
+  // Cloud API direct dispatch handler
+  const handleSendCloudDirect = async (rec, text) => {
+    try {
+      setSendingId(rec.id);
+      const res = await sendMetaWhatsAppMessage({
+        to: rec.phone,
+        type: 'text',
+        text: text
+      });
+      if (res && (res.messages || res.wamid)) {
+        let updatedDb = logCommunication(db, {
+          recipientType: rec.isEmployer ? 'Employer' : rec.isTrainer ? 'Trainer' : rec.isLead ? 'Lead' : 'Student',
+          recipientId: rec.id,
+          recipientName: rec.name,
+          recipientPhone: rec.phone,
+          channel: 'WhatsApp Cloud API',
+          templateId: selectedTemplateId || 'CUSTOM',
+          messageText: text,
+          sentBy: 'Admin'
+        });
+        setDb(updatedDb);
+        alert(`WhatsApp Cloud message sent successfully to ${rec.name} (${rec.phone})!`);
+      } else {
+        alert(`Notice: Sent via Cloud API. If recipient is outside test sandbox, use the green 1-Click WhatsApp Direct button to message directly from your phone/PC.`);
+      }
+    } catch (err) {
+      alert(`Cloud API Notice: ${err.message}. Opening WhatsApp Web for direct 1-on-1 chat.`);
+      window.open(getWhatsAppUrl(rec.phone, text), '_blank');
+    } finally {
+      setSendingId(null);
+    }
   };
 
   // Log Call Follow-up
@@ -323,6 +375,7 @@ export default function CommunicationManager() {
                     onChange={(e) => setTargetAudience(e.target.value)}
                   >
                     <MenuItem value="GROUP">Training Batch</MenuItem>
+                    <MenuItem value="LEADS">New Leads & Admissions Inquiries</MenuItem>
                     <MenuItem value="ABSENT_TODAY">Today's Absent Trainees (Guardians)</MenuItem>
                     <MenuItem value="UNPLACED">Unplaced Job Seekers</MenuItem>
                     <MenuItem value="ALL_STUDENTS">All Active Students</MenuItem>
@@ -491,7 +544,7 @@ export default function CommunicationManager() {
                             <TableCell sx={{ fontWeight: 800 }}>Recipients</TableCell>
                             <TableCell sx={{ fontWeight: 800 }}>Phone</TableCell>
                             <TableCell sx={{ fontWeight: 800 }}>Personalized Message</TableCell>
-                            <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Direct Link</TableCell>
+                            <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions (1-on-1 / Cloud)</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -515,17 +568,37 @@ export default function CommunicationManager() {
                                     {personalMsg}
                                   </Typography>
                                 </TableCell>
-                                <TableCell sx={{ textAlign: 'right' }}>
-                                  <IconButton
-                                    size="small"
-                                    component="a"
-                                    href={getWhatsAppUrl(rec.phone, personalMsg)}
-                                    target="_blank"
-                                    sx={{ color: '#25D366' }}
-                                    title="Open WhatsApp"
-                                  >
-                                    <WhatsAppIcon fontSize="small" />
-                                  </IconButton>
+                                <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                                  <Tooltip title="1-Click WhatsApp Direct (Opens personal 1-on-1 chat in WhatsApp Web/App)">
+                                    <IconButton
+                                      size="small"
+                                      component="a"
+                                      href={getWhatsAppUrl(rec.phone, personalMsg)}
+                                      target="_blank"
+                                      sx={{ color: '#25D366', bgcolor: '#f0fdf4', mr: 1, '&:hover': { bgcolor: '#dcfce7' } }}
+                                    >
+                                      <WhatsAppIcon fontSize="small" />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title="Instant Server Dispatch via Meta Cloud API">
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      color="primary"
+                                      disabled={sendingId === rec.id}
+                                      onClick={() => handleSendCloudDirect(rec, personalMsg)}
+                                      startIcon={<CloudQueueIcon fontSize="small" />}
+                                      sx={{
+                                        textTransform: 'none',
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        py: 0.3,
+                                        px: 1
+                                      }}
+                                    >
+                                      {sendingId === rec.id ? 'Sending...' : 'Cloud API'}
+                                    </Button>
+                                  </Tooltip>
                                 </TableCell>
                               </TableRow>
                             );
