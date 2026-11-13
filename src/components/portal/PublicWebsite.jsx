@@ -30,8 +30,14 @@ import {
   TableRow,
   Tab,
   Tabs,
-  LinearProgress
+  LinearProgress,
+  Drawer,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText
 } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -72,6 +78,7 @@ import { verifyCertificateRemote } from '../../services/supabaseClient';
 
 export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   const [db, setDb] = useState(loadDB());
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const company = db.settings?.companyProfile || {};
 
   // Detect referral agent parameter ?ref=AGE-101 or ?agent=AGE-101
@@ -441,34 +448,44 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         sx={{
           bgcolor: '#071A36',
           color: '#E2E8F0',
-          py: 0.8,
-          px: { xs: 1.5, sm: 3 },
+          px: { xs: 1, sm: 3 },
+          py: { xs: 0.55, sm: 0.7 },
           borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
           fontSize: '0.78rem'
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ px: { xs: 1, sm: 3 } }}>
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              flexWrap: 'wrap',
-              gap: 1.2
+              flexWrap: { xs: 'nowrap', sm: 'wrap' },
+              gap: 1
             }}
           >
             {/* Left: Location & Operating Hours */}
-            <Stack direction="row" spacing={{ xs: 1.5, md: 2.5 }} alignItems="center" flexWrap="wrap">
-              <Stack direction="row" spacing={0.6} alignItems="center">
-                <LocationOnIcon sx={{ fontSize: 15, color: '#F59E0B' }} />
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: '0.76rem' }}>
+            <Stack direction="row" spacing={{ xs: 1, md: 2.5 }} alignItems="center" sx={{ minWidth: 0 }}>
+              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ minWidth: 0 }}>
+                <LocationOnIcon sx={{ fontSize: { xs: 13, sm: 15 }, color: '#F59E0B', flexShrink: 0 }} />
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: { xs: '0.68rem', sm: '0.76rem' }, display: { xs: 'block', sm: 'none' } }}
+                >
+                  Jorpati, Kathmandu
+                </Typography>
+                <Typography
+                  variant="caption"
+                  sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: '0.76rem', display: { xs: 'none', sm: 'block' } }}
+                >
                   Global Era Multi Service — Jorpati, Gokarneshwor, Kathmandu
                 </Typography>
               </Stack>
 
               <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', display: { xs: 'none', md: 'block' } }} />
 
-              <Stack direction="row" spacing={0.6} alignItems="center">
+              <Stack direction="row" spacing={0.6} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
                 <AccessTimeIcon sx={{ fontSize: 14, color: '#10B981' }} />
                 <Typography variant="caption" sx={{ fontWeight: 600, color: '#CBD5E1', fontSize: '0.74rem' }}>
                   Office Hours: 7:00 AM – 6:00 PM (Sun – Fri)
@@ -477,7 +494,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             </Stack>
 
             {/* Right: Phone, Email & WhatsApp Direct Connect */}
-            <Stack direction="row" spacing={{ xs: 1.5, sm: 2.2 }} alignItems="center" flexWrap="wrap">
+            <Stack direction="row" spacing={{ xs: 1, sm: 2.2 }} alignItems="center" sx={{ flexShrink: 0 }}>
               <Box
                 component="a"
                 href="tel:01410715"
@@ -547,36 +564,72 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
       {/* 1. TOP HEADER & NAVIGATION BAR                                  */}
       {/* ============================================================== */}
       <Box sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', borderBottom: '3px solid #F59E0B', position: 'sticky', top: 0, zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.15)' }}>
-        <Container maxWidth="xl">
-          <Box sx={{ py: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.5 }}>
+        <Container maxWidth="xl" sx={{ px: { xs: 1.5, sm: 3 } }}>
+          <Box sx={{ py: { xs: 1, md: 1.5 }, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1 }}>
             {/* Brand Logo & Name */}
             <Box
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              sx={{ display: 'flex', alignItems: 'center', gap: 1.5, cursor: 'pointer' }}
+              sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, cursor: 'pointer', minWidth: 0, flex: 1 }}
             >
               <Avatar
                 sx={{
                   bgcolor: '#F59E0B',
                   color: '#0F2C59',
-                  width: 44,
-                  height: 44,
+                  width: { xs: 36, sm: 44 },
+                  height: { xs: 36, sm: 44 },
+                  flexShrink: 0,
                   boxShadow: '0 2px 8px rgba(245, 158, 11, 0.4)'
                 }}
               >
-                <SchoolIcon sx={{ fontSize: 26 }} />
+                <SchoolIcon sx={{ fontSize: { xs: 21, sm: 26 } }} />
               </Avatar>
-              <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, letterSpacing: '0.03em', lineHeight: 1.1, color: '#FFFFFF' }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 900, letterSpacing: '0.02em', lineHeight: 1.15, color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1rem' } }}
+                >
                   {company.companyNameEn || 'Global Era Technical School'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.68rem', display: 'block' }}>
-                  CTEVT Accredited • Affiliation Code: {company.ctevtCode || '4208'} • Reg No: {company.regNo || '184920/078/079'}
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#FCD34D', fontWeight: 700, fontSize: { xs: '0.64rem', sm: '0.68rem' }, display: 'block' }}
+                >
+                  CTEVT Accredited • Code: {company.ctevtCode || '4208'}
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                    {' '}• Reg No: {company.regNo || '184920/078/079'}
+                  </Box>
                 </Typography>
               </Box>
             </Box>
 
-            {/* Navigation & Portal Entry Buttons */}
-            <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
+            {/* Mobile Portals / Menu Button (Option A: Clean App-Style) */}
+            <Box sx={{ display: { xs: 'flex', lg: 'none' }, alignItems: 'center', flexShrink: 0 }}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<MenuIcon sx={{ fontSize: 18 }} />}
+                onClick={() => setMobileMenuOpen(true)}
+                sx={{
+                  borderColor: 'rgba(245, 158, 11, 0.7)',
+                  color: '#FCD34D',
+                  bgcolor: 'rgba(245, 158, 11, 0.1)',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  borderRadius: 2,
+                  px: 1.3,
+                  py: 0.6,
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(245, 158, 11, 0.2)', borderColor: '#F59E0B' }
+                }}
+              >
+                Portals & Menu
+              </Button>
+            </Box>
+
+            {/* Desktop Navigation & Portal Entry Buttons */}
+            <Stack direction="row" spacing={1.2} alignItems="center" sx={{ display: { xs: 'none', lg: 'flex' } }}>
               <Button
                 size="small"
                 onClick={() => {
@@ -690,6 +743,133 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         </Container>
       </Box>
 
+      {/* Mobile Navigation & Portals Drawer */}
+      <Drawer
+        anchor="right"
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        PaperProps={{
+          sx: {
+            width: 290,
+            bgcolor: '#071A36',
+            color: '#FFFFFF',
+            borderLeft: '2px solid #F59E0B'
+          }
+        }}
+      >
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar sx={{ bgcolor: '#F59E0B', color: '#0F2C59', width: 32, height: 32 }}>
+              <SchoolIcon sx={{ fontSize: 18 }} />
+            </Avatar>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
+              Quick Menu & Portals
+            </Typography>
+          </Stack>
+          <IconButton size="small" onClick={() => setMobileMenuOpen(false)} sx={{ color: '#CBD5E1' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Box sx={{ px: 2, pt: 1.5, pb: 0.5 }}>
+          <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            Explore Website
+          </Typography>
+        </Box>
+        <List dense sx={{ px: 1 }}>
+          {[
+            { label: 'Apply Now (Online Inquiry)', id: 'online-inquiry-section', icon: <SendIcon sx={{ color: '#10B981' }} /> },
+            { label: 'Courses & Fee Schedule', id: 'courses-section', icon: <MenuBookIcon sx={{ color: '#F59E0B' }} /> },
+            { label: 'Verify Certificate', id: 'verify-section', icon: <VerifiedIcon sx={{ color: '#38BDF8' }} /> },
+            { label: 'Hire Skilled Graduates', id: 'employer-partner-section', icon: <WorkIcon sx={{ color: '#A78BFA' }} /> }
+          ].map((item) => (
+            <ListItemButton
+              key={item.id}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTimeout(() => {
+                  const el = document.getElementById(item.id);
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 150);
+              }}
+              sx={{ borderRadius: 1.5, mb: 0.5, '&:hover': { bgcolor: 'rgba(255,255,255,0.08)' } }}
+            >
+              <ListItemIcon sx={{ minWidth: 34 }}>{item.icon}</ListItemIcon>
+              <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.86rem', fontWeight: 700 }} />
+            </ListItemButton>
+          ))}
+        </List>
+
+        <Divider sx={{ borderColor: 'rgba(255,255,255,0.1)', my: 1 }} />
+
+        <Box sx={{ px: 2, pt: 0.5, pb: 0.5 }}>
+          <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            Login Portals
+          </Typography>
+        </Box>
+        <List dense sx={{ px: 1 }}>
+          {[
+            { label: 'Student Portal', route: 'student', icon: <SchoolIcon sx={{ color: '#38BDF8' }} /> },
+            { label: 'Trainer Portal', route: 'trainer', icon: <PeopleAltIcon sx={{ color: '#10B981' }} /> },
+            { label: 'Agent / Referral Portal', route: 'agent', icon: <HandshakeIcon sx={{ color: '#F59E0B' }} /> },
+            { label: 'Employer Partner Portal', route: 'employer', icon: <BusinessIcon sx={{ color: '#F472B6' }} /> }
+          ].map((portal) => (
+            <ListItemButton
+              key={portal.route}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigate(portal.route);
+              }}
+              sx={{
+                borderRadius: 1.5,
+                mb: 0.6,
+                bgcolor: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                '&:hover': { bgcolor: 'rgba(245,158,11,0.15)', borderColor: '#F59E0B' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 34 }}>{portal.icon}</ListItemIcon>
+              <ListItemText primary={portal.label} primaryTypographyProps={{ fontSize: '0.86rem', fontWeight: 800 }} />
+            </ListItemButton>
+          ))}
+        </List>
+
+        <Box sx={{ mt: 'auto', p: 2, borderTop: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(0,0,0,0.2)' }}>
+          <Typography variant="caption" sx={{ color: '#CBD5E1', display: 'block', mb: 0.5, fontWeight: 700 }}>
+            📍 Jorpati, Gokarneshwor, Kathmandu
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#94A3B8', display: 'block', mb: 1.2 }}>
+            🕒 Sun – Fri: 7:00 AM – 6:00 PM
+          </Typography>
+          <Stack direction="row" spacing={1}>
+            <Button
+              fullWidth
+              size="small"
+              variant="outlined"
+              component="a"
+              href="tel:01410715"
+              startIcon={<PhoneIcon sx={{ fontSize: 14 }} />}
+              sx={{ color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', fontWeight: 700 }}
+            >
+              Call
+            </Button>
+            <Button
+              fullWidth
+              size="small"
+              variant="contained"
+              component="a"
+              href="https://wa.me/97701410715?text=Hello%20Global%20Era!"
+              target="_blank"
+              rel="noreferrer"
+              startIcon={<WhatsAppIcon sx={{ fontSize: 14 }} />}
+              sx={{ bgcolor: '#16A34A', color: '#FFFFFF', fontSize: '0.75rem', fontWeight: 700, '&:hover': { bgcolor: '#15803D' } }}
+            >
+              WhatsApp
+            </Button>
+          </Stack>
+        </Box>
+      </Drawer>
+
       {/* Referral Partner Notification Banner if ?ref=... is present */}
       {referredAgent && (
         <Box sx={{ bgcolor: '#FFFBEB', borderBottom: '2px solid #FCD34D', py: 1.2, px: 2, textAlign: 'center' }}>
@@ -709,8 +889,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         sx={{
           background: 'linear-gradient(135deg, #071A36 0%, #0F2C59 50%, #1E3A8A 100%)',
           color: '#FFFFFF',
-          pt: { xs: 5, md: 8 },
-          pb: { xs: 6, md: 9 },
+          pt: { xs: 2.8, md: 7 },
+          pb: { xs: 3.5, md: 8 },
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -719,26 +899,37 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         <Box sx={{ position: 'absolute', top: -50, right: -50, width: 280, height: 280, borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,158,11,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
         <Box sx={{ position: 'absolute', bottom: -50, left: -50, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(5,150,105,0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
-          <Grid container spacing={4} alignItems="center">
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1, px: { xs: 2, sm: 3 } }}>
+          <Grid container spacing={{ xs: 2.5, md: 4 }} alignItems="center">
             <Grid item xs={12} md={7}>
               <Chip
-                icon={<VerifiedIcon sx={{ color: '#FCD34D !important' }} />}
-                label="CTEVT Accredited National Vocational Training Center"
+                icon={<VerifiedIcon sx={{ color: '#FCD34D !important', fontSize: 16 }} />}
+                label="CTEVT Accredited National Vocational Training"
                 size="small"
-                sx={{ bgcolor: 'rgba(255,255,255,0.12)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.75rem', mb: 2, border: '1px solid rgba(253, 211, 77, 0.4)' }}
+                sx={{
+                  bgcolor: 'rgba(255,255,255,0.12)',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  fontSize: { xs: '0.68rem', sm: '0.75rem' },
+                  mb: { xs: 1.5, md: 2 },
+                  height: 'auto',
+                  py: 0.35,
+                  border: '1px solid rgba(253, 211, 77, 0.4)',
+                  maxWidth: '100%',
+                  '& .MuiChip-label': { whiteSpace: 'normal', lineHeight: 1.3 }
+                }}
               />
 
-              <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: 1.2, mb: 2, fontSize: { xs: '1.8rem', sm: '2.4rem', md: '3rem' } }}>
+              <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: { xs: 1.18, md: 1.2 }, mb: { xs: 1.5, md: 2 }, fontSize: { xs: '1.65rem', sm: '2.3rem', md: '2.9rem' } }}>
                 Vocational Skills, National Recognition & <span style={{ color: '#F59E0B' }}>A Bright Future</span>
               </Typography>
 
-              <Typography variant="body1" sx={{ color: '#E2E8F0', mb: 3.5, fontSize: { xs: '0.9rem', md: '1.05rem' }, lineHeight: 1.7, maxWidth: 640 }}>
+              <Typography variant="body1" sx={{ color: '#E2E8F0', mb: { xs: 2.2, md: 3.5 }, fontSize: { xs: '0.88rem', md: '1.05rem' }, lineHeight: { xs: 1.55, md: 1.7 }, maxWidth: 640 }}>
                 Global Era Technical School offers national-standard 3-month (390 hours) skill-based vocational training programs.
                 Transparent fee structure inclusive of 13% VAT, flexible 2-installment payment plan, and 100% hands-on practical training!
               </Typography>
 
-              <Stack direction="row" spacing={1.5} flexWrap="wrap">
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
                 <Button
                   variant="contained"
                   size="large"
@@ -747,11 +938,13 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
                   sx={{
+                    width: { xs: '100%', sm: 'auto' },
                     background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                     fontWeight: 900,
-                    px: 3,
-                    py: 1.2,
-                    fontSize: '0.9rem',
+                    px: { xs: 2.5, md: 3 },
+                    py: { xs: 1.15, md: 1.2 },
+                    fontSize: { xs: '0.88rem', md: '0.9rem' },
+                    borderRadius: 2,
                     boxShadow: '0 4px 15px rgba(5,150,105,0.4)',
                     '&:hover': { background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)' }
                   }}
@@ -767,12 +960,14 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     if (el) el.scrollIntoView({ behavior: 'smooth' });
                   }}
                   sx={{
+                    width: { xs: '100%', sm: 'auto' },
                     borderColor: '#F59E0B',
                     color: '#F59E0B',
                     fontWeight: 900,
-                    px: 3,
-                    py: 1.2,
-                    fontSize: '0.9rem',
+                    px: { xs: 2.5, md: 3 },
+                    py: { xs: 1.1, md: 1.2 },
+                    fontSize: { xs: '0.88rem', md: '0.9rem' },
+                    borderRadius: 2,
                     '&:hover': { borderColor: '#FCD34D', bgcolor: 'rgba(245,158,11,0.1)' }
                   }}
                 >
@@ -786,7 +981,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Paper
                 elevation={3}
                 sx={{
-                  p: 3,
+                  p: { xs: 2, sm: 3 },
                   borderRadius: 3,
                   bgcolor: '#FFFFFF',
                   color: '#0F172A',
