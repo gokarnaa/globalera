@@ -804,7 +804,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                         Rs. {(Number(adm.netPayableFee) || 0).toLocaleString()}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
-                        50% Paid: Rs. {(Number(adm.advancePaid50) || 0).toLocaleString()}
+                        {adm.dueAmount50 <= 0 ? 'Total Paid:' : 'Advance Paid:'} Rs. {(Number(adm.advancePaid50) || 0).toLocaleString()}
                       </Typography>
                       <Typography variant="caption" sx={{ color: '#64748b' }}>
                         Method: {adm.paymentMethod}

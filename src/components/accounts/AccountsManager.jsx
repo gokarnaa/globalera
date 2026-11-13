@@ -729,7 +729,27 @@ export default function AccountsManager({ initialTab = 0 }) {
     }
 
     const updatedPayments = [newPayment, ...(dbToUpdate.payments || [])];
-    const nextDb = { ...dbToUpdate, payments: updatedPayments };
+
+    // Sync corresponding admission agreement balance when fee installment is collected
+    const studentTotalPaid = updatedPayments
+      .filter((p) => p.studentId === newPayment.studentId)
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+
+    const updatedAdmissions = (dbToUpdate.admissions || []).map((adm) => {
+      if (adm.studentId === newPayment.studentId) {
+        const netFee = Number(adm.netPayableFee) || 0;
+        const newDue = Math.max(0, netFee - studentTotalPaid);
+        return {
+          ...adm,
+          advancePaid50: studentTotalPaid,
+          dueAmount50: newDue,
+          status: newDue <= 0 ? 'PAID' : 'PARTIAL'
+        };
+      }
+      return adm;
+    });
+
+    const nextDb = { ...dbToUpdate, payments: updatedPayments, admissions: updatedAdmissions };
     saveDB(nextDb);
     setDb(nextDb);
     showToast(`Receipt #${newPayment.receiptNo} issued (Payment Rs. ${newPayment.amount.toLocaleString()} recorded).`);
