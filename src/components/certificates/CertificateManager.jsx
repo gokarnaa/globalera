@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box,
   Card,
@@ -54,6 +54,16 @@ import { computeNextCertificateNumber } from '../settings/CompanyProfileSettings
 export default function CertificateManager() {
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
+
+  useEffect(() => {
+    const syncDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', syncDb);
+    window.addEventListener('storage', syncDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', syncDb);
+      window.removeEventListener('storage', syncDb);
+    };
+  }, []);
 
   const allGroups = db.trainingGroups || [];
   const myGroups = isTrainer
@@ -153,6 +163,19 @@ export default function CertificateManager() {
 
     if (feeDue > 0) {
       alert(`⛔ Certificate Generation Blocked!\n\nTrainee "${student.name}" (${student.tgid}) has an unpaid 2nd installment fee due of NPR ${feeDue.toLocaleString()}.\n\nInstitutional rules strictly require 100% fee clearance prior to generating and issuing the official certificate.`);
+      return;
+    }
+
+    const studentAtts = (db.attendances || []).filter(
+      (a) => a.groupId === selectedGroupId && a.studentId === student.id
+    );
+    const pCount = studentAtts.filter((a) => a.status === 'present' || a.status === 'P').length;
+    const lCount = studentAtts.filter((a) => a.status === 'late' || a.status === 'L').length;
+    const totalDays = studentAtts.length;
+    const attPercent = totalDays > 0 ? Math.round(((pCount + lCount * 0.5) / totalDays) * 100) : 100;
+
+    if (attPercent < 80) {
+      alert(`⛔ Certificate Generation Blocked!\n\nTrainee "${student.name}" (${student.tgid}) has ${attPercent}% attendance, which is below the 80% CTEVT minimum requirement.`);
       return;
     }
 
@@ -257,8 +280,14 @@ export default function CertificateManager() {
   // Copy Verification link to clipboard
   const handleCopyLink = (certNo) => {
     const url = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(certNo)}`;
-    navigator.clipboard.writeText(url);
-    alert(`Verification link copied to clipboard:\n${url}`);
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(url).then(
+        () => alert(`Verification link copied to clipboard:\n${url}`),
+        () => window.prompt('Copy verification link:', url)
+      );
+    } else {
+      window.prompt('Copy verification link:', url);
+    }
   };
 
   return (
@@ -370,7 +399,7 @@ export default function CertificateManager() {
 
               <Box>
                 <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  ATTENDANCE &lt;80%
+                  INELIGIBLE (FEE / &lt;80%)
                 </Typography>
                 <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#dc2626' }}>
                   {ineligibleCount}
@@ -409,7 +438,7 @@ export default function CertificateManager() {
             <MenuItem value="ALL">All Trainees ({studentCertificateData.length})</MenuItem>
             <MenuItem value="ISSUED">Issued Only ({issuedCount})</MenuItem>
             <MenuItem value="ELIGIBLE">Eligible to Issue ({eligiblePendingCount})</MenuItem>
-            <MenuItem value="INELIGIBLE">Ineligible (&lt;80%) ({ineligibleCount})</MenuItem>
+            <MenuItem value="INELIGIBLE">Ineligible (Fee / &lt;80%) ({ineligibleCount})</MenuItem>
           </TextField>
         </Box>
 
@@ -661,6 +690,13 @@ export default function CertificateManager() {
                     <Chip label={`S.N. ${idx + 1}`} size="small" sx={{ fontWeight: 800, bgcolor: '#f1f5f9' }} />
                     {isIssued ? (
                       <Chip label="Issued & Valid" size="small" color="success" sx={{ fontWeight: 800 }} />
+                    ) : item.feeDue > 0 ? (
+                      <Chip
+                        icon={<WarningAmberIcon />}
+                        label={`Due: NPR ${item.feeDue.toLocaleString()} (Lock)`}
+                        size="small"
+                        sx={{ fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
+                      />
                     ) : isEligible ? (
                       <Chip label="Eligible (Ready)" size="small" color="primary" variant="outlined" sx={{ fontWeight: 800 }} />
                     ) : (
@@ -757,6 +793,10 @@ export default function CertificateManager() {
                       >
                         + Issue Certificate
                       </Button>
+                    ) : item.feeDue > 0 ? (
+                      <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800 }}>
+                        ⛔ Fee Due (Locked)
+                      </Typography>
                     ) : (
                       <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
                         Ineligible (&lt;80% Attendance)

@@ -18,6 +18,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { loadDB } from '../../services/storage';
 
 export default function PublicCertificateVerify({
   open,
@@ -33,6 +34,7 @@ export default function PublicCertificateVerify({
   if (!open) return null;
 
   const isValid = Boolean(certificate && student);
+  const companyProfile = loadDB()?.settings?.companyProfile || {};
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -165,7 +167,7 @@ export default function PublicCertificateVerify({
                     TRAINING PERIOD:
                   </Typography>
                   <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                    {group?.admissionDate || '2026-07-15'} → {group?.expectedEndDate || '2026-10-15'}
+                    {group?.startDate || group?.admissionDate || certificate.issueDate} → {group?.endDate || group?.expectedEndDate || certificate.issueDate}
                   </Typography>
                 </Grid>
               </Grid>
@@ -174,13 +176,13 @@ export default function PublicCertificateVerify({
             {/* Institution Badge */}
             <Box sx={{ p: 1.5, bgcolor: '#ffffff', borderRadius: 2, border: '1px solid #e2e8f0', textAlign: 'center', mb: 2 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0b2545' }}>
-                GLOBAL ERA TECHNICAL SCHOOL / KITE CAREGIVER
+                {companyProfile.companyNameEn || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                CTEVT Accredited Institution • Regd No: 184920/078/079
+                CTEVT Accredited Institution • Regd No: {companyProfile.regNo || '184920/078/079'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                MitraPark, Chabahil-07, Kathmandu, Nepal
+                {companyProfile.address || 'MitraPark, Chabahil-07, Kathmandu, Nepal'}
               </Typography>
             </Box>
 

@@ -846,7 +846,7 @@ export default function A4LandscapeCertificateModal({
                 mb: 0.8
               }}
             >
-              This is to certify that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, permanent resident of <b>{student.address || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational skills training course in <b>"{course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || certificate.issueDate}</b> to <b>{group?.endDate || certificate.issueDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
+              This is to certify that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, permanent resident of <b>{student.permanentAddress || student.address || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational skills training course in <b>"{course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || group?.admissionDate || certificate.issueDate}</b> to <b>{group?.endDate || group?.expectedEndDate || certificate.issueDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
             </Typography>
 
             <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
@@ -866,7 +866,7 @@ export default function A4LandscapeCertificateModal({
                 fontStyle: elStyles.body?.fontStyle || 'normal'
               }}
             >
-              This credential certifies that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.nameNepali || student.name}</b>, {isFemale ? 'daughter' : 'son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, resident of <b>{student.address || 'Kathmandu'}</b>, has successfully completed the <b>{course?.totalHours || 390}-Hour</b> training program in <b>"{course?.titleNepali || course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || certificate.issueDate}</b> to <b>{group?.endDate || certificate.issueDate}</b> and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
+              This credential certifies that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.nameNepali || student.name}</b>, {isFemale ? 'daughter' : 'son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, resident of <b>{student.permanentAddress || student.address || 'Kathmandu'}</b>, has successfully completed the <b>{course?.totalHours || 390}-Hour</b> training program in <b>"{course?.titleNepali || course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || group?.admissionDate || certificate.issueDate}</b> to <b>{group?.endDate || group?.expectedEndDate || certificate.issueDate}</b> and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
             </Typography>
           </Box>
 

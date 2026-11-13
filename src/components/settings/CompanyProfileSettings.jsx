@@ -38,9 +38,13 @@ export function computeNextCertificateNumber(db, indexOffset = 0, context = {}) 
   };
 
   const existingCerts = db?.certificates || [];
-  const currentCount = existingCerts.length;
   const startNum = Number(numConfig.startSeq) || 1;
-  const nextSeq = currentCount + startNum + indexOffset;
+  const maxExistingSeq = existingCerts.reduce((max, c) => {
+    const match = String(c?.certificateNo || '').match(/(\d+)$/);
+    const num = match ? parseInt(match[1], 10) : 0;
+    return num > max ? num : max;
+  }, 0);
+  const nextSeq = Math.max(existingCerts.length + startNum, maxExistingSeq + 1) + indexOffset;
   const seqFormatted = String(nextSeq).padStart(Number(numConfig.seqDigits) || 3, '0');
 
   const prefix = numConfig.prefix || 'GEMS';
