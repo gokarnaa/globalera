@@ -595,7 +595,7 @@ export default function App() {
           onSelectTab={handleSelectTab}
         />
 
-        <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative', overflowX: 'hidden' }}>
+        <Box sx={{ display: 'flex', flexGrow: 1, position: 'relative', overflowX: 'clip' }}>
           {/* Sidebar Navigation */}
           <Sidebar
             currentTab={currentTab}

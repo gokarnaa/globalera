@@ -182,14 +182,15 @@ export const theme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         html: {
-          overflowX: 'hidden',
+          overflowX: 'clip',
+          overflowY: 'auto',
           WebkitFontSmoothing: 'antialiased',
           MozOsxFontSmoothing: 'grayscale',
         },
         body: {
           backgroundColor: '#F4F7FB',
           color: '#0F172A',
-          overflowX: 'hidden',
+          overflowX: 'clip',
           fontVariantNumeric: 'tabular-nums',
           scrollbarColor: '#CBD5E1 #F1F5F9',
           '&::-webkit-scrollbar': {
