@@ -597,18 +597,18 @@ export default function TrainerPortal({ onLogout }) {
       {/* 3. TAB 1: Daily Attendance Marking */}
       {activeTab === 1 && (
         <Card sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.06)' }}>
-          <Box sx={{ p: 2.5, bgcolor: '#0F2E5A', color: '#ffffff', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', md: 'center' }, gap: 2 }}>
+          <Box sx={{ p: { xs: 1.4, sm: 2.5 }, bgcolor: '#0F2E5A', color: '#ffffff', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'stretch', md: 'center' }, gap: { xs: 1.2, sm: 2 } }}>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 900 }}>
-                  Daily Trainee Attendance Management
+                <Typography variant="h6" sx={{ fontWeight: 900, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+                  Daily Trainee Attendance
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#E2E8F0' }}>
+                <Typography variant="caption" sx={{ color: '#E2E8F0', display: { xs: 'none', sm: 'block' } }}>
                   Select a batch and mark Present (P) / Absent (A) / Late (L), then save.
                 </Typography>
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                 {/* Select Group */}
                 <TextField
                   select
@@ -619,7 +619,8 @@ export default function TrainerPortal({ onLogout }) {
                   sx={{
                     bgcolor: '#FFFFFF',
                     borderRadius: 1.5,
-                    minWidth: 200,
+                    minWidth: { xs: '100%', sm: 200 },
+                    flex: { xs: '1 1 100%', sm: '0 0 auto' },
                     '& .MuiInputBase-input': { fontWeight: 800 }
                   }}
                 >
@@ -631,18 +632,19 @@ export default function TrainerPortal({ onLogout }) {
                 </TextField>
 
                 {/* Date Picker & Biometric Sync */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
                   <TextField
                     type="date"
                     size="small"
-                    label="Attendance Date"
+                    label="Date"
                     value={attendanceDate}
                     onChange={(e) => setAttendanceDate(e.target.value)}
                     InputLabelProps={{ shrink: true }}
                     sx={{
                       bgcolor: '#FFFFFF',
                       borderRadius: 1.5,
-                      minWidth: 150,
+                      flex: { xs: 1, sm: '0 0 auto' },
+                      minWidth: { xs: 0, sm: 150 },
                       '& .MuiInputBase-input': { fontWeight: 800 }
                     }}
                   />
@@ -654,7 +656,7 @@ export default function TrainerPortal({ onLogout }) {
                       onClick={() => {
                         const res = syncBiometricAttendance(attendanceDate);
                         setDb(loadDB());
-                        alert(`📡 Biometric machine sync completed successfully! (${res.syncedCount} logs updated)`);
+                        alert(`Biometric machine sync completed successfully! (${res.syncedCount} logs updated)`);
                       }}
                       sx={{
                         fontWeight: 900,
@@ -663,11 +665,12 @@ export default function TrainerPortal({ onLogout }) {
                         color: '#FFFFFF',
                         borderRadius: 1.5,
                         textTransform: 'none',
-                        px: 1.8,
-                        py: 0.8
+                        px: { xs: 1.4, sm: 1.8 },
+                        py: 0.85,
+                        flexShrink: 0
                       }}
                     >
-                      Device Sync
+                      Sync
                     </Button>
                   </Tooltip>
                 </Box>
@@ -675,26 +678,29 @@ export default function TrainerPortal({ onLogout }) {
             </Box>
           </Box>
 
-          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <CardContent sx={{ p: { xs: 1.2, sm: 3 } }}>
             {attendanceSavedAlert && (
-              <Alert severity="success" sx={{ mb: 2.5, borderRadius: 2, fontWeight: 800 }}>
-                ✓ Attendance for {attendanceDate} saved successfully!
+              <Alert severity="success" sx={{ mb: 1.5, borderRadius: 2, fontWeight: 800 }}>
+                Attendance for {attendanceDate} saved successfully!
               </Alert>
             )}
 
             {/* Attendance Action Controls */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
                 <Chip
-                  label={`Total Trainees: ${groupStudents.length}`}
+                  size="small"
+                  label={`Tot: ${groupStudents.length}`}
                   sx={{ fontWeight: 800, bgcolor: '#F1F5F9', color: '#1E293B' }}
                 />
                 <Chip
-                  label={`Present: ${Object.values(attendanceMap).filter((d) => d.status === 'present').length}`}
+                  size="small"
+                  label={`P: ${Object.values(attendanceMap).filter((d) => d.status === 'present').length}`}
                   sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
                 />
                 <Chip
-                  label={`Absent: ${Object.values(attendanceMap).filter((d) => d.status === 'absent').length}`}
+                  size="small"
+                  label={`A: ${Object.values(attendanceMap).filter((d) => d.status === 'absent').length}`}
                   sx={{ fontWeight: 800, bgcolor: '#FEE2E2', color: '#B91C1C' }}
                 />
               </Box>

@@ -597,13 +597,15 @@ export default function AttendanceManager({ initialGroupId = null }) {
           />
         </Box>
 
-        {/* 3 Modern Segmented Navigation Tabs */}
-        <Box sx={{ bgcolor: '#f8fafc', px: { xs: 1, sm: 2 }, pt: 1, borderTop: '1px solid #e2e8f0' }}>
+        {/* Segmented Navigation Tabs */}
+        <Box sx={{ bgcolor: '#f8fafc', px: { xs: 0.5, sm: 2 }, pt: { xs: 0.5, sm: 1 }, borderTop: '1px solid #e2e8f0' }}>
           <Tabs
             value={activeTab}
             onChange={(e, next) => setActiveTab(next)}
-            variant="fullWidth"
+            variant={isMobile ? 'scrollable' : 'fullWidth'}
+            scrollButtons={false}
             sx={{
+              minHeight: { xs: 42, sm: 52 },
               '& .MuiTabs-indicator': {
                 height: 3.5,
                 borderRadius: '3px 3px 0 0',
@@ -612,9 +614,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
               '& .MuiTab-root': {
                 textTransform: 'none',
                 fontWeight: 800,
-                fontSize: { xs: '0.85rem', sm: '0.98rem' },
-                py: 1.6,
-                minHeight: 52,
+                fontSize: { xs: '0.78rem', sm: '0.95rem' },
+                py: { xs: 0.9, sm: 1.6 },
+                px: { xs: 1.2, sm: 2 },
+                minHeight: { xs: 42, sm: 52 },
+                minWidth: { xs: 'auto', sm: 90 },
                 color: '#64748b',
                 '&.Mui-selected': {
                   color: '#1a56b0'
@@ -623,24 +627,24 @@ export default function AttendanceManager({ initialGroupId = null }) {
             }}
           >
             <Tab
-              icon={<FactCheckIcon sx={{ fontSize: 20 }} />}
+              icon={<FactCheckIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
               iconPosition="start"
-              label="+ Mark Attendance"
+              label={isMobile ? 'Mark' : '+ Mark Attendance'}
             />
             <Tab
-              icon={<FolderIcon sx={{ fontSize: 20 }} />}
+              icon={<FolderIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
               iconPosition="start"
-              label={`📁 Saved Records (${historicalSessions.length} Sessions)`}
+              label={isMobile ? `Records (${historicalSessions.length})` : `Saved Records (${historicalSessions.length} Sessions)`}
             />
             <Tab
-              icon={<AssessmentIcon sx={{ fontSize: 20 }} />}
+              icon={<AssessmentIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
               iconPosition="start"
-              label="📊 Reports & Analytics"
+              label={isMobile ? 'Reports' : 'Reports & Analytics'}
             />
             <Tab
-              icon={<FingerprintIcon sx={{ fontSize: 20 }} />}
+              icon={<FingerprintIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
               iconPosition="start"
-              label="📡 Biometric Hub"
+              label={isMobile ? 'Biometric' : 'Biometric Hub'}
             />
           </Tabs>
         </Box>
@@ -651,43 +655,52 @@ export default function AttendanceManager({ initialGroupId = null }) {
           ======================================================= */}
       {activeTab === 0 && (
         <Box>
-          {/* Biometric Status Quick Banner */}
+          {/* Biometric Status Quick Banner (1-line slim on mobile) */}
           <Paper
             elevation={0}
             sx={{
-              p: { xs: 1.5, sm: 2 },
-              mb: 2,
-              borderRadius: 3,
+              px: { xs: 1.2, sm: 2 },
+              py: { xs: 0.75, sm: 1.5 },
+              mb: { xs: 1.2, sm: 2 },
+              borderRadius: { xs: 2.5, sm: 3 },
               bgcolor: '#F0FDF4',
               border: '1px solid #BBF7D0',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: 1.5
+              flexWrap: { xs: 'nowrap', sm: 'wrap' },
+              gap: 1
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
               <Chip
-                icon={<FingerprintIcon sx={{ fontSize: '16px !important', color: '#166534 !important' }} />}
-                label={`${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: 🟢 Online (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`}
-                sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: '0.85rem' }}
+                icon={<FingerprintIcon sx={{ fontSize: '15px !important', color: '#166534 !important' }} />}
+                label={
+                  isMobile
+                    ? 'ZKTeco Online'
+                    : `${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: Online (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`
+                }
+                size={isMobile ? 'small' : 'medium'}
+                sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: { xs: '0.74rem', sm: '0.85rem' } }}
               />
-              <Typography variant="body2" sx={{ color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}>
+              <Typography
+                variant="body2"
+                sx={{ display: { xs: 'none', sm: 'block' }, color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}
+              >
                 Last Sync: <b>{db.settings?.biometricSettings?.lastSyncTime || 'Never'}</b>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
               <Button
                 variant="contained"
                 size="small"
-                startIcon={<FingerprintIcon />}
+                startIcon={<FingerprintIcon sx={{ fontSize: 16 }} />}
                 onClick={() => {
                   const res = syncBiometricAttendance(selectedDate);
                   setDb(loadDB());
                   try { confetti({ particleCount: 50, spread: 60 }); } catch (_) {}
-                  alert(`📡 Synced ${res.syncedCount} punch records from biometric device!`);
+                  alert(`Synced ${res.syncedCount} punch records from biometric device!`);
                 }}
                 sx={{
                   fontWeight: 900,
@@ -696,16 +709,19 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   color: '#FFFFFF',
                   borderRadius: 2,
                   textTransform: 'none',
-                  px: 2
+                  px: { xs: 1.2, sm: 2 },
+                  py: { xs: 0.45, sm: 0.7 },
+                  fontSize: { xs: '0.74rem', sm: '0.82rem' }
                 }}
               >
-                Sync Punch Logs
+                {isMobile ? 'Sync' : 'Sync Punch Logs'}
               </Button>
               <Button
                 variant="outlined"
                 size="small"
                 onClick={() => setActiveTab(3)}
                 sx={{
+                  display: { xs: 'none', sm: 'inline-flex' },
                   fontWeight: 800,
                   color: '#0F2E5A',
                   borderColor: '#0F2E5A',
@@ -713,7 +729,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   textTransform: 'none'
                 }}
               >
-                Open Device Hub ➔
+                Open Device Hub
               </Button>
             </Box>
           </Paper>
@@ -728,23 +744,23 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Alert>
           )}
 
-          {/* 1. Sleek & Compact Control Bar */}
+          {/* 1. Sleek & Ultra-Compact Control Bar */}
           <Card
             sx={{
-              p: { xs: 1.5, sm: 2 },
-              mb: 2,
-              borderRadius: 3,
+              p: { xs: 1.2, sm: 2 },
+              mb: { xs: 1.2, sm: 2 },
+              borderRadius: { xs: 2.5, sm: 3 },
               boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
               border: '1px solid #e2e8f0'
             }}
           >
-            <Grid container spacing={1.5} alignItems="center">
+            <Grid container spacing={{ xs: 1, sm: 1.5 }} alignItems="center">
               {/* Group Selector */}
-              <Grid item xs={12} sm={4}>
+              <Grid item xs={7} sm={5.5}>
                 <TextField
                   select
                   size="small"
-                  label="Training Group / Batch"
+                  label="Training Group"
                   fullWidth
                   value={selectedGroupId}
                   onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -759,11 +775,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
               </Grid>
 
               {/* Date Picker */}
-              <Grid item xs={6} sm={3}>
+              <Grid item xs={5} sm={3.5}>
                 <TextField
                   type="date"
                   size="small"
-                  label="Session Date"
+                  label="Date"
                   fullWidth
                   InputLabelProps={{ shrink: true }}
                   value={selectedDate}
@@ -772,48 +788,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 />
               </Grid>
 
-              {/* Single 3-State Bulk Action Button (P -> A -> L) */}
-              <Grid item xs={6} sm={2.5}>
-                {(() => {
-                  const nextBulk = bulkCycleStatus === 'P' ? 'A' : bulkCycleStatus === 'A' ? 'L' : 'P';
-                  const bulkConfig =
-                    bulkCycleStatus === 'P'
-                      ? { label: 'All: Present (P)', bg: '#16834b', border: '#126b3d' }
-                      : bulkCycleStatus === 'A'
-                      ? { label: 'All: Absent (A)', bg: '#d5372f', border: '#b32821' }
-                      : { label: 'All: Late (L)', bg: '#d48806', border: '#b06f04' };
-                  return (
-                    <Tooltip title="Tap to apply & cycle all trainees (Present ➔ Absent ➔ Late)">
-                      <Button
-                        fullWidth
-                        variant="contained"
-                        size="small"
-                        onClick={() => {
-                          handleBulkStatus(bulkCycleStatus);
-                          setBulkCycleStatus(nextBulk);
-                        }}
-                        sx={{
-                          fontWeight: 900,
-                          py: 0.9,
-                          px: 1.2,
-                          borderRadius: 2,
-                          bgcolor: bulkConfig.bg,
-                          border: `1px solid ${bulkConfig.border}`,
-                          color: '#FFFFFF',
-                          textTransform: 'none',
-                          boxShadow: 'none',
-                          '&:hover': { bgcolor: bulkConfig.border }
-                        }}
-                      >
-                        {bulkConfig.label}
-                      </Button>
-                    </Tooltip>
-                  );
-                })()}
-              </Grid>
-
-              {/* Save Button */}
-              <Grid item xs={12} sm={2.5}>
+              {/* Save Button (Desktop inline) */}
+              <Grid item xs={12} sm={3} sx={{ display: { xs: 'none', sm: 'block' } }}>
                 <Button
                   variant="contained"
                   color="primary"
@@ -824,7 +800,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   sx={{
                     fontWeight: 800,
                     py: 0.9,
-                    fontSize: '0.95rem',
+                    fontSize: '0.92rem',
                     borderRadius: 2.5,
                     boxShadow: '0 4px 12px rgba(26,86,176,0.3)'
                   }}
@@ -834,51 +810,71 @@ export default function AttendanceManager({ initialGroupId = null }) {
               </Grid>
             </Grid>
 
-            {/* Compact Live Counter Strip */}
+            {/* Compact Live Counter Strip + Mobile Submit */}
             <Box
               sx={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                mt: 1.5,
-                pt: 1.5,
+                mt: { xs: 1, sm: 1.5 },
+                pt: { xs: 1, sm: 1.5 },
                 borderTop: '1px solid #f1f5f9',
                 flexWrap: 'wrap',
-                gap: 1
+                gap: 0.75
               }}
             >
-              <Typography variant="body2" sx={{ color: '#475569', fontWeight: 700 }}>
+              <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, color: '#475569', fontWeight: 700 }}>
                 {selectedCourse?.title} • Shift {selectedGroup?.shift} ({selectedGroup?.startTime} – {selectedGroup?.endTime})
               </Typography>
 
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: 'flex', gap: 0.6, alignItems: 'center', flexWrap: 'wrap' }}>
                 <Chip
                   label={`P: ${pCount}`}
                   size="small"
-                  sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900, px: 0.5 }}
+                  sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
                 />
                 <Chip
                   label={`A: ${aCount}`}
                   size="small"
-                  sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 900, px: 0.5 }}
+                  sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
                 />
                 <Chip
                   label={`L: ${lCount}`}
                   size="small"
-                  sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 900, px: 0.5 }}
+                  sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
                 />
                 <Chip
-                  label={`Total: ${groupStudents.length}`}
+                  label={`Tot: ${groupStudents.length}`}
                   size="small"
-                  sx={{ bgcolor: '#f1f5f9', color: '#334155', fontWeight: 800 }}
+                  sx={{ bgcolor: '#f1f5f9', color: '#334155', fontWeight: 800, height: 24, fontSize: '0.72rem' }}
                 />
               </Box>
+
+              <Button
+                variant="contained"
+                color="primary"
+                size="small"
+                startIcon={<SaveIcon sx={{ fontSize: 16 }} />}
+                onClick={handleSaveAttendance}
+                sx={{
+                  display: { xs: 'inline-flex', sm: 'none' },
+                  fontWeight: 900,
+                  px: 1.5,
+                  py: 0.55,
+                  fontSize: '0.76rem',
+                  borderRadius: 2,
+                  textTransform: 'none',
+                  boxShadow: '0 2px 8px rgba(26,86,176,0.28)'
+                }}
+              >
+                Submit
+              </Button>
             </Box>
           </Card>
 
           {saveSuccess && (
-            <Alert severity="success" sx={{ mb: 2, borderRadius: 2.5, fontWeight: 700 }}>
-              ✓ Attendance successfully saved and synced!
+            <Alert severity="success" sx={{ mb: 1.5, borderRadius: 2.5, fontWeight: 700 }}>
+              Attendance successfully saved and synced!
             </Alert>
           )}
 
@@ -886,28 +882,33 @@ export default function AttendanceManager({ initialGroupId = null }) {
             <Alert
               severity="warning"
               sx={{
-                mb: 2,
-                borderRadius: 2.5,
+                mb: 1.2,
+                borderRadius: 2,
                 fontWeight: 700,
-                py: 0.8,
+                py: { xs: 0.25, sm: 0.8 },
+                px: { xs: 1.2, sm: 2 },
+                fontSize: { xs: '0.74rem', sm: '0.85rem' },
                 border: '1px solid #fed7aa',
                 bgcolor: '#fffbeb',
                 color: '#9a3412'
               }}
             >
-              🏖️ <b>Holiday Notice:</b> {holidayInfo.name} ({holidayInfo.type}) — Only mark attendance if an extra/makeup class is scheduled today.
+              <b>Holiday:</b> {holidayInfo.name} ({holidayInfo.type})
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                {' '}— Only mark attendance if an extra/makeup class is scheduled today.
+              </Box>
             </Alert>
           )}
 
-          {/* Search Bar & View Mode Switcher */}
+          {/* Search Bar, 3-State Mark All & View Mode Switcher */}
           <Box
             sx={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              mb: 2,
+              mb: 1.2,
               flexWrap: 'wrap',
-              gap: 1.5
+              gap: 1
             }}
           >
             <TextField
@@ -918,17 +919,52 @@ export default function AttendanceManager({ initialGroupId = null }) {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#647089', fontSize: 20 }} />
+                    <SearchIcon sx={{ color: '#647089', fontSize: 18 }} />
                   </InputAdornment>
                 )
               }}
-              sx={{ minWidth: { xs: '100%', sm: 320 }, bgcolor: '#fff', borderRadius: 2 }}
+              sx={{ flex: { xs: '1 1 100%', sm: '0 1 300px' }, bgcolor: '#fff', borderRadius: 2 }}
             />
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
-                View:
-              </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, width: { xs: '100%', sm: 'auto' } }}>
+              {/* Single 3-State Bulk Action Button (P -> A -> L) right next to View */}
+              {(() => {
+                const nextBulk = bulkCycleStatus === 'P' ? 'A' : bulkCycleStatus === 'A' ? 'L' : 'P';
+                const bulkConfig =
+                  bulkCycleStatus === 'P'
+                    ? { label: 'All: Present (P)', bg: '#16834b', border: '#126b3d' }
+                    : bulkCycleStatus === 'A'
+                    ? { label: 'All: Absent (A)', bg: '#d5372f', border: '#b32821' }
+                    : { label: 'All: Late (L)', bg: '#d48806', border: '#b06f04' };
+                return (
+                  <Tooltip title="Tap to apply & cycle all trainees (Present ➔ Absent ➔ Late)">
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={() => {
+                        handleBulkStatus(bulkCycleStatus);
+                        setBulkCycleStatus(nextBulk);
+                      }}
+                      sx={{
+                        fontWeight: 900,
+                        py: 0.65,
+                        px: 1.4,
+                        fontSize: { xs: '0.76rem', sm: '0.82rem' },
+                        borderRadius: 2,
+                        bgcolor: bulkConfig.bg,
+                        border: `1px solid ${bulkConfig.border}`,
+                        color: '#FFFFFF',
+                        textTransform: 'none',
+                        boxShadow: 'none',
+                        '&:hover': { bgcolor: bulkConfig.border }
+                      }}
+                    >
+                      {bulkConfig.label}
+                    </Button>
+                  </Tooltip>
+                );
+              })()}
+
               <ToggleButtonGroup
                 value={markViewMode}
                 exclusive
@@ -936,7 +972,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 size="small"
                 sx={{ bgcolor: '#fff' }}
               >
-                <ToggleButton value="table" sx={{ fontWeight: 700, px: 1.5 }}>
+                <ToggleButton value="table" sx={{ fontWeight: 700, px: { xs: 1.1, sm: 1.5 }, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.82rem' } }}>
                   <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table View
                 </ToggleButton>
                 <ToggleButton value="card" sx={{ fontWeight: 700, px: 1.5 }}>
@@ -1242,6 +1278,18 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   </TableBody>
                 </Table>
               </TableContainer>
+              <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth={isMobile}
+                  startIcon={<SaveIcon />}
+                  onClick={handleSaveAttendance}
+                  sx={{ fontWeight: 900, borderRadius: 2.5, px: 3 }}
+                >
+                  Submit Attendance ({pCount}P / {aCount}A / {lCount}L)
+                </Button>
+              </Box>
             </Card>
           ) : (
             /* CARD VIEW */
