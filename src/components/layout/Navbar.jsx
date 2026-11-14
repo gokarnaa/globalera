@@ -157,16 +157,19 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
-      <Toolbar sx={{ minHeight: { xs: 62, sm: 70 }, px: { xs: 1.5, sm: 3 } }}>
+      <Toolbar sx={{ minHeight: { xs: 56, sm: 68 }, px: { xs: 1, sm: 2.5 }, gap: { xs: 0.75, sm: 1.2 } }}>
         <IconButton
           color="inherit"
           edge="start"
+          aria-label="Open navigation menu"
           onClick={onToggleSidebar}
           sx={{
-            mr: { xs: 1, sm: 2 },
+            mr: { xs: 0.25, sm: 1.5 },
+            p: { xs: 0.9, sm: 1 },
             bgcolor: '#F1F5F9',
             border: '1px solid #E2E8F0',
             borderRadius: 2.5,
+            flexShrink: 0,
             '&:hover': { bgcolor: '#E2E8F0' }
           }}
         >
@@ -174,33 +177,35 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         </IconButton>
 
         {/* Institution Brand Identity */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8, flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.8 }, flexGrow: 1, minWidth: 0 }}>
           <Box
             sx={{
-              width: { xs: 38, sm: 46 },
-              height: { xs: 38, sm: 46 },
-              borderRadius: '12px',
+              width: { xs: 34, sm: 44 },
+              height: { xs: 34, sm: 44 },
+              borderRadius: { xs: '10px', sm: '12px' },
               background: 'linear-gradient(135deg, #0F2C59 0%, #1A56B0 100%)',
               color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
               boxShadow: '0 4px 14px rgba(15, 44, 89, 0.25)',
               border: '2px solid rgba(255,255,255,0.8)'
             }}
           >
-            <Typography sx={{ fontSize: { xs: '1.2rem', sm: '1.5rem' }, lineHeight: 1 }}>
+            <Typography sx={{ fontSize: { xs: '1.05rem', sm: '1.45rem' }, lineHeight: 1 }}>
               🎓
             </Typography>
           </Box>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
               <Typography
                 variant="subtitle1"
+                noWrap
                 sx={{
                   fontWeight: 900,
                   lineHeight: 1.2,
-                  fontSize: { xs: '0.95rem', sm: '1.15rem' },
+                  fontSize: { xs: '0.88rem', sm: '1.15rem' },
                   color: '#0F2C59',
                   letterSpacing: '-0.02em'
                 }}
@@ -315,15 +320,59 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         </Box>
 
         {/* User Account Pill & Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.2 }, flexShrink: 0 }}>
+          {/* Compact Mobile Sync Status Dot */}
+          <Tooltip title={cloudStatus.message}>
+            <Box
+              onClick={() => isAdmin && onNavigate('settings')}
+              aria-label={`Sync status: ${cloudStatus.status}`}
+              sx={{
+                display: { xs: 'inline-flex', lg: 'none' },
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                bgcolor:
+                  cloudStatus.status === 'connected'
+                    ? '#F0FDF4'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FEF3C7'
+                    : '#FEF2F2',
+                border: '1px solid',
+                borderColor:
+                  cloudStatus.status === 'connected'
+                    ? '#BBF7D0'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FDE68A'
+                    : '#FECACA',
+                cursor: isAdmin ? 'pointer' : 'default'
+              }}
+            >
+              <Box
+                sx={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: '50%',
+                  bgcolor:
+                    cloudStatus.status === 'connected'
+                      ? '#10B981'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#F59E0B'
+                      : '#EF4444'
+                }}
+              />
+            </Box>
+          </Tooltip>
+
           <Box
             onClick={handleOpenUser}
             sx={{
               display: 'flex',
               alignItems: 'center',
               gap: 1.2,
-              p: '5px 12px 5px 6px',
-              borderRadius: 3,
+              p: { xs: '2px', sm: '5px 12px 5px 6px' },
+              borderRadius: { xs: '50%', sm: 3 },
               bgcolor: '#F8FAFC',
               border: '1px solid #E2E8F0',
               cursor: 'pointer',
@@ -405,11 +454,12 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             <IconButton
               onClick={onOpenPinModal}
               size="small"
+              aria-label="Quick Lock Screen"
               sx={{
                 bgcolor: '#F8FAFC',
                 border: '1px solid #E2E8F0',
                 borderRadius: 2.5,
-                p: 1,
+                p: { xs: 0.85, sm: 1 },
                 '&:hover': { bgcolor: '#F1F5F9', borderColor: '#CBD5E1' }
               }}
             >

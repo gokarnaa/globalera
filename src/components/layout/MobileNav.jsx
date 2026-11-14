@@ -26,110 +26,44 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
     }
   };
 
+  let navConfig;
   if (isStudent) {
-    const selectedVal = ['student_portal', 'certificates', 'notices'].includes(currentTab)
-      ? currentTab
-      : 'menu';
-
-    return (
-      <Paper
-        sx={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1100,
-          display: { xs: 'block', md: 'none' },
-          borderTop: '1px solid #e2e8f0',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.06)'
-        }}
-        elevation={3}
-      >
-        <BottomNavigation
-          value={selectedVal}
-          onChange={handleChange}
-          showLabels
-          sx={{
-            height: 62,
-            '& .Mui-selected': { color: '#0d9488', fontWeight: 800 }
-          }}
-        >
-          <BottomNavigationAction
-            label="My Portal"
-            value="student_portal"
-            icon={<SchoolIcon />}
-          />
-          <BottomNavigationAction
-            label="Certificate"
-            value="certificates"
-            icon={<WorkspacePremiumIcon />}
-          />
-          <BottomNavigationAction
-            label="Notices"
-            value="notices"
-            icon={<CampaignIcon />}
-          />
-          <BottomNavigationAction
-            label="Menu"
-            value="menu"
-            icon={<MenuIcon />}
-          />
-        </BottomNavigation>
-      </Paper>
-    );
+    navConfig = {
+      accentColor: '#0d9488',
+      selectedBg: 'rgba(13, 148, 136, 0.10)',
+      items: [
+        { label: 'My Portal', value: 'student_portal', icon: <SchoolIcon /> },
+        { label: 'Certificate', value: 'certificates', icon: <WorkspacePremiumIcon /> },
+        { label: 'Notices', value: 'notices', icon: <CampaignIcon /> },
+        { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
+      ]
+    };
+  } else if (isEmployer) {
+    navConfig = {
+      accentColor: '#0284c7',
+      selectedBg: 'rgba(2, 132, 199, 0.10)',
+      items: [
+        { label: 'Employer', value: 'employer_portal', icon: <BusinessIcon /> },
+        { label: 'OJT / Jobs', value: 'placements', icon: <WorkIcon /> },
+        { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
+      ]
+    };
+  } else {
+    navConfig = {
+      accentColor: '#1a56b0',
+      selectedBg: 'rgba(26, 86, 176, 0.10)',
+      items: [
+        { label: 'Home', value: 'dashboard', icon: <DashboardIcon /> },
+        { label: 'Groups', value: 'groups', icon: <GroupWorkIcon /> },
+        { label: 'Attendance', value: 'attendance', icon: <FactCheckIcon /> },
+        { label: 'Students', value: 'students', icon: <SchoolIcon /> },
+        { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
+      ]
+    };
   }
 
-  if (isEmployer) {
-    const selectedVal = ['employer_portal', 'placements'].includes(currentTab)
-      ? currentTab
-      : 'menu';
-
-    return (
-      <Paper
-        sx={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1100,
-          display: { xs: 'block', md: 'none' },
-          borderTop: '1px solid #e2e8f0',
-          boxShadow: '0 -4px 16px rgba(0,0,0,0.06)'
-        }}
-        elevation={3}
-      >
-        <BottomNavigation
-          value={selectedVal}
-          onChange={handleChange}
-          showLabels
-          sx={{
-            height: 62,
-            '& .Mui-selected': { color: '#0284c7', fontWeight: 800 }
-          }}
-        >
-          <BottomNavigationAction
-            label="Employer Portal"
-            value="employer_portal"
-            icon={<BusinessIcon />}
-          />
-          <BottomNavigationAction
-            label="OJT / Jobs"
-            value="placements"
-            icon={<WorkIcon />}
-          />
-          <BottomNavigationAction
-            label="Menu"
-            value="menu"
-            icon={<MenuIcon />}
-          />
-        </BottomNavigation>
-      </Paper>
-    );
-  }
-
-  const selectedValue = ['dashboard', 'groups', 'attendance', 'students'].includes(currentTab)
-    ? currentTab
-    : 'menu';
+  const validValues = navConfig.items.map((item) => item.value).filter((v) => v !== 'menu');
+  const selectedValue = validValues.includes(currentTab) ? currentTab : 'menu';
 
   return (
     <Paper
@@ -140,48 +74,62 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
         right: 0,
         zIndex: 1100,
         display: { xs: 'block', md: 'none' },
+        bgcolor: 'rgba(255, 255, 255, 0.94)',
+        backdropFilter: 'blur(14px)',
         borderTop: '1px solid #e2e8f0',
-        boxShadow: '0 -4px 16px rgba(0,0,0,0.06)'
+        boxShadow: '0 -4px 20px rgba(15, 23, 42, 0.08)',
+        pb: 'env(safe-area-inset-bottom)'
       }}
-      elevation={3}
+      elevation={0}
     >
       <BottomNavigation
         value={selectedValue}
         onChange={handleChange}
         showLabels
         sx={{
-          height: 62,
+          height: 60,
+          bgcolor: 'transparent',
+          '& .MuiBottomNavigationAction-root': {
+            minWidth: 0,
+            px: 0.5,
+            py: 0.75,
+            color: '#64748b',
+            transition: 'color 0.15s ease'
+          },
+          '& .MuiBottomNavigationAction-label': {
+            fontSize: '0.68rem',
+            fontWeight: 600,
+            mt: 0.25,
+            whiteSpace: 'nowrap'
+          },
+          '& .MuiSvgIcon-root': {
+            fontSize: '1.3rem',
+            p: 0.35,
+            borderRadius: 2,
+            transition: 'background-color 0.15s ease, transform 0.15s ease'
+          },
           '& .Mui-selected': {
-            color: '#1a56b0',
+            color: navConfig.accentColor,
             fontWeight: 800
+          },
+          '& .Mui-selected .MuiBottomNavigationAction-label': {
+            fontSize: '0.7rem',
+            fontWeight: 800
+          },
+          '& .Mui-selected .MuiSvgIcon-root': {
+            bgcolor: navConfig.selectedBg,
+            transform: 'translateY(-1px)'
           }
         }}
       >
-        <BottomNavigationAction
-          label="Home"
-          value="dashboard"
-          icon={<DashboardIcon />}
-        />
-        <BottomNavigationAction
-          label="Groups"
-          value="groups"
-          icon={<GroupWorkIcon />}
-        />
-        <BottomNavigationAction
-          label="Attendance"
-          value="attendance"
-          icon={<FactCheckIcon />}
-        />
-        <BottomNavigationAction
-          label="Students"
-          value="students"
-          icon={<SchoolIcon />}
-        />
-        <BottomNavigationAction
-          label="Menu"
-          value="menu"
-          icon={<MenuIcon />}
-        />
+        {navConfig.items.map((item) => (
+          <BottomNavigationAction
+            key={item.value}
+            label={item.label}
+            value={item.value}
+            icon={item.icon}
+          />
+        ))}
       </BottomNavigation>
     </Paper>
   );

@@ -489,7 +489,7 @@ export default function App() {
       );
     }
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -518,7 +518,7 @@ export default function App() {
       );
     }
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -532,7 +532,7 @@ export default function App() {
   // 3.1 DEDICATED EMPLOYER PORTAL ROUTE (/employer)
   if (currentRoute === 'employer') {
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -566,7 +566,7 @@ export default function App() {
   // Role Enforcement: If logged in user is an Employer, lock to Employer Portal
   if (currentUser?.role === 'EMPLOYER') {
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -583,7 +583,7 @@ export default function App() {
   // Role Enforcement: If logged in user is a Trainer, lock to Trainer Portal
   if (currentUser?.role === 'TRAINER') {
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -597,7 +597,7 @@ export default function App() {
   // Role Enforcement: If logged in user is a Student, lock to Student Portal
   if (currentUser?.role === 'STUDENT') {
     return (
-      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1.5, sm: 3 } }}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: '#F4F7FB', p: { xs: 1, sm: 3 }, overflowX: 'clip' }}>
         <CssBaseline />
         <Box sx={{ maxWidth: '1440px', mx: 'auto' }}>
           <Suspense fallback={<PageLoader />}>
@@ -649,7 +649,8 @@ export default function App() {
             sx={{
               flexGrow: 1,
               minWidth: 0,
-              p: { xs: 1.5, sm: 2.5, md: 3 },
+              overflowX: 'clip',
+              p: { xs: 1, sm: 2.5, md: 3 },
               minHeight: 'calc(100dvh - 70px)',
               position: 'relative',
               zIndex: 1,
