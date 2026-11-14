@@ -137,11 +137,15 @@ export default function AccountsManager({ initialTab = 0 }) {
   const [txSearch, setTxSearch] = useState('');
 
   // View Mode Toggles (Table vs Cards)
-  const [studentViewMode, setStudentViewMode] = useState('table'); // 'table' | 'cards'
+  const [studentViewMode, setStudentViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'cards' : 'table'
+  ); // 'table' | 'cards'
   const [trainerViewMode, setTrainerViewMode] = useState('cards'); // 'cards' | 'table'
   const [trainerSearch, setTrainerSearch] = useState('');
   const [trainerTypeFilter, setTrainerTypeFilter] = useState('ALL'); // 'ALL' | 'SALARY' | 'COMMISSION'
-  const [txViewMode, setTxViewMode] = useState('table'); // 'table' | 'cards'
+  const [txViewMode, setTxViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'cards' : 'table'
+  ); // 'table' | 'cards'
 
   // Toast
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });

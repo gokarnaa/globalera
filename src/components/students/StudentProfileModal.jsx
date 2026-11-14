@@ -20,7 +20,9 @@ import {
   Stack,
   Divider,
   Paper,
-  Alert
+  Alert,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -59,6 +61,8 @@ export default function StudentProfileModal({
   onEditStudent,
   onOpenIdCard
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [activeTab, setActiveTab] = useState('Profile'); // 'Profile' | 'Attendance' | 'Evaluation' | 'OJT' | 'EPP' | 'Notes'
   const [newNoteText, setNewNoteText] = useState('');
   const [menuAnchorEl, setMenuAnchorEl] = useState(null);
@@ -408,9 +412,10 @@ export default function StudentProfileModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           bgcolor: '#f8fafc',
           boxShadow: '0 20px 40px rgba(0,0,0,0.12)'

@@ -29,7 +29,9 @@ import {
   ToggleButton,
   ToggleButtonGroup,
   InputAdornment,
-  TablePagination
+  TablePagination,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -56,6 +58,8 @@ import StudentProfileModal from './StudentProfileModal';
 import StudentIdCardModal from '../admission/StudentIdCardModal';
 
 export default function StudentManager() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
   const { confirm, alert } = useDialog();
@@ -79,7 +83,9 @@ export default function StudentManager() {
   const [filterGroup, setFilterGroup] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState('table');
+  const [viewMode, setViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'table'
+  );
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(25);
 
@@ -763,12 +769,13 @@ export default function StudentManager() {
         onClose={() => setOpenAddDialog(false)}
         maxWidth="md"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.5)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 3.5,
+            borderRadius: isMobile ? 0 : 3.5,
             overflow: 'hidden',
             boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.35)',
             border: '1px solid rgba(226, 232, 240, 0.8)'

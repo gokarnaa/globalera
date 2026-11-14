@@ -30,7 +30,9 @@ import {
   DialogActions,
   LinearProgress,
   Divider,
-  Stack
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import SaveIcon from '@mui/icons-material/Save';
@@ -68,6 +70,8 @@ import {
 import { playBiometricBeep } from '../../services/soundUtils';
 
 export default function AttendanceManager({ initialGroupId = null }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
@@ -129,13 +133,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
   // Tab 0 local search & view mode
   const [markSearchQuery, setMarkSearchQuery] = useState('');
-  const [markViewMode, setMarkViewMode] = useState('table'); // 'table' | 'card'
+  const [markViewMode, setMarkViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'table'
+  ); // 'table' | 'card'
 
   // Tab 1 (Saved Records) search, group filter, sort & view mode
   const [recordsSearchQuery, setRecordsSearchQuery] = useState('');
   const [recordsFilterGroup, setRecordsFilterGroup] = useState('ALL');
   const [recordsSortOrder, setRecordsSortOrder] = useState('desc'); // 'desc' | 'asc'
-  const [recordsViewMode, setRecordsViewMode] = useState('table');
+  const [recordsViewMode, setRecordsViewMode] = useState(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'table'
+  );
 
   // Tab 2 (Reports) group filter, search & student modal state
   const [reportGroupId, setReportGroupId] = useState(
@@ -2742,7 +2750,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
             onClose={() => setCalendarStudentModal(null)}
             maxWidth="sm"
             fullWidth
-            PaperProps={{ sx: { borderRadius: 3.5, overflow: 'hidden' } }}
+            fullScreen={isMobile}
+            PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3.5, overflow: 'hidden' } }}
           >
             <DialogTitle
               sx={{

@@ -25,7 +25,9 @@ import {
   DialogContent,
   DialogActions,
   Avatar,
-  TablePagination
+  TablePagination,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -51,6 +53,8 @@ import AdmissionAgreementPrintModal from './AdmissionAgreementPrintModal';
 import StudentIdCardModal from './StudentIdCardModal';
 
 export default function AdmissionManager({ pendingLead = null, onClearPendingLead }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(() => loadDB());
   const [search, setSearch] = useState('');
   const [courseFilter, setCourseFilter] = useState('ALL');
@@ -944,7 +948,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         onClose={() => setAdmitFromLeadOpen(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3, p: 0.5 } }}
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3, p: isMobile ? 0 : 0.5 } }}
       >
         <DialogTitle
           sx={{
