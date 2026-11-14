@@ -133,9 +133,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
   // Tab 0 local search & view mode
   const [markSearchQuery, setMarkSearchQuery] = useState('');
-  const [markViewMode, setMarkViewMode] = useState(() =>
-    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'table'
-  ); // 'table' | 'card'
+  const [markViewMode, setMarkViewMode] = useState('table'); // 'table' | 'card'
+  const [bulkCycleStatus, setBulkCycleStatus] = useState('P'); // 'P' -> 'A' -> 'L'
 
   // Tab 1 (Saved Records) search, group filter, sort & view mode
   const [recordsSearchQuery, setRecordsSearchQuery] = useState('');
@@ -773,37 +772,44 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 />
               </Grid>
 
-              {/* Quick Bulk Action Buttons */}
+              {/* Single 3-State Bulk Action Button (P -> A -> L) */}
               <Grid item xs={6} sm={2.5}>
-                <Box sx={{ display: 'flex', gap: 0.8 }}>
-                  <Button
-                    variant="outlined"
-                    color="success"
-                    size="small"
-                    onClick={() => handleBulkStatus('P')}
-                    sx={{ fontWeight: 800, flex: 1, px: 1, py: 0.8, borderRadius: 2 }}
-                  >
-                    All P
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="error"
-                    size="small"
-                    onClick={() => handleBulkStatus('A')}
-                    sx={{ fontWeight: 800, flex: 1, px: 1, py: 0.8, borderRadius: 2 }}
-                  >
-                    All A
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="warning"
-                    size="small"
-                    onClick={() => handleBulkStatus('L')}
-                    sx={{ fontWeight: 800, flex: 1, px: 1, py: 0.8, borderRadius: 2 }}
-                  >
-                    All L
-                  </Button>
-                </Box>
+                {(() => {
+                  const nextBulk = bulkCycleStatus === 'P' ? 'A' : bulkCycleStatus === 'A' ? 'L' : 'P';
+                  const bulkConfig =
+                    bulkCycleStatus === 'P'
+                      ? { label: 'All: Present (P)', bg: '#16834b', border: '#126b3d' }
+                      : bulkCycleStatus === 'A'
+                      ? { label: 'All: Absent (A)', bg: '#d5372f', border: '#b32821' }
+                      : { label: 'All: Late (L)', bg: '#d48806', border: '#b06f04' };
+                  return (
+                    <Tooltip title="Tap to apply & cycle all trainees (Present ➔ Absent ➔ Late)">
+                      <Button
+                        fullWidth
+                        variant="contained"
+                        size="small"
+                        onClick={() => {
+                          handleBulkStatus(bulkCycleStatus);
+                          setBulkCycleStatus(nextBulk);
+                        }}
+                        sx={{
+                          fontWeight: 900,
+                          py: 0.9,
+                          px: 1.2,
+                          borderRadius: 2,
+                          bgcolor: bulkConfig.bg,
+                          border: `1px solid ${bulkConfig.border}`,
+                          color: '#FFFFFF',
+                          textTransform: 'none',
+                          boxShadow: 'none',
+                          '&:hover': { bgcolor: bulkConfig.border }
+                        }}
+                      >
+                        {bulkConfig.label}
+                      </Button>
+                    </Tooltip>
+                  );
+                })()}
               </Grid>
 
               {/* Save Button */}
@@ -951,8 +957,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 mb: 4
               }}
             >
-              <TableContainer sx={{ overflowX: 'auto' }}>
-                <Table sx={{ minWidth: 650 }}>
+              <TableContainer sx={{ overflowX: { xs: 'hidden', md: 'auto' } }}>
+                <Table sx={{ minWidth: { xs: 0, md: 650 }, tableLayout: { xs: 'fixed', md: 'auto' } }}>
                   <TableHead
                     sx={{
                       bgcolor: '#0F2E5A',
@@ -960,21 +966,23 @@ export default function AttendanceManager({ initialGroupId = null }) {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
                         fontWeight: 900,
-                        fontSize: '0.85rem',
-                        py: 1.5,
+                        fontSize: { xs: '0.76rem', sm: '0.85rem' },
+                        py: { xs: 1.2, sm: 1.5 },
+                        px: { xs: 0.75, sm: 2 },
                         borderBottom: '2px solid #F59E0B'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 70, textAlign: 'center' }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: { xs: 42, sm: 70 }, textAlign: 'center' }}>
                         S.N.
                       </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Trainee Details
+                        Trainee Name
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 280, textAlign: 'center' }}>
-                        Attendance Status (Cycle P ➔ A ➔ L)
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: { xs: 76, sm: 280 }, textAlign: 'center' }}>
+                        <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Status</Box>
+                        <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Attendance Status (Cycle P ➔ A ➔ L)</Box>
                       </TableCell>
                     </TableRow>
                   </TableHead>
@@ -1037,87 +1045,94 @@ export default function AttendanceManager({ initialGroupId = null }) {
                           <TableCell
                             sx={{
                               fontWeight: 900,
-                              fontSize: '1.05rem',
+                              fontSize: { xs: '0.85rem', sm: '1.05rem' },
                               color: '#647089',
                               textAlign: 'center',
-                              py: { xs: 1.5, sm: 2 }
+                              px: { xs: 0.5, sm: 2 },
+                              py: { xs: 1.1, sm: 2 }
                             }}
                           >
                             {idx + 1}
                           </TableCell>
 
-                          <TableCell sx={{ py: { xs: 1.5, sm: 2 } }}>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.8 }}>
+                          <TableCell sx={{ px: { xs: 1, sm: 2 }, py: { xs: 1.1, sm: 2 }, minWidth: 0 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.8 }, minWidth: 0 }}>
                               <Avatar
                                 src={std.photoUrl}
                                 sx={{
-                                  width: { xs: 44, sm: 50 },
-                                  height: { xs: 44, sm: 50 },
+                                  width: { xs: 34, sm: 50 },
+                                  height: { xs: 34, sm: 50 },
                                   bgcolor: '#1a56b0',
                                   fontWeight: 800,
-                                  fontSize: '1.1rem',
+                                  fontSize: { xs: '0.88rem', sm: '1.1rem' },
+                                  flexShrink: 0,
                                   boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                                 }}
                               >
                                 {std.name[0]}
                               </Avatar>
-                              <Box sx={{ minWidth: 0 }}>
+                              <Box sx={{ minWidth: 0, flex: 1 }}>
                                 <Typography
                                   variant="subtitle1"
+                                  noWrap
                                   sx={{
                                     fontWeight: 800,
                                     color: '#152238',
-                                    fontSize: { xs: '0.95rem', sm: '1.1rem' },
-                                    lineHeight: 1.2
+                                    fontSize: { xs: '0.88rem', sm: '1.1rem' },
+                                    lineHeight: 1.25
                                   }}
                                 >
                                   {std.name}
                                 </Typography>
-                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.3, flexWrap: 'wrap' }}>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.2, flexWrap: 'wrap' }}>
                                   <Typography
                                     variant="caption"
+                                    noWrap
                                     sx={{
                                       color: '#647089',
                                       fontWeight: 600,
-                                      fontSize: '0.8rem'
+                                      fontSize: { xs: '0.72rem', sm: '0.8rem' }
                                     }}
                                   >
-                                    {std.tgid} • {std.phone}
+                                    {std.tgid}
+                                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+                                      {' '}• {std.phone}
+                                    </Box>
                                   </Typography>
                                   <Chip
                                     size="small"
                                     icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
                                     label={`Machine ID: #${std.biometricId || 'N/A'}`}
-                                    sx={{ height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                                    sx={{ display: { xs: 'none', sm: 'inline-flex' }, height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                                   />
                                 </Box>
                               </Box>
                             </Box>
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center', width: 280, minWidth: 280, maxWidth: 280, py: { xs: 1.5, sm: 2 } }}>
+                          <TableCell sx={{ textAlign: 'center', width: { xs: 76, sm: 280 }, minWidth: { xs: 76, sm: 280 }, maxWidth: { xs: 76, sm: 280 }, px: { xs: 0.5, sm: 2 }, py: { xs: 1.1, sm: 2 } }}>
                             <Box
                               sx={{
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: 1.5,
-                                width: 250,
+                                gap: { xs: 0, sm: 1.5 },
+                                width: { xs: '100%', sm: 250 },
                                 mx: 'auto'
                               }}
                             >
-                              <Box sx={{ width: 56, minWidth: 56, maxWidth: 56, height: 56, flexShrink: 0 }}>
+                              <Box sx={{ width: { xs: 44, sm: 56 }, minWidth: { xs: 44, sm: 56 }, height: { xs: 44, sm: 56 }, flexShrink: 0 }}>
                                 <Tooltip title="Tap to toggle status (P ➔ A ➔ L)">
                                   <Button
                                     onClick={() => handleCycleStatus(std.id)}
+                                    aria-label={`Attendance status for ${std.name}: ${selectedStatus}`}
                                     sx={{
-                                      width: 56,
-                                      height: 56,
-                                      minWidth: 56,
-                                      maxWidth: 56,
+                                      width: { xs: 44, sm: 56 },
+                                      height: { xs: 44, sm: 56 },
+                                      minWidth: { xs: 44, sm: 56 },
                                       borderRadius: '50%',
                                       p: 0,
-                                      fontSize: '1.45rem',
+                                      fontSize: { xs: '1.1rem', sm: '1.45rem' },
                                       fontWeight: 900,
                                       cursor: 'pointer',
                                       border: `3px solid ${btnBorder}`,
@@ -1135,7 +1150,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 </Tooltip>
                               </Box>
 
-                              <Box sx={{ width: 130, minWidth: 130, maxWidth: 130, flexShrink: 0, textAlign: 'left' }}>
+                              <Box sx={{ display: { xs: 'none', sm: 'block' }, width: 130, minWidth: 130, maxWidth: 130, flexShrink: 0, textAlign: 'left' }}>
                                 <Chip
                                   label={statusTitle}
                                   size="small"
@@ -1188,7 +1203,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 </Typography>
                               </Box>
 
-                              <Box sx={{ width: 38, minWidth: 38, maxWidth: 38, flexShrink: 0, display: 'flex', justifyContent: 'center' }}>
+                              <Box sx={{ width: 38, minWidth: 38, maxWidth: 38, flexShrink: 0, display: { xs: 'none', sm: 'flex' }, justifyContent: 'center' }}>
                                 {selectedStatus === 'A' ? (
                                   <Tooltip title="Send WhatsApp absent notice to parent">
                                     <IconButton

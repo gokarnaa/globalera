@@ -169,14 +169,17 @@ export default function TrainerPortal({ onLogout }) {
     });
   };
 
-  const handleMarkAllPresent = () => {
+  const [bulkCycleStatus, setBulkCycleStatus] = useState('present'); // 'present' -> 'absent' -> 'late'
+
+  const handleMarkAllStatus = (targetStatus) => {
     const nextMap = { ...attendanceMap };
     groupStudents.forEach((s) => {
+      const keepBio = targetStatus === 'present' && nextMap[s.id]?.source === 'BIOMETRIC';
       nextMap[s.id] = {
         ...nextMap[s.id],
-        status: 'present',
-        source: nextMap[s.id]?.source === 'BIOMETRIC' ? 'BIOMETRIC' : 'TRAINER_MANUAL',
-        verifiedBy: nextMap[s.id]?.source === 'BIOMETRIC' ? nextMap[s.id]?.verifiedBy : `${trainer?.name || 'Trainer'} (Manual)`
+        status: targetStatus,
+        source: keepBio ? 'BIOMETRIC' : 'TRAINER_MANUAL',
+        verifiedBy: keepBio ? nextMap[s.id]?.verifiedBy : `${trainer?.name || 'Trainer'} (Manual)`
       };
     });
     setAttendanceMap(nextMap);
@@ -696,15 +699,40 @@ export default function TrainerPortal({ onLogout }) {
                 />
               </Box>
 
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={handleMarkAllPresent}
-                  sx={{ fontWeight: 800, color: '#10B981', borderColor: '#10B981', borderRadius: 2 }}
-                >
-                  Mark All Present
-                </Button>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {(() => {
+                  const nextBulk =
+                    bulkCycleStatus === 'present' ? 'absent' : bulkCycleStatus === 'absent' ? 'late' : 'present';
+                  const bulkConfig =
+                    bulkCycleStatus === 'present'
+                      ? { label: 'All: Present (P)', bg: '#10B981', hover: '#059669' }
+                      : bulkCycleStatus === 'absent'
+                      ? { label: 'All: Absent (A)', bg: '#EF4444', hover: '#DC2626' }
+                      : { label: 'All: Late (L)', bg: '#F59E0B', hover: '#D97706' };
+                  return (
+                    <Tooltip title="Tap to set all trainees & cycle (Present ➔ Absent ➔ Late)">
+                      <Button
+                        variant="contained"
+                        size="small"
+                        onClick={() => {
+                          handleMarkAllStatus(bulkCycleStatus);
+                          setBulkCycleStatus(nextBulk);
+                        }}
+                        sx={{
+                          fontWeight: 800,
+                          bgcolor: bulkConfig.bg,
+                          color: '#FFFFFF',
+                          borderRadius: 2,
+                          textTransform: 'none',
+                          boxShadow: 'none',
+                          '&:hover': { bgcolor: bulkConfig.hover }
+                        }}
+                      >
+                        {bulkConfig.label}
+                      </Button>
+                    </Tooltip>
+                  );
+                })()}
 
                 <Button
                   variant="contained"
@@ -718,8 +746,8 @@ export default function TrainerPortal({ onLogout }) {
             </Box>
 
             {/* Trainee Attendance List */}
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
-              <Table size="small">
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: { xs: 'hidden', md: 'auto' } }}>
+              <Table size="small" sx={{ tableLayout: { xs: 'fixed', md: 'auto' } }}>
                 <TableHead
                   sx={{
                     bgcolor: '#0F2E5A',
@@ -727,23 +755,25 @@ export default function TrainerPortal({ onLogout }) {
                       bgcolor: '#0F2E5A !important',
                       color: '#FFFFFF !important',
                       fontWeight: 900,
-                      fontSize: '0.84rem',
-                      py: 1.5,
+                      fontSize: { xs: '0.76rem', sm: '0.84rem' },
+                      py: { xs: 1.2, sm: 1.5 },
+                      px: { xs: 0.75, sm: 2 },
                       borderBottom: '2px solid #F59E0B'
                     }
                   }}
                 >
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: { xs: 42, sm: 65 }, textAlign: 'center' }}>
                       S.N.
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Name & Details</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID / Phone</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Overall Attendance %</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
-                      Attendance Status (P 🟢 / A 🔴 / L 🟠)
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Name</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, display: { xs: 'none', md: 'table-cell' } }}>TGID / Phone</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', display: { xs: 'none', md: 'table-cell' } }}>Overall Attendance %</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: { xs: 72, sm: 160 } }}>
+                      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>Status</Box>
+                      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>Attendance Status (P 🟢 / A 🔴 / L 🟠)</Box>
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Remarks</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, display: { xs: 'none', md: 'table-cell' } }}>Remarks</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -781,23 +811,24 @@ export default function TrainerPortal({ onLogout }) {
 
                     return (
                       <TableRow key={std.id} hover>
-                        <TableCell sx={{ fontWeight: 700 }}>{idx + 1}</TableCell>
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                            <Avatar src={std.photoUrl} sx={{ width: 34, height: 34, bgcolor: '#0F2E5A' }}>
+                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', px: { xs: 0.5, sm: 2 }, color: '#64748B' }}>{idx + 1}</TableCell>
+                        <TableCell sx={{ px: { xs: 1, sm: 2 }, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.5 }, minWidth: 0 }}>
+                            <Avatar src={std.photoUrl} sx={{ width: { xs: 32, sm: 34 }, height: { xs: 32, sm: 34 }, bgcolor: '#0F2E5A', flexShrink: 0, fontSize: '0.85rem' }}>
                               {std.name[0]}
                             </Avatar>
-                            <Box>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                            <Box sx={{ minWidth: 0, flex: 1 }}>
+                              <Typography variant="subtitle2" noWrap sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: { xs: '0.86rem', sm: '0.92rem' } }}>
                                 {std.name}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                {std.gender === 'Female' ? 'Female' : 'Male'} • {std.address || 'Kathmandu'}
+                              <Typography variant="caption" noWrap sx={{ color: '#64748B', display: 'block', fontSize: { xs: '0.7rem', sm: '0.75rem' } }}>
+                                <Box component="span" sx={{ display: { xs: 'inline', md: 'none' } }}>{std.tgid} • {attPercent}%</Box>
+                                <Box component="span" sx={{ display: { xs: 'none', md: 'inline' } }}>{std.gender === 'Female' ? 'Female' : 'Male'} • {std.address || 'Kathmandu'}</Box>
                               </Typography>
                             </Box>
                           </Box>
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                           <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
                             {std.tgid}
                           </Typography>
@@ -811,7 +842,7 @@ export default function TrainerPortal({ onLogout }) {
                             sx={{ height: 18, fontSize: '0.67rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A', mt: 0.3 }}
                           />
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
+                        <TableCell sx={{ textAlign: 'center', display: { xs: 'none', md: 'table-cell' } }}>
                           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, justifyContent: 'center' }}>
                             <LinearProgress
                               variant="determinate"
@@ -831,22 +862,23 @@ export default function TrainerPortal({ onLogout }) {
                             </Typography>
                           </Box>
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.2 }}>
+                        <TableCell sx={{ textAlign: 'center', px: { xs: 0.5, sm: 2 } }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: { xs: 0, sm: 1.2 } }}>
                             <Tooltip title={statusConfig.title} arrow>
                               <Box
                                 component="button"
                                 type="button"
+                                aria-label={`Attendance status for ${std.name}: ${statusConfig.text}`}
                                 onClick={() => handleCycleAttendance(std.id)}
                                 sx={{
-                                  width: 38,
-                                  height: 38,
+                                  width: { xs: 42, sm: 38 },
+                                  height: { xs: 42, sm: 38 },
                                   borderRadius: '50%',
                                   bgcolor: statusConfig.bg,
                                   color: statusConfig.color,
                                   border: `2px solid ${statusConfig.border}`,
                                   fontWeight: 900,
-                                  fontSize: '0.98rem',
+                                  fontSize: { xs: '1.05rem', sm: '0.98rem' },
                                   cursor: 'pointer',
                                   display: 'inline-flex',
                                   alignItems: 'center',
@@ -867,7 +899,7 @@ export default function TrainerPortal({ onLogout }) {
                                 {statusConfig.label}
                               </Box>
                             </Tooltip>
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 95 }}>
+                            <Box sx={{ display: { xs: 'none', sm: 'flex' }, flexDirection: 'column', alignItems: 'flex-start', minWidth: 95 }}>
                               <Typography
                                 variant="caption"
                                 sx={{
@@ -900,7 +932,7 @@ export default function TrainerPortal({ onLogout }) {
                             </Box>
                           </Box>
                         </TableCell>
-                        <TableCell>
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                           <TextField
                             size="small"
                             placeholder="Remarks..."
