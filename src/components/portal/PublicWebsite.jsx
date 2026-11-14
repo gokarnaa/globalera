@@ -35,7 +35,9 @@ import {
   List,
   ListItemButton,
   ListItemIcon,
-  ListItemText
+  ListItemText,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import SchoolIcon from '@mui/icons-material/School';
@@ -77,6 +79,8 @@ import { calculateFeeBreakdown } from '../courses/CourseFeeManager';
 import { verifyCertificateRemote } from '../../services/supabaseClient';
 
 export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
+  const muiTheme = useTheme();
+  const isMobile = useMediaQuery(muiTheme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const company = db.settings?.companyProfile || {};
@@ -1902,12 +1906,14 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           onClose={() => setSelectedSyllabusCourse(null)}
           maxWidth="lg"
           fullWidth
+          fullScreen={isMobile}
           PaperProps={{
             sx: {
-              borderRadius: { xs: 2, sm: 4 },
+              borderRadius: isMobile ? 0 : 4,
               overflow: 'hidden',
               boxShadow: '0 25px 60px rgba(0,0,0,0.3)',
-              maxHeight: '92vh'
+              height: isMobile ? '100dvh' : '92dvh',
+              maxHeight: isMobile ? '100dvh' : '92dvh'
             }
           }}
         >
@@ -2055,63 +2061,69 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
             return (
               <>
-                {/* 1. ULTRA-PREMIUM HERO HEADER */}
+                {/* 1. SLIM HERO HEADER */}
                 <Box
                   sx={{
                     background: theme.heroGradient,
                     color: '#FFFFFF',
-                    p: { xs: 2.5, sm: 3.5 },
-                    position: 'relative'
+                    px: { xs: 1.5, sm: 3 },
+                    py: { xs: 1.3, sm: 2 },
+                    position: 'relative',
+                    flexShrink: 0
                   }}
                 >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 1 }}>
                     {/* Left: Branding & Course Title */}
-                    <Box sx={{ maxWidth: { xs: '100%', md: '75%' } }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1, flexWrap: 'wrap' }}>
+                    <Box sx={{ maxWidth: { xs: '100%', md: '75%' }, minWidth: 0 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 0.5, flexWrap: 'wrap' }}>
                         <Chip
-                          icon={<WorkspacePremiumIcon sx={{ color: '#F59E0B !important', fontSize: 16 }} />}
-                          label="CTEVT ACCREDITED AFFILIATION #4208"
+                          icon={<WorkspacePremiumIcon sx={{ color: '#F59E0B !important', fontSize: 14 }} />}
+                          label="CTEVT AFFILIATION #4208"
                           size="small"
                           sx={{
                             bgcolor: 'rgba(245, 158, 11, 0.18)',
                             color: '#FDE68A',
                             fontWeight: 900,
-                            letterSpacing: 0.5,
+                            letterSpacing: 0.4,
                             border: '1px solid rgba(245, 158, 11, 0.4)',
-                            fontSize: '0.72rem'
+                            height: 20,
+                            fontSize: '0.66rem'
                           }}
                         />
                         <Chip
                           label={theme.tradeName}
                           size="small"
                           sx={{
+                            display: { xs: 'none', sm: 'inline-flex' },
                             bgcolor: 'rgba(255, 255, 255, 0.15)',
                             color: '#FFFFFF',
                             fontWeight: 800,
-                            fontSize: '0.72rem'
+                            height: 20,
+                            fontSize: '0.68rem'
                           }}
                         />
                         <Chip
-                          label={`${totalHours} Hours (${pRatio}% Practical)`}
+                          label={`${totalHours}h (${pRatio}% Practical)`}
                           size="small"
                           sx={{
                             bgcolor: 'rgba(16, 185, 129, 0.25)',
                             color: '#A7F3D0',
                             fontWeight: 800,
                             border: '1px solid rgba(16, 185, 129, 0.4)',
-                            fontSize: '0.72rem'
+                            height: 20,
+                            fontSize: '0.66rem'
                           }}
                         />
                       </Box>
 
                       <Typography
-                        variant="h4"
+                        variant="h5"
                         sx={{
                           fontWeight: 900,
-                          fontSize: { xs: '1.4rem', sm: '1.85rem' },
+                          fontSize: { xs: '1.15rem', sm: '1.55rem' },
                           color: '#FFFFFF',
-                          lineHeight: 1.25,
-                          mb: 0.8
+                          lineHeight: 1.2,
+                          mb: 0.3
                         }}
                       >
                         {selectedSyllabusCourse.title}
@@ -2120,8 +2132,9 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       <Typography
                         variant="body2"
                         sx={{
+                          display: { xs: 'none', sm: 'block' },
                           color: 'rgba(255, 255, 255, 0.88)',
-                          fontSize: { xs: '0.82rem', sm: '0.9rem' },
+                          fontSize: '0.84rem',
                           fontWeight: 500,
                           maxWidth: 720
                         }}
@@ -2184,9 +2197,46 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   </Box>
                 </Box>
 
-                {/* 2. 4-PILLAR EXECUTIVE HIGHLIGHT TILES */}
-                <Box sx={{ bgcolor: '#F8FAFC', p: 2, borderBottom: '1px solid #E2E8F0' }}>
-                  <Grid container spacing={1.5}>
+                {/* 2. MODERN TAB NAVIGATION BAR */}
+                <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#FFFFFF', px: { xs: 1, sm: 2 }, flexShrink: 0 }}>
+                  <Tabs
+                    value={brochureTab}
+                    onChange={(_, val) => setBrochureTab(val)}
+                    variant="scrollable"
+                    scrollButtons="auto"
+                    sx={{
+                      minHeight: 42,
+                      '& .MuiTab-root': {
+                        fontWeight: 800,
+                        fontSize: { xs: '0.76rem', sm: '0.82rem' },
+                        textTransform: 'none',
+                        minHeight: 42,
+                        py: 0.8,
+                        color: '#64748B',
+                        '&.Mui-selected': {
+                          color: theme.primary
+                        }
+                      },
+                      '& .MuiTabs-indicator': {
+                        bgcolor: theme.primary,
+                        height: 3,
+                        borderRadius: '3px 3px 0 0'
+                      }
+                    }}
+                  >
+                    <Tab label={`Curriculum Modules (${activeSyllabusUnits.length} Units)`} />
+                    <Tab label="Workshop Equipment & Labs" />
+                    <Tab label="2-Hour Daily Shifts" />
+                    <Tab label="Career Roles & OJT" />
+                    <Tab label="Transparent Fee" />
+                  </Tabs>
+                </Box>
+
+                {/* 3. SCROLLABLE CONTENT AREA (KPI HIGHLIGHTS + TAB CONTENTS) */}
+                <DialogContent dividers sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#FAFBFD' }}>
+                  {/* 4-PILLAR EXECUTIVE HIGHLIGHT TILES (Scrollable with content so curriculum gets full viewport!) */}
+                  <Box sx={{ bgcolor: '#F8FAFC', p: { xs: 1.2, sm: 1.8 }, mb: 2.5, borderRadius: 3, border: '1px solid #E2E8F0' }}>
+                    <Grid container spacing={{ xs: 1, sm: 1.5 }}>
                     {/* Tile 1: 80% Practical */}
                     <Grid item xs={6} md={3}>
                       <Box
@@ -2328,44 +2378,9 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         />
                       </Box>
                     </Grid>
-                  </Grid>
-                </Box>
+                    </Grid>
+                  </Box>
 
-                {/* 3. MODERN TAB NAVIGATION BAR */}
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', bgcolor: '#FFFFFF', px: 2 }}>
-                  <Tabs
-                    value={brochureTab}
-                    onChange={(_, val) => setBrochureTab(val)}
-                    variant="scrollable"
-                    scrollButtons="auto"
-                    sx={{
-                      '& .MuiTab-root': {
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        textTransform: 'none',
-                        minHeight: 46,
-                        color: '#64748B',
-                        '&.Mui-selected': {
-                          color: theme.primary
-                        }
-                      },
-                      '& .MuiTabs-indicator': {
-                        bgcolor: theme.primary,
-                        height: 3,
-                        borderRadius: '3px 3px 0 0'
-                      }
-                    }}
-                  >
-                    <Tab label={`📖 Curriculum Modules (${activeSyllabusUnits.length} Units)`} />
-                    <Tab label="🛠️ Workshop Equipment & Lab Facilities" />
-                    <Tab label="🕒 2-Hour Daily Shift Schedule" />
-                    <Tab label="🤝 Career Roles & OJT Partners" />
-                    <Tab label="💳 Transparent Fee & Installments" />
-                  </Tabs>
-                </Box>
-
-                {/* 4. TAB CONTENTS */}
-                <DialogContent dividers sx={{ p: { xs: 2, sm: 3 }, bgcolor: '#FAFBFD' }}>
                   {/* TAB 0: CURRICULUM MODULES TABLE & CARDS */}
                   {brochureTab === 0 && (
                     <Box>
