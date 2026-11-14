@@ -34,6 +34,8 @@ export function getSupabaseConfig() {
   };
 }
 
+const supabaseClientCache = new Map();
+
 export function getSupabaseClient(customUrl, customKey) {
   const config = getSupabaseConfig();
   const url = customUrl || config.url;
@@ -41,13 +43,20 @@ export function getSupabaseClient(customUrl, customKey) {
 
   if (!url || !key) return null;
 
+  const cacheKey = `${url}::${key}`;
+  if (supabaseClientCache.has(cacheKey)) {
+    return supabaseClientCache.get(cacheKey);
+  }
+
   try {
-    return createClient(url, key, {
+    const client = createClient(url, key, {
       auth: {
         persistSession: true,
         autoRefreshToken: true
       }
     });
+    supabaseClientCache.set(cacheKey, client);
+    return client;
   } catch (err) {
     console.error('Supabase client error:', err);
     return null;
