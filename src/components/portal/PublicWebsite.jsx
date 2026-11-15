@@ -537,7 +537,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
               <Box
                 component="a"
-                href="https://www.facebook.com/globaleramultiservice"
+                href="https://www.facebook.com/prabhidhikschool"
                 target="_blank"
                 rel="noreferrer"
                 sx={{
@@ -1845,7 +1845,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <FacebookIcon fontSize="small" sx={{ color: '#60A5FA' }} />
                   <Typography
                     component="a"
-                    href="https://www.facebook.com/globaleramultiservice"
+                    href="https://www.facebook.com/prabhidhikschool"
                     target="_blank"
                     rel="noreferrer"
                     variant="body2"

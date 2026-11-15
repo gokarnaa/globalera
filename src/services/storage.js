@@ -302,7 +302,7 @@ export const INITIAL_SEED_DATA = {
       address: 'Jorpati, Gokarneshwor, Kathmandu, Nepal',
       contactPhone: '014910715',
       whatsappPhone: '9705147147',
-      facebookUrl: 'https://www.facebook.com/globaleramultiservice',
+      facebookUrl: 'https://www.facebook.com/prabhidhikschool',
       email: 'globaleramultiservice@gmail.com',
       website: 'https://globalera.com.np',
       officeHours: '7:00 AM – 6:00 PM',
