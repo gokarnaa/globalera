@@ -10,8 +10,9 @@ import {
   Box,
   Divider,
   Chip,
-  Avatar
+  IconButton
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import CategoryIcon from '@mui/icons-material/Category';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
@@ -152,43 +153,29 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
 
   const drawerContent = (
     <Box sx={{ width: 280, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Brand Header */}
-      <Box
-        sx={{
-          p: 2.5,
-          background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
-          borderBottom: '1px solid #E2E8F0',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 1.5
-        }}
-      >
-        <Avatar
+      {isMobile && (
+        <Box
           sx={{
-            width: 44,
-            height: 44,
-            background: 'linear-gradient(135deg, #0F2C59 0%, #1A56B0 100%)',
-            boxShadow: '0 4px 12px rgba(15,44,89,0.2)',
-            fontSize: '1.25rem'
+            px: 2,
+            py: 1.1,
+            borderBottom: '1px solid #E2E8F0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#F8FAFC'
           }}
         >
-          🎓
-        </Avatar>
-        <Box>
-          <Typography variant="overline" sx={{ color: '#0F2C59', fontWeight: 900, letterSpacing: '0.08em', lineHeight: 1 }}>
-            GLOBAL ERA TVET
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em' }}>
+            Menu
           </Typography>
-          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A', fontSize: '0.95rem', lineHeight: 1.2 }}>
-            Global Era Technical School
-          </Typography>
-          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
-            CTEVT Affiliated • Gov Regd
-          </Typography>
+          <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
         </Box>
-      </Box>
+      )}
 
       {/* Navigation Links List */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.5, py: 1 }}>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.5, py: 0.75 }}>
         <List disablePadding>
           {filteredItems.map((item, idx) => {
             if (item.section) {
