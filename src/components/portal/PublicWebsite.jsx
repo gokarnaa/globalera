@@ -1093,7 +1093,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               <Paper
                 elevation={4}
                 sx={{
-                  p: { xs: 1.8, sm: 2.2 },
+                  p: { xs: 2, sm: 2.5 },
                   borderRadius: 3.5,
                   bgcolor: 'rgba(255, 255, 255, 0.98)',
                   color: '#0F172A',
@@ -1102,83 +1102,152 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   overflow: 'hidden'
                 }}
               >
+                {/* Top Executive Row: Portrait Left + Identity Right (Zero wasted whitespace) */}
                 <Box
                   sx={{
-                    width: '100%',
-                    maxWidth: 245,
-                    aspectRatio: '3 / 4',
-                    mx: 'auto',
-                    borderRadius: 3,
-                    overflow: 'hidden',
-                    mb: 1.4,
-                    bgcolor: '#E2E8F0',
-                    border: '2px solid #E2E8F0',
-                    boxShadow: '0 8px 20px rgba(15, 44, 89, 0.14)'
+                    display: 'flex',
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    alignItems: { xs: 'center', sm: 'stretch' },
+                    gap: { xs: 1.5, sm: 2.2 }
                   }}
                 >
                   <Box
-                    component="img"
-                    src="/images/md-durga-neupane.jpg"
-                    alt="Durga Neupane - Managing Director, Prabidhik School Jorpati"
                     sx={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      objectPosition: 'center top',
-                      display: 'block'
+                      width: { xs: 155, sm: 162 },
+                      aspectRatio: '3 / 4',
+                      flexShrink: 0,
+                      borderRadius: 2.8,
+                      overflow: 'hidden',
+                      bgcolor: '#E2E8F0',
+                      border: '2.5px solid #F59E0B',
+                      boxShadow: '0 8px 20px rgba(15, 44, 89, 0.16)'
                     }}
-                  />
+                  >
+                    <Box
+                      component="img"
+                      src="/images/md-durga-neupane.jpg"
+                      alt="Durga Neupane - Managing Director, Prabidhik School Jorpati"
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'cover',
+                        objectPosition: 'center top',
+                        display: 'block'
+                      }}
+                    />
+                  </Box>
+
+                  <Box
+                    sx={{
+                      flex: 1,
+                      minWidth: 0,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      textAlign: { xs: 'center', sm: 'left' }
+                    }}
+                  >
+                    <Chip
+                      size="small"
+                      icon={<VerifiedIcon sx={{ fontSize: '14px !important', color: '#059669 !important' }} />}
+                      label="नेतृत्व सन्देश"
+                      sx={{
+                        alignSelf: { xs: 'center', sm: 'flex-start' },
+                        height: 22,
+                        mb: 1,
+                        bgcolor: '#ECFDF5',
+                        color: '#065F46',
+                        fontWeight: 800,
+                        fontSize: '0.7rem',
+                        border: '1px solid #A7F3D0'
+                      }}
+                    />
+
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 900,
+                        color: '#0B2545',
+                        lineHeight: 1.2,
+                        fontSize: { xs: '1.15rem', sm: '1.25rem' }
+                      }}
+                    >
+                      दुर्गा न्यौपाने
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: '#475569',
+                        fontWeight: 700,
+                        fontSize: '0.78rem',
+                        display: 'block',
+                        mb: 0.9
+                      }}
+                    >
+                      Durga Neupane
+                    </Typography>
+
+                    <Box
+                      sx={{
+                        px: 1.2,
+                        py: 0.7,
+                        borderRadius: 1.8,
+                        bgcolor: '#0B2545',
+                        color: '#FFFFFF'
+                      }}
+                    >
+                      <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 800, fontSize: '0.76rem', display: 'block', lineHeight: 1.3 }}>
+                        प्रबन्ध निर्देशक (Managing Director)
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 600, fontSize: '0.7rem', display: 'block', mt: 0.15 }}>
+                        प्राविधिक स्कूल • जोरपाटी, काठमाडौं
+                      </Typography>
+                    </Box>
+                  </Box>
                 </Box>
 
+                {/* Quote Box */}
                 <Box
                   sx={{
-                    px: 1.5,
-                    py: 0.85,
-                    mb: 1.3,
+                    mt: 1.8,
+                    mb: 1.6,
+                    px: 1.6,
+                    py: 1.2,
                     borderRadius: 2,
-                    bgcolor: '#0B2545',
-                    color: '#FFFFFF',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 1
+                    bgcolor: '#F8FAFC',
+                    borderLeft: '3.5px solid #F59E0B'
                   }}
                 >
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1.2, fontSize: '0.95rem' }}>
-                      दुर्गा न्यौपाने (Durga Neupane)
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.73rem' }}>
-                      प्रबन्ध निर्देशक (Managing Director) • प्राविधिक स्कूल
-                    </Typography>
-                  </Box>
-                  <VerifiedIcon sx={{ color: '#34D399', fontSize: 20, flexShrink: 0 }} />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: '#334155',
+                      fontStyle: 'italic',
+                      fontWeight: 600,
+                      lineHeight: 1.55,
+                      fontSize: '0.84rem'
+                    }}
+                  >
+                    “प्रत्येक युवा तथा महिलालाई व्यावहारिक सीप सिकाएर आर्थिक रूपमा आत्मनिर्भर बनाउनु नै प्राविधिक स्कूल, जोरपाटीको मुख्य लक्ष्य हो।”
+                  </Typography>
                 </Box>
 
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#334155',
-                    fontStyle: 'italic',
-                    fontWeight: 600,
-                    lineHeight: 1.55,
-                    fontSize: '0.84rem',
-                    mb: 1.4
-                  }}
-                >
-                  “प्रत्येक युवा तथा महिलालाई व्यावहारिक सीप सिकाएर आर्थिक रूपमा आत्मनिर्भर बनाउनु नै प्राविधिक स्कूल, जोरपाटीको मुख्य लक्ष्य हो।”
-                </Typography>
-
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {/* Bottom Trust Strip */}
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap justifyContent={{ xs: 'center', sm: 'flex-start' }}>
                   <Chip
                     size="small"
                     label="२०,०००+ समुदाय"
-                    sx={{ bgcolor: '#EFF6FF', color: '#1E40AF', fontWeight: 800, fontSize: '0.7rem' }}
+                    sx={{ bgcolor: '#EFF6FF', color: '#1E40AF', fontWeight: 800, fontSize: '0.72rem' }}
                   />
                   <Chip
                     size="small"
                     label="१००% प्रयोगात्मक अभ्यास"
-                    sx={{ bgcolor: '#ECFDF5', color: '#065F46', fontWeight: 800, fontSize: '0.7rem' }}
+                    sx={{ bgcolor: '#ECFDF5', color: '#065F46', fontWeight: 800, fontSize: '0.72rem' }}
+                  />
+                  <Chip
+                    size="small"
+                    label="जोरपाटी, काठमाडौं"
+                    sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: '0.72rem' }}
                   />
                 </Stack>
               </Paper>
