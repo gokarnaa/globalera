@@ -61,7 +61,6 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import BusinessIcon from '@mui/icons-material/Business';
 import WorkIcon from '@mui/icons-material/Work';
 import StarIcon from '@mui/icons-material/Star';
-import PrintIcon from '@mui/icons-material/Print';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import SpeedIcon from '@mui/icons-material/Speed';
 import ScheduleIcon from '@mui/icons-material/Schedule';
@@ -2162,27 +2161,9 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       >
                         WhatsApp
                       </Button>
-                      <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={<PrintIcon />}
-                        onClick={() => window.print()}
-                        sx={{
-                          bgcolor: 'rgba(255,255,255,0.2)',
-                          color: '#FFFFFF',
-                          fontWeight: 800,
-                          fontSize: '0.76rem',
-                          borderRadius: 2,
-                          px: 1.5,
-                          backdropFilter: 'blur(8px)',
-                          border: '1px solid rgba(255,255,255,0.3)',
-                          '&:hover': { bgcolor: 'rgba(255,255,255,0.35)' }
-                        }}
-                      >
-                        Print A4
-                      </Button>
                       <IconButton
                         size="small"
+                        aria-label="Close Brochure"
                         onClick={() => setSelectedSyllabusCourse(null)}
                         sx={{
                           color: '#FFFFFF',
