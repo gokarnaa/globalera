@@ -27,7 +27,7 @@ export function exportGoogleContactsVCF(students = [], employers = []) {
     if (s.currentAddress) {
       vcfContent += `ADR;TYPE=HOME:;;${s.currentAddress};Kathmandu;;Nepal\r\n`;
     }
-    vcfContent += `ORG:KITE CAREGIVER TRAINING CENTER\r\nNOTE:Student ID: ${s.tgid}\r\nEND:VCARD\r\n`;
+    vcfContent += `ORG:Prabidhik School (Global Era Multi Service Pvt. Ltd.)\r\nNOTE:Student ID: ${s.tgid}\r\nEND:VCARD\r\n`;
   });
 
   employers.forEach((e) => {

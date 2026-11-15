@@ -72,6 +72,7 @@ import HandymanIcon from '@mui/icons-material/Handyman';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import DownloadIcon from '@mui/icons-material/Download';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import FacebookIcon from '@mui/icons-material/Facebook';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { calculateFeeBreakdown } from '../courses/CourseFeeManager';
@@ -500,7 +501,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             <Stack direction="row" spacing={{ xs: 1, sm: 2.2 }} alignItems="center" sx={{ flexShrink: 0 }}>
               <Box
                 component="a"
-                href="tel:01410715"
+                href="tel:014910715"
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
@@ -513,7 +514,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 }}
               >
                 <PhoneIcon sx={{ fontSize: 14, color: '#F59E0B' }} />
-                <span>01410715</span>
+                <span>014910715</span>
               </Box>
 
               <Box
@@ -536,7 +537,27 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
               <Box
                 component="a"
-                href="https://wa.me/97701410715?text=Hello%20Global%20Era!%20I%20am%20inquiring%20about%20Caregiver%20and%20Vocational%20Training."
+                href="https://www.facebook.com/globaleramultiservice"
+                target="_blank"
+                rel="noreferrer"
+                sx={{
+                  display: { xs: 'none', md: 'inline-flex' },
+                  alignItems: 'center',
+                  gap: 0.5,
+                  color: '#93C5FD',
+                  textDecoration: 'none',
+                  fontWeight: 700,
+                  fontSize: '0.72rem',
+                  '&:hover': { color: '#FFFFFF' }
+                }}
+              >
+                <FacebookIcon sx={{ fontSize: 14 }} />
+                <span>Prabidhik School</span>
+              </Box>
+
+              <Box
+                component="a"
+                href="https://wa.me/9779705147147?text=Hello%20Prabidhik%20School!%20I%20am%20inquiring%20about%20Caregiver%20and%20Vocational%20Training."
                 target="_blank"
                 rel="noreferrer"
                 sx={{
@@ -850,7 +871,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               size="small"
               variant="outlined"
               component="a"
-              href="tel:01410715"
+              href="tel:014910715"
               startIcon={<PhoneIcon sx={{ fontSize: 14 }} />}
               sx={{ color: '#FFFFFF', borderColor: 'rgba(255,255,255,0.25)', fontSize: '0.75rem', fontWeight: 700 }}
             >
@@ -861,7 +882,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               size="small"
               variant="contained"
               component="a"
-              href="https://wa.me/97701410715?text=Hello%20Global%20Era!"
+              href="https://wa.me/9779705147147?text=Hello%20Prabidhik%20School!"
               target="_blank"
               rel="noreferrer"
               startIcon={<WhatsAppIcon sx={{ fontSize: 14 }} />}
@@ -1800,11 +1821,37 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   <PhoneIcon fontSize="small" sx={{ color: '#F59E0B' }} />
                   <Typography
                     component="a"
-                    href="tel:01410715"
+                    href="tel:014910715"
                     variant="body2"
                     sx={{ color: '#E2E8F0', textDecoration: 'none', '&:hover': { color: '#F59E0B' } }}
                   >
-                    01410715
+                    014910715
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <WhatsAppIcon fontSize="small" sx={{ color: '#25D366' }} />
+                  <Typography
+                    component="a"
+                    href="https://wa.me/9779705147147"
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="body2"
+                    sx={{ color: '#E2E8F0', textDecoration: 'none', '&:hover': { color: '#25D366' } }}
+                  >
+                    9705147147 (WhatsApp Business)
+                  </Typography>
+                </Box>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FacebookIcon fontSize="small" sx={{ color: '#60A5FA' }} />
+                  <Typography
+                    component="a"
+                    href="https://www.facebook.com/globaleramultiservice"
+                    target="_blank"
+                    rel="noreferrer"
+                    variant="body2"
+                    sx={{ color: '#E2E8F0', textDecoration: 'none', '&:hover': { color: '#60A5FA' } }}
+                  >
+                    Facebook: Prabidhik School
                   </Typography>
                 </Box>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -2025,14 +2072,14 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             ];
 
             const handleWhatsAppShare = () => {
-              const phone = company.phone || '01410715';
+              const phone = company.phone || '014910715';
               const unitsSummary = activeSyllabusUnits
                 .slice(0, 6)
                 .map((u) => `  *Unit ${u.unitNo}:* ${u.title} (${(Number(u.theoryHours) || 0) + (Number(u.practicalHours) || 0)}h)`)
                 .join('\n');
 
               const text =
-                `🎓 *GLOBAL ERA TECHNICAL SCHOOL — OFFICIAL COURSE BROCHURE*\n` +
+                `🎓 *PRABIDHIK SCHOOL (Global Era Multi Service Pvt. Ltd.) — OFFICIAL COURSE BROCHURE*\n` +
                 `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
                 `📘 *Course:* ${selectedSyllabusCourse.title} (${theme.tradeName})\n` +
                 `🎖️ *Affiliation:* CTEVT Accredited (Code: 4208) • Level-1 National Standard\n` +
@@ -2052,8 +2099,8 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 `💳 *Transparent Fee Schedule (13% VAT Included):*\n` +
                 `• Total Net Fee: NPR ${(feeCalc.totalEffectiveFee || 0).toLocaleString()}\n` +
                 `• Affordable 2-Installments: NPR ${(feeCalc.installment1 || 0).toLocaleString()} on Admission + NPR ${(feeCalc.installment2 || 0).toLocaleString()} Mid-Course clearance\n\n` +
-                `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu (Near Mitra Park)\n` +
-                `📞 *Call / WhatsApp:* ${phone}`;
+                `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
+                `📞 *Call:* ${phone} | *WhatsApp:* 9705147147`;
 
               window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             };

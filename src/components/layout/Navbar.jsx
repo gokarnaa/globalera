@@ -205,117 +205,123 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                 sx={{
                   fontWeight: 900,
                   lineHeight: 1.2,
-                  fontSize: { xs: '0.88rem', sm: '1.15rem' },
+                  fontSize: { xs: '0.92rem', sm: '1.12rem' },
                   color: '#0F2C59',
                   letterSpacing: '-0.02em'
                 }}
               >
-                Global Era Technical School
+                Prabidhik School
               </Typography>
-              <Chip
-                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#166534 !important' }} />}
-                label="CTEVT Accredited"
-                size="small"
-                sx={{
-                  height: 20,
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  bgcolor: '#DCFCE7',
-                  color: '#166534',
-                  display: { xs: 'none', md: 'inline-flex' }
-                }}
-              />
             </Box>
             <Typography
               variant="caption"
+              noWrap
               sx={{
                 color: '#64748B',
                 display: { xs: 'none', sm: 'block' },
                 fontWeight: 600,
-                fontSize: '0.75rem'
+                fontSize: '0.73rem',
+                letterSpacing: '0.01em'
               }}
             >
-              KITE CAREGIVER TRAINING CENTER • MitraPark, Chabahil, Kathmandu
+              Global Era Multi Service Pvt. Ltd. • Jorpati, Kathmandu
             </Typography>
           </Box>
         </Box>
 
-        {/* Live Operational Status Pills (Center/Right) */}
-        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', gap: 1.5, mr: 2.5 }}>
-          {/* Active Shift indicator */}
-          <Chip
-            icon={<AccessTimeIcon sx={{ fontSize: '15px !important', color: '#1D4ED8 !important' }} />}
-            label={`Active: ${activeShift}`}
-            size="small"
-            sx={{
-              bgcolor: '#EFF6FF',
-              color: '#1E40AF',
-              border: '1px solid #BFDBFE',
-              fontWeight: 700,
-              fontSize: '0.75rem'
-            }}
-          />
-
-          {/* Supabase Status Indicator (Dynamic Live Check) */}
-          <Tooltip title={`${cloudStatus.message} • Click to open Supabase Settings`}>
-            <Chip
+        {/* Live Operational Status Pill (Compact SaaS Indicator) */}
+        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', mr: 2 }}>
+          <Tooltip title={`${cloudStatus.message} • Active: ${activeShift} • Click for Settings`}>
+            <Box
               onClick={() => onSelectTab && onSelectTab('settings')}
-              icon={
-                cloudStatus.status === 'connected' ? (
-                  <CloudDoneIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />
-                ) : cloudStatus.status === 'setup_needed' ? (
-                  <CloudSyncIcon sx={{ fontSize: '15px !important', color: '#D97706 !important' }} />
-                ) : cloudStatus.status === 'checking' ? (
-                  <CloudSyncIcon sx={{ fontSize: '15px !important', color: '#64748B !important' }} />
-                ) : (
-                  <ErrorOutlineIcon sx={{ fontSize: '15px !important', color: '#DC2626 !important' }} />
-                )
-              }
-              label={
-                cloudStatus.status === 'connected'
-                  ? 'Supabase Connected'
-                  : cloudStatus.status === 'setup_needed'
-                  ? 'Supabase Setup Needed'
-                  : cloudStatus.status === 'checking'
-                  ? 'Supabase Checking...'
-                  : 'Supabase Offline (Local Only)'
-              }
-              size="small"
               sx={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.9,
+                px: 1.4,
+                py: 0.55,
+                borderRadius: 99,
                 cursor: 'pointer',
                 transition: 'all 0.2s',
                 bgcolor:
                   cloudStatus.status === 'connected'
-                    ? '#ECFDF5'
+                    ? '#F0FDF4'
                     : cloudStatus.status === 'setup_needed'
-                    ? '#FEF3C7'
+                    ? '#FFFBEB'
                     : cloudStatus.status === 'checking'
-                    ? '#F1F5F9'
+                    ? '#F8FAFC'
                     : '#FEF2F2',
-                color:
-                  cloudStatus.status === 'connected'
-                    ? '#065F46'
-                    : cloudStatus.status === 'setup_needed'
-                    ? '#92400E'
-                    : cloudStatus.status === 'checking'
-                    ? '#475569'
-                    : '#991B1B',
                 border:
                   cloudStatus.status === 'connected'
-                    ? '1px solid #A7F3D0'
+                    ? '1px solid #BBF7D0'
                     : cloudStatus.status === 'setup_needed'
                     ? '1px solid #FDE68A'
                     : cloudStatus.status === 'checking'
                     ? '1px solid #E2E8F0'
                     : '1px solid #FECACA',
-                fontWeight: 800,
-                fontSize: '0.75rem',
                 '&:hover': {
-                  opacity: 0.9,
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.08)'
+                  boxShadow: '0 2px 8px rgba(15, 44, 89, 0.08)',
+                  transform: 'translateY(-0.5px)'
                 }
               }}
-            />
+            >
+              <Box
+                sx={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  flexShrink: 0,
+                  bgcolor:
+                    cloudStatus.status === 'connected'
+                      ? '#10B981'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#F59E0B'
+                      : cloudStatus.status === 'checking'
+                      ? '#94A3B8'
+                      : '#EF4444',
+                  boxShadow:
+                    cloudStatus.status === 'connected'
+                      ? '0 0 0 3px rgba(16, 185, 129, 0.18)'
+                      : 'none'
+                }}
+              />
+              <Typography
+                variant="caption"
+                noWrap
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '0.73rem',
+                  color:
+                    cloudStatus.status === 'connected'
+                      ? '#065F46'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#92400E'
+                      : cloudStatus.status === 'checking'
+                      ? '#475569'
+                      : '#991B1B'
+                }}
+              >
+                {cloudStatus.status === 'connected'
+                  ? 'Cloud Online'
+                  : cloudStatus.status === 'setup_needed'
+                  ? 'Setup Needed'
+                  : cloudStatus.status === 'checking'
+                  ? 'Syncing...'
+                  : 'Offline'}
+              </Typography>
+              <Box sx={{ width: '1px', height: 12, bgcolor: 'rgba(100, 116, 139, 0.25)' }} />
+              <Typography
+                variant="caption"
+                noWrap
+                sx={{
+                  fontWeight: 700,
+                  fontSize: '0.73rem',
+                  color: '#1E40AF'
+                }}
+              >
+                {String(activeShift || '').replace(/\s*\(.*?\)/, '')}
+              </Typography>
+            </Box>
           </Tooltip>
         </Box>
 

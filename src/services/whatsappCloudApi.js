@@ -188,15 +188,15 @@ export async function sendWhatsAppBrochureDirect(phone, course) {
   const cTitle = course?.title || 'Vocational Training';
   const hours = course?.totalHours || 390;
 
-  const msg = `🌟 *Global Era Technical School — Official Syllabus & Brochure* 🌟\n\n` +
+  const msg = `🌟 *Prabidhik School (Global Era Multi Service Pvt. Ltd.) — Official Syllabus & Brochure* 🌟\n\n` +
     `Hello! Here is the official vocational curriculum details for *${cTitle}* (${hours} Hours — 80% Practical Hands-on Training):\n\n` +
-    `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu (Near MitraPark Hub)\n` +
+    `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
     `⏱️ *Daily 2-Hour Flexible Shifts:* Shift A (7-9 AM) to Shift E (4-6 PM)\n` +
     `💳 *Affordable TVET Fee Structure:* 50% on Enrollment + 50% Mid-Course\n` +
     `🛠️ *Tools & Materials:* 100% individual toolsets provided in workshop\n` +
     `💼 *Career Support:* 1-Click Graduation Portfolio Dossier & OJT Job Placement\n\n` +
     `🌐 *View Full Interactive Syllabus Online:* https://globalera.com.np/?course=${course?.id || ''}\n\n` +
-    `For counseling or admissions assistance, reply to this message directly or call 01410715 / 9851000000.`;
+    `For counseling or admissions assistance, reply to this message directly or call 014910715 / WhatsApp 9705147147.`;
 
   return sendMetaWhatsAppMessage({
     to: phone,
@@ -217,7 +217,7 @@ export async function sendWhatsAppAdmissionReceiptDirect(phone, student, admissi
   const receiptNo = admission?.receiptNo || `REC-${Date.now().toString().slice(-6)}`;
 
   const msg = `🎉 *Official Admission Confirmation & Fee Receipt* 🎉\n\n` +
-    `*Global Era Technical School*\n` +
+    `*Prabidhik School (Global Era Multi Service Pvt. Ltd.)*\n` +
     `Receipt No: *${receiptNo}*\n` +
     `Student Name: *${sName}*\n` +
     `Registration TGID: *${tgid}*\n` +
@@ -225,8 +225,8 @@ export async function sendWhatsAppAdmissionReceiptDirect(phone, student, admissi
     `💰 *Fee Payment Summary (50-50 Policy):*\n` +
     `• Amount Paid Today: *NPR ${paid}* (Advance 50%)\n` +
     `• Remaining Due: *NPR ${due}* (Due at Mid-Course)\n\n` +
-    `📍 Campus: Jorpati, Gokarneshwor | Phone: 01410715\n` +
-    `Please keep this message as your official digital payment proof. Welcome to Global Era!`;
+    `📍 Campus: Jorpati, Gokarneshwor, Kathmandu | Phone: 014910715 | WhatsApp: 9705147147\n` +
+    `Please keep this message as your official digital payment proof. Welcome to Prabidhik School!`;
 
   return sendMetaWhatsAppMessage({
     to: phone,
@@ -243,12 +243,12 @@ export async function sendWhatsAppAbsenceAlertDirect(parentPhone, student, group
   const shift = group?.shift ? `Shift ${group.shift}` : 'regular class';
   const dateStr = date || new Date().toISOString().slice(0, 10);
 
-  const msg = `⚠️ *Global Era Technical School — Daily Attendance Notice*\n\n` +
+  const msg = `⚠️ *Prabidhik School — Daily Attendance Notice*\n\n` +
     `Dear Guardian/Parent,\n` +
     `This is to notify that your ward *${sName}* was recorded *ABSENT* from the ${shift} vocational training on *${dateStr}*.\n\n` +
     `CTEVT accreditation requires at least 80% practical attendance for final examination and OJT eligibility.\n` +
-    `If this absence was pre-approved or due to medical reasons, please contact the front desk at 01410715.\n\n` +
-    `Admin Office, Global Era Technical School`;
+    `If this absence was pre-approved or due to medical reasons, please contact the front desk at 014910715 / 9705147147.\n\n` +
+    `Admin Office, Prabidhik School (Global Era Multi Service Pvt. Ltd.)`;
 
   return sendMetaWhatsAppMessage({
     to: parentPhone,
