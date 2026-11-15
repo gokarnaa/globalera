@@ -1919,7 +1919,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         >
           {(() => {
             const cTitle = (selectedSyllabusCourse.title || '').toLowerCase();
-            const isBeautician = cTitle.includes('beauty') || cTitle.includes('beautician');
+            const isBeautician = cTitle.includes('beauty') || cTitle.includes('beautic');
             const isTailoring = cTitle.includes('tailor') || cTitle.includes('dress') || cTitle.includes('fashion') || cTitle.includes('stitch');
 
             const totalTheory = activeSyllabusUnits.reduce((acc, u) => acc + (Number(u.theoryHours) || 0), 0);
@@ -2232,153 +2232,48 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   </Tabs>
                 </Box>
 
-                {/* 3. SCROLLABLE CONTENT AREA (KPI HIGHLIGHTS + TAB CONTENTS) */}
-                <DialogContent dividers sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#FAFBFD' }}>
-                  {/* 4-PILLAR EXECUTIVE HIGHLIGHT TILES (Scrollable with content so curriculum gets full viewport!) */}
-                  <Box sx={{ bgcolor: '#F8FAFC', p: { xs: 1.2, sm: 1.8 }, mb: 2.5, borderRadius: 3, border: '1px solid #E2E8F0' }}>
-                    <Grid container spacing={{ xs: 1, sm: 1.5 }}>
-                    {/* Tile 1: 80% Practical */}
-                    <Grid item xs={6} md={3}>
-                      <Box
-                        sx={{
-                          p: 1.8,
-                          bgcolor: '#FFFFFF',
-                          borderRadius: 2.5,
-                          border: '1px solid #E2E8F0',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <SpeedIcon sx={{ color: '#059669', fontSize: 20 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#059669', textTransform: 'uppercase' }}>
-                            Hands-On Ratio
-                          </Typography>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A', my: 0.2 }}>
-                          {pRatio}% Practical Lab
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>
-                          {totalPractical}h Workshop • {totalTheory}h Theory
-                        </Typography>
-                        <LinearProgress
-                          variant="determinate"
-                          value={pRatio}
-                          sx={{
-                            mt: 1,
-                            height: 6,
-                            borderRadius: 3,
-                            bgcolor: '#E2E8F0',
-                            '& .MuiLinearProgress-bar': { bgcolor: '#059669', borderRadius: 3 }
-                          }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    {/* Tile 2: 2-Hour Flexible Shifts */}
-                    <Grid item xs={6} md={3}>
-                      <Box
-                        sx={{
-                          p: 1.8,
-                          bgcolor: '#FFFFFF',
-                          borderRadius: 2.5,
-                          border: '1px solid #E2E8F0',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <ScheduleIcon sx={{ color: '#2563EB', fontSize: 20 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#2563EB', textTransform: 'uppercase' }}>
-                            Daily Shift Matrix
-                          </Typography>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A', my: 0.2 }}>
-                          2-Hour Daily Shifts
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>
-                          Shifts A, B, C, D, E + Weekend
-                        </Typography>
-                        <Chip
-                          label="Small Batches: 15-20 Trainees"
-                          size="small"
-                          sx={{ mt: 1, bgcolor: '#EFF6FF', color: '#1E40AF', fontWeight: 800, fontSize: '0.66rem', height: 20 }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    {/* Tile 3: Guaranteed OJT & Placement */}
-                    <Grid item xs={6} md={3}>
-                      <Box
-                        sx={{
-                          p: 1.8,
-                          bgcolor: '#FFFFFF',
-                          borderRadius: 2.5,
-                          border: '1px solid #E2E8F0',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <HandshakeIcon sx={{ color: '#D97706', fontSize: 20 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#D97706', textTransform: 'uppercase' }}>
-                            Industry Career
-                          </Typography>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A', my: 0.2 }}>
-                          100% Guaranteed OJT
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>
-                          Partner Enterprise Placement Cell
-                        </Typography>
-                        <Chip
-                          label="Verified Employer Network"
-                          size="small"
-                          sx={{ mt: 1, bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: '0.66rem', height: 20 }}
-                        />
-                      </Box>
-                    </Grid>
-
-                    {/* Tile 4: 2-Installment Affordable Fee */}
-                    <Grid item xs={6} md={3}>
-                      <Box
-                        sx={{
-                          p: 1.8,
-                          bgcolor: '#FFFFFF',
-                          borderRadius: 2.5,
-                          border: '1px solid #E2E8F0',
-                          height: '100%',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-                          <PaymentsIcon sx={{ color: '#7C3AED', fontSize: 20 }} />
-                          <Typography variant="caption" sx={{ fontWeight: 900, color: '#7C3AED', textTransform: 'uppercase' }}>
-                            Fair Fee Policy
-                          </Typography>
-                        </Box>
-                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#059669', my: 0.2 }}>
-                          NPR {(feeCalc.totalEffectiveFee || 0).toLocaleString()}
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.72rem' }}>
-                          50% Admission + 50% Mid-Course
-                        </Typography>
-                        <Chip
-                          label="13% VAT & Practice Kit Included"
-                          size="small"
-                          sx={{ mt: 1, bgcolor: '#F5F3FF', color: '#6D28D9', fontWeight: 800, fontSize: '0.66rem', height: 20 }}
-                        />
-                      </Box>
-                    </Grid>
-                    </Grid>
+                {/* 3. SCROLLABLE CONTENT AREA (COMPACT 1-LINE SUMMARY + TAB CONTENTS) */}
+                <DialogContent dividers sx={{ p: { xs: 1.5, sm: 2.5 }, bgcolor: '#FAFBFD' }}>
+                  {/* 1-Line Compact Executive Summary Strip */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 0.75,
+                      bgcolor: '#FFFFFF',
+                      px: { xs: 1.2, sm: 1.8 },
+                      py: { xs: 0.85, sm: 1 },
+                      mb: 2,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0'
+                    }}
+                  >
+                    <Chip
+                      icon={<SpeedIcon sx={{ fontSize: '15px !important', color: '#059669 !important' }} />}
+                      label={`${pRatio}% Practical (${totalPractical}h Lab / ${totalTheory}h Theory)`}
+                      size="small"
+                      sx={{ bgcolor: '#ECFDF5', color: '#047857', fontWeight: 800, fontSize: '0.72rem' }}
+                    />
+                    <Chip
+                      icon={<ScheduleIcon sx={{ fontSize: '15px !important', color: '#2563EB !important' }} />}
+                      label="2-Hr Shifts (A–E + Weekend)"
+                      size="small"
+                      sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, fontSize: '0.72rem' }}
+                    />
+                    <Chip
+                      icon={<HandshakeIcon sx={{ fontSize: '15px !important', color: '#D97706 !important' }} />}
+                      label="100% Guaranteed OJT"
+                      size="small"
+                      sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: '0.72rem' }}
+                    />
+                    <Chip
+                      icon={<PaymentsIcon sx={{ fontSize: '15px !important', color: '#7C3AED !important' }} />}
+                      label={`Fee: NPR ${(feeCalc.totalEffectiveFee || 0).toLocaleString()} (2 Installments)`}
+                      size="small"
+                      sx={{ bgcolor: '#F5F3FF', color: '#6D28D9', fontWeight: 900, fontSize: '0.72rem' }}
+                    />
                   </Box>
 
                   {/* TAB 0: CURRICULUM MODULES TABLE & CARDS */}
@@ -2440,36 +2335,36 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                         </Box>
                       </Box>
 
-                      {/* 1. Visual Illustrated Gallery Grid */}
+                      {/* 1. Compact Horizontal Illustrated Module Grid */}
                       {brochureGalleryMode === 'gallery' && (
-                        <Grid container spacing={2}>
+                        <Grid container spacing={1.5}>
                           {activeSyllabusUnits.map((u) => {
                             const tH = Number(u.theoryHours) || 0;
                             const pH = Number(u.practicalHours) || 0;
                             const tot = tH + pH;
                             const pRatio = tot > 0 ? Math.round((pH / tot) * 100) : 80;
                             return (
-                              <Grid item xs={12} sm={6} key={u.unitNo}>
+                              <Grid item xs={12} md={6} key={u.unitNo}>
                                 <Card
                                   variant="outlined"
                                   sx={{
                                     height: '100%',
                                     display: 'flex',
-                                    flexDirection: 'column',
-                                    borderRadius: 3,
+                                    flexDirection: 'row',
+                                    alignItems: 'stretch',
+                                    borderRadius: 2.5,
                                     borderColor: theme.border,
                                     overflow: 'hidden',
-                                    transition: 'all 0.25s ease',
+                                    transition: 'all 0.2s ease',
                                     bgcolor: '#FFFFFF',
                                     '&:hover': {
-                                      transform: 'translateY(-3px)',
-                                      boxShadow: '0 10px 24px -6px rgba(0,0,0,0.08)',
+                                      boxShadow: '0 6px 18px -4px rgba(0,0,0,0.08)',
                                       borderColor: theme.primary
                                     }
                                   }}
                                 >
-                                  {/* Unit Photo Banner */}
-                                  <Box sx={{ position: 'relative', height: 140, bgcolor: '#0F172A', overflow: 'hidden' }}>
+                                  {/* Compact Left Thumbnail */}
+                                  <Box sx={{ position: 'relative', width: { xs: 84, sm: 108 }, minHeight: 96, flexShrink: 0, bgcolor: '#0F172A' }}>
                                     <Box
                                       component="img"
                                       src={u.imageUrl || 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80'}
@@ -2478,90 +2373,67 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                                       sx={{
                                         width: '100%',
                                         height: '100%',
-                                        objectFit: 'cover',
-                                        transition: 'transform 0.4s ease',
-                                        '&:hover': { transform: 'scale(1.05)' }
+                                        objectFit: 'cover'
                                       }}
                                     />
-                                    {/* Overlay Gradient */}
-                                    <Box
+                                    <Chip
+                                      label={`M0${u.unitNo}`}
+                                      size="small"
                                       sx={{
                                         position: 'absolute',
-                                        inset: 0,
-                                        background: 'linear-gradient(to top, rgba(15,23,42,0.85) 0%, rgba(15,23,42,0.2) 60%, transparent 100%)'
+                                        top: 6,
+                                        left: 6,
+                                        bgcolor: theme.primary,
+                                        color: '#FFFFFF',
+                                        fontWeight: 900,
+                                        fontSize: '0.64rem',
+                                        height: 20
                                       }}
                                     />
-                                    {/* Badge Pills over Image */}
-                                    <Box sx={{ position: 'absolute', top: 10, left: 10 }}>
+                                  </Box>
+
+                                  {/* Compact Right Body */}
+                                  <Box sx={{ p: { xs: 1.2, sm: 1.5 }, flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.6 }}>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                                      <Typography variant="subtitle2" sx={{ color: '#0F172A', fontWeight: 900, lineHeight: 1.25, fontSize: { xs: '0.84rem', sm: '0.9rem' } }}>
+                                        {u.title}
+                                      </Typography>
                                       <Chip
-                                        label={`MODULE 0${u.unitNo}`}
+                                        label={`${tot}h`}
                                         size="small"
                                         sx={{
-                                          bgcolor: theme.primary,
-                                          color: '#FFFFFF',
-                                          fontWeight: 900,
-                                          fontSize: '0.68rem',
-                                          letterSpacing: '0.04em',
-                                          height: 22,
-                                          boxShadow: '0 2px 6px rgba(0,0,0,0.3)'
-                                        }}
-                                      />
-                                    </Box>
-                                    <Box sx={{ position: 'absolute', top: 10, right: 10 }}>
-                                      <Chip
-                                        label={`${tot}h Total`}
-                                        size="small"
-                                        sx={{
-                                          bgcolor: 'rgba(255,255,255,0.92)',
+                                          bgcolor: '#F1F5F9',
                                           color: '#0F172A',
                                           fontWeight: 800,
                                           fontSize: '0.68rem',
-                                          height: 22
+                                          height: 20,
+                                          flexShrink: 0
                                         }}
                                       />
                                     </Box>
-                                    <Box sx={{ position: 'absolute', bottom: 8, left: 12, right: 12 }}>
-                                      <Typography variant="subtitle2" sx={{ color: '#FFFFFF', fontWeight: 800, lineHeight: 1.25, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
-                                        {u.title}
-                                      </Typography>
-                                    </Box>
-                                  </Box>
 
-                                  {/* Card Body */}
-                                  <Box sx={{ p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
-                                    {/* Hours Distribution Bar */}
-                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                      <Box sx={{ flex: 1, bgcolor: '#ECFDF5', p: 0.8, borderRadius: 1.5, border: '1px solid #A7F3D0', textAlign: 'center' }}>
-                                        <Typography variant="caption" sx={{ color: '#047857', fontWeight: 900, fontSize: '0.76rem', display: 'block' }}>
-                                          🛠️ {pH}h Practical
-                                        </Typography>
-                                        <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.65rem' }}>
-                                          {pRatio}% Hands-on
-                                        </Typography>
-                                      </Box>
-                                      <Box sx={{ flex: 1, bgcolor: '#EFF6FF', p: 0.8, borderRadius: 1.5, border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                                        <Typography variant="caption" sx={{ color: '#1D4ED8', fontWeight: 900, fontSize: '0.76rem', display: 'block' }}>
-                                          📖 {tH}h Theory
-                                        </Typography>
-                                        <Typography variant="caption" sx={{ color: '#2563EB', fontSize: '0.65rem' }}>
-                                          Principles & Safety
-                                        </Typography>
-                                      </Box>
+                                    <Box sx={{ display: 'flex', gap: 0.75, flexWrap: 'wrap' }}>
+                                      <Chip
+                                        label={`${pH}h Practical (${pRatio}%)`}
+                                        size="small"
+                                        sx={{ height: 20, fontSize: '0.66rem', fontWeight: 800, bgcolor: '#ECFDF5', color: '#047857' }}
+                                      />
+                                      <Chip
+                                        label={`${tH}h Theory`}
+                                        size="small"
+                                        sx={{ height: 20, fontSize: '0.66rem', fontWeight: 800, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
+                                      />
                                     </Box>
 
-                                    {/* Tools & Equipment */}
                                     {u.toolsAndMaterials && (
-                                      <Box sx={{ bgcolor: '#F8FAFC', p: 1, borderRadius: 1.5, border: '1px dashed #CBD5E1' }}>
-                                        <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.7rem', display: 'block', lineHeight: 1.35 }}>
-                                          <strong style={{ color: '#0F172A' }}>Workshop Gear:</strong> {u.toolsAndMaterials}
-                                        </Typography>
-                                      </Box>
+                                      <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.7rem', lineHeight: 1.35 }}>
+                                        <strong style={{ color: '#0F172A' }}>Gear:</strong> {u.toolsAndMaterials}
+                                      </Typography>
                                     )}
 
-                                    {/* Learning Outcome */}
                                     {u.learningOutcome && (
-                                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.72rem', lineHeight: 1.4, mt: 'auto' }}>
-                                        🎯 {u.learningOutcome}
+                                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem', lineHeight: 1.35, mt: 'auto' }}>
+                                        {u.learningOutcome}
                                       </Typography>
                                     )}
                                   </Box>
@@ -2961,7 +2833,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 </DialogContent>
 
                 {/* 6. BOTTOM DIALOG ACTIONS */}
-                <DialogActions sx={{ p: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+                <DialogActions sx={{ px: { xs: 1.5, sm: 2.5 }, py: { xs: 1, sm: 1.4 }, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
                   <Button
                     onClick={() => setSelectedSyllabusCourse(null)}
                     sx={{ fontWeight: 700, color: '#64748B' }}
