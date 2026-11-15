@@ -303,6 +303,7 @@ export const INITIAL_SEED_DATA = {
       contactPhone: '014910715',
       whatsappPhone: '9705147147',
       facebookUrl: 'https://www.facebook.com/prabhidhikschool',
+      tiktokUrl: 'https://www.tiktok.com/@prabhidhikschooljorpati',
       email: 'globaleramultiservice@gmail.com',
       website: 'https://globalera.com.np',
       officeHours: '7:00 AM – 6:00 PM',
