@@ -1104,14 +1104,16 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               >
                 <Box
                   sx={{
-                    position: 'relative',
                     width: '100%',
-                    height: { xs: 230, sm: 270 },
-                    borderRadius: 2.5,
+                    maxWidth: 245,
+                    aspectRatio: '3 / 4',
+                    mx: 'auto',
+                    borderRadius: 3,
                     overflow: 'hidden',
-                    mb: 1.6,
+                    mb: 1.4,
                     bgcolor: '#E2E8F0',
-                    border: '1px solid #CBD5E1'
+                    border: '2px solid #E2E8F0',
+                    boxShadow: '0 8px 20px rgba(15, 44, 89, 0.14)'
                   }}
                 >
                   <Box
@@ -1122,37 +1124,35 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      objectPosition: 'center 18%'
+                      objectPosition: 'center top',
+                      display: 'block'
                     }}
                   />
-                  <Box
-                    sx={{
-                      position: 'absolute',
-                      bottom: 10,
-                      left: 10,
-                      right: 10,
-                      px: 1.4,
-                      py: 0.7,
-                      borderRadius: 2,
-                      bgcolor: 'rgba(7, 26, 54, 0.85)',
-                      backdropFilter: 'blur(6px)',
-                      color: '#FFFFFF',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 1
-                    }}
-                  >
-                    <Box>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1.2, fontSize: '0.92rem' }}>
-                        दुर्गा न्यौपाने (Durga Neupane)
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.72rem' }}>
-                        प्रबन्ध निर्देशक (Managing Director)
-                      </Typography>
-                    </Box>
-                    <VerifiedIcon sx={{ color: '#34D399', fontSize: 20, flexShrink: 0 }} />
+                </Box>
+
+                <Box
+                  sx={{
+                    px: 1.5,
+                    py: 0.85,
+                    mb: 1.3,
+                    borderRadius: 2,
+                    bgcolor: '#0B2545',
+                    color: '#FFFFFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 1
+                  }}
+                >
+                  <Box>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1.2, fontSize: '0.95rem' }}>
+                      दुर्गा न्यौपाने (Durga Neupane)
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.73rem' }}>
+                      प्रबन्ध निर्देशक (Managing Director) • प्राविधिक स्कूल
+                    </Typography>
                   </Box>
+                  <VerifiedIcon sx={{ color: '#34D399', fontSize: 20, flexShrink: 0 }} />
                 </Box>
 
                 <Typography
