@@ -464,56 +464,51 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              flexWrap: { xs: 'nowrap', sm: 'wrap' },
-              gap: 1
+              flexWrap: 'nowrap',
+              gap: 1.5
             }}
           >
-            {/* Left: Location & Operating Hours */}
-            <Stack direction="row" spacing={{ xs: 1, md: 2.5 }} alignItems="center" sx={{ minWidth: 0 }}>
+            {/* Left: Location & Operating Hours (Compact Single Line) */}
+            <Stack direction="row" spacing={{ xs: 1, md: 1.8 }} alignItems="center" sx={{ minWidth: 0 }}>
               <Stack direction="row" spacing={0.5} alignItems="center" sx={{ minWidth: 0 }}>
-                <LocationOnIcon sx={{ fontSize: { xs: 13, sm: 15 }, color: '#F59E0B', flexShrink: 0 }} />
+                <LocationOnIcon sx={{ fontSize: { xs: 13, sm: 14 }, color: '#F59E0B', flexShrink: 0 }} />
                 <Typography
                   variant="caption"
                   noWrap
-                  sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: { xs: '0.68rem', sm: '0.76rem' }, display: { xs: 'block', sm: 'none' } }}
+                  sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: { xs: '0.68rem', sm: '0.73rem' } }}
                 >
                   Jorpati, Kathmandu
                 </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 700, color: '#F1F5F9', fontSize: '0.76rem', display: { xs: 'none', sm: 'block' } }}
-                >
-                  Global Era Multi Service — Jorpati, Gokarneshwor, Kathmandu
-                </Typography>
               </Stack>
 
-              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', display: { xs: 'none', md: 'block' } }} />
+              <Divider orientation="vertical" flexItem sx={{ borderColor: 'rgba(255,255,255,0.2)', display: { xs: 'none', lg: 'block' } }} />
 
-              <Stack direction="row" spacing={0.6} alignItems="center" sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <AccessTimeIcon sx={{ fontSize: 14, color: '#10B981' }} />
-                <Typography variant="caption" sx={{ fontWeight: 600, color: '#CBD5E1', fontSize: '0.74rem' }}>
-                  Office Hours: 7:00 AM – 6:00 PM (Sun – Fri)
+              <Stack direction="row" spacing={0.5} alignItems="center" sx={{ display: { xs: 'none', lg: 'flex' }, minWidth: 0 }}>
+                <AccessTimeIcon sx={{ fontSize: 13, color: '#10B981', flexShrink: 0 }} />
+                <Typography variant="caption" noWrap sx={{ fontWeight: 600, color: '#CBD5E1', fontSize: '0.72rem' }}>
+                  7:00 AM – 6:00 PM (Sun–Fri)
                 </Typography>
               </Stack>
             </Stack>
 
-            {/* Right: Phone, Email & WhatsApp Direct Connect */}
-            <Stack direction="row" spacing={{ xs: 1, sm: 2.2 }} alignItems="center" sx={{ flexShrink: 0 }}>
+            {/* Right: Phone, Email, Social & WhatsApp Direct Connect */}
+            <Stack direction="row" spacing={{ xs: 1, sm: 1.6 }} alignItems="center" sx={{ flexShrink: 0 }}>
               <Box
                 component="a"
                 href="tel:014910715"
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 0.6,
+                  gap: 0.5,
                   color: '#FFFFFF',
                   textDecoration: 'none',
                   fontWeight: 700,
-                  fontSize: '0.76rem',
+                  fontSize: '0.73rem',
+                  whiteSpace: 'nowrap',
                   '&:hover': { color: '#F59E0B' }
                 }}
               >
-                <PhoneIcon sx={{ fontSize: 14, color: '#F59E0B' }} />
+                <PhoneIcon sx={{ fontSize: 13, color: '#F59E0B' }} />
                 <span>014910715</span>
               </Box>
 
@@ -521,61 +516,68 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 component="a"
                 href="mailto:globaleramultiservice@gmail.com"
                 sx={{
-                  display: { xs: 'none', sm: 'flex' },
+                  display: { xs: 'none', lg: 'flex' },
                   alignItems: 'center',
-                  gap: 0.6,
+                  gap: 0.5,
                   color: '#E2E8F0',
                   textDecoration: 'none',
                   fontWeight: 600,
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
+                  whiteSpace: 'nowrap',
                   '&:hover': { color: '#F59E0B' }
                 }}
               >
-                <EmailIcon sx={{ fontSize: 14, color: '#38BDF8' }} />
+                <EmailIcon sx={{ fontSize: 13, color: '#38BDF8' }} />
                 <span>globaleramultiservice@gmail.com</span>
               </Box>
 
-              <Box
-                component="a"
-                href="https://www.facebook.com/prabhidhikschool"
-                target="_blank"
-                rel="noreferrer"
-                sx={{
-                  display: { xs: 'none', md: 'inline-flex' },
-                  alignItems: 'center',
-                  gap: 0.5,
-                  color: '#93C5FD',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: '0.72rem',
-                  '&:hover': { color: '#FFFFFF' }
-                }}
-              >
-                <FacebookIcon sx={{ fontSize: 14 }} />
-                <span>Prabidhik School</span>
-              </Box>
+              <Tooltip title="Facebook: Prabidhik School">
+                <Box
+                  component="a"
+                  href="https://www.facebook.com/prabhidhikschool"
+                  target="_blank"
+                  rel="noreferrer"
+                  sx={{
+                    display: { xs: 'none', sm: 'inline-flex' },
+                    alignItems: 'center',
+                    gap: 0.4,
+                    color: '#93C5FD',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.72rem',
+                    whiteSpace: 'nowrap',
+                    '&:hover': { color: '#FFFFFF' }
+                  }}
+                >
+                  <FacebookIcon sx={{ fontSize: 14 }} />
+                  <span>FB</span>
+                </Box>
+              </Tooltip>
 
-              <Box
-                component="a"
-                href="https://www.tiktok.com/@prabhidhikschooljorpati"
-                target="_blank"
-                rel="noreferrer"
-                sx={{
-                  display: { xs: 'none', lg: 'inline-flex' },
-                  alignItems: 'center',
-                  gap: 0.5,
-                  color: '#F472B6',
-                  textDecoration: 'none',
-                  fontWeight: 700,
-                  fontSize: '0.72rem',
-                  '&:hover': { color: '#FFFFFF' }
-                }}
-              >
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                  <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
-                </svg>
-                <span>TikTok</span>
-              </Box>
+              <Tooltip title="TikTok: @prabhidhikschooljorpati">
+                <Box
+                  component="a"
+                  href="https://www.tiktok.com/@prabhidhikschooljorpati"
+                  target="_blank"
+                  rel="noreferrer"
+                  sx={{
+                    display: { xs: 'none', md: 'inline-flex' },
+                    alignItems: 'center',
+                    gap: 0.4,
+                    color: '#F472B6',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    fontSize: '0.72rem',
+                    whiteSpace: 'nowrap',
+                    '&:hover': { color: '#FFFFFF' }
+                  }}
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
+                  </svg>
+                  <span>TikTok</span>
+                </Box>
+              </Tooltip>
 
               <Box
                 component="a"
