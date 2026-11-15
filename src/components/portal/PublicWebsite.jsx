@@ -950,30 +950,96 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             <Grid item xs={12} md={7}>
               <Chip
                 icon={<VerifiedIcon sx={{ color: '#FCD34D !important', fontSize: 16 }} />}
-                label="CTEVT Accredited National Vocational Training"
+                label="प्राविधिक स्कूल, जोरपाटी • ग्लोबल इरा मल्टी सर्भिस प्रा. लि."
                 size="small"
                 sx={{
                   bgcolor: 'rgba(255,255,255,0.12)',
                   color: '#FFFFFF',
                   fontWeight: 800,
-                  fontSize: { xs: '0.68rem', sm: '0.75rem' },
+                  fontSize: { xs: '0.72rem', sm: '0.78rem' },
                   mb: { xs: 1.5, md: 2 },
                   height: 'auto',
-                  py: 0.35,
-                  border: '1px solid rgba(253, 211, 77, 0.4)',
+                  py: 0.45,
+                  px: 0.6,
+                  border: '1px solid rgba(253, 211, 77, 0.45)',
                   maxWidth: '100%',
-                  '& .MuiChip-label': { whiteSpace: 'normal', lineHeight: 1.3 }
+                  '& .MuiChip-label': { whiteSpace: 'normal', lineHeight: 1.35 }
                 }}
               />
 
-              <Typography variant="h3" sx={{ fontWeight: 900, lineHeight: { xs: 1.18, md: 1.2 }, mb: { xs: 1.5, md: 2 }, fontSize: { xs: '1.65rem', sm: '2.3rem', md: '2.9rem' } }}>
-                Vocational Skills, National Recognition & <span style={{ color: '#F59E0B' }}>A Bright Future</span>
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 900,
+                  lineHeight: { xs: 1.22, md: 1.18 },
+                  mb: { xs: 1.2, md: 1.8 },
+                  fontSize: { xs: '1.85rem', sm: '2.5rem', md: '3.1rem' },
+                  letterSpacing: '-0.01em'
+                }}
+              >
+                सीप सिकौं, <span style={{ color: '#F59E0B' }}>आत्मनिर्भर बनौं</span>
               </Typography>
 
-              <Typography variant="body1" sx={{ color: '#E2E8F0', mb: { xs: 2.2, md: 3.5 }, fontSize: { xs: '0.88rem', md: '1.05rem' }, lineHeight: { xs: 1.55, md: 1.7 }, maxWidth: 640 }}>
-                Global Era Technical School offers national-standard 3-month (390 hours) skill-based vocational training programs.
-                Transparent fee structure inclusive of 13% VAT, flexible 2-installment payment plan, and 100% hands-on practical training!
+              <Typography
+                variant="body1"
+                sx={{
+                  color: '#E2E8F0',
+                  mb: { xs: 2, md: 2.6 },
+                  fontSize: { xs: '0.9rem', md: '1.04rem' },
+                  lineHeight: { xs: 1.6, md: 1.7 },
+                  maxWidth: 640
+                }}
+              >
+                प्राविधिक स्कूल, जोरपाटीमा व्यावहारिक र रोजगारमूलक सीप तालिम — गुणस्तरीय प्रशिक्षणमार्फत स्वदेश तथा विदेशमा रोजगारी वा आफ्नै व्यवसाय सुरु गर्ने सुनौलो अवसर!
               </Typography>
+
+              {/* Special Offer Highlight Cards: Free Basic & 50% Off Full Course */}
+              <Grid container spacing={1.5} sx={{ mb: { xs: 2.2, md: 3 }, maxWidth: 660 }}>
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 1.6,
+                      borderRadius: 2.5,
+                      bgcolor: 'rgba(16, 185, 129, 0.16)',
+                      border: '1.5px solid rgba(52, 211, 153, 0.55)',
+                      backdropFilter: 'blur(6px)',
+                      height: '100%'
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ color: '#6EE7B7', fontWeight: 900, letterSpacing: '0.02em', display: 'block', mb: 0.3 }}>
+                      🎁 विशेष अवसर • १००% निःशुल्क
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 900, fontSize: '1rem', lineHeight: 1.3 }}>
+                      बेसिक तालिमहरू निःशुल्क
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#D1FAE5', display: 'block', mt: 0.4, lineHeight: 1.45 }}>
+                      सिलाई (Tailoring), ब्युटी पार्लर (Parlor) लगायतका आधारभूत तालिम निःशुल्क
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box
+                    sx={{
+                      p: 1.6,
+                      borderRadius: 2.5,
+                      bgcolor: 'rgba(245, 158, 11, 0.16)',
+                      border: '1.5px solid rgba(251, 191, 36, 0.55)',
+                      backdropFilter: 'blur(6px)',
+                      height: '100%'
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ color: '#FDE68A', fontWeight: 900, letterSpacing: '0.02em', display: 'block', mb: 0.3 }}>
+                      🔥 छात्रवृत्ति सुविधा • ५०% छुट
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ color: '#FFFFFF', fontWeight: 900, fontSize: '1rem', lineHeight: 1.3 }}>
+                      फुल कोर्समा ५०% छुट
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#FEF3C7', display: 'block', mt: 0.4, lineHeight: 1.45 }}>
+                      लेभल-१ व्यावसायिक तालिम (३९० घण्टा • ८०% प्रयोगात्मक अभ्यास)
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
 
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2}>
                 <Button
@@ -988,14 +1054,14 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                     fontWeight: 900,
                     px: { xs: 2.5, md: 3 },
-                    py: { xs: 1.15, md: 1.2 },
-                    fontSize: { xs: '0.88rem', md: '0.9rem' },
+                    py: { xs: 1.15, md: 1.25 },
+                    fontSize: { xs: '0.88rem', md: '0.94rem' },
                     borderRadius: 2,
                     boxShadow: '0 4px 15px rgba(5,150,105,0.4)',
                     '&:hover': { background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)' }
                   }}
                 >
-                  📝 Apply Now (Online Inquiry)
+                  📝 निःशुल्क / ५०% छुटको लागि आवेदन दिनुहोस्
                 </Button>
 
                 <Button
@@ -1011,101 +1077,198 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     color: '#F59E0B',
                     fontWeight: 900,
                     px: { xs: 2.5, md: 3 },
-                    py: { xs: 1.1, md: 1.2 },
-                    fontSize: { xs: '0.88rem', md: '0.9rem' },
+                    py: { xs: 1.1, md: 1.25 },
+                    fontSize: { xs: '0.88rem', md: '0.94rem' },
                     borderRadius: 2,
                     '&:hover': { borderColor: '#FCD34D', bgcolor: 'rgba(245,158,11,0.1)' }
                   }}
                 >
-                  💰 Courses & Fee Schedule
+                  💰 कोर्स र शुल्क विवरण
                 </Button>
               </Stack>
             </Grid>
 
-            {/* Right Card: Quick Verification Search Box */}
+            {/* Right Card: Managing Director Leadership Card */}
             <Grid item xs={12} md={5}>
               <Paper
-                elevation={3}
+                elevation={4}
                 sx={{
-                  p: { xs: 2, sm: 3 },
-                  borderRadius: 3,
-                  bgcolor: '#FFFFFF',
+                  p: { xs: 1.8, sm: 2.2 },
+                  borderRadius: 3.5,
+                  bgcolor: 'rgba(255, 255, 255, 0.98)',
                   color: '#0F172A',
                   borderTop: '4px solid #F59E0B',
-                  boxShadow: '0 15px 35px rgba(0,0,0,0.25)'
+                  boxShadow: '0 20px 45px rgba(0, 0, 0, 0.35)',
+                  overflow: 'hidden'
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-                  <VerifiedIcon sx={{ color: '#059669', fontSize: 24 }} />
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: '#0B2545', fontSize: '1.05rem' }}>
-                    Online Certificate Verification
-                  </Typography>
-                </Box>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 2 }}>
-                  Enter the official training certificate number issued by Global Era below.
-                </Typography>
-
-                <form onSubmit={handleVerifySearch}>
-                  <TextField
-                    fullWidth
-                    size="small"
-                    placeholder="e.g., GE-2081-001 or STD-01"
-                    value={certSearchId}
-                    onChange={(e) => setCertSearchId(e.target.value)}
-                    sx={{ mb: 1.5 }}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon sx={{ color: '#94A3B8' }} />
-                        </InputAdornment>
-                      )
+                <Box
+                  sx={{
+                    position: 'relative',
+                    width: '100%',
+                    height: { xs: 230, sm: 270 },
+                    borderRadius: 2.5,
+                    overflow: 'hidden',
+                    mb: 1.6,
+                    bgcolor: '#E2E8F0',
+                    border: '1px solid #CBD5E1'
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="/images/md-durga-neupane.jpg"
+                    alt="Durga Neupane - Managing Director, Prabidhik School Jorpati"
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      objectPosition: 'center 18%'
                     }}
                   />
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="contained"
-                    disabled={verifying || !certSearchId.trim()}
+                  <Box
                     sx={{
-                      bgcolor: '#0F2C59',
-                      fontWeight: 800,
-                      py: 1,
-                      '&:hover': { bgcolor: '#071A36' }
+                      position: 'absolute',
+                      bottom: 10,
+                      left: 10,
+                      right: 10,
+                      px: 1.4,
+                      py: 0.7,
+                      borderRadius: 2,
+                      bgcolor: 'rgba(7, 26, 54, 0.85)',
+                      backdropFilter: 'blur(6px)',
+                      color: '#FFFFFF',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 1
                     }}
                   >
-                    {verifying ? 'Verifying...' : '🔍 Verify Certificate'}
-                  </Button>
-                </form>
-
-                {/* Inline Verification Result */}
-                {verifyResult && (
-                  <Box sx={{ mt: 2, p: 1.5, bgcolor: '#F0FDF4', borderRadius: 2, border: '1px solid #BBF7D0' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, color: '#166534', mb: 0.5 }}>
-                      <CheckCircleIcon fontSize="small" />
-                      <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
-                        ✓ Official Certificate Verified!
+                    <Box>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 900, lineHeight: 1.2, fontSize: '0.92rem' }}>
+                        दुर्गा न्यौपाने (Durga Neupane)
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, fontSize: '0.72rem' }}>
+                        प्रबन्ध निर्देशक (Managing Director)
                       </Typography>
                     </Box>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                      Student: {verifyResult.student?.name}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                      Course: {verifyResult.course?.title || 'Vocational Training'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                      Certificate No: <b>{verifyResult.certificate?.certificateNo || verifyResult.certificate?.id}</b>
-                    </Typography>
+                    <VerifiedIcon sx={{ color: '#34D399', fontSize: 20, flexShrink: 0 }} />
                   </Box>
-                )}
+                </Box>
 
-                {verifyError && (
-                  <Alert severity="error" sx={{ mt: 2, py: 0.5, fontSize: '0.75rem', fontWeight: 700 }}>
-                    {verifyError}
-                  </Alert>
-                )}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: '#334155',
+                    fontStyle: 'italic',
+                    fontWeight: 600,
+                    lineHeight: 1.55,
+                    fontSize: '0.84rem',
+                    mb: 1.4
+                  }}
+                >
+                  “प्रत्येक युवा तथा महिलालाई व्यावहारिक सीप सिकाएर आर्थिक रूपमा आत्मनिर्भर बनाउनु नै प्राविधिक स्कूल, जोरपाटीको मुख्य लक्ष्य हो।”
+                </Typography>
+
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Chip
+                    size="small"
+                    label="२०,०००+ समुदाय"
+                    sx={{ bgcolor: '#EFF6FF', color: '#1E40AF', fontWeight: 800, fontSize: '0.7rem' }}
+                  />
+                  <Chip
+                    size="small"
+                    label="१००% प्रयोगात्मक अभ्यास"
+                    sx={{ bgcolor: '#ECFDF5', color: '#065F46', fontWeight: 800, fontSize: '0.7rem' }}
+                  />
+                </Stack>
               </Paper>
             </Grid>
           </Grid>
+        </Container>
+      </Box>
+
+      {/* ============================================================== */}
+      {/* 2B. COMPACT CERTIFICATE VERIFICATION BAR                       */}
+      {/* ============================================================== */}
+      <Box sx={{ bgcolor: '#F8FAFC', py: 2, borderBottom: '1px solid #E2E8F0' }}>
+        <Container maxWidth="xl">
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2.5,
+              bgcolor: '#FFFFFF',
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              flexDirection: { xs: 'column', md: 'row' },
+              alignItems: { xs: 'stretch', md: 'center' },
+              justifyContent: 'space-between',
+              gap: 2
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+              <VerifiedIcon sx={{ color: '#059669', fontSize: 24, flexShrink: 0 }} />
+              <Box>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0B2545', lineHeight: 1.2 }}>
+                  Online Certificate Verification
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                  Verify official training certificates issued by Prabidhik School / Global Era.
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box component="form" onSubmit={handleVerifySearch} sx={{ display: 'flex', gap: 1, flex: { md: '0 1 460px' } }}>
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="e.g., GE-2081-001 or STD-01"
+                value={certSearchId}
+                onChange={(e) => setCertSearchId(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
+                    </InputAdornment>
+                  )
+                }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={verifying || !certSearchId.trim()}
+                sx={{
+                  bgcolor: '#0F2C59',
+                  fontWeight: 800,
+                  px: 2.5,
+                  whiteSpace: 'nowrap',
+                  '&:hover': { bgcolor: '#071A36' }
+                }}
+              >
+                {verifying ? 'Verifying...' : '🔍 Verify'}
+              </Button>
+            </Box>
+          </Paper>
+
+          {verifyResult && (
+            <Box sx={{ mt: 1.5, p: 1.5, bgcolor: '#F0FDF4', borderRadius: 2, border: '1px solid #BBF7D0' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, color: '#166534', mb: 0.5 }}>
+                <CheckCircleIcon fontSize="small" />
+                <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>
+                  ✓ Official Certificate Verified!
+                </Typography>
+              </Box>
+              <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                Student: {verifyResult.student?.name} • Course: {verifyResult.course?.title || 'Vocational Training'} • Certificate No: <b>{verifyResult.certificate?.certificateNo || verifyResult.certificate?.id}</b>
+              </Typography>
+            </Box>
+          )}
+
+          {verifyError && (
+            <Alert severity="error" sx={{ mt: 1.5, py: 0.5, fontSize: '0.78rem', fontWeight: 700 }}>
+              {verifyError}
+            </Alert>
+          )}
         </Container>
       </Box>
 
