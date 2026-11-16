@@ -312,56 +312,80 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
   };
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: '1440px', mx: 'auto' }}>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
       {/* Toast Alert */}
       {toastMsg && (
-        <Alert severity={toastSeverity} sx={{ mb: 2.5, fontWeight: 700 }}>
+        <Alert severity={toastSeverity} sx={{ mb: 1.75, py: 0.5, fontWeight: 700, fontSize: '0.8rem' }}>
           {toastMsg}
         </Alert>
       )}
 
-      {/* Hero Header Banner */}
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
         elevation={0}
         sx={{
-          py: { xs: 1.75, sm: 2.25 },
-          px: { xs: 2, sm: 2.5, md: 3 },
-          mb: 2.5,
-          borderRadius: 4,
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
           background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
           color: '#ffffff',
-          boxShadow: '0 10px 28px -8px rgba(15,46,90,0.22)'
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1.5} alignItems="center">
           <Grid item xs={12} md={7}>
-            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
-              <HowToRegIcon sx={{ fontSize: 36, color: '#f59e0b' }} />
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff' }}>
-                Trainee Admission & Agreement
-              </Typography>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <HowToRegIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Trainee Admission &amp; Agreement
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • 50% advance, 30-day installment &amp; dual-copy A4 agreements
+                </Typography>
+              </Box>
             </Stack>
-            <Typography variant="body2" sx={{ color: '#e2e8f0', maxWidth: '780px', lineHeight: 1.6 }}>
-              Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.) — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office &amp; Student Copy) A4 agreement letters</strong>.
-            </Typography>
           </Grid>
           <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
               <Button
                 variant="outlined"
-                size="large"
-                startIcon={<ContactsIcon />}
+                size="small"
+                startIcon={<ContactsIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => setAdmitFromLeadOpen(true)}
                 sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.12)',
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
                   color: '#ffffff',
-                  borderColor: 'rgba(255, 255, 255, 0.35)',
-                  fontWeight: 800,
-                  fontSize: '0.88rem',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
                   whiteSpace: 'nowrap',
-                  px: 2.2,
-                  py: 1.2,
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)', borderColor: '#ffffff' }
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
                 Admit From Leads ({unconvertedLeads.length})
@@ -369,8 +393,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
               <Button
                 variant="contained"
-                size="large"
-                startIcon={<AddIcon />}
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
                 onClick={() => {
                   setSelectedLeadForAdmission(null);
                   setNewAdmissionOpen(true);
@@ -378,16 +402,16 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                 sx={{
                   bgcolor: '#f59e0b',
                   color: '#0f2e5a',
-                  fontWeight: 900,
-                  fontSize: '0.92rem',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
                   whiteSpace: 'nowrap',
-                  px: 2.5,
-                  py: 1.2,
-                  boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
+                  px: 1.5,
+                  py: 0.65,
+                  boxShadow: 'none',
                   '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
                 }}
               >
-                + Direct Walk-in Admission
+                Direct Walk-in Admission
               </Button>
             </Stack>
           </Grid>
@@ -398,168 +422,168 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
       {unsyncedStudents.length > 0 && (
         <Alert
           severity="warning"
-          icon={<SyncIcon />}
+          icon={<SyncIcon fontSize="small" />}
           action={
             <Button
               color="inherit"
               size="small"
               variant="outlined"
               onClick={handleAutoSyncConvertedStudents}
-              sx={{ fontWeight: 800, textTransform: 'none' }}
+              sx={{ fontWeight: 800, textTransform: 'none', fontSize: '0.74rem', py: 0.3 }}
             >
-              Sync All ({unsyncedStudents.length}) Now
+              Sync All ({unsyncedStudents.length})
             </Button>
           }
-          sx={{ mb: 3.5, borderRadius: 2.5, fontWeight: 600, border: '1px solid #FDE68A' }}
+          sx={{ mb: 1.75, py: 0.5, borderRadius: 2, fontWeight: 600, fontSize: '0.78rem', border: '1px solid #FDE68A' }}
         >
-          <strong>{unsyncedStudents.length} student(s)</strong> were previously converted from leads into trainees without an official Admission Agreement. Click &quot;Sync All Now&quot; to generate their formal agreement numbers and show them in Admissions.
+          <strong>{unsyncedStudents.length} student(s)</strong> converted from leads without an Admission Agreement.
         </Alert>
       )}
 
-      {/* 4 Top KPI Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
         {/* Total Admissions */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 2.5,
+              p: 1.4,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              bgcolor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
                   Total Agreements
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
                   {totalAdmissionsCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Enrolled Trainees
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#eff6ff', borderRadius: 2, color: '#1e40af' }}>
-                <SchoolIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
         {/* Today's Admissions */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 2.5,
+              p: 1.4,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              bgcolor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  Today's Admissions
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Today&apos;s Admissions
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284c7', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
                   {todayAdmissionsCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Date: {todayStr}
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
-                <HowToRegIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <HowToRegIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
         {/* 50% Advance Fees Collected */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 2.5,
+              p: 1.4,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              bgcolor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
                   50% Advance Collected
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                   Rs. {totalAdvanceCollected.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Received at Enrollment
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#ecfdf5', borderRadius: 2, color: '#059669' }}>
-                <PaymentsIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <PaymentsIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
         {/* Remaining 50% Due in 30 Days */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 2.5,
+              p: 1.4,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              bgcolor: '#ffffff',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+              borderLeft: '3.5px solid #dc2626',
+              bgcolor: '#ffffff'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                  Installment Due (Within 30 Days)
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  30-Day Installment Due
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#dc2626', mt: 0.5 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#dc2626', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                   Rs. {totalPendingDue.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#dc2626', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Payable within 1 month
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#fef2f2', borderRadius: 2, color: '#dc2626' }}>
-                <ReceiptLongIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fef2f2', borderRadius: 1.5, color: '#dc2626', flexShrink: 0 }}>
+                <ReceiptLongIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Filter and Search Bar */}
+      {/* Compact Filter and Search Bar */}
       <Card
         elevation={0}
         sx={{
-          p: 2,
-          mb: 3,
+          p: 1.25,
+          mb: 1.75,
           borderRadius: 2,
           border: '1px solid #e2e8f0',
           bgcolor: '#ffffff'
         }}
       >
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1.25} alignItems="center">
           <Grid item xs={12} sm={4.5}>
             <TextField
               fullWidth
               size="small"
-              placeholder="Search by student name, phone, agreement no..."
+              placeholder="Search student name, phone, agreement no..."
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -568,13 +592,13 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94a3b8' }} />
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                   </InputAdornment>
                 ),
                 endAdornment: search ? (
                   <InputAdornment position="end">
                     <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
-                      <CloseIcon sx={{ fontSize: 18 }} />
+                      <CloseIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   </InputAdornment>
                 ) : null
@@ -616,8 +640,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               }}
             >
               <MenuItem value="ALL">All OJT</MenuItem>
-              <MenuItem value="REQUIRED">OJT Required (Yes)</MenuItem>
-              <MenuItem value="NOT_REQUIRED">No OJT (No)</MenuItem>
+              <MenuItem value="REQUIRED">OJT Required</MenuItem>
+              <MenuItem value="NOT_REQUIRED">No OJT</MenuItem>
             </TextField>
           </Grid>
 
@@ -649,36 +673,38 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         </Grid>
       </Card>
 
-      {/* Admissions Table */}
-      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+      {/* High-Density Clean Admissions Table */}
+      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
         <TableContainer>
-          <Table>
+          <Table size="small">
             <TableHead
               sx={{
                 bgcolor: '#0F2E5A',
                 '& .MuiTableCell-head': {
                   bgcolor: '#0F2E5A !important',
                   color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.84rem',
-                  py: 1.5,
-                  borderBottom: '2px solid #F59E0B'
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B',
+                  whiteSpace: 'nowrap'
                 }
               }}
             >
               <TableRow>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                  S.N.
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                  #
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Agreement No / Date</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Details</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Batch</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>OJT Service</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">
-                  Fee / 50% Advance
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Agreement / Date</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainee</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course &amp; Batch</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>OJT</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="right">
+                  Fee / Paid
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>2nd Installment / Grace Date</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Due Status</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="center">
                   Actions
                 </TableCell>
               </TableRow>
@@ -686,8 +712,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
             <TableBody>
               {filteredAdmissions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#64748b' }}>
-                    No admission agreements found. Click &apos;+ Direct Walk-in Admission&apos; or &apos;Admit From Leads&apos; to register an enrollment.
+                  <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
+                    No admission agreements found. Click &apos;Direct Walk-in Admission&apos; or &apos;Admit From Leads&apos; to register an enrollment.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -695,237 +721,206 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   const serialNo = page * rowsPerPage + idx + 1;
                   return (
                     <TableRow key={adm.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
-                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                      <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#64748B', width: 46, fontSize: '0.75rem' }}>
                         {serialNo}
-                    </TableCell>
-                    {/* Agreement No & Date */}
-                    <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                        {adm.agreementNo}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
-                        Date: {adm.admissionDateBS || adm.admissionDate}
-                      </Typography>
-                      <Stack direction="row" spacing={0.6} sx={{ mt: 0.6 }} flexWrap="wrap">
-                        <Chip
-                          label="Active"
-                          size="small"
-                          sx={{
-                            height: '20px',
-                            fontSize: '0.66rem',
-                            fontWeight: 700,
-                            bgcolor: '#ecfdf5',
-                            color: '#065f46'
-                          }}
-                        />
-                        {adm.convertedFromLeadId ? (
-                          <Tooltip title={`Admitted from Lead Inquiry #${adm.convertedFromLeadId}`}>
+                      </TableCell>
+                      {/* Agreement No & Date */}
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Stack direction="row" spacing={0.6} alignItems="center">
+                          <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.78rem' }}>
+                            {adm.agreementNo}
+                          </Typography>
+                          {adm.convertedFromLeadId ? (
                             <Chip
                               label={`Lead #${adm.convertedFromLeadId}`}
                               size="small"
-                              sx={{
-                                height: '20px',
-                                fontSize: '0.66rem',
-                                fontWeight: 700,
-                                bgcolor: '#eff6ff',
-                                color: '#1d4ed8',
-                                border: '1px solid #bfdbfe'
-                              }}
+                              sx={{ height: 18, fontSize: '0.62rem', fontWeight: 700, bgcolor: '#eff6ff', color: '#1d4ed8' }}
                             />
-                          </Tooltip>
+                          ) : (
+                            <Chip
+                              label="Walk-in"
+                              size="small"
+                              sx={{ height: 18, fontSize: '0.62rem', fontWeight: 600, bgcolor: '#f8fafc', color: '#64748b', border: '1px solid #e2e8f0' }}
+                            />
+                          )}
+                        </Stack>
+                        <Typography variant="caption" sx={{ color: '#64748b', display: 'block', fontSize: '0.69rem' }}>
+                          {adm.admissionDateBS || adm.admissionDate}
+                        </Typography>
+                      </TableCell>
+
+                      {/* Student Info */}
+                      <TableCell>
+                        <Typography sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.8rem', lineHeight: 1.25 }}>
+                          {adm.studentName}
+                        </Typography>
+                        <Typography variant="caption" noWrap sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
+                          {adm.phone} • {adm.tgid || adm.studentId}
+                        </Typography>
+                      </TableCell>
+
+                      {/* Course & Shift */}
+                      <TableCell>
+                        <Typography sx={{ fontWeight: 700, color: '#0f2e5a', fontSize: '0.79rem', lineHeight: 1.25 }}>
+                          {adm.courseTitle}
+                        </Typography>
+                        <Typography variant="caption" noWrap sx={{ color: '#64748b', display: 'block', fontSize: '0.7rem' }}>
+                          {adm.groupName} • {adm.shift} ({adm.duration})
+                        </Typography>
+                      </TableCell>
+
+                      {/* OJT Preference */}
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        {adm.ojtPreference === 'REQUIRED' ? (
+                          <Chip
+                            label="OJT Free"
+                            size="small"
+                            sx={{ height: 20, fontWeight: 700, fontSize: '0.68rem', bgcolor: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }}
+                          />
                         ) : (
                           <Chip
-                            label="Walk-in"
+                            label="No OJT"
                             size="small"
-                            sx={{
-                              height: '20px',
-                              fontSize: '0.66rem',
-                              fontWeight: 700,
-                              bgcolor: '#f8fafc',
-                              color: '#64748b',
-                              border: '1px solid #e2e8f0'
-                            }}
+                            sx={{ height: 20, fontWeight: 600, fontSize: '0.68rem', bgcolor: '#f1f5f9', color: '#64748b' }}
                           />
                         )}
-                      </Stack>
-                    </TableCell>
+                      </TableCell>
 
-                    {/* Student Info */}
-                    <TableCell>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b' }}>
-                        {adm.studentName}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#475569', display: 'block' }}>
-                        Phone: {adm.phone}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                        ID: {adm.studentId} ({adm.tgid})
-                      </Typography>
-                    </TableCell>
+                      {/* Fee & 50% Paid */}
+                      <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                        <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.79rem' }}>
+                          Rs. {(Number(adm.netPayableFee) || 0).toLocaleString()}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'block', fontSize: '0.69rem' }}>
+                          Paid: Rs. {(Number(adm.advancePaid50) || 0).toLocaleString()} ({adm.paymentMethod})
+                        </Typography>
+                      </TableCell>
 
-                    {/* Course & Shift */}
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#0f2e5a' }}>
-                        {adm.courseTitle}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
-                        {adm.groupName} | {adm.shift}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#94a3b8' }}>
-                        {adm.duration}
-                      </Typography>
-                    </TableCell>
-
-                    {/* OJT Preference */}
-                    <TableCell>
-                      {adm.ojtPreference === 'REQUIRED' ? (
-                        <Chip
-                          icon={<WorkIcon sx={{ fontSize: '14px !important' }} />}
-                          label="OJT Required (Free)"
-                          size="small"
-                          sx={{
-                            fontWeight: 700,
-                            fontSize: '0.74rem',
-                            bgcolor: '#f0fdf4',
-                            color: '#15803d',
-                            border: '1px solid #bbf7d0'
-                          }}
-                        />
-                      ) : (
-                        <Chip
-                          label="No OJT"
-                          size="small"
-                          sx={{
-                            fontWeight: 600,
-                            fontSize: '0.74rem',
-                            bgcolor: '#f1f5f9',
-                            color: '#64748b'
-                          }}
-                        />
-                      )}
-                    </TableCell>
-
-                    {/* Fee & 50% Paid */}
-                    <TableCell align="right">
-                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                        Rs. {(Number(adm.netPayableFee) || 0).toLocaleString()}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
-                        {adm.dueAmount50 <= 0 ? 'Total Paid:' : 'Advance Paid:'} Rs. {(Number(adm.advancePaid50) || 0).toLocaleString()}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748b' }}>
-                        Method: {adm.paymentMethod}
-                      </Typography>
-                    </TableCell>
-
-                    {/* 2nd Installment & Due Date */}
-                    <TableCell>
-                      {adm.dueAmount50 > 0 ? (
-                        <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#dc2626' }}>
-                            Due: Rs. {adm.dueAmount50.toLocaleString()}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: '#991b1b', fontWeight: 700, display: 'block' }}>
-                            Due Date: {adm.dueDate}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748b' }}>
-                            (Payable within 30 days)
-                          </Typography>
-                        </Box>
-                      ) : (
-                        <Chip
-                          label="Fully Paid"
-                          size="small"
-                          sx={{ bgcolor: '#ecfdf5', color: '#047857', fontWeight: 800 }}
-                        />
-                      )}
-                    </TableCell>
-
-                    {/* Action Buttons */}
-                    <TableCell align="center">
-                      <Stack direction="row" spacing={1} justifyContent="center">
-                        <Tooltip title="Print Epson L8050 CR-80 PVC Trainee ID Card">
-                          <Button
-                            variant="contained"
+                      {/* 2nd Installment & Due Date */}
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        {adm.dueAmount50 > 0 ? (
+                          <Box>
+                            <Typography sx={{ fontWeight: 800, color: '#dc2626', fontSize: '0.78rem' }}>
+                              Due: Rs. {adm.dueAmount50.toLocaleString()}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#991b1b', fontWeight: 600, display: 'block', fontSize: '0.68rem' }}>
+                              By {adm.dueDate}
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Chip
+                            label="Paid"
                             size="small"
-                            color="warning"
-                            startIcon={<BadgeIcon />}
-                            onClick={() => handleOpenIdCard(adm)}
-                            sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6, bgcolor: '#f59e0b', color: '#0f2e5a', '&:hover': { bgcolor: '#d97706', color: '#ffffff' } }}
-                          >
-                            ID Card
-                          </Button>
-                        </Tooltip>
+                            sx={{ height: 20, bgcolor: '#ecfdf5', color: '#047857', fontWeight: 800, fontSize: '0.68rem' }}
+                          />
+                        )}
+                      </TableCell>
 
-                        <Tooltip title="Print Dual-Copy A4 Admission Agreement">
-                          <Button
-                            variant="contained"
-                            size="small"
-                            color="primary"
-                            startIcon={<PrintIcon />}
-                            onClick={() => handleOpenPrint(adm)}
-                            sx={{ fontWeight: 800, fontSize: '0.78rem', py: 0.6 }}
-                          >
-                            Agreement
-                          </Button>
-                        </Tooltip>
+                      {/* Sleek Compact Action Buttons */}
+                      <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                        <Stack direction="row" spacing={0.6} justifyContent="center" alignItems="center">
+                          <Tooltip title="Print Trainee ID Card">
+                            <Button
+                              size="small"
+                              startIcon={<BadgeIcon sx={{ fontSize: '13px !important' }} />}
+                              onClick={() => handleOpenIdCard(adm)}
+                              sx={{
+                                px: 0.9,
+                                py: 0.3,
+                                minWidth: 0,
+                                fontSize: '0.69rem',
+                                fontWeight: 700,
+                                bgcolor: '#fffbeb',
+                                color: '#b45309',
+                                border: '1px solid #fde68a',
+                                '&:hover': { bgcolor: '#fef3c7' }
+                              }}
+                            >
+                              ID
+                            </Button>
+                          </Tooltip>
 
-                        <Tooltip title="Send Official Admission Confirmation & Fee Receipt to WhatsApp">
-                          <Button
-                            variant="contained"
-                            size="small"
-                            color="success"
-                            disabled={sendingWaAdmId === adm.id}
-                            startIcon={<WhatsAppIcon />}
-                            onClick={() => handleSendWhatsAppReceipt(adm)}
-                            sx={{
-                              fontWeight: 800,
-                              fontSize: '0.78rem',
-                              py: 0.6,
-                              bgcolor: '#25D366',
-                              color: '#ffffff',
-                              '&:hover': { bgcolor: '#1ebc59' }
-                            }}
-                          >
-                            {sendingWaAdmId === adm.id ? 'Sending...' : 'WhatsApp'}
-                          </Button>
-                        </Tooltip>
+                          <Tooltip title="Print Dual-Copy A4 Agreement">
+                            <Button
+                              size="small"
+                              startIcon={<PrintIcon sx={{ fontSize: '13px !important' }} />}
+                              onClick={() => handleOpenPrint(adm)}
+                              sx={{
+                                px: 0.9,
+                                py: 0.3,
+                                minWidth: 0,
+                                fontSize: '0.69rem',
+                                fontWeight: 700,
+                                bgcolor: '#eff6ff',
+                                color: '#1e40af',
+                                border: '1px solid #bfdbfe',
+                                '&:hover': { bgcolor: '#dbeafe' }
+                              }}
+                            >
+                              A4
+                            </Button>
+                          </Tooltip>
 
-                        <Tooltip title="Cancel Agreement">
-                          <IconButton
-                            size="small"
-                            color="error"
-                            onClick={() => handleDelete(adm.id, adm.studentName)}
-                          >
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </Stack>
-                    </TableCell>
-                  </TableRow>
-                );
-              })
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 50, 100]}
-        component="div"
-        count={filteredAdmissions.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={(e, newPage) => setPage(newPage)}
-        onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
-          setPage(0);
-        }}
-        sx={{
-          borderTop: '1px solid #e2e8f0',
-          bgcolor: '#f8fafc'
-        }}
-      />
-    </Card>
+                          <Tooltip title="Send Receipt on WhatsApp">
+                            <Button
+                              size="small"
+                              disabled={sendingWaAdmId === adm.id}
+                              startIcon={<WhatsAppIcon sx={{ fontSize: '13px !important' }} />}
+                              onClick={() => handleSendWhatsAppReceipt(adm)}
+                              sx={{
+                                px: 0.9,
+                                py: 0.3,
+                                minWidth: 0,
+                                fontSize: '0.69rem',
+                                fontWeight: 700,
+                                bgcolor: '#ecfdf5',
+                                color: '#047857',
+                                border: '1px solid #a7f3d0',
+                                '&:hover': { bgcolor: '#d1fae5' }
+                              }}
+                            >
+                              {sendingWaAdmId === adm.id ? '...' : 'WA'}
+                            </Button>
+                          </Tooltip>
+
+                          <Tooltip title="Cancel Agreement">
+                            <IconButton
+                              size="small"
+                              color="error"
+                              onClick={() => handleDelete(adm.id, adm.studentName)}
+                              sx={{ p: 0.4 }}
+                            >
+                              <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+        <TablePagination
+          rowsPerPageOptions={[10, 25, 50, 100]}
+          component="div"
+          count={filteredAdmissions.length}
+          rowsPerPage={rowsPerPage}
+          page={page}
+          onPageChange={(e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(parseInt(e.target.value, 10));
+            setPage(0);
+          }}
+          sx={{
+            borderTop: '1px solid #e2e8f0',
+            bgcolor: '#f8fafc',
+            '& .MuiTablePagination-toolbar': { minHeight: 42 },
+            '& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows': { fontSize: '0.75rem' }
+          }}
+        />
+      </Card>
 
       {/* New Admission Modal */}
       <NewAdmissionModal

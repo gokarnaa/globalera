@@ -54,55 +54,63 @@ export const theme = createTheme({
     fontFamily: '"Inter", "Noto Sans Devanagari", system-ui, -apple-system, sans-serif',
     h4: {
       fontWeight: 800,
-      fontSize: 'clamp(1.35rem, 2.2vw, 1.8rem)',
+      fontSize: 'clamp(1.15rem, 1.7vw, 1.4rem)',
       lineHeight: 1.25,
       textWrap: 'balance',
     },
     h5: {
       fontWeight: 800,
-      fontSize: 'clamp(1.15rem, 1.7vw, 1.45rem)',
-      lineHeight: 1.3,
+      fontSize: 'clamp(1.02rem, 1.4vw, 1.2rem)',
+      lineHeight: 1.25,
       textWrap: 'balance',
     },
     h6: {
       fontWeight: 700,
-      fontSize: 'clamp(1rem, 1.3vw, 1.18rem)',
-      lineHeight: 1.35,
+      fontSize: 'clamp(0.92rem, 1.15vw, 1.04rem)',
+      lineHeight: 1.3,
       textWrap: 'balance',
     },
     subtitle1: {
       fontWeight: 700,
-      lineHeight: 1.4,
+      fontSize: '0.88rem',
+      lineHeight: 1.35,
     },
     subtitle2: {
       fontWeight: 700,
-      fontSize: '0.875rem',
-      lineHeight: 1.4,
+      fontSize: '0.8125rem',
+      lineHeight: 1.35,
     },
     body1: {
       color: '#0F172A',
-      lineHeight: 1.55,
+      fontSize: '0.875rem',
+      lineHeight: 1.5,
       textWrap: 'pretty',
     },
     body2: {
       color: '#475569',
-      lineHeight: 1.5,
+      fontSize: '0.8125rem',
+      lineHeight: 1.45,
       textWrap: 'pretty',
+    },
+    caption: {
+      fontSize: '0.72rem',
+      lineHeight: 1.35,
     },
     button: {
       textTransform: 'none',
       fontWeight: 700,
+      fontSize: '0.79rem',
     },
   },
   shape: {
-    borderRadius: 10,
+    borderRadius: 8,
   },
   components: {
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 8,
-          fontSize: '0.875rem',
+          borderRadius: 7,
+          fontSize: '0.8125rem',
           backgroundColor: '#FFFFFF',
           transition: 'all 0.15s ease',
           '& .MuiOutlinedInput-notchedOutline': {
@@ -120,7 +128,10 @@ export const theme = createTheme({
           },
         },
         input: {
-          padding: '10px 14px',
+          padding: '8px 12px',
+        },
+        inputSizeSmall: {
+          padding: '6.5px 10px',
         },
       },
     },
@@ -213,17 +224,30 @@ export const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: 10,
+          borderRadius: 7,
           boxShadow: 'none',
-          padding: '8px 16px',
+          padding: '5px 12px',
+          fontSize: '0.78rem',
+          lineHeight: 1.35,
           fontWeight: 700,
+          whiteSpace: 'nowrap',
           transition: 'background-color 0.15s ease-out, border-color 0.15s ease-out, transform 0.15s ease-out',
           '&:hover': {
-            boxShadow: '0 2px 8px rgba(15, 44, 89, 0.12)',
+            boxShadow: '0 2px 6px rgba(15, 44, 89, 0.1)',
           },
           '&:active': {
             transform: 'scale(0.99)',
           },
+        },
+        sizeSmall: {
+          padding: '3.5px 9px',
+          fontSize: '0.73rem',
+          borderRadius: 6,
+        },
+        sizeLarge: {
+          padding: '6.5px 14px',
+          fontSize: '0.81rem',
+          borderRadius: 8,
         },
         containedPrimary: {
           backgroundColor: '#0F2C59',
@@ -237,12 +261,12 @@ export const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 14,
-          boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.03)',
+          borderRadius: 10,
+          boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 8px rgba(15, 23, 42, 0.02)',
           border: '1px solid #E2E8F0',
           transition: 'border-color 0.15s ease-out, box-shadow 0.15s ease-out',
           '&:hover': {
-            boxShadow: '0 4px 16px rgba(15, 23, 42, 0.06)',
+            boxShadow: '0 3px 12px rgba(15, 23, 42, 0.05)',
             borderColor: '#CBD5E1',
           },
         },
@@ -259,10 +283,10 @@ export const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         rounded: {
-          borderRadius: 14,
+          borderRadius: 10,
         },
         elevation1: {
-          boxShadow: '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px -1px rgba(15, 23, 42, 0.06)',
+          boxShadow: '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
         },
       },
     },
@@ -270,15 +294,23 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderColor: '#E2E8F0',
-          padding: '11px 14px',
+          padding: '7.5px 11px',
+          fontSize: '0.79rem',
+          lineHeight: 1.35,
           fontVariantNumeric: 'tabular-nums',
           color: '#0F172A',
+        },
+        sizeSmall: {
+          padding: '6px 9px',
+          fontSize: '0.76rem',
         },
         head: {
           fontWeight: 800,
           backgroundColor: '#F8FAFC',
           color: '#334155',
-          fontSize: '0.78rem',
+          padding: '8.5px 11px',
+          fontSize: '0.72rem',
+          letterSpacing: '0.02em',
           whiteSpace: 'nowrap',
           textTransform: 'uppercase',
         },
@@ -288,7 +320,11 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           fontWeight: 700,
-          borderRadius: 8,
+          borderRadius: 6,
+        },
+        sizeSmall: {
+          height: 21,
+          fontSize: '0.69rem',
         },
       },
     },
