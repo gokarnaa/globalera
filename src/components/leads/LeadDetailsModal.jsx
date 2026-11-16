@@ -62,6 +62,17 @@ export default function LeadDetailsModal({
   const whatsAppText = `Hello ${lead.name}! Greetings from Prabidhik School, Jorpati (Global Era TVET). We are following up regarding your inquiry for '${lead.course || 'Vocational Training'}' to assist with details and the admission process.`;
   const waUrl = `https://wa.me/977${lead.phone}?text=${encodeURIComponent(whatsAppText)}`;
 
+  const quickTemplates = [
+    'Called - No Answer',
+    'WhatsApp Brochure Sent',
+    'Campus Visit Scheduled',
+    'Ready for Admission'
+  ];
+
+  const handleQuickLog = (text) => {
+    onAddTimelineNote(lead.id, text, currentUser?.name || 'Counselor / Staff');
+  };
+
   return (
     <Dialog
       open={open}
@@ -70,317 +81,279 @@ export default function LeadDetailsModal({
       fullWidth
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: 3,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
           border: '1px solid rgba(226, 232, 240, 0.8)'
         }
       }}
     >
-      {/* Modal Header */}
+      {/* Executive Navy + Gold Header */}
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
-          background: 'linear-gradient(135deg, #0F172A 0%, #1E293B 100%)',
+          py: 1.75,
+          px: 2.5,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
+          borderBottom: '2.5px solid #F59E0B',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          gap: 1.5,
+          flexWrap: 'wrap'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Avatar
             sx={{
-              width: 52,
-              height: 52,
+              width: 44,
+              height: 44,
               bgcolor: currentStageObj.color,
               fontWeight: 800,
-              fontSize: '1.4rem',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+              fontSize: '1.15rem',
+              border: '2px solid rgba(255,255,255,0.35)'
             }}
           >
             {lead.name ? lead.name.charAt(0).toUpperCase() : 'L'}
           </Avatar>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '1.05rem', lineHeight: 1.2 }}>
                 {lead.name}
               </Typography>
               <Chip
                 label={lead.id}
                 size="small"
-                sx={{
-                  bgcolor: 'rgba(255,255,255,0.15)',
-                  color: '#93C5FD',
-                  fontWeight: 800,
-                  fontSize: '0.72rem'
-                }}
+                sx={{ height: 20, bgcolor: 'rgba(255,255,255,0.16)', color: '#FDE68A', fontWeight: 800, fontSize: '0.68rem' }}
               />
-            </Box>
-            <Typography variant="body2" sx={{ color: '#94A3B8', mt: 0.3 }}>
-              {lead.subject ? `${lead.subject} • ` : ''} {lead.course || 'General Inquiry'}
+              <Chip
+                label={currentStageObj.label.split(' (')[0]}
+                size="small"
+                sx={{ height: 20, bgcolor: currentStageObj.color, color: '#FFFFFF', fontWeight: 800, fontSize: '0.68rem' }}
+              />
+            </Stack>
+            <Typography variant="caption" noWrap sx={{ color: '#CBD5E1', display: 'block', mt: 0.2, fontSize: '0.73rem' }}>
+              {lead.subject ? `${lead.subject} • ` : ''}{lead.course || 'General Inquiry'} • {lead.phone}
             </Typography>
           </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<EditIcon />}
-            onClick={() => {
-              onClose();
-              onEditLead(lead);
-            }}
-            sx={{
-              color: '#93C5FD',
-              borderColor: 'rgba(147, 197, 253, 0.4)',
-              fontWeight: 700,
-              textTransform: 'none',
-              '&:hover': { borderColor: '#93C5FD', bgcolor: 'rgba(147, 197, 253, 0.1)' }
-            }}
-          >
-            Edit
-          </Button>
-          <IconButton
-            onClick={onClose}
-            sx={{
-              color: '#94A3B8',
-              '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' }
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        </Box>
-      </DialogTitle>
-
-      <DialogContent sx={{ p: { xs: 2, sm: 3 }, bgcolor: '#F8FAFC' }}>
-        {/* Quick Contact & Action Bar */}
-        <Paper
-          elevation={0}
-          sx={{
-            p: 2,
-            mb: 3,
-            borderRadius: 2.5,
-            border: '1px solid #E2E8F0',
-            bgcolor: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: 1.5
-          }}
-        >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+        <Stack direction="row" spacing={0.75} alignItems="center">
+          <Tooltip title={`Call ${lead.phone}`}>
             <Button
+              size="small"
               variant="contained"
               component="a"
               href={`tel:${lead.phone}`}
-              startIcon={<PhoneIcon />}
-              sx={{
-                bgcolor: '#0284C7',
-                fontWeight: 700,
-                textTransform: 'none',
-                borderRadius: 2,
-                '&:hover': { bgcolor: '#0369A1' }
-              }}
+              startIcon={<PhoneIcon sx={{ fontSize: '14px !important' }} />}
+              sx={{ bgcolor: '#0284C7', color: '#FFFFFF', fontWeight: 700, '&:hover': { bgcolor: '#0369A1' } }}
             >
-              Call {lead.phone}
+              Call
             </Button>
-
+          </Tooltip>
+          <Tooltip title="Message on WhatsApp">
             <Button
+              size="small"
               variant="contained"
               component="a"
               href={waUrl}
               target="_blank"
               rel="noopener noreferrer"
-              startIcon={<WhatsAppIcon />}
-              sx={{
-                bgcolor: '#10B981',
-                fontWeight: 700,
-                textTransform: 'none',
-                borderRadius: 2,
-                '&:hover': { bgcolor: '#059669' }
-              }}
+              startIcon={<WhatsAppIcon sx={{ fontSize: '14px !important' }} />}
+              sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 700, '&:hover': { bgcolor: '#059669' } }}
             >
               WhatsApp
             </Button>
-          </Box>
+          </Tooltip>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+            onClick={() => {
+              onClose();
+              onEditLead(lead);
+            }}
+            sx={{
+              color: '#FDE68A',
+              borderColor: 'rgba(253, 230, 138, 0.4)',
+              fontWeight: 700,
+              '&:hover': { borderColor: '#FDE68A', bgcolor: 'rgba(253, 230, 138, 0.12)' }
+            }}
+          >
+            Edit
+          </Button>
+          <IconButton
+            size="small"
+            aria-label="Close lead profile"
+            onClick={onClose}
+            sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.14)' } }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Stack>
+      </DialogTitle>
 
-          {lead.stage !== 'Converted' ? (
-            <Button
-              variant="contained"
-              onClick={() => onConvertToStudent(lead)}
-              startIcon={<HowToRegIcon />}
-              sx={{
-                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                fontWeight: 800,
-                borderRadius: 2,
-                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
-                textTransform: 'none'
-              }}
-            >
-              Convert to Student
-            </Button>
-          ) : (
-            <Chip
-              icon={<HowToRegIcon />}
-              label="Student Enrolled"
-              color="success"
-              sx={{ fontWeight: 800, fontSize: '0.85rem', px: 1 }}
-            />
-          )}
+      <DialogContent sx={{ p: { xs: 1.75, sm: 2.25 }, bgcolor: '#F8FAFC' }}>
+        {/* 1-Row Horizontal Stepped Pipeline Bar */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: 1.25,
+            mb: 2,
+            borderRadius: 2,
+            border: '1px solid #E2E8F0',
+            bgcolor: '#FFFFFF',
+            overflowX: 'auto'
+          }}
+        >
+          <Stack direction="row" spacing={0.8} alignItems="center" sx={{ minWidth: 'max-content' }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase', fontSize: '0.68rem', mr: 0.5 }}>
+              Stage:
+            </Typography>
+            {LEAD_STAGES.map((stg) => {
+              const isCurrent = lead.stage === stg.value;
+              return (
+                <Chip
+                  key={stg.value}
+                  label={stg.label.split(' (')[0]}
+                  size="small"
+                  onClick={() => onUpdateStage(lead.id, stg.value)}
+                  clickable
+                  sx={{
+                    height: 24,
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    bgcolor: isCurrent ? stg.color : '#F8FAFC',
+                    color: isCurrent ? '#FFFFFF' : '#475569',
+                    border: isCurrent ? `1px solid ${stg.color}` : '1px solid #E2E8F0',
+                    '&:hover': { bgcolor: isCurrent ? stg.color : '#EFF6FF' }
+                  }}
+                />
+              );
+            })}
+          </Stack>
         </Paper>
 
-        <Grid container spacing={3}>
-          {/* Left Column: Lead Information & Quick Stage Switcher */}
+        <Grid container spacing={2}>
+          {/* Left Column: Compact Lead Profile Details (5 Cols) */}
           <Grid item xs={12} md={5}>
-            {/* Stage Quick Switcher */}
             <Paper
               elevation={0}
               sx={{
-                p: 2.5,
-                mb: 2.5,
-                borderRadius: 2.5,
+                p: 2,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
-                bgcolor: '#FFFFFF'
+                bgcolor: '#FFFFFF',
+                height: '100%'
               }}
             >
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 1.5 }}>
-                Pipeline Stage
-              </Typography>
-              <Stack direction="row" flexWrap="wrap" gap={1}>
-                {LEAD_STAGES.map((stg) => {
-                  const isCurrent = lead.stage === stg.value;
-                  return (
-                    <Chip
-                      key={stg.value}
-                      label={stg.label.split(' (')[0]}
-                      onClick={() => onUpdateStage(lead.id, stg.value)}
-                      clickable
-                      sx={{
-                        fontWeight: 700,
-                        fontSize: '0.75rem',
-                        bgcolor: isCurrent ? stg.color : '#F1F5F9',
-                        color: isCurrent ? '#FFFFFF' : '#475569',
-                        border: isCurrent ? `1px solid ${stg.color}` : '1px solid #CBD5E1',
-                        '&:hover': {
-                          bgcolor: isCurrent ? stg.color : '#E2E8F0'
-                        }
-                      }}
-                    />
-                  );
-                })}
-              </Stack>
-            </Paper>
-
-            {/* Information Cards */}
-            <Paper
-              elevation={0}
-              sx={{
-                p: 2.5,
-                borderRadius: 2.5,
-                border: '1px solid #E2E8F0',
-                bgcolor: '#FFFFFF'
-              }}
-            >
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 2 }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B', textTransform: 'uppercase', fontSize: '0.68rem', display: 'block', mb: 1.5 }}>
                 Lead Profile Details
               </Typography>
 
-              <Stack spacing={2}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <LocationOnIcon sx={{ color: '#F59E0B', fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+              <Stack spacing={1.35}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                  <LocationOnIcon sx={{ color: '#F59E0B', fontSize: '1.05rem', flexShrink: 0 }} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
                       Location
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem' }}>
                       {lead.address || 'Not provided'}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <SchoolIcon sx={{ color: '#6366F1', fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                  <SchoolIcon sx={{ color: '#2563EB', fontSize: '1.05rem', flexShrink: 0 }} />
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
                       Course / Subject
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F2C59', fontSize: '0.8rem' }}>
                       {lead.course || 'General Inquiry'}
                     </Typography>
                   </Box>
                 </Box>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <AccessTimeIcon sx={{ color: '#0EA5E9', fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      Duration
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                      {lead.duration || 'N/A'}
-                    </Typography>
-                  </Box>
-                </Box>
+                <Grid container spacing={1}>
+                  <Grid item xs={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <AccessTimeIcon sx={{ color: '#0EA5E9', fontSize: '1rem', flexShrink: 0 }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.66rem' }}>
+                          Duration
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.78rem' }}>
+                          {lead.duration || 'N/A'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <MonetizationOnIcon sx={{ color: '#059669', fontSize: '1rem', flexShrink: 0 }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.66rem' }}>
+                          Course Fee
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669', fontSize: '0.78rem' }}>
+                          {lead.price ? `Rs. ${Number(lead.price).toLocaleString()}` : 'Free / Discuss'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <MonetizationOnIcon sx={{ color: '#10B981', fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      Course Fee
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: '#10B981' }}>
-                      {lead.price ? `Rs. ${Number(lead.price).toLocaleString()}` : 'Free / Pending Discussion'}
-                    </Typography>
-                  </Box>
-                </Box>
+                <Grid container spacing={1}>
+                  <Grid item xs={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <CampaignIcon sx={{ color: '#EC4899', fontSize: '1rem', flexShrink: 0 }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.66rem' }}>
+                          Source
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.78rem' }}>
+                          {lead.source || 'Direct'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <FlagIcon sx={{ color: currentPriorityObj.color, fontSize: '1rem', flexShrink: 0 }} />
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.66rem' }}>
+                          Priority
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: currentPriorityObj.color, fontSize: '0.78rem' }}>
+                          {currentPriorityObj.label}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <CampaignIcon sx={{ color: '#EC4899', fontSize: '1.2rem' }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+                  <CalendarMonthIcon sx={{ color: '#7C3AED', fontSize: '1.05rem', flexShrink: 0 }} />
                   <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      Source
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
-                      {lead.source || 'Direct'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <FlagIcon sx={{ color: currentPriorityObj.color, fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                      Priority
-                    </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 800, color: currentPriorityObj.color }}>
-                      {currentPriorityObj.label}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                  <CalendarMonthIcon sx={{ color: '#8B5CF6', fontSize: '1.2rem' }} />
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
                       Next Follow-up Date
                     </Typography>
-                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem' }}>
                       {lead.followUpDate || 'Not set'}
                     </Typography>
                   </Box>
                 </Box>
 
                 {lead.notes && (
-                  <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block', mb: 0.5 }}>
-                      Initial Remarks:
+                  <Box sx={{ p: 1.25, bgcolor: '#F8FAFC', borderRadius: 1.8, border: '1px solid #E2E8F0' }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block', mb: 0.3, fontSize: '0.68rem' }}>
+                      Initial Remarks
                     </Typography>
-                    <Typography variant="body2" sx={{ color: '#334155', fontStyle: 'italic' }}>
-                      "{lead.notes}"
+                    <Typography variant="body2" sx={{ color: '#334155', fontStyle: 'italic', fontSize: '0.78rem' }}>
+                      &quot;{lead.notes}&quot;
                     </Typography>
                   </Box>
                 )}
@@ -388,13 +361,13 @@ export default function LeadDetailsModal({
             </Paper>
           </Grid>
 
-          {/* Right Column: Interaction Activity Timeline & Add Note */}
+          {/* Right Column: Interaction Activity Timeline & Quick Notes (7 Cols) */}
           <Grid item xs={12} md={7}>
             <Paper
               elevation={0}
               sx={{
-                p: 2.5,
-                borderRadius: 2.5,
+                p: 2,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
                 bgcolor: '#FFFFFF',
                 height: '100%',
@@ -403,60 +376,77 @@ export default function LeadDetailsModal({
               }}
             >
               <Typography
-                variant="subtitle2"
+                variant="caption"
                 sx={{
                   fontWeight: 800,
-                  color: '#334155',
-                  mb: 2,
+                  color: '#64748B',
+                  textTransform: 'uppercase',
+                  fontSize: '0.68rem',
+                  mb: 1.25,
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1
+                  gap: 0.75
                 }}
               >
-                <HistoryIcon sx={{ color: '#3B82F6' }} />
-                Activity Timeline & Follow-up History
+                <HistoryIcon sx={{ color: '#2563EB', fontSize: '1rem' }} />
+                Activity Timeline &amp; Follow-up History
               </Typography>
 
-              {/* Add New Note Box */}
-              <Box component="form" onSubmit={handleAddNoteSubmit} sx={{ mb: 3 }}>
+              {/* Add New Note Box + 1-Click Quick Templates */}
+              <Box component="form" onSubmit={handleAddNoteSubmit} sx={{ mb: 1.75 }}>
                 <TextField
                   fullWidth
                   multiline
                   rows={2}
+                  size="small"
                   placeholder="Log notes from calls, meetings, or counselling discussions..."
                   value={newNote}
                   onChange={(e) => setNewNote(e.target.value)}
                   sx={{ mb: 1 }}
                 />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 0.75 }}>
+                  <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap>
+                    {quickTemplates.map((tpl) => (
+                      <Chip
+                        key={tpl}
+                        label={tpl}
+                        size="small"
+                        clickable
+                        onClick={() => handleQuickLog(tpl)}
+                        sx={{
+                          height: 21,
+                          fontSize: '0.67rem',
+                          fontWeight: 700,
+                          bgcolor: '#F1F5F9',
+                          color: '#334155',
+                          '&:hover': { bgcolor: '#E0F2FE', color: '#0369A1' }
+                        }}
+                      />
+                    ))}
+                  </Stack>
                   <Button
                     type="submit"
                     variant="contained"
                     size="small"
-                    endIcon={<SendIcon />}
+                    endIcon={<SendIcon sx={{ fontSize: '13px !important' }} />}
                     disabled={!newNote.trim()}
-                    sx={{
-                      bgcolor: '#1E40AF',
-                      fontWeight: 700,
-                      borderRadius: 2,
-                      textTransform: 'none'
-                    }}
+                    sx={{ bgcolor: '#0F2C59', fontWeight: 700 }}
                   >
                     Log Note
                   </Button>
                 </Box>
               </Box>
 
-              <Divider sx={{ mb: 2.5 }} />
+              <Divider sx={{ mb: 1.5 }} />
 
               {/* Chronological Timeline List */}
-              <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 1, maxHeight: 380 }}>
+              <Box sx={{ flexGrow: 1, overflowY: 'auto', pr: 0.5, maxHeight: 280 }}>
                 {(!lead.timeline || lead.timeline.length === 0) ? (
-                  <Typography variant="body2" sx={{ color: '#94A3B8', textAlign: 'center', py: 4 }}>
-                    No follow-up notes recorded yet. Add a new note above.
+                  <Typography variant="body2" sx={{ color: '#94A3B8', textAlign: 'center', py: 3, fontSize: '0.78rem' }}>
+                    No follow-up notes recorded yet. Click a quick tag or add a note above.
                   </Typography>
                 ) : (
-                  <Stack spacing={2}>
+                  <Stack spacing={1.25}>
                     {[...lead.timeline].reverse().map((entry, idx) => {
                       const dateObj = new Date(entry.date);
                       const formattedDate = !isNaN(dateObj.getTime())
@@ -470,26 +460,26 @@ export default function LeadDetailsModal({
                         <Box
                           key={idx}
                           sx={{
-                            p: 2,
-                            borderRadius: 2,
+                            p: 1.4,
+                            borderRadius: 1.8,
                             bgcolor: '#F8FAFC',
-                            borderLeft: '4px solid #3B82F6',
+                            borderLeft: '3.5px solid #2563EB',
                             borderTop: '1px solid #E2E8F0',
                             borderRight: '1px solid #E2E8F0',
                             borderBottom: '1px solid #E2E8F0',
-                            transition: 'all 0.2s',
+                            transition: 'background-color 150ms ease-out',
                             '&:hover': { bgcolor: '#F1F5F9' }
                           }}
                         >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.8 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E40AF' }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.4 }}>
+                            <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E40AF', fontSize: '0.72rem' }}>
                               {entry.staffName || 'Counselor'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 500 }}>
+                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 500, fontSize: '0.68rem' }}>
                               {formattedDate}
                             </Typography>
                           </Box>
-                          <Typography variant="body2" sx={{ color: '#1E293B', lineHeight: 1.5 }}>
+                          <Typography variant="body2" sx={{ color: '#1E293B', lineHeight: 1.45, fontSize: '0.79rem' }}>
                             {entry.note}
                           </Typography>
                         </Box>
@@ -503,10 +493,35 @@ export default function LeadDetailsModal({
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0' }}>
-        <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+      <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+        <Button size="small" onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
           Close
         </Button>
+
+        {lead.stage !== 'Converted' ? (
+          <Button
+            size="small"
+            variant="contained"
+            onClick={() => onConvertToStudent(lead)}
+            startIcon={<HowToRegIcon sx={{ fontSize: '15px !important' }} />}
+            sx={{
+              bgcolor: '#059669',
+              fontWeight: 800,
+              px: 2,
+              '&:hover': { bgcolor: '#047857' }
+            }}
+          >
+            Convert to Student
+          </Button>
+        ) : (
+          <Chip
+            icon={<HowToRegIcon />}
+            label="Student Enrolled"
+            color="success"
+            size="small"
+            sx={{ fontWeight: 800, px: 0.5 }}
+          />
+        )}
       </DialogActions>
     </Dialog>
   );
