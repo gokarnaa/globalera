@@ -377,7 +377,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             onClick={handleOpenUser}
             aria-label={`Account menu for ${currentUser?.name || 'User'}`}
             aria-haspopup="menu"
-            aria-expanded={Boolean(anchorEl)}
+            aria-expanded={Boolean(anchorUser)}
             sx={{
               display: 'flex',
               alignItems: 'center',
