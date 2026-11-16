@@ -521,7 +521,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
       const t = (db.trainers || []).find((x) => x.id === simTargetId || String(x.biometricId) === String(simTargetId));
       if (t) targetName = `${t.name} (Trainer)`;
     } else {
-      targetName = 'Global Era Staff';
+      targetName = 'Prabidhik School Staff';
     }
 
     const log = recordLiveBiometricPunch({
@@ -545,79 +545,134 @@ export default function AttendanceManager({ initialGroupId = null }) {
   const lCount = Object.values(sessionRecords).filter((r) => r.status === 'L').length;
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* =======================================================
-          TOP BAR & NAVIGATION TABS (MATCHING USER SCREENSHOT)
-          ======================================================= */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 2.5,
-          borderRadius: 3.5,
-          boxShadow: '0 4px 20px rgba(13, 52, 102, 0.08)',
-          border: '1px solid #dce5f2',
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.5,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <FactCheckIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Attendance Management
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  {isTrainer
+                    ? `Prabidhik School, Jorpati • Instructor: ${currentUser?.name} (${myGroups.length} Batches)`
+                    : `Prabidhik School, Jorpati • ${historicalSessions.length} Saved Sessions • ${db.attendances?.length || 0} Total Records`}
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} alignItems="center" flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FingerprintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => handleSyncBiometric(selectedDate)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Sync Punch Logs
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<SaveIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleSaveAttendance}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                Save Attendance
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* Segmented Navigation Tabs */}
+      <Card
+        elevation={0}
+        sx={{
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#f8fafc',
           overflow: 'hidden'
         }}
       >
-        <Box
-          sx={{
-            p: { xs: 2, sm: 2.5 },
-            background: 'linear-gradient(135deg, #0d3466 0%, #1a56b0 100%)',
-            color: '#fff',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-            gap: 1.5
-          }}
-        >
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-              <FactCheckIcon sx={{ fontSize: 28, color: '#93c5fd' }} />
-              <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: 0.3, color: '#FFFFFF' }}>
-                Attendance Management
-              </Typography>
-            </Box>
-            <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.85)', display: 'block', mt: 0.3 }}>
-              {isTrainer
-                ? `Instructor: ${currentUser?.name} • Assigned Batches: ${myGroups.length}`
-                : `Admin Portal • Total Saved Sessions: ${historicalSessions.length} • Total Records: ${db.attendances?.length || 0}`}
-            </Typography>
-          </Box>
-
-          <Chip
-            label={isTrainer ? 'Trainer View' : 'Full Admin View'}
-            size="small"
-            sx={{
-              bgcolor: 'rgba(255,255,255,0.18)',
-              color: '#fff',
-              fontWeight: 800,
-              fontSize: '0.75rem',
-              backdropFilter: 'blur(4px)'
-            }}
-          />
-        </Box>
-
-        {/* Segmented Navigation Tabs */}
-        <Box sx={{ bgcolor: '#f8fafc', px: { xs: 0.5, sm: 2 }, pt: { xs: 0.5, sm: 1 }, borderTop: '1px solid #e2e8f0' }}>
+        <Box sx={{ px: { xs: 0.5, sm: 1.5 } }}>
           <Tabs
             value={activeTab}
             onChange={(e, next) => setActiveTab(next)}
             variant={isMobile ? 'scrollable' : 'fullWidth'}
             scrollButtons={false}
             sx={{
-              minHeight: { xs: 42, sm: 52 },
+              minHeight: { xs: 38, sm: 44 },
               '& .MuiTabs-indicator': {
-                height: 3.5,
+                height: 3,
                 borderRadius: '3px 3px 0 0',
                 bgcolor: '#1a56b0'
               },
               '& .MuiTab-root': {
                 textTransform: 'none',
                 fontWeight: 800,
-                fontSize: { xs: '0.78rem', sm: '0.95rem' },
-                py: { xs: 0.9, sm: 1.6 },
-                px: { xs: 1.2, sm: 2 },
-                minHeight: { xs: 42, sm: 52 },
+                fontSize: { xs: '0.75rem', sm: '0.84rem' },
+                py: { xs: 0.75, sm: 1 },
+                px: { xs: 1, sm: 1.5 },
+                minHeight: { xs: 38, sm: 44 },
                 minWidth: { xs: 'auto', sm: 90 },
                 color: '#64748b',
                 '&.Mui-selected': {
@@ -627,22 +682,22 @@ export default function AttendanceManager({ initialGroupId = null }) {
             }}
           >
             <Tab
-              icon={<FactCheckIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+              icon={<FactCheckIcon sx={{ fontSize: { xs: 15, sm: 18 } }} />}
               iconPosition="start"
               label={isMobile ? 'Mark' : '+ Mark Attendance'}
             />
             <Tab
-              icon={<FolderIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+              icon={<FolderIcon sx={{ fontSize: { xs: 15, sm: 18 } }} />}
               iconPosition="start"
               label={isMobile ? `Records (${historicalSessions.length})` : `Saved Records (${historicalSessions.length} Sessions)`}
             />
             <Tab
-              icon={<AssessmentIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+              icon={<AssessmentIcon sx={{ fontSize: { xs: 15, sm: 18 } }} />}
               iconPosition="start"
               label={isMobile ? 'Reports' : 'Reports & Analytics'}
             />
             <Tab
-              icon={<FingerprintIcon sx={{ fontSize: { xs: 16, sm: 20 } }} />}
+              icon={<FingerprintIcon sx={{ fontSize: { xs: 15, sm: 18 } }} />}
               iconPosition="start"
               label={isMobile ? 'Biometric' : 'Biometric Hub'}
             />
@@ -655,14 +710,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
           ======================================================= */}
       {activeTab === 0 && (
         <Box>
-          {/* Biometric Status Quick Banner (1-line slim on mobile) */}
+          {/* Biometric Status Quick Banner (1-line slim) */}
           <Paper
             elevation={0}
             sx={{
-              px: { xs: 1.2, sm: 2 },
-              py: { xs: 0.75, sm: 1.5 },
-              mb: { xs: 1.2, sm: 2 },
-              borderRadius: { xs: 2.5, sm: 3 },
+              px: 1.25,
+              py: 0.75,
+              mb: 1.5,
+              borderRadius: 2,
               bgcolor: '#F0FDF4',
               border: '1px solid #BBF7D0',
               display: 'flex',
@@ -672,30 +727,30 @@ export default function AttendanceManager({ initialGroupId = null }) {
               gap: 1
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
               <Chip
-                icon={<FingerprintIcon sx={{ fontSize: '15px !important', color: '#166534 !important' }} />}
+                icon={<FingerprintIcon sx={{ fontSize: '14px !important', color: '#166534 !important' }} />}
                 label={
                   isMobile
                     ? 'ZKTeco Online'
                     : `${db.settings?.biometricSettings?.deviceName || 'ZKTeco K40 WiFi'}: Online (${db.settings?.biometricSettings?.deviceIp || '192.168.1.201'})`
                 }
-                size={isMobile ? 'small' : 'medium'}
-                sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: { xs: '0.74rem', sm: '0.85rem' } }}
+                size="small"
+                sx={{ fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D', fontSize: '0.73rem' }}
               />
               <Typography
-                variant="body2"
-                sx={{ display: { xs: 'none', sm: 'block' }, color: '#166534', fontWeight: 700, fontSize: '0.82rem' }}
+                variant="caption"
+                sx={{ display: { xs: 'none', sm: 'block' }, color: '#166534', fontWeight: 700, fontSize: '0.75rem' }}
               >
                 Last Sync: <b>{db.settings?.biometricSettings?.lastSyncTime || 'Never'}</b>
               </Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', gap: 1, flexShrink: 0 }}>
+            <Box sx={{ display: 'flex', gap: 0.8, flexShrink: 0 }}>
               <Button
                 variant="contained"
                 size="small"
-                startIcon={<FingerprintIcon sx={{ fontSize: 16 }} />}
+                startIcon={<FingerprintIcon sx={{ fontSize: 15 }} />}
                 onClick={() => {
                   const res = syncBiometricAttendance(selectedDate);
                   setDb(loadDB());
@@ -703,15 +758,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   alert(`Synced ${res.syncedCount} punch records from biometric device!`);
                 }}
                 sx={{
-                  fontWeight: 900,
+                  fontWeight: 800,
                   bgcolor: '#10B981',
                   '&:hover': { bgcolor: '#059669' },
                   color: '#FFFFFF',
-                  borderRadius: 2,
+                  borderRadius: 1.5,
                   textTransform: 'none',
-                  px: { xs: 1.2, sm: 2 },
-                  py: { xs: 0.45, sm: 0.7 },
-                  fontSize: { xs: '0.74rem', sm: '0.82rem' }
+                  px: 1.2,
+                  py: 0.35,
+                  fontSize: '0.74rem',
+                  boxShadow: 'none'
                 }}
               >
                 {isMobile ? 'Sync' : 'Sync Punch Logs'}
@@ -722,11 +778,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 onClick={() => setActiveTab(3)}
                 sx={{
                   display: { xs: 'none', sm: 'inline-flex' },
-                  fontWeight: 800,
+                  fontWeight: 700,
                   color: '#0F2E5A',
                   borderColor: '#0F2E5A',
-                  borderRadius: 2,
-                  textTransform: 'none'
+                  borderRadius: 1.5,
+                  textTransform: 'none',
+                  px: 1.2,
+                  py: 0.35,
+                  fontSize: '0.74rem'
                 }}
               >
                 Open Device Hub
@@ -738,7 +797,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
             <Alert
               severity="info"
               onClose={() => setReopenNotice(null)}
-              sx={{ mb: 2, borderRadius: 2.5, fontWeight: 700 }}
+              sx={{ mb: 1.5, borderRadius: 2, fontWeight: 700, py: 0.4, fontSize: '0.78rem' }}
             >
               🔄 {reopenNotice}
             </Alert>
@@ -746,15 +805,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
           {/* 1. Sleek & Ultra-Compact Control Bar */}
           <Card
+            elevation={0}
             sx={{
-              p: { xs: 1.2, sm: 2 },
-              mb: { xs: 1.2, sm: 2 },
-              borderRadius: { xs: 2.5, sm: 3 },
-              boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              border: '1px solid #e2e8f0'
+              p: 1.25,
+              mb: 1.75,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              bgcolor: '#ffffff'
             }}
           >
-            <Grid container spacing={{ xs: 1, sm: 1.5 }} alignItems="center">
+            <Grid container spacing={1.25} alignItems="center">
               {/* Group Selector */}
               <Grid item xs={7} sm={5.5}>
                 <TextField
@@ -794,15 +854,15 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   variant="contained"
                   color="primary"
                   fullWidth
-                  size="medium"
-                  startIcon={<SaveIcon />}
+                  size="small"
+                  startIcon={<SaveIcon sx={{ fontSize: '16px !important' }} />}
                   onClick={handleSaveAttendance}
                   sx={{
                     fontWeight: 800,
-                    py: 0.9,
-                    fontSize: '0.92rem',
-                    borderRadius: 2.5,
-                    boxShadow: '0 4px 12px rgba(26,86,176,0.3)'
+                    py: 0.7,
+                    fontSize: '0.78rem',
+                    borderRadius: 1.8,
+                    boxShadow: 'none'
                   }}
                 >
                   Submit Attendance
@@ -816,14 +876,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                mt: { xs: 1, sm: 1.5 },
-                pt: { xs: 1, sm: 1.5 },
+                mt: 1,
+                pt: 1,
                 borderTop: '1px solid #f1f5f9',
                 flexWrap: 'wrap',
                 gap: 0.75
               }}
             >
-              <Typography variant="body2" sx={{ display: { xs: 'none', sm: 'block' }, color: '#475569', fontWeight: 700 }}>
+              <Typography variant="caption" sx={{ display: { xs: 'none', sm: 'block' }, color: '#475569', fontWeight: 700, fontSize: '0.75rem' }}>
                 {selectedCourse?.title} • Shift {selectedGroup?.shift} ({selectedGroup?.startTime} – {selectedGroup?.endTime})
               </Typography>
 
@@ -831,22 +891,22 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 <Chip
                   label={`P: ${pCount}`}
                   size="small"
-                  sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
+                  sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900, height: 22, fontSize: '0.7rem' }}
                 />
                 <Chip
                   label={`A: ${aCount}`}
                   size="small"
-                  sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
+                  sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 900, height: 22, fontSize: '0.7rem' }}
                 />
                 <Chip
                   label={`L: ${lCount}`}
                   size="small"
-                  sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 900, height: 24, fontSize: '0.72rem' }}
+                  sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 900, height: 22, fontSize: '0.7rem' }}
                 />
                 <Chip
                   label={`Tot: ${groupStudents.length}`}
                   size="small"
-                  sx={{ bgcolor: '#f1f5f9', color: '#334155', fontWeight: 800, height: 24, fontSize: '0.72rem' }}
+                  sx={{ bgcolor: '#f1f5f9', color: '#334155', fontWeight: 800, height: 22, fontSize: '0.7rem' }}
                 />
               </Box>
 
@@ -854,17 +914,17 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 variant="contained"
                 color="primary"
                 size="small"
-                startIcon={<SaveIcon sx={{ fontSize: 16 }} />}
+                startIcon={<SaveIcon sx={{ fontSize: 15 }} />}
                 onClick={handleSaveAttendance}
                 sx={{
                   display: { xs: 'inline-flex', sm: 'none' },
-                  fontWeight: 900,
-                  px: 1.5,
-                  py: 0.55,
-                  fontSize: '0.76rem',
-                  borderRadius: 2,
+                  fontWeight: 800,
+                  px: 1.2,
+                  py: 0.45,
+                  fontSize: '0.74rem',
+                  borderRadius: 1.5,
                   textTransform: 'none',
-                  boxShadow: '0 2px 8px rgba(26,86,176,0.28)'
+                  boxShadow: 'none'
                 }}
               >
                 Submit
@@ -985,27 +1045,28 @@ export default function AttendanceManager({ initialGroupId = null }) {
           {/* 2. TABLE VIEW: ROCK-SOLID SINGLE CYCLE BUTTON (P -> A -> L) */}
           {markViewMode === 'table' ? (
             <Card
+              elevation={0}
               sx={{
-                borderRadius: 3.5,
-                boxShadow: '0 4px 18px rgba(0,0,0,0.05)',
+                borderRadius: 2,
                 border: '1px solid #e2e8f0',
                 overflow: 'hidden',
-                mb: 4
+                mb: 2.5
               }}
             >
               <TableContainer sx={{ overflowX: { xs: 'hidden', md: 'auto' } }}>
-                <Table sx={{ minWidth: { xs: 0, md: 650 }, tableLayout: { xs: 'fixed', md: 'auto' } }}>
+                <Table size="small" sx={{ minWidth: { xs: 0, md: 650 }, tableLayout: { xs: 'fixed', md: 'auto' } }}>
                   <TableHead
                     sx={{
                       bgcolor: '#0F2E5A',
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: { xs: '0.76rem', sm: '0.85rem' },
-                        py: { xs: 1.2, sm: 1.5 },
-                        px: { xs: 0.75, sm: 2 },
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: { xs: 0.75, sm: 1.25 },
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
@@ -1474,15 +1535,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
       {activeTab === 1 && (
         <Box>
           <Card
+            elevation={0}
             sx={{
-              p: 2,
-              mb: 2.5,
-              borderRadius: 3,
+              p: 1.25,
+              mb: 1.75,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+              bgcolor: '#ffffff'
             }}
           >
-            <Grid container spacing={2} alignItems="center">
+            <Grid container spacing={1.25} alignItems="center">
               {/* Search */}
               <Grid item xs={12} sm={4}>
                 <TextField
@@ -1494,7 +1556,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ color: '#647089' }} />
+                        <SearchIcon sx={{ color: '#647089', fontSize: 18 }} />
                       </InputAdornment>
                     )
                   }}
@@ -1561,126 +1623,132 @@ export default function AttendanceManager({ initialGroupId = null }) {
           {/* TABLE OF SESSIONS */}
           {recordsViewMode === 'table' ? (
             <Card
+              elevation={0}
               sx={{
-                borderRadius: 3.5,
-                boxShadow: '0 4px 18px rgba(0,0,0,0.05)',
+                borderRadius: 2,
                 border: '1px solid #e2e8f0',
                 overflow: 'hidden',
-                mb: 4
+                mb: 2.5
               }}
             >
               <TableContainer>
-                <Table sx={{ minWidth: 800 }}>
+                <Table size="small" sx={{ minWidth: 800 }}>
                   <TableHead
                     sx={{
                       bgcolor: '#0F2E5A',
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: '0.85rem',
-                        py: 1.5,
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Attendance Date</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch & Course</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Shift & Trainer</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Total Trainees</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Breakdown (P / A / L)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Attendance Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Batch &amp; Course</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Shift &amp; Trainer</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Total Trainees</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Breakdown (P / A / L)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
                     {historicalSessions.map((session, idx) => (
                       <TableRow
                         key={session.id}
+                        hover
                         sx={{
-                          '&:nth-of-type(even)': { bgcolor: '#fbfcfd' },
-                          '&:hover': { bgcolor: '#f1f6ff' }
+                          '&:nth-of-type(even)': { bgcolor: '#fbfcfd' }
                         }}
                       >
-                        <TableCell sx={{ fontWeight: 800, color: '#647089', textAlign: 'center' }}>
+                        <TableCell sx={{ fontWeight: 700, color: '#647089', textAlign: 'center', fontSize: '0.75rem' }}>
                           {idx + 1}
                         </TableCell>
 
-                        <TableCell>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0f172a' }}>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.79rem' }}>
                             {session.date}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#647089' }}>
+                          <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>
                             {new Date(session.date).toLocaleDateString('en-US', { weekday: 'long' })}
                           </Typography>
                         </TableCell>
 
                         <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.3 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                             <Chip
                               label={session.groupCode}
                               size="small"
-                              sx={{ fontWeight: 800, bgcolor: '#e0f2fe', color: '#0369a1' }}
+                              sx={{ height: 20, fontWeight: 800, fontSize: '0.68rem', bgcolor: '#e0f2fe', color: '#0369a1' }}
                             />
-                            <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.79rem', color: '#0f172a' }}>
                               {session.courseTitle}
                             </Typography>
                           </Box>
                         </TableCell>
 
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 700, color: '#334155', fontSize: '0.78rem' }}>
                             Shift {session.shift} ({session.startTime} – {session.endTime})
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#647089' }}>
+                          <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>
                             Trainer: {session.trainerName}
                           </Typography>
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center' }}>
+                        <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                           <Chip
                             label={`${session.records.length} Trainees`}
                             size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#1e293b' }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#f1f5f9', color: '#1e293b' }}
                           />
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center' }}>
-                          <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'center' }}>
+                        <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', gap: 0.6, justifyContent: 'center' }}>
                             <Chip
                               label={`${session.presentCount} P`}
                               size="small"
-                              sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 900 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
                             />
                             <Chip
                               label={`${session.absentCount} A`}
                               size="small"
-                              sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 900 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 800 }}
                             />
                             <Chip
                               label={`${session.lateCount} L`}
                               size="small"
-                              sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 900 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fff7df', color: '#c9820a', fontWeight: 800 }}
                             />
                           </Box>
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'right' }}>
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+                        <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                             <Button
                               variant="contained"
                               size="small"
-                              startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+                              startIcon={<EditIcon sx={{ fontSize: '13px !important' }} />}
                               onClick={() => handleReopenSession(session)}
                               sx={{
-                                fontWeight: 800,
-                                fontSize: '0.78rem',
-                                borderRadius: 2,
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                px: 0.9,
+                                py: 0.3,
+                                whiteSpace: 'nowrap',
+                                borderRadius: 1.5,
                                 textTransform: 'none',
                                 bgcolor: '#1a56b0',
+                                boxShadow: 'none',
                                 '&:hover': { bgcolor: '#0d3466' }
                               }}
                             >
@@ -1692,19 +1760,19 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                 size="small"
                                 color="error"
                                 onClick={() => handleDeleteSession(session)}
-                                sx={{ border: '1px solid #fecaca' }}
+                                sx={{ border: '1px solid #fecaca', p: 0.45 }}
                               >
-                                <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                                <DeleteOutlineIcon sx={{ fontSize: 15 }} />
                               </IconButton>
                             )}
-                          </Box>
+                          </Stack>
                         </TableCell>
                       </TableRow>
                     ))}
 
                     {historicalSessions.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94a3b8' }}>
+                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                           No attendance sessions found.
                         </TableCell>
                       </TableRow>
@@ -1810,15 +1878,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
         <Box>
           {/* Controls Bar for Reports */}
           <Card
+            elevation={0}
             sx={{
-              p: 2,
-              mb: 2.5,
-              borderRadius: 3,
+              p: 1.25,
+              mb: 1.75,
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+              bgcolor: '#ffffff'
             }}
           >
-            <Grid container spacing={2} alignItems="center">
+            <Grid container spacing={1.25} alignItems="center">
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
@@ -1847,7 +1916,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ color: '#647089' }} />
+                        <SearchIcon sx={{ color: '#647089', fontSize: 18 }} />
                       </InputAdornment>
                     )
                   }}
@@ -1857,81 +1926,142 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Grid>
           </Card>
 
-          {/* 4 KPI SUMMARY CARDS */}
-          <Grid container spacing={2} sx={{ mb: 3 }}>
+          {/* 4 COMPACT KPI SUMMARY CARDS */}
+          <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
             <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#1a56b0' }}>
-                  {reportData.totalSessionsCount}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Sessions Held
-                </Typography>
-              </Card>
-            </Grid>
-
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#16834b' }}>
-                  {reportData.avgRate}%
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Average Attendance Rate
-                </Typography>
-              </Card>
-            </Grid>
-
-            <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #e2e8f0', textAlign: 'center' }}>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284c7' }}>
-                  {reportData.regularCount} / {reportData.totalStudentsCount}
-                </Typography>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Regular Trainees (≥ 85%)
-                </Typography>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 1.4,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '3.5px solid #1e40af',
+                  bgcolor: '#ffffff'
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                      Sessions Held
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                      {reportData.totalSessionsCount}
+                    </Typography>
+                    <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                      Recorded Class Days
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                    <CalendarMonthIcon sx={{ fontSize: 18 }} />
+                  </Box>
+                </Stack>
               </Card>
             </Grid>
 
             <Grid item xs={6} md={3}>
               <Card
+                elevation={0}
                 sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  border: '1px solid',
-                  borderColor: reportData.riskCount > 0 ? '#fca5a5' : '#e2e8f0',
-                  bgcolor: reportData.riskCount > 0 ? '#fff1f2' : '#fff',
-                  textAlign: 'center'
+                  p: 1.4,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '3.5px solid #059669',
+                  bgcolor: '#ffffff'
                 }}
               >
-                <Typography
-                  variant="h4"
-                  sx={{ fontWeight: 900, color: reportData.riskCount > 0 ? '#e11d48' : '#64748b' }}
-                >
-                  {reportData.riskCount}
-                </Typography>
-                <Typography
-                  variant="caption"
-                  sx={{ fontWeight: 800, color: reportData.riskCount > 0 ? '#e11d48' : '#64748b' }}
-                >
-                  Dropout Risk (&lt; 70%)
-                </Typography>
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                      Avg Attendance Rate
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                      {reportData.avgRate}%
+                    </Typography>
+                    <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                      Batch Average
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                    <AssessmentIcon sx={{ fontSize: 18 }} />
+                  </Box>
+                </Stack>
+              </Card>
+            </Grid>
+
+            <Grid item xs={6} md={3}>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 1.4,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '3.5px solid #0284c7',
+                  bgcolor: '#ffffff'
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                      Regular (≥85%)
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                      {reportData.regularCount} / {reportData.totalStudentsCount}
+                    </Typography>
+                    <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                      CTEVT Compliant
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                    <CheckCircleIcon sx={{ fontSize: 18 }} />
+                  </Box>
+                </Stack>
+              </Card>
+            </Grid>
+
+            <Grid item xs={6} md={3}>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 1.4,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  borderLeft: '3.5px solid #dc2626',
+                  bgcolor: '#ffffff'
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                      Dropout Risk (&lt;70%)
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#dc2626', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                      {reportData.riskCount}
+                    </Typography>
+                    <Typography variant="caption" noWrap sx={{ color: '#dc2626', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                      Monitor: {reportData.monitorCount}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fef2f2', borderRadius: 1.5, color: '#dc2626', flexShrink: 0 }}>
+                    <WarningAmberIcon sx={{ fontSize: 18 }} />
+                  </Box>
+                </Stack>
               </Card>
             </Grid>
           </Grid>
 
           {/* STUDENT COMPLIANCE TABLE */}
           <Card
+            elevation={0}
             sx={{
-              borderRadius: 3.5,
-              boxShadow: '0 4px 18px rgba(0,0,0,0.05)',
+              borderRadius: 2,
               border: '1px solid #e2e8f0',
               overflow: 'hidden',
-              mb: 4
+              mb: 2.5
             }}
           >
             <Box
               sx={{
-                p: 2,
+                p: 1.25,
                 bgcolor: '#f8fafc',
                 borderBottom: '1px solid #e2e8f0',
                 display: 'flex',
@@ -1941,43 +2071,45 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 gap: 1
               }}
             >
-              <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a' }}>
+              <Typography sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.88rem' }}>
                 Trainee Compliance &amp; Dropout Tracking
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Chip label={`Regular: ${reportData.regularCount}`} size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
-                <Chip label={`Monitor: ${reportData.monitorCount}`} size="small" sx={{ bgcolor: '#fff7df', color: '#c9820a', fontWeight: 800 }} />
-                <Chip label={`Risk: ${reportData.riskCount}`} size="small" sx={{ bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 800 }} />
+              <Box sx={{ display: 'flex', gap: 0.8 }}>
+                <Chip label={`Regular: ${reportData.regularCount}`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
+                <Chip label={`Monitor: ${reportData.monitorCount}`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fff7df', color: '#c9820a', fontWeight: 800 }} />
+                <Chip label={`Risk: ${reportData.riskCount}`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fdeceb', color: '#d5372f', fontWeight: 800 }} />
               </Box>
             </Box>
 
             <TableContainer>
-              <Table sx={{ minWidth: 800 }}>
+              <Table size="small" sx={{ minWidth: 800 }}>
                 <TableHead
                   sx={{
                     bgcolor: '#0F2E5A',
                     '& .MuiTableCell-head': {
                       bgcolor: '#0F2E5A !important',
                       color: '#FFFFFF !important',
-                      fontWeight: 900,
-                      fontSize: '0.85rem',
-                      py: 1.5,
-                      borderBottom: '2px solid #F59E0B'
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
                     }
                   }}
                 >
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                      S.N.
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                      #
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainee Name</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Total Classes</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Present (P)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Absent (A)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Late (L)</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>Attendance %</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>TVET Category</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainee Name</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Total Classes</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Present (P)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Absent (A)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Late (L)</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 160 }}>Attendance %</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>TVET Category</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1991,22 +2123,23 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     return (
                       <TableRow
                         key={std.id}
+                        hover
                         sx={{
-                          bgcolor: isRisk ? '#fff1f2' : idx % 2 === 0 ? '#fff' : '#fbfcfd',
-                          '&:hover': { bgcolor: '#f1f6ff' }
+                          bgcolor: isRisk ? '#fff1f2' : idx % 2 === 0 ? '#fff' : '#fbfcfd'
                         }}
                       >
-                        <TableCell sx={{ fontWeight: 800, color: '#647089', textAlign: 'center' }}>
+                        <TableCell sx={{ fontWeight: 700, color: '#647089', textAlign: 'center', fontSize: '0.75rem' }}>
                           {idx + 1}
                         </TableCell>
 
                         <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <Avatar
                               src={std.photoUrl}
                               sx={{
-                                width: 40,
-                                height: 40,
+                                width: 28,
+                                height: 28,
+                                fontSize: '0.75rem',
                                 bgcolor: isRisk ? '#e11d48' : '#1a56b0',
                                 fontWeight: 800
                               }}
@@ -2014,29 +2147,29 @@ export default function AttendanceManager({ initialGroupId = null }) {
                               {std.name[0]}
                             </Avatar>
                             <Box>
-                              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                              <Typography sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.8rem', lineHeight: 1.2 }}>
                                 {std.name}
                               </Typography>
-                              <Typography variant="caption" sx={{ color: '#647089' }}>
+                              <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>
                                 {std.tgid} • {std.phone}
                               </Typography>
                             </Box>
                           </Box>
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, fontSize: '0.78rem' }}>
                           {reportData.totalSessionsCount}
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#16834b' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#16834b', fontSize: '0.78rem' }}>
                           {row.present}
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#d5372f' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#d5372f', fontSize: '0.78rem' }}>
                           {row.absent}
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#c9820a' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#c9820a', fontSize: '0.78rem' }}>
                           {row.late}
                         </TableCell>
 
@@ -2047,56 +2180,59 @@ export default function AttendanceManager({ initialGroupId = null }) {
                               value={Math.min(100, Math.max(0, row.rate))}
                               sx={{
                                 flex: 1,
-                                height: 8,
-                                borderRadius: 4,
+                                height: 6,
+                                borderRadius: 3,
                                 bgcolor: '#e2e8f0',
                                 '& .MuiLinearProgress-bar': {
                                   bgcolor: progressColor,
-                                  borderRadius: 4
+                                  borderRadius: 3
                                 }
                               }}
                             />
-                            <Typography variant="body2" sx={{ fontWeight: 900, minWidth: 42, color: progressColor }}>
+                            <Typography sx={{ fontWeight: 800, minWidth: 36, fontSize: '0.76rem', color: progressColor }}>
                               {row.rate}%
                             </Typography>
                           </Box>
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'center' }}>
+                        <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                           {row.category === 'REGULAR' && (
                             <Chip
                               label="Regular (≥85%)"
                               size="small"
-                              sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
                             />
                           )}
                           {row.category === 'MONITOR' && (
                             <Chip
                               label="Monitor (70-84%)"
                               size="small"
-                              sx={{ bgcolor: '#fff7df', color: '#b45309', fontWeight: 800 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fff7df', color: '#b45309', fontWeight: 800 }}
                             />
                           )}
                           {row.category === 'RISK' && (
                             <Chip
                               label="Dropout Risk (<70%)"
                               size="small"
-                              sx={{ bgcolor: '#ffe4e6', color: '#e11d48', fontWeight: 900 }}
+                              sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#ffe4e6', color: '#e11d48', fontWeight: 800 }}
                             />
                           )}
                         </TableCell>
 
-                        <TableCell sx={{ textAlign: 'right' }}>
-                          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                             <Button
                               variant="outlined"
                               size="small"
-                              startIcon={<CalendarMonthIcon sx={{ fontSize: 16 }} />}
+                              startIcon={<CalendarMonthIcon sx={{ fontSize: '13px !important' }} />}
                               onClick={() => setCalendarStudentModal(std)}
                               sx={{
-                                fontWeight: 800,
-                                fontSize: '0.75rem',
-                                borderRadius: 2,
+                                fontWeight: 700,
+                                fontSize: '0.7rem',
+                                px: 0.9,
+                                py: 0.3,
+                                whiteSpace: 'nowrap',
+                                borderRadius: 1.5,
                                 textTransform: 'none'
                               }}
                             >
@@ -2110,16 +2246,16 @@ export default function AttendanceManager({ initialGroupId = null }) {
                                   component="a"
                                   href={getWhatsAppUrl(
                                     std.guardianContact || std.phone,
-                                    `Namaste, this is from KITE Training Center. Student ${std.name} (${std.tgid}) has an attendance rate of ${row.rate}%, which is below the 85% requirement. Please ensure regular attendance.`
+                                    `Namaste, this is from Prabidhik School, Jorpati. Student ${std.name} (${std.tgid}) has an attendance rate of ${row.rate}%, which is below the 85% requirement. Please ensure regular attendance.`
                                   )}
                                   target="_blank"
-                                  sx={{ color: '#25D366', bgcolor: '#e5f8ee', border: '1px solid #86efac' }}
+                                  sx={{ color: '#25D366', bgcolor: '#e5f8ee', border: '1px solid #86efac', p: 0.45 }}
                                 >
-                                  <WhatsAppIcon sx={{ fontSize: 18 }} />
+                                  <WhatsAppIcon sx={{ fontSize: 15 }} />
                                 </IconButton>
                               </Tooltip>
                             )}
-                          </Box>
+                          </Stack>
                         </TableCell>
                       </TableRow>
                     );
@@ -2127,7 +2263,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
                   {reportData.studentStats.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 8, color: '#94a3b8' }}>
+                      <TableCell colSpan={9} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                         No trainees found for this batch.
                       </TableCell>
                     </TableRow>
@@ -2173,205 +2309,224 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
         return (
           <Box sx={{ width: '100%' }}>
-            {/* 1. Device Overview Hero Card */}
+            {/* 1. Slim 1-Row Device Overview Header Card */}
             <Card
+              elevation={0}
               sx={{
-                mb: 3,
-                borderRadius: 3.5,
-                p: { xs: 2.5, sm: 3.5 },
-                bgcolor: '#0B2545',
+                py: { xs: 1.25, sm: 1.5 },
+                px: { xs: 1.75, sm: 2.25 },
+                mb: 1.75,
+                borderRadius: 2.5,
+                background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
                 color: '#FFFFFF',
-                boxShadow: '0 8px 24px rgba(11, 37, 69, 0.25)',
-                border: '1px solid #1E3A8A'
+                boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
               }}
             >
-              <Grid container spacing={2.5} alignItems="center">
-                <Grid item xs={12} md={7}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
-                    <Avatar sx={{ width: 44, height: 44, bgcolor: '#10B981', color: '#FFFFFF' }}>
-                      <FingerprintIcon sx={{ fontSize: 26 }} />
-                    </Avatar>
-                    <Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                        <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                          {settings.deviceName || 'Global Era ZKTeco K40 WiFi'}
-                        </Typography>
-                        <Chip
-                          label={settings.status === 'Online' ? '🟢 Online (Active)' : '🔴 Offline'}
-                          size="small"
-                          sx={{
-                            bgcolor: settings.status === 'Online' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                            color: settings.status === 'Online' ? '#34D399' : '#F87171',
-                            border: `1px solid ${settings.status === 'Online' ? '#10B981' : '#EF4444'}`,
-                            fontWeight: 800,
-                            fontSize: '0.72rem'
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 600 }}>
-                        ZKTeco ADMS Cloud Push & Local WiFi/LAN Bridge • Serial: <b>{settings.serialNo || 'ZK-GE-2026-8891'}</b>
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mt: 2, bgcolor: 'rgba(255,255,255,0.06)', p: 1.5, borderRadius: 2 }}>
-                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                      🌐 <b>Device IP:</b> {settings.deviceIp || '192.168.1.201'}:{settings.devicePort || 4370}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                      ☁️ <b>Cloud Push:</b> /iclock/cdata
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                      🕒 <b>Last Sync:</b> {settings.lastSyncTime || 'Never'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#FCD34D' }}>
-                      ⏰ <b>Shift Time:</b> Morning {morningShift} (Grace: {graceMins} mins)
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={12} md={5}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.2 }}>
-                    <Button
-                      variant="contained"
-                      startIcon={<RefreshIcon />}
-                      onClick={() => handleSyncBiometric(bioDateFilter)}
+              <Grid container spacing={1.5} alignItems="center">
+                <Grid item xs={12} md={6}>
+                  <Stack direction="row" spacing={1.2} alignItems="center">
+                    <Box
                       sx={{
-                        fontWeight: 900,
-                        bgcolor: '#10B981',
-                        '&:hover': { bgcolor: '#059669' },
-                        color: '#FFFFFF',
-                        borderRadius: 2.5,
-                        py: 1.2,
-                        textTransform: 'none',
-                        fontSize: '0.92rem'
+                        width: 34,
+                        height: 34,
+                        borderRadius: 1.8,
+                        bgcolor: 'rgba(16, 185, 129, 0.2)',
+                        border: '1px solid rgba(16, 185, 129, 0.4)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0
                       }}
                     >
-                      📥 Sync Punch Logs
+                      <FingerprintIcon sx={{ fontSize: 20, color: '#34d399' }} />
+                    </Box>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}>
+                        {settings.deviceName || 'Prabidhik School ZKTeco K40 WiFi'} ({settings.status === 'Online' ? 'Online' : 'Offline'})
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}>
+                        Prabidhik School, Jorpati • IP: {settings.deviceIp || '192.168.1.201'}:{settings.devicePort || 4370} • Morning {morningShift} ({graceMins}m grace)
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </Grid>
+
+                <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+                  <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<CloudUploadIcon sx={{ fontSize: '15px !important' }} />}
+                      onClick={() => setOpenUsbDialog(true)}
+                      sx={{
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        fontWeight: 700,
+                        fontSize: '0.76rem',
+                        whiteSpace: 'nowrap',
+                        px: 1.4,
+                        py: 0.65,
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                      }}
+                    >
+                      Import USB Logs
                     </Button>
 
-                    <Box sx={{ display: 'flex', gap: 1 }}>
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        startIcon={<CloudUploadIcon />}
-                        onClick={() => setOpenUsbDialog(true)}
-                        sx={{
-                          fontWeight: 800,
-                          color: '#FFFFFF',
-                          borderColor: 'rgba(255,255,255,0.3)',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontSize: '0.78rem',
-                          '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
-                        }}
-                      >
-                        📁 Import USB Logs
-                      </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<PlayArrowIcon sx={{ fontSize: '15px !important', color: '#fbbf24' }} />}
+                      onClick={() => setOpenSimulateDialog(true)}
+                      sx={{
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        fontWeight: 700,
+                        fontSize: '0.76rem',
+                        whiteSpace: 'nowrap',
+                        px: 1.4,
+                        py: 0.65,
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                      }}
+                    >
+                      Live Scan Test
+                    </Button>
 
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        startIcon={<PlayArrowIcon />}
-                        onClick={() => setOpenSimulateDialog(true)}
-                        sx={{
-                          fontWeight: 800,
-                          color: '#F59E0B',
-                          borderColor: '#F59E0B',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontSize: '0.78rem',
-                          '&:hover': { borderColor: '#FBBF24', bgcolor: 'rgba(245, 158, 11, 0.1)' }
-                        }}
-                      >
-                        🧪 Live Scan Test
-                      </Button>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      startIcon={<TuneIcon sx={{ fontSize: '15px !important' }} />}
+                      onClick={() => setOpenSettingsDialog(true)}
+                      sx={{
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        fontWeight: 700,
+                        fontSize: '0.76rem',
+                        whiteSpace: 'nowrap',
+                        px: 1.4,
+                        py: 0.65,
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                      }}
+                    >
+                      Settings
+                    </Button>
 
-                      <Button
-                        variant="outlined"
-                        fullWidth
-                        startIcon={<TuneIcon />}
-                        onClick={() => setOpenSettingsDialog(true)}
-                        sx={{
-                          fontWeight: 800,
-                          color: '#CBD5E1',
-                          borderColor: 'rgba(255,255,255,0.2)',
-                          borderRadius: 2,
-                          textTransform: 'none',
-                          fontSize: '0.78rem',
-                          '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.08)' }
-                        }}
-                      >
-                        ⚙️ Settings
-                      </Button>
-                    </Box>
-                  </Box>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      startIcon={<RefreshIcon sx={{ fontSize: '15px !important' }} />}
+                      onClick={() => handleSyncBiometric(bioDateFilter)}
+                      sx={{
+                        bgcolor: '#f59e0b',
+                        color: '#0f2e5a',
+                        fontWeight: 800,
+                        fontSize: '0.76rem',
+                        whiteSpace: 'nowrap',
+                        px: 1.4,
+                        py: 0.65,
+                        boxShadow: 'none',
+                        '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                      }}
+                    >
+                      Sync Punch Logs
+                    </Button>
+                  </Stack>
                 </Grid>
               </Grid>
             </Card>
 
-            {/* 2. Today's Biometric Statistics Cards */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid item xs={6} sm={3}>
-                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, display: 'block' }}>
-                    Total Biometric Scans
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', mt: 0.5 }}>
-                    {totalPunches}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#10B981', fontWeight: 700 }}>
-                    Recorded for Date
-                  </Typography>
+            {/* 2. Today's Biometric Compact KPI Cards */}
+            <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+              <Grid item xs={6} md={3}>
+                <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #1e40af', bgcolor: '#ffffff' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                        Total Biometric Scans
+                      </Typography>
+                      <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                        {totalPunches}
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                        Recorded for Date
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                      <FingerprintIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Stack>
                 </Card>
               </Grid>
 
-              <Grid item xs={6} sm={3}>
-                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BBF7D0', bgcolor: '#F0FDF4' }}>
-                  <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800, display: 'block' }}>
-                    Trainee Thumb Punches
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#15803D', mt: 0.5 }}>
-                    {studentPunches}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700 }}>
-                    Counted for 80% Requirement
-                  </Typography>
+              <Grid item xs={6} md={3}>
+                <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #059669', bgcolor: '#ffffff' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                        Trainee Punches
+                      </Typography>
+                      <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                        {studentPunches}
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                        80% Requirement
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                      <SchoolIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Stack>
                 </Card>
               </Grid>
 
-              <Grid item xs={6} sm={3}>
-                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #BAE6FD', bgcolor: '#F0F9FF' }}>
-                  <Typography variant="caption" sx={{ color: '#075985', fontWeight: 800, display: 'block' }}>
-                    Trainer & Staff Punches
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#0369A1', mt: 0.5 }}>
-                    {trainerStaffPunches}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>
-                    Daily Verified Punches
-                  </Typography>
+              <Grid item xs={6} md={3}>
+                <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0284c7', bgcolor: '#ffffff' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                        Trainer &amp; Staff
+                      </Typography>
+                      <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                        {trainerStaffPunches}
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                        Daily Verified Punches
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                      <CheckCircleIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Stack>
                 </Card>
               </Grid>
 
-              <Grid item xs={6} sm={3}>
-                <Card sx={{ p: 2, borderRadius: 3, border: '1px solid #FED7AA', bgcolor: '#FFF7ED' }}>
-                  <Typography variant="caption" sx={{ color: '#9A3412', fontWeight: 800, display: 'block' }}>
-                    Late Grace Period
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#C2410C', mt: 0.5 }}>
-                    {graceMins} mins
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#EA580C', fontWeight: 700 }}>
-                    Shift start grace window
-                  </Typography>
+              <Grid item xs={6} md={3}>
+                <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #f59e0b', bgcolor: '#ffffff' }}>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                        Late Grace Period
+                      </Typography>
+                      <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                        {graceMins} mins
+                      </Typography>
+                      <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                        Shift start grace window
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                      <RouterIcon sx={{ fontSize: 18 }} />
+                    </Box>
+                  </Stack>
                 </Card>
               </Grid>
             </Grid>
 
             {/* 3. Live Punch Explorer Controls */}
-            <Card sx={{ p: 2, mb: 2.5, borderRadius: 3, border: '1px solid #E2E8F0' }}>
-              <Grid container spacing={1.5} alignItems="center">
+            <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
+              <Grid container spacing={1.25} alignItems="center">
                 <Grid item xs={12} sm={3.5}>
                   <TextField
                     size="small"
@@ -2382,7 +2537,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                          <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                         </InputAdornment>
                       )
                     }}
@@ -2429,13 +2584,13 @@ export default function AttendanceManager({ initialGroupId = null }) {
                     variant="outlined"
                     fullWidth
                     size="small"
-                    startIcon={<RefreshIcon />}
+                    startIcon={<RefreshIcon sx={{ fontSize: '15px !important' }} />}
                     onClick={() => {
                       setBioSearchQuery('');
                       setBioRoleFilter('ALL');
                       setBioDateFilter(new Date().toISOString().slice(0, 10));
                     }}
-                    sx={{ fontWeight: 800, borderRadius: 2, py: 0.8 }}
+                    sx={{ fontWeight: 700, borderRadius: 1.5, py: 0.65, fontSize: '0.76rem' }}
                   >
                     Reset
                   </Button>
@@ -2444,30 +2599,44 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Card>
 
             {/* 4. Live Punch Stream Table */}
-            <Card sx={{ borderRadius: 3, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
               <TableContainer component={Paper} elevation={0}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 120 }}>
                         Biometric ID
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Name & Designation
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Name &amp; Designation
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 120 }}>
                         Role
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>
-                        Scan Date & Time
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 160 }}>
+                        Scan Date &amp; Time
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 130 }}>
                         Status
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                         Source Device
                       </TableCell>
                     </TableRow>
@@ -2477,23 +2646,23 @@ export default function AttendanceManager({ initialGroupId = null }) {
                       const isLate = log.timestamp && log.timestamp > '07:15:00 AM' && log.role === 'STUDENT';
                       return (
                         <TableRow key={log.id || idx} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
                             <Chip
-                              icon={<FingerprintIcon sx={{ fontSize: '13px !important', color: '#0F2E5A !important' }} />}
+                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
                               label={`#${log.biometricId}`}
                               size="small"
-                              sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#1E293B' }}>
+                            <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.8rem' }}>
                               {log.name}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
                               label={
                                 log.role === 'STUDENT'
@@ -2504,6 +2673,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
                               }
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 800,
                                 bgcolor:
                                   log.role === 'STUDENT'
@@ -2520,19 +2691,21 @@ export default function AttendanceManager({ initialGroupId = null }) {
                               }}
                             />
                           </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}>
                               🕒 {log.timestamp}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
                               📅 {log.date}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
                               label={isLate ? '🟠 Late' : '🟢 On Time'}
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 800,
                                 bgcolor: isLate ? '#FFF7ED' : '#F0FDF4',
                                 color: isLate ? '#C2410C' : '#166534',
@@ -2541,8 +2714,8 @@ export default function AttendanceManager({ initialGroupId = null }) {
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                              {log.device || 'Global Era ZKTeco K40'}
+                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.72rem' }}>
+                              {log.device || 'Prabidhik School ZKTeco K40'}
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -2551,8 +2724,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
 
                     {filteredLogs.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94A3B8' }}>
-                          <FingerprintIcon sx={{ fontSize: 44, color: '#CBD5E1', mb: 1, display: 'block', mx: 'auto' }} />
+                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                           No biometric logs found for the selected date and filter.
                         </TableCell>
                       </TableRow>

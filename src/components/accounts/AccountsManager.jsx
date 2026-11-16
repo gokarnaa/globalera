@@ -817,390 +817,333 @@ export default function AccountsManager({ initialTab = 0 }) {
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* Page Title & Action Bar */}
-      <Box
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%', pb: 4 }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', lg: 'center' },
-          flexDirection: { xs: 'column', lg: 'row' },
-          gap: 2.5,
-          mb: 3.5,
-          p: 2.5,
-          bgcolor: '#FFFFFF',
-          borderRadius: 3.5,
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.03)'
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        {/* Left: Branding & Status */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Box
-            sx={{
-              width: 50,
-              height: 50,
-              borderRadius: 3,
-              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#FFFFFF',
-              boxShadow: '0 8px 18px rgba(15, 46, 90, 0.28)',
-              border: '2px solid #F59E0B'
-            }}
-          >
-            <AccountBalanceWalletIcon sx={{ fontSize: '1.65rem' }} />
-          </Box>
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap', mb: 0.3 }}>
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>
-                Accounts & Fee Management
-              </Typography>
-              
-              {/* Counter Open / Closed Status Badge */}
-              {db?.counterStatus?.isOpen !== false ? (
-                <Tooltip title={`Counter Opened: ${db?.counterStatus?.openedDate || 'Today'} • Cashier: ${db?.counterStatus?.openedBy || 'Authorized Cashier'}`}>
-                  <Chip
-                    label="🟢 Counter Open • FY 2081/82"
-                    size="small"
-                    sx={{
-                      bgcolor: '#ECFDF5',
-                      color: '#065F46',
-                      fontWeight: 800,
-                      fontSize: '0.72rem',
-                      border: '1px solid #A7F3D0',
-                      height: 24
-                    }}
-                  />
-                </Tooltip>
-              ) : (
-                <Tooltip title="Counter is currently closed. Open the day before processing transactions.">
-                  <Chip
-                    label="🔴 Counter Closed • FY 2081/82"
-                    size="small"
-                    sx={{
-                      bgcolor: '#FEF2F2',
-                      color: '#991B1B',
-                      fontWeight: 800,
-                      fontSize: '0.72rem',
-                      border: '1px solid #FECACA',
-                      height: 24
-                    }}
-                  />
-                </Tooltip>
-              )}
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={5.5}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <AccountBalanceWalletIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
+                  <Typography
+                    variant="subtitle1"
+                    noWrap
+                    sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                  >
+                    Accounts &amp; Fee Management
+                  </Typography>
+                  {db?.counterStatus?.isOpen !== false ? (
+                    <Tooltip title={`Counter Opened: ${db?.counterStatus?.openedDate || 'Today'} • Cashier: ${db?.counterStatus?.openedBy || 'Authorized Cashier'} • Cash: Rs. ${liveCashInHand.toLocaleString()} • Bank: Rs. ${liveBankBalance.toLocaleString()}`}>
+                      <Chip
+                        label={`🟢 Open • Cash: Rs. ${liveCashInHand.toLocaleString()} • Bank: Rs. ${liveBankBalance.toLocaleString()}`}
+                        size="small"
+                        sx={{
+                          bgcolor: 'rgba(16, 185, 129, 0.2)',
+                          color: '#a7f3d0',
+                          fontWeight: 800,
+                          fontSize: '0.66rem',
+                          border: '1px solid rgba(167, 243, 208, 0.35)',
+                          height: 20
+                        }}
+                      />
+                    </Tooltip>
+                  ) : (
+                    <Tooltip title="Counter is currently closed. Open the day before processing transactions.">
+                      <Chip
+                        label="🔴 Counter Closed • FY 2081/82"
+                        size="small"
+                        sx={{
+                          bgcolor: 'rgba(239, 68, 68, 0.25)',
+                          color: '#fecaca',
+                          fontWeight: 800,
+                          fontSize: '0.66rem',
+                          border: '1px solid rgba(254, 202, 202, 0.4)',
+                          height: 20
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                </Stack>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Fee Collection, ConnectIPS Payments, Vendor/Landlord Ledger &amp; Audit Hub
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-              {/* Live Physical Cash in Hand Badge */}
-              <Tooltip title="Actual cash in drawer balance (A/C 1010)">
-                <Chip
-                  icon={<PointOfSaleIcon sx={{ fontSize: '0.88rem !important', color: '#059669 !important' }} />}
-                  label={`Cash in Drawer: Rs. ${liveCashInHand.toLocaleString()}`}
-                  size="small"
-                  sx={{
-                    bgcolor: '#F0FDF4',
-                    color: '#065F46',
-                    fontWeight: 800,
-                    fontSize: '0.72rem',
-                    border: '1px solid #BBF7D0',
-                    height: 24
-                  }}
-                />
-              </Tooltip>
-
-              {/* Live Bank Balance Badge */}
-              <Tooltip title="Global IME & Nabil Bank balance (A/C 1020)">
-                <Chip
-                  icon={<AccountBalanceIcon sx={{ fontSize: '0.88rem !important', color: '#1E40AF !important' }} />}
-                  label={`Bank Balance: Rs. ${liveBankBalance.toLocaleString()}`}
-                  size="small"
-                  sx={{
-                    bgcolor: '#EFF6FF',
-                    color: '#1E40AF',
-                    fontWeight: 800,
-                    fontSize: '0.72rem',
-                    border: '1px solid #BFDBFE',
-                    height: 24
-                  }}
-                />
-              </Tooltip>
-            </Box>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block' }}>
-              Global Era Financial & Fee Management • Fee Collection, ConnectIPS Payments, Vendor/Landlord Ledger & Audit Hub
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* Right: Compact Professional 1-Line Action Bar */}
-        <Stack
-          direction="row"
-          spacing={1}
-          alignItems="center"
-          flexWrap="wrap"
-          sx={{
-            justifyContent: { xs: 'flex-start', lg: 'flex-end' }
-          }}
-        >
-          {/* Day Open Button when Counter is Closed */}
-          {db?.counterStatus?.isOpen === false ? (
-            <Button
-              variant="contained"
-              size="small"
-              onClick={() => setOpenDayOpenModal(true)}
-              startIcon={<LockOpenIcon sx={{ fontSize: '1.05rem !important' }} />}
-              sx={{
-                background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                color: '#FFFFFF',
-                fontWeight: 900,
-                borderRadius: 2.2,
-                px: 2,
-                py: 0.8,
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
-                textTransform: 'none',
-                fontSize: '0.85rem',
-                whiteSpace: 'nowrap'
-              }}
+          <Grid item xs={12} md={6.5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack
+              direction="row"
+              spacing={0.8}
+              alignItems="center"
+              flexWrap="wrap"
+              useFlexGap
+              sx={{ justifyContent: { xs: 'flex-start', md: 'flex-end' } }}
             >
-              🔓 Day Open
-            </Button>
-          ) : (
-            <>
-              {/* Primary Actions when Counter is Open */}
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => {
-                  setPreselectedStudentId(null);
-                  setOpenCollectModal(true);
-                }}
-                startIcon={<PointOfSaleIcon sx={{ fontSize: '1.05rem !important' }} />}
-                sx={{
-                  background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  borderRadius: 2.2,
-                  px: 1.8,
-                  py: 0.75,
-                  boxShadow: '0 3px 10px rgba(16, 185, 129, 0.3)',
-                  textTransform: 'none',
-                  fontSize: '0.82rem',
-                  whiteSpace: 'nowrap',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #047857 0%, #059669 100%)',
-                    boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)'
-                  }
-                }}
-              >
-                + Collect Fee
-              </Button>
-
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => {
-                  const defaultParty = (db.parties || []).find((p) => p.type === 'LANDLORD') || (db.parties || [])[0];
-                  setConnectIpsParty(defaultParty || null);
-                  setConnectIpsModalOpen(true);
-                }}
-                startIcon={<AccountBalanceIcon sx={{ fontSize: '1.05rem !important' }} />}
-                sx={{
-                  background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  borderRadius: 2.2,
-                  px: 1.8,
-                  py: 0.75,
-                  boxShadow: '0 3px 10px rgba(15, 46, 90, 0.3)',
-                  textTransform: 'none',
-                  fontSize: '0.82rem',
-                  whiteSpace: 'nowrap',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #0A1E3B 0%, #0F2E5A 100%)',
-                    boxShadow: '0 4px 14px rgba(15, 46, 90, 0.4)'
-                  }
-                }}
-              >
-                + Vendor Pay
-              </Button>
-
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => {
-                  setPreselectedTrainerId(null);
-                  setOpenPayoutModal(true);
-                }}
-                startIcon={<PaymentsIcon sx={{ fontSize: '1.05rem !important' }} />}
-                sx={{
-                  background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  borderRadius: 2.2,
-                  px: 1.8,
-                  py: 0.75,
-                  boxShadow: '0 3px 10px rgba(180, 83, 9, 0.3)',
-                  textTransform: 'none',
-                  fontSize: '0.82rem',
-                  whiteSpace: 'nowrap',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #592507 0%, #78350F 100%)'
-                  }
-                }}
-              >
-                + Disburse Pay
-              </Button>
-
-              {/* Bank Deposit Contra Button */}
-              <Tooltip title="Deposit cash in drawer into bank account (Contra Entry)">
+              {db?.counterStatus?.isOpen === false ? (
                 <Button
+                  variant="contained"
                   size="small"
-                  variant="outlined"
-                  onClick={() => setOpenCashToBankModal(true)}
-                  startIcon={<AccountBalanceIcon sx={{ fontSize: '0.95rem !important', color: '#1E40AF' }} />}
+                  onClick={() => setOpenDayOpenModal(true)}
+                  startIcon={<LockOpenIcon sx={{ fontSize: '15px !important' }} />}
                   sx={{
+                    bgcolor: '#10b981',
+                    color: '#ffffff',
                     fontWeight: 800,
-                    borderRadius: 2,
-                    borderColor: '#93C5FD',
-                    color: '#1E40AF',
-                    bgcolor: '#EFF6FF',
-                    textTransform: 'none',
-                    fontSize: '0.78rem',
-                    py: 0.65,
+                    fontSize: '0.76rem',
                     px: 1.4,
+                    py: 0.65,
                     whiteSpace: 'nowrap',
-                    '&:hover': { bgcolor: '#DBEAFE', borderColor: '#3B82F6' }
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: '#059669' }
                   }}
                 >
-                  🏦 Bank Deposit
+                  🔓 Day Open
                 </Button>
-              </Tooltip>
+              ) : (
+                <>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      setPreselectedStudentId(null);
+                      setOpenCollectModal(true);
+                    }}
+                    startIcon={<PointOfSaleIcon sx={{ fontSize: '15px !important' }} />}
+                    sx={{
+                      bgcolor: '#10b981',
+                      color: '#ffffff',
+                      fontWeight: 800,
+                      fontSize: '0.76rem',
+                      px: 1.4,
+                      py: 0.65,
+                      whiteSpace: 'nowrap',
+                      textTransform: 'none',
+                      boxShadow: 'none',
+                      '&:hover': { bgcolor: '#059669' }
+                    }}
+                  >
+                    + Collect Fee
+                  </Button>
 
-              <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', sm: 'block' }, my: 0.5, borderColor: '#CBD5E1' }} />
+                  <Button
+                    variant="contained"
+                    size="small"
+                    onClick={() => {
+                      const defaultParty = (db.parties || []).find((p) => p.type === 'LANDLORD') || (db.parties || [])[0];
+                      setConnectIpsParty(defaultParty || null);
+                      setConnectIpsModalOpen(true);
+                    }}
+                    startIcon={<AccountBalanceIcon sx={{ fontSize: '15px !important' }} />}
+                    sx={{
+                      bgcolor: '#f59e0b',
+                      color: '#0f2e5a',
+                      fontWeight: 800,
+                      fontSize: '0.76rem',
+                      px: 1.4,
+                      py: 0.65,
+                      whiteSpace: 'nowrap',
+                      textTransform: 'none',
+                      boxShadow: 'none',
+                      '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                    }}
+                  >
+                    + Vendor Pay
+                  </Button>
 
-              {/* Cash Closing */}
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    onClick={() => {
+                      setPreselectedTrainerId(null);
+                      setOpenPayoutModal(true);
+                    }}
+                    startIcon={<PaymentsIcon sx={{ fontSize: '15px !important' }} />}
+                    sx={{
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      color: '#ffffff',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      fontWeight: 700,
+                      fontSize: '0.76rem',
+                      px: 1.4,
+                      py: 0.65,
+                      whiteSpace: 'nowrap',
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                    }}
+                  >
+                    + Disburse Pay
+                  </Button>
+
+                  <Tooltip title="Deposit cash in drawer into bank account (Contra Entry)">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setOpenCashToBankModal(true)}
+                      startIcon={<AccountBalanceIcon sx={{ fontSize: '14px !important' }} />}
+                      sx={{
+                        bgcolor: 'rgba(255, 255, 255, 0.1)',
+                        color: '#ffffff',
+                        borderColor: 'rgba(255, 255, 255, 0.3)',
+                        fontWeight: 700,
+                        fontSize: '0.76rem',
+                        px: 1.4,
+                        py: 0.65,
+                        whiteSpace: 'nowrap',
+                        textTransform: 'none',
+                        '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                      }}
+                    >
+                      Bank Deposit
+                    </Button>
+                  </Tooltip>
+
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={() => setOpenCashClosingModal(true)}
+                    startIcon={<LockIcon sx={{ fontSize: '14px !important' }} />}
+                    sx={{
+                      bgcolor: 'rgba(255, 255, 255, 0.1)',
+                      color: '#ffffff',
+                      borderColor: 'rgba(255, 255, 255, 0.3)',
+                      fontWeight: 700,
+                      fontSize: '0.76rem',
+                      px: 1.4,
+                      py: 0.65,
+                      whiteSpace: 'nowrap',
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                    }}
+                  >
+                    Cash Closing
+                  </Button>
+                </>
+              )}
+
               <Button
                 size="small"
                 variant="outlined"
-                onClick={() => setOpenCashClosingModal(true)}
-                startIcon={<LockIcon sx={{ fontSize: '0.95rem !important' }} />}
+                onClick={() => {
+                  setStatementType(activeTab === 2 ? 'LANDLORD' : activeTab === 3 ? 'TRAINER' : activeTab === 1 ? 'STUDENT' : 'LANDLORD');
+                  setUniversalStatementOpen(true);
+                }}
+                startIcon={<ArticleIcon sx={{ fontSize: '14px !important' }} />}
                 sx={{
-                  fontWeight: 800,
-                  borderRadius: 2,
-                  borderColor: '#CBD5E1',
-                  color: '#334155',
-                  bgcolor: '#F8FAFC',
-                  textTransform: 'none',
-                  fontSize: '0.78rem',
-                  py: 0.65,
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
                   px: 1.4,
+                  py: 0.65,
                   whiteSpace: 'nowrap',
-                  '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
-                🔒 Cash Closing
+                Statements
               </Button>
-            </>
-          )}
 
-          {/* 2 Utility Tools (Always Available) */}
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={() => {
-              setStatementType(activeTab === 2 ? 'LANDLORD' : activeTab === 3 ? 'TRAINER' : activeTab === 1 ? 'STUDENT' : 'LANDLORD');
-              setUniversalStatementOpen(true);
-            }}
-            startIcon={<ArticleIcon sx={{ fontSize: '0.95rem !important' }} />}
-            sx={{
-              fontWeight: 700,
-              borderRadius: 2,
-              borderColor: '#CBD5E1',
-              color: '#0F2E5A',
-              bgcolor: '#F8FAFC',
-              textTransform: 'none',
-              fontSize: '0.78rem',
-              py: 0.65,
-              px: 1.4,
-              whiteSpace: 'nowrap',
-              '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
-            }}
-          >
-            📜 Statements
-          </Button>
+              <Button
+                size="small"
+                variant="outlined"
+                onClick={handleExportExcel}
+                startIcon={<FileDownloadIcon sx={{ fontSize: '14px !important' }} />}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Excel
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
-          <Button
-            size="small"
-            variant="outlined"
-            onClick={handleExportExcel}
-            startIcon={<FileDownloadIcon sx={{ fontSize: '0.95rem !important' }} />}
-            sx={{
-              fontWeight: 700,
-              borderRadius: 2,
-              borderColor: '#CBD5E1',
-              color: '#334155',
-              bgcolor: '#F8FAFC',
-              textTransform: 'none',
-              fontSize: '0.78rem',
-              py: 0.65,
-              px: 1.4,
-              whiteSpace: 'nowrap',
-              '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
-            }}
-          >
-            📊 Excel
-          </Button>
-        </Stack>
-      </Box>
-
-      {/* Top Financial KPI Summary Cards (Dynamic Context-Aware for each Tab!) */}
-      <Grid container spacing={2.2} sx={{ mb: 3.5 }}>
+      {/* Top Financial KPI Summary Cards (Compact Standard) */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
         {currentKpis.map((kpi, idx) => (
-          <Grid item xs={12} sm={6} md={2.4} key={idx}>
-            <Paper
+          <Grid item xs={6} sm={4} md={2.4} key={idx}>
+            <Card
               elevation={0}
               sx={{
-                p: 2.2,
-                borderRadius: 3.5,
-                border: '1px solid #E2E8F0',
-                borderLeft: `5px solid ${kpi.color}`,
-                bgcolor: '#FFFFFF',
-                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)',
-                height: '100%',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s ease',
-                '&:hover': { transform: 'translateY(-2px)', boxShadow: '0 6px 16px rgba(0, 0, 0, 0.05)' }
+                p: 1.4,
+                borderRadius: 2,
+                border: '1px solid #e2e8f0',
+                borderLeft: `3.5px solid ${kpi.color}`,
+                bgcolor: '#ffffff',
+                height: '100%'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px', fontSize: '0.72rem' }}>
-                  {kpi.title}
-                </Typography>
-                <Box sx={{ width: 26, height: 26, borderRadius: '50%', bgcolor: kpi.bgBadge, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.03em', fontSize: '0.66rem', display: 'block' }}>
+                    {kpi.title}
+                  </Typography>
+                  <Typography noWrap sx={{ fontWeight: 800, color: kpi.color, fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                    {kpi.amount}
+                  </Typography>
+                  <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                    {kpi.sub}
+                  </Typography>
+                </Box>
+                <Box sx={{ width: 32, height: 32, borderRadius: 1.5, bgcolor: kpi.bgBadge, color: kpi.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {kpi.icon}
                 </Box>
-              </Box>
-              <Typography variant="h5" sx={{ fontWeight: 900, color: kpi.color, my: 0.5, fontSize: '1.42rem' }}>
-                {kpi.amount}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                {kpi.sub}
-              </Typography>
-            </Paper>
+              </Stack>
+            </Card>
           </Grid>
         ))}
       </Grid>
 
-      {/* Navigation Master Tabs (5 Structured Tabs - No Horizontal Scrolling Overflow!) */}
+      {/* Navigation Master Tabs */}
       <Paper
         elevation={0}
         sx={{
-          mb: 3,
-          borderRadius: 3.5,
+          mb: 1.75,
+          borderRadius: 2,
           border: '1px solid #E2E8F0',
-          bgcolor: '#FFFFFF',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+          bgcolor: '#FFFFFF'
         }}
       >
         <Tabs
@@ -1208,24 +1151,24 @@ export default function AccountsManager({ initialTab = 0 }) {
           onChange={(e, next) => setActiveTab(next)}
           variant="standard"
           sx={{
-            px: 1.5,
-            minHeight: 52,
+            px: 1,
+            minHeight: 42,
             '& .MuiTabs-flexContainer': {
               display: 'flex',
               justifyContent: 'space-between'
             },
             '& .MuiTabs-indicator': {
-              height: 3.5,
+              height: 3,
               borderRadius: '3px 3px 0 0',
               bgcolor: '#0F2E5A'
             },
             '& .MuiTab-root': {
               flex: 1,
               fontWeight: 800,
-              fontSize: '0.86rem',
+              fontSize: '0.78rem',
               textTransform: 'none',
-              py: 1.6,
-              minHeight: 52,
+              py: 1,
+              minHeight: 42,
               color: '#64748B',
               '&.Mui-selected': {
                 color: '#0F2E5A',
@@ -1234,11 +1177,11 @@ export default function AccountsManager({ initialTab = 0 }) {
             }
           }}
         >
-          <Tab icon={<TrendingUpIcon />} iconPosition="start" label="Financial Dashboard (Overview)" />
-          <Tab icon={<SchoolIcon />} iconPosition="start" label={`Student Fee Installments (${students.length})`} />
-          <Tab icon={<StorefrontIcon />} iconPosition="start" label={`Parties & Landlords (${(db.parties || []).length})`} />
-          <Tab icon={<PersonIcon />} iconPosition="start" label={`Trainer Payroll (${trainers.length})`} />
-          <Tab icon={<AccountTreeIcon />} iconPosition="start" label="Ledger, Day-Book & Audit (Accounting Hub)" />
+          <Tab icon={<TrendingUpIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Financial Dashboard (Overview)" />
+          <Tab icon={<SchoolIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label={`Student Fee Installments (${students.length})`} />
+          <Tab icon={<StorefrontIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label={`Parties & Landlords (${(db.parties || []).length})`} />
+          <Tab icon={<PersonIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label={`Trainer Payroll (${trainers.length})`} />
+          <Tab icon={<AccountTreeIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Ledger, Day-Book & Audit (Accounting Hub)" />
         </Tabs>
       </Paper>
 
@@ -1246,23 +1189,22 @@ export default function AccountsManager({ initialTab = 0 }) {
       {/* TAB 0: FINANCIAL OVERVIEW                                */}
       {/* ======================================================== */}
       {activeTab === 0 && (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {/* Left: Recent Student Payments */}
           <Grid item xs={12} md={7}>
             <Card
               elevation={0}
               sx={{
-                p: 2.5,
-                borderRadius: 3.5,
+                p: 1.75,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
                 bgcolor: '#FFFFFF',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
                 height: '100%'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
                     Recent Fee Collection Receipts
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
@@ -1272,7 +1214,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 <Button
                   size="small"
                   onClick={() => setActiveTab(1)}
-                  sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A' }}
+                  sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A', fontSize: '0.75rem' }}
                 >
                   View All Receipts &rarr;
                 </Button>
@@ -1286,20 +1228,22 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: '0.84rem',
-                        py: 1.2,
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>SN</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1312,7 +1256,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     ) : (
                       payments.slice(0, 5).map((p, idx) => (
                         <TableRow key={p.id} hover>
-                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 60 }}>
+                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
                             {idx + 1}
                           </TableCell>
                           <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
@@ -1322,10 +1266,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                             <Typography variant="body2" sx={{ fontWeight: 700 }}>{p.studentName}</Typography>
                             <Typography variant="caption" sx={{ color: '#64748B' }}>{p.courseName}</Typography>
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#059669', fontSize: '0.92rem' }}>
+                          <TableCell sx={{ fontWeight: 800, color: '#059669', fontSize: '0.85rem' }}>
                             Rs. {Number(p.amount).toLocaleString()}
                           </TableCell>
-                          <TableCell sx={{ fontSize: '0.8rem' }}>{p.paymentDate}</TableCell>
+                          <TableCell sx={{ fontSize: '0.78rem' }}>{p.paymentDate}</TableCell>
                           <TableCell align="right">
                             <Tooltip title="Print Receipt">
                               <IconButton
@@ -1346,32 +1290,31 @@ export default function AccountsManager({ initialTab = 0 }) {
             </Card>
           </Grid>
 
-          {/* Right: Recent Trainer Disbursements (Converted to Matching Model 1 Table!) */}
+          {/* Right: Recent Trainer Disbursements */}
           <Grid item xs={12} md={5}>
             <Card
               elevation={0}
               sx={{
-                p: 2.5,
-                borderRadius: 3.5,
+                p: 1.75,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
                 bgcolor: '#FFFFFF',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
                 height: '100%'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
                     Trainer Payout Vouchers
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    Commission & monthly salary payments
+                    Commission &amp; monthly salary payments
                   </Typography>
                 </Box>
                 <Button
                   size="small"
                   onClick={() => setActiveTab(3)}
-                  sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A' }}
+                  sx={{ fontWeight: 700, textTransform: 'none', color: '#0F2E5A', fontSize: '0.75rem' }}
                 >
                   View Payroll &rarr;
                 </Button>
@@ -1385,20 +1328,22 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: '0.84rem',
-                        py: 1.2,
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 55, textAlign: 'center' }}>SN</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Voucher No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Trainer</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Type</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Voucher No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainer</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -1411,10 +1356,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                     ) : (
                       trainerPayouts.slice(0, 5).map((tp, idx) => (
                         <TableRow key={tp.id} hover>
-                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 55 }}>
+                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
                             {idx + 1}
                           </TableCell>
-                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#B45309', fontSize: '0.8rem' }}>
+                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#B45309', fontSize: '0.78rem' }}>
                             {tp.voucherNo}
                           </TableCell>
                           <TableCell>
@@ -1422,10 +1367,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                               {tp.trainerName}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 900, color: '#B45309', fontSize: '0.9rem' }}>
+                          <TableCell sx={{ fontWeight: 900, color: '#B45309', fontSize: '0.85rem' }}>
                             Rs. {Number(tp.amount).toLocaleString()}
                           </TableCell>
-                          <TableCell sx={{ fontSize: '0.78rem', color: '#64748B' }}>
+                          <TableCell sx={{ fontSize: '0.76rem', color: '#64748B' }}>
                             {tp.payoutDate}
                           </TableCell>
                           <TableCell align="right">
@@ -1435,7 +1380,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               sx={{
                                 fontWeight: 800,
                                 fontSize: '0.68rem',
-                                height: 22,
+                                height: 20,
                                 bgcolor: tp.payoutType === 'COMMISSION' ? '#FEF3C7' : '#EFF6FF',
                                 color: tp.payoutType === 'COMMISSION' ? '#92400E' : '#1D4ED8'
                               }}
@@ -1459,7 +1404,7 @@ export default function AccountsManager({ initialTab = 0 }) {
         <Card
           elevation={0}
           sx={{
-            borderRadius: 3.5,
+            borderRadius: 2,
             border: '1px solid #E2E8F0',
             overflow: 'hidden',
             bgcolor: '#FFFFFF'
@@ -1468,16 +1413,16 @@ export default function AccountsManager({ initialTab = 0 }) {
           {/* Search & Filter Toolbar */}
           <Box
             sx={{
-              p: 2,
+              p: 1.25,
               borderBottom: '1px solid #E2E8F0',
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 2,
+              gap: 1.25,
               alignItems: 'center',
               justifyContent: 'space-between'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
               <TextField
                 size="small"
                 placeholder="Search student name, TGID, or phone..."
@@ -1486,7 +1431,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#94A3B8' }} />
+                      <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                     </InputAdornment>
                   )
                 }}
@@ -1533,7 +1478,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     setStatusFilter('ALL');
                     setGroupFilter('ALL');
                   }}
-                  sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
+                  sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none', fontSize: '0.75rem' }}
                 >
                   Reset Filters
                 </Button>
@@ -1554,10 +1499,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                   '& .MuiToggleButton-root': {
                     border: 'none',
                     borderRadius: '6px !important',
-                    px: 1.5,
-                    py: 0.6,
+                    px: 1.2,
+                    py: 0.4,
                     fontWeight: 800,
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     textTransform: 'none',
                     color: '#64748B',
                     '&.Mui-selected': {
@@ -1569,10 +1514,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                 }}
               >
                 <ToggleButton value="table">
-                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
+                  <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Table
                 </ToggleButton>
                 <ToggleButton value="cards">
-                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
+                  <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
@@ -1581,33 +1526,35 @@ export default function AccountsManager({ initialTab = 0 }) {
           {/* Table View Mode */}
           {studentViewMode === 'table' && (
           <TableContainer sx={{ maxHeight: 620 }}>
-            <Table stickyHeader>
+            <Table stickyHeader size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
                     S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student Name</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Batch</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Locked Total Fee</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount Paid</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Outstanding Due</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>2nd Installment Due Date</TableCell>
-                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student Name</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course &amp; Batch</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Locked Total Fee</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount Paid</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Outstanding Due</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>2nd Installment Due Date</TableCell>
+                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -1623,7 +1570,7 @@ export default function AccountsManager({ initialTab = 0 }) {
 
                     return (
                       <TableRow key={st.id} hover>
-                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
                           {idx + 1}
                         </TableCell>
                         <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
@@ -1688,7 +1635,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 ? 'warning'
                                 : 'default'
                             }
-                            sx={{ fontWeight: 800, fontSize: '0.72rem' }}
+                            sx={{ fontWeight: 800, fontSize: '0.7rem', height: 22 }}
                           />
                         </TableCell>
 
@@ -1705,12 +1652,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                         </TableCell>
 
                         <TableCell align="right">
-                          <Stack direction="row" spacing={1} justifyContent="flex-end">
+                          <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                             {l.due > 0 && (
                               <Button
                                 size="small"
                                 variant="contained"
-                                startIcon={<PointOfSaleIcon sx={{ fontSize: '1rem !important' }} />}
+                                startIcon={<PointOfSaleIcon sx={{ fontSize: '0.85rem !important' }} />}
                                 onClick={() => {
                                   setPreselectedStudentId(st.id);
                                   setOpenCollectModal(true);
@@ -1718,9 +1665,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 sx={{
                                   background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
                                   fontWeight: 800,
-                                  fontSize: '0.75rem',
+                                  fontSize: '0.7rem',
+                                  px: 0.9,
+                                  py: 0.3,
+                                  whiteSpace: 'nowrap',
                                   textTransform: 'none',
-                                  borderRadius: 2
+                                  borderRadius: 1.5
                                 }}
                               >
                                 Collect Fee
@@ -1733,7 +1683,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   size="small"
                                   variant="contained"
                                   color="warning"
-                                  startIcon={<VerifiedIcon sx={{ fontSize: '1rem !important' }} />}
+                                  startIcon={<VerifiedIcon sx={{ fontSize: '0.85rem !important' }} />}
                                   onClick={() => {
                                     setClearanceStudent(st);
                                     setClearanceLedger(l);
@@ -1741,10 +1691,13 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   sx={{
                                     bgcolor: '#F59E0B',
                                     color: '#0F2E5A',
-                                    fontWeight: 900,
-                                    fontSize: '0.74rem',
+                                    fontWeight: 800,
+                                    fontSize: '0.7rem',
+                                    px: 0.9,
+                                    py: 0.3,
+                                    whiteSpace: 'nowrap',
                                     textTransform: 'none',
-                                    borderRadius: 2,
+                                    borderRadius: 1.5,
                                     '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
                                   }}
                                 >
@@ -2120,7 +2073,7 @@ export default function AccountsManager({ initialTab = 0 }) {
         <Card
           elevation={0}
           sx={{
-            borderRadius: 3.5,
+            borderRadius: 2,
             border: '1px solid #E2E8F0',
             overflow: 'hidden',
             bgcolor: '#FFFFFF'
@@ -2129,16 +2082,16 @@ export default function AccountsManager({ initialTab = 0 }) {
           {/* Trainer Toolbar */}
           <Box
             sx={{
-              p: 2,
+              p: 1.25,
               borderBottom: '1px solid #E2E8F0',
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 2,
+              gap: 1.25,
               alignItems: 'center',
               justifyContent: 'space-between'
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
               <TextField
                 size="small"
                 placeholder="Search instructor name or subject..."
@@ -2147,7 +2100,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#94A3B8' }} />
+                      <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                     </InputAdornment>
                   )
                 }}
@@ -2175,7 +2128,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     setTrainerSearch('');
                     setTrainerTypeFilter('ALL');
                   }}
-                  sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
+                  sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none', fontSize: '0.75rem' }}
                 >
                   Reset Filters
                 </Button>
@@ -2196,10 +2149,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                   '& .MuiToggleButton-root': {
                     border: 'none',
                     borderRadius: '6px !important',
-                    px: 1.5,
-                    py: 0.6,
+                    px: 1.2,
+                    py: 0.4,
                     fontWeight: 800,
-                    fontSize: '0.75rem',
+                    fontSize: '0.72rem',
                     textTransform: 'none',
                     color: '#64748B',
                     '&.Mui-selected': {
@@ -2211,10 +2164,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                 }}
               >
                 <ToggleButton value="cards">
-                  <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
+                  <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
                 <ToggleButton value="table">
-                  <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
+                  <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Table
                 </ToggleButton>
               </ToggleButtonGroup>
             </Box>
@@ -2222,14 +2175,14 @@ export default function AccountsManager({ initialTab = 0 }) {
 
           {/* Cards View Mode */}
           {trainerViewMode === 'cards' && (
-            <Box sx={{ p: 2.5, bgcolor: '#F8FAFC' }}>
+            <Box sx={{ p: 2, bgcolor: '#F8FAFC' }}>
               {filteredTrainers.length === 0 ? (
                 <Box sx={{ py: 8, textAlign: 'center', color: '#94A3B8' }}>
                   <PersonIcon sx={{ fontSize: 48, mb: 1, opacity: 0.5 }} />
                   <Typography variant="body1" sx={{ fontWeight: 700 }}>No instructors found.</Typography>
                 </Box>
               ) : (
-                <Grid container spacing={2.5}>
+                <Grid container spacing={2}>
                   {filteredTrainers.map((trn) => {
                     const l = getTrainerLedger(trn);
 
@@ -2238,8 +2191,8 @@ export default function AccountsManager({ initialTab = 0 }) {
                         <Card
                           elevation={0}
                           sx={{
-                            p: 2.5,
-                            borderRadius: 3.5,
+                            p: 2,
+                            borderRadius: 2.5,
                             border: '1px solid #E2E8F0',
                             bgcolor: '#FFFFFF',
                             boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
@@ -2260,12 +2213,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                                 <Avatar
                                   src={trn.photo}
-                                  sx={{ width: 46, height: 46, bgcolor: '#B45309', fontWeight: 800 }}
+                                  sx={{ width: 42, height: 42, bgcolor: '#B45309', fontWeight: 800 }}
                                 >
                                   {trn.name ? trn.name.charAt(0) : 'T'}
                                 </Avatar>
                                 <Box>
-                                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
                                     {trn.name}
                                   </Typography>
                                   <Typography variant="caption" sx={{ color: '#64748B' }}>
@@ -2279,7 +2232,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 size="small"
                                 sx={{
                                   fontWeight: 800,
-                                  fontSize: '0.7rem',
+                                  fontSize: '0.68rem',
                                   bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
                                   color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
                                 }}
@@ -2287,8 +2240,8 @@ export default function AccountsManager({ initialTab = 0 }) {
                             </Box>
 
                             {/* Financial Breakdown Card */}
-                            <Box sx={{ p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 2, border: '1px solid #E2E8F0' }}>
-                              <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
+                            <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, mb: 1.5, border: '1px solid #E2E8F0' }}>
+                              <Grid container spacing={1} sx={{ fontSize: '0.82rem' }}>
                                 <Grid item xs={6}>
                                   <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Assigned Batches:</Typography>
                                   <Typography variant="body2" sx={{ fontWeight: 700 }}>{l.assignedGroupsCount} Batches</Typography>
@@ -2321,8 +2274,9 @@ export default function AccountsManager({ initialTab = 0 }) {
                           <Stack direction="row" spacing={1}>
                             <Button
                               fullWidth
+                              size="small"
                               variant="contained"
-                              startIcon={<PaymentsIcon />}
+                              startIcon={<PaymentsIcon sx={{ fontSize: '0.9rem !important' }} />}
                               onClick={() => {
                                 setPreselectedTrainerId(trn.id);
                                 setOpenPayoutModal(true);
@@ -2330,6 +2284,8 @@ export default function AccountsManager({ initialTab = 0 }) {
                               sx={{
                                 background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
                                 fontWeight: 800,
+                                fontSize: '0.75rem',
+                                py: 0.6,
                                 borderRadius: 2,
                                 textTransform: 'none'
                               }}
@@ -2338,6 +2294,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                             </Button>
                             <Tooltip title="Instructor Remuneration & Commission Ledger">
                               <IconButton
+                                size="small"
                                 onClick={() => {
                                   setStatementType('TRAINER');
                                   setStatementTargetId(trn.id);
@@ -2348,7 +2305,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                                   borderRadius: 2,
                                   color: '#0F2E5A',
                                   bgcolor: '#F8FAFC',
-                                  px: 1.2,
+                                  px: 1,
                                   '&:hover': { bgcolor: '#F1F5F9' }
                                 }}
                               >
@@ -2368,32 +2325,34 @@ export default function AccountsManager({ initialTab = 0 }) {
           {/* Table View Mode */}
           {trainerViewMode === 'table' && (
             <TableContainer sx={{ maxHeight: 620 }}>
-              <Table stickyHeader>
+              <Table stickyHeader size="small">
                 <TableHead
                   sx={{
                     bgcolor: '#0F2E5A',
                     '& .MuiTableCell-head': {
                       bgcolor: '#0F2E5A !important',
                       color: '#FFFFFF !important',
-                      fontWeight: 900,
-                      fontSize: '0.84rem',
-                      py: 1.5,
-                      borderBottom: '2px solid #F59E0B'
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
                     }
                   }}
                 >
                   <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
                       S.N.
                     </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Instructor Details</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Model</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Assigned Batches</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch Fee Collected</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Accrued Remuneration</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Total Disbursed</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payable Due</TableCell>
-                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Instructor Details</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Model</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Assigned Batches</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Batch Fee Collected</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Accrued Remuneration</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Total Disbursed</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payable Due</TableCell>
+                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -2409,14 +2368,14 @@ export default function AccountsManager({ initialTab = 0 }) {
 
                       return (
                         <TableRow key={trn.id} hover>
-                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
                             {idx + 1}
                           </TableCell>
                           <TableCell>
                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                               <Avatar
                                 src={trn.photo}
-                                sx={{ width: 36, height: 36, bgcolor: '#B45309', fontWeight: 800, fontSize: '0.85rem' }}
+                                sx={{ width: 32, height: 32, bgcolor: '#B45309', fontWeight: 800, fontSize: '0.8rem' }}
                               >
                                 {trn.name ? trn.name.charAt(0) : 'T'}
                               </Avatar>
@@ -2436,7 +2395,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                               size="small"
                               sx={{
                                 fontWeight: 800,
-                                fontSize: '0.7rem',
+                                fontSize: '0.68rem',
                                 bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
                                 color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
                               }}
@@ -2458,11 +2417,11 @@ export default function AccountsManager({ initialTab = 0 }) {
                             Rs. {l.balanceDue.toLocaleString()}
                           </TableCell>
                           <TableCell align="right">
-                            <Stack direction="row" spacing={1} justifyContent="flex-end">
+                            <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                               <Button
                                 size="small"
                                 variant="contained"
-                                startIcon={<PaymentsIcon sx={{ fontSize: '0.95rem !important' }} />}
+                                startIcon={<PaymentsIcon sx={{ fontSize: '0.85rem !important' }} />}
                                 onClick={() => {
                                   setPreselectedTrainerId(trn.id);
                                   setOpenPayoutModal(true);
@@ -2470,8 +2429,11 @@ export default function AccountsManager({ initialTab = 0 }) {
                                 sx={{
                                   background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
                                   fontWeight: 800,
-                                  fontSize: '0.74rem',
-                                  borderRadius: 2,
+                                  fontSize: '0.7rem',
+                                  px: 0.9,
+                                  py: 0.3,
+                                  whiteSpace: 'nowrap',
+                                  borderRadius: 1.5,
                                   textTransform: 'none'
                                 }}
                               >
@@ -2517,14 +2479,14 @@ export default function AccountsManager({ initialTab = 0 }) {
           <Paper
             elevation={0}
             sx={{
-              p: 0.8,
-              mb: 3,
-              borderRadius: 3,
+              p: 0.75,
+              mb: 1.75,
+              borderRadius: 2,
               border: '1px solid #E2E8F0',
               bgcolor: '#F8FAFC',
               display: 'flex',
               flexWrap: 'wrap',
-              gap: 0.8,
+              gap: 0.6,
               alignItems: 'center'
             }}
           >
@@ -2543,11 +2505,12 @@ export default function AccountsManager({ initialTab = 0 }) {
                 startIcon={sub.icon}
                 onClick={() => setAccountingSubTab(idx)}
                 sx={{
-                  borderRadius: 2.2,
-                  px: 1.8,
-                  py: 0.8,
+                  borderRadius: 1.8,
+                  px: 1.4,
+                  py: 0.55,
                   fontWeight: 800,
-                  fontSize: '0.8rem',
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
                   textTransform: 'none',
                   color: accountingSubTab === idx ? '#FFFFFF' : '#475569',
                   bgcolor: accountingSubTab === idx ? '#0F2E5A' : 'transparent',
@@ -2592,7 +2555,7 @@ export default function AccountsManager({ initialTab = 0 }) {
             <Card
               elevation={0}
               sx={{
-                borderRadius: 3.5,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
                 overflow: 'hidden',
                 bgcolor: '#FFFFFF'
@@ -2600,16 +2563,16 @@ export default function AccountsManager({ initialTab = 0 }) {
             >
               <Box
                 sx={{
-                  p: 2,
+                  p: 1.25,
                   borderBottom: '1px solid #E2E8F0',
                   display: 'flex',
                   flexWrap: 'wrap',
-                  gap: 2,
+                  gap: 1.25,
                   alignItems: 'center',
                   justifyContent: 'space-between'
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
                   <TextField
                     size="small"
                     placeholder="Search receipt no, name, or narration..."
@@ -2618,7 +2581,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
-                          <SearchIcon sx={{ color: '#94A3B8' }} />
+                          <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                         </InputAdornment>
                       )
                     }}
@@ -2653,10 +2616,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '& .MuiToggleButton-root': {
                         border: 'none',
                         borderRadius: '6px !important',
-                        px: 1.5,
-                        py: 0.6,
+                        px: 1.2,
+                        py: 0.4,
                         fontWeight: 800,
-                        fontSize: '0.75rem',
+                        fontSize: '0.72rem',
                         textTransform: 'none',
                         color: '#64748B',
                         '&.Mui-selected': {
@@ -2668,10 +2631,10 @@ export default function AccountsManager({ initialTab = 0 }) {
                     }}
                   >
                     <ToggleButton value="table">
-                      <ViewListIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Table
+                      <ViewListIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Table
                     </ToggleButton>
                     <ToggleButton value="cards">
-                      <GridViewIcon sx={{ fontSize: '1.1rem', mr: 0.5 }} /> Cards
+                      <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Cards
                     </ToggleButton>
                   </ToggleButtonGroup>
                 </Box>
@@ -2680,32 +2643,34 @@ export default function AccountsManager({ initialTab = 0 }) {
               {/* Table View Mode */}
               {txViewMode === 'table' && (
               <TableContainer sx={{ maxHeight: 620 }}>
-                <Table stickyHeader>
+                <Table stickyHeader size="small">
                   <TableHead
                     sx={{
                       bgcolor: '#0F2E5A',
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: '0.84rem',
-                        py: 1.5,
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
                         S.N.
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Receipt / Voucher No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Type</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Party / Person</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Method</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Narration</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Print</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt / Voucher No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Party / Person</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Method</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Narration</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Print</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>
@@ -2887,7 +2852,7 @@ export default function AccountsManager({ initialTab = 0 }) {
             <Card
               elevation={0}
               sx={{
-                borderRadius: 3.5,
+                borderRadius: 2,
                 border: '1px solid #E2E8F0',
                 overflow: 'hidden',
                 bgcolor: '#FFFFFF'
@@ -2895,7 +2860,7 @@ export default function AccountsManager({ initialTab = 0 }) {
             >
               <Box
                 sx={{
-                  p: 2.2,
+                  p: 1.25,
                   borderBottom: '1px solid #E2E8F0',
                   display: 'flex',
                   justifyContent: 'space-between',
@@ -2904,26 +2869,30 @@ export default function AccountsManager({ initialTab = 0 }) {
                 }}
               >
                 <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                    Daily Counter Cash Closing & Denomination Audit History
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                    Daily Counter Cash Closing &amp; Denomination Audit History
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>
-                    Daily cash-in-drawer physical count, denominations breakdown & reconciliation status
+                    Daily cash-in-drawer physical count, denominations breakdown &amp; reconciliation status
                   </Typography>
                 </Box>
                 <Button
                   size="small"
                   variant="contained"
                   onClick={() => setOpenCashClosingModal(true)}
-                  startIcon={<LockIcon />}
+                  startIcon={<LockIcon sx={{ fontSize: '15px !important' }} />}
                   sx={{
                     bgcolor: '#0F2E5A',
                     fontWeight: 800,
+                    fontSize: '0.76rem',
+                    px: 1.4,
+                    py: 0.65,
+                    whiteSpace: 'nowrap',
                     textTransform: 'none',
-                    borderRadius: 2
+                    borderRadius: 1.8
                   }}
                 >
-                  🔒 Perform Today's Cash Closing
+                  🔒 Perform Today&apos;s Cash Closing
                 </Button>
               </Box>
 
@@ -2935,27 +2904,29 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '& .MuiTableCell-head': {
                         bgcolor: '#0F2E5A !important',
                         color: '#FFFFFF !important',
-                        fontWeight: 900,
-                        fontSize: '0.84rem',
-                        py: 1.5,
-                        borderBottom: '2px solid #F59E0B'
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
                       }
                     }}
                   >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
                         S.N.
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Closing Date & Time</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Opening Balance</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cash Inflow (+)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cash Outflow (-)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Expected Closing</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Physical Count</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Denominations Breakdown</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Reconciliation Status</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Cashier</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Slip</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Closing Date &amp; Time</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Opening Balance</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Inflow (+)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Outflow (-)</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Expected Closing</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Physical Count</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Denominations Breakdown</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Reconciliation Status</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cashier</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Slip</TableCell>
                     </TableRow>
                   </TableHead>
                   <TableBody>

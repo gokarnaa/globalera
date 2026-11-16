@@ -454,232 +454,272 @@ export default function LeadManager({ onNavigateToAdmission }) {
 
   // Helper for WhatsApp Click
   const getWaLink = (lead) => {
-    const text = `Hello ${lead.name}! We are contacting you from Global Era Technical School regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
+    const text = `Hello ${lead.name}! We are contacting you from Prabidhik School, Jorpati regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
     return `https://wa.me/977${lead.phone}?text=${encodeURIComponent(text)}`;
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* Page Title & Breadcrumb Header */}
-      <Box
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
         sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: 2,
-          mb: 3
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 0.5 }}>
-            <Box
-              sx={{
-                width: 44,
-                height: 44,
-                borderRadius: 2.5,
-                background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#FFFFFF',
-                boxShadow: '0 8px 16px rgba(30, 64, 175, 0.25)'
-              }}
-            >
-              <ContactPhoneIcon />
-            </Box>
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>
-                Lead CRM & Inquiry Management
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                Student Inquiry, Counseling, Follow-up & Admission Conversion Management
-              </Typography>
-            </Box>
-          </Box>
-        </Box>
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <ContactPhoneIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Lead CRM &amp; Inquiry Management
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Student Inquiry, Counseling, Follow-up &amp; Admission Conversion
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-        <Stack direction="row" spacing={1.5} flexWrap="wrap">
-          <Button
-            variant="outlined"
-            onClick={handleExportExcel}
-            startIcon={<FileDownloadIcon />}
-            sx={{
-              fontWeight: 700,
-              borderRadius: 2.5,
-              borderColor: '#CBD5E1',
-              color: '#334155',
-              bgcolor: '#FFFFFF',
-              textTransform: 'none',
-              '&:hover': { bgcolor: '#F8FAFC', borderColor: '#94A3B8' }
-            }}
-          >
-            Export Excel
-          </Button>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleExportExcel}
+                startIcon={<FileDownloadIcon sx={{ fontSize: '15px !important' }} />}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Export Excel
+              </Button>
 
-          <Button
-            variant="outlined"
-            onClick={() => setOpenImportModal(true)}
-            startIcon={<CloudUploadIcon />}
-            sx={{
-              fontWeight: 700,
-              borderRadius: 2.5,
-              borderColor: '#CBD5E1',
-              color: '#1E40AF',
-              bgcolor: '#FFFFFF',
-              textTransform: 'none',
-              '&:hover': { bgcolor: '#EFF6FF', borderColor: '#93C5FD' }
-            }}
-          >
-            Bulk Import
-          </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setOpenImportModal(true)}
+                startIcon={<CloudUploadIcon sx={{ fontSize: '15px !important' }} />}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Bulk Import
+              </Button>
 
-          <Button
-            variant="contained"
-            onClick={() => {
-              setEditingLead(null);
-              setOpenAddEditModal(true);
-            }}
-            startIcon={<AddIcon />}
-            sx={{
-              background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
-              fontWeight: 800,
-              borderRadius: 2.5,
-              px: 2.5,
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-              textTransform: 'none'
-            }}
-          >
-            + New Lead
-          </Button>
-        </Stack>
-      </Box>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={() => {
+                  setEditingLead(null);
+                  setOpenAddEditModal(true);
+                }}
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + New Lead
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
-      {/* Metric KPI Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3,
-              border: '1px solid #E2E8F0',
-              bgcolor: '#FFFFFF',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              position: 'relative',
-              overflow: 'hidden'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#3B82F6' }} />
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              Total Leads
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F172A', my: 0.5 }}>
-              {metrics.total}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#3B82F6', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <TrendingUpIcon sx={{ fontSize: '1rem' }} /> Received from all channels
-            </Typography>
-          </Paper>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Leads
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {metrics.total}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#1d4ed8', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Received from all channels
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <TrendingUpIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
+        <Grid item xs={6} md={3}>
+          <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3,
-              border: '1px solid #E2E8F0',
-              bgcolor: '#FFFFFF',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              position: 'relative',
-              overflow: 'hidden'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#F59E0B' }} />
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              Active Pipeline
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#D97706', my: 0.5 }}>
-              {metrics.active}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Interested & in active contact
-            </Typography>
-          </Paper>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Active Pipeline
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {metrics.active}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Interested &amp; in active contact
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <ContactPhoneIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
+        <Grid item xs={6} md={3}>
+          <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3,
-              border: '1px solid #E2E8F0',
-              bgcolor: '#FFFFFF',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              position: 'relative',
-              overflow: 'hidden'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#0EA5E9' }} />
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              Today's Follow-ups
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284C7', my: 0.5 }}>
-              {metrics.todayFollowUps}
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Scheduled calls or visits today
-            </Typography>
-          </Paper>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Today&apos;s Follow-ups
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {metrics.todayFollowUps}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Scheduled calls or visits today
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <CalendarMonthIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Paper
+        <Grid item xs={6} md={3}>
+          <Card
             elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3,
-              border: '1px solid #E2E8F0',
-              bgcolor: '#FFFFFF',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
-              position: 'relative',
-              overflow: 'hidden'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, bgcolor: '#10B981' }} />
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, textTransform: 'uppercase' }}>
-              Conversions
-            </Typography>
-            <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>
-              {metrics.converted} <span style={{ fontSize: '1.1rem', fontWeight: 700, color: '#10B981' }}>({metrics.convRate}%)</span>
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <CheckCircleIcon sx={{ fontSize: '1rem' }} /> Converted to student batches
-            </Typography>
-          </Paper>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Conversions
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {metrics.converted} <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#10b981' }}>({metrics.convRate}%)</span>
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Converted to student batches
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
         </Grid>
       </Grid>
 
-      {/* Filter Bar & View Mode Toggle */}
-      <Paper
+      {/* Compact Filter Bar & View Mode Toggle */}
+      <Card
         elevation={0}
         sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 3,
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
           border: '1px solid #E2E8F0',
           bgcolor: '#FFFFFF',
           display: 'flex',
           flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'space-between',
-          gap: 2
+          gap: 1.25
         }}
       >
         {/* Left Side: Search & Filter Selectors */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
           <TextField
             size="small"
             placeholder="Search by name, phone, course, or address..."
@@ -688,11 +728,11 @@ export default function LeadManager({ onNavigateToAdmission }) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#94A3B8' }} />
+                  <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                 </InputAdornment>
               )
             }}
-            sx={{ minWidth: { xs: '100%', sm: 260 } }}
+            sx={{ minWidth: { xs: '100%', sm: 240 } }}
           />
 
           <TextField
@@ -701,7 +741,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
             label="Stage"
             value={selectedStage}
             onChange={(e) => setSelectedStage(e.target.value)}
-            sx={{ minWidth: 160 }}
+            sx={{ minWidth: 145 }}
           >
             <MenuItem value="ALL">All Stages</MenuItem>
             {LEAD_STAGES.map((s) => (
@@ -717,7 +757,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
             label="Priority"
             value={selectedPriority}
             onChange={(e) => setSelectedPriority(e.target.value)}
-            sx={{ minWidth: 150 }}
+            sx={{ minWidth: 135 }}
           >
             <MenuItem value="ALL">All Priorities</MenuItem>
             {LEAD_PRIORITIES.map((p) => (
@@ -733,7 +773,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
             label="Source"
             value={selectedSource}
             onChange={(e) => setSelectedSource(e.target.value)}
-            sx={{ minWidth: 160 }}
+            sx={{ minWidth: 145 }}
           >
             <MenuItem value="ALL">All Sources</MenuItem>
             {LEAD_SOURCES.map((src) => (
@@ -746,14 +786,14 @@ export default function LeadManager({ onNavigateToAdmission }) {
           {(searchQuery || selectedStage !== 'ALL' || selectedPriority !== 'ALL' || selectedSource !== 'ALL') && (
             <Button
               size="small"
-              startIcon={<FilterAltOffIcon />}
+              startIcon={<FilterAltOffIcon sx={{ fontSize: '15px !important' }} />}
               onClick={() => {
                 setSearchQuery('');
                 setSelectedStage('ALL');
                 setSelectedPriority('ALL');
                 setSelectedSource('ALL');
               }}
-              sx={{ color: '#EF4444', fontWeight: 700, textTransform: 'none' }}
+              sx={{ color: '#EF4444', fontWeight: 700, fontSize: '0.75rem', px: 1, py: 0.4, textTransform: 'none', whiteSpace: 'nowrap' }}
             >
               Clear Filters
             </Button>
@@ -768,15 +808,16 @@ export default function LeadManager({ onNavigateToAdmission }) {
           size="small"
           sx={{
             bgcolor: '#F8FAFC',
-            borderRadius: 2,
+            borderRadius: 1.8,
             border: '1px solid #E2E8F0',
             '& .MuiToggleButton-root': {
-              px: 1.5,
-              py: 0.8,
+              px: 1.2,
+              py: 0.5,
               border: 'none',
               fontWeight: 700,
-              fontSize: '0.8rem',
+              fontSize: '0.75rem',
               color: '#64748B',
+              whiteSpace: 'nowrap',
               '&.Mui-selected': {
                 bgcolor: '#1E40AF',
                 color: '#FFFFFF',
@@ -786,19 +827,19 @@ export default function LeadManager({ onNavigateToAdmission }) {
           }}
         >
           <ToggleButton value="table" aria-label="Table View">
-            <ViewListIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Table
+            <ViewListIcon sx={{ mr: 0.4, fontSize: '1rem' }} /> Table
           </ToggleButton>
           <ToggleButton value="card" aria-label="Card View">
-            <ViewModuleIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Cards
+            <ViewModuleIcon sx={{ mr: 0.4, fontSize: '1rem' }} /> Cards
           </ToggleButton>
           <ToggleButton value="kanban" aria-label="Kanban View">
-            <ViewWeekIcon sx={{ mr: 0.5, fontSize: '1.2rem' }} /> Pipeline (Kanban)
+            <ViewWeekIcon sx={{ mr: 0.4, fontSize: '1rem' }} /> Pipeline (Kanban)
           </ToggleButton>
           <ToggleButton value="agents" aria-label="Agents & Referrals">
-            <HandshakeIcon sx={{ mr: 0.5, fontSize: '1.2rem', color: viewMode === 'agents' ? '#FFFFFF' : '#D97706' }} /> Agents & Referrals
+            <HandshakeIcon sx={{ mr: 0.4, fontSize: '1rem', color: viewMode === 'agents' ? '#FFFFFF' : '#D97706' }} /> Agents &amp; Referrals
           </ToggleButton>
         </ToggleButtonGroup>
-      </Paper>
+      </Card>
 
       {/* ========================================================= */}
       {/* VIEW 1: TABLE VIEW                                       */}
@@ -807,49 +848,44 @@ export default function LeadManager({ onNavigateToAdmission }) {
         <Card
           elevation={0}
           sx={{
-            borderRadius: 3.5,
+            borderRadius: 2,
             border: '1px solid #E2E8F0',
-            overflow: 'hidden',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.03)'
+            overflow: 'hidden'
           }}
         >
           <TableContainer sx={{ maxHeight: 600 }}>
-            <Table stickyHeader>
-              <TableHead>
+            <Table size="small" stickyHeader>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Lead ID
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Student (Name & Address)
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Contact (Phone & Actions)
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Course / Subject
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Priority
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Stage
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Next Follow-up
-                  </TableCell>
-                  <TableCell align="center" sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    History
-                  </TableCell>
-                  <TableCell align="right" sx={{ fontWeight: 800, bgcolor: '#F8FAFC', color: '#475569' }}>
-                    Actions
-                  </TableCell>
+                  <TableCell>Lead ID</TableCell>
+                  <TableCell>Student (Name &amp; Address)</TableCell>
+                  <TableCell>Contact (Phone &amp; Actions)</TableCell>
+                  <TableCell>Course / Subject</TableCell>
+                  <TableCell>Priority</TableCell>
+                  <TableCell>Stage</TableCell>
+                  <TableCell>Next Follow-up</TableCell>
+                  <TableCell align="center">History</TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredLeads.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
+                    <TableCell colSpan={9} align="center" sx={{ py: 4, color: '#94A3B8', fontSize: '0.8rem' }}>
                       No leads matching filter.
                     </TableCell>
                   </TableRow>
@@ -860,25 +896,25 @@ export default function LeadManager({ onNavigateToAdmission }) {
 
                     return (
                       <TableRow key={lead.id} hover sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Typography
-                            variant="body2"
-                            sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}
+                            sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF', fontSize: '0.78rem' }}
                           >
                             {lead.id}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                          <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem' }}>
                             {lead.createdAt?.slice(0, 10)}
                           </Typography>
                         </TableCell>
 
                         <TableCell>
                           <Typography
-                            variant="subtitle2"
                             onClick={() => setDetailsLead(lead)}
                             sx={{
                               fontWeight: 800,
                               color: '#0F172A',
+                              fontSize: '0.8rem',
+                              lineHeight: 1.25,
                               cursor: 'pointer',
                               '&:hover': { color: '#2563EB', textDecoration: 'underline' }
                             }}
@@ -887,18 +923,18 @@ export default function LeadManager({ onNavigateToAdmission }) {
                           </Typography>
                           <Typography
                             variant="caption"
-                            sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 0.3 }}
+                            noWrap
+                            sx={{ color: '#64748B', display: 'flex', alignItems: 'center', gap: 0.3, fontSize: '0.69rem' }}
                           >
-                            <LocationOnIcon sx={{ fontSize: '0.85rem', color: '#94A3B8' }} />
+                            <LocationOnIcon sx={{ fontSize: '0.8rem', color: '#94A3B8' }} />
                             {lead.address || 'Location not specified'}
                           </Typography>
                         </TableCell>
 
-                        <TableCell>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
                             <Typography
-                              variant="body2"
-                              sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#334155' }}
+                              sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#334155', fontSize: '0.78rem' }}
                             >
                               {lead.phone}
                             </Typography>
@@ -907,9 +943,9 @@ export default function LeadManager({ onNavigateToAdmission }) {
                                 size="small"
                                 component="a"
                                 href={`tel:${lead.phone}`}
-                                sx={{ color: '#0284C7', p: 0.4 }}
+                                sx={{ color: '#0284C7', p: 0.3 }}
                               >
-                                <PhoneIcon sx={{ fontSize: '1.1rem' }} />
+                                <PhoneIcon sx={{ fontSize: '1rem' }} />
                               </IconButton>
                             </Tooltip>
                             <Tooltip title="Send WhatsApp message">
@@ -919,45 +955,46 @@ export default function LeadManager({ onNavigateToAdmission }) {
                                 href={getWaLink(lead)}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                sx={{ color: '#10B981', p: 0.4 }}
+                                sx={{ color: '#10B981', p: 0.3 }}
                               >
-                                <WhatsAppIcon sx={{ fontSize: '1.1rem' }} />
+                                <WhatsAppIcon sx={{ fontSize: '1rem' }} />
                               </IconButton>
                             </Tooltip>
                           </Box>
                         </TableCell>
 
                         <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                          <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.79rem', lineHeight: 1.2 }}>
                             {lead.course || 'General'}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.69rem' }}>
                             {lead.subject ? `${lead.subject} • ` : ''} Rs. {Number(lead.price || 0).toLocaleString()}
                           </Typography>
                           {(lead.agentName || lead.agentCode) && (
                             <Chip
-                              icon={<HandshakeIcon sx={{ fontSize: '13px !important' }} />}
+                              icon={<HandshakeIcon sx={{ fontSize: '12px !important' }} />}
                               label={`Agent: ${lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}`}
                               size="small"
                               sx={{
-                                height: 20,
-                                fontSize: '0.68rem',
+                                height: 18,
+                                fontSize: '0.64rem',
                                 bgcolor: '#FEF3C7',
                                 color: '#92400E',
                                 fontWeight: 800,
-                                mt: 0.5
+                                mt: 0.3
                               }}
                             />
                           )}
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Chip
                             label={prObj.label.split(' (')[0]}
                             size="small"
                             sx={{
+                              height: 20,
                               fontWeight: 800,
-                              fontSize: '0.7rem',
+                              fontSize: '0.68rem',
                               bgcolor: `${prObj.color}15`,
                               color: prObj.color,
                               border: `1px solid ${prObj.color}40`
@@ -965,13 +1002,14 @@ export default function LeadManager({ onNavigateToAdmission }) {
                           />
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Chip
                             label={stgObj.label.split(' (')[0]}
                             size="small"
                             sx={{
+                              height: 20,
                               fontWeight: 800,
-                              fontSize: '0.72rem',
+                              fontSize: '0.68rem',
                               bgcolor: `${stgObj.color}18`,
                               color: stgObj.color,
                               border: `1px solid ${stgObj.color}50`
@@ -979,59 +1017,72 @@ export default function LeadManager({ onNavigateToAdmission }) {
                           />
                         </TableCell>
 
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 600, color: '#475569' }}>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 600, color: '#475569', fontSize: '0.76rem' }}>
                             {lead.followUpDate || '-'}
                           </Typography>
                         </TableCell>
 
-                        <TableCell align="center">
+                        <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
                           <Chip
-                            icon={<HistoryIcon sx={{ fontSize: '0.9rem !important' }} />}
+                            icon={<HistoryIcon sx={{ fontSize: '0.85rem !important' }} />}
                             label={lead.timeline?.length || 0}
                             size="small"
                             onClick={() => setDetailsLead(lead)}
                             clickable
                             sx={{
+                              height: 20,
                               fontWeight: 800,
-                              fontSize: '0.72rem',
+                              fontSize: '0.68rem',
                               bgcolor: '#F1F5F9',
                               color: '#334155'
                             }}
                           />
                         </TableCell>
 
-                        <TableCell align="right">
-                          <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                        <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                          <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
                             <Tooltip title="Detailed Profile & Follow-up Log">
                               <IconButton
                                 size="small"
                                 onClick={() => setDetailsLead(lead)}
-                                sx={{ color: '#2563EB' }}
+                                sx={{ color: '#2563EB', p: 0.35 }}
                               >
-                                <VisibilityIcon fontSize="small" />
+                                <VisibilityIcon sx={{ fontSize: '1.05rem' }} />
                               </IconButton>
                             </Tooltip>
 
                             {lead.stage !== 'Converted' && (
-                              <Stack direction="row" spacing={0.5}>
+                              <Stack direction="row" spacing={0.5} alignItems="center">
                                 <Tooltip title="Convert & Quick Admit">
-                                  <IconButton
+                                  <Button
                                     size="small"
+                                    startIcon={<HowToRegIcon sx={{ fontSize: '13px !important' }} />}
                                     onClick={() => setConvertLead(lead)}
-                                    sx={{ color: '#059669', bgcolor: '#ECFDF5' }}
+                                    sx={{
+                                      px: 0.9,
+                                      py: 0.3,
+                                      minWidth: 0,
+                                      fontSize: '0.7rem',
+                                      fontWeight: 700,
+                                      whiteSpace: 'nowrap',
+                                      color: '#059669',
+                                      bgcolor: '#ECFDF5',
+                                      border: '1px solid #A7F3D0',
+                                      '&:hover': { bgcolor: '#D1FAE5' }
+                                    }}
                                   >
-                                    <HowToRegIcon fontSize="small" />
-                                  </IconButton>
+                                    Admit
+                                  </Button>
                                 </Tooltip>
                                 {onNavigateToAdmission && (
                                   <Tooltip title="Send to Admission Desk (Full A4 Agreement Desk)">
                                     <IconButton
                                       size="small"
                                       onClick={() => onNavigateToAdmission(lead)}
-                                      sx={{ color: '#2563EB', bgcolor: '#EFF6FF' }}
+                                      sx={{ color: '#2563EB', bgcolor: '#EFF6FF', p: 0.35 }}
                                     >
-                                      <OpenInNewIcon fontSize="small" />
+                                      <OpenInNewIcon sx={{ fontSize: '1rem' }} />
                                     </IconButton>
                                   </Tooltip>
                                 )}
@@ -1045,9 +1096,9 @@ export default function LeadManager({ onNavigateToAdmission }) {
                                   setEditingLead(lead);
                                   setOpenAddEditModal(true);
                                 }}
-                                sx={{ color: '#F59E0B' }}
+                                sx={{ color: '#F59E0B', p: 0.35 }}
                               >
-                                <EditIcon fontSize="small" />
+                                <EditIcon sx={{ fontSize: '1.05rem' }} />
                               </IconButton>
                             </Tooltip>
 
@@ -1055,9 +1106,9 @@ export default function LeadManager({ onNavigateToAdmission }) {
                               <IconButton
                                 size="small"
                                 onClick={() => handleDeleteLead(lead.id)}
-                                sx={{ color: '#EF4444' }}
+                                sx={{ color: '#EF4444', p: 0.35 }}
                               >
-                                <DeleteOutlineIcon fontSize="small" />
+                                <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
                               </IconButton>
                             </Tooltip>
                           </Stack>
@@ -1479,7 +1530,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
       {viewMode === 'agents' && (
         <Box>
           {/* Agent KPI Metrics */}
-          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
             {(() => {
               const allAgents = db.agents || [];
               const agentLeads = leads.filter((l) => l.agentId || l.agentCode || (l.source && l.source.includes('Agent')));
@@ -1504,54 +1555,54 @@ export default function LeadManager({ onNavigateToAdmission }) {
 
               return (
                 <>
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
-                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
+                  <Grid item xs={6} md={3}>
+                    <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0f2e5a', bgcolor: '#ffffff' }}>
+                      <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.66rem', display: 'block' }}>
                         Total Registered Agents
                       </Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', my: 0.5 }}>
+                      <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
                         {allAgents.length}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B' }}>Active referral partners</Typography>
-                    </Paper>
+                      <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>Active referral partners</Typography>
+                    </Card>
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
-                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase' }}>
+                  <Grid item xs={6} md={3}>
+                    <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #2563eb', bgcolor: '#ffffff' }}>
+                      <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.66rem', display: 'block' }}>
                         Leads from Agents
                       </Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#2563EB', my: 0.5 }}>
+                      <Typography sx={{ fontWeight: 800, color: '#2563eb', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
                         {agentLeads.length}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#2563EB', fontWeight: 700 }}>
+                      <Typography variant="caption" noWrap sx={{ color: '#2563eb', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                         {convertedAgentLeads.length} Admitted ({agentLeads.length > 0 ? Math.round((convertedAgentLeads.length / agentLeads.length) * 100) : 0}%)
                       </Typography>
-                    </Paper>
+                    </Card>
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFBEB' }}>
-                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800, textTransform: 'uppercase' }}>
+                  <Grid item xs={6} md={3}>
+                    <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #b45309', bgcolor: '#fffbeb' }}>
+                      <Typography variant="caption" noWrap sx={{ color: '#b45309', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.66rem', display: 'block' }}>
                         Pending Commission Payout
                       </Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#B45309', my: 0.5 }}>
+                      <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                         NPR {pendingPayout.toLocaleString()}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 700 }}>Approved & awaiting payout</Typography>
-                    </Paper>
+                      <Typography variant="caption" noWrap sx={{ color: '#b45309', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>Approved &amp; awaiting payout</Typography>
+                    </Card>
                   </Grid>
 
-                  <Grid item xs={12} sm={6} md={3}>
-                    <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#ECFDF5' }}>
-                      <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
+                  <Grid item xs={6} md={3}>
+                    <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #059669', bgcolor: '#ecfdf5' }}>
+                      <Typography variant="caption" noWrap sx={{ color: '#065f46', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.66rem', display: 'block' }}>
                         Total Paid Out
                       </Typography>
-                      <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>
+                      <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                         NPR {paidOut.toLocaleString()}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>Completed payouts</Typography>
-                    </Paper>
+                      <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>Completed payouts</Typography>
+                    </Card>
                   </Grid>
                 </>
               );
@@ -1559,27 +1610,31 @@ export default function LeadManager({ onNavigateToAdmission }) {
           </Grid>
 
           {/* Agents Directory Card */}
-          <Card elevation={0} sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
-            <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2, borderBottom: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+          <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+            <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1.5, borderBottom: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                  🤝 Official Agents & Referral Partners
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.94rem' }}>
+                  Official Agents &amp; Referral Partners
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.72rem' }}>
                   Manage agent performance, referred leads, and commission payouts
                 </Typography>
               </Box>
 
               <Button
                 variant="contained"
-                startIcon={<AddIcon />}
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => setOpenAddAgentModal(true)}
                 sx={{
                   bgcolor: '#0B2545',
                   color: '#FFFFFF',
                   fontWeight: 800,
-                  borderRadius: 2.5,
-                  px: 2.5,
+                  fontSize: '0.76rem',
+                  borderRadius: 1.8,
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
                   '&:hover': { bgcolor: '#133E68' }
                 }}
               >
@@ -1588,16 +1643,30 @@ export default function LeadManager({ onNavigateToAdmission }) {
             </Box>
 
             <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Agent Details (Name & Code)</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Contact Number</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Commission Rate (Policy)</TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#475569' }}>Payout Account (eSewa / Bank)</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>Referred / Admitted</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 800, color: '#475569' }}>Commission (Pending / Total)</TableCell>
-                    <TableCell align="center" sx={{ fontWeight: 800, color: '#475569' }}>Action</TableCell>
+                    <TableCell>Agent Details (Name &amp; Code)</TableCell>
+                    <TableCell>Contact Number</TableCell>
+                    <TableCell>Commission Rate (Policy)</TableCell>
+                    <TableCell>Payout Account (eSewa / Bank)</TableCell>
+                    <TableCell align="center">Referred / Admitted</TableCell>
+                    <TableCell align="right">Commission (Pending / Total)</TableCell>
+                    <TableCell align="center">Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1621,60 +1690,60 @@ export default function LeadManager({ onNavigateToAdmission }) {
                     return (
                       <TableRow key={ag.id} hover>
                         <TableCell>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                          <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.8rem' }}>
                             {ag.name}
                           </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.3 }}>
-                            <Chip label={ag.code} size="small" sx={{ fontWeight: 800, bgcolor: '#FEF3C7', color: '#92400E', height: 20, fontSize: '0.7rem' }} />
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>{ag.address || 'Kathmandu'}</Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.2 }}>
+                            <Chip label={ag.code} size="small" sx={{ fontWeight: 800, bgcolor: '#FEF3C7', color: '#92400E', height: 18, fontSize: '0.66rem' }} />
+                            <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>{ag.address || 'Kathmandu'}</Typography>
                           </Box>
                         </TableCell>
 
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: 'monospace' }}>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 700, fontFamily: 'monospace', fontSize: '0.78rem' }}>
                             {ag.phone}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+                          <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.68rem' }}>
                             PIN: {ag.pin || '1234'}
                           </Typography>
                         </TableCell>
 
-                        <TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Chip
                             label={ag.commissionType === 'PERCENTAGE' ? `${ag.defaultRate}% per admission` : `NPR ${Number(ag.defaultRate || 1000).toLocaleString()} per admission`}
                             size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
                           />
                         </TableCell>
 
                         <TableCell sx={{ maxWidth: 220 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 700, color: '#334155' }}>
+                          <Typography sx={{ fontWeight: 700, color: '#334155', fontSize: '0.78rem' }}>
                             {ag.paymentInfo || 'Details not provided'}
                           </Typography>
                         </TableCell>
 
-                        <TableCell align="center">
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                        <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}>
                             {agentLeads.length} Leads
                           </Typography>
                           <Chip
                             label={`${converted.length} Admitted`}
                             size="small"
                             color={converted.length > 0 ? 'success' : 'default'}
-                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
+                            sx={{ height: 18, fontSize: '0.65rem', fontWeight: 800 }}
                           />
                         </TableCell>
 
-                        <TableCell align="right">
-                          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: pending > 0 ? '#B45309' : '#059669' }}>
+                        <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                          <Typography sx={{ fontWeight: 800, color: pending > 0 ? '#B45309' : '#059669', fontSize: '0.79rem' }}>
                             NPR {pending.toLocaleString()} (Pending)
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
                             Total: NPR {earned.toLocaleString()}
                           </Typography>
                         </TableCell>
 
-                        <TableCell align="center">
+                        <TableCell align="center" sx={{ whiteSpace: 'nowrap' }}>
                           <Stack direction="row" spacing={1} justifyContent="center">
                             {pending > 0 ? (
                               <Button
@@ -1682,12 +1751,12 @@ export default function LeadManager({ onNavigateToAdmission }) {
                                 variant="contained"
                                 color="warning"
                                 onClick={() => handleMarkPayoutPaid(ag.code)}
-                                sx={{ fontWeight: 800, fontSize: '0.72rem', borderRadius: 2 }}
+                                sx={{ fontWeight: 800, fontSize: '0.7rem', px: 0.9, py: 0.3, minWidth: 0, whiteSpace: 'nowrap', borderRadius: 1.5 }}
                               >
                                 Mark as Paid
                               </Button>
                             ) : (
-                              <Chip label="Cleared" size="small" sx={{ fontWeight: 700, fontSize: '0.7rem' }} />
+                              <Chip label="Cleared" size="small" sx={{ height: 20, fontWeight: 700, fontSize: '0.68rem' }} />
                             )}
                           </Stack>
                         </TableCell>

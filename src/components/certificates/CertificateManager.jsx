@@ -291,58 +291,244 @@ export default function CertificateManager() {
   };
 
   return (
-    <Box>
-      {/* 1. Page Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <WorkspacePremiumIcon sx={{ color: '#c59b27', fontSize: 36 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Certificates (Vocational Training Completion)
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Official A4 Landscape Certificate of Completion with CTEVT Accreditation, pure English & Nepali body, and Dynamic QR Code Online Verification.
-          </Typography>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <WorkspacePremiumIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Certificates (Vocational Training Completion)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Official A4 Landscape Certificate with CTEVT Accreditation &amp; Dynamic QR
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ColorLensIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setStudioModalOpen(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Certificate Studio &amp; Design
+              </Button>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined"
-            startIcon={<ColorLensIcon />}
-            onClick={() => setStudioModalOpen(true)}
+              {eligiblePendingCount > 0 && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<VerifiedIcon sx={{ fontSize: '16px !important' }} />}
+                  onClick={handleBulkIssueEligible}
+                  sx={{
+                    bgcolor: '#f59e0b',
+                    color: '#0f2e5a',
+                    fontWeight: 800,
+                    fontSize: '0.76rem',
+                    whiteSpace: 'nowrap',
+                    px: 1.4,
+                    py: 0.65,
+                    boxShadow: 'none',
+                    '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                  }}
+                >
+                  Bulk Issue ({eligiblePendingCount} Eligible)
+                </Button>
+              )}
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
             sx={{
-              fontWeight: 800,
-              borderColor: '#C59B27',
-              color: '#854D0E',
-              bgcolor: '#FEFCE8',
-              '&:hover': { bgcolor: '#FEF9C3', borderColor: '#B45309' }
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
           >
-            Certificate Studio & Design Settings
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Trainees
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Selected Batch
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <WorkspacePremiumIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          {eligiblePendingCount > 0 && (
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<VerifiedIcon />}
-              onClick={handleBulkIssueEligible}
-              sx={{ fontWeight: 800, bgcolor: '#0b2545' }}
-            >
-              Bulk Issue ({eligiblePendingCount} Eligible)
-            </Button>
-          )}
-        </Box>
-      </Box>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Issued
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {issuedCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Certified Graduates
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-      {/* 2. Group Selector & KPI Summary */}
-      <Card sx={{ p: 2.5, mb: 3 }}>
-        <Grid container spacing={2.5} alignItems="center">
-          <Grid item xs={12} md={5}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Eligible Pending
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {eligiblePendingCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284c7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Ready to Issue
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <VerifiedIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #dc2626',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Ineligible (Fee / &lt;80%)
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#dc2626', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {ineligibleCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#dc2626', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Locked / Pending
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fef2f2', borderRadius: 1.5, color: '#dc2626', flexShrink: 0 }}>
+                <WarningAmberIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Compact Group Selector, Search and View Filters */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Grid container spacing={1.25} alignItems="center">
+          <Grid item xs={12} sm={3.5}>
             <TextField
               select
-              label="Select Training Group (Batch)"
+              size="small"
+              label="Training Group (Batch)"
               fullWidth
               value={selectedGroupId}
               onChange={(e) => setSelectedGroupId(e.target.value)}
@@ -358,140 +544,93 @@ export default function CertificateManager() {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={7}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr 1fr 1fr' },
-                gap: 1.5,
-                bgcolor: '#f8fafc',
-                p: 1.5,
-                borderRadius: 2,
-                border: '1px solid #e2e8f0'
+          <Grid item xs={12} sm={3.5}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="Search trainee name, TGID, cert no..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
               }}
+            />
+          </Grid>
+
+          <Grid item xs={7} sm={3}>
+            <TextField
+              select
+              size="small"
+              fullWidth
+              label="Filter Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  TOTAL TRAINEES
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                  {totalCount}
-                </Typography>
-              </Box>
+              <MenuItem value="ALL">All Trainees ({studentCertificateData.length})</MenuItem>
+              <MenuItem value="ISSUED">Issued Only ({issuedCount})</MenuItem>
+              <MenuItem value="ELIGIBLE">Eligible to Issue ({eligiblePendingCount})</MenuItem>
+              <MenuItem value="INELIGIBLE">Ineligible (Fee / &lt;80%) ({ineligibleCount})</MenuItem>
+            </TextField>
+          </Grid>
 
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  ISSUED
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#16834b' }}>
-                  {issuedCount} Certified
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  ELIGIBLE PENDING
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1a56b0' }}>
-                  {eligiblePendingCount}
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  INELIGIBLE (FEE / &lt;80%)
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#dc2626' }}>
-                  {ineligibleCount}
-                </Typography>
-              </Box>
-            </Box>
+          <Grid item xs={5} sm={2} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={`${filteredData.length}`}
+              size="small"
+              sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#0f2e5a' }}
+            />
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+            >
+              <ToggleButton value="table" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Grid>
         </Grid>
       </Card>
 
-      {/* 3. Search and View Filters */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap', alignItems: 'center' }}>
-          <TextField
-            size="small"
-            placeholder="Search by trainee name, TGID, or cert no..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
-            }}
-          />
-
-          <TextField
-            select
-            size="small"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            sx={{ width: 180, bgcolor: '#ffffff' }}
-          >
-            <MenuItem value="ALL">All Trainees ({studentCertificateData.length})</MenuItem>
-            <MenuItem value="ISSUED">Issued Only ({issuedCount})</MenuItem>
-            <MenuItem value="ELIGIBLE">Eligible to Issue ({eligiblePendingCount})</MenuItem>
-            <MenuItem value="INELIGIBLE">Ineligible (Fee / &lt;80%) ({ineligibleCount})</MenuItem>
-          </TextField>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredData.length} records
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-          >
-            <ToggleButton value="table">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
-
       {/* 4. TABLE VIEW */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
                     S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Trainee Name</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 95 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110, textAlign: 'center' }}>Attendance %</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Certificate No</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>Issue Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainee Name</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Attendance %</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Certificate No</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Issue Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -500,28 +639,28 @@ export default function CertificateManager() {
 
                   return (
                     <TableRow key={student.id} hover>
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B', width: 65 }}>
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', width: 48, fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                           <Avatar
                             src={student.photoUrl}
-                            sx={{ width: 36, height: 36, bgcolor: '#0b2545', fontWeight: 800 }}
+                            sx={{ width: 30, height: 30, bgcolor: '#0b2545', fontWeight: 800, fontSize: '0.78rem' }}
                           >
                             {student.name?.[0]}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                               {student.name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089' }}>
+                            <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                               {student.permanentAddress || 'Nepal'}
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#647089' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#647089', fontSize: '0.76rem' }}>
                         {student.tgid}
                       </TableCell>
                       <TableCell sx={{ textAlign: 'center' }}>
@@ -529,36 +668,37 @@ export default function CertificateManager() {
                           variant="body2"
                           sx={{
                             fontWeight: 900,
+                            fontSize: '0.78rem',
                             color: attPercent >= 80 ? '#16834b' : '#dc2626'
                           }}
                         >
                           {attPercent}%
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.67rem' }}>
                           {attPercent >= 80 ? 'CTEVT Eligible' : 'Low Attendance'}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#0b2545' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                         {certificate ? certificate.certificateNo : '—'}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.85rem', color: '#475569' }}>
+                      <TableCell sx={{ fontSize: '0.76rem', color: '#475569', whiteSpace: 'nowrap' }}>
                         {certificate ? certificate.issueDate : '—'}
                       </TableCell>
                       <TableCell>
                         {isIssued ? (
                           <Chip
-                            icon={<CheckCircleIcon />}
+                            icon={<CheckCircleIcon sx={{ fontSize: '13px !important' }} />}
                             label="Issued & Valid"
                             size="small"
                             color="success"
-                            sx={{ fontWeight: 800 }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
                           />
                         ) : item.feeDue > 0 ? (
                           <Chip
-                            icon={<WarningAmberIcon />}
+                            icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
                             label={`Due: NPR ${item.feeDue.toLocaleString()} (Lock)`}
                             size="small"
-                            sx={{ fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
                           />
                         ) : isEligible ? (
                           <Chip
@@ -566,22 +706,22 @@ export default function CertificateManager() {
                             size="small"
                             color="primary"
                             variant="outlined"
-                            sx={{ fontWeight: 800 }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
                           />
                         ) : (
                           <Chip
-                            icon={<WarningAmberIcon />}
+                            icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
                             label="Ineligible (<80%)"
                             size="small"
                             color="error"
                             variant="outlined"
-                            sx={{ fontWeight: 700 }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }}
                           />
                         )}
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {isIssued ? (
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.4 }}>
                             <Tooltip title="View & Print A4 Landscape Certificate">
                               <IconButton
                                 size="small"
@@ -595,7 +735,7 @@ export default function CertificateManager() {
                                   });
                                   setCertificateModalOpen(true);
                                 }}
-                                sx={{ color: '#0b2545' }}
+                                sx={{ color: '#0b2545', p: 0.4 }}
                               >
                                 <VisibilityIcon fontSize="small" />
                               </IconButton>
@@ -613,7 +753,7 @@ export default function CertificateManager() {
                                   });
                                   setVerifyModalOpen(true);
                                 }}
-                                sx={{ color: '#c59b27' }}
+                                sx={{ color: '#c59b27', p: 0.4 }}
                               >
                                 <VerifiedIcon fontSize="small" />
                               </IconButton>
@@ -623,7 +763,7 @@ export default function CertificateManager() {
                               <IconButton
                                 size="small"
                                 onClick={() => handleCopyLink(certificate.certificateNo)}
-                                sx={{ color: '#1a56b0' }}
+                                sx={{ color: '#1a56b0', p: 0.4 }}
                               >
                                 <LinkIcon fontSize="small" />
                               </IconButton>
@@ -633,7 +773,7 @@ export default function CertificateManager() {
                               <IconButton
                                 size="small"
                                 onClick={() => handleRevokeCertificate(certificate.id)}
-                                sx={{ color: '#dc2626' }}
+                                sx={{ color: '#dc2626', p: 0.4 }}
                               >
                                 <DeleteOutlineIcon fontSize="small" />
                               </IconButton>
@@ -647,18 +787,20 @@ export default function CertificateManager() {
                             sx={{
                               bgcolor: '#0b2545',
                               fontWeight: 800,
-                              fontSize: '0.75rem',
-                              px: 1.5
+                              fontSize: '0.7rem',
+                              px: 0.9,
+                              py: 0.3,
+                              whiteSpace: 'nowrap'
                             }}
                           >
                             + Issue Certificate
                           </Button>
                         ) : item.feeDue > 0 ? (
-                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800 }}>
+                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800, fontSize: '0.7rem' }}>
                             ⛔ Fee Due (Locked)
                           </Typography>
                         ) : (
-                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
+                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700, fontSize: '0.7rem' }}>
                             Attendance under 80%
                           </Typography>
                         )}
@@ -668,7 +810,7 @@ export default function CertificateManager() {
                 })}
                 {filteredData.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No trainees found matching your filter criteria.
                     </TableCell>
                   </TableRow>

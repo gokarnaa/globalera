@@ -322,32 +322,105 @@ export default function StudentManager() {
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <SchoolIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Student Management & Digital Dossier
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Students inherit Course & Occupation from their Training Group. Digital 360° Profiles & Verification QR Cards.
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExportExcel}>
-            Export Excel
-          </Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-            + Enroll Student
-          </Button>
-        </Box>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <SchoolIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Student Management &amp; Digital Dossier
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Digital 360° Profiles, Batch Assignment &amp; Verification QR Cards
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-      {/* Filter & Search Bar */}
-      <Card sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FileDownloadIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleExportExcel}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Export Excel
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Enroll Student
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* Compact Filter & Search Bar */}
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
+        <Grid container spacing={1.25} alignItems="center">
           <Grid item xs={12} sm={3.5}>
             <TextField
               size="small"
@@ -361,13 +434,13 @@ export default function StudentManager() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#647089', fontSize: 20 }} />
+                    <SearchIcon sx={{ color: '#647089', fontSize: 18 }} />
                   </InputAdornment>
                 ),
                 endAdornment: searchQuery ? (
                   <InputAdornment position="end">
                     <IconButton size="small" onClick={() => { setSearchQuery(''); setPage(0); }}>
-                      <CloseIcon sx={{ fontSize: 18 }} />
+                      <CloseIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   </InputAdornment>
                 ) : null
@@ -412,7 +485,7 @@ export default function StudentManager() {
               <MenuItem value="Dropped">Dropped</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={6} sm={3.5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1.5 }}>
+          <Grid item xs={6} sm={3.5} sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
             <Chip
               label={`${filteredStudents.length} Students`}
               size="small"
@@ -425,11 +498,11 @@ export default function StudentManager() {
               size="small"
               sx={{ bgcolor: '#fff' }}
             >
-              <ToggleButton value="table" sx={{ fontWeight: 700, px: 1.5 }}>
-                <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table
+              <ToggleButton value="table" sx={{ fontWeight: 700, px: 1.2, py: 0.45, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                <ViewListIcon fontSize="small" sx={{ mr: 0.4, fontSize: '1rem' }} /> Table
               </ToggleButton>
-              <ToggleButton value="card" sx={{ fontWeight: 700, px: 1.5 }}>
-                <ViewModuleIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards
+              <ToggleButton value="card" sx={{ fontWeight: 700, px: 1.2, py: 0.45, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                <ViewModuleIcon fontSize="small" sx={{ mr: 0.4, fontSize: '1rem' }} /> Cards
               </ToggleButton>
             </ToggleButtonGroup>
           </Grid>
@@ -438,39 +511,41 @@ export default function StudentManager() {
 
       {/* Students Data View (Table or Card) */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    S.N.
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                    #
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Student</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Batch & Shift</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact & WhatsApp</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Fee Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Admission Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Batch &amp; Shift</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Contact &amp; WhatsApp</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Fee Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Admission Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredStudents.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#94a3b8', fontWeight: 600 }}>
+                    <TableCell colSpan={8} align="center" sx={{ py: 4, color: '#94a3b8', fontWeight: 600, fontSize: '0.8rem' }}>
                       No students found matching your criteria.
                     </TableCell>
                   </TableRow>
@@ -482,115 +557,153 @@ export default function StudentManager() {
 
                     return (
                       <TableRow key={std.id} hover>
-                        <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
+                        <TableCell sx={{ fontWeight: 700, color: '#64748B', textAlign: 'center', width: 46, fontSize: '0.75rem' }}>
                           {serialNo}
                         </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Avatar src={std.photoUrl} sx={{ width: 44, height: 44, bgcolor: '#1a56b0', fontWeight: 800 }}>
-                            {std.name[0]}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
-                              {std.name}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.3, flexWrap: 'wrap' }}>
-                              <span>{std.tgid} • {std.gender}</span>
-                              <Chip
-                                size="small"
-                                icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
-                                label={`Machine ID: #${std.biometricId || 'N/A'}`}
-                                sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
-                              />
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={grp?.groupCode || 'Unassigned'}
-                          size="small"
-                          sx={{ fontWeight: 800, bgcolor: '#1a56b0', color: '#fff', mb: 0.5, display: 'block', width: 'fit-content' }}
-                        />
-                        <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
-                          {course?.title || ''} (Shift {grp?.shift || ''})
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                            {std.phone}
-                          </Typography>
-                          <IconButton
-                            size="small"
-                            component="a"
-                            href={getWhatsAppUrl(std.phone, `Namaste ${std.name}, update from KITE Training Center.`)}
-                            target="_blank"
-                            sx={{ color: '#25D366' }}
-                          >
-                            <WhatsAppIcon fontSize="small" />
-                          </IconButton>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        {(() => {
-                          const fee = getStudentFeeSummary(std);
-                          const isPaid = fee.status === 'Paid';
-                          const isPartial = fee.status === 'Partial';
-                          return (
-                            <Box>
-                              <Chip
-                                label={fee.status}
-                                size="small"
-                                sx={{
-                                  fontWeight: 800,
-                                  bgcolor: isPaid ? '#e5f8ee' : isPartial ? '#fef3c7' : '#fee2e2',
-                                  color: isPaid ? '#16834b' : isPartial ? '#b45309' : '#dc2626',
-                                  mb: 0.3
-                                }}
-                              />
-                              <Typography variant="caption" sx={{ display: 'block', color: fee.due > 0 ? '#dc2626' : '#16834b', fontWeight: 700 }}>
-                                {fee.due > 0 ? `Due: Rs. ${fee.due.toLocaleString()}` : `Paid in Full`}
+                        <TableCell>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Avatar src={std.photoUrl} sx={{ width: 34, height: 34, bgcolor: '#1a56b0', fontWeight: 800, fontSize: '0.82rem' }}>
+                              {std.name[0]}
+                            </Avatar>
+                            <Box sx={{ minWidth: 0 }}>
+                              <Typography sx={{ fontWeight: 800, fontSize: '0.8rem', lineHeight: 1.2 }}>
+                                {std.name}
+                              </Typography>
+                              <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.6, mt: 0.2, flexWrap: 'wrap', fontSize: '0.69rem' }}>
+                                <span>{std.tgid} • {std.gender}</span>
+                                <Chip
+                                  size="small"
+                                  icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
+                                  label={`#${std.biometricId || 'N/A'}`}
+                                  sx={{ height: 18, fontSize: '0.64rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                                />
                               </Typography>
                             </Box>
-                          );
-                        })()}
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>
-                        {std.admissionDate}
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={std.status}
-                          size="small"
-                          sx={{
-                            bgcolor: std.status === 'Active' ? '#e5f8ee' : '#fdeceb',
-                            color: std.status === 'Active' ? '#16834b' : '#d5372f',
-                            fontWeight: 700
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <Tooltip title="View 360° Profile Dossier">
-                          <IconButton size="small" onClick={() => setProfileStudent(std)} sx={{ color: '#1a56b0' }}>
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Generate Digital QR ID Card">
-                          <IconButton size="small" onClick={() => setIdCardStudent(std)} sx={{ color: '#6c3fc9' }}>
-                            <QrCode2Icon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                        <IconButton size="small" onClick={() => handleOpenEdit(std)} sx={{ color: '#1a56b0' }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(std.id)} sx={{ color: '#d5372f' }}>
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  );
-                }))}
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Chip
+                            label={grp?.groupCode || 'Unassigned'}
+                            size="small"
+                            sx={{ height: 19, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#1a56b0', color: '#fff', mb: 0.3, display: 'block', width: 'fit-content' }}
+                          />
+                          <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontSize: '0.69rem' }}>
+                            {course?.title || ''} (Shift {grp?.shift || ''})
+                          </Typography>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
+                              {std.phone}
+                            </Typography>
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={getWhatsAppUrl(std.phone, `Namaste ${std.name}, update from Prabidhik School, Jorpati.`)}
+                              target="_blank"
+                              sx={{ color: '#25D366', p: 0.3 }}
+                            >
+                              <WhatsAppIcon sx={{ fontSize: '1rem' }} />
+                            </IconButton>
+                          </Box>
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          {(() => {
+                            const fee = getStudentFeeSummary(std);
+                            const isPaid = fee.status === 'Paid';
+                            const isPartial = fee.status === 'Partial';
+                            return (
+                              <Box>
+                                <Chip
+                                  label={fee.status}
+                                  size="small"
+                                  sx={{
+                                    height: 19,
+                                    fontSize: '0.67rem',
+                                    fontWeight: 800,
+                                    bgcolor: isPaid ? '#e5f8ee' : isPartial ? '#fef3c7' : '#fee2e2',
+                                    color: isPaid ? '#16834b' : isPartial ? '#b45309' : '#dc2626',
+                                    mb: 0.2
+                                  }}
+                                />
+                                <Typography variant="caption" sx={{ display: 'block', color: fee.due > 0 ? '#dc2626' : '#16834b', fontWeight: 700, fontSize: '0.68rem' }}>
+                                  {fee.due > 0 ? `Due: Rs. ${fee.due.toLocaleString()}` : `Paid in Full`}
+                                </Typography>
+                              </Box>
+                            );
+                          })()}
+                        </TableCell>
+                        <TableCell sx={{ fontWeight: 600, fontSize: '0.77rem', whiteSpace: 'nowrap' }}>
+                          {std.admissionDate}
+                        </TableCell>
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          <Chip
+                            label={std.status}
+                            size="small"
+                            sx={{
+                              height: 20,
+                              fontSize: '0.68rem',
+                              bgcolor: std.status === 'Active' ? '#e5f8ee' : '#fdeceb',
+                              color: std.status === 'Active' ? '#16834b' : '#d5372f',
+                              fontWeight: 700
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                            <Tooltip title="View 360° Profile Dossier">
+                              <Button
+                                size="small"
+                                startIcon={<VisibilityIcon sx={{ fontSize: '13px !important' }} />}
+                                onClick={() => setProfileStudent(std)}
+                                sx={{
+                                  px: 0.9,
+                                  py: 0.3,
+                                  minWidth: 0,
+                                  fontSize: '0.7rem',
+                                  fontWeight: 700,
+                                  whiteSpace: 'nowrap',
+                                  color: '#1a56b0',
+                                  bgcolor: '#eff6ff',
+                                  border: '1px solid #bfdbfe',
+                                  '&:hover': { bgcolor: '#dbeafe' }
+                                }}
+                              >
+                                Profile
+                              </Button>
+                            </Tooltip>
+                            <Tooltip title="Generate Digital QR ID Card">
+                              <Button
+                                size="small"
+                                startIcon={<QrCode2Icon sx={{ fontSize: '13px !important' }} />}
+                                onClick={() => setIdCardStudent(std)}
+                                sx={{
+                                  px: 0.9,
+                                  py: 0.3,
+                                  minWidth: 0,
+                                  fontSize: '0.7rem',
+                                  fontWeight: 700,
+                                  whiteSpace: 'nowrap',
+                                  color: '#6c3fc9',
+                                  bgcolor: '#f5f3ff',
+                                  border: '1px solid #ddd6fe',
+                                  '&:hover': { bgcolor: '#ede9fe' }
+                                }}
+                              >
+                                ID
+                              </Button>
+                            </Tooltip>
+                            <IconButton size="small" onClick={() => handleOpenEdit(std)} sx={{ color: '#1a56b0', p: 0.35 }}>
+                              <EditIcon sx={{ fontSize: '1.05rem' }} />
+                            </IconButton>
+                            <IconButton size="small" onClick={() => handleDelete(std.id)} sx={{ color: '#d5372f', p: 0.35 }}>
+                              <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
+                            </IconButton>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }))}
               </TableBody>
             </Table>
           </TableContainer>

@@ -12,10 +12,10 @@ import {
   Chip,
   Tabs,
   Tab,
-  Divider,
   Paper,
   Grid,
-  Button
+  Button,
+  Stack
 } from '@mui/material';
 import BalanceIcon from '@mui/icons-material/Balance';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
@@ -50,48 +50,104 @@ export default function FinancialReportsView({ db }) {
   const isBalanceSheetBalanced = Math.abs(totalAssets - (totalLiabilities + totalEquity)) < 1;
 
   return (
-    <Box>
-      {/* Report Header & Subtabs */}
-      <Card sx={{ p: 2, mb: 3, borderRadius: 3, border: '1px solid #E2E8F0' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              📈 Financial Statements & Audit Engine
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Automated Trial Balance, Profit & Loss Statement, and Balance Sheet according to Nepal Accounting Standards
-            </Typography>
-          </Box>
-          <Button
-            variant="outlined"
-            startIcon={<PrintIcon />}
-            onClick={() => window.print()}
-            sx={{ fontWeight: 700, borderRadius: 2, textTransform: 'none' }}
-          >
-            Print Statement / PDF
-          </Button>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 } }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <BalanceIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Financial Statements &amp; Audit Engine
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Automated Trial Balance, Profit &amp; Loss Statement &amp; Balance Sheet per NAS
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => window.print()}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Print Statement / PDF
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
+      {/* Compact Subtabs Bar */}
+      <Card elevation={0} sx={{ p: 0.75, mb: 1.75, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
         <Tabs
           value={reportTab}
           onChange={(e, val) => setReportTab(val)}
           sx={{
-            borderTop: '1px solid #E2E8F0',
-            pt: 1,
-            '& .MuiTab-root': { fontWeight: 800, textTransform: 'none' }
+            minHeight: 38,
+            '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', minHeight: 38, py: 0.5, fontSize: '0.78rem' }
           }}
         >
-          <Tab icon={<BalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Trial Balance" />
-          <Tab icon={<TrendingUpIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Profit & Loss" />
-          <Tab icon={<AccountBalanceIcon sx={{ fontSize: '1.1rem' }} />} iconPosition="start" label="Balance Sheet" />
+          <Tab icon={<BalanceIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Trial Balance" />
+          <Tab icon={<TrendingUpIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Profit & Loss" />
+          <Tab icon={<AccountBalanceIcon sx={{ fontSize: '1rem' }} />} iconPosition="start" label="Balance Sheet" />
         </Tabs>
       </Card>
 
       {/* TAB 0: TRIAL BALANCE */}
       {reportTab === 0 && (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-          <Box sx={{ p: 2, bgcolor: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+          <Box sx={{ p: 1.25, bgcolor: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
               ⚖️ Mathematical Trial Balance as of {tb.asOfDate}
             </Typography>
             <Chip
@@ -108,13 +164,27 @@ export default function FinancialReportsView({ db }) {
 
           <TableContainer>
             <Table size="small">
-              <TableHead sx={{ bgcolor: '#F1F5F9' }}>
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: 140 }}>Code</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Account Title</TableCell>
-                  <TableCell sx={{ fontWeight: 800, width: 140 }}>Type</TableCell>
-                  <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>Debit (Dr)</TableCell>
-                  <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 180 }}>Credit (Cr)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 130, color: '#FFFFFF !important' }}>Code</TableCell>
+                  <TableCell sx={{ fontWeight: 800, color: '#FFFFFF !important' }}>Account Title</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 130, color: '#FFFFFF !important' }}>Type</TableCell>
+                  <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 160, color: '#FFFFFF !important' }}>Debit (Dr)</TableCell>
+                  <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 160, color: '#FFFFFF !important' }}>Credit (Cr)</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

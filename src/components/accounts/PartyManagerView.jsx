@@ -358,98 +358,218 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   };
 
   return (
-    <Box sx={{ mt: 2 }}>
-      {/* 4 Summary Cards */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Total Registered Parties
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 } }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6.5}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <StorefrontIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Parties, Vendors &amp; Landlord Accounts
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
-                  {totalPartiesCount}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
-                  Landlords, Vendors & Utilities
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Building lease, TDS deductions, ConnectIPS payouts &amp; vendor ledgers
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
-                <StorefrontIcon sx={{ fontSize: 28 }} />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5.5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ArticleIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => {
+                  setStatementPartyId(parties[0]?.id || null);
+                  setStatementPartyType('LANDLORD');
+                  setUniversalStatementOpen(true);
+                }}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Statement Hub
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setAddPartyOpen(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                + Add Party
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<PointOfSaleIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setRecordPurchaseOpen(true)}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Purchase / Expense
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* 4 Compact Single-Row Summary Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0284c7', bgcolor: '#ffffff' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Registered Parties
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalPartiesCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284c7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Landlords, Vendors &amp; Utilities
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <StorefrontIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
-                  Total Purchases & Rent Bills
+        <Grid item xs={6} md={3}>
+          <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0f2e5a', bgcolor: '#ffffff' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Purchases &amp; Rent Bills
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                   Rs. {totalPurchasesSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Annual Total Liabilities
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, color: '#0f2e5a' }}>
-                <ShoppingBagIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#0f2e5a', flexShrink: 0 }}>
+                <ShoppingBagIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
+        <Grid item xs={6} md={3}>
+          <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #16a34a', bgcolor: '#ffffff' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
                   Total Amount Paid
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#16a34a', mt: 0.5 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#16a34a', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                   Rs. {totalPaidSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#16a34a', fontWeight: 700 }}>
-                  Paid via ConnectIPS & Bank Transfers
+                <Typography variant="caption" noWrap sx={{ color: '#16a34a', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Paid via ConnectIPS &amp; Bank
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, color: '#16a34a' }}>
-                <ReceiptLongIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0fdf4', borderRadius: 1.5, color: '#16a34a', flexShrink: 0 }}>
+                <ReceiptLongIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff' }}>
-            <Stack direction="row" justifyContent="space-between" alignItems="center">
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b' }}>
+        <Grid item xs={6} md={3}>
+          <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: `3.5px solid ${totalDueSum > 0 ? '#dc2626' : '#16a34a'}`, bgcolor: '#ffffff' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
                   Total Outstanding Due
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: totalDueSum > 0 ? '#dc2626' : '#16a34a', mt: 0.5 }}>
+                <Typography noWrap sx={{ fontWeight: 800, color: totalDueSum > 0 ? '#dc2626' : '#16a34a', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
                   Rs. {totalDueSum.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" sx={{ color: totalDueSum > 0 ? '#dc2626' : '#16a34a', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: totalDueSum > 0 ? '#dc2626' : '#16a34a', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   {totalDueSum > 0 ? 'Pending Payment Obligation' : 'All Clear'}
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.5, bgcolor: totalDueSum > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: 2, color: totalDueSum > 0 ? '#dc2626' : '#16a34a' }}>
-                <PaymentIcon sx={{ fontSize: 28 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: totalDueSum > 0 ? '#fef2f2' : '#f0fdf4', borderRadius: 1.5, color: totalDueSum > 0 ? '#dc2626' : '#16a34a', flexShrink: 0 }}>
+                <PaymentIcon sx={{ fontSize: 18 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* Action Bar & Filter Controls */}
-      <Card elevation={0} sx={{ p: 2.5, borderRadius: 2.5, border: '1px solid #e2e8f0', bgcolor: '#ffffff', mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={3.5}>
+      {/* Compact Action Bar & Filter Controls */}
+      <Card elevation={0} sx={{ p: 1.25, borderRadius: 2, border: '1px solid #e2e8f0', bgcolor: '#ffffff', mb: 1.75 }}>
+        <Grid container spacing={1.25} alignItems="center">
+          <Grid item xs={12} md={4.5}>
             <TextField
               fullWidth
               size="small"
@@ -459,14 +579,14 @@ export default function PartyManagerView({ db, setDb, showToast }) {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94a3b8' }} />
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                   </InputAdornment>
                 )
               }}
             />
           </Grid>
 
-          <Grid item xs={6} md={2.5}>
+          <Grid item xs={6} md={3}>
             <TextField
               select
               fullWidth
@@ -484,7 +604,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             </TextField>
           </Grid>
 
-          <Grid item xs={6} md={2}>
+          <Grid item xs={6} md={2.5}>
             <TextField
               select
               fullWidth
@@ -499,9 +619,8 @@ export default function PartyManagerView({ db, setDb, showToast }) {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={4} sx={{ textAlign: { md: 'right' } }}>
-            <Stack direction="row" spacing={1.2} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap">
-              {/* View Toggle */}
+          <Grid item xs={12} md={2} sx={{ textAlign: { md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
               <ToggleButtonGroup
                 size="small"
                 value={viewMode}
@@ -515,9 +634,9 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                     border: 'none',
                     borderRadius: '6px !important',
                     px: 1.2,
-                    py: 0.5,
+                    py: 0.4,
                     fontWeight: 800,
-                    fontSize: '0.74rem',
+                    fontSize: '0.72rem',
                     textTransform: 'none',
                     color: '#64748B',
                     '&.Mui-selected': {
@@ -535,76 +654,49 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   <GridViewIcon sx={{ fontSize: '1rem', mr: 0.5 }} /> Cards
                 </ToggleButton>
               </ToggleButtonGroup>
-
-              <Button
-                variant="outlined"
-                startIcon={<ArticleIcon />}
-                onClick={() => {
-                  setStatementPartyId(parties[0]?.id || null);
-                  setStatementPartyType('LANDLORD');
-                  setUniversalStatementOpen(true);
-                }}
-                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2, fontSize: '0.78rem' }}
-              >
-                Statement Hub
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={() => setAddPartyOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#0f2e5a', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#174276' } }}
-              >
-                + Add Party
-              </Button>
-              <Button
-                variant="contained"
-                startIcon={<PointOfSaleIcon />}
-                onClick={() => setRecordPurchaseOpen(true)}
-                sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#059669', borderRadius: 2, fontSize: '0.78rem', '&:hover': { bgcolor: '#047857' } }}
-              >
-                + Purchase / Expense
-              </Button>
             </Stack>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Party Table with Model 1 Styling */}
+      {/* Party Table */}
       {viewMode === 'table' && (
-      <Card elevation={0} sx={{ borderRadius: 2.5, border: '1px solid #e2e8f0', overflow: 'hidden', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
         <TableContainer>
-          <Table>
+          <Table size="small">
             <TableHead
               sx={{
                 bgcolor: '#0F2E5A',
                 '& .MuiTableCell-head': {
                   bgcolor: '#0F2E5A !important',
                   color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.84rem',
-                  py: 1.5,
-                  borderBottom: '2px solid #F59E0B'
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B',
+                  whiteSpace: 'nowrap'
                 }
               }}
             >
               <TableRow>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
                   S.N.
                 </TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Party Name & Category</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact Person & Phone</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>ConnectIPS Bank Details</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Total Purchases / Rent</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Total Paid</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="right">Outstanding Due</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }} align="center">Actions</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Party Name &amp; Category</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Contact Person &amp; Phone</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>ConnectIPS Bank Details</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="right">Total Purchases / Rent</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="right">Total Paid</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="right">Outstanding Due</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }} align="center">Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {filteredParties.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} align="center" sx={{ py: 6, color: '#64748b' }}>
-                    No parties found. Click '+ Add Party' to register a landlord or vendor.
+                    No parties found. Click &apos;+ Add Party&apos; to register a landlord or vendor.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -646,7 +738,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             <IconButton
                               size="small"
                               component="a"
-                              href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Global Era Technical Institute.`)}
+                              href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Prabidhik School, Jorpati.`)}
                               target="_blank"
                               sx={{ color: '#25D366', p: 0.2 }}
                             >
@@ -700,20 +792,21 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                       </TableCell>
 
                       <TableCell align="center">
-                        <Stack direction="row" spacing={0.8} justifyContent="center">
+                        <Stack direction="row" spacing={0.6} justifyContent="center" alignItems="center">
                           <Tooltip title="Make ConnectIPS / Bank Payment">
                             <Button
                               variant="contained"
                               size="small"
-                              startIcon={<AccountBalanceIcon sx={{ fontSize: '0.9rem !important' }} />}
+                              startIcon={<AccountBalanceIcon sx={{ fontSize: '0.85rem !important' }} />}
                               onClick={() => handleOpenPayout(p)}
                               sx={{
                                 fontWeight: 800,
-                                fontSize: '0.74rem',
-                                py: 0.4,
-                                px: 1.2,
+                                fontSize: '0.7rem',
+                                py: 0.3,
+                                px: 0.9,
+                                whiteSpace: 'nowrap',
                                 bgcolor: isDue ? '#DC2626' : '#0F2E5A',
-                                borderRadius: 1.8,
+                                borderRadius: 1.5,
                                 textTransform: 'none',
                                 '&:hover': { bgcolor: isDue ? '#B91C1C' : '#174276' }
                               }}
@@ -726,9 +819,17 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                             <Button
                               variant="outlined"
                               size="small"
-                              startIcon={<ArticleIcon sx={{ fontSize: '0.9rem !important' }} />}
+                              startIcon={<ArticleIcon sx={{ fontSize: '0.85rem !important' }} />}
                               onClick={() => handleOpenStatement(p)}
-                              sx={{ fontWeight: 800, fontSize: '0.74rem', py: 0.4, px: 1.2, borderRadius: 1.8, textTransform: 'none' }}
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.7rem',
+                                py: 0.3,
+                                px: 0.9,
+                                whiteSpace: 'nowrap',
+                                borderRadius: 1.5,
+                                textTransform: 'none'
+                              }}
                             >
                               Statement
                             </Button>
@@ -841,7 +942,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                               <IconButton
                                 size="small"
                                 component="a"
-                                href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Global Era Technical Institute.`)}
+                                href={getWhatsAppUrl(p.phone, `Hello ${p.name}, contacting you from Prabidhik School, Jorpati.`)}
                                 target="_blank"
                                 rel="noreferrer"
                                 sx={{ color: '#16A34A', bgcolor: '#DCFCE7' }}

@@ -337,219 +337,238 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* =======================================================
-          1. EXECUTIVE HERO OPERATIONAL BANNER
-          ======================================================= */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 3,
-          p: { xs: 2.5, sm: 3.5 },
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
-          color: '#FFFFFF',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 16px 40px -10px rgba(7, 25, 51, 0.4)',
-          position: 'relative',
-          overflow: 'hidden'
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
-          {/* Left Title & Actions */}
-          <Grid item xs={12} lg={7}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
-              <Chip
-                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#FDE047 !important' }} />}
-                label="CTEVT Institutional Operations Hub"
-                size="small"
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
                 sx={{
-                  bgcolor: 'rgba(254, 240, 138, 0.15)',
-                  color: '#FEF08A',
-                  fontWeight: 900,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(254, 240, 138, 0.3)'
-                }}
-              />
-              <Chip
-                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
-                label={`${runningGroupsCount} Groups Currently Running`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(74, 222, 128, 0.15)',
-                  color: '#86EFAC',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(74, 222, 128, 0.25)'
-                }}
-              />
-              <Chip
-                label={`Shift ${liveShiftCode} Live Now`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.15)',
-                  color: '#FFFFFF',
-                  fontWeight: 900,
-                  fontSize: '0.72rem'
-                }}
-              />
-            </Box>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 900,
-                color: '#FFFFFF',
-                fontSize: { xs: '1.45rem', sm: '1.9rem', md: '2.1rem' },
-                lineHeight: 1.2,
-                letterSpacing: '-0.02em',
-                mb: 1
-              }}
-            >
-              Training Groups / Batches (Operations Hub)
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              Direct operations hub for all institutional physical and online training classes.
-              Unified management of courses, assigned lead instructors, shift timings, and enrolled trainees.
-            </Typography>
-
-            <Stack direction="row" spacing={1.2} flexWrap="wrap" useFlexGap>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAdd}
-                sx={{
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.88rem',
-                  py: 1,
-                  px: 2.2,
-                  borderRadius: 2.5,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important'
-                  }
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
-                + Create Training Group
-              </Button>
-
+                <GroupWorkIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Training Groups / Batches (Operations Hub)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • {runningGroupsCount} Running Batches • Shift {liveShiftCode} Live Now
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
               <Button
                 variant="outlined"
-                startIcon={<FactCheckIcon />}
+                size="small"
+                startIcon={<FactCheckIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => onNavigateToAttendance(baseGroups[0]?.id)}
                 sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.85rem',
-                  py: 1,
-                  px: 2,
-                  borderRadius: 2.5,
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
                 Take Daily Attendance
               </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Create Training Group
+              </Button>
             </Stack>
-          </Grid>
-
-          {/* Right Live Operational Stats */}
-          <Grid item xs={12} lg={5}>
-            <Grid container spacing={1.5}>
-              <Grid item xs={6}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(15, 30, 60, 0.75)',
-                    backdropFilter: 'blur(16px)',
-                    p: 2,
-                    borderRadius: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.15)'
-                  }}
-                >
-                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    TOTAL BATCHES
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
-                    {totalGroupsCount}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#86EFAC' }}>
-                    {runningGroupsCount} Active Classes Running
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(15, 30, 60, 0.75)',
-                    backdropFilter: 'blur(16px)',
-                    p: 2,
-                    borderRadius: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.15)'
-                  }}
-                >
-                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    ENROLLED STUDENTS
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
-                    {totalStudentsEnrolled}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                    {ojtGroupsCount} Groups in OJT Internship
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(16, 185, 129, 0.15)',
-                    backdropFilter: 'blur(16px)',
-                    p: 1.8,
-                    borderRadius: 3,
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 900, display: 'block' }}>
-                      ACTIVE LIVE SHIFT
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      Shift {liveShiftCode} • MitraPark Central Hub
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label="Active & Synchronized"
-                    size="small"
-                    sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 900, height: 22 }}
-                  />
-                </Box>
-              </Grid>
-            </Grid>
           </Grid>
         </Grid>
       </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Batches
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalGroupsCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  All Configured Groups
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <GroupWorkIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Active Classes
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {runningGroupsCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Currently Running
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Enrolled Students
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalStudentsEnrolled}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {ojtGroupsCount} Groups in OJT Phase
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <PeopleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #f59e0b',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Active Live Shift
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  Shift {liveShiftCode}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Prabidhik School, Jorpati
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <AccessTimeIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* =======================================================
           2. SEARCH, MULTI-FILTER, SORT & VIEW SWITCHER
           ======================================================= */}
       <Card
+        elevation={0}
         sx={{
-          p: 2.5,
-          mb: 3,
-          borderRadius: 3.5,
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
-          bgcolor: '#FFFFFF'
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
         }}
       >
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1.25} alignItems="center">
           {/* Instant Search Bar */}
           <Grid item xs={12} sm={6} md={3.5}>
             <TextField
@@ -895,27 +914,29 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
           VIEW 2: SORTABLE PRODUCTION TABLE VIEW
           ======================================================= */}
       {viewMode === 'table' && (
-        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    S.N.
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                    #
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 100 }}>
                     <TableSortLabel
                       active={sortBy === 'groupCode'}
                       direction={sortBy === 'groupCode' ? sortOrder : 'asc'}
@@ -929,9 +950,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                       Group Code
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course & Occupation</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Instructor</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course &amp; Occupation</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Instructor</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                     <TableSortLabel
                       active={sortBy === 'shift'}
                       direction={sortBy === 'shift' ? sortOrder : 'asc'}
@@ -942,10 +963,10 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      Shift & Time
+                      Shift &amp; Time
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                     <TableSortLabel
                       active={sortBy === 'startDate'}
                       direction={sortBy === 'startDate' ? sortOrder : 'asc'}
@@ -959,7 +980,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                       Date (Start → End)
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>
                     <TableSortLabel
                       active={sortBy === 'students'}
                       direction={sortBy === 'students' ? sortOrder : 'asc'}
@@ -973,8 +994,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                       Students
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -988,115 +1009,118 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                   return (
                     <TableRow key={grp.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
                       {/* S.N. Column */}
-                      <TableCell sx={{ fontWeight: 800, color: '#475569', textAlign: 'center' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748B', textAlign: 'center', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
 
                       {/* Group Code */}
-                      <TableCell sx={{ fontWeight: 900 }}>
+                      <TableCell sx={{ fontWeight: 800, whiteSpace: 'nowrap' }}>
                         <Chip
                           label={grp.groupCode}
                           size="small"
-                          sx={{ bgcolor: '#0F2E5A', color: '#FFFFFF', fontWeight: 900 }}
+                          sx={{ height: 20, bgcolor: '#0F2E5A', color: '#FFFFFF', fontWeight: 800, fontSize: '0.7rem' }}
                         />
                       </TableCell>
 
                       {/* Course & Occupation */}
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A', lineHeight: 1.2 }}>
+                        <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem', lineHeight: 1.25 }}>
                           {course?.title || 'Vocational Course'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem' }}>
                           {occ?.name || 'Technical'} • {course?.level || ''}
                         </Typography>
                       </TableCell>
 
                       {/* Trainer */}
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
                           <Avatar
                             src={trainer?.photo}
-                            sx={{ width: 28, height: 28, bgcolor: '#0F2E5A', fontSize: 12, fontWeight: 800 }}
+                            sx={{ width: 24, height: 24, bgcolor: '#0F2E5A', fontSize: 11, fontWeight: 800 }}
                           >
                             {trainer?.name?.[0] || 'T'}
                           </Avatar>
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#1E293B' }}>
+                          <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.79rem' }}>
                             {trainer?.name || 'Unassigned'}
                           </Typography>
                         </Box>
                       </TableCell>
 
                       {/* Shift & Time */}
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                          <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.78rem' }}>
                             Shift {grp.shift}
                           </Typography>
                           {isLive && (
                             <Chip
                               label="Live"
                               size="small"
-                              sx={{ height: 18, fontSize: '0.62rem', bgcolor: '#ECFDF5', color: '#059669', fontWeight: 900 }}
+                              sx={{ height: 18, fontSize: '0.62rem', bgcolor: '#ECFDF5', color: '#059669', fontWeight: 800 }}
                             />
                           )}
                         </Box>
-                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>
                           {grp.startTime} – {grp.endTime}
                         </Typography>
                       </TableCell>
 
                       {/* Dates */}
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem' }}>
                           {grp.startDate}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, display: 'block' }}>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'block', fontSize: '0.69rem' }}>
                           → {grp.expectedEndDate}
                         </Typography>
                       </TableCell>
 
                       {/* Students count */}
-                      <TableCell sx={{ textAlign: 'center' }}>
+                      <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                         <Button
                           size="small"
                           variant="outlined"
-                          startIcon={<PeopleIcon />}
+                          startIcon={<PeopleIcon sx={{ fontSize: '13px !important' }} />}
                           onClick={() => setRosterGroup(grp)}
-                          sx={{ borderRadius: 2, fontWeight: 800, py: 0.3, px: 1.2, fontSize: '0.74rem' }}
+                          sx={{ borderRadius: 1.5, fontWeight: 700, py: 0.3, px: 0.9, fontSize: '0.7rem', whiteSpace: 'nowrap' }}
                         >
                           {studentsInGroup.length} Trainees
                         </Button>
                       </TableCell>
 
                       {/* Status */}
-                      <TableCell sx={{ textAlign: 'center' }}>
+                      <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                         <Chip
                           label={grp.status}
                           size="small"
                           sx={{
+                            height: 20,
                             bgcolor: grp.status === 'Running' ? '#ECFDF5' : '#EFF6FF',
                             color: grp.status === 'Running' ? '#059669' : '#1D4ED8',
-                            fontWeight: 900,
-                            fontSize: '0.72rem'
+                            fontWeight: 800,
+                            fontSize: '0.68rem'
                           }}
                         />
                       </TableCell>
 
                       {/* Action Buttons */}
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <Box sx={{ display: 'flex', gap: 0.8, justifyContent: 'flex-end', alignItems: 'center' }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                           <Button
                             variant="contained"
                             size="small"
-                            startIcon={<FactCheckIcon />}
+                            startIcon={<FactCheckIcon sx={{ fontSize: '13px !important' }} />}
                             onClick={() => onNavigateToAttendance(grp.id)}
                             sx={{
-                              fontWeight: 800,
-                              py: 0.4,
-                              px: 1.4,
-                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              py: 0.3,
+                              px: 0.9,
+                              fontSize: '0.7rem',
+                              whiteSpace: 'nowrap',
                               bgcolor: '#0F2E5A',
-                              borderRadius: 1.8,
+                              borderRadius: 1.5,
+                              boxShadow: 'none',
                               '&:hover': { bgcolor: '#174276' }
                             }}
                           >
@@ -1106,21 +1130,21 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                             <IconButton
                               size="small"
                               onClick={() => handleOpenEdit(grp)}
-                              sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9', borderRadius: 1.8 }}
+                              sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9', p: 0.45 }}
                             >
-                              <EditIcon fontSize="small" />
+                              <EditIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </Tooltip>
                           <Tooltip title="Delete">
                             <IconButton
                               size="small"
                               onClick={() => handleDelete(grp.id)}
-                              sx={{ color: '#EF4444', bgcolor: '#FEF2F2', borderRadius: 1.8 }}
+                              sx={{ color: '#EF4444', bgcolor: '#FEF2F2', p: 0.45 }}
                             >
-                              <DeleteOutlineIcon fontSize="small" />
+                              <DeleteOutlineIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </Tooltip>
-                        </Box>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   );
@@ -1128,7 +1152,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
                 {filteredAndSortedGroups.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                    <TableCell colSpan={9} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                       No training groups found.
                     </TableCell>
                   </TableRow>
@@ -1504,7 +1528,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 Group Roster: {rosterGroup?.groupCode}
               </Typography>
               <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.75)', fontSize: '0.72rem' }}>
-                Shift {rosterGroup?.shift} ({rosterGroup?.startTime} – {rosterGroup?.endTime}) • Global Era TVET System
+                Shift {rosterGroup?.shift} ({rosterGroup?.startTime} – {rosterGroup?.endTime}) • Prabidhik School, Jorpati
               </Typography>
             </Box>
           </Box>

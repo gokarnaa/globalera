@@ -430,132 +430,255 @@ export default function CourseFeeManager() {
   }, [db.courses, newCourseFeeData.courseId]);
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 3 } }}>
-      {/* 1. Header & Title Banner */}
-      <Paper
-        elevation={1}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* 1. Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
         sx={{
-          p: 2.2,
-          mb: 2.5,
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
           borderRadius: 2.5,
-          bgcolor: '#FFFFFF',
-          border: '1px solid #E2E8F0',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 2
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Box sx={{ p: 1, bgcolor: '#0F2E5A', borderRadius: 2, color: '#F59E0B' }}>
-            <PriceCheckIcon sx={{ fontSize: 36 }} />
-          </Box>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              Course Fee Structure & Master Rates
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Manage brochure fees, campaign discounts, admission fees, mandatory 13% VAT, and installment plans
-            </Typography>
-          </Box>
-        </Box>
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <PriceCheckIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Course Fee Structure &amp; Master Rates
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Brochure fees, campaign discounts, admission fees, 13% VAT &amp; installments
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-        <Stack direction="row" spacing={1.2} alignItems="center" flexWrap="wrap">
-          {/* Option requested by user: Short button "+ Course Fee" */}
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<AddCircleOutlineIcon />}
-            onClick={handleOpenAddCourse}
-            sx={{
-              background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-              fontWeight: 900,
-              px: 2,
-              fontSize: '0.8rem',
-              boxShadow: '0 4px 12px rgba(5, 150, 105, 0.35)',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #047857 0%, #065F46 100%)'
-              }
-            }}
-          >
-            + Course Fee
-          </Button>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddCircleOutlineIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleOpenAddCourse}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Course Fee
+              </Button>
 
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<PrintIcon />}
-            onClick={() => setOpenPrintModal(true)}
-            sx={{ fontWeight: 800, borderColor: '#0F2E5A', color: '#0F2E5A' }}
-          >
-            Print Fee Sheet
-          </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setOpenPrintModal(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Print Fee Sheet
+              </Button>
 
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<FileDownloadIcon />}
-            onClick={handleExportExcel}
-            sx={{ fontWeight: 800, borderColor: '#059669', color: '#059669' }}
-          >
-            Excel Export
-          </Button>
-        </Stack>
-      </Paper>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FileDownloadIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleExportExcel}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Excel Export
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {saveSuccessAlert && (
-        <Alert severity="success" sx={{ mb: 2, fontWeight: 700, borderRadius: 2 }}>
+        <Alert severity="success" sx={{ mb: 1.75, py: 0.5, fontWeight: 700, fontSize: '0.8rem', borderRadius: 2 }}>
           ✓ Course fee structure, VAT, and installment policy saved successfully! Applied to new admissions automatically.
         </Alert>
       )}
 
-      {/* 2. Metrics Cards */}
-      <Grid container spacing={2} sx={{ mb: 2.5 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #0F2E5A' }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Total Active Courses</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', my: 0.5 }}>{stats.total}</Typography>
-              <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>CTEVT Recognized Curriculum</Typography>
-            </CardContent>
+      {/* 2. 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0F2E5A',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Active Courses
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.total}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  CTEVT Recognized Curriculum
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#0F2E5A', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #059669' }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Avg Effective Fee (Inc. 13% VAT)</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#059669', my: 0.5 }}>NPR {stats.avgFee.toLocaleString()}</Typography>
-              <Typography variant="caption" sx={{ color: '#64748B' }}>Net Payable by Student</Typography>
-            </CardContent>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Avg Effective Fee (Inc. VAT)
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  NPR {stats.avgFee.toLocaleString()}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Net Payable by Student
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <AccountBalanceWalletIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #0284C7' }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>2-Installment Courses</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284C7', my: 0.5 }}>{stats.installmentCount}</Typography>
-              <Typography variant="caption" sx={{ color: '#0284C7', fontWeight: 700 }}>50% on admission + 50% in 1 month</Typography>
-            </CardContent>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284C7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  2-Installment Courses
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284C7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.installmentCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284C7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  50% on admission + 50% in 1 month
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284C7', flexShrink: 0 }}>
+                <CalendarMonthIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card elevation={1} sx={{ borderRadius: 2.5, borderLeft: '4px solid #F59E0B' }}>
-            <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#64748B' }}>Basic / Full Upfront Courses</Typography>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#D97706', my: 0.5 }}>{stats.fullOnlyCount}</Typography>
-              <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 700 }}>100% upfront on admission (No installments)</Typography>
-            </CardContent>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #F59E0B',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Basic / Full Upfront Courses
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#D97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.fullOnlyCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#D97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  100% upfront on admission
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#D97706', flexShrink: 0 }}>
+                <PointOfSaleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* 3. Search & View Mode Filters Bar */}
-      <Paper elevation={1} sx={{ p: 1.5, mb: 2.5, borderRadius: 2.5, bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.5 }}>
+      {/* 3. Compact Search & View Mode Filters Bar */}
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
           {/* Search Box */}
           <TextField
             size="small"
@@ -566,7 +689,7 @@ export default function CourseFeeManager() {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#94A3B8' }} />
+                  <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                 </InputAdornment>
               )
             }}
@@ -584,9 +707,9 @@ export default function CourseFeeManager() {
               onChange={(e, val) => val && setModeFilter(val)}
               sx={{ bgcolor: '#F8FAFC' }}
             >
-              <ToggleButton value="ALL" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>All</ToggleButton>
-              <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>2 Installments</ToggleButton>
-              <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.5 }}>Full Upfront</ToggleButton>
+              <ToggleButton value="ALL" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.25, py: 0.4 }}>All</ToggleButton>
+              <ToggleButton value="TWO_INSTALLMENTS" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.25, py: 0.4 }}>2 Installments</ToggleButton>
+              <ToggleButton value="FULL_ONLY" sx={{ fontSize: '0.72rem', fontWeight: 800, px: 1.25, py: 0.4 }}>Full Upfront</ToggleButton>
             </ToggleButtonGroup>
 
             {/* View Mode Switcher: Card View vs Table View */}
@@ -597,16 +720,16 @@ export default function CourseFeeManager() {
               onChange={(e, val) => val && setViewMode(val)}
               sx={{ bgcolor: '#F8FAFC', ml: 1 }}
             >
-              <ToggleButton value="card" sx={{ px: 1.2 }}>
+              <ToggleButton value="card" sx={{ px: 1, py: 0.4 }}>
                 <ViewModuleIcon fontSize="small" />
               </ToggleButton>
-              <ToggleButton value="table" sx={{ px: 1.2 }}>
+              <ToggleButton value="table" sx={{ px: 1, py: 0.4 }}>
                 <ViewListIcon fontSize="small" />
               </ToggleButton>
             </ToggleButtonGroup>
           </Stack>
         </Box>
-      </Paper>
+      </Card>
 
       {/* 4. MAIN CONTENT: CARD VIEW OR TABLE VIEW */}
       {viewMode === 'card' ? (
@@ -771,21 +894,35 @@ export default function CourseFeeManager() {
         </Grid>
       ) : (
         /* TABLE VIEW (EXCEL STYLE) */
-        <TableContainer component={Paper} elevation={1} sx={{ borderRadius: 2.5, border: '1px solid #CBD5E1', overflow: 'hidden' }}>
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
           <Table size="small">
-            <TableHead sx={{ '& th': { bgcolor: '#0F2E5A !important', color: '#FFFFFF !important', borderBottom: '3px solid #F59E0B !important', py: 1.3 } }}>
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B !important',
+                  whiteSpace: 'nowrap'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell align="center" sx={{ width: 65, fontWeight: 900, color: '#FFFFFF !important' }}># S.N.</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Course Details</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Base Fee</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Discount (%)</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Net Tuition</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Admission Fee</TableCell>
-                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Subtotal</TableCell>
-                <TableCell align="right" sx={{ color: '#FCD34D !important', fontWeight: 900 }}>13% VAT</TableCell>
-                <TableCell align="right" sx={{ color: '#34D399 !important', fontWeight: 900 }}>Final Net Fee</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payment Model</TableCell>
-                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Actions</TableCell>
+                <TableCell align="center" sx={{ width: 55, fontWeight: 800, color: '#FFFFFF !important' }}># S.N.</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course Details</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Base Fee</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Discount (%)</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Net Tuition</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Admission Fee</TableCell>
+                <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Subtotal</TableCell>
+                <TableCell align="right" sx={{ color: '#FCD34D !important', fontWeight: 800 }}>13% VAT</TableCell>
+                <TableCell align="right" sx={{ color: '#34D399 !important', fontWeight: 800 }}>Final Net Fee</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payment Model</TableCell>
+                <TableCell align="center" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -1641,13 +1778,13 @@ export default function CourseFeeManager() {
             {/* Header */}
             <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px double #0F2E5A', mb: 2 }}>
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A', letterSpacing: '0.04em' }}>
-                GLOBAL ERA TECHNICAL SCHOOL
+                PRABIDHIK SCHOOL, JORPATI
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontWeight: 700, color: '#475569' }}>
-                CTEVT Accredited Training Center • MitraPark, Chabahil, Kathmandu
+                CTEVT Accredited Training Center • Jorpati, Kathmandu
               </Typography>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#F59E0B', mt: 1 }}>
-                Official Training Course Fee Schedule & Installment Breakdown (Inc. 13% VAT)
+                Official Training Course Fee Schedule &amp; Installment Breakdown (Inc. 13% VAT)
               </Typography>
             </Box>
 

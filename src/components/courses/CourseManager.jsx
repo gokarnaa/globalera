@@ -292,188 +292,220 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* =======================================================
-          1. HERO KPI BANNER - COURSE MASTER STUDIO
-          ======================================================= */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 3,
-          p: { xs: 2.5, sm: 3.5 },
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
-          color: '#FFFFFF',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 16px 40px -10px rgba(7, 25, 51, 0.4)',
-          position: 'relative',
-          overflow: 'hidden'
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Grid container spacing={3} alignItems="center">
-          {/* Left Title & Scope */}
+        <Grid container spacing={1.5} alignItems="center">
           <Grid item xs={12} md={7}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
-              <Chip
-                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#FDE047 !important' }} />}
-                label="CTEVT Curricular Framework"
-                size="small"
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
                 sx={{
-                  bgcolor: 'rgba(254, 240, 138, 0.15)',
-                  color: '#FEF08A',
-                  fontWeight: 900,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(254, 240, 138, 0.3)'
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
-              />
-              <Chip
-                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
-                label={`${activeCoursesCount} Active Curricula`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(74, 222, 128, 0.15)',
-                  color: '#86EFAC',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(74, 222, 128, 0.25)'
-                }}
-              />
-            </Box>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 900,
-                color: '#FFFFFF',
-                fontSize: { xs: '1.5rem', sm: '1.9rem', md: '2.1rem' },
-                lineHeight: 1.2,
-                letterSpacing: '-0.02em',
-                mb: 1
-              }}
-            >
-              Course Master (Curriculum Management)
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 620, mb: 2.5, lineHeight: 1.6 }}>
-              Official master definition of vocational courses, duration, CTEVT levels, credit hours, and fees operated under the institution.
-              Training batches are conducted based on the courses defined here.
-            </Typography>
-
-            <Button
-              variant="contained"
-              startIcon={<AddIcon />}
-              onClick={handleOpenAdd}
-              sx={{
-                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
-                color: '#FFFFFF !important',
-                fontWeight: 900,
-                fontSize: '0.88rem',
-                py: 1.1,
-                px: 2.5,
-                borderRadius: 2.5,
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
-                '&:hover': {
-                  background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important'
-                }
-              }}
-            >
-              + Add Course
-            </Button>
+              >
+                <MenuBookIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Course Master (Curriculum Management)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Official CTEVT curricular framework, duration, credit hours &amp; fees
+                </Typography>
+              </Box>
+            </Stack>
           </Grid>
 
-          {/* Right Micro KPI Metrics */}
-          <Grid item xs={12} md={5}>
-            <Grid container spacing={1.5}>
-              <Grid item xs={6}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(15, 30, 60, 0.75)',
-                    backdropFilter: 'blur(16px)',
-                    p: 2,
-                    borderRadius: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.15)'
-                  }}
-                >
-                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    TOTAL COURSES
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
-                    {totalCoursesCount}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#86EFAC' }}>
-                    {activeCoursesCount} Actively Running
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={6}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(15, 30, 60, 0.75)',
-                    backdropFilter: 'blur(16px)',
-                    p: 2,
-                    borderRadius: 3,
-                    border: '1px solid rgba(255, 255, 255, 0.15)'
-                  }}
-                >
-                  <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800 }}>
-                    AVG. TRAINING DURATION
-                  </Typography>
-                  <Typography variant="h4" sx={{ fontWeight: 900, color: '#FFFFFF', my: 0.5 }}>
-                    {avgHours}h
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: '#CBD5E1' }}>
-                    3 Months (CTEVT Level 1)
-                  </Typography>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    bgcolor: 'rgba(16, 185, 129, 0.12)',
-                    backdropFilter: 'blur(16px)',
-                    p: 1.8,
-                    borderRadius: 3,
-                    border: '1px solid rgba(16, 185, 129, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 900, display: 'block' }}>
-                      SYLLABUS COVERAGE
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {totalSyllabusUnits} Units across all courses
-                    </Typography>
-                  </Box>
-                  <Chip
-                    label="100% CTEVT Aligned"
-                    size="small"
-                    sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 900, height: 22 }}
-                  />
-                </Box>
-              </Grid>
-            </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Add Course
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
 
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Courses
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalCoursesCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {activeCoursesCount} Actively Running
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <MenuBookIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Active Curricula
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {activeCoursesCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  100% CTEVT Aligned
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Avg. Duration
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {avgHours}h
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  3 Months (CTEVT Level 1)
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <AccessTimeIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Syllabus Coverage
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalSyllabusUnits}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Units across all courses
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <FormatListBulletedIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
+
       {/* =======================================================
-          2. SEARCH, MULTI-FILTER, SORT & VIEW SWITCHER BAR
+          2. COMPACT SEARCH, MULTI-FILTER, SORT & VIEW SWITCHER BAR
           ======================================================= */}
       <Card
+        elevation={0}
         sx={{
-          p: 2.5,
-          mb: 3,
-          borderRadius: 3.5,
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
           border: '1px solid #E2E8F0',
-          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
           bgcolor: '#FFFFFF'
         }}
       >
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1.25} alignItems="center">
           {/* Instant Search Bar */}
           <Grid item xs={12} sm={6} md={3.5}>
             <TextField
@@ -485,10 +517,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: '#94A3B8' }} />
+                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                   </InputAdornment>
-                ),
-                sx: { borderRadius: 2.5 }
+                )
               }}
             />
           </Grid>
@@ -502,7 +533,6 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               fullWidth
               value={selectedOccupation}
               onChange={(e) => setSelectedOccupation(e.target.value)}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
               <MenuItem value="ALL">All Occupations</MenuItem>
               {(db.occupations || []).map((occ) => (
@@ -522,7 +552,6 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               fullWidth
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
               <MenuItem value="ALL">All Statuses</MenuItem>
               <MenuItem value="Active">Active</MenuItem>
@@ -543,7 +572,6 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 setSortBy(sb);
                 setSortOrder(so);
               }}
-              sx={{ '& .MuiOutlinedInput-root': { borderRadius: 2.5 } }}
             >
               <MenuItem value="id-asc">Course ID (Asc)</MenuItem>
               <MenuItem value="title-asc">Title (A-Z)</MenuItem>
@@ -560,11 +588,11 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
               onChange={(_, next) => next && setViewMode(next)}
               size="small"
             >
-              <ToggleButton value="cards" sx={{ fontWeight: 800, px: 1.5 }}>
-                <ViewModuleIcon fontSize="small" sx={{ mr: 0.5 }} /> Cards
+              <ToggleButton value="cards" sx={{ fontWeight: 700, px: 1.2, py: 0.45, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                <ViewModuleIcon fontSize="small" sx={{ mr: 0.4, fontSize: '1rem' }} /> Cards
               </ToggleButton>
-              <ToggleButton value="table" sx={{ fontWeight: 800, px: 1.5 }}>
-                <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table
+              <ToggleButton value="table" sx={{ fontWeight: 700, px: 1.2, py: 0.45, fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
+                <ViewListIcon fontSize="small" sx={{ mr: 0.4, fontSize: '1rem' }} /> Table
               </ToggleButton>
             </ToggleButtonGroup>
           </Grid>
@@ -798,27 +826,29 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
           VIEW 2: SORTABLE PRODUCTION TABLE VIEW
           ======================================================= */}
       {viewMode === 'table' && (
-        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    S.N.
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                    #
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 100 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 90 }}>
                     <TableSortLabel
                       active={sortBy === 'id'}
                       direction={sortBy === 'id' ? sortOrder : 'asc'}
@@ -832,7 +862,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                       Course ID
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                     <TableSortLabel
                       active={sortBy === 'title'}
                       direction={sortBy === 'title' ? sortOrder : 'asc'}
@@ -843,12 +873,12 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                         '& .MuiTableSortLabel-icon': { color: '#F59E0B !important' }
                       }}
                     >
-                      Title & Level
+                      Title &amp; Level
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Occupation</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Duration</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Occupation</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Duration</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>
                     <TableSortLabel
                       active={sortBy === 'totalHours'}
                       direction={sortBy === 'totalHours' ? sortOrder : 'asc'}
@@ -862,7 +892,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                       Hours
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>
                     <TableSortLabel
                       active={sortBy === 'price'}
                       direction={sortBy === 'price' ? sortOrder : 'asc'}
@@ -876,9 +906,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                       Fee
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Units / Batches</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Units / Batches</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -889,78 +919,90 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                   return (
                     <TableRow key={crs.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                      <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#64748B', width: 46, fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 900, color: '#1D4ED8' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#1D4ED8', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                         {crs.id}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                        <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.8rem', lineHeight: 1.2 }}>
                           {crs.title}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>
                           {crs.level || 'CTEVT Level 1'}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
                         <Chip
                           label={occ?.name || '—'}
                           size="small"
-                          sx={{ bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, fontSize: '0.72rem' }}
+                          sx={{ height: 20, bgcolor: '#EFF6FF', color: '#1D4ED8', fontWeight: 800, fontSize: '0.68rem' }}
                         />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#334155', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                         {crs.durationValue} {crs.durationUnit}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#059669' }}>
+                      <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#059669', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                         {crs.totalHours || 390}h
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 900, textAlign: 'right', color: '#0F172A' }}>
+                      <TableCell sx={{ fontWeight: 800, textAlign: 'right', color: '#0F172A', fontSize: '0.79rem', whiteSpace: 'nowrap' }}>
                         Rs. {Number(crs.price || 0).toLocaleString()}
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569' }}>
+                      <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#475569', fontSize: '0.7rem' }}>
                           {syllabusUnits.length} Units • {batches.length} Groups
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>
+                      <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                         <Chip
                           label={crs.status}
                           size="small"
                           sx={{
+                            height: 20,
                             bgcolor: crs.status === 'Active' ? '#ECFDF5' : '#FEE2E2',
                             color: crs.status === 'Active' ? '#059669' : '#DC2626',
-                            fontWeight: 900,
-                            fontSize: '0.7rem'
+                            fontWeight: 800,
+                            fontSize: '0.68rem'
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                          <IconButton
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <Box sx={{ display: 'flex', gap: 0.4, justifyContent: 'flex-end', alignItems: 'center' }}>
+                          <Button
                             size="small"
+                            startIcon={<VisibilityIcon sx={{ fontSize: '13px !important' }} />}
                             onClick={() => setSelectedCourseDetails({ ...crs, occupation: occ, syllabusUnits, batches })}
-                            sx={{ color: '#0F2C59' }}
-                            title="View Details"
+                            sx={{
+                              px: 0.9,
+                              py: 0.3,
+                              minWidth: 0,
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              whiteSpace: 'nowrap',
+                              color: '#0F2C59',
+                              bgcolor: '#F1F5F9',
+                              border: '1px solid #E2E8F0',
+                              '&:hover': { bgcolor: '#E2E8F0' }
+                            }}
                           >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
+                            View
+                          </Button>
                           <IconButton
                             size="small"
                             onClick={() => handleOpenEdit(crs)}
-                            sx={{ color: '#1D4ED8' }}
+                            sx={{ color: '#1D4ED8', p: 0.35 }}
                             title="Edit"
                           >
-                            <EditIcon fontSize="small" />
+                            <EditIcon sx={{ fontSize: '1.05rem' }} />
                           </IconButton>
                           <IconButton
                             size="small"
                             onClick={() => handleDelete(crs.id)}
-                            sx={{ color: '#EF4444' }}
+                            sx={{ color: '#EF4444', p: 0.35 }}
                             title="Delete"
                           >
-                            <DeleteOutlineIcon fontSize="small" />
+                            <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
                           </IconButton>
                         </Box>
                       </TableCell>
@@ -970,7 +1012,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                 {filteredAndSortedCourses.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={10} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                    <TableCell colSpan={10} sx={{ textAlign: 'center', py: 4, color: '#94A3B8', fontSize: '0.8rem' }}>
                       No courses found.
                     </TableCell>
                   </TableRow>

@@ -141,151 +141,223 @@ export default function NoticeManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <CampaignIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Notice Board & Circulars
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <CampaignIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Notice Board &amp; Official Circulars
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Official institutional announcements broadcasted to Trainers, Students &amp; Staff
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Broadcast New Notice
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
+            <TextField
+              size="small"
+              placeholder="Search notice title, content, author..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            <Box sx={{ display: 'flex', gap: 0.6 }}>
+              {['All', 'Urgent', 'Normal'].map((p) => (
+                <Chip
+                  key={p}
+                  label={p}
+                  size="small"
+                  clickable
+                  color={priorityFilter === p ? (p === 'Urgent' ? 'error' : 'primary') : 'default'}
+                  onClick={() => setPriorityFilter(p)}
+                  sx={{ fontWeight: 700, fontSize: '0.74rem' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.74rem' }}>
+              Showing {filteredNotices.length} of {totalNotices}
             </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Official institutional announcements broadcasted to Trainers, Students, and Staff.
-          </Typography>
-        </Box>
 
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-          + Broadcast New Notice
-        </Button>
-      </Box>
-
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
-          <TextField
-            size="small"
-            placeholder="Search notice title, content, author..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 340 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
-            }}
-          />
-
-          <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Urgent', 'Normal'].map((p) => (
-              <Chip
-                key={p}
-                label={p}
-                clickable
-                color={priorityFilter === p ? (p === 'Urgent' ? 'error' : 'primary') : 'default'}
-                onClick={() => setPriorityFilter(p)}
-                sx={{ fontWeight: 700 }}
-              />
-            ))}
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+              sx={{ bgcolor: '#ffffff' }}
+            >
+              <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" title="Card View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredNotices.length} of {totalNotices}
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-            sx={{ bgcolor: '#ffffff' }}
-          >
-            <ToggleButton value="table" title="Table View">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card" title="Card View">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+      </Card>
 
       {/* Table vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
                     S.N.
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Priority</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Notice Title</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Target Audience</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Summary</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Issued By</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Priority</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Notice Title</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Target Audience</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Summary</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Issued By</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredNotices.map((n, idx) => (
                   <TableRow key={n.id} hover>
-                    <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>{idx + 1}</TableCell>
-                    <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#64748B', textAlign: 'center', width: 48, fontSize: '0.75rem' }}>{idx + 1}</TableCell>
+                    <TableCell sx={{ fontSize: '0.75rem', color: '#647089', whiteSpace: 'nowrap' }}>
                       {n.createdAt?.slice(0, 10)}
                     </TableCell>
                     <TableCell>
                       <Chip
-                        icon={n.priority === 'Urgent' ? <PriorityHighIcon /> : <NotificationsActiveIcon />}
+                        icon={n.priority === 'Urgent' ? <PriorityHighIcon sx={{ fontSize: '13px !important' }} /> : <NotificationsActiveIcon sx={{ fontSize: '13px !important' }} />}
                         label={n.priority}
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           fontWeight: 800,
                           bgcolor: n.priority === 'Urgent' ? '#fee2e2' : '#e0f2fe',
                           color: n.priority === 'Urgent' ? '#dc2626' : '#0369a1'
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                       {n.title}
                     </TableCell>
                     <TableCell>
                       <Chip
                         label={n.targetRole === 'ALL' ? 'All Institute' : n.targetRole === 'TRAINERS' ? 'Trainers Only' : 'Students Only'}
                         size="small"
-                        sx={{ bgcolor: '#f1f5f9', fontWeight: 700, fontSize: '0.72rem' }}
+                        sx={{ height: 20, bgcolor: '#f1f5f9', fontWeight: 700, fontSize: '0.68rem' }}
                       />
                     </TableCell>
-                    <TableCell sx={{ maxWidth: 320, color: '#334155', fontSize: '0.85rem' }}>
+                    <TableCell sx={{ maxWidth: 320, color: '#334155', fontSize: '0.77rem' }}>
                       {n.content}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.77rem' }}>
                       {n.author}
                     </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <IconButton size="small" onClick={() => handleOpenEdit(n)} sx={{ color: '#1a56b0', mr: 0.5 }}>
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <IconButton size="small" onClick={() => handleOpenEdit(n)} sx={{ color: '#1a56b0', p: 0.4, mr: 0.25 }}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" onClick={() => handleDelete(n.id)} sx={{ color: '#d5372f' }}>
+                      <IconButton size="small" onClick={() => handleDelete(n.id)} sx={{ color: '#d5372f', p: 0.4 }}>
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -293,7 +365,7 @@ export default function NoticeManager() {
                 ))}
                 {filteredNotices.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No notices matching filter criteria.
                     </TableCell>
                   </TableRow>

@@ -19,7 +19,8 @@ import {
   TextField,
   MenuItem,
   Stack,
-  Avatar
+  Avatar,
+  Grid
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -81,34 +82,107 @@ export default function OccupationManager() {
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <CategoryIcon sx={{ color: '#1a56b0', fontSize: 30 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Occupation Master
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Reusable vocational trades (e.g. Beautician, Care Giver, Tailoring). Courses and Trainers link here.
-          </Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
-          + Add Occupation
-        </Button>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 } }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <CategoryIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Occupation Master
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Reusable vocational trades (Beautician, Care Giver, Tailoring)
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-      <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Add Occupation
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0', overflow: 'hidden' }}>
         <TableContainer>
-          <Table>
-            <TableHead sx={{ bgcolor: '#f8fafc' }}>
+          <Table size="small">
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B',
+                  whiteSpace: 'nowrap'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800 }}>Occupation ID</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Occupation Name</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Associated Courses</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
+                <TableCell>Occupation ID</TableCell>
+                <TableCell>Occupation Name</TableCell>
+                <TableCell>Associated Courses</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell sx={{ textAlign: 'right' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -116,28 +190,30 @@ export default function OccupationManager() {
                 const courseCount = (db.courses || []).filter((c) => c.occupationId === occ.id).length;
                 return (
                   <TableRow key={occ.id} hover>
-                    <TableCell sx={{ fontWeight: 700, color: '#1a56b0' }}>{occ.id}</TableCell>
-                    <TableCell sx={{ fontWeight: 700, fontSize: '0.95rem' }}>{occ.name}</TableCell>
-                    <TableCell>
-                      <Chip label={`${courseCount} Courses`} size="small" sx={{ bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700 }} />
+                    <TableCell sx={{ fontWeight: 700, color: '#1a56b0', fontSize: '0.79rem', whiteSpace: 'nowrap' }}>{occ.id}</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.82rem' }}>{occ.name}</TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                      <Chip label={`${courseCount} Courses`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700 }} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       <Chip
                         label={occ.status}
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           bgcolor: occ.status === 'Active' ? '#e5f8ee' : '#fdeceb',
                           color: occ.status === 'Active' ? '#16834b' : '#d5372f',
                           fontWeight: 700
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <IconButton size="small" onClick={() => handleOpenEdit(occ)} sx={{ color: '#1a56b0' }}>
-                        <EditIcon fontSize="small" />
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <IconButton size="small" onClick={() => handleOpenEdit(occ)} sx={{ color: '#1a56b0', p: 0.35 }}>
+                        <EditIcon sx={{ fontSize: '1.05rem' }} />
                       </IconButton>
-                      <IconButton size="small" onClick={() => handleDelete(occ.id)} sx={{ color: '#d5372f' }}>
-                        <DeleteOutlineIcon fontSize="small" />
+                      <IconButton size="small" onClick={() => handleDelete(occ.id)} sx={{ color: '#d5372f', p: 0.35 }}>
+                        <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
                       </IconButton>
                     </TableCell>
                   </TableRow>

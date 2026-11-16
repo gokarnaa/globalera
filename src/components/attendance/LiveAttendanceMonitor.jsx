@@ -297,371 +297,255 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 5 }}>
-      {/* =======================================================
-          1. REAL-TIME HERO COMMAND BAR (DEEP NAVY GRADIENT)
-          ======================================================= */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 2.5,
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #071933 0%, #0D284F 50%, #153E75 100%)',
-          color: '#FFFFFF',
-          py: { xs: 1.75, sm: 2.25 },
-          px: { xs: 2, sm: 2.5, md: 3 },
-          boxShadow: '0 10px 28px -8px rgba(7, 25, 51, 0.32)',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          position: 'relative',
-          overflow: 'hidden'
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Grid container spacing={2.5} alignItems="center">
-          {/* Left Column: Brand & Device Information */}
-          <Grid item xs={12} md={7} lg={7.5}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1, flexWrap: 'wrap' }}>
-              <Chip
-                icon={<FingerprintIcon sx={{ fontSize: '15px !important', color: '#34D399 !important' }} />}
-                label={settings.status === 'Online' ? 'Machine Online' : 'Machine Offline'}
-                size="small"
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
                 sx={{
-                  bgcolor: 'rgba(16, 185, 129, 0.18)',
-                  color: '#6EE7B7',
-                  fontWeight: 900,
-                  fontSize: '0.75rem',
-                  border: '1px solid rgba(16, 185, 129, 0.35)'
-                }}
-              />
-              <Chip
-                label={`IP: ${settings.deviceIp || '192.168.1.201'}:${settings.devicePort || 4370}`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.12)',
-                  color: '#BAE6FD',
-                  fontWeight: 800,
-                  fontSize: '0.73rem'
-                }}
-              />
-              <Chip
-                label={`Serial: ${settings.serialNo || 'ZK-GE-2026-8891'}`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.12)',
-                  color: '#E2E8F0',
-                  fontWeight: 800,
-                  fontSize: '0.73rem'
-                }}
-              />
-            </Box>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 900,
-                color: '#FFFFFF',
-                fontSize: { xs: '1.4rem', sm: '1.85rem', md: '2.1rem' },
-                letterSpacing: '-0.02em',
-                lineHeight: 1.2,
-                mb: 0.8
-              }}
-            >
-              📡 Live Attendance Command Center
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: '#CBD5E1', fontWeight: 600, fontSize: '0.9rem' }}>
-              Real-time monitoring of ZKTeco WiFi Biometric, ADMS Cloud Push, and Trainer check-ins
-            </Typography>
-
-            {/* Quick Metadata Row */}
-            <Box sx={{ display: 'flex', gap: 2.5, flexWrap: 'wrap', mt: 2 }}>
-              <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 700 }}>
-                🕒 Last Sync: <b>{settings.lastSyncTime || 'Today, 07:45 AM'}</b>
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700 }}>
-                ⏰ Grace Period: <b>{settings.lateGraceMinutes || 15} mins</b>
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 700 }}>
-                🏢 Campus: <b>Global Era Technical School, Jorpati</b>
-              </Typography>
-            </Box>
-          </Grid>
-
-          {/* Right Column: Digital Clock & 4 Fast Action Buttons */}
-          <Grid item xs={12} md={5} lg={4.5}>
-            <Box
-              sx={{
-                bgcolor: 'rgba(15, 30, 60, 0.7)',
-                backdropFilter: 'blur(12px)',
-                p: 2.5,
-                borderRadius: 3.5,
-                border: '1px solid rgba(255, 255, 255, 0.15)',
-                textAlign: 'center'
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 900, letterSpacing: '0.05em' }}>
-                  ⏱️ LIVE CLOCK
-                </Typography>
-                <IconButton
-                  size="small"
-                  onClick={() => setSoundEnabled(!soundEnabled)}
-                  sx={{ color: soundEnabled ? '#34D399' : '#94A3B8' }}
-                  title={soundEnabled ? 'Sound On' : 'Muted'}
-                >
-                  {soundEnabled ? <VolumeUpIcon fontSize="small" /> : <VolumeOffIcon fontSize="small" />}
-                </IconButton>
-              </Box>
-
-              <Typography
-                variant="h3"
-                sx={{
-                  fontWeight: 900,
-                  color: '#FFFFFF',
-                  fontFamily: 'monospace',
-                  fontSize: { xs: '1.9rem', sm: '2.3rem' },
-                  letterSpacing: '0.05em'
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
-                {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-              </Typography>
-
-              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 2, fontWeight: 700 }}>
-                {currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-              </Typography>
-
-              {/* Action Buttons */}
-              <Stack spacing={1}>
-                <Button
-                  variant="contained"
-                  fullWidth
-                  startIcon={<RefreshIcon />}
-                  onClick={handleInstantSync}
-                  sx={{
-                    fontWeight: 900,
-                    bgcolor: '#10B981',
-                    '&:hover': { bgcolor: '#059669' },
-                    color: '#FFFFFF',
-                    borderRadius: 2.5,
-                    py: 1,
-                    textTransform: 'none',
-                    fontSize: '0.9rem'
-                  }}
+                <FingerprintIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
                 >
-                  📥 Sync Biometric Machine Now
-                </Button>
+                  Live Attendance Command Center
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • {settings.status === 'Online' ? 'Machine Online' : 'Machine Offline'} ({settings.deviceIp || '192.168.1.201'}) • {currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-                <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    startIcon={<PlayArrowIcon />}
-                    onClick={() => setOpenSimulateModal(true)}
-                    sx={{
-                      fontWeight: 800,
-                      color: '#FBBF24',
-                      borderColor: '#FBBF24',
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      fontSize: '0.78rem',
-                      '&:hover': { bgcolor: 'rgba(251, 191, 36, 0.1)', borderColor: '#F59E0B' }
-                    }}
-                  >
-                    🧪 Scan Test
-                  </Button>
+          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} alignItems="center" flexWrap="wrap" useFlexGap>
+              <IconButton
+                size="small"
+                onClick={() => setSoundEnabled(!soundEnabled)}
+                sx={{ color: soundEnabled ? '#34D399' : '#94A3B8', bgcolor: 'rgba(255,255,255,0.1)', p: 0.6 }}
+                title={soundEnabled ? 'Sound On' : 'Muted'}
+              >
+                {soundEnabled ? <VolumeUpIcon sx={{ fontSize: 16 }} /> : <VolumeOffIcon sx={{ fontSize: 16 }} />}
+              </IconButton>
 
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    startIcon={isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                    onClick={handleToggleFullscreen}
-                    sx={{
-                      fontWeight: 800,
-                      color: '#FFFFFF',
-                      borderColor: 'rgba(255, 255, 255, 0.3)',
-                      borderRadius: 2,
-                      textTransform: 'none',
-                      fontSize: '0.78rem',
-                      '&:hover': { borderColor: '#FFFFFF', bgcolor: 'rgba(255, 255, 255, 0.1)' }
-                    }}
-                  >
-                    🖥️ TV / Kiosk Mode
-                  </Button>
-                </Box>
-              </Stack>
-            </Box>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PlayArrowIcon sx={{ fontSize: '15px !important', color: '#fbbf24' }} />}
+                onClick={() => setOpenSimulateModal(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Scan Test
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={isFullscreen ? <FullscreenExitIcon sx={{ fontSize: '15px !important' }} /> : <FullscreenIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleToggleFullscreen}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                TV / Kiosk Mode
+              </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<RefreshIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleInstantSync}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                Sync Machine Now
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
 
-      {/* =======================================================
-          2. REAL-TIME 4 KPI STAT METRIC CARDS
-          ======================================================= */}
-      <Grid container spacing={2.5} sx={{ mb: 3 }}>
+      {/* 2. REAL-TIME 4 COMPACT KPI STAT METRIC CARDS */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
         {/* Card 1: Today's Total Enrolled Present */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
+            elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3.5,
-              border: '1px solid #BBF7D0',
-              bgcolor: '#F0FDF4',
-              boxShadow: '0 4px 16px rgba(16, 185, 129, 0.08)'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Typography variant="overline" sx={{ color: '#166534', fontWeight: 900, fontSize: '0.72rem' }}>
-                🎓 ATTENDANCE RATE
-              </Typography>
-              <Avatar sx={{ bgcolor: '#DCFCE7', color: '#15803D', width: 38, height: 38 }}>
-                <SchoolIcon fontSize="small" />
-              </Avatar>
-            </Box>
-
-            <Typography variant="h3" sx={{ fontWeight: 900, color: '#15803D', fontSize: '2.1rem', lineHeight: 1 }}>
-              {stats.attPercent}%
-            </Typography>
-
-            <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800, display: 'block', mt: 0.8 }}>
-              • {stats.presentStudentsCount} / {stats.totalEnrolled} Trainees Present
-            </Typography>
-
-            <LinearProgress
-              variant="determinate"
-              value={Math.min(100, stats.attPercent)}
-              sx={{
-                height: 6,
-                borderRadius: 3,
-                mt: 1.5,
-                bgcolor: '#DCFCE7',
-                '& .MuiLinearProgress-bar': { bgcolor: '#10B981' }
-              }}
-            />
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Attendance Rate
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.attPercent}%
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {stats.presentStudentsCount} / {stats.totalEnrolled} Trainees Present
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
         {/* Card 2: On-Time Arrivals */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
+            elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3.5,
-              border: '1px solid #BAE6FD',
-              bgcolor: '#F0F9FF',
-              boxShadow: '0 4px 16px rgba(14, 165, 233, 0.08)'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Typography variant="overline" sx={{ color: '#075985', fontWeight: 900, fontSize: '0.72rem' }}>
-                🟢 ON-TIME ARRIVALS
-              </Typography>
-              <Avatar sx={{ bgcolor: '#E0F2FE', color: '#0284C7', width: 38, height: 38 }}>
-                <CheckCircleIcon fontSize="small" />
-              </Avatar>
-            </Box>
-
-            <Typography variant="h3" sx={{ fontWeight: 900, color: '#0369A1', fontSize: '2.1rem', lineHeight: 1 }}>
-              {stats.presentStudentsCount - stats.lateCount}
-            </Typography>
-
-            <Typography variant="caption" sx={{ color: '#0369A1', fontWeight: 800, display: 'block', mt: 0.8 }}>
-              • Verified within shift grace window
-            </Typography>
-
-            <Box sx={{ mt: 1.5 }}>
-              <Chip
-                label="Punctual"
-                size="small"
-                sx={{ bgcolor: '#E0F2FE', color: '#0369A1', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
-              />
-            </Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  On-Time Arrivals
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.presentStudentsCount - stats.lateCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Verified within grace
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
         {/* Card 3: Late Check-ins */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
+            elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3.5,
-              border: '1px solid #FED7AA',
-              bgcolor: '#FFF7ED',
-              boxShadow: '0 4px 16px rgba(245, 158, 11, 0.08)'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #f59e0b',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Typography variant="overline" sx={{ color: '#9A3412', fontWeight: 900, fontSize: '0.72rem' }}>
-                🟠 LATE ARRIVALS
-              </Typography>
-              <Avatar sx={{ bgcolor: '#FFEDD5', color: '#C2410C', width: 38, height: 38 }}>
-                <AccessTimeIcon fontSize="small" />
-              </Avatar>
-            </Box>
-
-            <Typography variant="h3" sx={{ fontWeight: 900, color: '#C2410C', fontSize: '2.1rem', lineHeight: 1 }}>
-              {stats.lateCount}
-            </Typography>
-
-            <Typography variant="caption" sx={{ color: '#C2410C', fontWeight: 800, display: 'block', mt: 0.8 }}>
-              • Checked in after grace window
-            </Typography>
-
-            <Box sx={{ mt: 1.5 }}>
-              <Chip
-                label="Late Arrival"
-                size="small"
-                sx={{ bgcolor: '#FFEDD5', color: '#C2410C', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
-              />
-            </Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Late Arrivals
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.lateCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  After grace window
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <AccessTimeIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
         {/* Card 4: Verification Source Ratio */}
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid item xs={6} md={3}>
           <Card
+            elevation={0}
             sx={{
-              p: 2.5,
-              borderRadius: 3.5,
-              border: '1px solid #E2E8F0',
-              bgcolor: '#FFFFFF',
-              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.06)'
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
-              <Typography variant="overline" sx={{ color: '#64748B', fontWeight: 900, fontSize: '0.72rem' }}>
-                🛡️ VERIFICATION SOURCE
-              </Typography>
-              <Avatar sx={{ bgcolor: '#F1F5F9', color: '#0F2E5A', width: 38, height: 38 }}>
-                <FingerprintIcon fontSize="small" />
-              </Avatar>
-            </Box>
-
-            <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#0F2E5A', lineHeight: 1 }}>
-                {stats.biometricCount}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-                Biometric Thumb ({stats.presentStudentsCount > 0 ? Math.round((stats.biometricCount / stats.presentStudentsCount) * 100) : 0}%)
-              </Typography>
-            </Box>
-
-            <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mt: 0.8 }}>
-              • Trainer Manual: {stats.manualCount} trainees
-            </Typography>
-
-            <Box sx={{ mt: 1.5, display: 'flex', gap: 0.8 }}>
-              <Chip
-                icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#15803D !important' }} />}
-                label={`Biometric: ${stats.biometricCount}`}
-                size="small"
-                sx={{ bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
-              />
-              <Chip
-                label={`Manual: ${stats.manualCount}`}
-                size="small"
-                sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 800, fontSize: '0.68rem', height: 22 }}
-              />
-            </Box>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Verification Source
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {stats.biometricCount} Bio / {stats.manualCount} Man
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {stats.presentStudentsCount > 0 ? Math.round((stats.biometricCount / stats.presentStudentsCount) * 100) : 0}% Biometric Thumb
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <FingerprintIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
       </Grid>
@@ -669,50 +553,51 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
       {/* =======================================================
           3. NAVIGATION TABS (ALL LIVE STREAM, TRAINEES, TRAINERS, STAFF)
           ======================================================= */}
-      <Card sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0', overflow: 'hidden', mb: 3 }}>
-        <Box sx={{ bgcolor: '#F8FAFC', px: 2, pt: 1, borderBottom: '1px solid #E2E8F0' }}>
+      <Card elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflow: 'hidden', mb: 2 }}>
+        <Box sx={{ bgcolor: '#F8FAFC', px: 1.5, borderBottom: '1px solid #E2E8F0' }}>
           <Tabs
             value={activeTab}
             onChange={(e, val) => setActiveTab(val)}
             variant="scrollable"
             scrollButtons="auto"
             sx={{
-              '& .MuiTabs-indicator': { height: 3.5, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
+              minHeight: 42,
+              '& .MuiTabs-indicator': { height: 3, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
               '& .MuiTab-root': {
                 textTransform: 'none',
-                fontWeight: 900,
-                fontSize: '0.94rem',
-                py: 1.6,
-                minHeight: 50,
+                fontWeight: 800,
+                fontSize: '0.84rem',
+                py: 1,
+                minHeight: 42,
                 color: '#64748B',
                 '&.Mui-selected': { color: '#0F2E5A' }
               }
             }}
           >
             <Tab
-              icon={<FingerprintIcon sx={{ fontSize: 20 }} />}
+              icon={<FingerprintIcon sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label={`🌐 Live Stream (${filteredLogs.length} Scans)`}
+              label={`Live Stream (${filteredLogs.length} Scans)`}
             />
             <Tab
-              icon={<SchoolIcon sx={{ fontSize: 20 }} />}
+              icon={<SchoolIcon sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label={`🎓 Trainees Attendance (${students.length})`}
+              label={`Trainees Attendance (${students.length})`}
             />
             <Tab
-              icon={<PersonIcon sx={{ fontSize: 20 }} />}
+              icon={<PersonIcon sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label={`👨‍🏫 Trainers Attendance (${trainers.length})`}
+              label={`Trainers Attendance (${trainers.length})`}
             />
             <Tab
-              icon={<BusinessIcon sx={{ fontSize: 20 }} />}
+              icon={<BusinessIcon sx={{ fontSize: 18 }} />}
               iconPosition="start"
-              label="🏢 Staff Attendance"
+              label="Staff Attendance"
             />
           </Tabs>
         </Box>
 
-        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
           {/* =======================================================
               TAB 0: ALL LIVE PUNCH STREAM (Live Stream)
               ======================================================= */}
@@ -724,30 +609,30 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                 onSubmit={handleQuickRfidPunch}
                 elevation={0}
                 sx={{
-                  p: 1.5,
-                  mb: 2,
-                  borderRadius: 2.5,
+                  p: 1.25,
+                  mb: 1.75,
+                  borderRadius: 2,
                   bgcolor: '#F8FAFC',
                   border: '1px dashed #93C5FD',
                   display: 'flex',
                   flexDirection: { xs: 'column', sm: 'row' },
                   alignItems: { xs: 'stretch', sm: 'center' },
                   justifyContent: 'space-between',
-                  gap: 1.5
+                  gap: 1.25
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                  <FingerprintIcon sx={{ color: '#0F2E5A', fontSize: 22 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FingerprintIcon sx={{ color: '#0F2E5A', fontSize: 20 }} />
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', lineHeight: 1.2 }}>
-                      💳 Instant RFID Card / Biometric ID Punch
+                    <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.82rem', lineHeight: 1.2 }}>
+                      Instant RFID Card / Biometric ID Punch
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
                       Tap USB RFID card reader or enter Biometric ID (#1001, #2001, TGID-101) and press Enter
                     </Typography>
                   </Box>
                 </Box>
-                <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: { sm: 340 } }}>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ minWidth: { sm: 320 } }}>
                   <TextField
                     size="small"
                     fullWidth
@@ -759,12 +644,16 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                   <Button
                     type="submit"
                     variant="contained"
+                    size="small"
                     sx={{
                       bgcolor: '#0F2E5A',
                       fontWeight: 800,
+                      fontSize: '0.76rem',
                       textTransform: 'none',
                       whiteSpace: 'nowrap',
-                      px: 2,
+                      px: 1.5,
+                      py: 0.7,
+                      boxShadow: 'none',
                       '&:hover': { bgcolor: '#1E3A8A' }
                     }}
                   >
@@ -775,109 +664,134 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
 
               {rfidFeedback && (
                 <Alert
-                  severity={rfidFeedback.type}
+                  severity="success"
                   onClose={() => setRfidFeedback(null)}
-                  sx={{ mb: 2, fontWeight: 800, borderRadius: 2 }}
+                  sx={{ mb: 1.75, py: 0.4, fontWeight: 700, fontSize: '0.78rem', borderRadius: 2 }}
                 >
-                  {rfidFeedback.message}
+                  Verified: {rfidFeedback.name} (#{rfidFeedback.biometricId}) at {rfidFeedback.time}
                 </Alert>
               )}
 
               {/* Controls Bar */}
-              <Grid container spacing={1.5} alignItems="center" sx={{ mb: 2.5 }}>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    size="small"
-                    fullWidth
-                    placeholder="Search Name, Biometric ID, Device..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                        </InputAdornment>
-                      )
-                    }}
-                  />
-                </Grid>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 1.25,
+                  mb: 1.75,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  bgcolor: '#ffffff'
+                }}
+              >
+                <Grid container spacing={1.25} alignItems="center">
+                  <Grid item xs={12} sm={4}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Search Name, Biometric ID, Device..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  </Grid>
 
-                <Grid item xs={6} sm={2.5}>
-                  <TextField
-                    type="date"
-                    size="small"
-                    fullWidth
-                    label="Select Date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
+                  <Grid item xs={6} sm={2.5}>
+                    <TextField
+                      type="date"
+                      size="small"
+                      fullWidth
+                      label="Select Date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    />
+                  </Grid>
 
-                <Grid item xs={6} sm={3.5}>
-                  <ToggleButtonGroup
-                    value={roleFilter}
-                    exclusive
-                    onChange={(e, val) => val && setRoleFilter(val)}
-                    size="small"
-                    fullWidth
-                  >
-                    <ToggleButton value="ALL" sx={{ fontWeight: 800, textTransform: 'none' }}>
-                      All ({allLogs.filter((l) => l.date === selectedDate).length})
-                    </ToggleButton>
-                    <ToggleButton value="STUDENT" sx={{ fontWeight: 800, textTransform: 'none' }}>
-                      Trainee
-                    </ToggleButton>
-                    <ToggleButton value="TRAINER" sx={{ fontWeight: 800, textTransform: 'none' }}>
-                      Trainer
-                    </ToggleButton>
-                    <ToggleButton value="STAFF" sx={{ fontWeight: 800, textTransform: 'none' }}>
-                      Staff
-                    </ToggleButton>
-                  </ToggleButtonGroup>
-                </Grid>
+                  <Grid item xs={6} sm={3.5}>
+                    <ToggleButtonGroup
+                      value={roleFilter}
+                      exclusive
+                      onChange={(e, val) => val && setRoleFilter(val)}
+                      size="small"
+                      fullWidth
+                    >
+                      <ToggleButton value="ALL" sx={{ fontWeight: 800, textTransform: 'none', fontSize: '0.74rem' }}>
+                        All ({allLogs.filter((l) => l.date === selectedDate).length})
+                      </ToggleButton>
+                      <ToggleButton value="STUDENT" sx={{ fontWeight: 800, textTransform: 'none', fontSize: '0.74rem' }}>
+                        Trainee
+                      </ToggleButton>
+                      <ToggleButton value="TRAINER" sx={{ fontWeight: 800, textTransform: 'none', fontSize: '0.74rem' }}>
+                        Trainer
+                      </ToggleButton>
+                      <ToggleButton value="STAFF" sx={{ fontWeight: 800, textTransform: 'none', fontSize: '0.74rem' }}>
+                        Staff
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Grid>
 
-                <Grid item xs={12} sm={2}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    size="small"
-                    onClick={() => {
-                      setSearchQuery('');
-                      setRoleFilter('ALL');
-                      setSelectedDate(todayStr);
-                    }}
-                    sx={{ fontWeight: 800, borderRadius: 2, py: 0.8, color: '#0F2E5A', borderColor: '#CBD5E1' }}
-                  >
-                    Reset Filters
-                  </Button>
+                  <Grid item xs={12} sm={2}>
+                    <Button
+                      variant="outlined"
+                      fullWidth
+                      size="small"
+                      onClick={() => {
+                        setSearchQuery('');
+                        setRoleFilter('ALL');
+                        setSelectedDate(todayStr);
+                      }}
+                      sx={{ fontWeight: 700, borderRadius: 1.5, py: 0.65, fontSize: '0.76rem', color: '#0F2E5A', borderColor: '#CBD5E1' }}
+                    >
+                      Reset Filters
+                    </Button>
+                  </Grid>
                 </Grid>
-              </Grid>
+              </Card>
 
               {/* Punch Stream Table */}
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 120 }}>
                         Machine ID
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        User Name & Details
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        User Name &amp; Details
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 130 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 120 }}>
                         Role
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 170 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 150 }}>
                         Check-in Time
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 140 }}>
                         Verification Status
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                         Device
                       </TableCell>
                     </TableRow>
@@ -887,29 +801,29 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                       const isLate = log.timestamp && log.timestamp > '07:15:00 AM' && log.role === 'STUDENT';
                       return (
                         <TableRow key={log.id || idx} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
 
-                          <TableCell>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
                             <Chip
-                              icon={<FingerprintIcon sx={{ fontSize: '13px !important', color: '#0F2E5A !important' }} />}
+                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
                               label={`#${log.biometricId}`}
                               size="small"
-                              sx={{ fontWeight: 900, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                             />
                           </TableCell>
 
                           <TableCell>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                            <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem', lineHeight: 1.25 }}>
                               {log.name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>
                               Date: {log.date}
                             </Typography>
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
                               label={
                                 log.role === 'STUDENT'
@@ -920,6 +834,8 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                               }
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 800,
                                 bgcolor:
                                   log.role === 'STUDENT'
@@ -937,17 +853,19 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                             />
                           </TableCell>
 
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}>
                               🕒 {log.timestamp}
                             </Typography>
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
                               label={isLate ? '🟠 Late' : '🟢 On-time'}
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 800,
                                 bgcolor: isLate ? '#FFF7ED' : '#F0FDF4',
                                 color: isLate ? '#C2410C' : '#166534',
@@ -957,8 +875,8 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                           </TableCell>
 
                           <TableCell>
-                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-                              {log.device || 'Global Era ZKTeco K40 WiFi'}
+                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.72rem' }}>
+                              {log.device || 'Prabidhik School ZKTeco K40 WiFi'}
                             </Typography>
                           </TableCell>
                         </TableRow>
@@ -967,8 +885,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
 
                     {filteredLogs.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 8, color: '#94A3B8' }}>
-                          <FingerprintIcon sx={{ fontSize: 44, color: '#CBD5E1', mb: 1, display: 'block', mx: 'auto' }} />
+                        <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                           No live punch records found for the selected date and filters.
                         </TableCell>
                       </TableRow>
@@ -985,15 +902,29 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
           {activeTab === 1 && (
             <Box>
               {/* Batch Selector Bar */}
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+              <Card
+                elevation={0}
+                sx={{
+                  p: 1.25,
+                  mb: 1.75,
+                  borderRadius: 2,
+                  border: '1px solid #e2e8f0',
+                  bgcolor: '#ffffff',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 1.25
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap' }}>
                   <TextField
                     select
                     size="small"
                     label="Batch / Group"
                     value={selectedBatchId}
                     onChange={(e) => setSelectedBatchId(e.target.value)}
-                    sx={{ minWidth: 240, bgcolor: '#FFFFFF' }}
+                    sx={{ minWidth: 220, bgcolor: '#FFFFFF' }}
                   >
                     <MenuItem value="ALL">-- All Batches --</MenuItem>
                     {groups.map((grp) => (
@@ -1016,38 +947,53 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
 
                 <Button
                   variant="contained"
+                  size="small"
                   onClick={() => onNavigate && onNavigate('attendance')}
-                  endIcon={<ArrowForwardIcon />}
-                  sx={{ fontWeight: 800, bgcolor: '#0F2E5A', textTransform: 'none', borderRadius: 2 }}
+                  endIcon={<ArrowForwardIcon sx={{ fontSize: '15px !important' }} />}
+                  sx={{ fontWeight: 800, bgcolor: '#0F2E5A', textTransform: 'none', borderRadius: 1.5, fontSize: '0.76rem', px: 1.4, py: 0.65, boxShadow: 'none' }}
                 >
                   Open Attendance Register
                 </Button>
-              </Box>
+              </Card>
 
               {/* Trainee Roster Table */}
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Trainee Name & Details
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Trainee Name &amp; Details
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Batch & Shift
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Batch &amp; Shift
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 120 }}>
                         Machine ID
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
-                        Today's Status
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 140 }}>
+                        Today&apos;s Status
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Check-in Time & Source
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Check-in Time &amp; Source
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>
                         Quick Actions
                       </TableCell>
                     </TableRow>
@@ -1063,47 +1009,47 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
 
                         return (
                           <TableRow key={std.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                            <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                            <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', fontSize: '0.75rem' }}>
                               {idx + 1}
                             </TableCell>
 
                             <TableCell>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Avatar src={std.photoUrl} sx={{ width: 34, height: 34, bgcolor: '#0F2E5A' }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                <Avatar src={std.photoUrl} sx={{ width: 28, height: 28, fontSize: '0.75rem', bgcolor: '#0F2E5A' }}>
                                   {std.name[0]}
                                 </Avatar>
                                 <Box>
-                                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                                  <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem', lineHeight: 1.2 }}>
                                     {std.name}
                                   </Typography>
-                                  <Typography variant="caption" sx={{ color: '#64748B' }}>
+                                  <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>
                                     {std.tgid} • {std.phone}
                                   </Typography>
                                 </Box>
                               </Box>
                             </TableCell>
 
-                            <TableCell>
+                            <TableCell sx={{ whiteSpace: 'nowrap' }}>
                               <Chip
                                 label={grp?.groupCode || 'Unassigned'}
                                 size="small"
-                                sx={{ fontWeight: 800, bgcolor: '#0F2E5A', color: '#FFFFFF', mb: 0.3 }}
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#0F2E5A', color: '#FFFFFF', mb: 0.2 }}
                               />
-                              <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
                                 Shift {grp?.shift || 'A'} ({grp?.startTime || '07:00 AM'})
                               </Typography>
                             </TableCell>
 
-                            <TableCell sx={{ textAlign: 'center' }}>
+                            <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                               <Chip
-                                icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                                icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
                                 label={`#${std.biometricId || 'N/A'}`}
                                 size="small"
-                                sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                               />
                             </TableCell>
 
-                            <TableCell sx={{ textAlign: 'center' }}>
+                            <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                               <Chip
                                 label={
                                   isPresent
@@ -1114,6 +1060,8 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                                 }
                                 size="small"
                                 sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
                                   fontWeight: 800,
                                   bgcolor: isPresent ? '#DCFCE7' : isLate ? '#FFF7ED' : '#FEE2E2',
                                   color: isPresent ? '#15803D' : isLate ? '#C2410C' : '#B91C1C'
@@ -1121,10 +1069,10 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                               />
                             </TableCell>
 
-                            <TableCell>
+                            <TableCell sx={{ whiteSpace: 'nowrap' }}>
                               {att ? (
                                 <Box>
-                                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                                  <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}>
                                     🕒 {att.checkInTime || 'On-time'}
                                   </Typography>
                                   <Chip
@@ -1136,35 +1084,37 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                                     }
                                     sx={{
                                       height: 18,
-                                      fontSize: '0.64rem',
+                                      fontSize: '0.62rem',
                                       fontWeight: 800,
                                       bgcolor: att.source === 'BIOMETRIC' ? '#DCFCE7' : '#FEF3C7',
                                       color: att.source === 'BIOMETRIC' ? '#15803D' : '#92400E',
-                                      mt: 0.3
+                                      mt: 0.2
                                     }}
                                   />
                                 </Box>
                               ) : (
-                                <Typography variant="caption" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                                <Typography variant="caption" sx={{ color: '#94A3B8', fontStyle: 'italic', fontSize: '0.7rem' }}>
                                   No gate thumb scan yet
                                 </Typography>
                               )}
                             </TableCell>
 
-                            <TableCell sx={{ textAlign: 'right' }}>
-                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                            <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
                                 {!att && (
                                   <Button
                                     variant="outlined"
                                     size="small"
                                     onClick={() => handleManualMark(std, grp, 'present')}
                                     sx={{
-                                      fontWeight: 800,
-                                      fontSize: '0.72rem',
+                                      fontWeight: 700,
+                                      fontSize: '0.7rem',
+                                      px: 0.9,
+                                      py: 0.3,
+                                      whiteSpace: 'nowrap',
                                       borderRadius: 1.5,
                                       color: '#10B981',
-                                      borderColor: '#10B981',
-                                      py: 0.4
+                                      borderColor: '#10B981'
                                     }}
                                   >
                                     Mark Present
@@ -1178,16 +1128,16 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                                       component="a"
                                       href={getWhatsAppUrl(
                                         std.guardianContact || std.phone,
-                                        `Namaste, from Global Era Technical School. Trainee ${std.name} (${std.tgid}) has not yet checked in for today's session on ${selectedDate}.`
+                                        `Namaste, from Prabidhik School, Jorpati. Trainee ${std.name} (${std.tgid}) has not yet checked in for today's session on ${selectedDate}.`
                                       )}
                                       target="_blank"
-                                      sx={{ color: '#25D366', bgcolor: '#DCFCE7' }}
+                                      sx={{ color: '#25D366', bgcolor: '#DCFCE7', p: 0.45 }}
                                     >
-                                      <WhatsAppIcon sx={{ fontSize: 18 }} />
+                                      <WhatsAppIcon sx={{ fontSize: 15 }} />
                                     </IconButton>
                                   </Tooltip>
                                 )}
-                              </Box>
+                              </Stack>
                             </TableCell>
                           </TableRow>
                         );
@@ -1203,29 +1153,43 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               ======================================================= */}
           {activeTab === 2 && (
             <Box>
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                         Trainer
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 120 }}>
                         Machine ID
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Specialization & Subject
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Specialization &amp; Subject
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 160 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 140 }}>
                         Check-in Time
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 150 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 140 }}>
                         Attendance Status
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>
                         Contact (WhatsApp)
                       </TableCell>
                     </TableRow>
@@ -1238,58 +1202,60 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
 
                       return (
                         <TableRow key={trn.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
 
                           <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                              <Avatar src={trn.photo} sx={{ width: 36, height: 36, bgcolor: '#0F2E5A' }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                              <Avatar src={trn.photo} sx={{ width: 28, height: 28, fontSize: '0.75rem', bgcolor: '#0F2E5A' }}>
                                 {trn.name[0]}
                               </Avatar>
                               <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                                <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.8rem', lineHeight: 1.2 }}>
                                   {trn.name}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: '#64748B' }}>
+                                <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.69rem' }}>
                                   {trn.phone}
                                 </Typography>
                               </Box>
                             </Box>
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
-                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                              icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
                               label={`#${trn.biometricId || '2001'}`}
                               size="small"
-                              sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                             />
                           </TableCell>
 
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#1e293b' }}>
                               {trn.specialization}
                             </Typography>
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             {punch ? (
-                              <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                              <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}>
                                 🕒 {punch.timestamp}
                               </Typography>
                             ) : (
-                              <Typography variant="caption" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                              <Typography variant="caption" sx={{ color: '#94A3B8', fontStyle: 'italic', fontSize: '0.7rem' }}>
                                 Not scanned yet
                               </Typography>
                             )}
                           </TableCell>
 
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
                               label={punch ? '🟢 Present' : '🔴 Absent / Pending'}
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 800,
                                 bgcolor: punch ? '#DCFCE7' : '#FEE2E2',
                                 color: punch ? '#15803D' : '#B91C1C'
@@ -1303,9 +1269,9 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                               component="a"
                               href={getWhatsAppUrl(trn.phone, `Namaste ${trn.name}, update regarding today's class session and attendance schedule.`)}
                               target="_blank"
-                              sx={{ color: '#25D366', bgcolor: '#DCFCE7' }}
+                              sx={{ color: '#25D366', bgcolor: '#DCFCE7', p: 0.45 }}
                             >
-                              <WhatsAppIcon sx={{ fontSize: 18 }} />
+                              <WhatsAppIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           </TableCell>
                         </TableRow>
@@ -1322,30 +1288,44 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               ======================================================= */}
           {activeTab === 3 && (
             <Box>
-              <Alert severity="info" sx={{ mb: 2.5, borderRadius: 2.5, fontWeight: 700 }}>
+              <Alert severity="info" sx={{ mb: 1.75, py: 0.4, borderRadius: 2, fontWeight: 700, fontSize: '0.78rem' }}>
                 ℹ️ Daily biometric attendance roster for administrative, accounts, and front desk personnel
               </Alert>
 
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
                 <Table size="small">
-                  <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
                     <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 60, textAlign: 'center' }}>
-                        S.N.
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                        #
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
                         Staff Name
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 140 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 120 }}>
                         Machine ID
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>
-                        Role & Department
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>
+                        Role &amp; Department
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 170 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 150 }}>
                         Check-in Time
                       </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center', width: 220 }}>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center', width: 200 }}>
                         Status / Action
                       </TableCell>
                     </TableRow>
@@ -1363,38 +1343,40 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                       const isPresent = Boolean(checkInTime);
                       return (
                         <TableRow key={stf.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#64748B' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
                           <TableCell>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0f172a' }}>
                               {stf.name}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
                             <Chip
-                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#0F2E5A !important' }} />}
+                              icon={<FingerprintIcon sx={{ fontSize: '11px !important', color: '#0F2E5A !important' }} />}
                               label={`#${stf.bioId}`}
                               size="small"
-                              sx={{ fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
+                              sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#EEF2F6', color: '#0F2E5A' }}
                             />
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#334155' }}>
                               {stf.role}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            <Typography variant="body2" sx={{ fontWeight: 800, color: isPresent ? '#0F2E5A' : '#94A3B8' }}>
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <Typography sx={{ fontWeight: 800, fontSize: '0.78rem', color: isPresent ? '#0F2E5A' : '#94A3B8' }}>
                               {isPresent ? `🕒 ${checkInTime}` : '— Awaiting Biometric —'}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center' }}>
-                            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center">
+                          <TableCell sx={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+                            <Stack direction="row" spacing={0.8} justifyContent="center" alignItems="center">
                               <Chip
                                 label={isPresent ? '🟢 Present' : '⏳ Pending'}
                                 size="small"
                                 sx={{
+                                  height: 20,
+                                  fontSize: '0.68rem',
                                   fontWeight: 800,
                                   bgcolor: isPresent ? '#DCFCE7' : '#F1F5F9',
                                   color: isPresent ? '#15803D' : '#64748B'
@@ -1413,7 +1395,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                                   });
                                   setDb(loadDB());
                                 }}
-                                sx={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'none', py: 0.2, px: 1 }}
+                                sx={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'none', py: 0.3, px: 0.9, whiteSpace: 'nowrap' }}
                               >
                                 Punch
                               </Button>

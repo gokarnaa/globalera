@@ -424,106 +424,161 @@ export default function UserManager() {
   };
 
   return (
-    <Box sx={{ pb: 6 }}>
-      {/* 1. Header Banner */}
-      <Box sx={{ mb: 3, display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <PeopleAltIcon sx={{ color: '#0F2E5A', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-              User & Portal Access Management
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#64748B', mt: 0.5 }}>
-            Manage admin, instructor, student and agent accounts, login credentials, and digital access QR cards.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button
-            variant="outlined"
-            startIcon={<SyncIcon />}
-            onClick={handleAutoSync}
-            sx={{ fontWeight: 800, borderRadius: 2 }}
-          >
-            Auto-Sync Accounts
-          </Button>
-
-          <Button
-            variant="contained"
-            startIcon={<PersonAddIcon />}
-            onClick={handleOpenAdd}
-            sx={{ fontWeight: 900, bgcolor: '#0F2E5A', borderRadius: 2 }}
-          >
-            + Add New User
-          </Button>
-        </Box>
-      </Box>
-
-      {/* 1.5 Dedicated Portals Distribution Hub */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 3,
-          p: 2.5,
-          borderRadius: 3,
-          background: 'linear-gradient(135deg, #0F2E5A 0%, #1A467E 100%)',
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
           color: '#ffffff',
-          boxShadow: '0 8px 24px rgba(15, 46, 90, 0.2)'
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Typography variant="subtitle1" sx={{ fontWeight: 900, mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <PeopleAltIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  User &amp; Portal Access Management
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Manage admin, instructor, student &amp; agent accounts, PINs and digital access QR cards
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SyncIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleAutoSync}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Auto-Sync Accounts
+              </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<PersonAddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Add New User
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* 1.5 Dedicated Portals Distribution Hub (Compact) */}
+      <Card
+        elevation={0}
+        sx={{
+          mb: 1.75,
+          p: 1.5,
+          borderRadius: 2,
+          background: 'linear-gradient(135deg, #0F2E5A 0%, #1A467E 100%)',
+          color: '#ffffff'
+        }}
+      >
+        <Typography variant="caption" sx={{ fontWeight: 800, mb: 1, display: 'block', color: '#cbd5e1', fontSize: '0.73rem' }}>
           🌐 Dedicated Portal Links Distribution Hub
         </Typography>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={1.25}>
           {/* Trainer Portal Link Card */}
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
-                p: 2,
-                borderRadius: 2.5,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.4)',
-                backdropFilter: 'blur(10px)'
+                p: 1.25,
+                borderRadius: 2,
+                bgcolor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.35)'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#6EE7B7' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#6EE7B7', fontSize: '0.76rem' }}>
                   👨‍🏫 Trainer Portal Link
                 </Typography>
-                <Chip label="Trainer Only" size="small" sx={{ bgcolor: '#10B981', color: '#fff', fontWeight: 800 }} />
+                <Chip label="Trainer Only" size="small" sx={{ height: 18, fontSize: '0.64rem', bgcolor: '#10B981', color: '#fff', fontWeight: 800 }} />
               </Box>
-              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                For instructors to mark class attendance, log daily lessons, and view assigned batches:
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                value={`${window.location.origin}/trainer`}
-                InputProps={{
-                  readOnly: true,
-                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
-                }}
-              />
-              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+              <Stack direction="row" spacing={0.75} alignItems="center">
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={`${window.location.origin}/trainer`}
+                  InputProps={{
+                    readOnly: true,
+                    sx: { bgcolor: '#ffffff', borderRadius: 1.2, fontSize: '0.73rem', fontWeight: 700, height: 30 }
+                  }}
+                />
                 <Button
                   size="small"
                   variant="contained"
-                  startIcon={<ContentCopyIcon />}
                   onClick={() => handleCopyLink(`${window.location.origin}/trainer`)}
-                  sx={{ bgcolor: '#10B981', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#059669' } }}
+                  sx={{ bgcolor: '#10B981', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#059669' } }}
                 >
-                  {copySuccess ? '✓ Copied' : 'Copy'}
+                  {copySuccess ? '✓' : 'Copy'}
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
                   onClick={() => window.open(`${window.location.origin}/trainer`, '_blank')}
-                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0 }}
                 >
                   Open
                 </Button>
-              </Box>
+              </Stack>
             </Paper>
           </Grid>
 
@@ -531,50 +586,45 @@ export default function UserManager() {
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
-                p: 2,
-                borderRadius: 2.5,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(56, 189, 248, 0.4)',
-                backdropFilter: 'blur(10px)'
+                p: 1.25,
+                borderRadius: 2,
+                bgcolor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(56, 189, 248, 0.35)'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#BAE6FD' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#BAE6FD', fontSize: '0.76rem' }}>
                   🎓 Student Portal Link
                 </Typography>
-                <Chip label="Student Only" size="small" sx={{ bgcolor: '#0284C7', color: '#fff', fontWeight: 800 }} />
+                <Chip label="Student Only" size="small" sx={{ height: 18, fontSize: '0.64rem', bgcolor: '#0284C7', color: '#fff', fontWeight: 800 }} />
               </Box>
-              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                For trainees to view their attendance percentage, notices, and certificates:
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                value={`${window.location.origin}/student`}
-                InputProps={{
-                  readOnly: true,
-                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
-                }}
-              />
-              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+              <Stack direction="row" spacing={0.75} alignItems="center">
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={`${window.location.origin}/student`}
+                  InputProps={{
+                    readOnly: true,
+                    sx: { bgcolor: '#ffffff', borderRadius: 1.2, fontSize: '0.73rem', fontWeight: 700, height: 30 }
+                  }}
+                />
                 <Button
                   size="small"
                   variant="contained"
-                  startIcon={<ContentCopyIcon />}
                   onClick={() => handleCopyLink(`${window.location.origin}/student`)}
-                  sx={{ bgcolor: '#0284C7', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#0369A1' } }}
+                  sx={{ bgcolor: '#0284C7', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#0369A1' } }}
                 >
-                  {copySuccess ? '✓ Copied' : 'Copy'}
+                  {copySuccess ? '✓' : 'Copy'}
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
                   onClick={() => window.open(`${window.location.origin}/student`, '_blank')}
-                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0 }}
                 >
                   Open
                 </Button>
-              </Box>
+              </Stack>
             </Paper>
           </Grid>
 
@@ -582,138 +632,176 @@ export default function UserManager() {
           <Grid item xs={12} md={4}>
             <Paper
               sx={{
-                p: 2,
-                borderRadius: 2.5,
-                bgcolor: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(245, 158, 11, 0.4)',
-                backdropFilter: 'blur(10px)'
+                p: 1.25,
+                borderRadius: 2,
+                bgcolor: 'rgba(255,255,255,0.08)',
+                border: '1px solid rgba(245, 158, 11, 0.35)'
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FDE68A' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#FDE68A', fontSize: '0.76rem' }}>
                   🤝 Agent / Referral Portal Link
                 </Typography>
-                <Chip label="Referral Only" size="small" sx={{ bgcolor: '#D97706', color: '#fff', fontWeight: 800 }} />
+                <Chip label="Referral Only" size="small" sx={{ height: 18, fontSize: '0.64rem', bgcolor: '#D97706', color: '#fff', fontWeight: 800 }} />
               </Box>
-              <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mb: 1.5 }}>
-                For recruitment partners and agents to submit leads and monitor commission payouts:
-              </Typography>
-              <TextField
-                fullWidth
-                size="small"
-                value={`${window.location.origin}/agent`}
-                InputProps={{
-                  readOnly: true,
-                  sx: { bgcolor: '#ffffff', borderRadius: 1.5, fontSize: '0.8rem', fontWeight: 700 }
-                }}
-              />
-              <Box sx={{ display: 'flex', gap: 1, mt: 1.5 }}>
+              <Stack direction="row" spacing={0.75} alignItems="center">
+                <TextField
+                  fullWidth
+                  size="small"
+                  value={`${window.location.origin}/agent`}
+                  InputProps={{
+                    readOnly: true,
+                    sx: { bgcolor: '#ffffff', borderRadius: 1.2, fontSize: '0.73rem', fontWeight: 700, height: 30 }
+                  }}
+                />
                 <Button
                   size="small"
                   variant="contained"
-                  startIcon={<ContentCopyIcon />}
                   onClick={() => handleCopyLink(`${window.location.origin}/agent`)}
-                  sx={{ bgcolor: '#D97706', fontWeight: 800, borderRadius: 1.5, '&:hover': { bgcolor: '#B45309' } }}
+                  sx={{ bgcolor: '#D97706', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#B45309' } }}
                 >
-                  {copySuccess ? '✓ Copied' : 'Copy'}
+                  {copySuccess ? '✓' : 'Copy'}
                 </Button>
                 <Button
                   size="small"
                   variant="outlined"
                   onClick={() => window.open(`${window.location.origin}/agent`, '_blank')}
-                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, borderRadius: 1.5 }}
+                  sx={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.4)', fontWeight: 800, fontSize: '0.7rem', py: 0.4, px: 1, minWidth: 0 }}
                 >
                   Open
                 </Button>
-              </Box>
+              </Stack>
             </Paper>
           </Grid>
         </Grid>
       </Card>
 
-      {/* 2. KPI Cards */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800 }}>
-              Total Users
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2E5A', mt: 0.5 }}>
-              {totalCount}
-            </Typography>
+      {/* 2. 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Accounts
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {activeCount} Active • {suspendedCount} Suspended
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <PeopleAltIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1px solid #BBF7D0' }}>
-            <Typography variant="caption" sx={{ color: '#166534', fontWeight: 800 }}>
-              Active
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#15803D', mt: 0.5 }}>
-              {activeCount}
-            </Typography>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Trainers &amp; Staff
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {trainerCount + adminStaffCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {trainerCount} Trainers • {adminStaffCount} Admin/Staff
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <BadgeIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FEF2F2', borderRadius: 2.5, border: '1px solid #FECACA' }}>
-            <Typography variant="caption" sx={{ color: '#991B1B', fontWeight: 800 }}>
-              Suspended
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#B91C1C', mt: 0.5 }}>
-              {suspendedCount}
-            </Typography>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Student Accounts
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {studentCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Trainee Portal Access
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#EFF6FF', borderRadius: 2.5, border: '1px solid #BFDBFE' }}>
-            <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800 }}>
-              Trainers
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#1D4ED8', mt: 0.5 }}>
-              {trainerCount}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FAF5FF', borderRadius: 2.5, border: '1px solid #E9D5FF' }}>
-            <Typography variant="caption" sx={{ color: '#6B21A8', fontWeight: 800 }}>
-              Students
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#7E22CE', mt: 0.5 }}>
-              {studentCount}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={6} sm={4} md={1.7}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#FFFBEB', borderRadius: 2.5, border: '1px solid #FDE68A' }}>
-            <Typography variant="caption" sx={{ color: '#B45309', fontWeight: 800 }}>
-              Agents
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#B45309', mt: 0.5 }}>
-              {agentCount}
-            </Typography>
-          </Card>
-        </Grid>
-
-        <Grid item xs={6} sm={4} md={1.8}>
-          <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #CBD5E1' }}>
-            <Typography variant="caption" sx={{ color: '#475569', fontWeight: 800 }}>
-              Admin / Staff
-            </Typography>
-            <Typography variant="h5" sx={{ fontWeight: 900, color: '#334155', mt: 0.5 }}>
-              {adminStaffCount}
-            </Typography>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Referral Agents
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {agentCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Partner Recruitment Codes
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <HandshakeIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* 3. Search & Filter Bar (Compact & Balanced Layout - Zero Scroll Arrows) */}
-      <Card sx={{ p: 1.5, mb: 3, borderRadius: 2.5, border: '1px solid #E2E8F0', boxShadow: '0 2px 10px rgba(0,0,0,0.03)' }}>
-        <Grid container spacing={1.2} alignItems="center">
+      {/* 3. Search & Filter Bar (Compact & Balanced Layout) */}
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#ffffff' }}>
+        <Grid container spacing={1.25} alignItems="center">
           {/* Compact Search Box */}
           <Grid item xs={12} sm={4} md={2.5}>
             <TextField
@@ -728,12 +816,12 @@ export default function UserManager() {
                     <SearchIcon sx={{ color: '#94A3B8', fontSize: 18 }} />
                   </InputAdornment>
                 ),
-                sx: { height: 36, fontSize: '0.8rem', borderRadius: 2 }
+                sx: { height: 36, fontSize: '0.78rem', borderRadius: 1.5 }
               }}
             />
           </Grid>
 
-          {/* Expanded Role Tabs (All 6 Roles visible cleanly without scroll arrows) */}
+          {/* Expanded Role Tabs */}
           <Grid item xs={12} sm={8} md={7.7}>
             <Tabs
               value={roleFilter}
@@ -741,17 +829,17 @@ export default function UserManager() {
               variant="scrollable"
               scrollButtons={false}
               sx={{
-                minHeight: 36,
+                minHeight: 34,
                 '& .MuiTabs-flexContainer': {
                   justifyContent: { xs: 'flex-start', md: 'space-around' },
                   gap: 0.5
                 },
-                '& .MuiTabs-indicator': { height: 3, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
+                '& .MuiTabs-indicator': { height: 2.5, bgcolor: '#0F2E5A', borderRadius: '3px 3px 0 0' },
                 '& .MuiTab-root': {
                   fontWeight: 800,
-                  fontSize: '0.8rem',
-                  minHeight: 36,
-                  py: 0.5,
+                  fontSize: '0.76rem',
+                  minHeight: 34,
+                  py: 0.4,
                   px: { xs: 1, sm: 1.2 },
                   minWidth: 'auto',
                   textTransform: 'none',
@@ -779,19 +867,19 @@ export default function UserManager() {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
               InputProps={{
-                sx: { height: 36, fontSize: '0.8rem', borderRadius: 2 }
+                sx: { height: 36, fontSize: '0.78rem', borderRadius: 1.5 }
               }}
             >
-              <MenuItem value="ALL" sx={{ fontSize: '0.8rem' }}>All</MenuItem>
-              <MenuItem value="Active" sx={{ fontSize: '0.8rem' }}>Active</MenuItem>
-              <MenuItem value="Suspended" sx={{ fontSize: '0.8rem' }}>Suspended</MenuItem>
+              <MenuItem value="ALL" sx={{ fontSize: '0.78rem' }}>All</MenuItem>
+              <MenuItem value="Active" sx={{ fontSize: '0.78rem' }}>Active</MenuItem>
+              <MenuItem value="Suspended" sx={{ fontSize: '0.78rem' }}>Suspended</MenuItem>
             </TextField>
           </Grid>
         </Grid>
       </Card>
 
       {/* 4. Users Table */}
-      <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
         <Table size="small">
           <TableHead
             sx={{
@@ -799,29 +887,31 @@ export default function UserManager() {
               '& .MuiTableCell-head': {
                 bgcolor: '#0F2E5A !important',
                 color: '#FFFFFF !important',
-                fontWeight: 900,
-                fontSize: '0.84rem',
-                py: 1.5,
-                borderBottom: '2px solid #F59E0B'
+                fontWeight: 800,
+                fontSize: '0.72rem',
+                py: 1,
+                px: 1.25,
+                borderBottom: '2px solid #F59E0B',
+                whiteSpace: 'nowrap'
               }
             }}
           >
             <TableRow>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
                 S.N.
               </TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>User Profile</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Role</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Contact (Phone/Username)</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>4-Digit PIN</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'center' }}>Status</TableCell>
-              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>User Profile</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Role</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Contact (Phone/Username)</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>4-Digit PIN</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Status</TableCell>
+              <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {filteredUsers.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} sx={{ textAlign: 'center', py: 4, color: '#64748B' }}>
+                <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#64748B', fontSize: '0.8rem' }}>
                   No users found matching current filters.
                 </TableCell>
               </TableRow>
@@ -839,14 +929,14 @@ export default function UserManager() {
                       transition: 'background-color 0.2s'
                     }}
                   >
-                    <TableCell sx={{ fontWeight: 700 }}>{idx + 1}</TableCell>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.75rem', textAlign: 'center' }}>{idx + 1}</TableCell>
 
                     <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                         <Avatar
                           sx={{
-                            width: 36,
-                            height: 36,
+                            width: 30,
+                            height: 30,
                             bgcolor:
                               user.role === 'ADMIN'
                                 ? '#0F2E5A'
@@ -856,20 +946,20 @@ export default function UserManager() {
                                 ? '#3B82F6'
                                 : '#F59E0B',
                             fontWeight: 800,
-                            fontSize: '0.9rem'
+                            fontSize: '0.78rem'
                           }}
                         >
                           {user.name ? user.name[0] : 'U'}
                         </Avatar>
                         <Box>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.8rem' }}>
                             {user.name}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.69rem' }}>
                             ID: {user.id} {user.trainerId ? `• Trainer: ${user.trainerId}` : ''} {user.tgid ? `• TGID: ${user.tgid}` : ''}
                           </Typography>
                           {(user.role === 'AGENT' || user.agentCode) && (
-                            <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 800 }}>
+                            <Typography variant="caption" sx={{ color: '#D97706', fontWeight: 800, fontSize: '0.69rem' }}>
                               Referral Code: {user.agentCode || user.username}
                             </Typography>
                           )}
@@ -892,6 +982,8 @@ export default function UserManager() {
                         }
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           fontWeight: 800,
                           bgcolor:
                             user.role === 'ADMIN'
@@ -918,28 +1010,29 @@ export default function UserManager() {
                     </TableCell>
 
                     <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                         {user.phone || 'N/A'}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B' }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem' }}>
                         @{user.username || 'user'}
                       </Typography>
                     </TableCell>
 
                     <TableCell sx={{ textAlign: 'center' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0.4 }}>
                         <Typography
                           variant="body2"
                           sx={{
                             fontFamily: 'monospace',
                             fontWeight: 900,
+                            fontSize: '0.78rem',
                             letterSpacing: isPinVisible ? 2 : 3,
                             color: isPinVisible ? '#0F2E5A' : '#94A3B8'
                           }}
                         >
                           {isPinVisible ? user.pin : '••••'}
                         </Typography>
-                        <IconButton size="small" onClick={() => togglePinVisibility(user.id)}>
+                        <IconButton size="small" onClick={() => togglePinVisibility(user.id)} sx={{ p: 0.3 }}>
                           {isPinVisible ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
                         </IconButton>
                       </Box>
@@ -950,6 +1043,8 @@ export default function UserManager() {
                         label={isSuspended ? 'Suspended' : 'Active'}
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           fontWeight: 800,
                           bgcolor: isSuspended ? '#FEE2E2' : '#DCFCE7',
                           color: isSuspended ? '#B91C1C' : '#15803D'
@@ -957,14 +1052,15 @@ export default function UserManager() {
                       />
                     </TableCell>
 
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.8 }}>
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.5 }}>
                         {/* 1-Click Suspend / Activate Toggle */}
                         <Tooltip title={isSuspended ? 'Activate Account' : 'Suspend Account'}>
                           <IconButton
                             size="small"
                             onClick={() => handleToggleStatus(user)}
                             sx={{
+                              p: 0.4,
                               color: isSuspended ? '#10B981' : '#EF4444',
                               bgcolor: isSuspended ? '#ECFDF5' : '#FEF2F2'
                             }}
@@ -978,7 +1074,7 @@ export default function UserManager() {
                           <IconButton
                             size="small"
                             onClick={() => setShareUserModal(user)}
-                            sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                            sx={{ p: 0.4, color: '#0F2E5A', bgcolor: '#F1F5F9' }}
                           >
                             <QrCode2Icon fontSize="small" />
                           </IconButton>
@@ -989,7 +1085,7 @@ export default function UserManager() {
                           <IconButton
                             size="small"
                             onClick={() => handleOpenEdit(user)}
-                            sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                            sx={{ p: 0.4, color: '#0F2E5A', bgcolor: '#F1F5F9' }}
                           >
                             <EditIcon fontSize="small" />
                           </IconButton>
@@ -1001,7 +1097,7 @@ export default function UserManager() {
                             <IconButton
                               size="small"
                               onClick={() => handleDeleteUser(user.id)}
-                              sx={{ color: '#DC2626', bgcolor: '#FEF2F2' }}
+                              sx={{ p: 0.4, color: '#DC2626', bgcolor: '#FEF2F2' }}
                             >
                               <DeleteOutlineIcon fontSize="small" />
                             </IconButton>
@@ -1246,7 +1342,7 @@ export default function UserManager() {
         <DialogContent sx={{ p: 3, textAlign: 'center' }}>
           {shareUserModal && (() => {
             const link = getDirectLoginLink(shareUserModal);
-            const waMsg = `Hello ${shareUserModal.name},\nWelcome to the Global Era Technical School Portal!\n\nYour Login Credentials:\n• ID: ${shareUserModal.phone || shareUserModal.username}\n• Access PIN: ${shareUserModal.pin}\n\nDirect Login Link:\n${link}`;
+            const waMsg = `Hello ${shareUserModal.name},\nWelcome to the Prabidhik School, Jorpati Portal!\n\nYour Login Credentials:\n• ID: ${shareUserModal.phone || shareUserModal.username}\n• Access PIN: ${shareUserModal.pin}\n\nDirect Login Link:\n${link}`;
 
             return (
               <Box>

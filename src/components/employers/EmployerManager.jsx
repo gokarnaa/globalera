@@ -340,138 +340,295 @@ export default function EmployerManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <BusinessIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Employer Master
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Reusable partner institutions for OJT training and student career placements.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-            + Add Employer Partner
-          </Button>
-        </Box>
-      </Box>
-
-      {/* KPI Summary Cards */}
-      <Card sx={{ p: 2, mb: 3, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0' }}>
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f8fafc', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                TOTAL PARTNERS
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                {totalEmployers}
-              </Typography>
-            </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <BusinessIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Employer Master &amp; Partner Registry
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Reusable partner institutions for OJT training and career placements
+                </Typography>
+              </Box>
+            </Stack>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f0fdf4', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700, display: 'block' }}>
-                ACTIVE PARTNERS
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#15803d' }}>
-                {activeEmployers}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#eff6ff', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#1e40af', fontWeight: 700, display: 'block' }}>
-                TOTAL OJT DEPLOYED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#1d4ed8' }}>
-                {totalOjt} Trainees
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#fefce8', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#854d0e', fontWeight: 700, display: 'block' }}>
-                TOTAL PLACED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#a16207' }}>
-                {totalPlaced} Graduates
-              </Typography>
-            </Box>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Add Employer Partner
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
-          <TextField
-            size="small"
-            placeholder="Search by employer name, industry, location, phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 340 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
-          />
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Partners
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalEmployers}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Registered Employers
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <BusinessIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Active', 'Pending Approval', 'Inactive'].map((status) => (
-              <Chip
-                key={status}
-                label={status}
-                clickable
-                color={statusFilter === status ? 'primary' : 'default'}
-                onClick={() => setStatusFilter(status)}
-                sx={{ fontWeight: 700, fontSize: '0.8rem' }}
-              />
-            ))}
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Active Partners
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {activeEmployers}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Verified MoU Partners
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total OJT Deployed
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalOjt}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284c7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Trainees in Field
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <WorkIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Placed
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalPlaced}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Hired Graduates
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
+            <TextField
+              size="small"
+              placeholder="Search by employer name, industry, location, phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
+              {['All', 'Active', 'Pending Approval', 'Inactive'].map((status) => (
+                <Chip
+                  key={status}
+                  label={status}
+                  size="small"
+                  clickable
+                  color={statusFilter === status ? 'primary' : 'default'}
+                  onClick={() => setStatusFilter(status)}
+                  sx={{ fontWeight: 700, fontSize: '0.74rem' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.74rem' }}>
+              Showing {filteredEmployers.length} of {totalEmployers}
+            </Typography>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+              sx={{ bgcolor: '#ffffff' }}
+            >
+              <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" title="Card View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredEmployers.length} of {totalEmployers}
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-            sx={{ bgcolor: '#ffffff' }}
-          >
-            <ToggleButton value="table" title="Table View">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card" title="Card View">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+      </Card>
 
       {/* Main Content: Table View vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <Table size="small">
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 48, color: '#FFFFFF !important' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Employer / Organization</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Industry & Sector</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Industry &amp; Sector</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Location</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Contact Person</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Active OJT / Placed</TableCell>
@@ -486,22 +643,21 @@ export default function EmployerManager() {
 
                   return (
                     <TableRow key={emp.id} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                           <Avatar
                             sx={{
-                              width: 38,
-                              height: 38,
+                              width: 30,
+                              height: 30,
                               fontWeight: 800,
-                              fontSize: '0.88rem',
+                              fontSize: '0.76rem',
                               letterSpacing: '0.03em',
                               bgcolor: getAvatarBg(emp.industry, emp.name),
                               color: '#ffffff',
-                              borderRadius: '10px',
-                              boxShadow: '0 2px 5px rgba(0,0,0,0.08)'
+                              borderRadius: '8px'
                             }}
                           >
                             {getInitials(emp.name)}
@@ -511,7 +667,7 @@ export default function EmployerManager() {
                             sx={{
                               fontWeight: 800,
                               color: '#0f172a',
-                              fontSize: '0.93rem'
+                              fontSize: '0.82rem'
                             }}
                           >
                             {emp.name}
@@ -519,43 +675,45 @@ export default function EmployerManager() {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Chip label={emp.industry || 'General'} size="small" sx={{ bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700 }} />
+                        <Chip label={emp.industry || 'General'} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700 }} />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 600 }}>{emp.location || '—'}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, fontSize: '0.78rem' }}>{emp.location || '—'}</TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.79rem' }}>
                           {emp.contactPerson || '—'}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="caption" sx={{ color: '#647089' }}>{emp.phone}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                          <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>{emp.phone}</Typography>
                           {emp.phone && (
                             <IconButton
                               size="small"
                               component="a"
-                              href={getWhatsAppUrl(emp.phone, `Namaste, greetings from KITE Training Center.`)}
+                              href={getWhatsAppUrl(emp.phone, `Namaste, greetings from Prabidhik School, Jorpati.`)}
                               target="_blank"
-                              sx={{ color: '#25D366' }}
+                              sx={{ color: '#25D366', p: 0.25 }}
                             >
-                              <WhatsAppIcon sx={{ fontSize: 16 }} />
+                              <WhatsAppIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           )}
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Chip label={`${ojtCount} OJT • ${placedCount} Placed`} size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 700 }} />
+                        <Chip label={`${ojtCount} OJT • ${placedCount} Placed`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 700 }} />
                       </TableCell>
                       <TableCell>
                         <Chip
                           label={emp.status}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
                             bgcolor: emp.status === 'Active' ? '#e5f8ee' : emp.status === 'Pending Approval' ? '#FEF3C7' : '#fdeceb',
                             color: emp.status === 'Active' ? '#16834b' : emp.status === 'Pending Approval' ? '#B45309' : '#d5372f',
                             fontWeight: 700
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                         {emp.status === 'Pending Approval' && (
                           <Tooltip title="Approve Partner Employer">
                             <IconButton
@@ -569,7 +727,7 @@ export default function EmployerManager() {
                                 saveDB(nextDb);
                                 setDb(nextDb);
                               }}
-                              sx={{ color: '#16834b' }}
+                              sx={{ color: '#16834b', p: 0.4 }}
                             >
                               <CheckCircleIcon fontSize="small" />
                             </IconButton>
@@ -582,15 +740,15 @@ export default function EmployerManager() {
                               setProfileEmployer(emp);
                               setProfileTab(0);
                             }}
-                            sx={{ color: '#1a56b0' }}
+                            sx={{ color: '#1a56b0', p: 0.4 }}
                           >
                             <VisibilityIcon fontSize="small" />
                           </IconButton>
                         </Tooltip>
-                        <IconButton size="small" onClick={() => handleOpenEdit(emp)} sx={{ color: '#1a56b0' }}>
+                        <IconButton size="small" onClick={() => handleOpenEdit(emp)} sx={{ color: '#1a56b0', p: 0.4 }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(emp.id)} sx={{ color: '#d5372f' }}>
+                        <IconButton size="small" onClick={() => handleDelete(emp.id)} sx={{ color: '#d5372f', p: 0.4 }}>
                           <DeleteOutlineIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -599,7 +757,7 @@ export default function EmployerManager() {
                 })}
                 {filteredEmployers.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No employer partners found matching the filter criteria.
                     </TableCell>
                   </TableRow>

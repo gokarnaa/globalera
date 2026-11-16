@@ -169,7 +169,7 @@ export default function EvaluationManager() {
     const studentEvls = (db.evaluations || []).filter((e) => e.studentId === student.id);
     const studentMastered = studentEvls.filter((e) => e.mastered).length;
     return (
-      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `*Prabidhik School, Jorpati*\n` +
       `🎓 *SKILL COMPETENCY ASSESSMENT REPORT*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Trainee Name:* ${student.name} (${student.tgid})\n` +
@@ -191,7 +191,7 @@ export default function EvaluationManager() {
 
   const getBatchAssessmentShareText = () => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `*Prabidhik School, Jorpati*\n` +
       `📊 *GROUP COMPETENCY EVALUATION SUMMARY*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch / Group:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
@@ -206,71 +206,277 @@ export default function EvaluationManager() {
   };
 
   return (
-    <Box>
-      {/* Page Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <AssessmentIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Skill Evaluations
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            CTEVT Competency-Based Assessment per trainee. Complete performance history preserved without overwriting.
-          </Typography>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <AssessmentIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Skill Evaluations &amp; Competency Matrix
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Batch {selectedGroup?.groupCode || '—'} (Shift {selectedGroup?.shift || 'A'}) • {masteryRatePercent}% Mastery Rate
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          {/* Batch A4 Document / Print */}
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<PrintIcon />}
-            onClick={() => {
-              if (selectedStudentId !== 'ALL') {
-                const std = (db.students || []).find((s) => s.id === selectedStudentId);
-                setModalTargetStudent(std || null);
-              } else {
-                setModalTargetStudent(null);
-              }
-              setOfficialModalOpen(true);
+          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => {
+                  if (selectedStudentId !== 'ALL') {
+                    const std = (db.students || []).find((s) => s.id === selectedStudentId);
+                    setModalTargetStudent(std || null);
+                  } else {
+                    setModalTargetStudent(null);
+                  }
+                  setOfficialModalOpen(true);
+                }}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                A4 Competency Sheet / PDF
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<WhatsAppIcon sx={{ fontSize: '15px !important', color: '#4ade80' }} />}
+                component="a"
+                href={getWhatsAppUrl(
+                  trainer?.phone || '',
+                  selectedStudentId !== 'ALL'
+                    ? getSingleStudentShareText((db.students || []).find((s) => s.id === selectedStudentId) || {})
+                    : getBatchAssessmentShareText()
+                )}
+                target="_blank"
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                WhatsApp Share
+              </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Evaluate Student Skill
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
-            sx={{ fontWeight: 700 }}
           >
-            A4 Competency Sheet / PDF
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Evaluations
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalEvaluations}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Assessed Skill Records
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <AssessmentIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          {/* WhatsApp Share */}
-          <Button
-            variant="outlined"
-            color="success"
-            startIcon={<WhatsAppIcon />}
-            component="a"
-            href={getWhatsAppUrl(
-              trainer?.phone || '',
-              selectedStudentId !== 'ALL'
-                ? getSingleStudentShareText((db.students || []).find((s) => s.id === selectedStudentId) || {})
-                : getBatchAssessmentShareText()
-            )}
-            target="_blank"
-            sx={{ fontWeight: 700 }}
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
           >
-            WhatsApp Share
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Skills Mastered
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {masteredCount} Skills
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Competency Verified
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-            + Evaluate Student Skill
-          </Button>
-        </Box>
-      </Box>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #f59e0b',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  In Progress
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {inProgressCount} Skills
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Needs Practice
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <HourglassEmptyIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-      {/* Group & Student Selectors + KPI Summary */}
-      <Card sx={{ p: 2.5, mb: 3 }}>
-        <Grid container spacing={2.5} alignItems="center">
-          <Grid item xs={12} sm={6} md={3.5}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Mastery Rate
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {masteryRatePercent}%
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  CTEVT Competency Standard
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <VerifiedUserIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Compact Filter and View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Grid container spacing={1.25} alignItems="center">
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               select
+              size="small"
               label="Select Training Group"
               fullWidth
               value={selectedGroupId}
@@ -290,9 +496,10 @@ export default function EvaluationManager() {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} sm={6} md={3.5}>
+          <Grid item xs={12} sm={6} md={3}>
             <TextField
               select
+              size="small"
               label="Filter by Student"
               fullWidth
               value={selectedStudentId}
@@ -307,123 +514,78 @@ export default function EvaluationManager() {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={5}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr 1.2fr',
-                gap: 1.5,
-                bgcolor: '#f8fafc',
-                p: 1.5,
-                borderRadius: 2,
-                border: '1px solid #e2e8f0'
+          <Grid item xs={12} sm={8} md={4}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="Search student, TGID, skill, or evaluator..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                  </InputAdornment>
+                )
               }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={4} md={2} sx={{ display: 'flex', justifyContent: { xs: 'space-between', sm: 'flex-end' }, alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={`${filteredEvaluations.length}`}
+              size="small"
+              sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#0f2e5a', fontSize: '0.72rem' }}
+            />
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
             >
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  EVALUATIONS
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                  {totalEvaluations}
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  MASTERED
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#16834b' }}>
-                  {masteredCount} Skills
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  MASTERY RATE
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={masteryRatePercent}
-                    sx={{ flexGrow: 1, height: 7, borderRadius: 3 }}
-                  />
-                  <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                    {masteryRatePercent}%
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+              <ToggleButton value="table">
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card">
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Filter and View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-        <TextField
-          size="small"
-          placeholder="Search by student, TGID, syllabus skill, or evaluator..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: { xs: '100%', sm: 380 }, bgcolor: '#ffffff' }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-              </InputAdornment>
-            )
-          }}
-        />
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredEvaluations.length} of {groupEvaluations.length} evaluation records
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-          >
-            <ToggleButton value="table">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
-
       {/* 1. TABLE VIEW */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    S.N.
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                    #
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Student</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Skill / Task</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 130 }}>Competency</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Areas to Improve</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Action Plan</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Evaluator & Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 160 }}>Student</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 180 }}>Skill / Task</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 120 }}>Competency</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 160 }}>Areas to Improve</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 180 }}>Action Plan</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Evaluator &amp; Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 110, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -432,88 +594,90 @@ export default function EvaluationManager() {
                   const syl = (db.syllabi || []).find((s) => s.id === evl.syllabusId);
 
                   return (
-                    <TableRow key={evl.id} hover>
-                      <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
+                    <TableRow key={evl.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748B', textAlign: 'center', fontSize: '0.75rem' }}>
                         {index + 1}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Avatar src={std?.photoUrl} sx={{ width: 34, height: 34, bgcolor: '#1a56b0', fontWeight: 700 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <Avatar src={std?.photoUrl} sx={{ width: 28, height: 28, bgcolor: '#1a56b0', fontWeight: 700, fontSize: '0.75rem' }}>
                             {std?.name?.[0] || 'S'}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                            <Typography sx={{ fontWeight: 700, color: '#0f172a', fontSize: '0.8rem', lineHeight: 1.2 }}>
                               {std?.name || 'Student'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontSize: '0.69rem' }}>
                               {std?.tgid}
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1a56b0' }}>
+                        <Typography sx={{ fontWeight: 700, color: '#1a56b0', fontSize: '0.79rem', lineHeight: 1.25 }}>
                           Unit {syl?.unitNo}: {syl?.title || 'Syllabus Task'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>
                           Curriculum: {syl?.totalHours} hrs
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
                         {evl.mastered ? (
-                          <Chip icon={<CheckCircleIcon />} label="Mastered" size="small" color="success" sx={{ fontWeight: 800 }} />
+                          <Chip icon={<CheckCircleIcon sx={{ fontSize: '12px !important' }} />} label="Mastered" size="small" color="success" sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }} />
                         ) : (
-                          <Chip icon={<HourglassEmptyIcon />} label="In Progress" size="small" color="warning" variant="outlined" sx={{ fontWeight: 700 }} />
+                          <Chip icon={<HourglassEmptyIcon sx={{ fontSize: '12px !important' }} />} label="In Progress" size="small" color="warning" variant="outlined" sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }} />
                         )}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.85rem', color: '#475569' }}>
+                      <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
                         {evl.areasToImprove || '—'}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.85rem', color: '#334155' }}>
+                      <TableCell sx={{ fontSize: '0.78rem', color: '#334155' }}>
                         {evl.trainerPlan || '—'}
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>{evl.evaluatorName}</Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>{evl.evaluatedAt}</Typography>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Typography sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#0f172a' }}>{evl.evaluatorName}</Typography>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>{evl.evaluatedAt}</Typography>
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <Tooltip title="View Student Competency Dossier (A4/PDF)">
-                          <IconButton
-                            size="small"
-                            onClick={() => {
-                              setModalTargetStudent(std || null);
-                              setOfficialModalOpen(true);
-                            }}
-                            sx={{ color: '#1a56b0' }}
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <Stack direction="row" spacing={0.4} justifyContent="flex-end" alignItems="center">
+                          <Tooltip title="View Student Competency Dossier (A4/PDF)">
+                            <IconButton
+                              size="small"
+                              onClick={() => {
+                                setModalTargetStudent(std || null);
+                                setOfficialModalOpen(true);
+                              }}
+                              sx={{ color: '#1a56b0', p: 0.45 }}
+                            >
+                              <VisibilityIcon sx={{ fontSize: 15 }} />
+                            </IconButton>
+                          </Tooltip>
 
-                        <Tooltip title="Share Evaluation via WhatsApp">
-                          <IconButton
-                            size="small"
-                            component="a"
-                            href={getWhatsAppUrl(std?.phone || '', getSingleStudentShareText(std || {}))}
-                            target="_blank"
-                            sx={{ color: '#16834b' }}
-                          >
-                            <WhatsAppIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                          <Tooltip title="Share Evaluation via WhatsApp">
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={getWhatsAppUrl(std?.phone || '', getSingleStudentShareText(std || {}))}
+                              target="_blank"
+                              sx={{ color: '#16834b', p: 0.45 }}
+                            >
+                              <WhatsAppIcon sx={{ fontSize: 15 }} />
+                            </IconButton>
+                          </Tooltip>
 
-                        <Tooltip title="Delete">
-                          <IconButton size="small" onClick={() => handleDelete(evl.id)} sx={{ color: '#d5372f' }}>
-                            <DeleteOutlineIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
+                          <Tooltip title="Delete">
+                            <IconButton size="small" onClick={() => handleDelete(evl.id)} sx={{ color: '#d5372f', p: 0.45 }}>
+                              <DeleteOutlineIcon sx={{ fontSize: 15 }} />
+                            </IconButton>
+                          </Tooltip>
+                        </Stack>
                       </TableCell>
                     </TableRow>
                   );
                 })}
                 {filteredEvaluations.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                       {searchTerm
                         ? 'No evaluation records match your search filter.'
                         : 'No evaluations recorded yet for this group. Click "+ Evaluate Student Skill" to evaluate.'}

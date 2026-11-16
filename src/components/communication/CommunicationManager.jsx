@@ -176,7 +176,7 @@ export default function CommunicationManager() {
       .replace(/\{supervisor\}/g, 'Supervisor')
       .replace(/\{phone\}/g, recipient.phone || '')
       .replace(/\{jobTitle\}/g, 'Specialist Caregiver')
-      .replace(/\{institute\}/g, db.settings?.instituteSub || 'Global Era Technical School');
+      .replace(/\{institute\}/g, db.settings?.instituteSub || 'Prabidhik School, Jorpati');
   };
 
   // Broadcast Action (Executes live Meta Cloud API dispatch)
@@ -372,45 +372,88 @@ export default function CommunicationManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <MessageIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Communication Center
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Direct WhatsApp dispatch, Aakash SMS API broadcast, candidate phone call follow-up, and message templates.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1 }}>
-          <Chip
-            icon={<WhatsAppIcon sx={{ color: '#25D366 !important' }} />}
-            label="WhatsApp Direct Active"
-            sx={{ bgcolor: '#e8fdf0', color: '#16834b', fontWeight: 800 }}
-          />
-          <Chip
-            icon={<SmsIcon sx={{ color: '#1a56b0 !important' }} />}
-            label="Aakash SMS Ready"
-            sx={{ bgcolor: '#eff6ff', color: '#1e40af', fontWeight: 800 }}
-          />
-        </Box>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <MessageIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Communication Center &amp; Dispatch
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Direct WhatsApp dispatch, Aakash SMS API broadcast &amp; call follow-up
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Chip
+                icon={<WhatsAppIcon sx={{ color: '#25D366 !important', fontSize: '15px !important' }} />}
+                label="WhatsApp Direct Active"
+                size="small"
+                sx={{ bgcolor: '#e8fdf0', color: '#16834b', fontWeight: 800, fontSize: '0.72rem' }}
+              />
+              <Chip
+                icon={<SmsIcon sx={{ color: '#1a56b0 !important', fontSize: '15px !important' }} />}
+                label="Aakash SMS Ready"
+                size="small"
+                sx={{ bgcolor: '#eff6ff', color: '#1e40af', fontWeight: 800, fontSize: '0.72rem' }}
+              />
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {/* Tabs */}
-      <Card sx={{ mb: 3, borderRadius: 3, border: '1px solid #e2e8f0' }}>
+      <Card elevation={0} sx={{ mb: 1.75, borderRadius: 2, border: '1px solid #e2e8f0' }}>
         <Tabs
           value={currentTab}
           onChange={(e, val) => setCurrentTab(val)}
+          variant="scrollable"
+          scrollButtons="auto"
           sx={{
-            px: 2,
+            px: 1.5,
             borderBottom: '1px solid #e2e8f0',
             bgcolor: '#f8fafc',
-            '& .MuiTab-root': { fontWeight: 800, py: 1.8 }
+            minHeight: 42,
+            '& .MuiTab-root': { fontWeight: 800, py: 1, minHeight: 42, fontSize: '0.78rem', textTransform: 'none' }
           }}
         >
           <Tab icon={<SendIcon fontSize="small" />} iconPosition="start" label="1. WhatsApp & SMS Dispatch" />
@@ -421,31 +464,31 @@ export default function CommunicationManager() {
 
         {/* Tab 1: Dispatch */}
         {currentTab === 0 && (
-          <Box sx={{ p: 3 }}>
+          <Box sx={{ p: 2 }}>
             {dispatchStatus && (
               <Alert
                 severity={dispatchStatus.success ? (dispatchStatus.warning ? 'warning' : 'success') : 'error'}
-                sx={{ mb: 3, fontWeight: 700 }}
+                sx={{ mb: 1.75, py: 0.5, fontWeight: 700, fontSize: '0.78rem' }}
               >
                 {dispatchStatus.success ? (
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                       Message dispatched successfully to {dispatchStatus.count} recipient(s) via {dispatchStatus.channel}!
                     </Typography>
                     {dispatchStatus.wamid && (
-                      <Typography variant="caption" sx={{ display: 'block', mt: 0.5, fontFamily: 'monospace', color: '#047857' }}>
+                      <Typography variant="caption" sx={{ display: 'block', mt: 0.25, fontFamily: 'monospace', color: '#047857' }}>
                         Meta Official WAMID: {dispatchStatus.wamid}
                       </Typography>
                     )}
                     {dispatchStatus.warning && (
-                      <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#b45309' }}>
+                      <Typography variant="caption" sx={{ display: 'block', mt: 0.25, color: '#b45309' }}>
                         {dispatchStatus.warning}
                       </Typography>
                     )}
                   </Box>
                 ) : (
                   <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                       {dispatchStatus.error || 'Message dispatch failed.'}
                     </Typography>
                   </Box>
@@ -453,16 +496,17 @@ export default function CommunicationManager() {
               </Alert>
             )}
 
-            <Grid container spacing={3}>
+            <Grid container spacing={2}>
               {/* Left Configuration Panel */}
               <Grid item xs={12} md={5}>
-                <Stack spacing={2.5}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                <Stack spacing={1.75}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
                     1. Target Audience
                   </Typography>
 
                   <TextField
                     select
+                    size="small"
                     label="Recipient Target"
                     fullWidth
                     value={targetAudience}
@@ -470,8 +514,8 @@ export default function CommunicationManager() {
                   >
                     <MenuItem value="CUSTOM_PHONE">Direct Phone Number (Test: 9705147147)</MenuItem>
                     <MenuItem value="GROUP">Training Batch</MenuItem>
-                    <MenuItem value="LEADS">New Leads & Admissions Inquiries</MenuItem>
-                    <MenuItem value="ABSENT_TODAY">Today's Absent Trainees (Guardians)</MenuItem>
+                    <MenuItem value="LEADS">New Leads &amp; Admissions Inquiries</MenuItem>
+                    <MenuItem value="ABSENT_TODAY">Today&apos;s Absent Trainees (Guardians)</MenuItem>
                     <MenuItem value="UNPLACED">Unplaced Job Seekers</MenuItem>
                     <MenuItem value="ALL_STUDENTS">All Active Students</MenuItem>
                     <MenuItem value="EMPLOYERS">Employer Partners</MenuItem>
@@ -480,7 +524,7 @@ export default function CommunicationManager() {
                   </TextField>
 
                   {targetAudience === 'CUSTOM_PHONE' && (
-                    <Stack spacing={1.5} sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
+                    <Stack spacing={1.25} sx={{ p: 1.25, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0' }}>
                       <TextField
                         label="Recipient Phone Number"
                         fullWidth
@@ -504,6 +548,7 @@ export default function CommunicationManager() {
                   {targetAudience === 'GROUP' && (
                     <TextField
                       select
+                      size="small"
                       label="Select Training Batch"
                       fullWidth
                       value={selectedGroupId}
@@ -523,6 +568,7 @@ export default function CommunicationManager() {
                   {targetAudience === 'SINGLE' && (
                     <TextField
                       select
+                      size="small"
                       label="Select Student"
                       fullWidth
                       value={selectedSingleStudentId}
@@ -538,18 +584,21 @@ export default function CommunicationManager() {
 
                   <Divider />
 
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
                     2. Delivery Channel
                   </Typography>
 
-                  <Box sx={{ display: 'flex', gap: 1.5 }}>
+                  <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
                       fullWidth
+                      size="small"
                       variant={channel === 'WhatsApp' ? 'contained' : 'outlined'}
-                      startIcon={<WhatsAppIcon />}
+                      startIcon={<WhatsAppIcon sx={{ fontSize: '15px !important' }} />}
                       onClick={() => setChannel('WhatsApp')}
                       sx={{
                         fontWeight: 800,
+                        fontSize: '0.76rem',
+                        py: 0.65,
                         bgcolor: channel === 'WhatsApp' ? '#25D366' : 'transparent',
                         borderColor: '#25D366',
                         color: channel === 'WhatsApp' ? '#ffffff' : '#25D366',
@@ -560,11 +609,14 @@ export default function CommunicationManager() {
                     </Button>
                     <Button
                       fullWidth
+                      size="small"
                       variant={channel === 'SMS' ? 'contained' : 'outlined'}
-                      startIcon={<SmsIcon />}
+                      startIcon={<SmsIcon sx={{ fontSize: '15px !important' }} />}
                       onClick={() => setChannel('SMS')}
                       sx={{
                         fontWeight: 800,
+                        fontSize: '0.76rem',
+                        py: 0.65,
                         bgcolor: channel === 'SMS' ? '#1a56b0' : 'transparent',
                         borderColor: '#1a56b0',
                         color: channel === 'SMS' ? '#ffffff' : '#1a56b0'
@@ -576,12 +628,13 @@ export default function CommunicationManager() {
 
                   <Divider />
 
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
                     3. Select Template
                   </Typography>
 
                   <TextField
                     select
+                    size="small"
                     label="Choose Template"
                     fullWidth
                     value={selectedTemplateId}
@@ -597,7 +650,8 @@ export default function CommunicationManager() {
                   <TextField
                     label="Message Content"
                     multiline
-                    rows={4}
+                    rows={3}
+                    size="small"
                     fullWidth
                     value={messageBody}
                     onChange={(e) => setMessageBody(e.target.value)}
@@ -605,7 +659,7 @@ export default function CommunicationManager() {
                   />
 
                   {/* Variable insertion buttons */}
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6 }}>
                     {['{name}', '{parent}', '{course}', '{date}', '{time}', '{certNo}', '{institute}'].map((v) => (
                       <Chip
                         key={v}
@@ -613,28 +667,29 @@ export default function CommunicationManager() {
                         size="small"
                         clickable
                         onClick={() => setMessageBody((prev) => `${prev} ${v}`)}
-                        sx={{ bgcolor: '#f1f5f9', fontWeight: 700, fontSize: '0.72rem' }}
+                        sx={{ height: 20, bgcolor: '#f1f5f9', fontWeight: 700, fontSize: '0.68rem' }}
                       />
                     ))}
                   </Box>
 
                   <Button
                     variant="contained"
-                    size="large"
+                    size="small"
                     disabled={isBroadcasting}
                     startIcon={
                       isBroadcasting ? (
-                        <CircularProgress size={20} color="inherit" />
+                        <CircularProgress size={16} color="inherit" />
                       ) : channel === 'WhatsApp' ? (
-                        <WhatsAppIcon />
+                        <WhatsAppIcon sx={{ fontSize: '15px !important' }} />
                       ) : (
-                        <SendIcon />
+                        <SendIcon sx={{ fontSize: '15px !important' }} />
                       )
                     }
                     onClick={handleSendBroadcast}
                     sx={{
                       fontWeight: 800,
-                      py: 1.4,
+                      fontSize: '0.78rem',
+                      py: 0.9,
                       bgcolor: channel === 'WhatsApp' ? '#25D366' : '#1a56b0',
                       '&:hover': { bgcolor: channel === 'WhatsApp' ? '#1ebc59' : '#123e80' }
                     }}
@@ -651,26 +706,40 @@ export default function CommunicationManager() {
 
               {/* Right Live Preview Panel */}
               <Grid item xs={12} md={7}>
-                <Card sx={{ p: 2.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 3 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                <Card elevation={0} sx={{ p: 1.5, bgcolor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
                       Audience Preview ({recipientList.length} People)
                     </Typography>
                     <Chip
                       label={`Total: ${recipientList.length}`}
                       size="small"
-                      sx={{ bgcolor: '#0b2545', color: '#ffffff', fontWeight: 800 }}
+                      sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#0b2545', color: '#ffffff', fontWeight: 800 }}
                     />
                   </Box>
 
                   {recipientList.length === 0 ? (
-                    <Box sx={{ p: 4, textAlign: 'center', color: '#94a3b8' }}>
+                    <Box sx={{ p: 3, textAlign: 'center', color: '#94a3b8', fontSize: '0.8rem' }}>
                       No recipients matching this filter. Select another group or audience.
                     </Box>
                   ) : (
-                    <TableContainer component={Paper} sx={{ maxHeight: 420, borderRadius: 2 }}>
+                    <TableContainer component={Paper} elevation={0} sx={{ maxHeight: 420, borderRadius: 2, border: '1px solid #e2e8f0' }}>
                       <Table size="small" stickyHeader>
-                        <TableHead>
+                        <TableHead
+                          sx={{
+                            bgcolor: '#0F2E5A',
+                            '& .MuiTableCell-head': {
+                              bgcolor: '#0F2E5A !important',
+                              color: '#FFFFFF !important',
+                              fontWeight: 800,
+                              fontSize: '0.72rem',
+                              py: 1,
+                              px: 1.25,
+                              borderBottom: '2px solid #F59E0B',
+                              whiteSpace: 'nowrap'
+                            }
+                          }}
+                        >
                           <TableRow>
                             <TableCell sx={{ fontWeight: 800 }}>Recipients</TableCell>
                             <TableCell sx={{ fontWeight: 800 }}>Phone</TableCell>
@@ -683,19 +752,19 @@ export default function CommunicationManager() {
                             const personalMsg = renderMessageFor(rec);
                             return (
                               <TableRow key={rec.id || i} hover>
-                                <TableCell sx={{ fontWeight: 700 }}>
+                                <TableCell sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                                   {rec.name}
                                   {rec.tgid && (
-                                    <Typography variant="caption" sx={{ display: 'block', color: '#647089' }}>
+                                    <Typography variant="caption" sx={{ display: 'block', color: '#647089', fontSize: '0.69rem' }}>
                                       {rec.tgid}
                                     </Typography>
                                   )}
                                 </TableCell>
-                                <TableCell sx={{ fontWeight: 600, color: '#1a56b0' }}>
+                                <TableCell sx={{ fontWeight: 600, color: '#1a56b0', fontSize: '0.77rem' }}>
                                   {rec.phone}
                                 </TableCell>
                                 <TableCell sx={{ maxWidth: 220 }}>
-                                  <Typography variant="caption" sx={{ color: '#334155', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                                  <Typography variant="caption" sx={{ color: '#334155', fontSize: '0.72rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                                     {personalMsg}
                                   </Typography>
                                 </TableCell>
@@ -706,7 +775,7 @@ export default function CommunicationManager() {
                                       component="a"
                                       href={getWhatsAppUrl(rec.phone, personalMsg)}
                                       target="_blank"
-                                      sx={{ color: '#25D366', bgcolor: '#f0fdf4', mr: 1, '&:hover': { bgcolor: '#dcfce7' } }}
+                                      sx={{ color: '#25D366', bgcolor: '#f0fdf4', mr: 0.6, p: 0.4, '&:hover': { bgcolor: '#dcfce7' } }}
                                     >
                                       <WhatsAppIcon fontSize="small" />
                                     </IconButton>
@@ -718,13 +787,14 @@ export default function CommunicationManager() {
                                       color="primary"
                                       disabled={sendingId === rec.id}
                                       onClick={() => handleSendCloudDirect(rec, personalMsg)}
-                                      startIcon={<CloudQueueIcon fontSize="small" />}
+                                      startIcon={<CloudQueueIcon sx={{ fontSize: '13px !important' }} />}
                                       sx={{
                                         textTransform: 'none',
-                                        fontSize: '0.72rem',
+                                        fontSize: '0.7rem',
                                         fontWeight: 700,
                                         py: 0.3,
-                                        px: 1
+                                        px: 0.9,
+                                        whiteSpace: 'nowrap'
                                       }}
                                     >
                                       {sendingId === rec.id ? 'Sending...' : 'Cloud API'}
@@ -746,17 +816,18 @@ export default function CommunicationManager() {
 
         {/* Tab 2: Call Follow-up Register */}
         {currentTab === 1 && (
-          <Box sx={{ p: 3 }}>
-            <Grid container spacing={3}>
+          <Box sx={{ p: 2 }}>
+            <Grid container spacing={2}>
               <Grid item xs={12} md={5}>
-                <Card sx={{ p: 3, border: '1px solid #e2e8f0', borderRadius: 3 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 2 }}>
+                <Card elevation={0} sx={{ p: 2, border: '1px solid #e2e8f0', borderRadius: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', mb: 1.5, fontSize: '0.84rem' }}>
                     Log Candidate Follow-up Call
                   </Typography>
 
-                  <Stack spacing={2.5}>
+                  <Stack spacing={1.75}>
                     <TextField
                       select
+                      size="small"
                       label="Select Student / Candidate"
                       fullWidth
                       value={callStudentId}
@@ -772,12 +843,12 @@ export default function CommunicationManager() {
                     {(() => {
                       const std = (db.students || []).find((s) => s.id === callStudentId);
                       return std ? (
-                        <Box sx={{ p: 1.5, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Box sx={{ p: 1.25, bgcolor: '#f0fdf4', borderRadius: 2, border: '1px solid #bbf7d0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                               {std.name}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700 }}>
+                            <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700, fontSize: '0.72rem' }}>
                               Mobile: {std.phone}
                             </Typography>
                           </Box>
@@ -785,10 +856,10 @@ export default function CommunicationManager() {
                             variant="contained"
                             size="small"
                             color="success"
-                            startIcon={<PhoneIcon />}
+                            startIcon={<PhoneIcon sx={{ fontSize: '14px !important' }} />}
                             component="a"
                             href={`tel:${std.phone}`}
-                            sx={{ fontWeight: 800 }}
+                            sx={{ fontWeight: 800, fontSize: '0.72rem', px: 1.1, py: 0.4 }}
                           >
                             Call Now
                           </Button>
@@ -798,12 +869,13 @@ export default function CommunicationManager() {
 
                     <TextField
                       select
+                      size="small"
                       label="Call Result"
                       fullWidth
                       value={callStatus}
                       onChange={(e) => setCallStatus(e.target.value)}
                     >
-                      <MenuItem value="Connected">Connected & Spoke</MenuItem>
+                      <MenuItem value="Connected">Connected &amp; Spoke</MenuItem>
                       <MenuItem value="No Answer">No Answer / Not Reachable</MenuItem>
                       <MenuItem value="Busy">Line Busy</MenuItem>
                       <MenuItem value="Call Back Later">Call Back Later</MenuItem>
@@ -814,6 +886,7 @@ export default function CommunicationManager() {
                       label="Call Discussion Notes"
                       multiline
                       rows={3}
+                      size="small"
                       fullWidth
                       value={callNotes}
                       onChange={(e) => setCallNotes(e.target.value)}
@@ -822,6 +895,7 @@ export default function CommunicationManager() {
 
                     <TextField
                       type="date"
+                      size="small"
                       label="Next Follow-up Date"
                       fullWidth
                       InputLabelProps={{ shrink: true }}
@@ -829,7 +903,7 @@ export default function CommunicationManager() {
                       onChange={(e) => setNextFollowUpDate(e.target.value)}
                     />
 
-                    <Button variant="contained" onClick={handleSaveCallLog} sx={{ fontWeight: 800, py: 1.2 }}>
+                    <Button variant="contained" size="small" onClick={handleSaveCallLog} sx={{ fontWeight: 800, py: 0.85, fontSize: '0.78rem' }}>
                       Save Call Record to History
                     </Button>
                   </Stack>
@@ -837,14 +911,28 @@ export default function CommunicationManager() {
               </Grid>
 
               <Grid item xs={12} md={7}>
-                <Card sx={{ p: 2.5, border: '1px solid #e2e8f0', borderRadius: 3 }}>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a', mb: 2 }}>
+                <Card elevation={0} sx={{ p: 1.5, border: '1px solid #e2e8f0', borderRadius: 2 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', mb: 1.25, fontSize: '0.84rem' }}>
                     Recent Call History
                   </Typography>
 
                   <TableContainer>
                     <Table size="small">
-                      <TableHead sx={{ bgcolor: '#f8fafc' }}>
+                      <TableHead
+                        sx={{
+                          bgcolor: '#0F2E5A',
+                          '& .MuiTableCell-head': {
+                            bgcolor: '#0F2E5A !important',
+                            color: '#FFFFFF !important',
+                            fontWeight: 800,
+                            fontSize: '0.72rem',
+                            py: 1,
+                            px: 1.25,
+                            borderBottom: '2px solid #F59E0B',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
+                      >
                         <TableRow>
                           <TableCell sx={{ fontWeight: 800 }}>Date</TableCell>
                           <TableCell sx={{ fontWeight: 800 }}>Candidate</TableCell>
@@ -858,10 +946,10 @@ export default function CommunicationManager() {
                           .slice(0, 8)
                           .map((call, idx) => (
                             <TableRow key={call.id || idx} hover>
-                              <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>
+                              <TableCell sx={{ fontSize: '0.75rem', color: '#647089', whiteSpace: 'nowrap' }}>
                                 {call.sentAt?.slice(0, 10)}
                               </TableCell>
-                              <TableCell sx={{ fontWeight: 700 }}>
+                              <TableCell sx={{ fontWeight: 700, fontSize: '0.79rem' }}>
                                 {call.recipientName}
                               </TableCell>
                               <TableCell>
@@ -869,20 +957,22 @@ export default function CommunicationManager() {
                                   label={call.callStatus}
                                   size="small"
                                   sx={{
+                                    height: 20,
+                                    fontSize: '0.68rem',
                                     fontWeight: 700,
                                     bgcolor: call.callStatus === 'Connected' ? '#e5f8ee' : '#fdeceb',
                                     color: call.callStatus === 'Connected' ? '#16834b' : '#d5372f'
                                   }}
                                 />
                               </TableCell>
-                              <TableCell sx={{ fontSize: '0.8rem', color: '#334155' }}>
+                              <TableCell sx={{ fontSize: '0.76rem', color: '#334155' }}>
                                 {call.messageText}
                               </TableCell>
                             </TableRow>
                           ))}
                         {(db.communicationLogs || []).filter((c) => c.channel === 'Call').length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={4} sx={{ textAlign: 'center', py: 4, color: '#94a3b8' }}>
+                            <TableCell colSpan={4} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                               No call records logged yet.
                             </TableCell>
                           </TableRow>
@@ -898,43 +988,58 @@ export default function CommunicationManager() {
 
         {/* Tab 3: History Log */}
         {currentTab === 2 && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.75, flexWrap: 'wrap', gap: 1.25 }}>
               <TextField
                 size="small"
                 placeholder="Search history by name, phone, message text..."
                 value={historySearch}
                 onChange={(e) => setHistorySearch(e.target.value)}
-                sx={{ width: { xs: '100%', sm: 340 } }}
+                sx={{ width: { xs: '100%', sm: 320 } }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                     </InputAdornment>
                   )
                 }}
               />
 
-              <Box sx={{ display: 'flex', gap: 0.8 }}>
+              <Box sx={{ display: 'flex', gap: 0.6 }}>
                 {['All', 'WhatsApp', 'SMS', 'Call'].map((ch) => (
                   <Chip
                     key={ch}
                     label={ch}
+                    size="small"
                     clickable
                     color={historyChannelFilter === ch ? 'primary' : 'default'}
                     onClick={() => setHistoryChannelFilter(ch)}
-                    sx={{ fontWeight: 700 }}
+                    sx={{ fontWeight: 700, fontSize: '0.74rem' }}
                   />
                 ))}
               </Box>
             </Box>
 
-            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
-                    <TableCell sx={{ fontWeight: 800 }}>Date & Time</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 48 }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Date &amp; Time</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Recipient</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Channel</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Message Content / Call Result</TableCell>
@@ -944,43 +1049,45 @@ export default function CommunicationManager() {
                 <TableBody>
                   {filteredHistory.map((item, idx) => (
                     <TableRow key={item.id || idx} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#647089' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>
+                      <TableCell sx={{ fontSize: '0.75rem', color: '#647089', whiteSpace: 'nowrap' }}>
                         {item.sentAt?.replace('T', ' ').slice(0, 16)}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.79rem' }}>
                           {item.recipientName}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                           {item.recipientPhone} ({item.recipientType})
                         </Typography>
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={item.channel === 'WhatsApp' ? <WhatsAppIcon /> : item.channel === 'SMS' ? <SmsIcon /> : <PhoneIcon />}
+                          icon={item.channel === 'WhatsApp' ? <WhatsAppIcon sx={{ fontSize: '13px !important' }} /> : item.channel === 'SMS' ? <SmsIcon sx={{ fontSize: '13px !important' }} /> : <PhoneIcon sx={{ fontSize: '13px !important' }} />}
                           label={item.channel}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
                             fontWeight: 800,
                             bgcolor: item.channel === 'WhatsApp' ? '#e8fdf0' : item.channel === 'SMS' ? '#eff6ff' : '#fefce8',
                             color: item.channel === 'WhatsApp' ? '#16834b' : item.channel === 'SMS' ? '#1e40af' : '#854d0e'
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ maxWidth: 380, fontSize: '0.85rem', color: '#1e293b' }}>
+                      <TableCell sx={{ maxWidth: 380, fontSize: '0.77rem', color: '#1e293b' }}>
                         {item.messageText}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.77rem' }}>
                         {item.sentBy || 'Admin'}
                       </TableCell>
                     </TableRow>
                   ))}
                   {filteredHistory.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                         No communication records found matching criteria.
                       </TableCell>
                     </TableRow>
@@ -993,41 +1100,41 @@ export default function CommunicationManager() {
 
         {/* Tab 4: Templates Manager */}
         {currentTab === 3 && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                System & Custom Message Templates ({db.smsTemplates?.length || 0})
+          <Box sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.75 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
+                System &amp; Custom Message Templates ({db.smsTemplates?.length || 0})
               </Typography>
-              <Button variant="contained" startIcon={<AddIcon />} onClick={() => setOpenTemplateDialog(true)} sx={{ fontWeight: 800 }}>
+              <Button variant="contained" size="small" startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />} onClick={() => setOpenTemplateDialog(true)} sx={{ fontWeight: 800, fontSize: '0.76rem', px: 1.4, py: 0.65 }}>
                 + Add Custom Template
               </Button>
             </Box>
 
-            <Grid container spacing={2.5}>
-              {(db.smsTemplates || []).map((tmpl, idx) => (
+            <Grid container spacing={1.75}>
+              {(db.smsTemplates || []).map((tmpl) => (
                 <Grid item xs={12} sm={6} md={4} key={tmpl.id}>
-                  <Card sx={{ p: 2.5, borderRadius: 3, border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <Card elevation={0} sx={{ p: 1.75, borderRadius: 2, border: '1px solid #e2e8f0', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                           {tmpl.title}
                         </Typography>
-                        <Chip label={tmpl.category} size="small" sx={{ bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700, fontSize: '0.72rem' }} />
+                        <Chip label={tmpl.category} size="small" sx={{ height: 20, bgcolor: '#e8f0fd', color: '#1a56b0', fontWeight: 700, fontSize: '0.68rem' }} />
                       </Box>
-                      <Typography variant="body2" sx={{ color: '#475569', mt: 1, p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, fontSize: '0.85rem' }}>
-                        "{tmpl.content}"
+                      <Typography variant="body2" sx={{ color: '#475569', mt: 0.75, p: 1.25, bgcolor: '#f8fafc', borderRadius: 1.5, fontSize: '0.78rem' }}>
+                        &quot;{tmpl.content}&quot;
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1.5, mt: 1 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', pt: 1, mt: 0.75 }}>
                       <Button
                         size="small"
-                        startIcon={<SendIcon />}
+                        startIcon={<SendIcon sx={{ fontSize: '14px !important' }} />}
                         onClick={() => {
                           handleSelectTemplate(tmpl.id);
                           setCurrentTab(0);
                         }}
-                        sx={{ fontWeight: 800 }}
+                        sx={{ fontWeight: 800, fontSize: '0.74rem' }}
                       >
                         Use in Broadcast
                       </Button>

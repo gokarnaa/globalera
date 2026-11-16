@@ -221,7 +221,7 @@ export default function LogBookManager() {
   // WhatsApp share message generators
   const getSingleLogShareText = (lb) => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `*Prabidhik School, Jorpati*\n` +
       `📖 *DAILY TRAINING LOG SLIP*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
@@ -241,7 +241,7 @@ export default function LogBookManager() {
 
   const getBatchLogShareText = () => {
     return (
-      `*KITE CAREGIVER TRAINING CENTER / Global Era Technical School*\n` +
+      `*Prabidhik School, Jorpati*\n` +
       `📚 *OFFICIAL LOG BOOK REGISTER*\n` +
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `• *Batch / Group:* ${selectedGroup?.groupCode || '—'} (Shift ${selectedGroup?.shift || 'A'})\n` +
@@ -256,76 +256,292 @@ export default function LogBookManager() {
       }).join('\n') +
       (groupLogBooks.length > 5 ? `\n...and ${groupLogBooks.length - 5} earlier sessions.` : '') +
       `\n━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `_Official institutional training log certified by Global Era Technical School._`
+      `_Official institutional training log certified by Prabidhik School, Jorpati._`
     );
   };
 
   return (
-    <Box>
-      {/* Page Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <MenuBookTwoToneIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Log Book (Daily Training Delivery)
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Actual training delivery log. Work Plan (Planning) → Lesson Plan (Preparation) → Log Book (Actual Training Delivery).
-          </Typography>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <MenuBookTwoToneIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Log Book (Daily Training Delivery)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Batch {selectedGroup?.groupCode || '—'} (Shift {selectedGroup?.shift || 'A'}) • {totalActualHours}/{targetCourseHours}h Delivered
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          {/* Batch A4 Document / Print */}
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<PrintIcon />}
-            onClick={() => {
-              setModalTargetItem(null);
-              setOfficialModalOpen(true);
+          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => {
+                  setModalTargetItem(null);
+                  setOfficialModalOpen(true);
+                }}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                A4 Log Sheet / PDF
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<WhatsAppIcon sx={{ fontSize: '15px !important', color: '#4ade80' }} />}
+                component="a"
+                href={getWhatsAppUrl(trainer?.phone || '', getBatchLogShareText())}
+                target="_blank"
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                WhatsApp Share
+              </Button>
+
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<CheckCircleOutlineIcon sx={{ fontSize: '15px !important', color: '#4ade80' }} />}
+                onClick={handleQuickLogToday}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                1-Click Log Today
+              </Button>
+
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Record Delivery
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
-            sx={{ fontWeight: 700 }}
           >
-            A4 Official Log Sheet / PDF
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Logged Sessions
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {groupLogBooks.length}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Daily Delivery Records
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <MenuBookTwoToneIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          {/* Batch WhatsApp Share */}
-          <Button
-            variant="outlined"
-            color="success"
-            startIcon={<WhatsAppIcon />}
-            component="a"
-            href={getWhatsAppUrl(trainer?.phone || '', getBatchLogShareText())}
-            target="_blank"
-            sx={{ fontWeight: 700 }}
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
           >
-            WhatsApp Share
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Delivered Hours
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalActualHours} / {targetCourseHours}h
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {deliveryProgressPercent}% Completed
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleOutlineIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          <Button
-            variant="contained"
-            color="success"
-            startIcon={<CheckCircleOutlineIcon />}
-            onClick={handleQuickLogToday}
-            sx={{ fontWeight: 800 }}
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #f59e0b',
+              bgcolor: '#ffffff'
+            }}
           >
-            1-Click Log Today
-          </Button>
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Remaining Hours
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {Math.max(0, targetCourseHours - totalActualHours)}h
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Pending Delivery
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <HourglassEmptyIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-            + Record Delivery
-          </Button>
-        </Box>
-      </Box>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Completion Rate
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {deliveryProgressPercent}%
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {selectedGroup?.groupCode || '—'} • Shift {selectedGroup?.shift || 'A'}
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <VisibilityIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
 
-      {/* Group Selector & KPI Metrics */}
-      <Card sx={{ p: 2.5, mb: 3 }}>
-        <Grid container spacing={2.5} alignItems="center">
-          <Grid item xs={12} md={5}>
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Grid container spacing={1.25} alignItems="center">
+          <Grid item xs={12} sm={4.5}>
             <TextField
               select
+              size="small"
               label="Select Training Group"
               fullWidth
               value={selectedGroupId}
@@ -342,201 +558,160 @@ export default function LogBookManager() {
             </TextField>
           </Grid>
 
-          <Grid item xs={12} md={7}>
-            <Box
-              sx={{
-                display: 'grid',
-                gridTemplateColumns: { xs: '1fr 1fr', sm: '1fr 1fr 1fr' },
-                gap: 1.5,
-                bgcolor: '#f8fafc',
-                p: 1.5,
-                borderRadius: 2,
-                border: '1px solid #e2e8f0'
+          <Grid item xs={12} sm={4.5}>
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="Search by date, topic covered, materials, or skills..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                  </InputAdornment>
+                )
               }}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={3} sx={{ display: 'flex', justifyContent: { xs: 'space-between', sm: 'flex-end' }, alignItems: 'center', gap: 1 }}>
+            <Chip
+              label={`${filteredLogBooks.length} / ${groupLogBooks.length}`}
+              size="small"
+              sx={{ fontWeight: 800, bgcolor: '#f1f5f9', color: '#0f2e5a', fontSize: '0.72rem' }}
+            />
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
             >
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  LOGGED SESSIONS
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                  {groupLogBooks.length} Sessions
-                </Typography>
-              </Box>
-
-              <Box>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  DELIVERED HOURS
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1a56b0' }}>
-                  {totalActualHours} / {targetCourseHours} hrs
-                </Typography>
-              </Box>
-
-              <Box sx={{ gridColumn: { xs: 'span 2', sm: 'span 1' } }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                  COMPLETION RATE
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={deliveryProgressPercent}
-                    sx={{ flexGrow: 1, height: 7, borderRadius: 3 }}
-                  />
-                  <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                    {deliveryProgressPercent}%
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
+              <ToggleButton value="table">
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card">
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1.5 }}>
-        <TextField
-          size="small"
-          placeholder="Search by date, topic covered, materials, or skills..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ width: { xs: '100%', sm: 360 }, bgcolor: '#ffffff' }}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-              </InputAdornment>
-            )
-          }}
-        />
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredLogBooks.length} of {groupLogBooks.length} records
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-          >
-            <ToggleButton value="table">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
-
       {/* 1. TABLE VIEW */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
                   '& .MuiTableCell-head': {
                     bgcolor: '#0F2E5A !important',
                     color: '#FFFFFF !important',
-                    fontWeight: 900,
-                    fontSize: '0.84rem',
-                    py: 1.5,
-                    borderBottom: '2px solid #F59E0B'
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
                   }
                 }}
               >
                 <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 65, textAlign: 'center' }}>
-                    S.N.
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 46, textAlign: 'center' }}>
+                    #
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 200 }}>Delivered Topics</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Materials</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, minWidth: 180 }}>Skills Acquired</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 85 }}>Hours</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 110 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 110 }}>Date</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 180 }}>Delivered Topics</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 160 }}>Materials</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, minWidth: 160 }}>Skills Acquired</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 75 }}>Hours</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 100 }}>Status</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 120, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredLogBooks.map((lb, index) => (
-                  <TableRow key={lb.id} hover>
-                    <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 65 }}>
+                  <TableRow key={lb.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#64748B', textAlign: 'center', fontSize: '0.75rem' }}>
                       {index + 1}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#1a56b0' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#1a56b0', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {lb.deliveryDate}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, fontSize: '0.9rem', color: '#0f172a' }}>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0f172a' }}>
                       {lb.topicsCovered}
                     </TableCell>
-                    <TableCell sx={{ fontSize: '0.85rem', color: '#475569' }}>
+                    <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
                       {lb.materialsUsed || '—'}
                     </TableCell>
-                    <TableCell sx={{ fontSize: '0.85rem', color: '#475569' }}>
+                    <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
                       {lb.skillsLearned || '—'}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#1a56b0' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#1a56b0', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {lb.actualHours} hrs
                     </TableCell>
-                    <TableCell>
+                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
                       <Chip
-                        icon={lb.isDelivered ? <CheckCircleOutlineIcon /> : <HourglassEmptyIcon />}
+                        icon={lb.isDelivered ? <CheckCircleOutlineIcon sx={{ fontSize: '12px !important' }} /> : <HourglassEmptyIcon sx={{ fontSize: '12px !important' }} />}
                         label={lb.isDelivered ? 'Delivered' : 'Pending'}
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           bgcolor: lb.isDelivered ? '#e5f8ee' : '#fef3c7',
                           color: lb.isDelivered ? '#16834b' : '#b45309',
                           fontWeight: 700
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Tooltip title="View Official A4 Log Sheet (PDF)">
-                        <IconButton
-                          size="small"
-                          onClick={() => {
-                            setModalTargetItem(lb);
-                            setOfficialModalOpen(true);
-                          }}
-                          sx={{ color: '#1a56b0' }}
-                        >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <Stack direction="row" spacing={0.4} justifyContent="flex-end" alignItems="center">
+                        <Tooltip title="View Official A4 Log Sheet (PDF)">
+                          <IconButton
+                            size="small"
+                            onClick={() => {
+                              setModalTargetItem(lb);
+                              setOfficialModalOpen(true);
+                            }}
+                            sx={{ color: '#1a56b0', p: 0.45 }}
+                          >
+                            <VisibilityIcon sx={{ fontSize: 15 }} />
+                          </IconButton>
+                        </Tooltip>
 
-                      <Tooltip title="Share on WhatsApp">
-                        <IconButton
-                          size="small"
-                          component="a"
-                          href={getWhatsAppUrl('', getSingleLogShareText(lb))}
-                          target="_blank"
-                          sx={{ color: '#16834b' }}
-                        >
-                          <WhatsAppIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                        <Tooltip title="Share on WhatsApp">
+                          <IconButton
+                            size="small"
+                            component="a"
+                            href={getWhatsAppUrl('', getSingleLogShareText(lb))}
+                            target="_blank"
+                            sx={{ color: '#16834b', p: 0.45 }}
+                          >
+                            <WhatsAppIcon sx={{ fontSize: 15 }} />
+                          </IconButton>
+                        </Tooltip>
 
-                      <Tooltip title="Edit Log Entry">
-                        <IconButton size="small" onClick={() => handleOpenEdit(lb)} sx={{ color: '#475569' }}>
-                          <EditIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                        <Tooltip title="Edit Log Entry">
+                          <IconButton size="small" onClick={() => handleOpenEdit(lb)} sx={{ color: '#475569', p: 0.45 }}>
+                            <EditIcon sx={{ fontSize: 15 }} />
+                          </IconButton>
+                        </Tooltip>
 
-                      <Tooltip title="Delete">
-                        <IconButton size="small" onClick={() => handleDelete(lb.id)} sx={{ color: '#d5372f' }}>
-                          <DeleteOutlineIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
+                        <Tooltip title="Delete">
+                          <IconButton size="small" onClick={() => handleDelete(lb.id)} sx={{ color: '#d5372f', p: 0.45 }}>
+                            <DeleteOutlineIcon sx={{ fontSize: 15 }} />
+                          </IconButton>
+                        </Tooltip>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}
                 {filteredLogBooks.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                       {searchTerm
                         ? 'No log records match your search query.'
                         : 'No log books recorded yet. Click "+ Record Delivery" to log today\'s class.'}

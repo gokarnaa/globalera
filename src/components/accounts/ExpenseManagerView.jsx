@@ -127,42 +127,93 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
   };
 
   return (
-    <Box>
-      <Card sx={{ p: 2.5, mb: 3, borderRadius: 3, border: '1px solid #E2E8F0' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              💸 Operating Expenses & Vendor Payments
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Record rent, electricity, internet, training raw materials, maintenance, and other operating expenses
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenModal(true)}
-            sx={{
-              background: 'linear-gradient(135deg, #DC2626 0%, #EF4444 100%)',
-              fontWeight: 800,
-              borderRadius: 2.5,
-              textTransform: 'none'
-            }}
-          >
-            + Record Expense
-          </Button>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 } }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <PointOfSaleIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Operating Expenses &amp; Vendor Payments
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Record rent, electricity, internet, raw materials, maintenance &amp; operating expenses
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setOpenModal(true)}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Record Expense
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
-        <Divider sx={{ my: 2 }} />
-
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+      {/* Compact Filter & Search Bar */}
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25} alignItems="center">
           <TextField
             size="small"
             placeholder="Search by Payee, Description, Voucher..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            InputProps={{ startAdornment: <SearchIcon sx={{ color: '#94A3B8', mr: 1, fontSize: '1.2rem' }} /> }}
-            sx={{ minWidth: 320 }}
+            InputProps={{ startAdornment: <SearchIcon sx={{ color: '#94A3B8', mr: 1, fontSize: 18 }} /> }}
+            sx={{ minWidth: { xs: '100%', sm: 300 } }}
           />
           <TextField
             select
@@ -170,17 +221,17 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
             label="Category"
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            sx={{ minWidth: 200 }}
+            sx={{ minWidth: { xs: '100%', sm: 200 } }}
           >
             <MenuItem value="ALL">All Categories</MenuItem>
-            <MenuItem value="Rent & Facilities">Rent & Facilities</MenuItem>
+            <MenuItem value="Rent & Facilities">Rent &amp; Facilities</MenuItem>
             <MenuItem value="Training Materials">Training Materials</MenuItem>
-            <MenuItem value="Utilities & Internet">Utilities & Internet</MenuItem>
-            <MenuItem value="Marketing & Counseling">Marketing & Counseling</MenuItem>
-            <MenuItem value="Office Supplies & Maintenance">Office Supplies & Maintenance</MenuItem>
+            <MenuItem value="Utilities & Internet">Utilities &amp; Internet</MenuItem>
+            <MenuItem value="Marketing & Counseling">Marketing &amp; Counseling</MenuItem>
+            <MenuItem value="Office Supplies & Maintenance">Office Supplies &amp; Maintenance</MenuItem>
           </TextField>
-          <Box sx={{ ml: { xs: 0, sm: 'auto' }, display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#DC2626' }}>
+          <Box sx={{ ml: { xs: 0, sm: 'auto' }, display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+            <Typography variant="caption" sx={{ fontWeight: 800, color: '#DC2626', fontSize: '0.8rem' }}>
               Total Expenses: Rs. {totalExpenseAmount.toLocaleString()}
             </Typography>
 
@@ -197,9 +248,9 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
                   border: 'none',
                   borderRadius: '6px !important',
                   px: 1.2,
-                  py: 0.5,
+                  py: 0.4,
                   fontWeight: 800,
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
                   textTransform: 'none',
                   color: '#64748B',
                   '&.Mui-selected': {
@@ -223,29 +274,31 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
 
       {/* Table View Mode */}
       {viewMode === 'table' && (
-      <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+      <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
         <TableContainer>
-          <Table>
+          <Table size="small">
             <TableHead
               sx={{
                 bgcolor: '#0F2E5A',
                 '& .MuiTableCell-head': {
                   bgcolor: '#0F2E5A !important',
                   color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.84rem',
-                  py: 1.4,
-                  borderBottom: '2px solid #F59E0B'
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B',
+                  whiteSpace: 'nowrap'
                 }
               }}
             >
               <TableRow>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Voucher No.</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 120 }}>Date</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900 }}>Payee / Vendor</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 180 }}>Category</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, width: 140 }}>Payment Method</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 900, textAlign: 'right', width: 140 }}>Amount</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Voucher No.</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 110 }}>Date</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payee / Vendor</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 170 }}>Category</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Payment Method</TableCell>
+                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right', width: 130 }}>Amount</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

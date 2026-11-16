@@ -333,7 +333,7 @@ export default function SyllabusManager() {
       .map((u) => `• Unit ${u.unitNo}: ${u.title} (${u.totalHours}h)`)
       .join('\n');
 
-    const text = `🌟 *Global Era Technical School — Official Course Syllabus* 🌟\n\n` +
+    const text = `🌟 *Prabidhik School, Jorpati — Official Course Syllabus* 🌟\n\n` +
       `📘 *Course:* ${cTitle}\n` +
       `⏱️ *Duration:* ${courseTargetHours} Hours (80% Practical Hands-on Training)\n` +
       `📊 *Hours Breakdown:* ${totalTheoryHours}h Theory + ${totalPracticalHours}h Practical (${courseSyllabi.length} Competency Units)\n\n` +
@@ -613,7 +613,7 @@ export default function SyllabusManager() {
   // WhatsApp Share Text
   const generateWhatsAppShareText = () => {
     if (!selectedCourse) return '';
-    let msg = `*Global Era Technical School*\n`;
+    let msg = `*Prabidhik School, Jorpati*\n`;
     msg += `📚 *Curriculum Outline*: ${selectedCourse.title}\n`;
     msg += `⏱ *Total Training Duration*: ${courseTargetHours} Hours (Practical: ${totalPracticalHours} hrs [${practicalRatio}%], Theory: ${totalTheoryHours} hrs [${theoryRatio}%])\n`;
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
@@ -622,7 +622,7 @@ export default function SyllabusManager() {
       msg += `🔹 *Unit ${u.unitNo}:* ${u.title} (${u.totalHours} hrs - Practical: ${u.practicalHours}h, Theory: ${u.theoryHours}h)\n`;
     });
     msg += `━━━━━━━━━━━━━━━━━━━━\n`;
-    msg += `📍 *Location*: MitraPark, Kathmandu | 📞 *Contact*: 9851000000\n`;
+    msg += `📍 *Location*: Jorpati, Kathmandu | 📞 *Contact*: 9851000000\n`;
     msg += `🌐 *CTEVT Accredited Technical Training*`;
     return msg;
   };
@@ -633,285 +633,295 @@ export default function SyllabusManager() {
   };
 
   return (
-    <Box sx={{ width: '100%', pb: 4 }}>
-      {/* =======================================================
-          1. ULTRA-MODERN HERO CURRICULUM STUDIO HEADER
-          ======================================================= */}
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, width: '100%' }}>
+      {/* Slim 1-Row Executive Header Bar */}
       <Card
+        elevation={0}
         sx={{
-          mb: 2.5,
-          py: { xs: 1.75, sm: 2.25 },
-          px: { xs: 2, sm: 2.5, md: 3 },
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #071933 0%, #0F2C59 60%, #1A56B0 100%)',
-          color: '#FFFFFF',
-          border: '1px solid rgba(255, 255, 255, 0.12)',
-          boxShadow: '0 10px 28px -8px rgba(7, 25, 51, 0.32)',
-          position: 'relative',
-          overflow: 'hidden'
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
         }}
       >
-        <Grid container spacing={2.5} alignItems="center">
-          {/* Left Hero Overview */}
-          <Grid item xs={12} lg={7}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, mb: 1.5, flexWrap: 'wrap' }}>
-              <Chip
-                icon={<ShieldIcon sx={{ fontSize: '14px !important', color: '#FDE047 !important' }} />}
-                label="CTEVT Level 1 & NVQF Standards"
-                size="small"
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={6}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
                 sx={{
-                  bgcolor: 'rgba(254, 240, 138, 0.15)',
-                  color: '#FEF08A',
-                  fontWeight: 900,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(254, 240, 138, 0.3)'
-                }}
-              />
-              <Chip
-                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#4ADE80 !important' }} />}
-                label="80% Practical Mandatory"
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(74, 222, 128, 0.15)',
-                  color: '#86EFAC',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  border: '1px solid rgba(74, 222, 128, 0.25)'
-                }}
-              />
-              <Chip
-                label={`${courseSyllabi.length} Units Active`}
-                size="small"
-                sx={{
-                  bgcolor: 'rgba(255, 255, 255, 0.15)',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  fontSize: '0.72rem'
-                }}
-              />
-            </Box>
-
-            <Typography
-              variant="h4"
-              sx={{
-                fontWeight: 900,
-                color: '#FFFFFF',
-                fontSize: { xs: '1.45rem', sm: '1.9rem', md: '2.1rem' },
-                lineHeight: 1.2,
-                letterSpacing: '-0.02em',
-                mb: 1
-              }}
-            >
-              Curriculum &amp; Syllabus Studio
-            </Typography>
-
-            <Typography variant="body2" sx={{ color: '#CBD5E1', maxWidth: 640, mb: 2.5, lineHeight: 1.6 }}>
-              Directly manage unit competencies, theory hours, and practical hours for {selectedCourse?.title}.
-              Ensures 80% practical skill training in accordance with CTEVT standards.
-            </Typography>
-
-            {/* Top Quick Actions */}
-            <Stack direction="row" spacing={1.2} flexWrap="wrap" useFlexGap>
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleOpenAdd}
-                sx={{
-                  background: 'linear-gradient(135deg, #10B981 0%, #059669 100%) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 900,
-                  fontSize: '0.85rem',
-                  py: 1,
-                  px: 2,
-                  borderRadius: 2.5,
-                  boxShadow: '0 4px 14px rgba(16, 185, 129, 0.4)',
-                  '&:hover': {
-                    background: 'linear-gradient(135deg, #059669 0%, #047857 100%) !important'
-                  }
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
-                + Add Unit
-              </Button>
-
-              <Button
-                variant="contained"
-                startIcon={<AutoAwesomeIcon sx={{ color: '#FDE047' }} />}
-                onClick={() => setOpenPresetDialog(true)}
-                sx={{
-                  background: 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.85rem',
-                  py: 1,
-                  px: 2,
-                  borderRadius: 2.5,
-                  boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
-                }}
-              >
-                1-Click CTEVT Presets
-              </Button>
-
+                <MenuBookIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Curriculum &amp; Syllabus Studio
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • {selectedCourse?.title} • {courseSyllabi.length} Competency Units
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={6} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
               <Button
                 variant="outlined"
-                startIcon={<FileUploadIcon />}
+                size="small"
+                startIcon={<AutoAwesomeIcon sx={{ fontSize: '15px !important', color: '#fbbf24' }} />}
+                onClick={() => setOpenPresetDialog(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                CTEVT Presets
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FileUploadIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => setOpenBulkDialog(true)}
                 sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  py: 1,
-                  px: 1.8,
-                  borderRadius: 2.5,
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
                 CSV Import
               </Button>
-
               <Button
                 variant="outlined"
-                startIcon={<PrintIcon />}
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => setOpenDocDialog(true)}
                 sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.4) !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  py: 1,
-                  px: 1.8,
-                  borderRadius: 2.5,
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.18)' }
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
                 Print PDF
               </Button>
-
-              <IconButton
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<WhatsAppIcon sx={{ fontSize: '15px !important', color: '#4ade80' }} />}
                 onClick={handleShareWhatsApp}
-                title="Share Curriculum on WhatsApp"
                 sx={{
-                  bgcolor: '#25D366',
-                  color: '#FFFFFF',
-                  p: 1.1,
-                  borderRadius: 2.5,
-                  '&:hover': { bgcolor: '#1EBE5D' }
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                 }}
               >
-                <WhatsAppIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-          </Grid>
-
-          {/* Right Live Hours Target Balancer Widget */}
-          <Grid item xs={12} lg={5}>
-            <Box
-              sx={{
-                bgcolor: 'rgba(15, 30, 60, 0.75)',
-                backdropFilter: 'blur(16px)',
-                p: { xs: 2.5, sm: 3 },
-                borderRadius: 3.5,
-                border: '1.5px solid rgba(255, 255, 255, 0.16)',
-                boxShadow: '0 8px 30px rgba(0, 0, 0, 0.25)'
-              }}
-            >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                <Typography variant="overline" sx={{ color: '#93C5FD', fontWeight: 900, letterSpacing: '0.08em' }}>
-                  ⚡ LIVE HOURS BALANCER
-                </Typography>
-                <Chip
-                  size="small"
-                  label={isCtevtBalanced ? '✓ CTEVT 80:20 Compliant' : '⚠️ Adjust Ratio'}
-                  sx={{
-                    height: 20,
-                    fontSize: '0.68rem',
-                    fontWeight: 900,
-                    bgcolor: isCtevtBalanced ? '#10B981' : '#F59E0B',
-                    color: '#FFFFFF'
-                  }}
-                />
-              </Box>
-
-              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
-                <Typography variant="h3" sx={{ fontWeight: 900, color: '#FFFFFF', lineHeight: 1 }}>
-                  {totalSyllabusHours}
-                </Typography>
-                <Typography variant="subtitle1" sx={{ color: '#94A3B8', fontWeight: 700 }}>
-                  / {courseTargetHours} Hours ({hoursPercentage}%)
-                </Typography>
-              </Box>
-
-              <LinearProgress
-                variant="determinate"
-                value={hoursPercentage}
+                WhatsApp
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
                 sx={{
-                  height: 10,
-                  borderRadius: 5,
-                  bgcolor: 'rgba(255, 255, 255, 0.15)',
-                  mb: 1.5,
-                  '& .MuiLinearProgress-bar': {
-                    bgcolor: hoursPercentage === 100 ? '#10B981' : '#3B82F6',
-                    borderRadius: 5
-                  }
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
                 }}
-              />
-
-              {/* Status Note */}
-              {remainingHours > 0 ? (
-                <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 700, display: 'block', mb: 2 }}>
-                  ⏳ Still <b>{remainingHours} hours</b> remaining to complete the curriculum allocation.
-                </Typography>
-              ) : (
-                <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 700, display: 'block', mb: 2 }}>
-                  🎉 Total training duration of 390 hours is fully allocated.
-                </Typography>
-              )}
-
-              {/* Micro Ratio Metrics */}
-              <Grid container spacing={1.5}>
-                <Grid item xs={6}>
-                  <Box sx={{ bgcolor: 'rgba(16, 185, 129, 0.12)', border: '1px solid rgba(16, 185, 129, 0.3)', p: 1.2, borderRadius: 2 }}>
-                    <Typography variant="caption" sx={{ color: '#86EFAC', fontWeight: 800, display: 'block' }}>
-                      PRACTICAL
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {totalPracticalHours} hrs ({practicalRatio}%)
-                    </Typography>
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box sx={{ bgcolor: 'rgba(59, 130, 246, 0.12)', border: '1px solid rgba(59, 130, 246, 0.3)', p: 1.2, borderRadius: 2 }}>
-                    <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 800, display: 'block' }}>
-                      THEORY
-                    </Typography>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#FFFFFF' }}>
-                      {totalTheoryHours} hrs ({theoryRatio}%)
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Box>
+              >
+                + Add Unit
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Syllabus Hours
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalSyllabusHours} / {courseTargetHours}h
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {hoursPercentage}% Allocated
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <MenuBookIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Practical Allocation
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#059669', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalPracticalHours}h ({practicalRatio}%)
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  80% Practical Target
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <BuildIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Theory Allocation
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalTheoryHours}h ({theoryRatio}%)
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  20% Theory Target
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #f59e0b',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Competency Units
+                </Typography>
+                <Typography noWrap sx={{ fontWeight: 800, color: '#b45309', fontSize: '1.15rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {courseSyllabi.length} Units
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: isCtevtBalanced ? '#059669' : '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  {isCtevtBalanced ? 'CTEVT 80:20 Compliant' : `${remainingHours}h Remaining`}
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* =======================================================
           2. COURSE SELECTOR, SEARCH BAR & 3-WAY VIEW SWITCHER
           ======================================================= */}
       <Card
+        elevation={0}
         sx={{
-          p: 2,
-          mb: 3,
-          borderRadius: 3.5,
-          border: '1px solid #E2E8F0',
-          boxShadow: '0 2px 10px rgba(15, 23, 42, 0.04)',
-          bgcolor: '#FFFFFF'
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
         }}
       >
-        <Grid container spacing={2} alignItems="center">
+        <Grid container spacing={1.25} alignItems="center">
           {/* Select Course */}
           <Grid item xs={12} sm={6} md={4}>
             <TextField
@@ -1337,61 +1347,75 @@ export default function SyllabusManager() {
           VIEW 3: CTEVT STANDARD MATRIX TABLE
           ======================================================= */}
       {viewMode === 'table' && (
-        <Card sx={{ borderRadius: 3.5, overflow: 'hidden', border: '1px solid #E2E8F0', boxShadow: '0 4px 18px rgba(0,0,0,0.04)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#0F2C59' }}>
+            <Table size="small">
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, width: 70, textAlign: 'center' }}>Unit #</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Unit Title</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Theory</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Practical</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'center' }}>Total</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Learning Outcomes / NOS</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900 }}>Tools &amp; Materials</TableCell>
-                  <TableCell sx={{ color: '#fff', fontWeight: 900, textAlign: 'right' }}>Actions</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 55, textAlign: 'center' }}>Unit #</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Unit Title</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Theory</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Practical</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Total</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Learning Outcomes / NOS</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Tools &amp; Materials</TableCell>
+                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {filteredSyllabi.map((syl) => (
                   <TableRow key={syl.id} hover sx={{ '&:nth-of-type(even)': { bgcolor: '#F8FAFC' } }}>
-                    <TableCell sx={{ fontWeight: 900, color: '#1D4ED8', textAlign: 'center' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#1D4ED8', textAlign: 'center', fontSize: '0.76rem' }}>
                       #{syl.unitNo}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, fontSize: '0.92rem', color: '#0F172A' }}>
+                    <TableCell sx={{ fontWeight: 700, fontSize: '0.8rem', color: '#0F172A' }}>
                       {syl.title}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#2563EB' }}>
+                    <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#2563EB', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {syl.theoryHours}h
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#059669' }}>
+                    <TableCell sx={{ fontWeight: 700, textAlign: 'center', color: '#059669', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {syl.practicalHours}h
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', color: '#0F172A' }}>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#0F172A', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {syl.totalHours || (Number(syl.theoryHours) || 0) + (Number(syl.practicalHours) || 0)}h
                     </TableCell>
-                    <TableCell sx={{ color: '#334155', fontSize: '0.82rem', maxWidth: 280 }}>
+                    <TableCell sx={{ color: '#334155', fontSize: '0.78rem', maxWidth: 280 }}>
                       {syl.learningOutcome || 'Competency standard tasks.'}
                     </TableCell>
-                    <TableCell sx={{ color: '#64748B', fontSize: '0.8rem', maxWidth: 220 }}>
+                    <TableCell sx={{ color: '#64748B', fontSize: '0.76rem', maxWidth: 220 }}>
                       {syl.toolsAndMaterials || 'Standard tools.'}
                     </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <Box sx={{ display: 'flex', gap: 0.5, justifyContent: 'flex-end' }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1D4ED8' }}>
-                          <EditIcon fontSize="small" />
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                        <IconButton size="small" onClick={() => handleOpenEdit(syl)} sx={{ color: '#1D4ED8', p: 0.45 }}>
+                          <EditIcon sx={{ fontSize: 15 }} />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(syl.id)} sx={{ color: '#EF4444' }}>
-                          <DeleteOutlineIcon fontSize="small" />
+                        <IconButton size="small" onClick={() => handleDelete(syl.id)} sx={{ color: '#EF4444', p: 0.45 }}>
+                          <DeleteOutlineIcon sx={{ fontSize: 15 }} />
                         </IconButton>
-                      </Box>
+                      </Stack>
                     </TableCell>
                   </TableRow>
                 ))}
 
                 {filteredSyllabi.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94A3B8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#64748b', fontSize: '0.8rem' }}>
                       No units found.
                     </TableCell>
                   </TableRow>
@@ -1931,7 +1955,7 @@ export default function SyllabusManager() {
             }}
           >
             <Typography variant="h4" sx={{ fontWeight: 900, color: activePalette.primary, letterSpacing: '0.02em', mb: 0.5 }}>
-              Global Era Technical School
+              Prabidhik School, Jorpati
             </Typography>
             <Typography variant="subtitle1" sx={{ color: '#334155', fontWeight: 700 }}>
               GLOBAL ERA MULTI SERVICE PVT. LTD. • Jorpati, Gokarneshwor, Kathmandu

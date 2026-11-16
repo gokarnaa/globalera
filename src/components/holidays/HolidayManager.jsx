@@ -148,108 +148,204 @@ export default function HolidayManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <EventBusyIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Holiday Management
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            National, festival, and institutional holidays. Automatically adjusts Work Plans, Attendance, and Expected End Dates.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExport} sx={{ fontWeight: 700 }}>
-            Export Excel
-          </Button>
-          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-            + Add Holiday
-          </Button>
-        </Box>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <EventBusyIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Holiday &amp; Academic Calendar Management
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • National, festival &amp; institutional holidays (auto-adjusts Work Plans &amp; End Dates)
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<FileDownloadIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleExport}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Export Excel
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Add Holiday
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {/* Saturday Default Notice Box */}
-      <Card sx={{ p: 2, mb: 3, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 3 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <CalendarMonthIcon sx={{ color: '#166534', fontSize: 28 }} />
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, bgcolor: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+          <CalendarMonthIcon sx={{ color: '#166534', fontSize: 20 }} />
           <Box>
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#166534' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#166534', fontSize: '0.79rem', lineHeight: 1.2 }}>
               Default Saturday Off Policy
             </Typography>
-            <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#15803d', fontWeight: 600, fontSize: '0.71rem' }}>
               In accordance with the official calendar, every Saturday is automatically treated as a non-training day by the system.
             </Typography>
           </Box>
         </Box>
       </Card>
 
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
-          <TextField
-            size="small"
-            placeholder="Search holiday title, date, type..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
-            }}
-          />
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
+            <TextField
+              size="small"
+              placeholder="Search holiday title, date, type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 300 }, bgcolor: '#ffffff' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
+              }}
+            />
 
-          <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Public Festival', 'National Holiday', 'Institutional'].map((type) => (
-              <Chip
-                key={type}
-                label={type}
-                clickable
-                color={typeFilter === type ? 'primary' : 'default'}
-                onClick={() => setTypeFilter(type)}
-                sx={{ fontWeight: 700, fontSize: '0.8rem' }}
-              />
-            ))}
+            <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
+              {['All', 'Public Festival', 'National Holiday', 'Institutional'].map((type) => (
+                <Chip
+                  key={type}
+                  label={type}
+                  size="small"
+                  clickable
+                  color={typeFilter === type ? 'primary' : 'default'}
+                  onClick={() => setTypeFilter(type)}
+                  sx={{ fontWeight: 700, fontSize: '0.74rem' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.74rem' }}>
+              Showing {filteredHolidays.length} of {totalHolidays}
+            </Typography>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+              sx={{ bgcolor: '#ffffff' }}
+            >
+              <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" title="Card View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredHolidays.length} of {totalHolidays}
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-            sx={{ bgcolor: '#ffffff' }}
-          >
-            <ToggleButton value="table" title="Table View">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card" title="Card View">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+      </Card>
 
       {/* Main Content: Table View vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <Table size="small">
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 48, color: '#FFFFFF !important' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Holiday Title</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Start Date</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>End Date</TableCell>
@@ -261,16 +357,16 @@ export default function HolidayManager() {
               <TableBody>
                 {filteredHolidays.map((hol, idx) => (
                   <TableRow key={hol.id} hover>
-                    <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>
                       {idx + 1}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                    <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                       {hol.title}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: '#1a56b0' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#1a56b0', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {hol.startDate}
                     </TableCell>
-                    <TableCell sx={{ fontWeight: 700, color: '#16834b' }}>
+                    <TableCell sx={{ fontWeight: 700, color: '#16834b', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
                       {hol.endDate}
                     </TableCell>
                     <TableCell>
@@ -278,20 +374,22 @@ export default function HolidayManager() {
                         label={hol.type}
                         size="small"
                         sx={{
+                          height: 20,
+                          fontSize: '0.68rem',
                           bgcolor: hol.type.includes('Festival') ? '#fef3c7' : hol.type.includes('National') ? '#e0f2fe' : '#f1f5f9',
                           color: hol.type.includes('Festival') ? '#92400e' : hol.type.includes('National') ? '#0369a1' : '#475569',
                           fontWeight: 700
                         }}
                       />
                     </TableCell>
-                    <TableCell sx={{ color: '#647089', fontSize: '0.85rem' }}>
+                    <TableCell sx={{ color: '#647089', fontSize: '0.76rem' }}>
                       {hol.description || '—'}
                     </TableCell>
-                    <TableCell sx={{ textAlign: 'right' }}>
-                      <IconButton size="small" onClick={() => handleOpenEdit(hol)} sx={{ color: '#1a56b0', mr: 0.5 }}>
+                    <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                      <IconButton size="small" onClick={() => handleOpenEdit(hol)} sx={{ color: '#1a56b0', p: 0.4, mr: 0.25 }}>
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" onClick={() => handleDelete(hol.id)} sx={{ color: '#d5372f' }}>
+                      <IconButton size="small" onClick={() => handleDelete(hol.id)} sx={{ color: '#d5372f', p: 0.4 }}>
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
@@ -299,7 +397,7 @@ export default function HolidayManager() {
                 ))}
                 {filteredHolidays.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No holiday schedules found matching the filter criteria.
                     </TableCell>
                   </TableRow>

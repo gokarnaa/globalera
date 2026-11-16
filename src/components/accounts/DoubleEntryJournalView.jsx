@@ -148,44 +148,93 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
   };
 
   return (
-    <Box>
-      {/* Header & Controls */}
-      <Card sx={{ p: 2.5, mb: 3, borderRadius: 3, border: '1px solid #E2E8F0' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F172A' }}>
-              📑 Double-Entry General Journal & Day Book
-            </Typography>
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
-              Balanced Debit and Credit entries for every financial transaction (Debit = Credit Verification)
-            </Typography>
-          </Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setOpenNewDialog(true)}
-            sx={{
-              background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
-              fontWeight: 800,
-              borderRadius: 2.5,
-              textTransform: 'none'
-            }}
-          >
-            + Post Journal Entry
-          </Button>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 } }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <ReceiptLongIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Double-Entry General Journal &amp; Day Book
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Balanced Debit and Credit entries for every financial transaction (Debit = Credit Verification)
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setOpenNewDialog(true)}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  px: 1.4,
+                  py: 0.65,
+                  whiteSpace: 'nowrap',
+                  textTransform: 'none',
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Post Journal Entry
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Filters */}
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="center">
+      {/* Compact Filters */}
+      <Card elevation={0} sx={{ p: 1.25, mb: 1.75, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.25} alignItems="center">
           <TextField
             size="small"
             placeholder="Search by JV Number or Narration..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            InputProps={{ startAdornment: <SearchIcon sx={{ color: '#94A3B8', mr: 1, fontSize: '1.2rem' }} /> }}
-            sx={{ minWidth: 320 }}
+            InputProps={{ startAdornment: <SearchIcon sx={{ color: '#94A3B8', mr: 1, fontSize: 18 }} /> }}
+            sx={{ minWidth: { xs: '100%', sm: 320 } }}
           />
           <TextField
             select
@@ -193,7 +242,7 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
             label="Status"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            sx={{ minWidth: 160 }}
+            sx={{ minWidth: { xs: '100%', sm: 160 } }}
           >
             <MenuItem value="ALL">All Status</MenuItem>
             <MenuItem value="POSTED">POSTED</MenuItem>
@@ -203,18 +252,32 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
       </Card>
 
       {/* Journal Entries Table */}
-      <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+      <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
         <TableContainer>
-          <Table>
-            <TableHead sx={{ bgcolor: '#F8FAFC' }}>
+          <Table size="small">
+            <TableHead
+              sx={{
+                bgcolor: '#0F2E5A',
+                '& .MuiTableCell-head': {
+                  bgcolor: '#0F2E5A !important',
+                  color: '#FFFFFF !important',
+                  fontWeight: 800,
+                  fontSize: '0.72rem',
+                  py: 1,
+                  px: 1.25,
+                  borderBottom: '2px solid #F59E0B',
+                  whiteSpace: 'nowrap'
+                }
+              }}
+            >
               <TableRow>
-                <TableCell sx={{ fontWeight: 800, width: 140 }}>JV Number</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 120 }}>Date</TableCell>
-                <TableCell sx={{ fontWeight: 800 }}>Narration</TableCell>
-                <TableCell sx={{ fontWeight: 800, width: 130 }}>Source Module</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 140 }}>Total Amount</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 120 }}>Status</TableCell>
-                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 120 }}>Actions</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 130, color: '#FFFFFF !important' }}>JV Number</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 110, color: '#FFFFFF !important' }}>Date</TableCell>
+                <TableCell sx={{ fontWeight: 800, color: '#FFFFFF !important' }}>Narration</TableCell>
+                <TableCell sx={{ fontWeight: 800, width: 130, color: '#FFFFFF !important' }}>Source Module</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 140, color: '#FFFFFF !important' }}>Total Amount</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 110, color: '#FFFFFF !important' }}>Status</TableCell>
+                <TableCell sx={{ fontWeight: 800, textAlign: 'right', width: 110, color: '#FFFFFF !important' }}>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

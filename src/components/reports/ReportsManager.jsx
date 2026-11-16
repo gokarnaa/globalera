@@ -307,7 +307,7 @@ export default function ReportsManager() {
   // WHATSAPP SHARE GENERATOR FOR ACTIVE TAB
   // ----------------------------------------------------
   const getActiveTabShareText = () => {
-    const orgHeader = `*KITE CAREGIVER TRAINING CENTER / GLOBAL ERA TECHNICAL SCHOOL*\n`;
+    const orgHeader = `*PRABIDHIK SCHOOL, JORPATI*\n`;
     const metaHeader = `• *Group:* ${selectedGroup?.groupCode || '—'} | *Course:* ${selectedCourse?.title || 'Vocational'}\n• *Instructor:* ${trainer?.name || '—'}\n━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
 
     if (activeTab === 0) {
@@ -377,7 +377,7 @@ export default function ReportsManager() {
         `• *Currently in OJT:* ${outcomeStats.inOjtCount} Students\n` +
         `• *Job Placed Graduates:* ${outcomeStats.placedCount} Students (${outcomeStats.placementRate}% Placement Rate)\n` +
         `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
-        `_Global Era Technical School outcome-oriented TVET tracking._`
+        `_Prabidhik School, Jorpati outcome-oriented TVET tracking._`
       );
     }
   };
@@ -385,7 +385,7 @@ export default function ReportsManager() {
   // WhatsApp Alert to specific guardian/student
   const getGuardianWarningUrl = (student, reasons, attPercent) => {
     const text =
-      `*GLOBAL ERA TECHNICAL SCHOOL*\n` +
+      `*PRABIDHIK SCHOOL, JORPATI*\n` +
       `Dear Guardian / Student,\n\n` +
       `Trainee: *${student.name}* (TGID: ${student.tgid})\n` +
       `Group: *${selectedGroup?.groupCode || '—'}* (${selectedCourse?.title || 'Training'})\n\n` +
@@ -397,58 +397,123 @@ export default function ReportsManager() {
   };
 
   return (
-    <Box>
-      {/* 1. Header Title & Top Actions */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, flexWrap: 'wrap', gap: 2 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <AssessmentIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Reports & Analytics
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Institutional TVET reports compliant with CTEVT standards: Monthly Attendance, Dropout Red Alerts, Syllabus, NSTB Readiness & Placements.
-          </Typography>
-        </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <AssessmentIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Reports &amp; Analytics
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Monthly Attendance, Dropout Red Alerts, Syllabus, NSTB Readiness &amp; Placements
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<PrintIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => {
+                  if (activeTab === 0) setReportDocType('ATTENDANCE');
+                  else if (activeTab === 1) setReportDocType('DROPOUT');
+                  else if (activeTab === 2) setReportDocType('SYLLABUS');
+                  else if (activeTab === 3) setReportDocType('NSTB');
+                  else setReportDocType('PLACEMENT');
+                  setOfficialModalOpen(true);
+                }}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                A4 Official Report / PDF
+              </Button>
 
-        <Box sx={{ display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
-          {/* A4 Printable Official Report */}
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={<PrintIcon />}
-            onClick={() => {
-              if (activeTab === 0) setReportDocType('ATTENDANCE');
-              else if (activeTab === 1) setReportDocType('DROPOUT');
-              else if (activeTab === 2) setReportDocType('SYLLABUS');
-              else if (activeTab === 3) setReportDocType('NSTB');
-              else setReportDocType('PLACEMENT');
-              setOfficialModalOpen(true);
-            }}
-            sx={{ fontWeight: 800 }}
-          >
-            A4 Official Report / PDF
-          </Button>
-
-          {/* WhatsApp Share */}
-          <Button
-            variant="outlined"
-            color="success"
-            startIcon={<WhatsAppIcon />}
-            component="a"
-            href={getWhatsAppUrl(trainer?.phone || '', getActiveTabShareText())}
-            target="_blank"
-            sx={{ fontWeight: 700 }}
-          >
-            WhatsApp Summary
-          </Button>
-        </Box>
-      </Box>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<WhatsAppIcon sx={{ fontSize: '15px !important' }} />}
+                component="a"
+                href={getWhatsAppUrl(trainer?.phone || '', getActiveTabShareText())}
+                target="_blank"
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                WhatsApp Summary
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {/* 2. Global Filter Bar: Group Selector & Month Selector */}
-      <Card sx={{ p: 2, mb: 3 }}>
-        <Grid container spacing={2} alignItems="center">
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Grid container spacing={1.25} alignItems="center">
           <Grid item xs={12} sm={6} md={5}>
             <TextField
               select
@@ -493,7 +558,7 @@ export default function ReportsManager() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                   </InputAdornment>
                 )
               }}
@@ -503,7 +568,7 @@ export default function ReportsManager() {
       </Card>
 
       {/* 3. Report Category Tabs */}
-      <Card sx={{ mb: 3, borderRadius: 2 }}>
+      <Card elevation={0} sx={{ mb: 1.75, borderRadius: 2, border: '1px solid #e2e8f0' }}>
         <Tabs
           value={activeTab}
           onChange={(e, val) => setActiveTab(val)}
@@ -512,7 +577,8 @@ export default function ReportsManager() {
           sx={{
             borderBottom: '1px solid #e2e8f0',
             bgcolor: '#f8fafc',
-            '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', minHeight: 52 }
+            minHeight: 42,
+            '& .MuiTab-root': { fontWeight: 800, textTransform: 'none', minHeight: 42, fontSize: '0.78rem', py: 0.75 }
           }}
         >
           <Tab
@@ -552,41 +618,55 @@ export default function ReportsManager() {
       {/* ======================================================== */}
       {activeTab === 0 && (
         <Box>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
                 Monthly Attendance Register (Month: {selectedMonth})
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Chip label="P = Present" size="small" sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
-                <Chip label="A = Absent" size="small" sx={{ bgcolor: '#fee2e2', color: '#dc2626', fontWeight: 800 }} />
-                <Chip label="L = Late" size="small" sx={{ bgcolor: '#fef3c7', color: '#b45309', fontWeight: 800 }} />
+              <Box sx={{ display: 'flex', gap: 0.75 }}>
+                <Chip label="P = Present" size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }} />
+                <Chip label="A = Absent" size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fee2e2', color: '#dc2626', fontWeight: 800 }} />
+                <Chip label="L = Late" size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#fef3c7', color: '#b45309', fontWeight: 800 }} />
               </Box>
             </Box>
 
-            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.7rem' }}>
               * Minimum 80% attendance is mandatory to appear for the exam as per CTEVT rules.
             </Typography>
           </Box>
 
-          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <TableContainer sx={{ maxHeight: 600 }}>
               <Table stickyHeader size="small">
-                <TableHead sx={{ bgcolor: '#f1f5f9' }}>
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 160 }}>Trainee Name</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 95 }}>TGID</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 45, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, minWidth: 150 }}>Trainee Name</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 90 }}>TGID</TableCell>
                     {monthDates.map((d) => (
-                      <TableCell key={d} sx={{ fontWeight: 800, textAlign: 'center', p: 0.5, fontSize: '0.72rem', minWidth: 32 }}>
+                      <TableCell key={d} sx={{ fontWeight: 800, textAlign: 'center', p: 0.5, fontSize: '0.7rem', minWidth: 30 }}>
                         {d.split('-')[2]}
                       </TableCell>
                     ))}
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 60, bgcolor: '#e5f8ee' }}>P</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 60, bgcolor: '#fee2e2' }}>A</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 60, bgcolor: '#fef3c7' }}>L</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 75 }}>Att %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, textAlign: 'center', width: 110 }}>CTEVT Status</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 50 }}>P</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 50 }}>A</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 50 }}>L</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 65 }}>Att %</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 100 }}>CTEVT Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -604,13 +684,13 @@ export default function ReportsManager() {
 
                       return (
                         <TableRow key={item.student.id} hover>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                          <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.79rem' }}>
                             {item.student.name}
                           </TableCell>
-                          <TableCell sx={{ color: '#647089', fontSize: '0.82rem' }}>
+                          <TableCell sx={{ color: '#647089', fontSize: '0.75rem' }}>
                             {item.student.tgid}
                           </TableCell>
                           {monthDates.map((d) => {
@@ -636,7 +716,7 @@ export default function ReportsManager() {
                                   fontWeight: 800,
                                   bgcolor: bg,
                                   color: fg,
-                                  fontSize: '0.75rem',
+                                  fontSize: '0.72rem',
                                   borderRight: '1px solid #f1f5f9'
                                 }}
                               >
@@ -644,16 +724,16 @@ export default function ReportsManager() {
                               </TableCell>
                             );
                           })}
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#16834b' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#16834b', fontSize: '0.76rem' }}>
                             {item.presentCount}
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#dc2626' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#dc2626', fontSize: '0.76rem' }}>
                             {item.absentCount}
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#b45309' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#b45309', fontSize: '0.76rem' }}>
                             {item.lateCount}
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 900 }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 900, fontSize: '0.78rem' }}>
                             {item.attendancePercent}%
                           </TableCell>
                           <TableCell sx={{ textAlign: 'center' }}>
@@ -661,8 +741,9 @@ export default function ReportsManager() {
                               label={isCompliant ? 'Compliant' : isWarning ? 'Warning' : 'Critical'}
                               size="small"
                               sx={{
+                                height: 20,
                                 fontWeight: 800,
-                                fontSize: '0.7rem',
+                                fontSize: '0.68rem',
                                 bgcolor: isCompliant ? '#e5f8ee' : isWarning ? '#fef3c7' : '#fee2e2',
                                 color: isCompliant ? '#16834b' : isWarning ? '#b45309' : '#dc2626'
                               }}
@@ -683,7 +764,7 @@ export default function ReportsManager() {
       {/* ======================================================== */}
       {activeTab === 1 && (
         <Box>
-          <Alert severity={atRiskStudents.length > 0 ? 'error' : 'success'} sx={{ mb: 3 }}>
+          <Alert severity={atRiskStudents.length > 0 ? 'error' : 'success'} sx={{ mb: 1.75, py: 0.5, fontSize: '0.78rem' }}>
             {atRiskStudents.length > 0 ? (
               <b>
                 {atRiskStudents.length} trainee(s) found At-Risk. Exam participation may be withheld under CTEVT rules due to attendance below 80% or excessive absences.
@@ -693,18 +774,32 @@ export default function ReportsManager() {
             )}
           </Alert>
 
-          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 180 }}>Trainee</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 120 }}>Risk Level</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 95 }}>Attendance %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 260 }}>Identified Risk Causes</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 150 }}>Emergency Contacts</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 180, textAlign: 'right' }}>1-Click Action</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 45, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Trainee</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Risk Level</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Attendance %</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Identified Risk Causes</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Emergency Contacts</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>1-Click Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -720,22 +815,22 @@ export default function ReportsManager() {
                       const isCritical = item.riskLevel === 'CRITICAL';
                       return (
                         <TableRow key={item.student.id} hover sx={{ bgcolor: isCritical ? '#fff8f8' : '#ffffff' }}>
-                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
                           <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
                               <Avatar
                                 src={item.student.photoUrl}
-                                sx={{ width: 36, height: 36, bgcolor: isCritical ? '#dc2626' : '#b45309', fontWeight: 800 }}
+                                sx={{ width: 30, height: 30, bgcolor: isCritical ? '#dc2626' : '#b45309', fontWeight: 800, fontSize: '0.76rem' }}
                               >
                                 {item.student.name?.[0]}
                               </Avatar>
                               <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                                   {item.student.name}
                                 </Typography>
-                                <Typography variant="caption" sx={{ color: '#647089' }}>
+                                <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                                   {item.student.tgid}
                                 </Typography>
                               </Box>
@@ -743,46 +838,48 @@ export default function ReportsManager() {
                           </TableCell>
                           <TableCell>
                             <Chip
-                              icon={<WarningAmberIcon />}
+                              icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
                               label={item.riskLevel}
                               size="small"
                               sx={{
+                                height: 20,
+                                fontSize: '0.68rem',
                                 fontWeight: 900,
                                 bgcolor: isCritical ? '#fee2e2' : '#fef3c7',
                                 color: isCritical ? '#dc2626' : '#b45309'
                               }}
                             />
                           </TableCell>
-                          <TableCell sx={{ fontWeight: 900, color: isCritical ? '#dc2626' : '#b45309' }}>
+                          <TableCell sx={{ fontWeight: 900, color: isCritical ? '#dc2626' : '#b45309', fontSize: '0.79rem' }}>
                             {item.attendancePercent}%
                           </TableCell>
                           <TableCell>
-                            <Stack spacing={0.5}>
+                            <Stack spacing={0.3}>
                               {item.reasons.map((r, ri) => (
-                                <Typography key={ri} variant="caption" sx={{ color: '#475569', display: 'block' }}>
+                                <Typography key={ri} variant="caption" sx={{ color: '#475569', display: 'block', fontSize: '0.72rem' }}>
                                   • {r}
                                 </Typography>
                               ))}
                             </Stack>
                           </TableCell>
                           <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                               {item.student.phone || '—'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontSize: '0.7rem' }}>
                               Guardian: {item.student.guardianPhone || '—'}
                             </Typography>
                           </TableCell>
-                          <TableCell sx={{ textAlign: 'right' }}>
+                          <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                             <Button
                               variant="contained"
                               color="success"
                               size="small"
-                              startIcon={<WhatsAppIcon />}
+                              startIcon={<WhatsAppIcon sx={{ fontSize: '13px !important' }} />}
                               component="a"
                               href={getGuardianWarningUrl(item.student, item.reasons, item.attendancePercent)}
                               target="_blank"
-                              sx={{ fontWeight: 800, fontSize: '0.75rem', px: 1.5 }}
+                              sx={{ fontWeight: 800, fontSize: '0.7rem', px: 0.9, py: 0.3, whiteSpace: 'nowrap' }}
                             >
                               WhatsApp Alert
                             </Button>
@@ -792,7 +889,7 @@ export default function ReportsManager() {
                     })}
                   {atRiskStudents.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, color: '#16834b', fontWeight: 800 }}>
+                      <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#16834b', fontWeight: 800, fontSize: '0.8rem' }}>
                         No trainees at risk! All trainees are meeting the 80% CTEVT attendance criteria.
                       </TableCell>
                     </TableRow>
@@ -810,51 +907,46 @@ export default function ReportsManager() {
       {activeTab === 2 && (
         <Box>
           {/* Top KPI Cards */}
-          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
             <Grid item xs={12} sm={4}>
-              <Card sx={{ p: 2.5 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  CURRICULUM DURATION
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #1e40af' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Curriculum Duration
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f172a', mt: 0.5 }}>
-                  {syllabusProgressData.totalTargetHours} <span style={{ fontSize: '1rem', color: '#647089' }}>Hours</span>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', mt: 0.2 }}>
+                  {syllabusProgressData.totalTargetHours} Hours
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
                   CTEVT Standard Curriculum Requirement
                 </Typography>
               </Card>
             </Grid>
 
             <Grid item xs={12} sm={4}>
-              <Card sx={{ p: 2.5 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  DELIVERED IN LOG BOOK
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0284c7' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Delivered in Log Book
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#1a56b0', mt: 0.5 }}>
-                  {syllabusProgressData.deliveredHours} <span style={{ fontSize: '1rem', color: '#647089' }}>Hours</span>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', mt: 0.2 }}>
+                  {syllabusProgressData.deliveredHours} Hours ({syllabusProgressData.progressPercent}%)
                 </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                  <LinearProgress
-                    variant="determinate"
-                    value={syllabusProgressData.progressPercent}
-                    sx={{ flexGrow: 1, height: 7, borderRadius: 3 }}
-                  />
-                  <Typography variant="caption" sx={{ fontWeight: 800 }}>
-                    {syllabusProgressData.progressPercent}%
-                  </Typography>
-                </Box>
+                <LinearProgress
+                  variant="determinate"
+                  value={syllabusProgressData.progressPercent}
+                  sx={{ height: 5, borderRadius: 3, mt: 0.6 }}
+                />
               </Card>
             </Grid>
 
             <Grid item xs={12} sm={4}>
-              <Card sx={{ p: 2.5 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  SYLLABUS UNITS COMPLETED
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #059669' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Syllabus Units Completed
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#16834b', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', mt: 0.2 }}>
                   {syllabusProgressData.completedUnitsCount} / {syllabusProgressData.totalUnitsCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
                   {syllabusProgressData.totalUnitsCount - syllabusProgressData.completedUnitsCount} units remaining
                 </Typography>
               </Card>
@@ -862,44 +954,60 @@ export default function ReportsManager() {
           </Grid>
 
           {/* Unit Breakdown Table */}
-          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 50, textAlign: 'center' }}>Unit</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 220 }}>Unit Title & Learning Outcome</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 120 }}>Curriculum Target</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 130 }}>Delivered in Log</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 130 }}>Delivery Status</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 50, textAlign: 'center' }}>Unit</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Unit Title &amp; Learning Outcome</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Curriculum Target</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Delivered in Log</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Delivery Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {syllabusProgressData.unitBreakdown.map((item) => (
                     <TableRow key={item.unit.id} hover>
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#1a56b0' }}>
+                      <TableCell sx={{ textAlign: 'center', fontWeight: 900, color: '#1a56b0', fontSize: '0.76rem' }}>
                         {item.unit.unitNo}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                           {item.unit.title}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontSize: '0.7rem' }}>
                           Outcome: {item.unit.learningOutcome}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800 }}>
+                      <TableCell sx={{ fontWeight: 800, fontSize: '0.78rem' }}>
                         {item.unit.totalHours} Hours
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#1a56b0' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#1a56b0', fontSize: '0.78rem' }}>
                         {item.hoursDeliveredForUnit} Hours
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={item.isCompleted ? <CheckCircleIcon /> : <HourglassEmptyIcon />}
+                          icon={item.isCompleted ? <CheckCircleIcon sx={{ fontSize: '13px !important' }} /> : <HourglassEmptyIcon sx={{ fontSize: '13px !important' }} />}
                           label={item.isCompleted ? 'Completed' : item.isPlanned ? 'In Progress' : 'Pending'}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
                             fontWeight: 800,
                             bgcolor: item.isCompleted ? '#e5f8ee' : item.isPlanned ? '#fef3c7' : '#f1f5f9',
                             color: item.isCompleted ? '#16834b' : item.isPlanned ? '#b45309' : '#647089'
@@ -920,27 +1028,41 @@ export default function ReportsManager() {
       {/* ======================================================== */}
       {activeTab === 3 && (
         <Box>
-          <Box sx={{ mb: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+          <Box sx={{ mb: 1.5, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.84rem' }}>
               National Skill Testing Board (NSTB) Exam Eligibility Audit
             </Typography>
-            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.7rem' }}>
               * Eligibility Criteria: Minimum 80% attendance + at least 70% verified skill competency.
             </Typography>
           </Box>
 
-          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 180 }}>Trainee Name</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 95 }}>TGID</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 110, textAlign: 'center' }}>Attendance %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 140, textAlign: 'center' }}>Skills Mastered</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 110, textAlign: 'center' }}>Mastery %</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 220, textAlign: 'center' }}>NSTB Eligibility Recommendation</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 45, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Trainee Name</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>TGID</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Attendance %</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Skills Mastered</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>Mastery %</TableCell>
+                    <TableCell sx={{ fontWeight: 800, textAlign: 'center' }}>NSTB Eligibility Recommendation</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -954,31 +1076,31 @@ export default function ReportsManager() {
                     })
                     .map((item, idx) => (
                       <TableRow key={item.student.id} hover>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>
                           {idx + 1}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                        <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                           {item.student.name}
                         </TableCell>
-                        <TableCell sx={{ color: '#647089', fontSize: '0.82rem' }}>
+                        <TableCell sx={{ color: '#647089', fontSize: '0.75rem' }}>
                           {item.student.tgid}
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: item.attendancePercent >= 80 ? '#16834b' : '#dc2626' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, fontSize: '0.78rem', color: item.attendancePercent >= 80 ? '#16834b' : '#dc2626' }}>
                           {item.attendancePercent}%
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#1a56b0' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, color: '#1a56b0', fontSize: '0.78rem' }}>
                           {item.masteredCount} / {item.totalTasks} Tasks
                         </TableCell>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 800 }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 800, fontSize: '0.78rem' }}>
                           {item.masteryPercent}%
                         </TableCell>
                         <TableCell sx={{ textAlign: 'center' }}>
                           <Chip
-                            icon={item.isEligible ? <CheckCircleIcon /> : <CancelIcon />}
+                            icon={item.isEligible ? <CheckCircleIcon sx={{ fontSize: '13px !important' }} /> : <CancelIcon sx={{ fontSize: '13px !important' }} />}
                             label={item.statusText}
                             size="small"
                             color={item.statusColor}
-                            sx={{ fontWeight: 800, fontSize: '0.72rem' }}
+                            sx={{ height: 20, fontWeight: 800, fontSize: '0.68rem' }}
                           />
                         </TableCell>
                       </TableRow>
@@ -996,58 +1118,58 @@ export default function ReportsManager() {
       {activeTab === 4 && (
         <Box>
           {/* Outcome Metric Cards */}
-          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
             <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  TOTAL ENROLLED
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #1e40af' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Total Enrolled
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f172a', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', mt: 0.2 }}>
                   {outcomeStats.totalStudents}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
                   Registered Trainees
                 </Typography>
               </Card>
             </Grid>
 
             <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  OJT TRAINEES
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #0284c7' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  OJT Trainees
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#1a56b0', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', mt: 0.2 }}>
                   {outcomeStats.inOjtCount + outcomeStats.completedOjtCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
                   {outcomeStats.inOjtCount} Ongoing • {outcomeStats.completedOjtCount} Completed
                 </Typography>
               </Card>
             </Grid>
 
             <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  JOB PLACED (EPP)
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #059669' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Job Placed (EPP)
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#16834b', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', mt: 0.2 }}>
                   {outcomeStats.placedCount}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#16834b', fontWeight: 700 }}>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
                   Employment Verified
                 </Typography>
               </Card>
             </Grid>
 
             <Grid item xs={6} md={3}>
-              <Card sx={{ p: 2 }}>
-                <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>
-                  PLACEMENT SUCCESS RATE
+              <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, border: '1px solid #e2e8f0', borderLeft: '3.5px solid #d97706' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                  Placement Rate
                 </Typography>
-                <Typography variant="h4" sx={{ fontWeight: 900, color: '#16834b', mt: 0.5 }}>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', mt: 0.2 }}>
                   {outcomeStats.placementRate}%
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#647089' }}>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontSize: '0.68rem', display: 'block' }}>
                   Trainees Formally Employed
                 </Typography>
               </Card>
@@ -1055,22 +1177,31 @@ export default function ReportsManager() {
           </Grid>
 
           {/* Placed Trainees Table */}
-          <Card sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <Box sx={{ p: 2, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
-                Verified Placements & Industry Partners
-              </Typography>
-            </Box>
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
             <TableContainer>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 900, width: 45, textAlign: 'center' }}>S.N.</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 160 }}>Graduate Name</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 180 }}>Employer / Company</TableCell>
-                    <TableCell sx={{ fontWeight: 900, minWidth: 140 }}>Job Designation</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 120 }}>Monthly Salary</TableCell>
-                    <TableCell sx={{ fontWeight: 900, width: 110 }}>Status</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 45, textAlign: 'center' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Graduate Name</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Employer / Company</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Job Designation</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Monthly Salary</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -1079,17 +1210,17 @@ export default function ReportsManager() {
                     const emp = (db.employers || []).find((e) => e.id === p.employerId);
                     return (
                       <TableRow key={p.id} hover>
-                        <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089' }}>
+                        <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>
                           {idx + 1}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                        <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                           {std?.name || 'Graduate'}
                         </TableCell>
-                        <TableCell sx={{ fontWeight: 700, color: '#1a56b0' }}>
+                        <TableCell sx={{ fontWeight: 700, color: '#1a56b0', fontSize: '0.79rem' }}>
                           {emp?.companyName || 'Private Enterprise'}
                         </TableCell>
-                        <TableCell>{p.position || 'Vocational Specialist'}</TableCell>
-                        <TableCell sx={{ fontWeight: 800, color: '#16834b' }}>
+                        <TableCell sx={{ fontSize: '0.78rem' }}>{p.position || 'Vocational Specialist'}</TableCell>
+                        <TableCell sx={{ fontWeight: 800, color: '#16834b', fontSize: '0.79rem' }}>
                           NPR {p.salary ? Number(p.salary).toLocaleString() : '18,000'}
                         </TableCell>
                         <TableCell>
@@ -1097,7 +1228,7 @@ export default function ReportsManager() {
                             label={p.status}
                             size="small"
                             color="success"
-                            sx={{ fontWeight: 800 }}
+                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
                           />
                         </TableCell>
                       </TableRow>
@@ -1105,7 +1236,7 @@ export default function ReportsManager() {
                   })}
                   {outcomeStats.groupPlacements.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 4, color: '#94a3b8' }}>
+                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                         No graduates currently placed for this group yet. Track progress through OJT and Placements tabs.
                       </TableCell>
                     </TableRow>

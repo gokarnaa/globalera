@@ -133,45 +133,116 @@ export default function SnapshotAuditManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <SecurityIcon sx={{ color: '#1a56b0', fontSize: 34 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Record Snapshots & Audit Trail
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Immutable version-controlled snapshots of Work Plans, Certificates, and Log Books + complete tamper-evident audit history.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: 'flex', gap: 1.5 }}>
-          {currentTab === 1 && (
-            <Button variant="outlined" startIcon={<FileDownloadIcon />} onClick={handleExportAudit} sx={{ fontWeight: 700 }}>
-              Export Audit Trail
-            </Button>
-          )}
-          {currentTab === 0 && (
-            <Button variant="contained" startIcon={<LockIcon />} onClick={() => setOpenCreateSnapshot(true)} sx={{ fontWeight: 800 }}>
-              + Create Baseline Snapshot
-            </Button>
-          )}
-        </Box>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <SecurityIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Record Snapshots &amp; Audit Trail
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Immutable version-controlled snapshots of Work Plans, Certificates &amp; Audit History
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              {currentTab === 1 && (
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<FileDownloadIcon sx={{ fontSize: '15px !important' }} />}
+                  onClick={handleExportAudit}
+                  sx={{
+                    bgcolor: 'rgba(255, 255, 255, 0.1)',
+                    color: '#ffffff',
+                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                    fontWeight: 700,
+                    fontSize: '0.76rem',
+                    whiteSpace: 'nowrap',
+                    px: 1.4,
+                    py: 0.65,
+                    '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                  }}
+                >
+                  Export Audit Trail
+                </Button>
+              )}
+              {currentTab === 0 && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={<LockIcon sx={{ fontSize: '15px !important' }} />}
+                  onClick={() => setOpenCreateSnapshot(true)}
+                  sx={{
+                    bgcolor: '#f59e0b',
+                    color: '#0f2e5a',
+                    fontWeight: 800,
+                    fontSize: '0.76rem',
+                    whiteSpace: 'nowrap',
+                    px: 1.4,
+                    py: 0.65,
+                    boxShadow: 'none',
+                    '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                  }}
+                >
+                  + Create Baseline Snapshot
+                </Button>
+              )}
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {/* Tabs */}
-      <Card sx={{ mb: 3, borderRadius: 3, border: '1px solid #e2e8f0' }}>
+      <Card elevation={0} sx={{ mb: 1.75, borderRadius: 2, border: '1px solid #e2e8f0' }}>
         <Tabs
           value={currentTab}
           onChange={(e, val) => setCurrentTab(val)}
           sx={{
-            px: 2,
+            px: 1.5,
             borderBottom: '1px solid #e2e8f0',
             bgcolor: '#f8fafc',
-            '& .MuiTab-root': { fontWeight: 800, py: 1.8 }
+            minHeight: 42,
+            '& .MuiTab-root': { fontWeight: 800, py: 1, minHeight: 42, fontSize: '0.78rem', textTransform: 'none' }
           }}
         >
           <Tab icon={<LockIcon fontSize="small" />} iconPosition="start" label="1. Immutable Snapshots & Revisions" />
@@ -180,42 +251,57 @@ export default function SnapshotAuditManager() {
 
         {/* Tab 1: Snapshots */}
         {currentTab === 0 && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
+          <Box sx={{ p: 1.75 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.75, flexWrap: 'wrap', gap: 1.25 }}>
               <TextField
                 size="small"
                 placeholder="Search snapshot title, author, reason..."
                 value={snapshotSearch}
                 onChange={(e) => setSnapshotSearch(e.target.value)}
-                sx={{ width: { xs: '100%', sm: 340 } }}
+                sx={{ width: { xs: '100%', sm: 320 } }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                     </InputAdornment>
                   )
                 }}
               />
 
-              <Box sx={{ display: 'flex', gap: 0.8, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
                 {['All', 'WorkPlan', 'Certificate', 'LogBook', 'LessonPlan', 'Evaluation'].map((ent) => (
                   <Chip
                     key={ent}
                     label={ent}
+                    size="small"
                     clickable
                     color={entityFilter === ent ? 'primary' : 'default'}
                     onClick={() => setEntityFilter(ent)}
-                    sx={{ fontWeight: 700, fontSize: '0.78rem' }}
+                    sx={{ fontWeight: 700, fontSize: '0.73rem' }}
                   />
                 ))}
               </Box>
             </Box>
 
-            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 48 }}>S.N.</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Version</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Record Title</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Entity Type</TableCell>
@@ -228,39 +314,40 @@ export default function SnapshotAuditManager() {
                 <TableBody>
                   {filteredSnapshots.map((snap, idx) => (
                     <TableRow key={snap.id} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>{idx + 1}</TableCell>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>{idx + 1}</TableCell>
                       <TableCell>
-                        <Chip label={`v${snap.version}`} size="small" sx={{ bgcolor: '#0b2545', color: '#ffffff', fontWeight: 800 }} />
+                        <Chip label={`v${snap.version}`} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#0b2545', color: '#ffffff', fontWeight: 800 }} />
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#0f172a' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
                         {snap.title}
-                        <Typography variant="caption" sx={{ display: 'block', color: '#647089' }}>
+                        <Typography variant="caption" sx={{ display: 'block', color: '#647089', fontSize: '0.69rem' }}>
                           ID: {snap.id} • {snap.createdAt?.slice(0, 10)}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Chip label={snap.entityType} size="small" sx={{ bgcolor: '#eff6ff', color: '#1a56b0', fontWeight: 700 }} />
+                        <Chip label={snap.entityType} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#eff6ff', color: '#1a56b0', fontWeight: 700 }} />
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.85rem', color: '#334155' }}>
+                      <TableCell sx={{ fontSize: '0.77rem', color: '#334155' }}>
                         {snap.reasonForRevision}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.77rem' }}>
                         {snap.author}
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<LockIcon sx={{ fontSize: '14px !important' }} />}
+                          icon={<LockIcon sx={{ fontSize: '12px !important' }} />}
                           label="Immutable"
                           size="small"
-                          sx={{ bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
+                          sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#e5f8ee', color: '#16834b', fontWeight: 800 }}
                         />
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <Button
                           size="small"
-                          startIcon={<VisibilityIcon />}
+                          variant="outlined"
+                          startIcon={<VisibilityIcon sx={{ fontSize: '13px !important' }} />}
                           onClick={() => setViewingSnapshot(snap)}
-                          sx={{ fontWeight: 700 }}
+                          sx={{ fontWeight: 700, fontSize: '0.7rem', px: 0.9, py: 0.3, whiteSpace: 'nowrap' }}
                         >
                           View Record
                         </Button>
@@ -269,7 +356,7 @@ export default function SnapshotAuditManager() {
                   ))}
                   {filteredSnapshots.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                      <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                         No snapshots found matching filter criteria.
                       </TableCell>
                     </TableRow>
@@ -282,42 +369,57 @@ export default function SnapshotAuditManager() {
 
         {/* Tab 2: Audit Trail */}
         {currentTab === 1 && (
-          <Box sx={{ p: 3 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
+          <Box sx={{ p: 1.75 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.75, flexWrap: 'wrap', gap: 1.25 }}>
               <TextField
                 size="small"
                 placeholder="Search audit trail by action, description, user..."
                 value={auditSearch}
                 onChange={(e) => setAuditSearch(e.target.value)}
-                sx={{ width: { xs: '100%', sm: 340 } }}
+                sx={{ width: { xs: '100%', sm: 320 } }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
+                      <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
                     </InputAdornment>
                   )
                 }}
               />
 
-              <Box sx={{ display: 'flex', gap: 0.8, flexWrap: 'wrap' }}>
+              <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
                 {['All', 'CREATE', 'UPDATE', 'DELETE', 'ISSUE_CERTIFICATE', 'DEPLOY_OJT', 'BROADCAST_MESSAGE'].map((act) => (
                   <Chip
                     key={act}
                     label={act}
+                    size="small"
                     clickable
                     color={auditActionFilter === act ? 'primary' : 'default'}
                     onClick={() => setAuditActionFilter(act)}
-                    sx={{ fontWeight: 700, fontSize: '0.72rem' }}
+                    sx={{ fontWeight: 700, fontSize: '0.7rem' }}
                   />
                 ))}
               </Box>
             </Box>
 
-            <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-              <Table>
-                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #e2e8f0' }}>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800, width: '60px' }}>S.N.</TableCell>
+                    <TableCell sx={{ fontWeight: 800, width: 48 }}>S.N.</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Timestamp</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Action</TableCell>
                     <TableCell sx={{ fontWeight: 800 }}>Entity</TableCell>
@@ -328,8 +430,8 @@ export default function SnapshotAuditManager() {
                 <TableBody>
                   {filteredAudits.map((aud, idx) => (
                     <TableRow key={aud.id || idx} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#647089' }}>{idx + 1}</TableCell>
-                      <TableCell sx={{ fontSize: '0.8rem', color: '#647089' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#647089', fontSize: '0.75rem' }}>{idx + 1}</TableCell>
+                      <TableCell sx={{ fontSize: '0.74rem', color: '#647089', whiteSpace: 'nowrap' }}>
                         {aud.timestamp?.replace('T', ' ').slice(0, 19)}
                       </TableCell>
                       <TableCell>
@@ -337,6 +439,8 @@ export default function SnapshotAuditManager() {
                           label={aud.action}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.66rem',
                             fontWeight: 800,
                             bgcolor: aud.action.includes('DELETE') ? '#fee2e2' : aud.action.includes('CREATE') ? '#e0f2fe' : aud.action.includes('CERTIFICATE') ? '#fef3c7' : '#f1f5f9',
                             color: aud.action.includes('DELETE') ? '#dc2626' : aud.action.includes('CREATE') ? '#0369a1' : aud.action.includes('CERTIFICATE') ? '#92400e' : '#475569'
@@ -344,24 +448,24 @@ export default function SnapshotAuditManager() {
                         />
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                           {aud.entityType}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.69rem' }}>
                           {aud.entityId}
                         </Typography>
                       </TableCell>
-                      <TableCell sx={{ fontSize: '0.85rem', color: '#1e293b' }}>
+                      <TableCell sx={{ fontSize: '0.77rem', color: '#1e293b' }}>
                         {aud.description}
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.85rem' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#475569', fontSize: '0.77rem' }}>
                         {aud.performedBy}
                       </TableCell>
                     </TableRow>
                   ))}
                   {filteredAudits.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                      <TableCell colSpan={6} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                         No audit records found matching criteria.
                       </TableCell>
                     </TableRow>

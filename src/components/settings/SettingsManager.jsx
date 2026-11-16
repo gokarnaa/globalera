@@ -140,7 +140,7 @@ export default function SettingsManager() {
       const res = await sendMetaWhatsAppMessage({
         to: waTestPhone,
         type: 'text',
-        text: '🌟 Welcome to Global Era Technical School! Your Meta WhatsApp Business Cloud API is connected and working perfectly with our TVET ERP.'
+        text: '🌟 Welcome to Prabidhik School, Jorpati! Your Meta WhatsApp Business Cloud API is connected and working perfectly with our TVET ERP.'
       });
       setWaSendResult({ ok: true, message: `Message sent successfully! Recipient: ${res.recipient}, Meta Message ID: ${res.messageId}` });
     } catch (err) {
@@ -363,38 +363,103 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
   };
 
   return (
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
-        <SettingsIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-        <Box>
-          <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-            Settings & Cloud Integration
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#647089' }}>
-            Supabase PostgreSQL Connection, Aakash SMS Gateway, WhatsApp, and Google Contacts.
-          </Typography>
-        </Box>
-      </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <SettingsIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Settings &amp; Cloud Integration
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Supabase PostgreSQL Connection, Aakash SMS Gateway, WhatsApp &amp; Biometric ADMS
+                </Typography>
+              </Box>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<CheckCircleIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={handleSaveSettings}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                Save Cloud Config
+              </Button>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Card>
 
       {savedSuccess && (
-        <Alert severity="success" sx={{ mb: 3, borderRadius: 2, fontWeight: 700 }}>
+        <Alert severity="success" sx={{ mb: 1.75, py: 0.5, borderRadius: 2, fontWeight: 700, fontSize: '0.78rem' }}>
           Settings successfully saved!
         </Alert>
       )}
 
       {/* Settings Navigation Tabs */}
-      <Paper elevation={0} sx={{ p: 0.5, mb: 3, bgcolor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 2 }}>
+      <Paper elevation={0} sx={{ p: 0.4, mb: 1.75, bgcolor: '#FFFFFF', border: '1px solid #CBD5E1', borderRadius: 2 }}>
         <Tabs
           value={activeTab}
           onChange={(e, next) => setActiveTab(next)}
           variant="scrollable"
           scrollButtons="auto"
           sx={{
+            minHeight: 40,
             '& .MuiTab-root': {
               fontWeight: 800,
-              fontSize: '0.88rem',
+              fontSize: '0.78rem',
               textTransform: 'none',
-              minHeight: 46,
+              minHeight: 40,
+              py: 0.75,
               borderRadius: 1.5
             },
             '& .Mui-selected': {
@@ -402,33 +467,33 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
             },
             '& .MuiTabs-indicator': {
               bgcolor: '#0F2E5A',
-              height: 3,
+              height: 2.5,
               borderRadius: 3
             }
           }}
         >
           <Tab
-            icon={<BusinessIcon sx={{ mr: 1, fontSize: 20 }} />}
+            icon={<BusinessIcon sx={{ mr: 0.75, fontSize: 18 }} />}
             iconPosition="start"
             label="Company Profile & Numbering"
           />
           <Tab
-            icon={<WorkspacePremiumIcon sx={{ mr: 1, fontSize: 20 }} />}
+            icon={<WorkspacePremiumIcon sx={{ mr: 0.75, fontSize: 18 }} />}
             iconPosition="start"
             label="Certificate Studio & Templates"
           />
           <Tab
-            icon={<CloudUploadIcon sx={{ mr: 1, fontSize: 20 }} />}
+            icon={<CloudUploadIcon sx={{ mr: 0.75, fontSize: 18 }} />}
             iconPosition="start"
             label="Cloud & System Integrations"
           />
           <Tab
-            icon={<BoltIcon sx={{ mr: 1, fontSize: 20, color: '#D97706' }} />}
+            icon={<BoltIcon sx={{ mr: 0.75, fontSize: 18, color: '#D97706' }} />}
             iconPosition="start"
             label="GraphQL API Studio"
           />
           <Tab
-            icon={<FingerprintIcon sx={{ mr: 1, fontSize: 20, color: '#059669' }} />}
+            icon={<FingerprintIcon sx={{ mr: 0.75, fontSize: 18, color: '#059669' }} />}
             iconPosition="start"
             label="Biometric & Gate Hardware"
           />

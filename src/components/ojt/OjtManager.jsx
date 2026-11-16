@@ -201,133 +201,293 @@ export default function OjtManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <WorkIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              On-the-Job Training (OJT Records)
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Binds Student to Employer Partner. Auto-locks company details and syncs with student timeline.
-          </Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-          + Deploy Student to OJT
-        </Button>
-      </Box>
-
-      {/* KPI Summary Cards */}
-      <Card sx={{ p: 2, mb: 3, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0' }}>
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f8fafc', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                TOTAL OJT DEPLOYED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                {totalOjts}
-              </Typography>
-            </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <WorkIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  On-the-Job Training (OJT Records)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Binds student to employer partner and syncs with trainee timeline
+                </Typography>
+              </Box>
+            </Stack>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#eff6ff', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#1e40af', fontWeight: 700, display: 'block' }}>
-                ONGOING
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#1d4ed8' }}>
-                {ongoingOjts}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f0fdf4', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700, display: 'block' }}>
-                COMPLETED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#15803d' }}>
-                {completedOjts}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#fefce8', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#854d0e', fontWeight: 700, display: 'block' }}>
-                PLANNED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#a16207' }}>
-                {plannedOjts}
-              </Typography>
-            </Box>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Deploy Student to OJT
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
 
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
-          <TextField
-            size="small"
-            placeholder="Search student, employer, supervisor, phone..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 340 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
             }}
-          />
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total OJT Deployed
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalOjts}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Total Assignments
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <WorkIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
 
-          <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Ongoing', 'Completed', 'Planned'].map((st) => (
-              <Chip
-                key={st}
-                label={st}
-                clickable
-                color={statusFilter === st ? 'primary' : 'default'}
-                onClick={() => setStatusFilter(st)}
-                sx={{ fontWeight: 700, fontSize: '0.8rem' }}
-              />
-            ))}
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Ongoing OJT
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {ongoingOjts}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284c7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Active in Field
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <BusinessIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Completed
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {completedOjts}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Finished OJT Hours
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Planned
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {plannedOjts}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Scheduled Deployment
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <CalendarTodayIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
+
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
+            <TextField
+              size="small"
+              placeholder="Search student, employer, supervisor, phone..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
+              }}
+            />
+
+            <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
+              {['All', 'Ongoing', 'Completed', 'Planned'].map((st) => (
+                <Chip
+                  key={st}
+                  label={st}
+                  size="small"
+                  clickable
+                  color={statusFilter === st ? 'primary' : 'default'}
+                  onClick={() => setStatusFilter(st)}
+                  sx={{ fontWeight: 700, fontSize: '0.74rem' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.74rem' }}>
+              Showing {filteredOjts.length} of {totalOjts}
+            </Typography>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+              sx={{ bgcolor: '#ffffff' }}
+            >
+              <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" title="Card View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredOjts.length} of {totalOjts}
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-            sx={{ bgcolor: '#ffffff' }}
-          >
-            <ToggleButton value="table" title="Table View">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card" title="Card View">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+      </Card>
 
       {/* Main Content: Table View vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <Table size="small">
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 48, color: '#FFFFFF !important' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Student</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Host Employer Partner</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>OJT Dates</TableCell>
@@ -343,26 +503,26 @@ export default function OjtManager() {
 
                   return (
                     <TableRow key={ojt.id} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Avatar src={std?.photoUrl} sx={{ width: 38, height: 38, bgcolor: '#1a56b0', fontWeight: 700 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                          <Avatar src={std?.photoUrl} sx={{ width: 30, height: 30, bgcolor: '#1a56b0', fontWeight: 700, fontSize: '0.78rem' }}>
                             {std?.name?.[0] || 'S'}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                               {std?.name || 'Student'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.8, mt: 0.2 }}>
+                            <Typography variant="caption" sx={{ color: '#647089', display: 'flex', alignItems: 'center', gap: 0.6, fontSize: '0.7rem' }}>
                               <span>{std?.tgid}</span>
                               {(() => {
                                 const f = getStudentFeeDue(std?.id, db);
                                 return f.due > 0 ? (
-                                  <Chip label={`Due: NPR ${f.due.toLocaleString()}`} size="small" sx={{ height: 18, fontSize: '0.64rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }} />
+                                  <Chip label={`Due: NPR ${f.due.toLocaleString()}`} size="small" sx={{ height: 17, fontSize: '0.62rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }} />
                                 ) : (
-                                  <Chip label="Fee Cleared" size="small" sx={{ height: 18, fontSize: '0.64rem', fontWeight: 800, bgcolor: '#ECFDF5', color: '#059669' }} />
+                                  <Chip label="Fee Cleared" size="small" sx={{ height: 17, fontSize: '0.62rem', fontWeight: 800, bgcolor: '#ECFDF5', color: '#059669' }} />
                                 );
                               })()}
                             </Typography>
@@ -370,36 +530,36 @@ export default function OjtManager() {
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                           {emp?.name || 'Employer'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                           {emp?.location || ''}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                           {ojt.startDate}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#16834b', fontWeight: 700 }}>
+                        <Typography variant="caption" sx={{ color: '#16834b', fontWeight: 700, fontSize: '0.7rem' }}>
                           → {ojt.endDate}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
                           {ojt.relatedPerson || '—'}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="caption" sx={{ color: '#647089' }}>{ojt.contactNumber}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                          <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>{ojt.contactNumber}</Typography>
                           {ojt.contactNumber && (
                             <IconButton
                               size="small"
                               component="a"
-                              href={getWhatsAppUrl(ojt.contactNumber, `Namaste, greetings regarding student ${std?.name} OJT.`)}
+                              href={getWhatsAppUrl(ojt.contactNumber, `Namaste, greetings from Prabidhik School, Jorpati regarding student ${std?.name} OJT.`)}
                               target="_blank"
-                              sx={{ color: '#25D366' }}
+                              sx={{ color: '#25D366', p: 0.25 }}
                             >
-                              <WhatsAppIcon sx={{ fontSize: 16 }} />
+                              <WhatsAppIcon sx={{ fontSize: 15 }} />
                             </IconButton>
                           )}
                         </Box>
@@ -409,17 +569,19 @@ export default function OjtManager() {
                           label={ojt.status}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
                             bgcolor: ojt.status === 'Completed' ? '#e5f8ee' : ojt.status === 'Ongoing' ? '#e8f0fd' : '#fdf3e2',
                             color: ojt.status === 'Completed' ? '#16834b' : ojt.status === 'Ongoing' ? '#1a56b0' : '#c9820a',
                             fontWeight: 700
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(ojt)} sx={{ color: '#1a56b0', mr: 0.5 }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <IconButton size="small" onClick={() => handleOpenEdit(ojt)} sx={{ color: '#1a56b0', p: 0.4, mr: 0.25 }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(ojt.id)} sx={{ color: '#d5372f' }}>
+                        <IconButton size="small" onClick={() => handleDelete(ojt.id)} sx={{ color: '#d5372f', p: 0.4 }}>
                           <DeleteOutlineIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -428,7 +590,7 @@ export default function OjtManager() {
                 })}
                 {filteredOjts.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={7} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No OJT records found matching the filter criteria.
                     </TableCell>
                   </TableRow>

@@ -174,70 +174,204 @@ export default function PlacementManager() {
   });
 
   return (
-    <Box>
-      {/* Top Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, flexDirection: { xs: 'column', sm: 'row' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-            <RocketLaunchIcon sx={{ color: '#1a56b0', fontSize: 32 }} />
-            <Typography variant="h5" sx={{ fontWeight: 800, color: '#152238' }}>
-              Placements & Employment (EPP)
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#647089', mt: 0.5 }}>
-            Final TVET outcome tracking: Target Job, Host Employer, Expected Salary, and Contract Status.
-          </Typography>
-        </Box>
-        <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd} sx={{ fontWeight: 800 }}>
-          + Create Placement Plan
-        </Button>
-      </Box>
-
-      {/* KPI Summary Cards */}
-      <Card sx={{ p: 2, mb: 3, bgcolor: '#ffffff', borderRadius: 3, border: '1px solid #e2e8f0' }}>
-        <Grid container spacing={2}>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f8fafc', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, display: 'block' }}>
-                TOTAL CANDIDATES
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#0f172a' }}>
-                {totalPlacements}
-              </Typography>
-            </Box>
+    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
+      {/* Slim 1-Row Executive Header Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          py: { xs: 1.25, sm: 1.5 },
+          px: { xs: 1.75, sm: 2.25 },
+          mb: 1.75,
+          borderRadius: 2.5,
+          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
+          color: '#ffffff',
+          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+        }}
+      >
+        <Grid container spacing={1.5} alignItems="center">
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.2} alignItems="center">
+              <Box
+                sx={{
+                  width: 34,
+                  height: 34,
+                  borderRadius: 1.8,
+                  bgcolor: 'rgba(245, 158, 11, 0.16)',
+                  border: '1px solid rgba(245, 158, 11, 0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                <RocketLaunchIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
+              </Box>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography
+                  variant="subtitle1"
+                  noWrap
+                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
+                >
+                  Placements &amp; Employment (EPP)
+                </Typography>
+                <Typography
+                  variant="caption"
+                  noWrap
+                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
+                >
+                  Prabidhik School, Jorpati • Final TVET outcome tracking: Target Job, Host Employer &amp; Salary
+                </Typography>
+              </Box>
+            </Stack>
           </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#f0fdf4', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#166534', fontWeight: 700, display: 'block' }}>
-                PLACED & EMPLOYED
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#15803d' }}>
-                {placedCount} Graduates
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#eff6ff', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#1e40af', fontWeight: 700, display: 'block' }}>
-                PLANNED (PIPELINE)
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#1d4ed8' }}>
-                {plannedCount} Candidates
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={6} sm={3}>
-            <Box sx={{ textAlign: 'center', p: 1, bgcolor: '#fefce8', borderRadius: 2 }}>
-              <Typography variant="caption" sx={{ color: '#854d0e', fontWeight: 700, display: 'block' }}>
-                ONGOING TRIAL
-              </Typography>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#a16207' }}>
-                {ongoingCount} Candidates
-              </Typography>
-            </Box>
+          <Grid item xs={12} md={4} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
+            <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<AddIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={handleOpenAdd}
+                sx={{
+                  bgcolor: '#f59e0b',
+                  color: '#0f2e5a',
+                  fontWeight: 800,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  boxShadow: 'none',
+                  '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
+                }}
+              >
+                + Create Placement Plan
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Card>
+
+      {/* 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #1e40af',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Total Candidates
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {totalPlacements}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  EPP Records
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
+                <PersonIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #059669',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Placed &amp; Employed
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {placedCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Hired Graduates
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
+                <CheckCircleIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #0284c7',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Planned (Pipeline)
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#0284c7', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {plannedCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#0284c7', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  In Job Matching
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f0f9ff', borderRadius: 1.5, color: '#0284c7', flexShrink: 0 }}>
+                <WorkIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+
+        <Grid item xs={6} md={3}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 1.4,
+              borderRadius: 2,
+              border: '1px solid #e2e8f0',
+              borderLeft: '3.5px solid #d97706',
+              bgcolor: '#ffffff'
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
+                  Ongoing Trial
+                </Typography>
+                <Typography sx={{ fontWeight: 800, color: '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                  {ongoingCount}
+                </Typography>
+                <Typography variant="caption" noWrap sx={{ color: '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
+                  Probation / Trial
+                </Typography>
+              </Box>
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fffbeb', borderRadius: 1.5, color: '#d97706', flexShrink: 0 }}>
+                <RocketLaunchIcon sx={{ fontSize: 18 }} />
+              </Box>
+            </Stack>
+          </Card>
+        </Grid>
+      </Grid>
 
       {/* Ready / Graduating Trainees Smart EPP Queue */}
       {(() => {
@@ -251,17 +385,18 @@ export default function PlacementManager() {
           .slice(0, 6);
         if (readyTrainees.length === 0) return null;
         return (
-          <Card sx={{ p: 2, mb: 3, bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 3 }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#166534', mb: 1 }}>
+          <Card elevation={0} sx={{ p: 1.25, mb: 1.75, bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 2 }}>
+            <Typography variant="caption" sx={{ fontWeight: 900, color: '#166534', display: 'block', mb: 0.75, fontSize: '0.73rem' }}>
               Ready / Graduating Trainees for Placement ({readyTrainees.length})
             </Typography>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
               {readyTrainees.map((st) => {
                 const grp = (db.trainingGroups || []).find((g) => g.id === st.groupId);
                 const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
                 return (
                   <Chip
                     key={st.id}
+                    size="small"
                     label={`${st.name} (${crs?.title || st.tgid}) • End: ${st.expectedEndDate || 'Ready'}`}
                     onClick={() => {
                       setEditingItem(null);
@@ -279,7 +414,7 @@ export default function PlacementManager() {
                       });
                       setOpenDialog(true);
                     }}
-                    sx={{ fontWeight: 800, bgcolor: '#FFFFFF', border: '1px solid #86EFAC', color: '#15803D', cursor: 'pointer' }}
+                    sx={{ fontWeight: 700, fontSize: '0.7rem', bgcolor: '#FFFFFF', border: '1px solid #86EFAC', color: '#15803D', cursor: 'pointer' }}
                   />
                 );
               })}
@@ -288,72 +423,98 @@ export default function PlacementManager() {
         );
       })()}
 
-      {/* Filter & View Switcher Bar */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2.5, flexWrap: 'wrap', gap: 1.5 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexWrap: 'wrap', flexGrow: 1 }}>
-          <TextField
-            size="small"
-            placeholder="Search student, job title, employer, location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{ width: { xs: '100%', sm: 340 }, bgcolor: '#ffffff' }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: '#647089' }} />
-                </InputAdornment>
-              )
-            }}
-          />
+      {/* Compact Filter & View Switcher Bar */}
+      <Card
+        elevation={0}
+        sx={{
+          p: 1.25,
+          mb: 1.75,
+          borderRadius: 2,
+          border: '1px solid #e2e8f0',
+          bgcolor: '#ffffff'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1.25 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, flexWrap: 'wrap', flexGrow: 1 }}>
+            <TextField
+              size="small"
+              placeholder="Search student, job title, employer, location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              sx={{ width: { xs: '100%', sm: 320 }, bgcolor: '#ffffff' }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94a3b8', fontSize: 18 }} />
+                  </InputAdornment>
+                )
+              }}
+            />
 
-          <Box sx={{ display: 'flex', gap: 0.8 }}>
-            {['All', 'Placed', 'Planned', 'Ongoing'].map((st) => (
-              <Chip
-                key={st}
-                label={st}
-                clickable
-                color={statusFilter === st ? 'primary' : 'default'}
-                onClick={() => setStatusFilter(st)}
-                sx={{ fontWeight: 700, fontSize: '0.8rem' }}
-              />
-            ))}
+            <Box sx={{ display: 'flex', gap: 0.6, flexWrap: 'wrap' }}>
+              {['All', 'Placed', 'Planned', 'Ongoing'].map((st) => (
+                <Chip
+                  key={st}
+                  label={st}
+                  size="small"
+                  clickable
+                  color={statusFilter === st ? 'primary' : 'default'}
+                  onClick={() => setStatusFilter(st)}
+                  sx={{ fontWeight: 700, fontSize: '0.74rem' }}
+                />
+              ))}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Typography variant="caption" sx={{ color: '#647089', fontWeight: 700, fontSize: '0.74rem' }}>
+              Showing {filteredPlacements.length} of {totalPlacements}
+            </Typography>
+
+            <ToggleButtonGroup
+              value={viewMode}
+              exclusive
+              onChange={(e, next) => next && setViewMode(next)}
+              size="small"
+              sx={{ bgcolor: '#ffffff' }}
+            >
+              <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="card" title="Card View" sx={{ py: 0.4, px: 0.9 }}>
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
           </Box>
         </Box>
-
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Typography variant="body2" sx={{ color: '#647089', fontWeight: 700 }}>
-            Showing {filteredPlacements.length} of {totalPlacements}
-          </Typography>
-
-          <ToggleButtonGroup
-            value={viewMode}
-            exclusive
-            onChange={(e, next) => next && setViewMode(next)}
-            size="small"
-            sx={{ bgcolor: '#ffffff' }}
-          >
-            <ToggleButton value="table" title="Table View">
-              <ViewListIcon fontSize="small" />
-            </ToggleButton>
-            <ToggleButton value="card" title="Card View">
-              <ViewModuleIcon fontSize="small" />
-            </ToggleButton>
-          </ToggleButtonGroup>
-        </Box>
-      </Box>
+      </Card>
 
       {/* Main Content: Table View vs Card View */}
       {viewMode === 'table' ? (
-        <Card sx={{ borderRadius: 3, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
           <TableContainer>
-            <Table>
-              <TableHead sx={{ bgcolor: '#f8fafc' }}>
+            <Table size="small">
+              <TableHead
+                sx={{
+                  bgcolor: '#0F2E5A',
+                  '& .MuiTableCell-head': {
+                    bgcolor: '#0F2E5A !important',
+                    color: '#FFFFFF !important',
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    py: 1,
+                    px: 1.25,
+                    borderBottom: '2px solid #F59E0B',
+                    whiteSpace: 'nowrap'
+                  }
+                }}
+              >
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 800, width: '70px', color: '#0f172a' }}>S.N.</TableCell>
+                  <TableCell sx={{ fontWeight: 800, width: 48, color: '#FFFFFF !important' }}>S.N.</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Student Candidate</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Target Job Title</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Employer Partner</TableCell>
-                  <TableCell sx={{ fontWeight: 800 }}>Expected Salary & Terms</TableCell>
+                  <TableCell sx={{ fontWeight: 800 }}>Expected Salary &amp; Terms</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Employment Type</TableCell>
                   <TableCell sx={{ fontWeight: 800 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
@@ -366,63 +527,65 @@ export default function PlacementManager() {
 
                   return (
                     <TableRow key={plc.id} hover>
-                      <TableCell sx={{ fontWeight: 700, color: '#64748b' }}>
+                      <TableCell sx={{ fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>
                         {idx + 1}
                       </TableCell>
                       <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                          <Avatar src={std?.photoUrl} sx={{ width: 38, height: 38, bgcolor: '#1a56b0', fontWeight: 700 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                          <Avatar src={std?.photoUrl} sx={{ width: 30, height: 30, bgcolor: '#1a56b0', fontWeight: 700, fontSize: '0.78rem' }}>
                             {std?.name?.[0] || 'S'}
                           </Avatar>
                           <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800 }}>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, fontSize: '0.8rem' }}>
                               {std?.name || 'Student'}
                             </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089' }}>
+                            <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                               {std?.tgid}
                             </Typography>
                           </Box>
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#152238' }}>
+                      <TableCell sx={{ fontWeight: 800, color: '#152238', fontSize: '0.8rem' }}>
                         {plc.targetJob}
                       </TableCell>
                       <TableCell>
-                        <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, fontSize: '0.79rem' }}>
                           {emp?.name || 'Self-Employed / Freelance'}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                           {plc.preferredLocation}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#16834b' }}>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#16834b', fontSize: '0.79rem' }}>
                           {plc.expectedSalary}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089' }}>
+                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
                           {plc.paymentType}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Chip label={plc.employmentType} size="small" sx={{ bgcolor: '#f1f5f9', fontWeight: 700 }} />
+                        <Chip label={plc.employmentType} size="small" sx={{ height: 20, fontSize: '0.68rem', bgcolor: '#f1f5f9', fontWeight: 700 }} />
                       </TableCell>
                       <TableCell>
                         <Chip
-                          icon={<CheckCircleIcon />}
+                          icon={<CheckCircleIcon sx={{ fontSize: '13px !important' }} />}
                           label={plc.status}
                           size="small"
                           sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
                             bgcolor: plc.status === 'Placed' ? '#e5f8ee' : plc.status === 'Ongoing' ? '#fdf3e2' : '#e8f0fd',
                             color: plc.status === 'Placed' ? '#16834b' : plc.status === 'Ongoing' ? '#c9820a' : '#1a56b0',
                             fontWeight: 700
                           }}
                         />
                       </TableCell>
-                      <TableCell sx={{ textAlign: 'right' }}>
-                        <IconButton size="small" onClick={() => handleOpenEdit(plc)} sx={{ color: '#1a56b0', mr: 0.5 }}>
+                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        <IconButton size="small" onClick={() => handleOpenEdit(plc)} sx={{ color: '#1a56b0', p: 0.4, mr: 0.25 }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
-                        <IconButton size="small" onClick={() => handleDelete(plc.id)} sx={{ color: '#d5372f' }}>
+                        <IconButton size="small" onClick={() => handleDelete(plc.id)} sx={{ color: '#d5372f', p: 0.4 }}>
                           <DeleteOutlineIcon fontSize="small" />
                         </IconButton>
                       </TableCell>
@@ -431,7 +594,7 @@ export default function PlacementManager() {
                 })}
                 {filteredPlacements.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#94a3b8' }}>
+                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
                       No placement records found matching the filter criteria.
                     </TableCell>
                   </TableRow>
