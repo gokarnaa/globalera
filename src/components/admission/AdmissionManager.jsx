@@ -206,20 +206,18 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
     const course = (db.courses || []).find((c) => c.id === adm.courseId);
     const receiptText = `📜 *Official Admission Confirmation & Fee Receipt*\n` +
-      `Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.)\n\n` +
+      `Global Era Technical School (CTEVT Accredited Institute)\n\n` +
       `Dear *${adm.studentName}*,\n` +
       `Your admission enrollment has been confirmed successfully!\n\n` +
-      `• *Agreement No:* ${adm.agreementNo || 'PSJ-ADM'}\n` +
+      `• *Agreement No:* ${adm.agreementNo || 'GETS-ADM'}\n` +
       `• *Course:* ${adm.courseTitle || course?.title || 'Vocational Training'}\n` +
       `• *Batch:* Shift ${adm.shift || 'A'}\n` +
-      `• *Trainee ID (TGID):* ${student.tgid || adm.tgid || 'PSJ-TGID'}\n` +
+      `• *Trainee ID (TGID):* ${student.tgid || adm.tgid || 'GETS-TGID'}\n` +
       `• *Total Net Fee:* Rs. ${(Number(adm.netPayableFee) || 0).toLocaleString()}\n` +
-      ((Number(adm.netPayableFee) || 0) === 0
-        ? `• *Fee Plan:* Free Basic Training (100% Scholarship)\n`
-        : `• *50% Advance Paid:* Rs. ${(Number(adm.advancePaid50) || 0).toLocaleString()}\n` +
-          (adm.dueAmount50 > 0 ? `• *Mid-Course 50% Due:* Rs. ${Number(adm.dueAmount50).toLocaleString()} (Due Date: ${adm.dueDate || 'Within 30 Days'})\n` : `• *Payment Status:* Fully Settled\n`)) +
-      `• *Campus Location:* Jorpati, Gokarneshwor, Kathmandu (Phone: 014910715 | WhatsApp: 9705147147)\n\n` +
-      `Please present this confirmation voucher on your first class day. Welcome to Prabidhik School!`;
+      `• *50% Advance Paid:* Rs. ${(Number(adm.advancePaid50) || 0).toLocaleString()}\n` +
+      (adm.dueAmount50 > 0 ? `• *Mid-Course 50% Due:* Rs. ${Number(adm.dueAmount50).toLocaleString()} (Due Date: ${adm.dueDate || 'Within 30 Days'})\n` : `• *Payment Status:* Fully Settled\n`) +
+      `• *Campus Location:* Jorpati, Gokarneshwor, Kathmandu (Phone: 01-410715)\n\n` +
+      `Please present this confirmation voucher on your first class day. Welcome to Global Era!`;
 
     try {
       setSendingWaAdmId(adm.id);
@@ -256,10 +254,6 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
     (sum, a) => sum + (Number(a.dueAmount50) || 0),
     0
   );
-  const dueAdmissionsCount = admissions.filter((a) => (Number(a.dueAmount50) || 0) > 0).length;
-  const paidAdmissionsCount = admissions.filter((a) => (Number(a.dueAmount50) || 0) <= 0 && (Number(a.netPayableFee) || 0) > 0).length;
-  const freeBasicCount = admissions.filter((a) => (Number(a.netPayableFee) || 0) === 0).length;
-  const ojtRequiredCount = admissions.filter((a) => a.ojtPreference === 'REQUIRED').length;
 
   // Filtered Admissions
   const filteredAdmissions = useMemo(() => {
@@ -286,8 +280,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
       // Status Filter
       if (statusFilter === 'DUE' && (Number(item.dueAmount50) || 0) <= 0) return false;
-      if (statusFilter === 'PAID' && ((Number(item.dueAmount50) || 0) > 0 || (Number(item.netPayableFee) || 0) === 0)) return false;
-      if (statusFilter === 'FREE' && (Number(item.netPayableFee) || 0) !== 0) return false;
+      if (statusFilter === 'PAID' && (Number(item.dueAmount50) || 0) > 0) return false;
 
       return true;
     });
@@ -341,21 +334,22 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={7}>
-            <Stack direction="row" spacing={1.2} alignItems="center" sx={{ mb: 0.6 }}>
-              <HowToRegIcon sx={{ fontSize: 30, color: '#f59e0b' }} />
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff', fontSize: { xs: '1.2rem', sm: '1.45rem' } }}>
+          <Grid item xs={12} md={8}>
+            <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
+              <HowToRegIcon sx={{ fontSize: 36, color: '#f59e0b' }} />
+              <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff' }}>
                 Trainee Admission & Agreement
               </Typography>
             </Stack>
-            <Typography variant="body2" sx={{ color: '#e2e8f0', maxWidth: '680px', lineHeight: 1.5, fontSize: '0.84rem' }}>
-              <strong>Prabidhik School, Jorpati</strong> (Global Era Multi Service Pvt. Ltd.) — Manage Free Basic &amp; 50% Scholarship admissions, 30-day installment tracking, OJT placement, and <strong>dual-copy A4 agreements</strong>.
+            <Typography variant="body2" sx={{ color: '#e2e8f0', maxWidth: '780px', lineHeight: 1.6 }}>
+              Global Era Technical School Jorpati — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office & Student Copy) A4 agreement letters</strong>.
             </Typography>
           </Grid>
           <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.2} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent={{ xs: 'flex-start', md: 'flex-end' }}>
               <Button
                 variant="outlined"
+                size="large"
                 startIcon={<ContactsIcon />}
                 onClick={() => setAdmitFromLeadOpen(true)}
                 sx={{
@@ -363,10 +357,9 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   color: '#ffffff',
                   borderColor: 'rgba(255, 255, 255, 0.35)',
                   fontWeight: 800,
-                  fontSize: '0.82rem',
-                  whiteSpace: 'nowrap',
-                  px: 2,
-                  py: 1,
+                  fontSize: '0.88rem',
+                  px: 2.2,
+                  py: 1.2,
                   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)', borderColor: '#ffffff' }
                 }}
               >
@@ -375,6 +368,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
               <Button
                 variant="contained"
+                size="large"
                 startIcon={<AddIcon />}
                 onClick={() => {
                   setSelectedLeadForAdmission(null);
@@ -384,15 +378,14 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   bgcolor: '#f59e0b',
                   color: '#0f2e5a',
                   fontWeight: 900,
-                  fontSize: '0.84rem',
-                  whiteSpace: 'nowrap',
-                  px: 2.2,
-                  py: 1,
+                  fontSize: '0.92rem',
+                  px: 2.5,
+                  py: 1.2,
                   boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
                   '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
                 }}
               >
-                Direct Walk-in Admission
+                + Direct Walk-in Admission
               </Button>
             </Stack>
           </Grid>
@@ -421,35 +414,34 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         </Alert>
       )}
 
-      {/* 4 Slim KPI Cards */}
-      <Grid container spacing={2} sx={{ mb: 2.5 }}>
+      {/* 4 Top KPI Cards */}
+      <Grid container spacing={2.5} sx={{ mb: 3.5 }}>
         {/* Total Admissions */}
         <Grid item xs={12} sm={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 1.8,
+              p: 2.5,
               borderRadius: 2.5,
               border: '1px solid #e2e8f0',
-              borderLeft: '4px solid #1e40af',
               bgcolor: '#ffffff',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', fontSize: '0.7rem' }}>
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
                   Total Agreements
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.2, lineHeight: 1.2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0f2e5a', mt: 0.5 }}>
                   {totalAdmissionsCount}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 700, display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
                   Enrolled Trainees
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.1, bgcolor: '#eff6ff', borderRadius: 2, color: '#1e40af', flexShrink: 0 }}>
-                <SchoolIcon sx={{ fontSize: 22 }} />
+              <Box sx={{ p: 1.5, bgcolor: '#eff6ff', borderRadius: 2, color: '#1e40af' }}>
+                <SchoolIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
@@ -460,161 +452,94 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
           <Card
             elevation={0}
             sx={{
-              p: 1.8,
+              p: 2.5,
               borderRadius: 2.5,
               border: '1px solid #e2e8f0',
-              borderLeft: '4px solid #0284c7',
               bgcolor: '#ffffff',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', fontSize: '0.7rem' }}>
-                  Today's Enrolled
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                  Today's Admissions
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#0284c7', mt: 0.2, lineHeight: 1.2 }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: '#0284c7', mt: 0.5 }}>
                   {todayAdmissionsCount}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 700, display: 'block', fontSize: '0.72rem' }}>
-                  {todayStr}
+                <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 700 }}>
+                  Date: {todayStr}
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.1, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7', flexShrink: 0 }}>
-                <HowToRegIcon sx={{ fontSize: 22 }} />
+              <Box sx={{ p: 1.5, bgcolor: '#f0f9ff', borderRadius: 2, color: '#0284c7' }}>
+                <HowToRegIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        {/* Advance Fees Collected */}
+        {/* 50% Advance Fees Collected */}
         <Grid item xs={12} sm={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 1.8,
+              p: 2.5,
               borderRadius: 2.5,
               border: '1px solid #e2e8f0',
-              borderLeft: '4px solid #059669',
               bgcolor: '#ffffff',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', fontSize: '0.7rem' }}>
-                  Advance Collected
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                  50% Advance Collected
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.2, lineHeight: 1.2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
                   Rs. {totalAdvanceCollected.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 700, display: 'block', fontSize: '0.72rem' }}>
+                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
                   Received at Enrollment
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.1, bgcolor: '#ecfdf5', borderRadius: 2, color: '#059669', flexShrink: 0 }}>
-                <PaymentsIcon sx={{ fontSize: 22 }} />
+              <Box sx={{ p: 1.5, bgcolor: '#ecfdf5', borderRadius: 2, color: '#059669' }}>
+                <PaymentsIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
 
-        {/* 30-Day Due Pending */}
+        {/* Remaining 50% Due in 30 Days */}
         <Grid item xs={12} sm={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 1.8,
+              p: 2.5,
               borderRadius: 2.5,
               border: '1px solid #e2e8f0',
-              borderLeft: '4px solid #dc2626',
               bgcolor: '#ffffff',
               boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 800, color: '#64748b', textTransform: 'uppercase', display: 'block', fontSize: '0.7rem' }}>
-                  30-Day Due Pending
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Box>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+                  Installment Due (Within 30 Days)
                 </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: '#dc2626', mt: 0.2, lineHeight: 1.2 }}>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#dc2626', mt: 0.5 }}>
                   Rs. {totalPendingDue.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#dc2626', fontWeight: 700, display: 'block', fontSize: '0.72rem' }}>
-                  {dueAdmissionsCount} Trainee(s) Due
+                <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
+                  Payable within 1 month
                 </Typography>
               </Box>
-              <Box sx={{ p: 1.1, bgcolor: '#fef2f2', borderRadius: 2, color: '#dc2626', flexShrink: 0 }}>
-                <ReceiptLongIcon sx={{ fontSize: 22 }} />
+              <Box sx={{ p: 1.5, bgcolor: '#fef2f2', borderRadius: 2, color: '#dc2626' }}>
+                <ReceiptLongIcon sx={{ fontSize: 28 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
       </Grid>
-
-      {/* Quick Filter Pills */}
-      <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
-        <Chip
-          clickable
-          label={`All (${totalAdmissionsCount})`}
-          onClick={() => { setStatusFilter('ALL'); setOjtFilter('ALL'); setPage(0); }}
-          sx={{
-            fontWeight: 800,
-            fontSize: '0.76rem',
-            bgcolor: statusFilter === 'ALL' && ojtFilter === 'ALL' ? '#0F2E5A' : '#FFFFFF',
-            color: statusFilter === 'ALL' && ojtFilter === 'ALL' ? '#FFFFFF' : '#475569',
-            border: '1px solid #E2E8F0'
-          }}
-        />
-        <Chip
-          clickable
-          label={`Due Pending (${dueAdmissionsCount})`}
-          onClick={() => { setStatusFilter('DUE'); setOjtFilter('ALL'); setPage(0); }}
-          sx={{
-            fontWeight: 800,
-            fontSize: '0.76rem',
-            bgcolor: statusFilter === 'DUE' ? '#DC2626' : '#FFFFFF',
-            color: statusFilter === 'DUE' ? '#FFFFFF' : '#991B1B',
-            border: '1px solid #FECACA'
-          }}
-        />
-        <Chip
-          clickable
-          label={`Fully Paid (${paidAdmissionsCount})`}
-          onClick={() => { setStatusFilter('PAID'); setOjtFilter('ALL'); setPage(0); }}
-          sx={{
-            fontWeight: 800,
-            fontSize: '0.76rem',
-            bgcolor: statusFilter === 'PAID' ? '#059669' : '#FFFFFF',
-            color: statusFilter === 'PAID' ? '#FFFFFF' : '#065F46',
-            border: '1px solid #A7F3D0'
-          }}
-        />
-        <Chip
-          clickable
-          label={`Free Basic (${freeBasicCount})`}
-          onClick={() => { setStatusFilter('FREE'); setOjtFilter('ALL'); setPage(0); }}
-          sx={{
-            fontWeight: 800,
-            fontSize: '0.76rem',
-            bgcolor: statusFilter === 'FREE' ? '#0284C7' : '#FFFFFF',
-            color: statusFilter === 'FREE' ? '#FFFFFF' : '#0369A1',
-            border: '1px solid #BAE6FD'
-          }}
-        />
-        <Chip
-          clickable
-          label={`OJT Required (${ojtRequiredCount})`}
-          onClick={() => { setOjtFilter(ojtFilter === 'REQUIRED' ? 'ALL' : 'REQUIRED'); setPage(0); }}
-          sx={{
-            fontWeight: 800,
-            fontSize: '0.76rem',
-            bgcolor: ojtFilter === 'REQUIRED' ? '#D97706' : '#FFFFFF',
-            color: ojtFilter === 'REQUIRED' ? '#FFFFFF' : '#92400E',
-            border: '1px solid #FDE68A'
-          }}
-        />
-      </Stack>
 
       {/* Filter and Search Bar */}
       <Card
@@ -709,7 +634,6 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               <MenuItem value="ALL">All Status</MenuItem>
               <MenuItem value="DUE">2nd Installment Due</MenuItem>
               <MenuItem value="PAID">Fully Paid</MenuItem>
-              <MenuItem value="FREE">Free Basic (Rs. 0)</MenuItem>
             </TextField>
           </Grid>
 
@@ -894,13 +818,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
                     {/* 2nd Installment & Due Date */}
                     <TableCell>
-                      {(Number(adm.netPayableFee) || 0) === 0 ? (
-                        <Chip
-                          label="Free Basic (Rs. 0)"
-                          size="small"
-                          sx={{ bgcolor: '#e0f2fe', color: '#0369a1', fontWeight: 800 }}
-                        />
-                      ) : adm.dueAmount50 > 0 ? (
+                      {adm.dueAmount50 > 0 ? (
                         <Box>
                           <Typography variant="body2" sx={{ fontWeight: 800, color: '#dc2626' }}>
                             Due: Rs. {adm.dueAmount50.toLocaleString()}

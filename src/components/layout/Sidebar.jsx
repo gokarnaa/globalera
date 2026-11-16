@@ -359,7 +359,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             />
           </Box>
           <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • Jorpati Campus
+            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • MitraPark Hub
           </Typography>
         </Box>
       </Box>
