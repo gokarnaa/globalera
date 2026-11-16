@@ -65,10 +65,10 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
                 variant="subtitle2"
                 sx={{ fontWeight: 800, color: '#b45309', fontSize: { xs: '0.9rem', sm: '1rem' }, mt: 0.2 }}
               >
-                Technical School Jorpati
+                Prabidhik School, Jorpati
               </Typography>
               <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3, fontSize: '0.78rem' }}>
-                Gokarneshwor Municipality-05, Jorpati, Kathmandu | Phone: 01-4915555, 9851000000 | PAN No: 609876543
+                Gokarneshwor Municipality-05, Jorpati, Kathmandu | Phone: 01-4910715 | WhatsApp: 9705147147 | PAN No: 609876543
               </Typography>
             </Box>
 
@@ -148,7 +148,7 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
             1. Parties to the Agreement:
           </Typography>
           <Typography variant="body2" sx={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#334155' }}>
-            <strong>First Party (Institution):</strong> Global Era Multi Service Pvt. Ltd. (Technical School Jorpati), Gokarneshwor-05, Kathmandu.
+            <strong>First Party (Institution):</strong> Global Era Multi Service Pvt. Ltd. (Prabidhik School, Jorpati), Gokarneshwor-05, Kathmandu.
             <br />
             <strong>Second Party (Trainee):</strong> Mr./Ms. <strong>{admission.studentName}</strong>, Gender: <strong>{admission.gender || 'Female'}</strong>, Phone: <strong>{admission.phone}</strong> {admission.secondaryPhone ? `(${admission.secondaryPhone})` : ''}, Current Address: <strong>{admission.currentAddress || 'Kathmandu'}</strong>, Permanent Address: <strong>{admission.permanentAddress || 'Kathmandu'}</strong>, Citizenship/ID No: <strong>{admission.citizenshipNumber || 'N/A'}</strong>.
           </Typography>
