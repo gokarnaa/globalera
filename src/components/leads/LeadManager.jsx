@@ -871,6 +871,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
                 }}
               >
                 <TableRow>
+                  <TableCell align="center" sx={{ width: 46 }}>S.N.</TableCell>
                   <TableCell>Lead ID</TableCell>
                   <TableCell>Student (Name &amp; Address)</TableCell>
                   <TableCell>Contact (Phone &amp; Actions)</TableCell>
@@ -885,17 +886,20 @@ export default function LeadManager({ onNavigateToAdmission }) {
               <TableBody>
                 {filteredLeads.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={9} align="center" sx={{ py: 4, color: '#94A3B8', fontSize: '0.8rem' }}>
+                    <TableCell colSpan={10} align="center" sx={{ py: 4, color: '#94A3B8', fontSize: '0.8rem' }}>
                       No leads matching filter.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredLeads.map((lead) => {
+                  filteredLeads.map((lead, idx) => {
                     const stgObj = LEAD_STAGES.find((s) => s.value === lead.stage) || LEAD_STAGES[0];
                     const prObj = LEAD_PRIORITIES.find((p) => p.value === lead.priority) || LEAD_PRIORITIES[1];
 
                     return (
                       <TableRow key={lead.id} hover sx={{ '&:hover': { bgcolor: '#F8FAFC' } }}>
+                        <TableCell align="center" sx={{ fontWeight: 700, color: '#64748B', fontSize: '0.76rem', width: 46 }}>
+                          {idx + 1}
+                        </TableCell>
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
                           <Typography
                             sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF', fontSize: '0.78rem' }}
