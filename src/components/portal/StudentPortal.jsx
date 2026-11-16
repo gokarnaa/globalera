@@ -532,7 +532,7 @@ export default function StudentPortal({ onLogout }) {
               <Typography variant="subtitle2" sx={{ fontWeight: 800, mb: 1 }}>
                 Recent Attendance Logs
               </Typography>
-              <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 240, borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ maxHeight: 240, borderRadius: 2, overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
@@ -626,8 +626,8 @@ export default function StudentPortal({ onLogout }) {
             sx={{ height: 8, borderRadius: 4, mb: 3 }}
           />
 
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
-            <Table>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
+            <Table size="small">
               <TableHead
                 sx={{
                   bgcolor: '#0F2E5A',
@@ -883,7 +883,7 @@ export default function StudentPortal({ onLogout }) {
                     <Divider />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Typography variant="body2" sx={{ color: '#64748B' }}>Supervisor Contact:</Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{studentOjt.supervisorPhone || ojtEmployer?.phone || '01410715'}</Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700 }}>{studentOjt.supervisorPhone || ojtEmployer?.phone || '014910715'}</Typography>
                     </Box>
                     <Divider />
                     <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -1293,13 +1293,13 @@ export default function StudentPortal({ onLogout }) {
           {/* Institutional Header */}
           <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '3px solid #0F2C59', mb: 2.5, bgcolor: '#F8FAFC', p: 2, borderRadius: 2 }}>
             <Typography variant="h5" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em' }}>
-              Global Era Technical School
+              Prabidhik School, Jorpati
             </Typography>
             <Typography variant="subtitle2" sx={{ color: '#334155', fontWeight: 700 }}>
               GLOBAL ERA MULTI SERVICE PVT. LTD. • Jorpati, Gokarneshwor, Kathmandu
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1 }}>
-              CTEVT Affiliation Code: 4208 • Reg No: 184920/078/079 • Phone: 01410715
+              CTEVT Affiliation Code: 4208 • Reg No: 184920/078/079 • Phone: 014910715
             </Typography>
             <Stack direction="row" spacing={1} justifyContent="center" flexWrap="wrap" sx={{ gap: 0.5 }}>
               <Chip

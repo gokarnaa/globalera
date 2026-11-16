@@ -362,7 +362,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
         location: newEmp.location,
         employmentType: 'Full-Time',
         status: 'Open',
-        description: `Immediate requirement for trained vocational graduates from Global Era Technical School.`,
+        description: `Immediate requirement for trained vocational graduates from Prabidhik School, Jorpati.`,
         postedDate: new Date().toISOString().slice(0, 10)
       };
     }
@@ -444,7 +444,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC', color: '#0F172A', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ minHeight: '100dvh', bgcolor: '#F8FAFC', color: '#0F172A', display: 'flex', flexDirection: 'column' }}>
       {/* ============================================================== */}
       {/* 0. TOP ANNOUNCEMENT & CONTACT BAR                               */}
       {/* ============================================================== */}
@@ -637,7 +637,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   noWrap
                   sx={{ fontWeight: 900, letterSpacing: '0.02em', lineHeight: 1.15, color: '#FFFFFF', fontSize: { xs: '0.9rem', sm: '1rem' } }}
                 >
-                  {company.companyNameEn || 'Global Era Technical School'}
+                  {company.companyNameEn || 'Prabidhik School, Jorpati'}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -1622,7 +1622,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                   Your inquiry has been registered successfully!
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#047857', mb: 2 }}>
-                  Thank you for choosing Global Era Technical School. Our admissions team will contact you shortly.
+                  Thank you for choosing Prabidhik School, Jorpati. Our admissions team will contact you shortly.
                 </Typography>
                 <Button variant="outlined" size="small" onClick={() => setInquirySubmitted(false)} sx={{ fontWeight: 800, borderColor: '#059669', color: '#059669' }}>
                   Submit Another Inquiry
@@ -1740,7 +1740,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
               Hire Certified Technical & Vocational Graduates
             </Typography>
             <Typography variant="body1" sx={{ color: '#94A3B8', maxWidth: 720, mx: 'auto', lineHeight: 1.6 }}>
-              Partner with Global Era Technical School to recruit skilled professionals in Beautician, Tailoring, Caregiver, and Electrical trades.
+              Partner with Prabidhik School, Jorpati to recruit skilled professionals in Beautician, Tailoring, Caregiver, and Electrical trades.
               Enjoy 100% verified credentials, zero recruitment commission, and direct access to top talent.
             </Typography>
           </Box>
@@ -2050,10 +2050,10 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
             {/* Col 1: Institute Info */}
             <Grid item xs={12} md={5}>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', mb: 1.2 }}>
-                {company.companyNameEn || 'Global Era Technical School'}
+                {company.companyNameEn || 'Prabidhik School, Jorpati'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#FCD34D', fontWeight: 800, display: 'block', mb: 1.5 }}>
-                GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE
+                Prabidhik School, Jorpati / Global Era Multi Service Pvt. Ltd.
               </Typography>
               <Typography variant="body2" sx={{ lineHeight: 1.7, maxWidth: 420 }}>
                 A premier vocational skill development center affiliated with the Council for Technical Education and Vocational Training (CTEVT).
@@ -2193,7 +2193,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
           {/* Bottom Bar: Copyright and Discreet Admin Login */}
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
             <Typography variant="caption">
-              © {new Date().getFullYear()} {company.companyNameEn || 'Global Era Technical School'}. All Rights Reserved.
+              © {new Date().getFullYear()} {company.companyNameEn || 'Prabidhik School, Jorpati'}. All Rights Reserved.
             </Typography>
 
             {/* Discreet Management Link */}
@@ -2747,7 +2747,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                       {/* 2. Academic Table View */}
                       {brochureGalleryMode === 'table' && (
-                        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+                        <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflowX: 'auto' }}>
                           <Table size="small">
                             <TableHead sx={{ bgcolor: theme.primary }}>
                               <TableRow>
@@ -3110,7 +3110,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                           Curriculum Department
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem' }}>
-                          Global Era Technical School
+                          Prabidhik School, Jorpati
                         </Typography>
                       </Grid>
                       <Grid item xs={4} sx={{ textAlign: 'center' }}>

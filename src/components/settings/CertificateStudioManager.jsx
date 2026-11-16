@@ -101,7 +101,7 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
 
   // 5. Header & Branding (Single Versatile Line + Sub lines)
   showHeader: true,
-  instituteName: 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE',
+  instituteName: 'Prabidhik School, Jorpati / Global Era Multi Service Pvt. Ltd.',
   showLeftLogo: true,
   leftLogoUrl: '',
   leftLogoWidth: 46,
@@ -111,7 +111,7 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   showAccreditation: true,
   accreditationText: 'Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)',
   showAffiliation: true,
-  affiliationCodeText: 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal',
+  affiliationCodeText: 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • Jorpati, Gokarneshwor, Kathmandu, Nepal',
 
   // 6. Title & Body Typography
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
@@ -1009,7 +1009,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           display: 'flex',
           flexDirection: { xs: 'column', lg: 'row' },
           gap: 1.5,
-          height: { xs: 'auto', lg: 'calc(100vh - 165px)' },
+          height: { xs: 'auto', lg: 'calc(100dvh - 165px)' },
           minHeight: { xs: 'auto', lg: '740px' }
         }}
       >
@@ -1098,7 +1098,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     size="small"
                     value={design.instituteName}
                     onChange={(e) => handleUpdate('instituteName', e.target.value)}
-                    placeholder="Global Era Technical School"
+                    placeholder="Prabidhik School, Jorpati"
                     sx={{ bgcolor: '#FFFFFF' }}
                   />
                 </Box>
@@ -2472,7 +2472,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           ★ OFFICIAL SEAL ★
                         </Typography>
                         <Typography variant="caption" sx={{ color: design.accentColor, fontWeight: 800, fontSize: '0.62rem', display: 'block' }}>
-                          GLOBAL ERA TECHNICAL SCHOOL
+                          Prabidhik School, Jorpati
                         </Typography>
                       </Box>
                     )}

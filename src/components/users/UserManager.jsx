@@ -879,7 +879,7 @@ export default function UserManager() {
       </Card>
 
       {/* 4. Users Table */}
-      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
         <Table size="small">
           <TableHead
             sx={{

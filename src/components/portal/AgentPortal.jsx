@@ -105,7 +105,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
   };
 
   const handleShareWhatsApp = () => {
-    const text = `Hello! I am an official referral representative of Global Era Technical School (CTEVT Affiliated). Fill out the form via this link for admission and discounts on various job-oriented skill and technical training courses: ${referralLink}`;
+    const text = `Hello! I am an official referral representative of Prabidhik School, Jorpati (CTEVT Affiliated). Fill out the form via this link for admission and discounts on various job-oriented skill and technical training courses: ${referralLink}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   };
 
@@ -288,7 +288,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
   };
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: '#F8FAFC', pb: 8 }}>
+    <Box sx={{ minHeight: '100dvh', bgcolor: '#F8FAFC', pb: 8 }}>
       {/* Top Header Bar */}
       <Box
         sx={{
@@ -317,7 +317,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <Typography variant="h6" sx={{ fontWeight: 900, lineHeight: 1.2 }}>
-                  {company.companyNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL'}
+                  {company.companyNameEnglish || 'Prabidhik School, Jorpati'}
                 </Typography>
                 <Chip
                   label="Referral Partner Portal (Agent Portal)"
@@ -712,7 +712,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
 
               {/* Leads Table */}
               <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2.5 }}>
-                <Table>
+                <Table size="small">
                   <TableHead sx={{ bgcolor: '#F8FAFC' }}>
                     <TableRow>
                       <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Date / ID</TableCell>
@@ -984,7 +984,7 @@ export default function AgentPortal({ onLogout, onGoHome }) {
           <Card sx={{ borderRadius: 3.5, border: '1px solid #E2E8F0' }}>
             <CardContent sx={{ p: { xs: 2, sm: 3.5 } }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1 }}>
-                📚 Official Courses at Global Era Technical School
+                📚 Official Courses at Prabidhik School, Jorpati
               </Typography>
               <Typography variant="body2" sx={{ color: '#64748B', mb: 3 }}>
                 Share the duration, fees, and curriculum details of these courses when advising prospective students:

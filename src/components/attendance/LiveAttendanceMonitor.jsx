@@ -755,7 +755,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               </Card>
 
               {/* Punch Stream Table */}
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
@@ -957,7 +957,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               </Card>
 
               {/* Trainee Roster Table */}
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
@@ -1153,7 +1153,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
               ======================================================= */}
           {activeTab === 2 && (
             <Box>
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
@@ -1292,7 +1292,7 @@ export default function LiveAttendanceMonitor({ onNavigate }) {
                 ℹ️ Daily biometric attendance roster for administrative, accounts, and front desk personnel
               </Alert>
 
-              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+              <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
                 <Table size="small">
                   <TableHead
                     sx={{

@@ -137,11 +137,11 @@ export default function A4LandscapeCertificateModal({
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
 
   const companyProfile = db.settings?.companyProfile || {};
-  const instituteName = companyProfile.companyNameEn || design.instituteName || design.instituteNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE';
+  const instituteName = companyProfile.companyNameEn || design.instituteName || design.instituteNameEnglish || 'Prabidhik School, Jorpati / Global Era Multi Service Pvt. Ltd.';
   const accreditationText = design.accreditationText || 'Accredited Technical Training Provider under Council for Technical Education and Vocational Training (CTEVT)';
   const affiliationCodeText = (companyProfile.regNo || companyProfile.ctevtCode)
-    ? `Government Regd. No: ${companyProfile.regNo || '184920/078/079'} • CTEVT Affiliation Code: ${companyProfile.ctevtCode || '4208'} • ${companyProfile.address || 'MitraPark, Kathmandu, Nepal'}`
-    : (design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • MitraPark, Kathmandu, Nepal');
+    ? `Government Regd. No: ${companyProfile.regNo || '184920/078/079'} • CTEVT Affiliation Code: ${companyProfile.ctevtCode || '4208'} • ${companyProfile.address || 'Jorpati, Gokarneshwor, Kathmandu, Nepal'}`
+    : (design.affiliationCodeText || 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • Jorpati, Gokarneshwor, Kathmandu, Nepal');
   const certificateTitleEn = design.certificateTitleEn || 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION';
   const certificateTitleNp = design.certificateTitleNp || '(Official Skill Completion Credential)';
 
@@ -967,7 +967,7 @@ export default function A4LandscapeCertificateModal({
                       ★ OFFICIAL SEAL ★
                     </Typography>
                     <Typography variant="caption" sx={{ color: accentColor, fontWeight: 800, fontSize: '0.66rem', display: 'block' }}>
-                      {companyProfile.companyNameEn || 'GLOBAL ERA TECHNICAL SCHOOL'}
+                      {companyProfile.companyNameEn || 'Prabidhik School, Jorpati'}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.62rem', display: 'block' }}>
                       CTEVT ACCREDITED • KATHMANDU

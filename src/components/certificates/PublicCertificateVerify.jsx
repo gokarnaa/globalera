@@ -176,13 +176,13 @@ export default function PublicCertificateVerify({
             {/* Institution Badge */}
             <Box sx={{ p: 1.5, bgcolor: '#ffffff', borderRadius: 2, border: '1px solid #e2e8f0', textAlign: 'center', mb: 2 }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0b2545' }}>
-                {companyProfile.companyNameEn || 'GLOBAL ERA TECHNICAL SCHOOL / GLOBAL ERA MULTI SERVICE'}
+                {companyProfile.companyNameEn || 'Prabidhik School, Jorpati / Global Era Multi Service Pvt. Ltd.'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#647089', display: 'block' }}>
                 CTEVT Accredited Institution • Regd No: {companyProfile.regNo || '184920/078/079'}
               </Typography>
               <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block' }}>
-                {companyProfile.address || 'MitraPark, Chabahil-07, Kathmandu, Nepal'}
+                {companyProfile.address || 'Jorpati, Gokarneshwor, Kathmandu, Nepal'}
               </Typography>
             </Box>
 

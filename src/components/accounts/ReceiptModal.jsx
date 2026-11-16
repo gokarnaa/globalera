@@ -151,10 +151,10 @@ function ReceiptSlip({
   settings,
   isCompact = false
 }) {
-  const instituteName = settings?.instituteSub || 'Global Era Technical School';
+  const instituteName = settings?.instituteSub || 'Prabidhik School, Jorpati';
   const instituteEnglish = settings?.instituteName || 'Global Era Multi Service Pvt. Ltd.';
   const address = settings?.location || 'Gokarneshwor-05, Jorpati, Kathmandu';
-  const phone = settings?.contactPhone || '01-4915555 / 9851000000';
+  const phone = settings?.contactPhone || '01-4910715 / 9705147147';
   const email = settings?.email || 'info@globalera.edu.np';
 
   const originalFee = Number(payment.originalFee || course?.price || 30000);
@@ -899,13 +899,13 @@ export default function ReceiptModal({
           >
             <Box sx={{ textAlign: 'center', mb: 1.5 }}>
               <Typography variant="subtitle1" sx={{ fontWeight: 900, lineHeight: 1.2 }}>
-                {settings?.instituteSub || 'Global Era Technical School'}
+                {settings?.instituteSub || 'Prabidhik School, Jorpati'}
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontSize: '0.72rem' }}>
                 {settings?.location || 'Gokarneshwor-05, Jorpati, Kathmandu'}
               </Typography>
               <Typography variant="caption" sx={{ display: 'block', fontSize: '0.72rem' }}>
-                Phone: {settings?.contactPhone || '01-4915555 / 9851000000'}
+                Phone: {settings?.contactPhone || '01-4910715 / 9705147147'}
               </Typography>
               <Typography variant="caption" sx={{ fontWeight: 800, display: 'block', mt: 0.5, letterSpacing: '0.04em' }}>
                 *** FEE RECEIPT ***

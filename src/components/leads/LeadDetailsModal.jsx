@@ -59,7 +59,7 @@ export default function LeadDetailsModal({
     setNewNote('');
   };
 
-  const whatsAppText = `Hello ${lead.name}! Greetings from Global Era Technical School (Global Era TVET). We are following up regarding your inquiry for '${lead.course || 'Vocational Training'}' to assist with details and the admission process.`;
+  const whatsAppText = `Hello ${lead.name}! Greetings from Prabidhik School, Jorpati (Global Era TVET). We are following up regarding your inquiry for '${lead.course || 'Vocational Training'}' to assist with details and the admission process.`;
   const waUrl = `https://wa.me/977${lead.phone}?text=${encodeURIComponent(whatsAppText)}`;
 
   return (

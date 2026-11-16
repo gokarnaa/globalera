@@ -380,7 +380,7 @@ export default function TrainerPortal({ onLogout }) {
                   {trainer?.specialization || 'TVET Certified Instructor'} • Phone: {trainer?.phone || 'N/A'}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#94A3B8', display: 'block', mt: 0.3 }}>
-                  Global Era Technical School • CTEVT Accredited
+                  Prabidhik School, Jorpati • CTEVT Accredited
                 </Typography>
               </Box>
             </Box>
@@ -1091,7 +1091,7 @@ export default function TrainerPortal({ onLogout }) {
               </TextField>
             </Box>
 
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflow: 'hidden' }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2.5, overflowX: 'auto' }}>
               <Table size="small">
                 <TableHead
                   sx={{
@@ -1206,7 +1206,7 @@ export default function TrainerPortal({ onLogout }) {
           {viewGroupModal?.group?.name} - Trainee List ({viewGroupModal?.students?.length})
         </DialogTitle>
         <DialogContent sx={{ p: 2.5 }}>
-          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden' }}>
+          <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2, overflowX: 'auto' }}>
             <Table size="small">
               <TableHead
                 sx={{
@@ -1243,7 +1243,7 @@ export default function TrainerPortal({ onLogout }) {
                         size="small"
                         color="success"
                         onClick={() => {
-                          const url = getWhatsAppUrl(st.phone, `Hello ${st.name}, message from Global Era Technical School regarding your training: `);
+                          const url = getWhatsAppUrl(st.phone, `Hello ${st.name}, message from Prabidhik School, Jorpati regarding your training: `);
                           window.open(url, '_blank');
                         }}
                       >

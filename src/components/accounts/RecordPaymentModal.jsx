@@ -198,7 +198,7 @@ export default function RecordPaymentModal({
     if (sendWhatsApp && selectedStudent?.phone) {
       const remainingDue = Math.max(0, selectedBalance.due - payNum);
       const text = `🧾 *Official Tuition Fee Payment Voucher*\n` +
-        `Global Era Technical School (CTEVT Accredited)\n\n` +
+        `Prabidhik School, Jorpati (CTEVT Accredited)\n\n` +
         `Dear *${selectedStudent.name}*,\n` +
         `Your fee payment of *Rs. ${payNum.toLocaleString()}* has been successfully recorded!\n\n` +
         `• *Receipt No:* ${receiptNo}\n` +
@@ -208,7 +208,7 @@ export default function RecordPaymentModal({
         `• *Remaining Due Balance:* Rs. ${remainingDue.toLocaleString()}\n` +
         (remainingDue <= 0 ? `• *Status:* Fee Fully Cleared 🎉\n` : `• *Status:* Partially Paid\n`) +
         `• *Received By:* ${currentUser?.name || 'Accounts Office'}\n\n` +
-        `Thank you for training with Global Era Technical School!`;
+        `Thank you for training with Prabidhik School, Jorpati!`;
 
       sendMetaWhatsAppMessage({
         to: selectedStudent.phone,

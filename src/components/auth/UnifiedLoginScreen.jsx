@@ -173,7 +173,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
   return (
     <Box
       sx={{
-        minHeight: '100vh',
+        minHeight: '100dvh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -243,10 +243,10 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
           </Box>
 
           <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.02em', lineHeight: 1.2 }}>
-            {company.companyNameEnglish || 'GLOBAL ERA TECHNICAL SCHOOL'}
+            {company.companyNameEnglish || 'Prabidhik School, Jorpati'}
           </Typography>
           <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mt: 0.4, fontWeight: 600 }}>
-            {company.companyNameNepali || 'Global Era Technical School'} • CTEVT Code: {company.ctevtCode || '4208'}
+            {company.companyNameNepali || 'Global Era Multi Service Pvt. Ltd.'} • CTEVT Code: {company.ctevtCode || '4208'}
           </Typography>
 
           {/* Gateway Title Badge */}

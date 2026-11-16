@@ -268,9 +268,9 @@ export default function UniversalStatementModal({
   const getEntityShareText = () => {
     if (!currentEntity) return '';
     if (entityType === 'LANDLORD') {
-      return `Dear ${currentEntity.name},\n\nAnnual Rent Statement for Fiscal Year ${fiscalYear} from Global Era Technical School:\n\nMonthly Rent: Rs. ${currentEntity.monthlyRent?.toLocaleString()}\nTotal Paid: 10 Months Cleared (ConnectIPS)\nCurrent Due: Rs. ${(currentEntity.currentDue || 0).toLocaleString()}\n\nPlease contact the office for the detailed statement. Thank you!`;
+      return `Dear ${currentEntity.name},\n\nAnnual Rent Statement for Fiscal Year ${fiscalYear} from Prabidhik School, Jorpati:\n\nMonthly Rent: Rs. ${currentEntity.monthlyRent?.toLocaleString()}\nTotal Paid: 10 Months Cleared (ConnectIPS)\nCurrent Due: Rs. ${(currentEntity.currentDue || 0).toLocaleString()}\n\nPlease contact the office for the detailed statement. Thank you!`;
     }
-    return `Dear ${currentEntity.name || 'Sir/Madam'},\n\nPlease find your official account statement from Global Era Technical School. Thank you!`;
+    return `Dear ${currentEntity.name || 'Sir/Madam'},\n\nPlease find your official account statement from Prabidhik School, Jorpati. Thank you!`;
   };
 
   const entityTitle = useMemo(() => {

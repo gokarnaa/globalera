@@ -232,7 +232,7 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
               Location: <b>{employer?.location}</b> | Contact: <b>{employer?.contactPerson} ({employer?.phone})</b>
             </Typography>
             <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)' }}>
-              Global Era Technical School Official Employer Partnership Hub
+              Prabidhik School, Jorpati Official Employer Partnership Hub
             </Typography>
           </Grid>
 
@@ -340,11 +340,11 @@ export default function EmployerPortal({ onLogout, onGoHome }) {
             Received Job Applications
           </Typography>
           <Typography variant="body2" sx={{ color: '#647089', mb: 2.5 }}>
-            Direct applications submitted by currently enrolled trainees and graduates of Global Era Technical School.
+            Direct applications submitted by currently enrolled trainees and graduates of Prabidhik School, Jorpati.
           </Typography>
 
           <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 2 }}>
-            <Table>
+            <Table size="small">
               <TableHead sx={{ bgcolor: '#f8fafc' }}>
                 <TableRow>
                   <TableCell sx={{ fontWeight: 800 }}>Candidate</TableCell>

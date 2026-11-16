@@ -894,7 +894,7 @@ export default function CourseFeeManager() {
         </Grid>
       ) : (
         /* TABLE VIEW (EXCEL STYLE) */
-        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+        <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflowX: 'auto' }}>
           <Table size="small">
             <TableHead
               sx={{

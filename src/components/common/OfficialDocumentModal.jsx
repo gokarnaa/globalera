@@ -39,7 +39,7 @@ export default function OfficialDocumentModal({
 
   const fullShareText =
     shareText ||
-    `*KITE TRAINING CENTER / GLOBAL ERA TECHNICAL SCHOOL*\n*${title} (${nepaliTitle})*\nGroup: ${group?.groupCode || '—'} | Course: ${course?.title || '—'}\nTrainer: ${trainer?.name || '—'}\nDate: ${new Date().toISOString().slice(0, 10)}`;
+    `*KITE TRAINING CENTER / Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.)*\n*${title} (${nepaliTitle})*\nGroup: ${group?.groupCode || '—'} | Course: ${course?.title || '—'}\nTrainer: ${trainer?.name || '—'}\nDate: ${new Date().toISOString().slice(0, 10)}`;
 
   return (
     <Dialog
@@ -134,13 +134,13 @@ export default function OfficialDocumentModal({
               </Typography>
             </Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#152238', fontSize: '1.15rem' }}>
-              GLOBAL ERA TECHNICAL SCHOOL
+              Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.)
             </Typography>
             <Typography variant="caption" sx={{ color: '#475569', display: 'block', fontSize: '0.8rem', mt: 0.3 }}>
               CTEVT Accredited Technical Training Institute • Regd No: 184920/078/079
             </Typography>
             <Typography variant="caption" sx={{ color: '#647089', display: 'block', fontSize: '0.78rem' }}>
-              MitraPark, Chabahil-07, Kathmandu, Nepal | Tel: +977-1-4481234 | info@globalera.edu.np
+              Jorpati, Gokarneshwor, Kathmandu, Nepal | Tel: 01-4910715 / 9705147147 | globaleramultiservice@gmail.com
             </Typography>
           </Box>
 

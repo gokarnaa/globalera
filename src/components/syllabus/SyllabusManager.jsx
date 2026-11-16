@@ -326,7 +326,7 @@ export default function SyllabusManager() {
 
   const handleShareWhatsAppBrochure = () => {
     const company = db.settings?.companyProfile || {};
-    const phone = company.phone || '01410715';
+    const phone = company.phone || '014910715 / 9705147147';
     const cTitle = selectedCourse?.title || 'Vocational Training';
     const unitsSummary = courseSyllabi
       .slice(0, 6)
@@ -1961,7 +1961,7 @@ export default function SyllabusManager() {
               GLOBAL ERA MULTI SERVICE PVT. LTD. • Jorpati, Gokarneshwor, Kathmandu
             </Typography>
             <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mb: 1.2 }}>
-              CTEVT Affiliation Code: 4208 • Phone: 01410715 • Email: globaleramultiservice@gmail.com
+              CTEVT Affiliation Code: 4208 • Phone: 014910715 / 9705147147 • Email: globaleramultiservice@gmail.com
             </Typography>
             <Chip
               label="CTEVT RECOGNIZED VOCATIONAL TRAINING CURRICULUM"

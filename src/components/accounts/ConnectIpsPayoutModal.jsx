@@ -323,7 +323,7 @@ export default function ConnectIpsPayoutModal({
                 component="a"
                 href={getWhatsAppUrl(
                   party.phone,
-                  `Dear ${party.name},\n\nPayment of Rs. ${completedVoucher.amount.toLocaleString()} has been processed via ConnectIPS from Global Era Technical School.\n\nVoucher No: ${completedVoucher.voucherNo}\nConnectIPS Ref ID: ${completedVoucher.txnReference}\nDate: ${completedVoucher.date}\nRemarks: ${completedVoucher.remarks}\n\nThank you!`
+                  `Dear ${party.name},\n\nPayment of Rs. ${completedVoucher.amount.toLocaleString()} has been processed via ConnectIPS from Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.).\n\nVoucher No: ${completedVoucher.voucherNo}\nConnectIPS Ref ID: ${completedVoucher.txnReference}\nDate: ${completedVoucher.date}\nRemarks: ${completedVoucher.remarks}\n\nThank you!`
                 )}
                 target="_blank"
                 sx={{ borderRadius: 2.5, fontWeight: 900, py: 1, textTransform: 'none', bgcolor: '#25D366' }}

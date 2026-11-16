@@ -142,7 +142,7 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
                     Technical School Jorpati (Prabidhik School Jorpati)
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#475569', display: 'block', mt: 0.3 }}>
-                    Gokarneshwor Municipality-05, Jorpati, Kathmandu | Phone: 01-4915555, 9851000000 | PAN No: 609876543
+                    Gokarneshwor Municipality-05, Jorpati, Kathmandu | Phone: 01-4910715, 9705147147 | PAN No: 609876543
                   </Typography>
                 </Box>
               </Box>
@@ -324,7 +324,7 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
                   Finance Officer
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748b' }}>
-                  Global Era Technical School
+                  Prabidhik School, Jorpati
                 </Typography>
               </Box>
 

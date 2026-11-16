@@ -469,7 +469,7 @@ export default function StudentProfileModal({
           {student.phone && (
             <MenuItem
               component="a"
-              href={getWhatsAppUrl(student.phone, `Namaste ${student.name}, regarding your training at Global Era Technical School.`)}
+              href={getWhatsAppUrl(student.phone, `Namaste ${student.name}, regarding your training at Prabidhik School, Jorpati.`)}
               target="_blank"
               onClick={() => setMenuAnchorEl(null)}
             >
@@ -480,7 +480,7 @@ export default function StudentProfileModal({
           {student.guardianContact && (
             <MenuItem
               component="a"
-              href={getWhatsAppUrl(student.guardianContact, `Namaste, regarding trainee ${student.name} at Global Era Technical School.`)}
+              href={getWhatsAppUrl(student.guardianContact, `Namaste, regarding trainee ${student.name} at Prabidhik School, Jorpati.`)}
               target="_blank"
               onClick={() => setMenuAnchorEl(null)}
             >

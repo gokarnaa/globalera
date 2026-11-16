@@ -267,10 +267,10 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
           <Box id="printable-cash-closing" sx={{ bgcolor: '#FFFFFF', p: 3, borderRadius: 3, border: '1.5px solid #0F2E5A' }}>
             <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px dashed #CBD5E1', mb: 2 }}>
               <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                GLOBAL ERA TECHNICAL SCHOOL
+                PRABIDHIK SCHOOL, JORPATI
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
-                Global Era Technical School • Jorpati, Kathmandu
+                Prabidhik School, Jorpati • Jorpati, Kathmandu
               </Typography>
               <Chip
                 label="DAILY CASH CLOSING & DENOMINATION SLIP"
