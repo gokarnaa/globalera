@@ -953,7 +953,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '&:hover': { bgcolor: '#059669' }
                     }}
                   >
-                    + Collect Fee
+                    Collect Fee
                   </Button>
 
                   <Button
@@ -978,7 +978,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '&:hover': { bgcolor: '#d97706', color: '#ffffff' }
                     }}
                   >
-                    + Vendor Pay
+                    Vendor Pay
                   </Button>
 
                   <Button
@@ -1002,7 +1002,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                       '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
                     }}
                   >
-                    + Disburse Pay
+                    Disburse Pay
                   </Button>
 
                   <Tooltip title="Deposit cash in drawer into bank account (Contra Entry)">
@@ -1149,21 +1149,20 @@ export default function AccountsManager({ initialTab = 0 }) {
         <Tabs
           value={activeTab}
           onChange={(e, next) => setActiveTab(next)}
-          variant="standard"
+          variant="scrollable"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
           sx={{
             px: 1,
             minHeight: 42,
-            '& .MuiTabs-flexContainer': {
-              display: 'flex',
-              justifyContent: 'space-between'
-            },
             '& .MuiTabs-indicator': {
               height: 3,
               borderRadius: '3px 3px 0 0',
               bgcolor: '#0F2E5A'
             },
             '& .MuiTab-root': {
-              flex: 1,
+              flex: { md: 1 },
+              whiteSpace: 'nowrap',
               fontWeight: 800,
               fontSize: '0.78rem',
               textTransform: 'none',
@@ -1220,7 +1219,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               </Box>
 
-              <TableContainer sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+              <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
@@ -1320,7 +1319,7 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               </Box>
 
-              <TableContainer sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+              <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
                 <Table size="small">
                   <TableHead
                     sx={{
