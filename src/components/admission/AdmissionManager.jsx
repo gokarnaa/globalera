@@ -206,7 +206,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
     const course = (db.courses || []).find((c) => c.id === adm.courseId);
     const receiptText = `📜 *Official Admission Confirmation & Fee Receipt*\n` +
-      `Global Era Technical School (CTEVT Accredited Institute)\n\n` +
+      `Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.)\n\n` +
       `Dear *${adm.studentName}*,\n` +
       `Your admission enrollment has been confirmed successfully!\n\n` +
       `• *Agreement No:* ${adm.agreementNo || 'GETS-ADM'}\n` +
@@ -216,8 +216,8 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
       `• *Total Net Fee:* Rs. ${(Number(adm.netPayableFee) || 0).toLocaleString()}\n` +
       `• *50% Advance Paid:* Rs. ${(Number(adm.advancePaid50) || 0).toLocaleString()}\n` +
       (adm.dueAmount50 > 0 ? `• *Mid-Course 50% Due:* Rs. ${Number(adm.dueAmount50).toLocaleString()} (Due Date: ${adm.dueDate || 'Within 30 Days'})\n` : `• *Payment Status:* Fully Settled\n`) +
-      `• *Campus Location:* Jorpati, Gokarneshwor, Kathmandu (Phone: 01-410715)\n\n` +
-      `Please present this confirmation voucher on your first class day. Welcome to Global Era!`;
+      `• *Campus Location:* Jorpati, Gokarneshwor, Kathmandu (Phone: 01-4910715 | WhatsApp: 9705147147)\n\n` +
+      `Please present this confirmation voucher on your first class day. Welcome to Prabidhik School!`;
 
     try {
       setSendingWaAdmId(adm.id);
@@ -334,7 +334,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={7}>
             <Stack direction="row" spacing={1.5} alignItems="center" sx={{ mb: 1 }}>
               <HowToRegIcon sx={{ fontSize: 36, color: '#f59e0b' }} />
               <Typography variant="h5" sx={{ fontWeight: 900, color: '#ffffff' }}>
@@ -342,7 +342,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               </Typography>
             </Stack>
             <Typography variant="body2" sx={{ color: '#e2e8f0', maxWidth: '780px', lineHeight: 1.6 }}>
-              Global Era Technical School Jorpati — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office & Student Copy) A4 agreement letters</strong>.
+              Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.) — Manage trainee admissions with 50% advance collection, 30-day installment grace, optional complimentary OJT internship placement, and formal <strong>dual-copy (Office &amp; Student Copy) A4 agreement letters</strong>.
             </Typography>
           </Grid>
           <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
@@ -358,6 +358,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   borderColor: 'rgba(255, 255, 255, 0.35)',
                   fontWeight: 800,
                   fontSize: '0.88rem',
+                  whiteSpace: 'nowrap',
                   px: 2.2,
                   py: 1.2,
                   '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.22)', borderColor: '#ffffff' }
@@ -379,6 +380,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   color: '#0f2e5a',
                   fontWeight: 900,
                   fontSize: '0.92rem',
+                  whiteSpace: 'nowrap',
                   px: 2.5,
                   py: 1.2,
                   boxShadow: '0 4px 14px rgba(245,158,11,0.4)',
@@ -685,7 +687,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               {filteredAdmissions.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} sx={{ textAlign: 'center', py: 5, color: '#64748b' }}>
-                    No admission agreements found. Click '+ New Admission & Agreement' to register an enrollment.
+                    No admission agreements found. Click &apos;+ Direct Walk-in Admission&apos; or &apos;Admit From Leads&apos; to register an enrollment.
                   </TableCell>
                 </TableRow>
               ) : (
