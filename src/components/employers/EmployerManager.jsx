@@ -117,9 +117,13 @@ export default function EmployerManager() {
     contactPerson: '',
     phone: '',
     email: '',
+    ojtCapacity: '5',
+    mouStatus: 'Signed',
     status: 'Active',
     remarks: ''
   });
+  const [confirmDeleteEmp, setConfirmDeleteEmp] = useState(null);
+  const [copiedPortalLink, setCopiedPortalLink] = useState(false);
 
   const handleOpenAdd = () => {
     setEditingItem(null);
@@ -130,6 +134,8 @@ export default function EmployerManager() {
       contactPerson: '',
       phone: '',
       email: '',
+      ojtCapacity: '5',
+      mouStatus: 'Signed',
       status: 'Active',
       remarks: ''
     });
@@ -138,7 +144,7 @@ export default function EmployerManager() {
 
   const handleOpenEdit = (item) => {
     setEditingItem(item);
-    setFormData({ ...item });
+    setFormData({ ojtCapacity: '5', mouStatus: 'Signed', ...item });
     setOpenDialog(true);
   };
 
@@ -153,6 +159,9 @@ export default function EmployerManager() {
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...formData } : x
       );
+      if (profileEmployer && profileEmployer.id === editingItem.id) {
+        setProfileEmployer({ ...profileEmployer, ...formData });
+      }
     } else {
       const newId = `EMP-${String(updatedList.length + 1).padStart(2, '0')}`;
       updatedList.push({ id: newId, ...formData });
@@ -165,14 +174,19 @@ export default function EmployerManager() {
   };
 
   const handleDelete = (id) => {
-    if (window.confirm('Delete this employer master?')) {
-      const nextDb = {
-        ...db,
-        employers: db.employers.filter((x) => x.id !== id)
-      };
-      saveDB(nextDb);
-      setDb(nextDb);
-    }
+    const emp = (db.employers || []).find((x) => x.id === id);
+    setConfirmDeleteEmp(emp || { id, name: 'this partner' });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!confirmDeleteEmp) return;
+    const nextDb = {
+      ...db,
+      employers: db.employers.filter((x) => x.id !== confirmDeleteEmp.id)
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setConfirmDeleteEmp(null);
   };
 
   const handleOpenAddOjtForEmployer = () => {
@@ -1124,6 +1138,34 @@ export default function EmployerManager() {
               </Grid>
             </Grid>
 
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  label="OJT Seat Capacity"
+                  type="number"
+                  fullWidth
+                  size="small"
+                  placeholder="e.g. 5"
+                  value={formData.ojtCapacity || ''}
+                  onChange={(e) => setFormData({ ...formData, ojtCapacity: e.target.value })}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  select
+                  label="MoU Agreement Status"
+                  fullWidth
+                  size="small"
+                  value={formData.mouStatus || 'Signed'}
+                  onChange={(e) => setFormData({ ...formData, mouStatus: e.target.value })}
+                >
+                  <MenuItem value="Signed">Signed MoU</MenuItem>
+                  <MenuItem value="Pending Renewal">Pending Renewal</MenuItem>
+                  <MenuItem value="Trial / Verbal">Trial / Verbal</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
+
             <TextField
               label="MoU Terms / Notes"
               multiline
@@ -1184,124 +1226,283 @@ export default function EmployerManager() {
       </Dialog>
 
       {/* Employer 360° Profile Dossier Dialog */}
-      <Dialog open={Boolean(profileEmployer)} onClose={() => setProfileEmployer(null)} maxWidth="md" fullWidth>
+      <Dialog
+        open={Boolean(profileEmployer)}
+        onClose={() => setProfileEmployer(null)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+      >
         {profileEmployer && (() => {
           const employerOjts = (db.ojts || []).filter((o) => o.employerId === profileEmployer.id);
+          const ongoingOjtCount = employerOjts.filter((o) => o.status === 'Ongoing').length;
+          const ojtCap = Number(profileEmployer.ojtCapacity) || 5;
           const employerPlacements = (db.placements || []).filter((p) => p.employerId === profileEmployer.id);
+
+          // Parse numeric salary from either p.salary or p.expectedSalary (e.g. "NPR 25,000 / month")
+          const parsedSalaries = employerPlacements
+            .map((p) => {
+              const raw = p.salary ?? p.expectedSalary ?? '';
+              const num = Number(String(raw).replace(/[^0-9.]/g, ''));
+              return Number.isFinite(num) && num > 0 ? num : 0;
+            })
+            .filter((n) => n > 0);
+          const avgSalary =
+            parsedSalaries.length > 0
+              ? `NPR ${Math.round(parsedSalaries.reduce((a, b) => a + b, 0) / parsedSalaries.length).toLocaleString()}`
+              : '—';
+
+          const portalUrl = `${window.location.origin}/?portal=employer`;
+          const handleCopyPortal = () => {
+            navigator.clipboard?.writeText(portalUrl);
+            setCopiedPortalLink(true);
+            setTimeout(() => setCopiedPortalLink(false), 2500);
+          };
 
           return (
             <>
-              <DialogTitle sx={{ pb: 1, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Avatar sx={{ width: 56, height: 56, bgcolor: '#1a56b0', fontWeight: 800 }}>
-                    <BusinessIcon sx={{ fontSize: 32 }} />
+              <DialogTitle
+                sx={{
+                  py: 1.75,
+                  px: 2.5,
+                  background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+                  color: '#FFFFFF',
+                  borderBottom: '2.5px solid #F59E0B'
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.75, flexWrap: 'wrap' }}>
+                  <Avatar
+                    sx={{
+                      width: 46,
+                      height: 46,
+                      bgcolor: getAvatarBg(profileEmployer.industry, profileEmployer.name),
+                      border: '2px solid rgba(255,255,255,0.35)',
+                      fontWeight: 800,
+                      fontSize: '0.95rem'
+                    }}
+                  >
+                    {getInitials(profileEmployer.name)}
                   </Avatar>
-                  <Box sx={{ flexGrow: 1 }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                      <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                  <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                    <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
+                      <Typography variant="subtitle1" noWrap sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '1.05rem' }}>
                         {profileEmployer.name}
                       </Typography>
-                      <Chip label={profileEmployer.id} size="small" sx={{ fontWeight: 800, bgcolor: '#1a56b0', color: '#fff' }} />
-                      <Chip label={profileEmployer.status} size="small" color={profileEmployer.status === 'Active' ? 'success' : 'default'} />
-                    </Box>
-                    <Typography variant="caption" sx={{ color: '#647089' }}>
-                      {profileEmployer.industry} • {profileEmployer.location} • Contact: {profileEmployer.contactPerson} ({profileEmployer.phone})
+                      <Chip
+                        label={profileEmployer.id}
+                        size="small"
+                        sx={{ height: 20, fontWeight: 800, fontSize: '0.68rem', bgcolor: 'rgba(255,255,255,0.16)', color: '#FDE68A' }}
+                      />
+                      <Chip
+                        label={profileEmployer.status}
+                        size="small"
+                        sx={{
+                          height: 20,
+                          fontWeight: 800,
+                          fontSize: '0.68rem',
+                          bgcolor: profileEmployer.status === 'Active' ? 'rgba(16,185,129,0.22)' : 'rgba(255,255,255,0.14)',
+                          color: profileEmployer.status === 'Active' ? '#A7F3D0' : '#E2E8F0'
+                        }}
+                      />
+                      <Chip
+                        label={`MoU: ${profileEmployer.mouStatus || 'Signed'}`}
+                        size="small"
+                        sx={{ height: 20, fontWeight: 700, fontSize: '0.66rem', bgcolor: 'rgba(245,158,11,0.22)', color: '#FEF3C7' }}
+                      />
+                    </Stack>
+                    <Typography variant="caption" noWrap sx={{ color: '#CBD5E1', display: 'block', mt: 0.25, fontSize: '0.73rem' }}>
+                      {profileEmployer.industry || 'Industry Partner'} • {profileEmployer.location || 'Kathmandu'} • {profileEmployer.contactPerson || 'HR'} ({profileEmployer.phone})
                     </Typography>
                   </Box>
-                  <IconButton
-                    component="a"
-                    href={getWhatsAppUrl(profileEmployer.phone, `Namaste ${profileEmployer.contactPerson}, from KITE Vocational Training Center.`)}
-                    target="_blank"
-                    sx={{ color: '#25D366', bgcolor: '#e5f8ee' }}
-                  >
-                    <WhatsAppIcon />
-                  </IconButton>
+
+                  <Stack direction="row" spacing={0.6} alignItems="center">
+                    {profileEmployer.phone && (
+                      <Tooltip title={`Call ${profileEmployer.phone}`}>
+                        <IconButton
+                          size="small"
+                          component="a"
+                          href={`tel:${profileEmployer.phone}`}
+                          aria-label={`Call ${profileEmployer.name}`}
+                          sx={{ color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' } }}
+                        >
+                          <PhoneIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    {profileEmployer.email && (
+                      <Tooltip title={`Email ${profileEmployer.email}`}>
+                        <IconButton
+                          size="small"
+                          component="a"
+                          href={`mailto:${profileEmployer.email}`}
+                          aria-label={`Email ${profileEmployer.name}`}
+                          sx={{ color: '#93C5FD', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' } }}
+                        >
+                          <EmailIcon fontSize="small" />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                    <Tooltip title="Message on WhatsApp">
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={getWhatsAppUrl(profileEmployer.phone, `Namaste ${profileEmployer.contactPerson || 'Team'}, greetings from Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.).`)}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`WhatsApp ${profileEmployer.name}`}
+                        sx={{ color: '#4ADE80', bgcolor: 'rgba(37,211,102,0.18)', '&:hover': { bgcolor: 'rgba(37,211,102,0.3)' } }}
+                      >
+                        <WhatsAppIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Edit Partner Details">
+                      <IconButton
+                        size="small"
+                        aria-label={`Edit ${profileEmployer.name}`}
+                        onClick={() => handleOpenEdit(profileEmployer)}
+                        sx={{ color: '#FCD34D', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' } }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                    <IconButton
+                      size="small"
+                      aria-label="Close partner profile"
+                      onClick={() => setProfileEmployer(null)}
+                      sx={{ color: '#E2E8F0', '&:hover': { bgcolor: 'rgba(255,255,255,0.18)' } }}
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Stack>
                 </Box>
               </DialogTitle>
 
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 3 }}>
-                <Tabs value={profileTab} onChange={(e, v) => setProfileTab(v)}>
-                  <Tab label="1. Overview" />
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 2, bgcolor: '#F8FAFC' }}>
+                <Tabs
+                  value={profileTab}
+                  onChange={(e, v) => setProfileTab(v)}
+                  variant="scrollable"
+                  scrollButtons="auto"
+                  allowScrollButtonsMobile
+                  sx={{ minHeight: 40, '& .MuiTab-root': { minHeight: 40, py: 0.75, fontSize: '0.78rem', fontWeight: 800 } }}
+                >
+                  <Tab label="1. Overview & MoU" />
                   <Tab label={`2. OJT Trainees (${employerOjts.length})`} />
                   <Tab label={`3. Placed Graduates (${employerPlacements.length})`} />
                 </Tabs>
               </Box>
 
-              <DialogContent sx={{ py: 2.5 }}>
+              <DialogContent sx={{ py: 2, px: { xs: 2, sm: 2.5 }, bgcolor: '#FFFFFF' }}>
                 {profileTab === 0 && (
                   <Box>
-                    <Grid container spacing={2} sx={{ mb: 3 }}>
+                    <Grid container spacing={1.5} sx={{ mb: 2 }}>
                       <Grid item xs={6} sm={3}>
-                        <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#e8f0fd' }}>
-                          <Typography variant="h5" sx={{ fontWeight: 900, color: '#1a56b0' }}>{employerOjts.length}</Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#1a56b0' }}>Total OJT Placements</Typography>
-                        </Card>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#e5f8ee' }}>
-                          <Typography variant="h5" sx={{ fontWeight: 900, color: '#16834b' }}>
-                            {employerOjts.filter((o) => o.status === 'Ongoing').length}
+                        <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, borderLeft: '3.5px solid #1E40AF' }}>
+                          <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                            Total OJT Assigned
                           </Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#16834b' }}>Active Ongoing OJT</Typography>
-                        </Card>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#fdf3e2' }}>
-                          <Typography variant="h5" sx={{ fontWeight: 900, color: '#c9820a' }}>{employerPlacements.length}</Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#c9820a' }}>Graduates Hired</Typography>
-                        </Card>
-                      </Grid>
-                      <Grid item xs={6} sm={3}>
-                        <Card sx={{ p: 2, textAlign: 'center', bgcolor: '#f3e8ff' }}>
-                          <Typography variant="h5" sx={{ fontWeight: 900, color: '#7e22ce' }}>
-                            {employerPlacements.length > 0
-                              ? `NPR ${Math.round(
-                                  employerPlacements.reduce((acc, p) => acc + (Number(p.salary) || 0), 0) /
-                                    employerPlacements.length
-                                ).toLocaleString()}`
-                              : '—'}
+                          <Typography sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '1.18rem', mt: 0.2 }}>
+                            {employerOjts.length}
                           </Typography>
-                          <Typography variant="caption" sx={{ fontWeight: 700, color: '#7e22ce' }}>Avg. Starting Salary</Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, borderLeft: '3.5px solid #059669' }}>
+                          <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                            Active OJT / Seats
+                          </Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.18rem', mt: 0.2 }}>
+                            {ongoingOjtCount} / {ojtCap}
+                          </Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, borderLeft: '3.5px solid #D97706' }}>
+                          <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                            Graduates Hired
+                          </Typography>
+                          <Typography sx={{ fontWeight: 800, color: '#B45309', fontSize: '1.18rem', mt: 0.2 }}>
+                            {employerPlacements.length}
+                          </Typography>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={6} sm={3}>
+                        <Card elevation={0} sx={{ p: 1.4, borderRadius: 2, borderLeft: '3.5px solid #7C3AED' }}>
+                          <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748B', fontSize: '0.66rem', textTransform: 'uppercase', display: 'block' }}>
+                            Avg. Salary
+                          </Typography>
+                          <Typography noWrap sx={{ fontWeight: 800, color: '#7C3AED', fontSize: '1.08rem', mt: 0.2 }}>
+                            {avgSalary}
+                          </Typography>
                         </Card>
                       </Grid>
                     </Grid>
 
-                    <Box sx={{ display: 'flex', gap: 1.5, mb: 2.5, flexWrap: 'wrap' }}>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap sx={{ mb: 2 }}>
                       <Button
+                        size="small"
                         variant="contained"
-                        startIcon={<WorkIcon />}
+                        startIcon={<WorkIcon sx={{ fontSize: '15px !important' }} />}
                         onClick={handleOpenAddOjtForEmployer}
-                        sx={{ bgcolor: '#1a56b0', fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+                        sx={{ bgcolor: '#0F2C59', fontWeight: 700 }}
                       >
-                        + Deploy OJT Trainee
+                        Deploy OJT Trainee
                       </Button>
                       <Button
+                        size="small"
                         variant="contained"
-                        startIcon={<SchoolIcon />}
+                        startIcon={<SchoolIcon sx={{ fontSize: '15px !important' }} />}
                         onClick={handleOpenAddPlacementForEmployer}
-                        sx={{ bgcolor: '#16834b', fontWeight: 800, textTransform: 'none', borderRadius: 2, '&:hover': { bgcolor: '#15803d' } }}
+                        sx={{ bgcolor: '#059669', fontWeight: 700, '&:hover': { bgcolor: '#047857' } }}
                       >
-                        + Record Placement (EPP)
+                        Record Placement (EPP)
                       </Button>
-                    </Box>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleCopyPortal}
+                        sx={{ borderColor: '#CBD5E1', color: '#0F2C59', fontWeight: 700 }}
+                      >
+                        {copiedPortalLink ? '✓ Portal Link Copied' : 'Copy Employer Portal Link'}
+                      </Button>
+                    </Stack>
 
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1.5}>
                       <Grid item xs={12} sm={6}>
-                        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                          <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>PARTNER ORGANIZATION DETAILS</Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 800, mt: 0.5 }}>{profileEmployer.name}</Typography>
-                          <Typography variant="body2" sx={{ color: '#475569' }}>Sector: {profileEmployer.industry}</Typography>
-                          <Typography variant="body2" sx={{ color: '#475569' }}>Location: {profileEmployer.location}</Typography>
-                          <Typography variant="body2" sx={{ color: '#475569' }}>Official Email: {profileEmployer.email || '—'}</Typography>
+                        <Paper variant="outlined" sx={{ p: 1.75, borderRadius: 2, height: '100%' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.68rem' }}>
+                            Partner Organization Details
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, mt: 0.5, color: '#0F2C59' }}>
+                            {profileEmployer.name}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#475569', mt: 0.4 }}>
+                            Sector: <b>{profileEmployer.industry || '—'}</b>
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#475569' }}>
+                            Location: <b>{profileEmployer.location || '—'}</b>
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#475569' }}>
+                            Official Email: <b>{profileEmployer.email || '—'}</b>
+                          </Typography>
                         </Paper>
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <Paper variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                          <Typography variant="caption" sx={{ color: '#647089', fontWeight: 800 }}>CONTACT PERSON & MoU REMARKS</Typography>
-                          <Typography variant="body1" sx={{ fontWeight: 800, mt: 0.5 }}>{profileEmployer.contactPerson}</Typography>
-                          <Typography variant="body2" sx={{ color: '#475569' }}>Phone: {profileEmployer.phone}</Typography>
-                          <Typography variant="caption" sx={{ color: '#647089', display: 'block', mt: 1 }}>
-                            MoU / Institutional Notes: {profileEmployer.remarks || 'Standard training & placement partner agreement.'}
+                        <Paper variant="outlined" sx={{ p: 1.75, borderRadius: 2, height: '100%' }}>
+                          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 800, textTransform: 'uppercase', fontSize: '0.68rem' }}>
+                            Contact Person &amp; MoU Terms
+                          </Typography>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, mt: 0.5, color: '#0F2C59' }}>
+                            {profileEmployer.contactPerson || 'HR / Coordinator'}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#475569', mt: 0.4 }}>
+                            Phone: <b>{profileEmployer.phone}</b>
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#475569' }}>
+                            MoU Status: <b>{profileEmployer.mouStatus || 'Signed'}</b> • Capacity: <b>{ojtCap} Seats</b>
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.6 }}>
+                            Notes: {profileEmployer.remarks || 'Standard training & placement partner agreement with Prabidhik School, Jorpati.'}
                           </Typography>
                         </Paper>
                       </Grid>
@@ -1311,195 +1512,233 @@ export default function EmployerManager() {
 
                 {profileTab === 1 && (
                   <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
                         OJT Trainees Assigned ({employerOjts.length})
                       </Typography>
                       <Button
                         variant="contained"
                         size="small"
-                        startIcon={<AddIcon />}
+                        startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
                         onClick={handleOpenAddOjtForEmployer}
-                        sx={{ bgcolor: '#1a56b0', fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+                        sx={{ bgcolor: '#0F2C59', fontWeight: 700 }}
                       >
-                        + Assign OJT Trainee
+                        Assign OJT Trainee
                       </Button>
                     </Box>
-                    <Stack spacing={1.5}>
-                      {employerOjts.map((ojt) => {
-                        const std = (db.students || []).find((s) => s.id === ojt.studentId);
-                        const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
-                        const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
-                        return (
-                          <Paper key={ojt.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Avatar src={std?.photoUrl} sx={{ width: 44, height: 44, bgcolor: '#1a56b0', fontWeight: 800 }}>
-                                  {std?.name?.[0] || 'S'}
-                                </Avatar>
-                                <Box>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography
-                                      variant="subtitle1"
-                                      onClick={() => std && setSelectedStudentForProfile(std)}
-                                      sx={{ fontWeight: 800, color: '#1a56b0', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                                    >
-                                      {std?.name || 'Student'} 🔗
+                    {employerOjts.length === 0 ? (
+                      <Box sx={{ py: 4, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
+                        <WorkIcon sx={{ fontSize: 38, color: '#94A3B8', mb: 0.8 }} />
+                        <Typography variant="body2" sx={{ color: '#64748B', fontWeight: 600, mb: 1.5 }}>
+                          No trainees assigned to OJT with this employer yet.
+                        </Typography>
+                        <Button size="small" variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddOjtForEmployer}>
+                          Assign First OJT Trainee
+                        </Button>
+                      </Box>
+                    ) : (
+                      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+                        <Table size="small">
+                          <TableHead sx={{ '& .MuiTableCell-head': { bgcolor: '#0F2E5A', color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem', py: 0.9, borderBottom: '2px solid #F59E0B', whiteSpace: 'nowrap' } }}>
+                            <TableRow>
+                              <TableCell>Trainee</TableCell>
+                              <TableCell>Course &amp; Shift</TableCell>
+                              <TableCell>Duration</TableCell>
+                              <TableCell>Status</TableCell>
+                              <TableCell align="right">Action</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {employerOjts.map((ojt) => {
+                              const std = (db.students || []).find((s) => s.id === ojt.studentId);
+                              const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+                              const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+                              return (
+                                <TableRow key={ojt.id} hover>
+                                  <TableCell>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F2C59', fontSize: '0.79rem' }}>
+                                      {std?.name || 'Student'}
                                     </Typography>
-                                    <Chip label={std?.tgid} size="small" sx={{ fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
-                                  </Box>
-                                  <Typography variant="caption" sx={{ color: '#647089' }}>
-                                    Course: <b>{course?.title || 'Vocational Course'}</b> • Shift {grp?.shift || 'A'}
-                                  </Typography>
-                                  <Typography variant="body2" sx={{ color: '#475569', fontSize: '0.85rem', mt: 0.3 }}>
-                                    Duration: {ojt.startDate} → {ojt.endDate || 'Ongoing'} • Supervisor: {ojt.relatedPerson || profileEmployer.contactPerson}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Chip
-                                  label={ojt.status}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: ojt.status === 'Completed' ? '#e5f8ee' : '#e8f0fd',
-                                    color: ojt.status === 'Completed' ? '#16834b' : '#1a56b0',
-                                    fontWeight: 800
-                                  }}
-                                />
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  startIcon={<PersonIcon />}
-                                  onClick={() => std && setSelectedStudentForProfile(std)}
-                                  sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
-                                >
-                                  Profile
-                                </Button>
-                              </Box>
-                            </Box>
-                          </Paper>
-                        );
-                      })}
-                      {employerOjts.length === 0 && (
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <WorkIcon sx={{ fontSize: 44, color: '#94a3b8', mb: 1 }} />
-                          <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600, mb: 2 }}>
-                            No students currently or previously assigned to OJT with this employer.
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={handleOpenAddOjtForEmployer}
-                            sx={{ bgcolor: '#1a56b0', fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
-                          >
-                            + Assign First OJT Trainee
-                          </Button>
-                        </Box>
-                      )}
-                    </Stack>
+                                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                                      {std?.tgid || ojt.studentId}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block' }}>
+                                      {course?.title || 'Vocational Course'}
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                                      Shift {grp?.shift || 'A'} • Sup: {ojt.relatedPerson || profileEmployer.contactPerson}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ whiteSpace: 'nowrap', fontSize: '0.75rem' }}>
+                                    {ojt.startDate} → {ojt.endDate || 'Ongoing'}
+                                  </TableCell>
+                                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                    <Chip
+                                      label={ojt.status}
+                                      size="small"
+                                      sx={{
+                                        height: 20,
+                                        fontSize: '0.68rem',
+                                        bgcolor: ojt.status === 'Completed' ? '#ECFDF5' : '#EFF6FF',
+                                        color: ojt.status === 'Completed' ? '#047857' : '#1E40AF',
+                                        fontWeight: 800
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() => std && setSelectedStudentForProfile(std)}
+                                      sx={{ px: 0.9, py: 0.25, fontSize: '0.7rem' }}
+                                    >
+                                      Profile
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    )}
                   </Box>
                 )}
 
                 {profileTab === 2 && (
                   <Box>
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2, flexWrap: 'wrap', gap: 1 }}>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-                        Graduates Placed & Employed ({employerPlacements.length})
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
+                        Graduates Placed &amp; Employed ({employerPlacements.length})
                       </Typography>
                       <Button
                         variant="contained"
                         size="small"
-                        startIcon={<AddIcon />}
+                        startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
                         onClick={handleOpenAddPlacementForEmployer}
-                        sx={{ bgcolor: '#16834b', fontWeight: 800, textTransform: 'none', borderRadius: 2, '&:hover': { bgcolor: '#15803d' } }}
+                        sx={{ bgcolor: '#059669', fontWeight: 700, '&:hover': { bgcolor: '#047857' } }}
                       >
-                        + Record Placement (EPP)
+                        Record Placement (EPP)
                       </Button>
                     </Box>
-                    <Stack spacing={1.5}>
-                      {employerPlacements.map((plc) => {
-                        const std = (db.students || []).find((s) => s.id === plc.studentId);
-                        const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
-                        const course = (db.courses || []).find((c) => c.id === grp?.courseId);
 
-                        return (
-                          <Paper key={plc.id} variant="outlined" sx={{ p: 2, borderRadius: 2 }}>
-                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                                <Avatar src={std?.photoUrl} sx={{ width: 44, height: 44, bgcolor: '#16834b', fontWeight: 800 }}>
-                                  {std?.name?.[0] || 'S'}
-                                </Avatar>
-                                <Box>
-                                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                    <Typography
-                                      variant="subtitle1"
-                                      onClick={() => std && setSelectedStudentForProfile(std)}
-                                      sx={{ fontWeight: 800, color: '#16834b', cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                                    >
-                                      {std?.name || 'Graduate'} 🔗
+                    {employerPlacements.length === 0 ? (
+                      <Box sx={{ py: 4, textAlign: 'center', bgcolor: '#F8FAFC', borderRadius: 2, border: '1px dashed #CBD5E1' }}>
+                        <BusinessIcon sx={{ fontSize: 38, color: '#94A3B8', mb: 0.8 }} />
+                        <Typography variant="body2" sx={{ color: '#64748B', fontWeight: 600, mb: 1.5 }}>
+                          No graduates placed with this employer partner yet.
+                        </Typography>
+                        <Button size="small" variant="contained" color="success" startIcon={<AddIcon />} onClick={handleOpenAddPlacementForEmployer}>
+                          Record First Placement
+                        </Button>
+                      </Box>
+                    ) : (
+                      <TableContainer component={Paper} elevation={0} sx={{ borderRadius: 2, border: '1px solid #E2E8F0', overflowX: 'auto' }}>
+                        <Table size="small">
+                          <TableHead sx={{ '& .MuiTableCell-head': { bgcolor: '#0F2E5A', color: '#FFFFFF', fontWeight: 800, fontSize: '0.72rem', py: 0.9, borderBottom: '2px solid #F59E0B', whiteSpace: 'nowrap' } }}>
+                            <TableRow>
+                              <TableCell>Graduate</TableCell>
+                              <TableCell>Job Role &amp; Course</TableCell>
+                              <TableCell>Salary</TableCell>
+                              <TableCell>Status</TableCell>
+                              <TableCell align="right">Action</TableCell>
+                            </TableRow>
+                          </TableHead>
+                          <TableBody>
+                            {employerPlacements.map((plc) => {
+                              const std = (db.students || []).find((s) => s.id === plc.studentId);
+                              const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+                              const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+                              return (
+                                <TableRow key={plc.id} hover>
+                                  <TableCell>
+                                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F2C59', fontSize: '0.79rem' }}>
+                                      {std?.name || 'Graduate'}
                                     </Typography>
-                                    <Chip label={std?.tgid} size="small" sx={{ fontWeight: 700, height: 20, fontSize: '0.7rem' }} />
-                                  </Box>
-                                  <Typography variant="caption" sx={{ color: '#647089' }}>
-                                    Course: <b>{course?.title || 'Vocational Training'}</b> • {plc.employmentType || 'Full-time'}
-                                  </Typography>
-                                  <Typography variant="body2" sx={{ color: '#16834b', fontWeight: 800, mt: 0.3 }}>
-                                    Role: {plc.targetJob} • Salary: NPR {plc.expectedSalary || 'Negotiated'}
-                                  </Typography>
-                                </Box>
-                              </Box>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                <Chip
-                                  label={plc.status}
-                                  size="small"
-                                  sx={{
-                                    bgcolor: plc.status === 'Placed' ? '#e5f8ee' : '#fff7df',
-                                    color: plc.status === 'Placed' ? '#16834b' : '#c9820a',
-                                    fontWeight: 800
-                                  }}
-                                />
-                                <Button
-                                  size="small"
-                                  variant="outlined"
-                                  startIcon={<PersonIcon />}
-                                  onClick={() => std && setSelectedStudentForProfile(std)}
-                                  sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
-                                >
-                                  Profile
-                                </Button>
-                              </Box>
-                            </Box>
-                          </Paper>
-                        );
-                      })}
-                      {employerPlacements.length === 0 && (
-                        <Box sx={{ py: 4, textAlign: 'center' }}>
-                          <BusinessIcon sx={{ fontSize: 44, color: '#94a3b8', mb: 1 }} />
-                          <Typography variant="body2" sx={{ color: '#64748b', fontWeight: 600, mb: 2 }}>
-                            No graduates currently placed with this employer partner yet.
-                          </Typography>
-                          <Button
-                            variant="contained"
-                            startIcon={<AddIcon />}
-                            onClick={handleOpenAddPlacementForEmployer}
-                            sx={{ bgcolor: '#16834b', fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
-                          >
-                            + Record First Placement
-                          </Button>
-                        </Box>
-                      )}
-                    </Stack>
+                                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                                      {std?.tgid || plc.studentId}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Typography variant="caption" sx={{ fontWeight: 700, color: '#047857', display: 'block' }}>
+                                      {plc.targetJob} ({plc.employmentType || 'Full-time'})
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                                      {course?.title || 'Vocational Training'}
+                                    </Typography>
+                                  </TableCell>
+                                  <TableCell sx={{ whiteSpace: 'nowrap', fontWeight: 700, color: '#0F2C59', fontSize: '0.76rem' }}>
+                                    {plc.expectedSalary || (plc.salary ? `NPR ${Number(plc.salary).toLocaleString()}` : 'Negotiated')}
+                                  </TableCell>
+                                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                                    <Chip
+                                      label={plc.status}
+                                      size="small"
+                                      sx={{
+                                        height: 20,
+                                        fontSize: '0.68rem',
+                                        bgcolor: plc.status === 'Placed' ? '#ECFDF5' : '#FFFBEB',
+                                        color: plc.status === 'Placed' ? '#047857' : '#B45309',
+                                        fontWeight: 800
+                                      }}
+                                    />
+                                  </TableCell>
+                                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                                    <Button
+                                      size="small"
+                                      variant="outlined"
+                                      onClick={() => std && setSelectedStudentForProfile(std)}
+                                      sx={{ px: 0.9, py: 0.25, fontSize: '0.7rem' }}
+                                    >
+                                      Profile
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </TableContainer>
+                    )}
                   </Box>
                 )}
               </DialogContent>
 
-              <DialogActions sx={{ p: 2 }}>
-                <Button onClick={() => setProfileEmployer(null)}>Close</Button>
+              <DialogActions sx={{ px: 2.5, py: 1.25 }}>
+                <Button size="small" onClick={() => setProfileEmployer(null)}>Close</Button>
               </DialogActions>
             </>
           );
         })()}
+      </Dialog>
+
+      {/* Accessible AlertDialog for Partner Deletion */}
+      <Dialog
+        open={Boolean(confirmDeleteEmp)}
+        onClose={() => setConfirmDeleteEmp(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ role: 'alertdialog', 'aria-labelledby': 'delete-employer-title' }}
+      >
+        <DialogTitle id="delete-employer-title" sx={{ fontWeight: 800, fontSize: '0.96rem' }}>
+          Delete Employer Partner?
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2, pb: 1 }}>
+          <Typography variant="body2" sx={{ color: '#334155', mt: 1 }}>
+            Are you sure you want to remove <strong>{confirmDeleteEmp?.name}</strong> from the Partner Registry?
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 2.5, py: 1.5 }}>
+          <Button size="small" onClick={() => setConfirmDeleteEmp(null)} sx={{ color: '#64748B' }}>
+            Cancel
+          </Button>
+          <Button size="small" variant="contained" color="error" onClick={handleConfirmDelete}>
+            Yes, Delete Partner
+          </Button>
+        </DialogActions>
       </Dialog>
 
       {/* In-Employer Add OJT Modal */}
