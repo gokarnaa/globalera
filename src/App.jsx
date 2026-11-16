@@ -650,14 +650,15 @@ export default function App() {
               flexGrow: 1,
               minWidth: 0,
               overflowX: 'clip',
-              p: { xs: 1, sm: 2.5, md: 3 },
+              pt: 0,
+              px: 0,
               minHeight: 'calc(100dvh - 70px)',
               position: 'relative',
               zIndex: 1,
-              pb: { xs: 'calc(84px + env(safe-area-inset-bottom))', md: 5 }
+              pb: { xs: 'calc(84px + env(safe-area-inset-bottom))', md: 3 }
             }}
           >
-            <Box sx={{ width: '100%', maxWidth: '1520px', mx: 'auto', px: { xs: 0, sm: 1 } }}>
+            <Box sx={{ width: '100%', maxWidth: '1520px', mx: 'auto' }}>
               <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('dashboard')}>
                 <Suspense fallback={<PageLoader />}>
                   {renderContent()}

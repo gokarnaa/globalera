@@ -152,12 +152,12 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
   });
 
   const drawerContent = (
-    <Box sx={{ width: 280, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ width: 248, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {isMobile && (
         <Box
           sx={{
-            px: 2,
-            py: 1.1,
+            px: 1.75,
+            py: 0.9,
             borderBottom: '1px solid #E2E8F0',
             display: 'flex',
             alignItems: 'center',
@@ -165,7 +165,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             bgcolor: '#F8FAFC'
           }}
         >
-          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em' }}>
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.8rem' }}>
             Menu
           </Typography>
           <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
@@ -175,7 +175,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       )}
 
       {/* Navigation Links List */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.5, py: 0.75 }}>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.1, py: 0.5 }}>
         <List disablePadding>
           {filteredItems.map((item, idx) => {
             if (item.section) {
@@ -185,13 +185,13 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   variant="caption"
                   sx={{
                     display: 'block',
-                    px: 1.5,
-                    pt: 2.2,
-                    pb: 0.6,
-                    fontWeight: 900,
+                    px: 1.2,
+                    pt: 1.4,
+                    pb: 0.4,
+                    fontWeight: 800,
                     color: '#94A3B8',
-                    letterSpacing: '0.07em',
-                    fontSize: '0.68rem',
+                    letterSpacing: '0.06em',
+                    fontSize: '0.64rem',
                     textTransform: 'uppercase'
                   }}
                 >
@@ -203,7 +203,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             const isSelected = currentTab === item.id;
 
             return (
-              <ListItem key={item.id} disablePadding sx={{ mb: 0.4 }}>
+              <ListItem key={item.id} disablePadding sx={{ mb: 0.2 }}>
                 <ListItemButton
                   selected={isSelected}
                   onClick={() => {
@@ -211,9 +211,9 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                     if (isMobile && onClose) onClose();
                   }}
                   sx={{
-                    borderRadius: 2.5,
-                    py: 1,
-                    px: 1.5,
+                    borderRadius: 2,
+                    py: 0.65,
+                    px: 1.2,
                     bgcolor: isSelected ? '#EFF6FF !important' : 'transparent',
                     border: isSelected ? '1px solid #BFDBFE' : '1px solid transparent',
                     color: isSelected ? '#1E40AF' : '#334155',
@@ -230,9 +230,9 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                       sx={{
                         position: 'absolute',
                         left: 0,
-                        top: '15%',
-                        bottom: '15%',
-                        width: 4,
+                        top: '16%',
+                        bottom: '16%',
+                        width: 3.5,
                         borderRadius: '0 4px 4px 0',
                         bgcolor: '#1D4ED8'
                       }}
@@ -242,8 +242,8 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   <ListItemIcon
                     sx={{
                       color: isSelected ? '#1D4ED8' : '#64748B',
-                      minWidth: 36,
-                      '& svg': { fontSize: '1.25rem' }
+                      minWidth: 28,
+                      '& svg': { fontSize: '1.08rem' }
                     }}
                   >
                     {item.icon}
@@ -252,7 +252,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{
-                      fontSize: '0.84rem',
+                      fontSize: '0.78rem',
                       fontWeight: isSelected ? 800 : 600,
                       color: isSelected ? '#1E40AF' : '#1E293B',
                       whiteSpace: 'nowrap',
@@ -266,9 +266,9 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                       size="small"
                       label={item.countBadge}
                       sx={{
-                        height: 18,
-                        fontSize: '0.65rem',
-                        fontWeight: 900,
+                        height: 17,
+                        fontSize: '0.6rem',
+                        fontWeight: 800,
                         bgcolor: item.highlight ? '#10B981' : '#E2E8F0',
                         color: item.highlight ? '#FFFFFF' : '#475569'
                       }}
@@ -280,8 +280,8 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                       size="small"
                       label={item.badge}
                       sx={{
-                        height: 18,
-                        fontSize: '0.62rem',
+                        height: 17,
+                        fontSize: '0.6rem',
                         fontWeight: 800,
                         bgcolor: isSelected ? '#DBEAFE' : '#F1F5F9',
                         color: isSelected ? '#1D4ED8' : '#64748B'
@@ -296,15 +296,15 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       </Box>
 
       {/* Footer System Status Card */}
-      <Box sx={{ p: 2, borderTop: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
+      <Box sx={{ p: 1.25, borderTop: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
         <Box
           onClick={() => onSelectTab && onSelectTab('settings')}
           sx={{
-            p: 1.5,
-            borderRadius: 2.5,
+            p: 1,
+            borderRadius: 2,
             bgcolor: '#FFFFFF',
             border: '1px solid #E2E8F0',
-            boxShadow: '0 1px 3px rgba(15,23,42,0.04)',
+            boxShadow: '0 1px 2px rgba(15,23,42,0.03)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
             '&:hover': {
@@ -313,16 +313,16 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.35 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
               {cloudStatus === 'connected' ? (
-                <CloudDoneIcon sx={{ fontSize: 16, color: '#059669' }} />
+                <CloudDoneIcon sx={{ fontSize: 15, color: '#059669' }} />
               ) : cloudStatus === 'setup_needed' ? (
-                <CloudSyncIcon sx={{ fontSize: 16, color: '#D97706' }} />
+                <CloudSyncIcon sx={{ fontSize: 15, color: '#D97706' }} />
               ) : (
-                <ErrorOutlineIcon sx={{ fontSize: 16, color: '#DC2626' }} />
+                <ErrorOutlineIcon sx={{ fontSize: 15, color: '#DC2626' }} />
               )}
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.72rem' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.69rem' }}>
                 {cloudStatus === 'connected'
                   ? 'Supabase Connected'
                   : cloudStatus === 'setup_needed'
@@ -340,8 +340,8 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
               }
               size="small"
               sx={{
-                height: 16,
-                fontSize: '0.6rem',
+                height: 15,
+                fontSize: '0.58rem',
                 bgcolor:
                   cloudStatus === 'connected'
                     ? '#ECFDF5'
@@ -358,8 +358,8 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
               }}
             />
           </Box>
-          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • MitraPark Hub
+          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.65rem' }}>
+            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • Jorpati Campus
           </Typography>
         </Box>
       </Box>
@@ -370,7 +370,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
     <Box
       component="nav"
       sx={{
-        width: isMobile ? 0 : (open ? 280 : 0),
+        width: isMobile ? 0 : (open ? 248 : 0),
         flexShrink: isMobile ? 0 : 0,
         transition: (theme) =>
           theme.transitions.create('width', {
@@ -391,7 +391,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             zIndex: (theme) => theme.zIndex.drawer + 2,
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: 280,
+              width: 248,
               bgcolor: '#FFFFFF',
               boxShadow: '4px 0 24px rgba(15, 23, 42, 0.2)'
             }
@@ -406,11 +406,11 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
           anchor="left"
           open={Boolean(open)}
           sx={{
-            width: open ? 280 : 0,
+            width: open ? 248 : 0,
             flexShrink: 0,
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: 280,
+              width: 248,
               bgcolor: '#FFFFFF',
               borderRight: '1px solid #E2E8F0',
               top: '70px',
