@@ -106,6 +106,16 @@ export const theme = createTheme({
     borderRadius: 8,
   },
   components: {
+    MuiButtonBase: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focusVisible': {
+            outline: '2px solid #2563EB',
+            outlineOffset: '2px',
+          },
+        },
+      },
+    },
     MuiOutlinedInput: {
       styleOverrides: {
         root: {

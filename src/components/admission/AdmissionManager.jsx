@@ -980,7 +980,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
               </Typography>
             </Box>
           </Stack>
-          <IconButton onClick={() => setAdmitFromLeadOpen(false)} sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
+          <IconButton aria-label="Close lead selection dialog" onClick={() => setAdmitFromLeadOpen(false)} sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
             <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>

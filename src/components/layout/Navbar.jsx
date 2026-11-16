@@ -9,6 +9,7 @@ import {
   Menu,
   MenuItem,
   Button,
+  ButtonBase,
   Avatar,
   Tooltip,
   Divider,
@@ -193,7 +194,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
               border: '2px solid rgba(255,255,255,0.8)'
             }}
           >
-            <Typography sx={{ fontSize: { xs: '1.05rem', sm: '1.45rem' }, lineHeight: 1 }}>
+            <Typography aria-hidden="true" sx={{ fontSize: { xs: '1.05rem', sm: '1.45rem' }, lineHeight: 1 }}>
               🎓
             </Typography>
           </Box>
@@ -232,8 +233,9 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         {/* Live Operational Status Pill (Compact SaaS Indicator) */}
         <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', mr: 2 }}>
           <Tooltip title={`${cloudStatus.message} • Active: ${activeShift} • Click for Settings`}>
-            <Box
+            <ButtonBase
               onClick={() => onSelectTab && onSelectTab('settings')}
+              aria-label={`Cloud status ${cloudStatus.status}, active ${activeShift}. Open settings`}
               sx={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -321,7 +323,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
               >
                 {String(activeShift || '').replace(/\s*\(.*?\)/, '')}
               </Typography>
-            </Box>
+            </ButtonBase>
           </Tooltip>
         </Box>
 
@@ -329,7 +331,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
         <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.2 }, flexShrink: 0 }}>
           {/* Compact Mobile Sync Status Dot */}
           <Tooltip title={cloudStatus.message}>
-            <Box
+            <ButtonBase
               onClick={() => isAdmin && onSelectTab && onSelectTab('settings')}
               aria-label={`Sync status: ${cloudStatus.status}`}
               sx={{
@@ -368,11 +370,14 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                       : '#EF4444'
                 }}
               />
-            </Box>
+            </ButtonBase>
           </Tooltip>
 
-          <Box
+          <ButtonBase
             onClick={handleOpenUser}
+            aria-label={`Account menu for ${currentUser?.name || 'User'}`}
+            aria-haspopup="menu"
+            aria-expanded={Boolean(anchorEl)}
             sx={{
               display: 'flex',
               alignItems: 'center',
@@ -432,7 +437,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                   : 'Officer'}
               </Typography>
             </Box>
-          </Box>
+          </ButtonBase>
 
           {onGoHome && (
             <Tooltip title="View Public Website">

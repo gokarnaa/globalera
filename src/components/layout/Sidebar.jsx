@@ -10,7 +10,8 @@ import {
   Box,
   Divider,
   Chip,
-  IconButton
+  IconButton,
+  ButtonBase
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -297,9 +298,13 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
 
       {/* Footer System Status Card */}
       <Box sx={{ p: 1.25, borderTop: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
-        <Box
+        <ButtonBase
           onClick={() => onSelectTab && onSelectTab('settings')}
+          aria-label={`Cloud status ${cloudStatus}, ${(db.trainingGroups || []).length} active batches. Open settings`}
           sx={{
+            width: '100%',
+            display: 'block',
+            textAlign: 'left',
             p: 1,
             borderRadius: 2,
             bgcolor: '#FFFFFF',
@@ -361,7 +366,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
           <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.65rem' }}>
             Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • Jorpati Campus
           </Typography>
-        </Box>
+        </ButtonBase>
       </Box>
     </Box>
   );
