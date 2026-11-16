@@ -112,7 +112,7 @@ export const theme = createTheme({
           borderRadius: 7,
           fontSize: '0.8125rem',
           backgroundColor: '#FFFFFF',
-          transition: 'all 0.15s ease',
+          transition: 'border-color 150ms ease-out, box-shadow 150ms ease-out',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: '#CBD5E1',
           },

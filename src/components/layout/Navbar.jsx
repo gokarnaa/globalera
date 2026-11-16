@@ -242,7 +242,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                 py: 0.55,
                 borderRadius: 99,
                 cursor: 'pointer',
-                transition: 'all 0.2s',
+                transition: 'transform 150ms ease-out, opacity 150ms ease-out',
                 bgcolor:
                   cloudStatus.status === 'connected'
                     ? '#F0FDF4'
@@ -330,7 +330,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
           {/* Compact Mobile Sync Status Dot */}
           <Tooltip title={cloudStatus.message}>
             <Box
-              onClick={() => isAdmin && onNavigate('settings')}
+              onClick={() => isAdmin && onSelectTab && onSelectTab('settings')}
               aria-label={`Sync status: ${cloudStatus.status}`}
               sx={{
                 display: { xs: 'inline-flex', lg: 'none' },
@@ -382,7 +382,7 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
               bgcolor: '#F8FAFC',
               border: '1px solid #E2E8F0',
               cursor: 'pointer',
-              transition: 'all 0.15s ease',
+              transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
               '&:hover': {
                 bgcolor: '#F1F5F9',
                 borderColor: '#CBD5E1',

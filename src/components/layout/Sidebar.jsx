@@ -218,7 +218,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                     border: isSelected ? '1px solid #BFDBFE' : '1px solid transparent',
                     color: isSelected ? '#1E40AF' : '#334155',
                     position: 'relative',
-                    transition: 'all 0.15s ease',
+                    transition: 'transform 150ms ease-out, background-color 150ms ease-out',
                     '&:hover': {
                       bgcolor: isSelected ? '#DBEAFE' : '#F1F5F9',
                       transform: 'translateX(2px)'
@@ -306,7 +306,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             border: '1px solid #E2E8F0',
             boxShadow: '0 1px 2px rgba(15,23,42,0.03)',
             cursor: 'pointer',
-            transition: 'all 0.15s ease',
+            transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
             '&:hover': {
               borderColor: '#CBD5E1',
               bgcolor: '#F1F5F9'
@@ -371,12 +371,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       component="nav"
       sx={{
         width: isMobile ? 0 : (open ? 248 : 0),
-        flexShrink: isMobile ? 0 : 0,
-        transition: (theme) =>
-          theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.standard
-          })
+        flexShrink: 0
       }}
     >
       {isMobile ? (
@@ -414,7 +409,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
               bgcolor: '#FFFFFF',
               borderRight: '1px solid #E2E8F0',
               top: '70px',
-              height: 'calc(100vh - 70px)',
+              height: 'calc(100dvh - 70px)',
               boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
             }
           }}

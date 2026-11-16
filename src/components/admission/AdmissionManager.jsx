@@ -301,14 +301,20 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
     setIdCardModalOpen(true);
   };
 
+  const [confirmCancelTarget, setConfirmCancelTarget] = useState(null);
+
   const handleDelete = (admissionId, name) => {
-    if (window.confirm(`Are you sure you want to cancel the admission agreement for student ${name}?`)) {
-      const updated = admissions.filter((a) => a.id !== admissionId);
-      const nextDb = { ...db, admissions: updated };
-      saveDB(nextDb);
-      setDb(nextDb);
-      showToast(`Admission agreement removed.`, 'info');
-    }
+    setConfirmCancelTarget({ id: admissionId, name });
+  };
+
+  const handleConfirmDelete = () => {
+    if (!confirmCancelTarget) return;
+    const updated = admissions.filter((a) => a.id !== confirmCancelTarget.id);
+    const nextDb = { ...db, admissions: updated };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setConfirmCancelTarget(null);
+    showToast(`Admission agreement removed.`, 'info');
   };
 
   return (
@@ -597,7 +603,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                 ),
                 endAdornment: search ? (
                   <InputAdornment position="end">
-                    <IconButton size="small" onClick={() => { setSearch(''); setPage(0); }}>
+                    <IconButton size="small" aria-label="Clear search query" onClick={() => { setSearch(''); setPage(0); }}>
                       <CloseIcon sx={{ fontSize: 16 }} />
                     </IconButton>
                   </InputAdornment>
@@ -887,6 +893,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                             <IconButton
                               size="small"
                               color="error"
+                              aria-label={`Cancel admission agreement for ${adm.studentName}`}
                               onClick={() => handleDelete(adm.id, adm.studentName)}
                               sx={{ p: 0.4 }}
                             >
@@ -1102,6 +1109,32 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
         onClose={() => setIdCardModalOpen(false)}
         admission={selectedForIdCard}
       />
+
+      {/* Accessible AlertDialog for Destructive Agreement Cancellation */}
+      <Dialog
+        open={Boolean(confirmCancelTarget)}
+        onClose={() => setConfirmCancelTarget(null)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ role: 'alertdialog', 'aria-labelledby': 'cancel-agreement-dialog-title' }}
+      >
+        <DialogTitle id="cancel-agreement-dialog-title" sx={{ fontWeight: 800, fontSize: '0.96rem' }}>
+          Cancel Admission Agreement?
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2, pb: 1 }}>
+          <Typography variant="body2" sx={{ color: '#334155', mt: 1 }}>
+            Are you sure you want to cancel the admission agreement for trainee <strong>{confirmCancelTarget?.name}</strong>? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ px: 2.5, py: 1.5 }}>
+          <Button size="small" onClick={() => setConfirmCancelTarget(null)} sx={{ color: '#64748b' }}>
+            Keep Agreement
+          </Button>
+          <Button size="small" variant="contained" color="error" onClick={handleConfirmDelete}>
+            Yes, Cancel Agreement
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
