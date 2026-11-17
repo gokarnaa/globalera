@@ -61,6 +61,7 @@ import DialogActions from '@mui/material/DialogActions';
 
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
+import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 import { useAuth } from '../../context/AuthContext';
 import { playLeadChime } from '../../services/soundUtils';
 import LeadModal, { LEAD_STAGES, LEAD_PRIORITIES, LEAD_SOURCES } from './LeadModal';
@@ -484,9 +485,17 @@ export default function LeadManager({ onNavigateToAdmission }) {
   };
 
   // Helper for WhatsApp Click
-  const getWaLink = (lead) => {
-    const text = `Hello ${lead.name}! We are contacting you from Prabidhik School, Jorpati regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
-    return `https://wa.me/977${lead.phone}?text=${encodeURIComponent(text)}`;
+  const getWaText = (lead) =>
+    `Hello ${lead.name}! We are contacting you from Prabidhik School, Jorpati regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
+
+  const handleOpenWhatsApp = (lead) => {
+    if (!lead?.phone) return;
+    openWhatsAppHubForContact({
+      phone: lead.phone,
+      name: lead.name,
+      role: 'Lead',
+      initialDraft: getWaText(lead)
+    });
   };
 
   return (
@@ -994,10 +1003,8 @@ export default function LeadManager({ onNavigateToAdmission }) {
                             <Tooltip title="Send WhatsApp message">
                               <IconButton
                                 size="small"
-                                component="a"
-                                href={getWaLink(lead)}
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                onClick={() => handleOpenWhatsApp(lead)}
+                                disabled={!lead.phone}
                                 sx={{ color: '#10B981', p: 0.3 }}
                               >
                                 <WhatsAppIcon sx={{ fontSize: '1rem' }} />
@@ -1235,8 +1242,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
                   {
                     label: 'WhatsApp',
                     icon: <WhatsAppIcon sx={{ fontSize: '1.05rem' }} />,
-                    href: lead.phone ? getWaLink(lead) : undefined,
-                    target: '_blank',
+                    onClick: () => handleOpenWhatsApp(lead),
                     disabled: !lead.phone,
                     color: '#059669',
                     bgColor: '#ECFDF5'
@@ -1407,10 +1413,8 @@ export default function LeadManager({ onNavigateToAdmission }) {
                         fullWidth
                         size="small"
                         variant="outlined"
-                        component="a"
-                        href={getWaLink(lead)}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        onClick={() => handleOpenWhatsApp(lead)}
+                        disabled={!lead.phone}
                         startIcon={<WhatsAppIcon sx={{ fontSize: '1rem !important' }} />}
                         sx={{
                           fontWeight: 700,
@@ -1629,7 +1633,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
                             <IconButton size="small" component="a" href={`tel:${lead.phone}`} sx={{ color: '#0284C7', p: 0.3 }}>
                               <PhoneIcon sx={{ fontSize: '0.95rem' }} />
                             </IconButton>
-                            <IconButton size="small" component="a" href={getWaLink(lead)} target="_blank" rel="noopener noreferrer" sx={{ color: '#10B981', p: 0.3 }}>
+                            <IconButton size="small" onClick={() => handleOpenWhatsApp(lead)} disabled={!lead.phone} sx={{ color: '#10B981', p: 0.3 }}>
                               <WhatsAppIcon sx={{ fontSize: '0.95rem' }} />
                             </IconButton>
                           </Box>

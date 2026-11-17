@@ -35,6 +35,7 @@ import HowToRegIcon from '@mui/icons-material/HowToReg';
 import EditIcon from '@mui/icons-material/Edit';
 import { LEAD_STAGES, LEAD_PRIORITIES } from './LeadModal';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 import { useAuth } from '../../context/AuthContext';
 
 export default function LeadDetailsModal({
@@ -64,7 +65,6 @@ export default function LeadDetailsModal({
   };
 
   const whatsAppText = `Hello ${lead.name}! Greetings from Prabidhik School, Jorpati (Global Era TVET). We are following up regarding your inquiry for '${lead.course || 'Vocational Training'}' to assist with details and the admission process.`;
-  const waUrl = `https://wa.me/977${lead.phone}?text=${encodeURIComponent(whatsAppText)}`;
 
   const quickTemplates = [
     'Called - No Answer',
@@ -166,10 +166,15 @@ export default function LeadDetailsModal({
             <Button
               size="small"
               variant="contained"
-              component="a"
-              href={waUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={() =>
+                openWhatsAppHubForContact({
+                  phone: lead.phone,
+                  name: lead.name,
+                  role: 'Lead',
+                  initialDraft: whatsAppText
+                })
+              }
+              disabled={!lead.phone}
               startIcon={<WhatsAppIcon sx={{ fontSize: '14px !important' }} />}
               sx={{ bgcolor: '#10B981', color: '#FFFFFF', fontWeight: 700, '&:hover': { bgcolor: '#059669' } }}
             >

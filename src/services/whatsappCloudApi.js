@@ -619,3 +619,16 @@ export async function sendBillElementToWhatsApp({
 
   return data;
 }
+
+/**
+ * Open the global Floating 3-Pane WhatsApp Hub directly on a specific contact's chat
+ * with an optional pre-filled draft message (replacing legacy external wa.me redirects).
+ */
+export function openWhatsAppHubForContact({ phone, name = '', role = '', initialDraft = '' }) {
+  if (!phone) return;
+  window.dispatchEvent(
+    new CustomEvent('kite_open_whatsapp_hub', {
+      detail: { phone, name, role, initialDraft }
+    })
+  );
+}

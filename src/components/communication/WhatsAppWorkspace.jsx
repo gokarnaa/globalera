@@ -159,7 +159,9 @@ export default function WhatsAppWorkspace({
   onRefresh,
   refreshing = false,
   height = '100%',
-  initialPhone = null
+  initialPhone = null,
+  initialDraft = '',
+  jumpNonce = null
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -204,8 +206,11 @@ export default function WhatsAppWorkspace({
         setSelectedKey(match.key);
         if (isMobile) setMobileView('chat');
       }
+      if (initialDraft) {
+        setDraft(initialDraft);
+      }
     }
-  }, [initialPhone, threads, isMobile]);
+  }, [initialPhone, initialDraft, jumpNonce, threads, isMobile]);
 
   useEffect(() => {
     if (!selectedKey && threads.length > 0 && !isMobile) {

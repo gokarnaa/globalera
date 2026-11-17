@@ -49,7 +49,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
-import { getWhatsAppUrl } from '../../services/exportUtils';
+import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 import StudentProfileModal from '../students/StudentProfileModal';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
@@ -717,9 +717,12 @@ export default function EmployerManager() {
                           {emp.phone && (
                             <IconButton
                               size="small"
-                              component="a"
-                              href={getWhatsAppUrl(emp.phone, `Namaste, greetings from Prabidhik School, Jorpati.`)}
-                              target="_blank"
+                              onClick={() => openWhatsAppHubForContact({
+                                phone: emp.phone,
+                                name: emp.companyName || emp.name,
+                                role: 'Employer',
+                                initialDraft: `Namaste, greetings from Prabidhik School, Jorpati.`
+                              })}
                               sx={{ color: '#25D366', p: 0.25 }}
                             >
                               <WhatsAppIcon sx={{ fontSize: 15 }} />
@@ -861,8 +864,12 @@ export default function EmployerManager() {
                     icon: <WhatsAppIcon sx={{ fontSize: 16 }} />,
                     color: '#16A34A',
                     bgColor: 'rgba(22, 163, 74, 0.09)',
-                    href: getWhatsAppUrl(emp.phone, 'Namaste, greetings from Prabidhik School, Jorpati.'),
-                    target: '_blank',
+                    onClick: () => openWhatsAppHubForContact({
+                      phone: emp.phone,
+                      name: emp.companyName || emp.name,
+                      role: 'Employer',
+                      initialDraft: 'Namaste, greetings from Prabidhik School, Jorpati.'
+                    }),
                     hidden: !emp.phone
                   },
                   {
@@ -1006,9 +1013,12 @@ export default function EmployerManager() {
                           {emp.phone && (
                             <IconButton
                               size="small"
-                              component="a"
-                              href={getWhatsAppUrl(emp.phone, `Namaste, greetings from KITE Training Center.`)}
-                              target="_blank"
+                              onClick={() => openWhatsAppHubForContact({
+                                phone: emp.phone,
+                                name: emp.companyName || emp.name,
+                                role: 'Employer',
+                                initialDraft: `Namaste, greetings from KITE Training Center.`
+                              })}
                               sx={{
                                 bgcolor: '#25D366',
                                 color: '#ffffff',
@@ -1489,10 +1499,12 @@ export default function EmployerManager() {
                     <Tooltip title="Message on WhatsApp">
                       <IconButton
                         size="small"
-                        component="a"
-                        href={getWhatsAppUrl(profileEmployer.phone, `Namaste ${profileEmployer.contactPerson || 'Team'}, greetings from Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.).`)}
-                        target="_blank"
-                        rel="noreferrer"
+                        onClick={() => openWhatsAppHubForContact({
+                          phone: profileEmployer.phone,
+                          name: profileEmployer.companyName || profileEmployer.name,
+                          role: 'Employer',
+                          initialDraft: `Namaste ${profileEmployer.contactPerson || 'Team'}, greetings from Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.).`
+                        })}
                         aria-label={`WhatsApp ${profileEmployer.name}`}
                         sx={{ color: '#4ADE80', bgcolor: 'rgba(37,211,102,0.18)', '&:hover': { bgcolor: 'rgba(37,211,102,0.3)' } }}
                       >

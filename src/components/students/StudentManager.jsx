@@ -53,7 +53,8 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import CallIcon from '@mui/icons-material/Call';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
-import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
+import { exportToExcel } from '../../services/exportUtils';
+import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
@@ -613,9 +614,12 @@ export default function StudentManager() {
                             </Typography>
                             <IconButton
                               size="small"
-                              component="a"
-                              href={getWhatsAppUrl(std.phone, `Namaste ${std.name}, update from Prabidhik School, Jorpati.`)}
-                              target="_blank"
+                              onClick={() => openWhatsAppHubForContact({
+                                phone: std.phone,
+                                name: std.name,
+                                role: 'Student',
+                                initialDraft: `Namaste ${std.name}, update from Prabidhik School, Jorpati.`
+                              })}
                               sx={{ color: '#25D366', p: 0.3 }}
                             >
                               <WhatsAppIcon sx={{ fontSize: '1rem' }} />
@@ -840,10 +844,12 @@ export default function StudentManager() {
                     {
                       label: 'WhatsApp',
                       icon: <WhatsAppIcon sx={{ fontSize: '1.05rem' }} />,
-                      href: student.phone
-                        ? getWhatsAppUrl(student.phone, `Namaste ${student.name}, update from Prabidhik School, Jorpati.`)
-                        : undefined,
-                      target: '_blank',
+                      onClick: () => openWhatsAppHubForContact({
+                        phone: student.phone,
+                        name: student.name,
+                        role: 'Student',
+                        initialDraft: `Namaste ${student.name}, update from Prabidhik School, Jorpati.`
+                      }),
                       disabled: !student.phone,
                       color: '#15803D',
                       bgColor: '#F0FDF4'

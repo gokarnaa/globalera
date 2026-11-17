@@ -42,6 +42,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
 
   const [windowMode, setWindowMode] = useState('closed'); // 'closed' | 'normal' | 'minimized' | 'maximized'
   const [soundMuted, setSoundMuted] = useState(false);
+  const [targetContact, setTargetContact] = useState({ phone: null, draft: '' });
   const [db, setDb] = useState(() => loadDB());
   const [remoteData, setRemoteData] = useState({ logs: [], inbound: [] });
   const [refreshing, setRefreshing] = useState(false);
@@ -60,10 +61,20 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   useEffect(() => {
     syncHub();
     const onDbUpdate = () => setDb(loadDB());
+    const onOpenForContact = (e) => {
+      const detail = e?.detail || {};
+      if (detail.phone) {
+        setTargetContact({ phone: detail.phone, draft: detail.initialDraft || '', nonce: Date.now() });
+      }
+      setWindowMode('normal');
+      syncHub();
+    };
     window.addEventListener('kite_db_updated', onDbUpdate);
+    window.addEventListener('kite_open_whatsapp_hub', onOpenForContact);
     const timer = setInterval(syncHub, 20000);
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
+      window.removeEventListener('kite_open_whatsapp_hub', onOpenForContact);
       clearInterval(timer);
     };
   }, [syncHub]);
@@ -353,6 +364,9 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             onRefresh={syncHub}
             refreshing={refreshing}
             height="100%"
+            initialPhone={targetContact.phone}
+            initialDraft={targetContact.draft}
+            jumpNonce={targetContact.nonce}
           />
         </DialogContent>
       </Dialog>

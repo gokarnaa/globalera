@@ -50,7 +50,7 @@ import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
 import StudentPaymentTimelineModal from '../accounts/StudentPaymentTimelineModal';
 import { saveDB, logAudit, postDoubleEntryJournal } from '../../services/storage';
-import { getWhatsAppUrl } from '../../services/exportUtils';
+import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 
 export default function StudentProfileModal({
   open,
@@ -468,10 +468,15 @@ export default function StudentProfileModal({
           </MenuItem>
           {student.phone && (
             <MenuItem
-              component="a"
-              href={getWhatsAppUrl(student.phone, `Namaste ${student.name}, regarding your training at Prabidhik School, Jorpati.`)}
-              target="_blank"
-              onClick={() => setMenuAnchorEl(null)}
+              onClick={() => {
+                setMenuAnchorEl(null);
+                openWhatsAppHubForContact({
+                  phone: student.phone,
+                  name: student.name,
+                  role: 'Student',
+                  initialDraft: `Namaste ${student.name}, regarding your training at Prabidhik School, Jorpati.`
+                });
+              }}
             >
               <WhatsAppIcon fontSize="small" sx={{ mr: 1, color: '#25D366' }} />
               WhatsApp Student
@@ -479,10 +484,15 @@ export default function StudentProfileModal({
           )}
           {student.guardianContact && (
             <MenuItem
-              component="a"
-              href={getWhatsAppUrl(student.guardianContact, `Namaste, regarding trainee ${student.name} at Prabidhik School, Jorpati.`)}
-              target="_blank"
-              onClick={() => setMenuAnchorEl(null)}
+              onClick={() => {
+                setMenuAnchorEl(null);
+                openWhatsAppHubForContact({
+                  phone: student.guardianContact,
+                  name: student.guardianName || `${student.name} (Guardian)`,
+                  role: 'Guardian',
+                  initialDraft: `Namaste, regarding trainee ${student.name} at Prabidhik School, Jorpati.`
+                });
+              }}
             >
               <WhatsAppIcon fontSize="small" sx={{ mr: 1, color: '#25D366' }} />
               WhatsApp Guardian
@@ -947,9 +957,12 @@ export default function StudentProfileModal({
                     {student.phone && (
                       <IconButton
                         size="small"
-                        component="a"
-                        href={getWhatsAppUrl(student.phone, `Namaste ${student.name}`)}
-                        target="_blank"
+                        onClick={() => openWhatsAppHubForContact({
+                          phone: student.phone,
+                          name: student.name,
+                          role: 'Student',
+                          initialDraft: `Namaste ${student.name}`
+                        })}
                         sx={{ color: '#25D366', p: 0.2 }}
                       >
                         <WhatsAppIcon fontSize="small" />
@@ -1027,9 +1040,12 @@ export default function StudentProfileModal({
                   {trainer?.phone && (
                     <IconButton
                       size="small"
-                      component="a"
-                      href={getWhatsAppUrl(trainer.phone, `Namaste Trainer ${trainer.name}, inquiry regarding trainee ${student.name} (${student.tgid}).`)}
-                      target="_blank"
+                      onClick={() => openWhatsAppHubForContact({
+                        phone: trainer.phone,
+                        name: trainer.name,
+                        role: 'Trainer',
+                        initialDraft: `Namaste Trainer ${trainer.name}, inquiry regarding trainee ${student.name} (${student.tgid}).`
+                      })}
                       sx={{ color: '#25D366' }}
                     >
                       <WhatsAppIcon />
@@ -1452,9 +1468,12 @@ export default function StudentProfileModal({
                       {ojt.contactNumber && (
                         <IconButton
                           size="small"
-                          component="a"
-                          href={getWhatsAppUrl(ojt.contactNumber, `Namaste Supervisor, regarding student ${student.name} on OJT.`)}
-                          target="_blank"
+                          onClick={() => openWhatsAppHubForContact({
+                            phone: ojt.contactNumber,
+                            name: ojt.relatedPerson || ojtEmployer?.contactPerson || 'OJT Supervisor',
+                            role: 'Employer',
+                            initialDraft: `Namaste Supervisor, regarding student ${student.name} on OJT.`
+                          })}
                           sx={{ color: '#25D366', p: 0.2 }}
                         >
                           <WhatsAppIcon fontSize="small" />
