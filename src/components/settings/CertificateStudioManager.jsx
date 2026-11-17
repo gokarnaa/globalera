@@ -20,20 +20,16 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel,
-  Collapse
+  InputLabel
 } from '@mui/material';
-import ColorLensIcon from '@mui/icons-material/ColorLens';
 import WallpaperIcon from '@mui/icons-material/Wallpaper';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
 import BrandingWatermarkIcon from '@mui/icons-material/BrandingWatermark';
-import FormatSizeIcon from '@mui/icons-material/FormatSize';
 import EditNoteIcon from '@mui/icons-material/EditNote';
 import TuneIcon from '@mui/icons-material/Tune';
 import SaveIcon from '@mui/icons-material/Save';
 import PrintIcon from '@mui/icons-material/Print';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import SchoolIcon from '@mui/icons-material/School';
@@ -57,13 +53,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import PanToolIcon from '@mui/icons-material/PanTool';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LayersIcon from '@mui/icons-material/Layers';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import ZoomOutIcon from '@mui/icons-material/ZoomOut';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
-import CenterFocusStrongIcon from '@mui/icons-material/CenterFocusStrong';
 import PaletteIcon from '@mui/icons-material/Palette';
 import { QRCodeSVG } from 'qrcode.react';
 

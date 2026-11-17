@@ -10,19 +10,14 @@ import {
   Alert,
   Divider,
   Paper,
-  Chip,
   ToggleButton,
-  ToggleButtonGroup,
-  IconButton
+  ToggleButtonGroup
 } from '@mui/material';
 import BusinessIcon from '@mui/icons-material/Business';
 import BadgeIcon from '@mui/icons-material/Badge';
 import NumbersIcon from '@mui/icons-material/Numbers';
 import SaveIcon from '@mui/icons-material/Save';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
-import VerifiedIcon from '@mui/icons-material/Verified';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 
 import { loadDB, saveDB } from '../../services/storage';

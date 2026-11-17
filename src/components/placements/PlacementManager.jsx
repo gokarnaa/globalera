@@ -147,7 +147,7 @@ export default function PlacementManager() {
     if (window.confirm('Delete this placement plan?')) {
       const nextDb = {
         ...db,
-        placements: db.placements.filter((x) => x.id !== id)
+        placements: (db.placements || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -965,7 +965,7 @@ export default function PlacementManager() {
               <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                 -- Select Employer --
               </MenuItem>
-              {db.employers.map((emp) => (
+              {(db.employers || []).map((emp) => (
                 <MenuItem key={emp.id} value={emp.id}>
                   {emp.name} ({emp.industry})
                 </MenuItem>

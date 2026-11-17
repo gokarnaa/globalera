@@ -562,7 +562,7 @@ export default function StudentPortal({ onLogout }) {
                         <TableCell>
                           <Chip
                             size="small"
-                            label={r.status.toUpperCase()}
+                            label={(r.status || 'N/A').toUpperCase()}
                             sx={{
                               fontWeight: 800,
                               fontSize: '0.75rem',
@@ -576,7 +576,7 @@ export default function StudentPortal({ onLogout }) {
                     ))}
                     {(attendanceStats.records || []).length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={3} align="center" sx={{ py: 3, color: '#647089' }}>
+                        <TableCell colSpan={4} align="center" sx={{ py: 3, color: '#647089' }}>
                           No attendance records found.
                         </TableCell>
                       </TableRow>

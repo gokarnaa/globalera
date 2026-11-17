@@ -12,17 +12,14 @@ import {
   Paper,
   Chip,
   ToggleButton,
-  ToggleButtonGroup,
-  Stack
+  ToggleButtonGroup
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ArticleIcon from '@mui/icons-material/Article';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { QRCodeSVG } from 'qrcode.react';
 
 // ============================================================================
@@ -157,12 +154,12 @@ function ReceiptSlip({
   const phone = settings?.contactPhone || '01-4910715 / 9705147147';
   const email = settings?.email || 'info@globalera.edu.np';
 
-  const originalFee = Number(payment.originalFee || course?.price || 30000);
-  const discountAmount = Number(payment.discountAmount || 0);
-  const discountPercent = Number(payment.discountPercent || (discountAmount > 0 ? Math.round((discountAmount / originalFee) * 100) : 0));
-  const admissionFee = Number(payment.admissionFee || 0);
-  const lockedFee = Number(payment.lockedCourseFee || (originalFee - discountAmount + admissionFee));
-  const paidThis = Number(payment.amount || 0);
+  const originalFee = Number(payment.originalFee || course?.price || 30000) || 0;
+  const discountAmount = Number(payment.discountAmount) || 0;
+  const discountPercent = Number(payment.discountPercent) || (discountAmount > 0 && originalFee > 0 ? Math.round((discountAmount / originalFee) * 100) : 0);
+  const admissionFee = Number(payment.admissionFee) || 0;
+  const lockedFee = Number(payment.lockedCourseFee ?? (originalFee - discountAmount + admissionFee)) || 0;
+  const paidThis = Number(payment.amount) || 0;
   const dueRemaining = Math.max(0, lockedFee - paidThis);
 
   const engWords = toEnglishWords(paidThis);

@@ -133,7 +133,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
       const matchesSearch =
         !q ||
-        grp.groupCode.toLowerCase().includes(q) ||
+        (grp.groupCode || '').toLowerCase().includes(q) ||
         (course?.title || '').toLowerCase().includes(q) ||
         (trainer?.name || '').toLowerCase().includes(q) ||
         `shift ${grp.shift}`.toLowerCase().includes(q);
@@ -1706,7 +1706,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Stack spacing={1.2}>
                 {(db.students || [])
                   .filter((s) => s.groupId === rosterGroup.id)
-                  .filter((s) => !rosterSearch || s.name.toLowerCase().includes(rosterSearch.toLowerCase()) || (s.phone || '').includes(rosterSearch))
+                  .filter((s) => !rosterSearch || (s.name || '').toLowerCase().includes(rosterSearch.toLowerCase()) || (s.phone || '').includes(rosterSearch))
                   .map((std, idx) => (
                     <Paper
                       key={std.id}

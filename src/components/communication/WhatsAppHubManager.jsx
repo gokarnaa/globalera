@@ -193,7 +193,7 @@ export default function WhatsAppHubManager() {
     let sent = 0;
     for (const rec of todayRecs.slice(0, 25)) {
       const std = (db.students || []).find((s) => s.id === rec.studentId);
-      const grp = (db.trainingGroups || []).find((g) => g.id === std?.trainingGroupId);
+      const grp = (db.trainingGroups || []).find((g) => g.id === (std?.groupId || std?.trainingGroupId));
       const phone = std?.guardianPhone || std?.parentPhone || std?.phone;
       if (!phone) continue;
       try {

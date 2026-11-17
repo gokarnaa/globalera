@@ -183,12 +183,12 @@ function resolveLocalGraphQL(query, variables = {}) {
     // Student Attendance
     const records = (db.attendances || []).filter((a) => a.studentId === student.id);
     const totalDays = records.length;
-    const presentDays = records.filter((a) => a.status === 'Present').length;
-    const absentDays = records.filter((a) => a.status === 'Absent').length;
+    const presentDays = records.filter((a) => ['present', 'late'].includes(String(a.status || '').toLowerCase())).length;
+    const absentDays = records.filter((a) => String(a.status || '').toLowerCase() === 'absent').length;
     const percentage = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
     // OJT Placement
-    const ojt = (db.ojtPlacements || []).find((o) => o.studentId === student.id) || null;
+    const ojt = (db.ojts || db.ojtPlacements || []).find((o) => o.studentId === student.id) || null;
 
     // Certificate
     const certificate = (db.certificates || []).find((c) => c.studentId === student.id) || null;
@@ -231,7 +231,7 @@ function resolveLocalGraphQL(query, variables = {}) {
 
       const records = (db.attendances || []).filter((a) => a.studentId === s.id);
       const totalDays = records.length;
-      const presentDays = records.filter((a) => a.status === 'Present').length;
+      const presentDays = records.filter((a) => ['present', 'late'].includes(String(a.status || '').toLowerCase())).length;
       const attPercent = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
 
       const rawSyllabi = (db.syllabi || []).filter((syl) => syl.courseId === course?.id);

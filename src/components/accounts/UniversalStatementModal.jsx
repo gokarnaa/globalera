@@ -21,9 +21,7 @@ import {
   TableRow,
   Chip,
   IconButton,
-  Divider,
   Stack,
-  Tooltip,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -36,7 +34,6 @@ import PrintIcon from '@mui/icons-material/Print';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { getWhatsAppUrl, exportToExcel } from '../../services/exportUtils';
 
 export const NEPALI_FISCAL_MONTHS = [
@@ -148,7 +145,7 @@ export default function UniversalStatementModal({
       const studentPayments = (db.payments || []).filter((p) => p.studentId === currentEntity.id);
       const studentGroup = (db.trainingGroups || []).find((g) => g.id === currentEntity.groupId);
       const course = (db.courses || []).find((c) => c.id === studentGroup?.courseId);
-      const lockedFee = Number(currentEntity.lockedFee || course?.price || 15000);
+      const lockedFee = Number(currentEntity.lockedCourseFee || currentEntity.lockedFee || course?.price || 15000) || 0;
 
       const rows = [
         {
@@ -488,7 +485,7 @@ export default function UniversalStatementModal({
                   Total Contract / Liability:
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                  Rs. {((entityType === 'LANDLORD' ? (currentEntity.monthlyRent * 12) : currentEntity.totalPurchases || currentEntity.lockedFee || 600000)).toLocaleString()}
+                  Rs. {(entityType === 'LANDLORD' ? (Number(currentEntity.monthlyRent) || 50000) * 12 : (Number(currentEntity.totalPurchases || currentEntity.lockedCourseFee || currentEntity.lockedFee) || 600000)).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>
                   FY {fiscalYear}
@@ -500,7 +497,7 @@ export default function UniversalStatementModal({
                   Total Paid / Cleared:
                 </Typography>
                 <Typography variant="h6" sx={{ fontWeight: 900, color: '#059669' }}>
-                  Rs. {(currentEntity.totalPaid || (entityType === 'LANDLORD' ? currentEntity.monthlyRent * 10 : 0)).toLocaleString()}
+                  Rs. {(Number(currentEntity.totalPaid) || (entityType === 'LANDLORD' ? (Number(currentEntity.monthlyRent) || 50000) * 10 : 0)).toLocaleString()}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
                   ConnectIPS & Bank Payments
@@ -512,7 +509,7 @@ export default function UniversalStatementModal({
                   Current Due Balance:
                 </Typography>
                 <Typography variant="h5" sx={{ fontWeight: 900, color: (currentEntity.currentDue > 0 || entityType === 'LANDLORD') ? '#DC2626' : '#059669' }}>
-                  Rs. {(currentEntity.currentDue || (entityType === 'LANDLORD' ? currentEntity.monthlyRent : 0)).toLocaleString()}
+                  Rs. {(Number(currentEntity.currentDue) || (entityType === 'LANDLORD' ? (Number(currentEntity.monthlyRent) || 50000) : 0)).toLocaleString()}
                 </Typography>
                 <Chip
                   label={currentEntity.currentDue > 0 || entityType === 'LANDLORD' ? '🔴 Due Remaining' : '🟢 Fully Cleared'}

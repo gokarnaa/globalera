@@ -4,12 +4,6 @@ import {
   Card,
   Typography,
   Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Chip,
   Grid,
   Paper,
@@ -22,9 +16,7 @@ import {
   Divider,
   Stack
 } from '@mui/material';
-import BusinessIcon from '@mui/icons-material/Business';
 import AddIcon from '@mui/icons-material/Add';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 import { saveDB } from '../../services/storage';
 
@@ -46,12 +38,11 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
   const totalReceivables = projects.reduce((sum, p) => sum + (Number(p.pendingReceivable) || 0), 0);
 
   const handleCreateProject = () => {
-    if (!form.name.trim() || !form.contractValue) {
-      showToast('Please enter the project title and contract value.', 'error');
+    const val = Number(form.contractValue) || 0;
+    if (!form.name.trim() || val <= 0) {
+      showToast('Please enter the project title and a valid contract value.', 'error');
       return;
     }
-
-    const val = Number(form.contractValue);
     const newProject = {
       id: `PRJ-${Date.now()}`,
       code: `PRJ-${String(projects.length + 1).padStart(3, '0')}`,
@@ -150,7 +141,9 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
       {/* Projects List */}
       <Stack spacing={2.5}>
         {projects.map((p) => {
-          const progressPct = p.contractValue > 0 ? Math.round((p.receivedAmount / p.contractValue) * 100) : 0;
+          const contractVal = Number(p.contractValue) || 0;
+          const receivedVal = Number(p.receivedAmount) || 0;
+          const progressPct = contractVal > 0 ? Math.min(100, Math.max(0, Math.round((receivedVal / contractVal) * 100))) : 0;
           return (
             <Card key={p.id} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #E2E8F0' }}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 2, mb: 1.5 }}>
@@ -168,10 +161,10 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                 </Box>
                 <Box sx={{ textAlign: 'right' }}>
                   <Typography variant="h6" sx={{ fontWeight: 900, color: '#312E81' }}>
-                    Rs. {Number(p.contractValue).toLocaleString()}
+                    Rs. {contractVal.toLocaleString()}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>
-                    Received: Rs. {Number(p.receivedAmount).toLocaleString()} ({progressPct}%)
+                    Received: Rs. {receivedVal.toLocaleString()} ({progressPct}%)
                   </Typography>
                 </Box>
               </Box>
@@ -183,7 +176,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                 Payment Milestones:
               </Typography>
               <Grid container spacing={1.5}>
-                {p.milestones.map((m, i) => (
+                {(p.milestones || []).map((m, i) => (
                   <Grid item xs={12} sm={6} key={i}>
                     <Paper variant="outlined" sx={{ p: 1.2, borderRadius: 2, bgcolor: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Box>
@@ -196,7 +189,7 @@ export default function ProjectAccountingView({ db, setDb, showToast }) {
                       </Box>
                       <Box sx={{ textAlign: 'right' }}>
                         <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                          Rs. {Number(m.amount).toLocaleString()}
+                          Rs. {(Number(m.amount) || 0).toLocaleString()}
                         </Typography>
                         <Chip
                           label={m.status}

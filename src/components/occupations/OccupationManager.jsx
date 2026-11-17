@@ -75,7 +75,7 @@ export default function OccupationManager() {
     if (window.confirm('Are you sure you want to delete this occupation?')) {
       const nextDb = {
         ...db,
-        occupations: db.occupations.filter((x) => x.id !== id)
+        occupations: (db.occupations || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -187,7 +187,7 @@ export default function OccupationManager() {
               </TableRow>
             </TableHead>
             <TableBody>
-              {db.occupations.map((occ) => {
+              {(db.occupations || []).map((occ) => {
                 const courseCount = (db.courses || []).filter((c) => c.occupationId === occ.id).length;
                 return (
                   <TableRow key={occ.id} hover>

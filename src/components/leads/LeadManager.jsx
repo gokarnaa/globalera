@@ -1972,7 +1972,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
         onNavigateToAdmission={onNavigateToAdmission}
         onConverted={({ newStudent, newAdmission }) => {
           setDb(loadDB());
-          showToast(`Congratulations! ${newStudent.name} has been enrolled under Admission Agreement ${newAdmission?.agreementNo || ''}.`);
+          showToast(`Congratulations! ${newStudent?.name || 'Trainee'} has been enrolled under Admission Agreement ${newAdmission?.agreementNo || ''}.`);
         }}
       />
 

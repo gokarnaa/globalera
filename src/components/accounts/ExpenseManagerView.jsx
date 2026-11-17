@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
   Paper,
   Grid,
   ToggleButton,
@@ -60,10 +59,11 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
   const expenses = db.expenses || [];
 
   const filtered = expenses.filter((e) => {
+    const q = search.toLowerCase();
     const matchesSearch =
-      e.payee.toLowerCase().includes(search.toLowerCase()) ||
-      e.description.toLowerCase().includes(search.toLowerCase()) ||
-      (e.voucherNo || '').toLowerCase().includes(search.toLowerCase());
+      (e.payee || '').toLowerCase().includes(q) ||
+      (e.description || '').toLowerCase().includes(q) ||
+      (e.voucherNo || '').toLowerCase().includes(q);
     const matchesCat = categoryFilter === 'ALL' || e.category === categoryFilter;
     return matchesSearch && matchesCat;
   });
@@ -71,12 +71,11 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
   const totalExpenseAmount = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
   const handleSaveExpense = () => {
-    if (!form.payee.trim() || !form.amount || Number(form.amount) <= 0) {
-      showToast('Please enter the payee and expense amount.', 'error');
+    const amt = Number(form.amount) || 0;
+    if (!form.payee.trim() || amt <= 0) {
+      showToast('Please enter the payee and a valid expense amount.', 'error');
       return;
     }
-
-    const amt = Number(form.amount);
     const voucherNo = `EXP-2026-${String(expenses.length + 1).padStart(4, '0')}`;
     const isDigital = form.paymentMethod !== 'Cash';
     const creditAccCode = isDigital ? '1020' : '1010';

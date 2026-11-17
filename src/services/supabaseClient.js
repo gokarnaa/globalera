@@ -766,7 +766,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       channel: cl.channel || 'SMS',
       recipient_name: cl.recipientName || cl.name || '',
       recipient_phone: cl.recipientPhone || cl.phone || '0000000000',
-      message: cl.message || '',
+      message: cl.messageText || cl.message || '',
       status: cl.status || 'Sent',
       sent_at: cl.sentAt || cl.timestamp || new Date().toISOString()
     })));
@@ -1333,6 +1333,7 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       recipientName: cl.recipient_name,
       recipientPhone: cl.recipient_phone,
       message: cl.message,
+      messageText: cl.message,
       status: cl.status,
       sentAt: cl.sent_at
     })),

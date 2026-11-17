@@ -286,7 +286,7 @@ export default function SyllabusManager() {
       const q = searchQuery.toLowerCase().trim();
       const matchesSearch =
         !q ||
-        u.title.toLowerCase().includes(q) ||
+        (u.title || '').toLowerCase().includes(q) ||
         (u.learningOutcome || '').toLowerCase().includes(q) ||
         (u.toolsAndMaterials || '').toLowerCase().includes(q) ||
         `unit ${u.unitNo}`.includes(q);
@@ -304,7 +304,7 @@ export default function SyllabusManager() {
   const totalTheoryHours = courseSyllabi.reduce((sum, s) => sum + (Number(s.theoryHours) || 0), 0);
   const totalPracticalHours = courseSyllabi.reduce((sum, s) => sum + (Number(s.practicalHours) || 0), 0);
   const totalSyllabusHours = totalTheoryHours + totalPracticalHours;
-  const courseTargetHours = selectedCourse?.totalHours || 390;
+  const courseTargetHours = Number(selectedCourse?.totalHours) || 390;
   const hoursPercentage = Math.min(100, Math.round((totalSyllabusHours / courseTargetHours) * 100));
   const remainingHours = Math.max(0, courseTargetHours - totalSyllabusHours);
 

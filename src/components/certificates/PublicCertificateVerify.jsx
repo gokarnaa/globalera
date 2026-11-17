@@ -14,7 +14,6 @@ import {
   IconButton
 } from '@mui/material';
 import VerifiedIcon from '@mui/icons-material/Verified';
-import SchoolIcon from '@mui/icons-material/School';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';

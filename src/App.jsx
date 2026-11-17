@@ -183,6 +183,10 @@ export default function App() {
       setCurrentTab('student_portal');
     } else if (currentUser?.role === 'EMPLOYER') {
       setCurrentTab('employer_portal');
+    } else if (currentUser?.role === 'ADMIN' || currentUser?.role === 'STAFF') {
+      setCurrentTab((prev) =>
+        ['trainer_portal', 'student_portal', 'employer_portal'].includes(prev) ? 'dashboard' : prev
+      );
     }
   }, [currentUser?.role, currentUser?.id]);
   const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
@@ -239,7 +243,7 @@ export default function App() {
 
     const db = loadDB();
     const cert = (db.certificates || []).find(
-      (c) => c.certificateNo.toLowerCase() === verifyParam.trim().toLowerCase()
+      (c) => (c.certificateNo || c.certificateNumber || '').toLowerCase() === verifyParam.trim().toLowerCase()
     );
     if (!cert) return { certId: verifyParam, certificate: null, student: null, course: null, group: null, trainer: null };
 

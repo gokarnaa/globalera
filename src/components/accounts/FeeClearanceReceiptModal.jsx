@@ -9,8 +9,6 @@ import {
   Typography,
   Stack,
   IconButton,
-  Chip,
-  Divider,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -18,7 +16,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import SchoolIcon from '@mui/icons-material/School';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Official Global Era Technical Crest
@@ -41,6 +38,8 @@ const OfficialSeal = () => (
 );
 
 export default function FeeClearanceReceiptModal({ open, onClose, student, ledger, payments = [] }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   if (!student || !ledger) return null;
 
   const handlePrint = () => {
@@ -48,14 +47,14 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
   };
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const clearanceCertificateNo = `CLR-2081-${student.id.replace(/\D/g, '') || '01'}`;
+  const clearanceCertificateNo = `CLR-2081-${String(student.id || '').replace(/\D/g, '') || '01'}`;
   const verifyUrl = `${window.location.origin}/?verify=${student.id}&clearance=true`;
 
   // Student specific payments
-  const studentPayments = payments.filter((p) => p.studentId === student.id);
+  const studentPayments = (payments || []).filter((p) => p.studentId === student.id);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth fullScreen={useMediaQuery(useTheme().breakpoints.down('sm'))} scroll="paper">
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth fullScreen={isMobile} scroll="paper">
       {/* Top Action Toolbar */}
       <DialogTitle
         className="no-print"

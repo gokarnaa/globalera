@@ -22,7 +22,6 @@ import {
   Tabs,
   Tab,
   InputAdornment,
-  Divider,
   Snackbar,
   Alert,
   LinearProgress,
@@ -38,10 +37,8 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SearchIcon from '@mui/icons-material/Search';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import PrintIcon from '@mui/icons-material/Print';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import SchoolIcon from '@mui/icons-material/School';
@@ -164,18 +161,19 @@ export default function AccountsManager({ initialTab = 0 }) {
     const grp = groups.find((g) => g.id === st.groupId);
     const crs = courses.find((c) => c.id === grp?.courseId);
 
-    const originalFee = st.originalFee || crs?.price || 30000;
-    const discountAmount = st.discountAmount || 0;
-    const discountPercent = st.discountPercent || (discountAmount > 0 ? Math.round((discountAmount / originalFee) * 100) : 0);
-    const admissionFee = st.admissionFee || 0;
-    const lockedFee = st.lockedCourseFee || (originalFee - discountAmount + admissionFee) || 15000;
+    const originalFee = Number(st.originalFee || crs?.price || 30000) || 0;
+    const discountAmount = Number(st.discountAmount) || 0;
+    const discountPercent = Number(st.discountPercent) || (discountAmount > 0 && originalFee > 0 ? Math.round((discountAmount / originalFee) * 100) : 0);
+    const admissionFee = Number(st.admissionFee) || 0;
+    const lockedFee = Number(st.lockedCourseFee) || Math.max(0, originalFee - discountAmount + admissionFee) || 15000;
 
     const studentPayments = payments.filter((p) => p.studentId === st.id);
     const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
     const due = Math.max(0, lockedFee - totalPaid);
 
     // Overdue check: 2nd installment is due 30 days after admissionDate
-    const admDate = new Date(st.admissionDate || '2026-09-01');
+    const parsedAdm = new Date(st.admissionDate || '2026-09-01');
+    const admDate = Number.isNaN(parsedAdm.getTime()) ? new Date('2026-09-01') : parsedAdm;
     const dueDate = new Date(admDate);
     dueDate.setDate(dueDate.getDate() + 30);
     const isOverdue = due > 0 && new Date() > dueDate;
@@ -228,7 +226,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     const totalPaid = disbursements.reduce((sum, tp) => sum + (Number(tp.amount) || 0), 0);
 
     const isSalary = trn.remunerationType === 'SALARY';
-    const totalExpected = isSalary ? (trn.monthlySalary || 25000) : totalCommissionEarned;
+    const totalExpected = isSalary ? (Number(trn.monthlySalary) || 25000) : totalCommissionEarned;
     const balanceDue = Math.max(0, totalExpected - totalPaid);
 
     return {
@@ -349,7 +347,7 @@ export default function AccountsManager({ initialTab = 0 }) {
   // Live Cash in Hand and Live Bank Balance Calculation
   const { liveCashInHand, liveBankBalance } = useMemo(() => {
     const todayStr = new Date().toISOString().slice(0, 10);
-    const opening = db?.counterStatus?.openingCash ?? 44000;
+    const opening = Number(db?.counterStatus?.openingCash ?? 44000) || 0;
 
     // Today's physical cash inflows
     const cashIn = (db.payments || [])
@@ -370,7 +368,7 @@ export default function AccountsManager({ initialTab = 0 }) {
 
     // Live bank balance
     const bankAcc = (db.chartOfAccounts || []).find((a) => a.code === '1020');
-    const baseBank = bankAcc?.balance || 1425000;
+    const baseBank = Number(bankAcc?.balance ?? 1425000) || 0;
 
     const digitalIn = (db.payments || [])
       .filter((p) => p.paymentMethod && !p.paymentMethod.toLowerCase().includes('cash'))
@@ -707,7 +705,7 @@ export default function AccountsManager({ initialTab = 0 }) {
         }
         return true;
       })
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
+      .sort((a, b) => (new Date(b.date).getTime() || 0) - (new Date(a.date).getTime() || 0));
   }, [payments, trainerPayouts, students, txTypeFilter, txSearch]);
 
   // Save new Student Payment with Auto Double-Entry Posting

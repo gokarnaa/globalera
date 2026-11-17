@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -10,8 +10,6 @@ import {
   TextField,
   Grid,
   Paper,
-  Divider,
-  Alert,
   Chip,
   IconButton,
   Table,
@@ -20,19 +18,13 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  InputAdornment,
   Stack,
-  Tooltip,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import CalculateIcon from '@mui/icons-material/Calculate';
 
 import { saveDB } from '../../services/storage';
 
@@ -45,19 +37,19 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
   const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
   // 1. Inflows and Outflows calculation
-  const openingBalance = db?.counterStatus?.openingCash || 44000;
+  const openingBalance = Number(db?.counterStatus?.openingCash ?? 44000) || 0;
 
   const todayCashIn = useMemo(() => {
-    return (db.payments || [])
+    return (db?.payments || [])
       .filter((p) => (p.paymentDate === today || (p.createdAt || '').slice(0, 10) === today) && p.paymentMethod?.toLowerCase().includes('cash'))
       .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
-  }, [db.payments, today]);
+  }, [db?.payments, today]);
 
   const todayCashOut = useMemo(() => {
-    return (db.expenses || [])
+    return (db?.expenses || [])
       .filter((e) => e.date === today && e.paymentMethod?.toLowerCase().includes('cash'))
       .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-  }, [db.expenses, today]);
+  }, [db?.expenses, today]);
 
   const expectedClosing = openingBalance + todayCashIn - todayCashOut;
 

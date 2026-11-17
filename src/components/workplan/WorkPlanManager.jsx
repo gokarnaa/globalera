@@ -130,7 +130,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
     .filter((wp) => wp.status === 'Completed')
     .reduce((sum, wp) => sum + (Number(wp.plannedHours) || 0), 0);
   const pendingHours = totalPlannedHours - completedHours;
-  const courseTargetHours = selectedCourse?.totalHours || 390;
+  const courseTargetHours = Number(selectedCourse?.totalHours) || 390;
   const deliveryProgress = totalPlannedHours > 0 ? Math.round((completedHours / totalPlannedHours) * 100) : 0;
   const planningProgress = Math.min(100, Math.round((totalPlannedHours / courseTargetHours) * 100));
 

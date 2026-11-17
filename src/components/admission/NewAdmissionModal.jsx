@@ -133,6 +133,20 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
         setSelectedGroupId(matchingGroup?.id || '');
       }
     } else {
+      setName('');
+      setPhone('');
+      setSecondaryPhone('');
+      setGender('Female');
+      setBloodGroup('O+ve');
+      setCitizenshipNumber('');
+      setCurrentAddress('Gokarneshwor, Kathmandu');
+      setPermanentAddress('');
+      setFatherName('');
+      setGuardianContact('');
+      setOjtPreference('REQUIRED');
+      setPaymentMethod('Cash');
+      setRemarks('Admission Agreement - 50% Advance Fee');
+
       if (db.courses && db.courses.length > 0) {
         const firstCourse = db.courses[0];
         setSelectedCourseId(firstCourse.id);

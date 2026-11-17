@@ -342,7 +342,7 @@ export default function ConvertToStudentModal({
       // ignore
     }
 
-    onConverted(newStudent);
+    onConverted({ newStudent, newAdmission });
     onClose();
   };
 

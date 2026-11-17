@@ -24,8 +24,6 @@ import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
-import CloudSyncIcon from '@mui/icons-material/CloudSync';
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Visibility from '@mui/icons-material/Visibility';
@@ -41,7 +39,6 @@ import BusinessIcon from '@mui/icons-material/Business';
 import ShieldIcon from '@mui/icons-material/Shield';
 import BoltIcon from '@mui/icons-material/Bolt';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import CodeIcon from '@mui/icons-material/Code';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CertificateStudioManager from './CertificateStudioManager';
 import CompanyProfileSettings from './CompanyProfileSettings';
@@ -50,8 +47,7 @@ import {
   generateSupabaseSQLSchema,
   generateSupabaseSecurityHardeningSQL,
   testSupabaseConnection,
-  pushLocalDBToSupabase,
-  pullRemoteDBFromSupabase
+  pushLocalDBToSupabase
 } from '../../services/supabaseClient';
 import { exportGoogleContactsVCF } from '../../services/exportUtils';
 import { executeGraphQL, GRAPHQL_QUERIES } from '../../services/graphqlClient';

@@ -188,7 +188,7 @@ export default function EmployerManager() {
     if (!confirmDeleteEmp) return;
     const nextDb = {
       ...db,
-      employers: db.employers.filter((x) => x.id !== confirmDeleteEmp.id)
+      employers: (db.employers || []).filter((x) => x.id !== confirmDeleteEmp.id)
     };
     saveDB(nextDb);
     setDb(nextDb);

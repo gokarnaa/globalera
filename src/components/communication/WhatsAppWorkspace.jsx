@@ -445,8 +445,9 @@ export default function WhatsAppWorkspace({
       const cert = (currentDb.certificates || []).find(
         (c) => activeThread.entity?.id && c.studentId === activeThread.entity.id
       );
-      const verifyUrl = cert?.certNo
-        ? `https://globalera.vercel.app/?verify=${encodeURIComponent(cert.certNo)}`
+      const certNum = cert?.certificateNo || cert?.certNo;
+      const verifyUrl = certNum
+        ? `https://globalera.vercel.app/?verify=${encodeURIComponent(certNum)}`
         : `https://globalera.vercel.app`;
       await handleSend(
         `🎓 *Official Certificate Verification — Prabidhik School*\nHello ${activeThread.name}, you can verify your official vocational certificate online anytime here:\n${verifyUrl}`

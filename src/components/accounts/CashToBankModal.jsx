@@ -10,8 +10,6 @@ import {
   TextField,
   Grid,
   Paper,
-  Divider,
-  Chip,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -20,7 +18,6 @@ import {
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CloseIcon from '@mui/icons-material/Close';
-import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import confetti from 'canvas-confetti';

@@ -149,7 +149,7 @@ export default function Dashboard({ onNavigate }) {
       const q = searchBatch.toLowerCase();
       const matchesSearch =
         !q ||
-        g.groupCode.toLowerCase().includes(q) ||
+        (g.groupCode || '').toLowerCase().includes(q) ||
         (course?.title || '').toLowerCase().includes(q) ||
         (trainer?.name || '').toLowerCase().includes(q);
       return matchesShift && matchesSearch;

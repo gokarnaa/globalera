@@ -146,8 +146,8 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
       const matchesSearch =
         !q ||
-        c.title.toLowerCase().includes(q) ||
-        c.id.toLowerCase().includes(q) ||
+        (c.title || '').toLowerCase().includes(q) ||
+        (c.id || '').toLowerCase().includes(q) ||
         (occ?.name || '').toLowerCase().includes(q) ||
         (c.level || '').toLowerCase().includes(q) ||
         (c.description || '').toLowerCase().includes(q);

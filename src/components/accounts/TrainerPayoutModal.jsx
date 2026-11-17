@@ -14,8 +14,6 @@ import {
   Alert,
   Paper,
   InputAdornment,
-  Divider,
-  Chip,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -181,8 +179,8 @@ export default function TrainerPayoutModal({
     const newPayout = {
       id: `TRP-${Date.now().toString().slice(-6)}`,
       voucherNo,
-      trainerId: selectedTrainer.id,
-      trainerName: selectedTrainer.name,
+      trainerId: selectedTrainer?.id || trainerId,
+      trainerName: selectedTrainer?.name || 'Trainer',
       payoutType,
       groupId: payoutType === 'COMMISSION' ? groupId : '',
       groupName: payoutType === 'COMMISSION' ? (grpObj?.groupCode || groupId) : '',

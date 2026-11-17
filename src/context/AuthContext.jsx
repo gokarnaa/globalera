@@ -447,7 +447,8 @@ export function AuthProvider({ children }) {
       login('staff', '2222');
     } else if (role === 'TRAINER') {
       const currentDb = loadDB();
-      const t = currentDb.trainers.find((x) => x.id === targetId) || currentDb.trainers[0];
+      const trainers = currentDb.trainers || [];
+      const t = trainers.find((x) => x.id === targetId) || trainers[0];
       if (t) {
         login(t.phone || t.id, t.pin || '1234');
       }

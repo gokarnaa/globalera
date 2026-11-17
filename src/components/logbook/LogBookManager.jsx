@@ -130,14 +130,14 @@ export default function LogBookManager() {
 
   // Calculate statistics
   const totalActualHours = groupLogBooks.reduce((sum, lb) => sum + (Number(lb.actualHours) || 0), 0);
-  const targetCourseHours = selectedCourse?.totalHours || selectedCourse?.durationHours || 390;
+  const targetCourseHours = Number(selectedCourse?.totalHours || selectedCourse?.durationHours) || 390;
   const deliveryProgressPercent = Math.min(100, Math.round((totalActualHours / targetCourseHours) * 100));
 
   const handleOpenAdd = () => {
     setEditingItem(null);
     const firstLp = availableLessonPlans[0];
-    const wp = firstLp ? db.workPlans.find((w) => w.id === firstLp.workPlanId) : null;
-    const syl = wp ? db.syllabi.find((s) => s.id === wp.syllabusId) : null;
+    const wp = firstLp ? (db.workPlans || []).find((w) => w.id === firstLp.workPlanId) : null;
+    const syl = wp ? (db.syllabi || []).find((s) => s.id === wp.syllabusId) : null;
 
     setFormData({
       lessonPlanId: firstLp?.id || '',
@@ -171,8 +171,8 @@ export default function LogBookManager() {
 
   const handleLessonPlanSelect = (lpId) => {
     const lp = availableLessonPlans.find((l) => l.id === lpId);
-    const wp = lp ? db.workPlans.find((w) => w.id === lp.workPlanId) : null;
-    const syl = wp ? db.syllabi.find((s) => s.id === wp.syllabusId) : null;
+    const wp = lp ? (db.workPlans || []).find((w) => w.id === lp.workPlanId) : null;
+    const syl = wp ? (db.syllabi || []).find((s) => s.id === wp.syllabusId) : null;
 
     setFormData((prev) => ({
       ...prev,
@@ -211,7 +211,7 @@ export default function LogBookManager() {
     if (window.confirm('Delete this log book record?')) {
       const nextDb = {
         ...db,
-        logBooks: db.logBooks.filter((x) => x.id !== id)
+        logBooks: (db.logBooks || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -846,8 +846,8 @@ export default function LogBookManager() {
             >
               <MenuItem value="">Direct Log (Without Pre-existing Lesson Plan)</MenuItem>
               {availableLessonPlans.map((lp) => {
-                const wp = db.workPlans.find((w) => w.id === lp.workPlanId);
-                const s = db.syllabi.find((x) => x.id === wp?.syllabusId);
+                const wp = (db.workPlans || []).find((w) => w.id === lp.workPlanId);
+                const s = (db.syllabi || []).find((x) => x.id === wp?.syllabusId);
                 return (
                   <MenuItem key={lp.id} value={lp.id}>
                     {wp?.planDate} — Unit {s?.unitNo}: {s?.title || lp.objectives?.slice(0, 30)}

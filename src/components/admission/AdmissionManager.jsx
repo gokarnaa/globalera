@@ -723,7 +723,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                   </Typography>
                 </Box>
                 <StatusBadge
-                  label={isPaid ? 'Paid' : `Due: Rs. ${adm.dueAmount50.toLocaleString()}`}
+                  label={isPaid ? 'Paid' : `Due: Rs. ${(Number(adm.dueAmount50) || 0).toLocaleString()}`}
                   tone={isPaid ? 'success' : 'error'}
                   showDot
                 />
@@ -954,7 +954,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
                           {adm.dueAmount50 > 0 ? (
                             <Box>
                               <Typography sx={{ fontWeight: 800, color: '#dc2626', fontSize: '0.78rem' }}>
-                                Due: Rs. {adm.dueAmount50.toLocaleString()}
+                                Due: Rs. {(Number(adm.dueAmount50) || 0).toLocaleString()}
                               </Typography>
                               <Typography variant="caption" sx={{ color: '#991b1b', fontWeight: 600, display: 'block', fontSize: '0.68rem' }}>
                                 By {adm.dueDate}

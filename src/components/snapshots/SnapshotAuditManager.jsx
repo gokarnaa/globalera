@@ -11,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -23,8 +22,7 @@ import {
   Tabs,
   Tab,
   Paper,
-  InputAdornment,
-  Divider
+  InputAdornment
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import HistoryIcon from '@mui/icons-material/History';
@@ -32,8 +30,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SecurityIcon from '@mui/icons-material/Security';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import { loadDB, saveDB, createSnapshot, logAudit } from '../../services/storage';
+import { loadDB, createSnapshot, logAudit } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
 
 export default function SnapshotAuditManager() {

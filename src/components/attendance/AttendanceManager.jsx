@@ -229,11 +229,11 @@ export default function AttendanceManager({ initialGroupId = null }) {
       const q = recordsSearchQuery.toLowerCase();
       list = list.filter(
         (s) =>
-          s.date.includes(q) ||
-          s.groupCode.toLowerCase().includes(q) ||
-          s.courseTitle.toLowerCase().includes(q) ||
-          s.trainerName.toLowerCase().includes(q) ||
-          s.shift.toLowerCase().includes(q)
+          (s.date || '').includes(q) ||
+          (s.groupCode || '').toLowerCase().includes(q) ||
+          (s.courseTitle || '').toLowerCase().includes(q) ||
+          (s.trainerName || '').toLowerCase().includes(q) ||
+          (s.shift || '').toLowerCase().includes(q)
       );
     }
 
@@ -301,9 +301,9 @@ export default function AttendanceManager({ initialGroupId = null }) {
       if (!reportSearchQuery.trim()) return true;
       const q = reportSearchQuery.toLowerCase();
       return (
-        row.student.name.toLowerCase().includes(q) ||
-        row.student.tgid.toLowerCase().includes(q) ||
-        row.student.phone.includes(q)
+        (row.student?.name || '').toLowerCase().includes(q) ||
+        (row.student?.tgid || '').toLowerCase().includes(q) ||
+        (row.student?.phone || '').includes(q)
       );
     });
 
@@ -378,12 +378,12 @@ export default function AttendanceManager({ initialGroupId = null }) {
   const displayedStudents = groupStudents.filter((s) => {
     if (!markSearchQuery.trim()) return true;
     const q = markSearchQuery.toLowerCase();
-    return s.name.toLowerCase().includes(q) || s.tgid.toLowerCase().includes(q) || s.phone.includes(q);
+    return (s.name || '').toLowerCase().includes(q) || (s.tgid || '').toLowerCase().includes(q) || (s.phone || '').includes(q);
   });
 
   // Save Attendance (Upsert logic: groupId + date + studentId)
   const handleSaveAttendance = () => {
-    let updatedAttendances = [...db.attendances];
+    let updatedAttendances = [...(db.attendances || [])];
 
     groupStudents.forEach((s) => {
       const rec = sessionRecords[s.id];

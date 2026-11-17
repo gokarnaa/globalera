@@ -10,7 +10,6 @@ import {
   TextField,
   Grid,
   Paper,
-  Divider,
   Chip,
   IconButton,
   InputAdornment,
@@ -20,7 +19,6 @@ import {
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CloseIcon from '@mui/icons-material/Close';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import PersonIcon from '@mui/icons-material/Person';
 import confetti from 'canvas-confetti';
 

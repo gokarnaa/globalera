@@ -7,7 +7,6 @@ import {
   Grid,
   Chip,
   Card,
-  CardContent,
   Table,
   TableBody,
   TableCell,
@@ -28,9 +27,7 @@ import {
   Divider,
   ToggleButton,
   ToggleButtonGroup,
-  Slider,
-  FormControlLabel,
-  Switch
+  Slider
 } from '@mui/material';
 import PriceCheckIcon from '@mui/icons-material/PriceCheck';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -40,14 +37,11 @@ import PrintIcon from '@mui/icons-material/Print';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import ViewListIcon from '@mui/icons-material/ViewList';
-import PercentIcon from '@mui/icons-material/Percent';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import SchoolIcon from '@mui/icons-material/School';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
@@ -62,7 +56,7 @@ export function calculateFeeBreakdown(fs = {}) {
   const netTuition = Math.max(0, basePrice - discountAmount);
   const admissionFee = Number(fs.admissionFee) || 0;
   const subtotal = netTuition + admissionFee;
-  const vatPercent = Number(fs.vatPercent) || 13;
+  const vatPercent = fs.vatPercent !== undefined && fs.vatPercent !== null && fs.vatPercent !== '' ? (Number(fs.vatPercent) || 0) : 13;
   const vatAmount = Math.round(subtotal * (vatPercent / 100));
   const totalEffectiveFee = subtotal + vatAmount;
 
@@ -287,7 +281,7 @@ export default function CourseFeeManager() {
       basePrice: Number(newCourseFeeData.basePrice) || 0,
       discountPercent: Number(newCourseFeeData.discountPercent) || 0,
       admissionFee: Number(newCourseFeeData.admissionFee) || 0,
-      vatPercent: Number(newCourseFeeData.vatPercent) || 13,
+      vatPercent: newCourseFeeData.vatPercent !== undefined && newCourseFeeData.vatPercent !== null && newCourseFeeData.vatPercent !== '' ? (Number(newCourseFeeData.vatPercent) || 0) : 13,
       totalEffectiveFee: calc.totalEffectiveFee,
       paymentMode: newCourseFeeData.paymentMode,
       reason: newCourseFeeData.revisionReason || 'Course fee setup/revision'
@@ -297,7 +291,7 @@ export default function CourseFeeManager() {
       basePrice: Number(newCourseFeeData.basePrice) || 0,
       discountPercent: Number(newCourseFeeData.discountPercent) || 0,
       admissionFee: Number(newCourseFeeData.admissionFee) || 0,
-      vatPercent: Number(newCourseFeeData.vatPercent) || 13,
+      vatPercent: newCourseFeeData.vatPercent !== undefined && newCourseFeeData.vatPercent !== null && newCourseFeeData.vatPercent !== '' ? (Number(newCourseFeeData.vatPercent) || 0) : 13,
       paymentMode: newCourseFeeData.paymentMode,
       fullPayDiscount: Number(newCourseFeeData.fullPayDiscount) || 0,
       effectiveDate: newCourseFeeData.effectiveDate,
@@ -348,7 +342,7 @@ export default function CourseFeeManager() {
       basePrice: Number(formData.basePrice) || 0,
       discountPercent: Number(formData.discountPercent) || 0,
       admissionFee: Number(formData.admissionFee) || 0,
-      vatPercent: Number(formData.vatPercent) || 13,
+      vatPercent: formData.vatPercent !== undefined && formData.vatPercent !== null && formData.vatPercent !== '' ? (Number(formData.vatPercent) || 0) : 13,
       totalEffectiveFee: calc.totalEffectiveFee,
       paymentMode: formData.paymentMode,
       reason: formData.revisionReason || 'Fee revision'
@@ -360,7 +354,7 @@ export default function CourseFeeManager() {
       basePrice: Number(formData.basePrice) || 0,
       discountPercent: Number(formData.discountPercent) || 0,
       admissionFee: Number(formData.admissionFee) || 0,
-      vatPercent: Number(formData.vatPercent) || 13,
+      vatPercent: formData.vatPercent !== undefined && formData.vatPercent !== null && formData.vatPercent !== '' ? (Number(formData.vatPercent) || 0) : 13,
       paymentMode: formData.paymentMode,
       fullPayDiscount: Number(formData.fullPayDiscount) || 0,
       effectiveDate: formData.effectiveDate,

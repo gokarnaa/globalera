@@ -21,8 +21,6 @@ import {
   ToggleButton,
   Tooltip,
   Avatar,
-  Paper,
-  Alert,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -30,9 +28,7 @@ import {
   useMediaQuery
 } from '@mui/material';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
-import AddIcon from '@mui/icons-material/Add';
 import PrintIcon from '@mui/icons-material/Print';
-import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import SearchIcon from '@mui/icons-material/Search';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -47,8 +43,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
-import { getWhatsAppUrl } from '../../services/exportUtils';
-import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
+import { ResponsiveDataView, EntityCard } from '../common';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
 import CertificateStudioManager from '../settings/CertificateStudioManager';

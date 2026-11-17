@@ -22,8 +22,6 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import PendingIcon from '@mui/icons-material/Pending';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 
@@ -40,23 +38,25 @@ export default function StudentPaymentTimelineModal({
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   if (!student || !ledger) return null;
 
-  const studentPayments = payments.filter((p) => p.studentId === student.id);
+  const studentPayments = (payments || []).filter((p) => p.studentId === student.id);
   const firstPayment = studentPayments[0] || null;
-  const isFullyPaid = ledger.due <= 0;
+  const isFullyPaid = (Number(ledger.due) || 0) <= 0;
 
   // Calculate days remaining or overdue
   const dueDate = ledger.dueDateStr || '';
   let daysDiffText = '';
   let isDueCritical = false;
-  if (dueDate && ledger.due > 0) {
+  if (dueDate && (Number(ledger.due) || 0) > 0) {
     const dueTime = new Date(dueDate).getTime();
-    const nowTime = new Date().getTime();
-    const diffDays = Math.ceil((dueTime - nowTime) / (1000 * 60 * 60 * 24));
-    if (diffDays < 0) {
-      daysDiffText = `Overdue (${Math.abs(diffDays)} days past due)`;
-      isDueCritical = true;
-    } else {
-      daysDiffText = `${diffDays} days remaining to pay`;
+    if (!Number.isNaN(dueTime)) {
+      const nowTime = new Date().getTime();
+      const diffDays = Math.ceil((dueTime - nowTime) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) {
+        daysDiffText = `Overdue (${Math.abs(diffDays)} days past due)`;
+        isDueCritical = true;
+      } else {
+        daysDiffText = `${diffDays} days remaining to pay`;
+      }
     }
   }
 

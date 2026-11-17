@@ -22,12 +22,13 @@ export default function ChartOfAccountsView({ db }) {
   const [search, setSearch] = useState('');
   const [typeFilter, setTypeFilter] = useState('ALL');
 
-  const coa = db.chartOfAccounts || [];
+  const coa = db?.chartOfAccounts || [];
 
   const filtered = coa.filter((a) => {
+    const q = search.toLowerCase();
     const matchesSearch =
-      a.code.toLowerCase().includes(search.toLowerCase()) ||
-      a.name.toLowerCase().includes(search.toLowerCase());
+      (a.code || '').toLowerCase().includes(q) ||
+      (a.name || '').toLowerCase().includes(q);
     const matchesType = typeFilter === 'ALL' || a.type === typeFilter;
     return matchesSearch && matchesType;
   });

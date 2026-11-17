@@ -11,9 +11,7 @@ import {
   Typography,
   Box,
   Paper,
-  Divider,
   InputAdornment,
-  Chip,
   IconButton,
   Stack,
   useTheme,
@@ -22,7 +20,6 @@ import {
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CloseIcon from '@mui/icons-material/Close';
-import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PrintIcon from '@mui/icons-material/Print';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -56,6 +53,9 @@ export default function ConnectIpsPayoutModal({
   const [completedVoucher, setCompletedVoucher] = useState(null);
 
   useEffect(() => {
+    if (open) {
+      setCompletedVoucher(null);
+    }
     if (party) {
       setToBankName(party.bankName || 'Global IME Bank');
       setToAccountNumber(party.accountNumber || '01201010049281');
@@ -73,7 +73,7 @@ export default function ConnectIpsPayoutModal({
         setRemarks(`${party.name} - Material purchase / service bill payment`);
       }
     }
-  }, [party]);
+  }, [open, party]);
 
   const handleCalculateTds = (val) => {
     const num = Number(val) || 0;
@@ -84,6 +84,7 @@ export default function ConnectIpsPayoutModal({
   };
 
   const handleProcessPayment = async () => {
+    if (!party) return;
     const payNum = Number(amount);
     if (!payNum || payNum <= 0) {
       await alert({

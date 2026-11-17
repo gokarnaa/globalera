@@ -511,16 +511,19 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
 
   // 4. Local communicationLogs (WhatsApp / SMS)
   (db.communicationLogs || []).forEach((cl) => {
+    if (cl.channel === 'Call') return;
+    const phone = cl.recipientPhone || cl.phone;
+    if (!phone) return;
     pushMessage({
       id: cl.id,
-      key: normalizePhoneKey(cl.phone),
-      phone: cl.phone,
+      key: normalizePhoneKey(phone),
+      phone,
       senderName: cl.recipientName || 'Contact',
       direction: 'outbound',
       messageType: cl.channel === 'SMS' ? 'sms' : 'text',
       status: cl.status === 'Failed' ? 'failed' : 'sent',
-      content: cl.message || '',
-      createdAt: cl.createdAt || new Date().toISOString(),
+      content: cl.messageText || cl.message || '',
+      createdAt: cl.sentAt || cl.createdAt || new Date().toISOString(),
       metaMessageId: null,
       adReferral: null
     });

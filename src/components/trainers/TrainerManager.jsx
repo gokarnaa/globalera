@@ -643,7 +643,7 @@ export default function TrainerManager() {
                     <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                       -- Select Occupation --
                     </MenuItem>
-                    {db.occupations.map((occ) => (
+                    {(db.occupations || []).map((occ) => (
                       <MenuItem key={occ.id} value={occ.id}>
                         {occ.name}
                       </MenuItem>
@@ -813,7 +813,7 @@ export default function TrainerManager() {
       {/* Trainer 360° Profile Dossier Dialog */}
       <Dialog open={Boolean(profileTrainer)} onClose={() => setProfileTrainer(null)} maxWidth="md" fullWidth>
         {profileTrainer && (() => {
-          const occ = db.occupations.find((o) => o.id === profileTrainer.occupationId);
+          const occ = (db.occupations || []).find((o) => o.id === profileTrainer.occupationId);
           const assignedGroups = (db.trainingGroups || []).filter((g) => g.trainerId === profileTrainer.id);
           const groupIds = assignedGroups.map((g) => g.id);
           const myStudents = (db.students || []).filter((s) => groupIds.includes(s.groupId));
@@ -826,7 +826,7 @@ export default function TrainerManager() {
               <DialogTitle sx={{ pb: 1, bgcolor: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                   <Avatar src={profileTrainer.photo} sx={{ width: 56, height: 56, bgcolor: '#1a9c5c', fontWeight: 800 }}>
-                    {profileTrainer.name[0]}
+                    {(profileTrainer.name || 'T')[0]}
                   </Avatar>
                   <Box sx={{ flexGrow: 1 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

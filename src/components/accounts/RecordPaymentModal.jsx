@@ -14,8 +14,6 @@ import {
   Alert,
   Paper,
   InputAdornment,
-  Divider,
-  Stack,
   Chip,
   FormControlLabel,
   Checkbox,
@@ -25,9 +23,6 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import PersonIcon from '@mui/icons-material/Person';
-import PaymentIcon from '@mui/icons-material/Payment';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import confetti from 'canvas-confetti';
@@ -76,12 +71,12 @@ export default function RecordPaymentModal({
     const grp = groups.find((g) => g.id === st.groupId);
     const crs = courses.find((c) => c.id === grp?.courseId);
 
-    const originalFee = st.originalFee || crs?.price || 30000;
-    const discountAmount = st.discountAmount || 0;
-    const discountPercent = st.discountPercent || (discountAmount > 0 ? Math.round((discountAmount / originalFee) * 100) : 0);
-    const admissionFee = st.admissionFee || 0;
+    const originalFee = Number(st.originalFee || crs?.price || 30000) || 0;
+    const discountAmount = Number(st.discountAmount) || 0;
+    const discountPercent = Number(st.discountPercent) || (discountAmount > 0 && originalFee > 0 ? Math.round((discountAmount / originalFee) * 100) : 0);
+    const admissionFee = Number(st.admissionFee) || 0;
 
-    const lockedFee = st.lockedCourseFee || (originalFee - discountAmount + admissionFee) || 15000;
+    const lockedFee = Number(st.lockedCourseFee) || Math.max(0, originalFee - discountAmount + admissionFee) || 15000;
     const paid = payments
       .filter((p) => p.studentId === sId)
       .reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
@@ -199,9 +194,9 @@ export default function RecordPaymentModal({
     }
 
     // Auto WhatsApp payment voucher / stage-based bill dispatch
-    if (sendWhatsApp && selectedStudent?.phone) {
+    if (sendWhatsApp && currentStudent?.phone) {
       const remainingDue = Math.max(0, selectedBalance.due - payNum);
-      const totalFee = Number(selectedBalance.totalFee || 0);
+      const totalFee = Number(selectedBalance.lockedFee || 0);
       const totalPaidAfter = Number(selectedBalance.paid || 0) + payNum;
       const isFinalClearance = remainingDue <= 0;
       const isAdvance = Number(selectedBalance.paid || 0) === 0 && !isFinalClearance;
@@ -213,7 +208,7 @@ export default function RecordPaymentModal({
 
       const text = `${billTitle}\n` +
         `Prabidhik School, Jorpati (CTEVT Accredited)\n\n` +
-        `Dear *${selectedStudent.name}*,\n` +
+        `Dear *${currentStudent.name}*,\n` +
         `Your fee payment of *Rs. ${payNum.toLocaleString()}* has been successfully recorded!\n\n` +
         `• *Receipt No:* ${receiptNo}\n` +
         `• *Course:* ${selectedBalance.courseName}\n` +
@@ -229,7 +224,7 @@ export default function RecordPaymentModal({
         `Thank you for training with Prabidhik School, Jorpati!`;
 
       sendMetaWhatsAppMessage({
-        to: selectedStudent.phone,
+        to: currentStudent.phone,
         type: 'text',
         text
       }).catch((e) => console.warn('Payment WhatsApp notice failed:', e));

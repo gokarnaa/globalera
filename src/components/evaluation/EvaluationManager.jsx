@@ -134,7 +134,7 @@ export default function EvaluationManager() {
     const updatedList = [newEntry, ...(db.evaluations || [])];
 
     // Also push to student timeline
-    const syl = db.syllabi.find((s) => s.id === formData.syllabusId);
+    const syl = (db.syllabi || []).find((s) => s.id === formData.syllabusId);
     const updatedTimeline = [
       {
         id: `TL-${Date.now()}`,
@@ -157,7 +157,7 @@ export default function EvaluationManager() {
     if (window.confirm('Delete this evaluation record?')) {
       const nextDb = {
         ...db,
-        evaluations: db.evaluations.filter((x) => x.id !== id)
+        evaluations: (db.evaluations || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);
@@ -180,7 +180,7 @@ export default function EvaluationManager() {
       `━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
       `📋 *Assessed Skills:*\n` +
       studentEvls.slice(0, 5).map((e, idx) => {
-        const syl = db.syllabi.find((s) => s.id === e.syllabusId);
+        const syl = (db.syllabi || []).find((s) => s.id === e.syllabusId);
         return `${idx + 1}. ${syl?.title || 'Skill'}: ${e.mastered ? '✅ Mastered' : '⏳ In Progress'}`;
       }).join('\n') +
       (studentEvls.length > 5 ? `\n...and ${studentEvls.length - 5} more assessed competencies.` : '') +
@@ -1064,7 +1064,7 @@ export default function EvaluationManager() {
                     </TableHead>
                     <TableBody>
                       {studentEvls.map((e, idx) => {
-                        const syl = db.syllabi.find((s) => s.id === e.syllabusId);
+                        const syl = (db.syllabi || []).find((s) => s.id === e.syllabusId);
                         return (
                           <TableRow key={e.id}>
                             <TableCell sx={{ textAlign: 'center', fontWeight: 700 }}>{idx + 1}</TableCell>

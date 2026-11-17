@@ -23,8 +23,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
-  Alert,
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
@@ -33,7 +31,6 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
-import HomeWorkIcon from '@mui/icons-material/HomeWork';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
@@ -198,7 +195,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
   const filteredParties = useMemo(() => {
     return parties.filter((p) => {
       const matchSearch =
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
+        (p.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (p.contactPerson || '').toLowerCase().includes(search.toLowerCase()) ||
         (p.phone || '').includes(search) ||
         (p.panNumber || '').includes(search);
@@ -721,7 +718,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                         />
                         {p.monthlyRent && (
                           <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.3 }}>
-                            Monthly Lease: Rs. {p.monthlyRent.toLocaleString()} (TDS: {p.tdsPercent || 10}%)
+                            Monthly Lease: Rs. {(Number(p.monthlyRent) || 0).toLocaleString()} (TDS: {p.tdsPercent || 10}%)
                           </Typography>
                         )}
                       </TableCell>
@@ -974,12 +971,12 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                           <Box sx={{ p: 1, mb: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #DBEAFE', fontSize: '0.76rem' }}>
                             <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.3 }}>
                               <span style={{ color: '#1E40AF', fontWeight: 700 }}>Monthly Rent:</span>
-                              <strong>Rs. {(p.monthlyRent || 50000).toLocaleString()}/Month</strong>
+                              <strong>Rs. {(Number(p.monthlyRent) || 50000).toLocaleString()}/Month</strong>
                             </Box>
                             {p.securityDeposit && (
                               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                                 <span style={{ color: '#1E40AF' }}>Security Deposit:</span>
-                                <strong>Rs. {Number(p.securityDeposit).toLocaleString()}</strong>
+                                <strong>Rs. {(Number(p.securityDeposit) || 0).toLocaleString()}</strong>
                               </Box>
                             )}
                           </Box>

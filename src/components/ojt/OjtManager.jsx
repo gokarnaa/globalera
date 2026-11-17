@@ -158,7 +158,7 @@ export default function OjtManager() {
     if (window.confirm('Delete this OJT record?')) {
       const nextDb = {
         ...db,
-        ojts: db.ojts.filter((x) => x.id !== id)
+        ojts: (db.ojts || []).filter((x) => x.id !== id)
       };
       saveDB(nextDb);
       setDb(nextDb);

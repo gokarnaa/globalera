@@ -11,7 +11,6 @@ import {
   TableHead,
   TableRow,
   Chip,
-  IconButton,
   Tabs,
   Tab,
   TextField,
@@ -20,8 +19,6 @@ import {
   Grid,
   InputAdornment,
   LinearProgress,
-  Tooltip,
-  Divider,
   Avatar,
   Badge,
   Alert
@@ -35,15 +32,10 @@ import WorkIcon from '@mui/icons-material/Work';
 import SearchIcon from '@mui/icons-material/Search';
 import PrintIcon from '@mui/icons-material/Print';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import PhoneIcon from '@mui/icons-material/Phone';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
-import TrendingUpIcon from '@mui/icons-material/TrendingUp';
-import SchoolIcon from '@mui/icons-material/School';
-import BusinessIcon from '@mui/icons-material/Business';
-import { loadDB, saveDB } from '../../services/storage';
+import { loadDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import OfficialDocumentModal from '../common/OfficialDocumentModal';
@@ -81,7 +73,7 @@ export default function ReportsManager() {
   const monthDates = useMemo(() => {
     // Generate dates for selected month that have attendance in db or standard 30 days
     const groupAtts = (db.attendances || []).filter(
-      (a) => a.groupId === selectedGroupId && a.date.startsWith(selectedMonth)
+      (a) => a.groupId === selectedGroupId && a.date && a.date.startsWith(selectedMonth)
     );
     const uniqueDates = Array.from(new Set(groupAtts.map((a) => a.date))).sort();
     if (uniqueDates.length > 0) return uniqueDates;
@@ -193,7 +185,7 @@ export default function ReportsManager() {
 
     const plannedHours = groupWorkPlans.reduce((sum, wp) => sum + (Number(wp.plannedHours) || 0), 0);
     const deliveredHours = groupLogBooks.reduce((sum, lb) => sum + (Number(lb.actualHours) || 0), 0);
-    const totalTargetHours = selectedCourse?.durationHours || 160;
+    const totalTargetHours = Number(selectedCourse?.durationHours) || 160;
 
     const unitBreakdown = availableSyllabi.map((syl) => {
       const isPlanned = groupWorkPlans.some((wp) => wp.syllabusId === syl.id);
@@ -287,7 +279,7 @@ export default function ReportsManager() {
     // Employer leaderboard
     const employerHires = {};
     groupPlacements.forEach((p) => {
-      const emp = db.employers.find((e) => e.id === p.employerId);
+      const emp = (db.employers || []).find((e) => e.id === p.employerId);
       const name = emp?.companyName || 'Private Enterprise';
       employerHires[name] = (employerHires[name] || 0) + 1;
     });
@@ -659,7 +651,7 @@ export default function ReportsManager() {
                     <TableCell sx={{ fontWeight: 800, width: 90 }}>TGID</TableCell>
                     {monthDates.map((d) => (
                       <TableCell key={d} sx={{ fontWeight: 800, textAlign: 'center', p: 0.5, fontSize: '0.7rem', minWidth: 30 }}>
-                        {d.split('-')[2]}
+                        {(d || '').split('-')[2] || d}
                       </TableCell>
                     ))}
                     <TableCell sx={{ fontWeight: 800, textAlign: 'center', width: 50 }}>P</TableCell>
@@ -674,8 +666,8 @@ export default function ReportsManager() {
                     .filter((m) => {
                       const q = searchTerm.toLowerCase();
                       return (
-                        m.student.name.toLowerCase().includes(q) ||
-                        m.student.tgid.toLowerCase().includes(q)
+                        (m.student?.name || '').toLowerCase().includes(q) ||
+                        (m.student?.tgid || '').toLowerCase().includes(q)
                       );
                     })
                     .map((item, idx) => {
@@ -807,8 +799,8 @@ export default function ReportsManager() {
                     .filter((r) => {
                       const q = searchTerm.toLowerCase();
                       return (
-                        r.student.name.toLowerCase().includes(q) ||
-                        r.student.tgid.toLowerCase().includes(q)
+                        (r.student?.name || '').toLowerCase().includes(q) ||
+                        (r.student?.tgid || '').toLowerCase().includes(q)
                       );
                     })
                     .map((item, idx) => {
@@ -1070,8 +1062,8 @@ export default function ReportsManager() {
                     .filter((item) => {
                       const q = searchTerm.toLowerCase();
                       return (
-                        item.student.name.toLowerCase().includes(q) ||
-                        item.student.tgid.toLowerCase().includes(q)
+                        (item.student?.name || '').toLowerCase().includes(q) ||
+                        (item.student?.tgid || '').toLowerCase().includes(q)
                       );
                     })
                     .map((item, idx) => (

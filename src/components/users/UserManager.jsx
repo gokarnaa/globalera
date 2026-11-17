@@ -331,7 +331,7 @@ export default function UserManager() {
       );
     } else {
       const newId = `USR-${Date.now()}`;
-      const defaultUsername = formData.username || formData.name.split(' ')[0].toLowerCase() + Math.floor(Math.random() * 90 + 10);
+      const defaultUsername = formData.username || (formData.name || 'user').trim().split(' ')[0].toLowerCase() + Math.floor(Math.random() * 90 + 10);
       nextUsers.unshift({
         id: newId,
         ...formData,

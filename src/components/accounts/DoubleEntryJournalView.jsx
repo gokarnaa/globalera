@@ -19,7 +19,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Divider,
   Paper,
   Tooltip,
   Alert,
@@ -28,7 +27,6 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import UndoIcon from '@mui/icons-material/Undo';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import SearchIcon from '@mui/icons-material/Search';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
@@ -57,9 +55,10 @@ export default function DoubleEntryJournalView({ db, setDb, showToast }) {
   const journals = db.journalEntries || [];
 
   const filteredJournals = journals.filter((j) => {
+    const q = search.toLowerCase();
     const matchesSearch =
-      j.entryNumber.toLowerCase().includes(search.toLowerCase()) ||
-      j.narration.toLowerCase().includes(search.toLowerCase());
+      (j.entryNumber || '').toLowerCase().includes(q) ||
+      (j.narration || '').toLowerCase().includes(q);
     const matchesStatus = statusFilter === 'ALL' || j.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
