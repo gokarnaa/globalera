@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -11,6 +11,9 @@ import {
   Divider,
   Paper,
   Chip,
+  Stack,
+  Alert,
+  CircularProgress,
   ToggleButton,
   ToggleButtonGroup
 } from '@mui/material';
@@ -20,7 +23,12 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ArticleIcon from '@mui/icons-material/Article';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import DrawIcon from '@mui/icons-material/Draw';
 import { QRCodeSVG } from 'qrcode.react';
+import { DigitalSignatureModal } from '../common';
+import { loadDB } from '../../services/storage';
+import { sendBillElementToWhatsApp } from '../../services/whatsappCloudApi';
 
 // ============================================================================
 // 1. NUMBER TO WORDS HELPERS (ENGLISH)
@@ -146,7 +154,9 @@ function ReceiptSlip({
   group,
   course,
   settings,
-  isCompact = false
+  isCompact = false,
+  accountantSign = '',
+  digitallySigned = true
 }) {
   const instituteName = settings?.instituteSub || 'Prabidhik School, Jorpati';
   const instituteEnglish = settings?.instituteName || 'Global Era Multi Service Pvt. Ltd.';
@@ -611,6 +621,9 @@ function ReceiptSlip({
               <OfficialAccountsStamp size={isCompact ? 64 : 76} />
             </Box>
 
+            {digitallySigned && accountantSign && (
+              <Box component="img" src={accountantSign} alt="Digital Sign" sx={{ maxHeight: isCompact ? 28 : 36, maxWidth: 120, objectFit: 'contain', mx: 'auto', display: 'block', mb: 0.25 }} />
+            )}
             <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.3, fontSize: isCompact ? '0.68rem' : '0.76rem' }}>
               {payment.receivedBy || 'Authorized Cashier'}
             </Typography>
@@ -618,8 +631,8 @@ function ReceiptSlip({
             <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: isCompact ? '0.68rem' : '0.78rem' }}>
               Authorized Accounts Dept.
             </Typography>
-            <Typography variant="caption" sx={{ display: 'block', color: '#94A3B8', fontSize: '0.6rem' }}>
-              (Authorized Cashier & Seal)
+            <Typography variant="caption" sx={{ display: 'block', color: digitallySigned && accountantSign ? '#059669' : '#94A3B8', fontWeight: digitallySigned && accountantSign ? 800 : 400, fontSize: '0.6rem' }}>
+              {digitallySigned && accountantSign ? '✓ Digitally Signed & Verified' : '(Authorized Cashier & Seal)'}
             </Typography>
           </Box>
         </Box>
@@ -649,11 +662,48 @@ export default function ReceiptModal({
 }) {
   // Available formats: 'a4-dual' (default), 'a4-single', 'thermal'
   const [format, setFormat] = useState('a4-dual');
+  const [signatures, setSignatures] = useState(() => loadDB().companyProfile?.digitalSignatures || {});
+  const [digitallySigned, setDigitallySigned] = useState(true);
+  const [signModalOpen, setSignModalOpen] = useState(false);
+  const [sendingWa, setSendingWa] = useState(false);
+  const [waFeedback, setWaFeedback] = useState(null);
+
+  useEffect(() => {
+    if (open) {
+      setSignatures(loadDB().companyProfile?.digitalSignatures || {});
+      setWaFeedback(null);
+    }
+  }, [open]);
 
   if (!payment) return null;
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSendReceiptWhatsApp = async () => {
+    const phone = student?.phone || payment.phone;
+    if (!phone) {
+      setWaFeedback({ type: 'error', text: 'Student phone number is missing.' });
+      return;
+    }
+    setSendingWa(true);
+    setWaFeedback(null);
+    try {
+      const caption = `🧾 *Official Fee Receipt (${payment.receiptNo || payment.id})*\nStudent: *${payment.studentName || student?.name || 'Trainee'}*\nAmount Paid: *Rs. ${Number(payment.amount || 0).toLocaleString()}*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`;
+      await sendBillElementToWhatsApp({
+        elementId: 'printableReceiptModalCanvas',
+        phone,
+        studentName: payment.studentName || student?.name || 'Student',
+        filename: `${payment.receiptNo || 'Receipt'}.png`,
+        caption
+      });
+      setWaFeedback({ type: 'success', text: `Signed receipt sent to ${phone} on WhatsApp!` });
+    } catch (err) {
+      setWaFeedback({ type: 'error', text: err.message });
+    } finally {
+      setSendingWa(false);
+    }
   };
 
   return (
@@ -741,7 +791,7 @@ export default function ReceiptModal({
       {/* ============================================================== */}
       {/* MODAL CONTENT: PREVIEW & PRINTABLE CANVAS                      */}
       {/* ============================================================== */}
-      <DialogContent sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#F1F5F9', display: 'flex', justifyContent: 'center' }}>
+      <DialogContent id="printableReceiptModalCanvas" sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#F1F5F9', display: 'flex', justifyContent: 'center' }}>
         {/* Dedicated Print Media Stylesheet */}
         <style>
           {`
@@ -800,6 +850,8 @@ export default function ReceiptModal({
               course={course}
               settings={settings}
               isCompact={true}
+              accountantSign={signatures.accountantSign}
+              digitallySigned={digitallySigned}
             />
 
             {/* Perforation / Scissor Dividing Line */}
@@ -846,6 +898,8 @@ export default function ReceiptModal({
               course={course}
               settings={settings}
               isCompact={true}
+              accountantSign={signatures.accountantSign}
+              digitallySigned={digitallySigned}
             />
           </Paper>
         )}
@@ -872,6 +926,8 @@ export default function ReceiptModal({
               course={course}
               settings={settings}
               isCompact={false}
+              accountantSign={signatures.accountantSign}
+              digitallySigned={digitallySigned}
             />
           </Paper>
         )}
@@ -949,6 +1005,12 @@ export default function ReceiptModal({
         )}
       </DialogContent>
 
+      {waFeedback && (
+        <Alert className="no-print" severity={waFeedback.type} onClose={() => setWaFeedback(null)} sx={{ mx: 2, my: 1 }}>
+          {waFeedback.text}
+        </Alert>
+      )}
+
       {/* ============================================================== */}
       {/* MODAL FOOTER ACTIONS                                           */}
       {/* ============================================================== */}
@@ -959,36 +1021,74 @@ export default function ReceiptModal({
           py: 2,
           bgcolor: '#FFFFFF',
           borderTop: '1px solid #E2E8F0',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 1
         }}
       >
-        <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
-          Close
-        </Button>
+        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+            Close
+          </Button>
+          <Chip
+            size="small"
+            icon={<VerifiedUserIcon sx={{ fontSize: 15 }} />}
+            label={digitallySigned ? 'Digitally Signed' : 'Sign OFF'}
+            onClick={() => setDigitallySigned((p) => !p)}
+            color={digitallySigned ? 'success' : 'default'}
+            sx={{ cursor: 'pointer', fontWeight: 700 }}
+          />
+          <Button size="small" variant="outlined" startIcon={<DrawIcon />} onClick={() => setSignModalOpen(true)}>
+            Manage Sign
+          </Button>
+        </Stack>
 
-        <Button
-          onClick={handlePrint}
-          variant="contained"
-          startIcon={<PrintIcon />}
-          sx={{
-            background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
-            fontWeight: 800,
-            px: 3.5,
-            py: 1.1,
-            borderRadius: 2.5,
-            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%)'
-            }
-          }}
-        >
-          {format === 'a4-dual'
-            ? 'Print A4 Dual Copy (2-in-1)'
-            : format === 'a4-single'
-            ? 'Print A4 Single Copy'
-            : 'Print Thermal Receipt (POS 80mm)'}
-        </Button>
+        <Stack direction="row" spacing={1.25} flexWrap="wrap">
+          <Button
+            onClick={handleSendReceiptWhatsApp}
+            disabled={sendingWa}
+            variant="contained"
+            startIcon={sendingWa ? <CircularProgress size={15} color="inherit" /> : <WhatsAppIcon />}
+            sx={{
+              bgcolor: '#16A34A',
+              '&:hover': { bgcolor: '#15803D' },
+              fontWeight: 800,
+              px: 2.5,
+              borderRadius: 2.5
+            }}
+          >
+            {sendingWa ? 'Sending...' : 'Send on WhatsApp'}
+          </Button>
+          <Button
+            onClick={handlePrint}
+            variant="contained"
+            startIcon={<PrintIcon />}
+            sx={{
+              background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
+              fontWeight: 800,
+              px: 3,
+              py: 1.1,
+              borderRadius: 2.5,
+              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%)'
+              }
+            }}
+          >
+            {format === 'a4-dual'
+              ? 'Print A4 Dual Copy (2-in-1)'
+              : format === 'a4-single'
+              ? 'Print A4 Single Copy'
+              : 'Print Thermal Receipt (POS 80mm)'}
+          </Button>
+        </Stack>
       </DialogActions>
+
+      <DigitalSignatureModal
+        open={signModalOpen}
+        onClose={() => setSignModalOpen(false)}
+        onSaved={(sigs) => setSignatures(sigs)}
+      />
     </Dialog>
   );
 }

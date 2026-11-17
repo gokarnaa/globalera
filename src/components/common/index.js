@@ -1,4 +1,5 @@
 export { default as AppDialog } from './AppDialog';
+export { default as DigitalSignatureModal } from './DigitalSignatureModal';
 export { default as EntityCard } from './EntityCard';
 export { default as FormSection } from './FormSection';
 export { default as ResponsiveDataView } from './ResponsiveDataView';

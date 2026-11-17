@@ -558,3 +558,64 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
     totalUnread
   };
 }
+
+/**
+ * Capture a printable Bill/Receipt DOM element as an HD PNG using html2canvas
+ * and send it directly to the student's WhatsApp via /api/whatsapp-send-media.
+ */
+export async function sendBillElementToWhatsApp({
+  elementId,
+  phone,
+  studentName = 'Student',
+  filename = 'Official_Bill.png',
+  caption = ''
+}) {
+  const recipient = formatToWhatsAppRecipient(phone);
+  if (!recipient) throw new Error('Student phone number is missing or invalid.');
+
+  const el = document.getElementById(elementId);
+  if (!el) throw new Error('Printable bill element not found.');
+
+  const { default: html2canvas } = await import('html2canvas');
+  const canvas = await html2canvas(el, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#FFFFFF'
+  });
+  const imageBase64 = canvas.toDataURL('image/png');
+  const settings = getWhatsAppSettings();
+
+  const res = await fetch('/api/whatsapp-send-media', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      to: recipient,
+      imageBase64,
+      caption,
+      filename,
+      phoneNumberId: settings.phoneNumberId,
+      accessToken: settings.accessToken
+    })
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data?.ok) {
+    // Graceful fallback to text summary if media proxy endpoint is unavailable (e.g. local dev without vercel dev)
+    if (caption) {
+      return sendMetaWhatsAppMessage({ to: phone, type: 'text', text: caption });
+    }
+    throw new Error(data?.error || 'Failed to send bill image via WhatsApp.');
+  }
+
+  logWhatsAppMessage({
+    phone: recipient,
+    recipientName: studentName,
+    direction: 'outbound',
+    messageType: 'bill_image',
+    status: 'sent',
+    content: caption || `[Signed Bill Sent: ${filename}]`,
+    metaMessageId: data.messageId || null
+  });
+
+  return data;
+}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,6 +9,9 @@ import {
   Typography,
   Stack,
   IconButton,
+  Chip,
+  Alert,
+  CircularProgress,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -16,7 +19,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import DrawIcon from '@mui/icons-material/Draw';
 import { QRCodeSVG } from 'qrcode.react';
+import { DigitalSignatureModal } from '../common';
+import { loadDB } from '../../services/storage';
+import { sendBillElementToWhatsApp } from '../../services/whatsappCloudApi';
 
 // Official Global Era Technical Crest
 const OfficialSeal = () => (
@@ -40,10 +48,51 @@ const OfficialSeal = () => (
 export default function FeeClearanceReceiptModal({ open, onClose, student, ledger, payments = [] }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const [signatures, setSignatures] = useState(() => loadDB().companyProfile?.digitalSignatures || {});
+  const [digitallySigned, setDigitallySigned] = useState(true);
+  const [signModalOpen, setSignModalOpen] = useState(false);
+  const [sendingWa, setSendingWa] = useState(false);
+  const [waFeedback, setWaFeedback] = useState(null);
+
+  useEffect(() => {
+    if (open) {
+      setSignatures(loadDB().companyProfile?.digitalSignatures || {});
+      setWaFeedback(null);
+    }
+  }, [open]);
+
   if (!student || !ledger) return null;
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleSendBillWhatsApp = async () => {
+    if (!student?.phone) {
+      setWaFeedback({ type: 'error', text: 'Student phone number is missing.' });
+      return;
+    }
+    setSendingWa(true);
+    setWaFeedback(null);
+    try {
+      const due = Number(ledger?.due || 0);
+      const caption =
+        due <= 0
+          ? `🎉 *OFFICIAL FINAL FEE CLEARANCE BILL*\nStudent: *${student.name}*\nCourse: *${ledger.courseName || 'Vocational Course'}*\nTotal Paid: *Rs. ${Number(ledger.paid || 0).toLocaleString()}*\nStatus: *PAID IN FULL / CLEARED*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`
+          : `🧾 *OFFICIAL FEE STATEMENT & RECEIPT*\nStudent: *${student.name}*\nPaid: *Rs. ${Number(ledger.paid || 0).toLocaleString()}* | Due: *Rs. ${due.toLocaleString()}*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`;
+      await sendBillElementToWhatsApp({
+        elementId: 'printableFeeClearanceCanvas',
+        phone: student.phone,
+        studentName: student.name,
+        filename: `${clearanceCertificateNo}.png`,
+        caption
+      });
+      setWaFeedback({ type: 'success', text: `Signed bill sent to ${student.name} (${student.phone}) on WhatsApp!` });
+    } catch (err) {
+      setWaFeedback({ type: 'error', text: err.message });
+    } finally {
+      setSendingWa(false);
+    }
   };
 
   const todayStr = new Date().toISOString().slice(0, 10);
@@ -320,13 +369,22 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', px: 3 }}>
               {/* Accountant Signature */}
               <Box sx={{ textAlign: 'center', width: '200px' }}>
-                <Box sx={{ borderBottom: '1.5px dashed #475569', height: '35px', mb: 0.8 }}></Box>
+                <Box sx={{ borderBottom: '1.5px dashed #475569', height: '48px', mb: 0.8, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', pb: 0.3 }}>
+                  {digitallySigned && signatures.accountantSign && (
+                    <Box component="img" src={signatures.accountantSign} alt="Accountant Sign" sx={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} />
+                  )}
+                </Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.85rem' }}>
-                  Finance Officer
+                  {signatures.accountantName || 'Finance Officer'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
                   Prabidhik School, Jorpati
                 </Typography>
+                {digitallySigned && signatures.accountantSign && (
+                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, fontSize: '0.62rem' }}>
+                    ✓ Digitally Signed
+                  </Typography>
+                )}
               </Box>
 
               {/* QR Code and Center Seal */}
@@ -341,26 +399,61 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
 
               {/* Principal Signature */}
               <Box sx={{ textAlign: 'center', width: '200px' }}>
-                <Box sx={{ borderBottom: '1.5px dashed #475569', height: '35px', mb: 0.8 }}></Box>
+                <Box sx={{ borderBottom: '1.5px dashed #475569', height: '48px', mb: 0.8, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', pb: 0.3 }}>
+                  {digitallySigned && signatures.principalSign && (
+                    <Box component="img" src={signatures.principalSign} alt="Principal Sign" sx={{ maxHeight: 44, maxWidth: 160, objectFit: 'contain' }} />
+                  )}
+                </Box>
                 <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '0.85rem' }}>
-                  Principal / Director
+                  {signatures.principalName || 'Principal / Director'}
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748b' }}>
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block' }}>
                   With Official Seal
                 </Typography>
+                {digitallySigned && signatures.principalSign && (
+                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, fontSize: '0.62rem' }}>
+                    ✓ Digitally Signed
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
         </Box>
       </DialogContent>
 
-      <DialogActions className="no-print" sx={{ p: 2, bgcolor: '#ffffff', borderTop: '1px solid #e2e8f0', justifyContent: 'space-between' }}>
-        <Typography variant="caption" sx={{ color: '#64748b' }}>
-          * This certificate must be issued to the student prior to examinations and certificate issuance.
-        </Typography>
-        <Stack direction="row" spacing={1.5}>
+      {waFeedback && (
+        <Alert className="no-print" severity={waFeedback.type} onClose={() => setWaFeedback(null)} sx={{ mx: 2, my: 1 }}>
+          {waFeedback.text}
+        </Alert>
+      )}
+
+      <DialogActions className="no-print" sx={{ p: 2, bgcolor: '#ffffff', borderTop: '1px solid #e2e8f0', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+          <Chip
+            size="small"
+            icon={<VerifiedIcon sx={{ fontSize: 15 }} />}
+            label={digitallySigned ? 'Digitally Signed: ON' : 'Digitally Signed: OFF'}
+            onClick={() => setDigitallySigned((p) => !p)}
+            color={digitallySigned ? 'success' : 'default'}
+            variant={digitallySigned ? 'filled' : 'outlined'}
+            sx={{ cursor: 'pointer', fontWeight: 700 }}
+          />
+          <Button size="small" variant="outlined" startIcon={<DrawIcon />} onClick={() => setSignModalOpen(true)}>
+            Manage Digital Sign
+          </Button>
+        </Stack>
+        <Stack direction="row" spacing={1.25} flexWrap="wrap">
           <Button onClick={onClose} color="inherit">
             Close
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={sendingWa ? <CircularProgress size={15} color="inherit" /> : <WhatsAppIcon />}
+            onClick={handleSendBillWhatsApp}
+            disabled={sendingWa}
+            sx={{ bgcolor: '#16A34A', '&:hover': { bgcolor: '#15803D' }, fontWeight: 800 }}
+          >
+            {sendingWa ? 'Sending...' : 'Send on WhatsApp'}
           </Button>
           <Button
             variant="contained"
@@ -373,6 +466,12 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
           </Button>
         </Stack>
       </DialogActions>
+
+      <DigitalSignatureModal
+        open={signModalOpen}
+        onClose={() => setSignModalOpen(false)}
+        onSaved={(sigs) => setSignatures(sigs)}
+      />
 
       {/* Embedded CSS for Exact A4 Portrait Print */}
       <style>{`
