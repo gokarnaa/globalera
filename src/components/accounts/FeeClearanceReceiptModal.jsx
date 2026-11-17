@@ -50,6 +50,7 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [signatures, setSignatures] = useState(() => loadDB().companyProfile?.digitalSignatures || {});
   const [digitallySigned, setDigitallySigned] = useState(true);
+  const [showStamp, setShowStamp] = useState(true);
   const [signModalOpen, setSignModalOpen] = useState(false);
   const [sendingWa, setSendingWa] = useState(false);
   const [waFeedback, setWaFeedback] = useState(null);
@@ -388,7 +389,22 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
               </Box>
 
               {/* QR Code and Center Seal */}
-              <Box sx={{ textAlign: 'center' }}>
+              <Box sx={{ textAlign: 'center', position: 'relative' }}>
+                {showStamp && signatures.stampImage && (
+                  <Box
+                    component="img"
+                    src={signatures.stampImage}
+                    alt="Official Institute Stamp"
+                    sx={{
+                      maxHeight: 68,
+                      maxWidth: 110,
+                      objectFit: 'contain',
+                      mx: 'auto',
+                      mb: 0.5,
+                      display: 'block'
+                    }}
+                  />
+                )}
                 <Box sx={{ bgcolor: '#ffffff', p: 0.5, border: '1px solid #cbd5e1', borderRadius: 1, display: 'inline-block', mb: 0.5 }}>
                   <QRCodeSVG value={verifyUrl} size={64} level="M" />
                 </Box>
@@ -438,8 +454,16 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
             variant={digitallySigned ? 'filled' : 'outlined'}
             sx={{ cursor: 'pointer', fontWeight: 700 }}
           />
+          <Chip
+            size="small"
+            label={showStamp ? 'Stamp: ON' : 'Stamp: OFF'}
+            onClick={() => setShowStamp((p) => !p)}
+            color={showStamp ? 'primary' : 'default'}
+            variant={showStamp ? 'filled' : 'outlined'}
+            sx={{ cursor: 'pointer', fontWeight: 700 }}
+          />
           <Button size="small" variant="outlined" startIcon={<DrawIcon />} onClick={() => setSignModalOpen(true)}>
-            Manage Digital Sign
+            Manage Sign & Stamp
           </Button>
         </Stack>
         <Stack direction="row" spacing={1.25} flexWrap="wrap">

@@ -33,11 +33,12 @@ export default function DigitalSignatureModal({ open, onClose, onSaved }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [roleTab, setRoleTab] = useState(0); // 0 = Accountant, 1 = Principal
+  const [roleTab, setRoleTab] = useState(0); // 0 = Accountant, 1 = Principal, 2 = Official Stamp
   const [accountantName, setAccountantName] = useState('');
   const [principalName, setPrincipalName] = useState('');
   const [accountantSign, setAccountantSign] = useState('');
   const [principalSign, setPrincipalSign] = useState('');
+  const [stampImage, setStampImage] = useState('');
   const [saving, setSaving] = useState(false);
   const [statusMsg, setStatusMsg] = useState(null);
 
@@ -52,11 +53,12 @@ export default function DigitalSignatureModal({ open, onClose, onSaved }) {
     setPrincipalName(sigs.principalName || 'Principal / Director');
     setAccountantSign(sigs.accountantSign || '');
     setPrincipalSign(sigs.principalSign || '');
+    setStampImage(sigs.stampImage || '');
     setStatusMsg(null);
   }, [open]);
 
-  const activeSign = roleTab === 0 ? accountantSign : principalSign;
-  const setActiveSign = roleTab === 0 ? setAccountantSign : setPrincipalSign;
+  const activeSign = roleTab === 0 ? accountantSign : roleTab === 1 ? principalSign : stampImage;
+  const setActiveSign = roleTab === 0 ? setAccountantSign : roleTab === 1 ? setPrincipalSign : setStampImage;
 
   const getPoint = (e) => {
     const canvas = canvasRef.current;
@@ -136,6 +138,7 @@ export default function DigitalSignatureModal({ open, onClose, onSaved }) {
           principalName: principalName.trim() || 'Principal / Director',
           accountantSign,
           principalSign,
+          stampImage,
           updatedAt: new Date().toISOString()
         }
       };
@@ -187,55 +190,79 @@ export default function DigitalSignatureModal({ open, onClose, onSaved }) {
 
       <DialogContent sx={{ bgcolor: '#F8FAFC', p: { xs: 2, sm: 2.5 }, display: 'flex', flexDirection: 'column', gap: 2 }}>
         <Tabs value={roleTab} onChange={(_, v) => setRoleTab(v)} variant="fullWidth">
-          <Tab label="Accountant / Cashier Sign" />
-          <Tab label="Principal / Director Sign" />
+          <Tab label="Accountant Sign" />
+          <Tab label="Principal Sign" />
+          <Tab label="Official Stamp / Seal" />
         </Tabs>
 
         <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          <TextField
-            size="small"
-            label={roleTab === 0 ? 'Accountant Name / Title' : 'Principal / Director Name'}
-            value={roleTab === 0 ? accountantName : principalName}
-            onChange={(e) => (roleTab === 0 ? setAccountantName(e.target.value) : setPrincipalName(e.target.value))}
-          />
-
-          <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700 }}>
-            Draw signature below (mouse or touch) OR upload a transparent PNG:
-          </Typography>
-
-          <Box
-            sx={{
-              border: '1.5px dashed #94A3B8',
-              borderRadius: 2,
-              bgcolor: '#F8FAFC',
-              overflow: 'hidden',
-              touchAction: 'none'
-            }}
-          >
-            <canvas
-              ref={canvasRef}
-              width={460}
-              height={150}
-              onMouseDown={handleStartDraw}
-              onMouseMove={handleMoveDraw}
-              onMouseUp={handleEndDraw}
-              onMouseLeave={handleEndDraw}
-              onTouchStart={handleStartDraw}
-              onTouchMove={handleMoveDraw}
-              onTouchEnd={handleEndDraw}
-              style={{ width: '100%', height: 140, display: 'block', cursor: 'crosshair' }}
+          {roleTab < 2 && (
+            <TextField
+              size="small"
+              label={roleTab === 0 ? 'Accountant Name / Title' : 'Principal / Director Name'}
+              value={roleTab === 0 ? accountantName : principalName}
+              onChange={(e) => (roleTab === 0 ? setAccountantName(e.target.value) : setPrincipalName(e.target.value))}
             />
-          </Box>
+          )}
 
-          <Stack direction="row" spacing={1} flexWrap="wrap">
-            <Button size="small" variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={handleClearCanvas}>
-              Clear
-            </Button>
-            <Button size="small" variant="outlined" component="label" startIcon={<UploadFileIcon />}>
-              Upload PNG Sign
-              <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleUploadPng} />
-            </Button>
-          </Stack>
+          {roleTab === 2 ? (
+            <>
+              <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700 }}>
+                Upload your institute&apos;s Official Round / Rectangular Stamp (transparent PNG recommended). You can toggle it ON or OFF on any bill.
+              </Typography>
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Button size="small" variant="contained" component="label" startIcon={<UploadFileIcon />}>
+                  Upload Stamp PNG
+                  <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleUploadPng} />
+                </Button>
+                {stampImage && (
+                  <Button size="small" variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={() => setStampImage('')}>
+                    Remove Stamp
+                  </Button>
+                )}
+              </Stack>
+            </>
+          ) : (
+            <>
+              <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700 }}>
+                Draw signature below (mouse or touch) OR upload a transparent PNG:
+              </Typography>
+
+              <Box
+                sx={{
+                  border: '1.5px dashed #94A3B8',
+                  borderRadius: 2,
+                  bgcolor: '#F8FAFC',
+                  overflow: 'hidden',
+                  touchAction: 'none'
+                }}
+              >
+                <canvas
+                  ref={canvasRef}
+                  width={460}
+                  height={150}
+                  onMouseDown={handleStartDraw}
+                  onMouseMove={handleMoveDraw}
+                  onMouseUp={handleEndDraw}
+                  onMouseLeave={handleEndDraw}
+                  onTouchStart={handleStartDraw}
+                  onTouchMove={handleMoveDraw}
+                  onTouchEnd={handleEndDraw}
+                  style={{ width: '100%', height: 140, display: 'block', cursor: 'crosshair' }}
+                />
+              </Box>
+
+              <Stack direction="row" spacing={1} flexWrap="wrap">
+                <Button size="small" variant="outlined" color="error" startIcon={<DeleteOutlineIcon />} onClick={handleClearCanvas}>
+                  Clear
+                </Button>
+                <Button size="small" variant="outlined" component="label" startIcon={<UploadFileIcon />}>
+                  Upload PNG Sign
+                  <input type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={handleUploadPng} />
+                </Button>
+              </Stack>
+            </>
+          )}
 
           {activeSign && (
             <Box sx={{ p: 1.25, borderRadius: 2, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>

@@ -156,7 +156,9 @@ function ReceiptSlip({
   settings,
   isCompact = false,
   accountantSign = '',
-  digitallySigned = true
+  digitallySigned = true,
+  stampImage = '',
+  showStamp = true
 }) {
   const instituteName = settings?.instituteSub || 'Prabidhik School, Jorpati';
   const instituteEnglish = settings?.instituteName || 'Global Era Multi Service Pvt. Ltd.';
@@ -616,10 +618,21 @@ function ReceiptSlip({
 
           {/* Right: Cashier / Accounts Stamp & Signature */}
           <Box sx={{ textAlign: 'center', width: isCompact ? 140 : 180, position: 'relative' }}>
-            {/* Realistically Positioned Circular Stamp */}
-            <Box sx={{ position: 'absolute', top: isCompact ? -46 : -56, left: isCompact ? 2 : 10, pointerEvents: 'none' }}>
-              <OfficialAccountsStamp size={isCompact ? 64 : 76} />
-            </Box>
+            {/* Realistically Positioned Stamp (Uploaded Official Stamp or Default SVG Seal) */}
+            {showStamp && (
+              <Box sx={{ position: 'absolute', top: isCompact ? -46 : -56, left: isCompact ? 2 : 10, pointerEvents: 'none' }}>
+                {stampImage ? (
+                  <Box
+                    component="img"
+                    src={stampImage}
+                    alt="Official Stamp"
+                    sx={{ maxHeight: isCompact ? 56 : 68, maxWidth: isCompact ? 80 : 96, objectFit: 'contain', opacity: 0.9 }}
+                  />
+                ) : (
+                  <OfficialAccountsStamp size={isCompact ? 64 : 76} />
+                )}
+              </Box>
+            )}
 
             {digitallySigned && accountantSign && (
               <Box component="img" src={accountantSign} alt="Digital Sign" sx={{ maxHeight: isCompact ? 28 : 36, maxWidth: 120, objectFit: 'contain', mx: 'auto', display: 'block', mb: 0.25 }} />
@@ -664,6 +677,7 @@ export default function ReceiptModal({
   const [format, setFormat] = useState('a4-dual');
   const [signatures, setSignatures] = useState(() => loadDB().companyProfile?.digitalSignatures || {});
   const [digitallySigned, setDigitallySigned] = useState(true);
+  const [showStamp, setShowStamp] = useState(true);
   const [signModalOpen, setSignModalOpen] = useState(false);
   const [sendingWa, setSendingWa] = useState(false);
   const [waFeedback, setWaFeedback] = useState(null);
@@ -852,6 +866,8 @@ export default function ReceiptModal({
               isCompact={true}
               accountantSign={signatures.accountantSign}
               digitallySigned={digitallySigned}
+              stampImage={signatures.stampImage}
+              showStamp={showStamp}
             />
 
             {/* Perforation / Scissor Dividing Line */}
@@ -900,6 +916,8 @@ export default function ReceiptModal({
               isCompact={true}
               accountantSign={signatures.accountantSign}
               digitallySigned={digitallySigned}
+              stampImage={signatures.stampImage}
+              showStamp={showStamp}
             />
           </Paper>
         )}
@@ -928,6 +946,8 @@ export default function ReceiptModal({
               isCompact={false}
               accountantSign={signatures.accountantSign}
               digitallySigned={digitallySigned}
+              stampImage={signatures.stampImage}
+              showStamp={showStamp}
             />
           </Paper>
         )}
@@ -1033,13 +1053,21 @@ export default function ReceiptModal({
           <Chip
             size="small"
             icon={<VerifiedUserIcon sx={{ fontSize: 15 }} />}
-            label={digitallySigned ? 'Digitally Signed' : 'Sign OFF'}
+            label={digitallySigned ? 'Digitally Signed: ON' : 'Sign: OFF'}
             onClick={() => setDigitallySigned((p) => !p)}
             color={digitallySigned ? 'success' : 'default'}
             sx={{ cursor: 'pointer', fontWeight: 700 }}
           />
+          <Chip
+            size="small"
+            label={showStamp ? 'Stamp: ON' : 'Stamp: OFF'}
+            onClick={() => setShowStamp((p) => !p)}
+            color={showStamp ? 'primary' : 'default'}
+            variant={showStamp ? 'filled' : 'outlined'}
+            sx={{ cursor: 'pointer', fontWeight: 700 }}
+          />
           <Button size="small" variant="outlined" startIcon={<DrawIcon />} onClick={() => setSignModalOpen(true)}>
-            Manage Sign
+            Sign & Stamp
           </Button>
         </Stack>
 
