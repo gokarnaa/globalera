@@ -18,7 +18,13 @@ import {
   TableRow,
   Alert,
   CircularProgress,
-  Grid
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  IconButton,
+  Stack
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -29,15 +35,23 @@ import SearchIcon from '@mui/icons-material/Search';
 import DownloadIcon from '@mui/icons-material/Download';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import TranslateIcon from '@mui/icons-material/Translate';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
-import { loadDB, saveDB, logCommunication } from '../../services/storage';
+import { loadDB, logCommunication } from '../../services/storage';
 import {
   fetchRemoteWhatsAppData,
   buildWhatsAppHubState,
   sendMetaWhatsAppMessage,
   sendWhatsAppAbsenceAlertDirect,
-  getWhatsAppSettings
+  getWhatsAppSettings,
+  getWhatsAppTemplates,
+  saveWhatsAppTemplates,
+  resetWhatsAppTemplates
 } from '../../services/whatsappCloudApi';
 
 const STATUS_TONE = {
@@ -63,10 +77,16 @@ export default function WhatsAppHubManager() {
   // Broadcast state
   const [broadcastGroup, setBroadcastGroup] = useState('DUE_STUDENTS');
   const [broadcastText, setBroadcastText] = useState(
-    'Namaste! This is an update from Prabidhik School (Global Era Technical School), Jorpati. Contact 014910715 for any queries.'
+    'नमस्ते! ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) बाट महत्वपूर्ण जानकारी। सम्पर्क: 01-4910715 / 9803614574'
   );
   const [broadcasting, setBroadcasting] = useState(false);
   const [broadcastResult, setBroadcastResult] = useState(null);
+
+  // Custom Nepali Templates state
+  const [templates, setTemplates] = useState(() => getWhatsAppTemplates());
+  const [tplSearch, setTplSearch] = useState('');
+  const [tplDialogOpen, setTplDialogOpen] = useState(false);
+  const [editingTpl, setEditingTpl] = useState({ key: '', title: '', category: 'Custom', slashCmd: '', body: '', isSystem: false });
 
   const waSettings = useMemo(() => getWhatsAppSettings(), [db]);
 
@@ -74,6 +94,7 @@ export default function WhatsAppHubManager() {
     setRefreshing(true);
     try {
       setDb(loadDB());
+      setTemplates(getWhatsAppTemplates());
       const remote = await fetchRemoteWhatsAppData();
       setRemoteData(remote);
     } finally {
@@ -298,6 +319,7 @@ export default function WhatsAppHubManager() {
           <Tab icon={<FactCheckIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`Message Tracking (${hubState.auditLogs.length})`} />
           <Tab icon={<CampaignIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`FB Ad Inquiries (${fbAdThreads.length})`} />
           <Tab icon={<SendIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Broadcast & Bot Info" />
+          <Tab icon={<TranslateIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`Nepali Templates (${templates.length})`} />
         </Tabs>
       </Paper>
 
@@ -610,6 +632,234 @@ export default function WhatsAppHubManager() {
           </Grid>
         </Grid>
       )}
+
+      {/* TAB 4: Custom Editable Nepali Templates Studio */}
+      {activeTab === 4 && (
+        <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1.25, mb: 2, alignItems: 'center', justifyContent: 'space-between' }}>
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                Custom Nepali WhatsApp Message Templates
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#64748B' }}>
+                Customize system messages, /slash commands, or add new templates. Changes sync across receipts, leads, and WhatsApp Hub.
+              </Typography>
+            </Box>
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              <TextField
+                size="small"
+                placeholder="Search templates..."
+                value={tplSearch}
+                onChange={(e) => setTplSearch(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ fontSize: 17, color: '#64748B' }} />
+                    </InputAdornment>
+                  )
+                }}
+              />
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<RestartAltIcon />}
+                onClick={() => {
+                  const reset = resetWhatsAppTemplates();
+                  setTemplates(reset);
+                }}
+              >
+                Reset Defaults
+              </Button>
+              <Button
+                size="small"
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  setEditingTpl({
+                    key: `custom_${Date.now()}`,
+                    title: '',
+                    category: 'Custom',
+                    slashCmd: '',
+                    body: '',
+                    isSystem: false
+                  });
+                  setTplDialogOpen(true);
+                }}
+                sx={{ fontWeight: 800 }}
+              >
+                Add Template
+              </Button>
+            </Stack>
+          </Box>
+
+          <Grid container spacing={1.5}>
+            {templates
+              .filter((t) => {
+                const q = tplSearch.trim().toLowerCase();
+                if (!q) return true;
+                return (
+                  (t.title || '').toLowerCase().includes(q) ||
+                  (t.category || '').toLowerCase().includes(q) ||
+                  (t.body || '').toLowerCase().includes(q) ||
+                  (t.slashCmd || '').toLowerCase().includes(q)
+                );
+              })
+              .map((tpl) => (
+                <Grid item xs={12} md={6} key={tpl.key}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.5,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0',
+                      borderLeft: `4px solid ${tpl.isSystem ? '#0F2C59' : '#16A34A'}`,
+                      bgcolor: '#F8FAFC',
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                      gap: 1
+                    }}
+                  >
+                    <Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, mb: 0.75 }}>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                            {tpl.title}
+                          </Typography>
+                          <Box sx={{ display: 'flex', gap: 0.5, mt: 0.25, flexWrap: 'wrap' }}>
+                            <Chip size="small" label={tpl.category || 'General'} sx={{ height: 20, fontSize: '0.66rem', fontWeight: 700 }} />
+                            {tpl.slashCmd && (
+                              <Chip size="small" label={tpl.slashCmd} color="primary" sx={{ height: 20, fontSize: '0.66rem', fontWeight: 800 }} />
+                            )}
+                            <StatusBadge label={tpl.isSystem ? 'System' : 'Custom'} tone={tpl.isSystem ? 'info' : 'success'} />
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                          <IconButton
+                            size="small"
+                            aria-label="Edit template"
+                            onClick={() => {
+                              setEditingTpl({ ...tpl });
+                              setTplDialogOpen(true);
+                            }}
+                            sx={{ bgcolor: '#EFF6FF', color: '#0F2C59' }}
+                          >
+                            <EditIcon fontSize="small" />
+                          </IconButton>
+                          {!tpl.isSystem && (
+                            <IconButton
+                              size="small"
+                              aria-label="Delete template"
+                              onClick={() => {
+                                const next = templates.filter((item) => item.key !== tpl.key);
+                                saveWhatsAppTemplates(next);
+                                setTemplates(next);
+                              }}
+                              sx={{ bgcolor: '#FEF2F2', color: '#DC2626' }}
+                            >
+                              <DeleteOutlineIcon fontSize="small" />
+                            </IconButton>
+                          )}
+                        </Box>
+                      </Box>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          whiteSpace: 'pre-wrap',
+                          fontSize: '0.78rem',
+                          color: '#334155',
+                          bgcolor: '#FFFFFF',
+                          p: 1,
+                          borderRadius: 1.5,
+                          border: '1px solid #E2E8F0',
+                          maxHeight: 130,
+                          overflowY: 'auto'
+                        }}
+                      >
+                        {tpl.body}
+                      </Typography>
+                    </Box>
+                  </Paper>
+                </Grid>
+              ))}
+          </Grid>
+        </Paper>
+      )}
+
+      {/* Edit / Add Custom Template Dialog */}
+      <Dialog open={tplDialogOpen} onClose={() => setTplDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', fontWeight: 800 }}>
+          {editingTpl.isSystem ? `Edit System Template: ${editingTpl.title}` : 'Create / Edit Custom Nepali Template'}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <TextField
+            size="small"
+            label="Template Title"
+            required
+            value={editingTpl.title}
+            onChange={(e) => setEditingTpl({ ...editingTpl, title: e.target.value })}
+          />
+          <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.25 }}>
+            <TextField
+              size="small"
+              label="Category"
+              value={editingTpl.category}
+              onChange={(e) => setEditingTpl({ ...editingTpl, category: e.target.value })}
+            />
+            <TextField
+              size="small"
+              label="Slash Shortcut (Optional, e.g. /offer)"
+              value={editingTpl.slashCmd || ''}
+              onChange={(e) => setEditingTpl({ ...editingTpl, slashCmd: e.target.value })}
+            />
+          </Box>
+          <Box>
+            <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, display: 'block', mb: 0.5 }}>
+              Click to insert smart placeholder:
+            </Typography>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {['{name}', '{course}', '{amount}', '{totalFee}', '{paid}', '{due}', '{receiptNo}', '{date}', '{tgid}', '{verifyUrl}'].map((ph) => (
+                <Chip
+                  key={ph}
+                  size="small"
+                  label={ph}
+                  onClick={() => setEditingTpl({ ...editingTpl, body: `${editingTpl.body || ''}${ph}` })}
+                  sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
+                />
+              ))}
+            </Box>
+          </Box>
+          <TextField
+            size="small"
+            multiline
+            rows={7}
+            label="Nepali Message Body"
+            required
+            value={editingTpl.body}
+            onChange={(e) => setEditingTpl({ ...editingTpl, body: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setTplDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            disabled={!editingTpl.title.trim() || !editingTpl.body.trim()}
+            onClick={() => {
+              const exists = templates.some((t) => t.key === editingTpl.key);
+              const next = exists
+                ? templates.map((t) => (t.key === editingTpl.key ? editingTpl : t))
+                : [editingTpl, ...templates];
+              saveWhatsAppTemplates(next);
+              setTemplates(next);
+              setTplDialogOpen(false);
+            }}
+            sx={{ fontWeight: 800 }}
+          >
+            Save Template
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

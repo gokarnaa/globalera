@@ -24,7 +24,7 @@ import DrawIcon from '@mui/icons-material/Draw';
 import { QRCodeSVG } from 'qrcode.react';
 import { DigitalSignatureModal } from '../common';
 import { loadDB } from '../../services/storage';
-import { sendBillElementToWhatsApp } from '../../services/whatsappCloudApi';
+import { sendBillElementToWhatsApp, renderWhatsAppTemplate } from '../../services/whatsappCloudApi';
 
 // Official Global Era Technical Crest
 const OfficialSeal = () => (
@@ -77,10 +77,18 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
     setWaFeedback(null);
     try {
       const due = Number(ledger?.due || 0);
-      const caption =
-        due <= 0
-          ? `🎉 *OFFICIAL FINAL FEE CLEARANCE BILL*\nStudent: *${student.name}*\nCourse: *${ledger.courseName || 'Vocational Course'}*\nTotal Paid: *Rs. ${Number(ledger.paid || 0).toLocaleString()}*\nStatus: *PAID IN FULL / CLEARED*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`
-          : `🧾 *OFFICIAL FEE STATEMENT & RECEIPT*\nStudent: *${student.name}*\nPaid: *Rs. ${Number(ledger.paid || 0).toLocaleString()}* | Due: *Rs. ${due.toLocaleString()}*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`;
+      const caption = renderWhatsAppTemplate(due <= 0 ? 'final_clearance_bill' : 'installment_receipt', {
+        name: student.name,
+        tgid: student.tgid || '-',
+        course: ledger.courseName || 'Vocational Course',
+        receiptNo: clearanceCertificateNo,
+        amount: Number(ledger.paid || 0).toLocaleString(),
+        totalFee: Number(ledger.totalFee || ledger.paid || 0).toLocaleString(),
+        paid: Number(ledger.paid || 0).toLocaleString(),
+        due: due.toLocaleString(),
+        date: todayStr,
+        method: 'Verified Ledger'
+      }) + (digitallySigned ? '\n✅ Digitally Signed & Verified' : '');
       await sendBillElementToWhatsApp({
         elementId: 'printableFeeClearanceCanvas',
         phone: student.phone,

@@ -61,7 +61,7 @@ import DialogActions from '@mui/material/DialogActions';
 
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
-import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
+import { openWhatsAppHubForContact, renderWhatsAppTemplate } from '../../services/whatsappCloudApi';
 import { useAuth } from '../../context/AuthContext';
 import { playLeadChime } from '../../services/soundUtils';
 import LeadModal, { LEAD_STAGES, LEAD_PRIORITIES, LEAD_SOURCES } from './LeadModal';
@@ -486,7 +486,10 @@ export default function LeadManager({ onNavigateToAdmission }) {
 
   // Helper for WhatsApp Click
   const getWaText = (lead) =>
-    `Hello ${lead.name}! We are contacting you from Prabidhik School, Jorpati regarding further details and the admission process for '${lead.course || 'Vocational Training'}' that you inquired about.`;
+    renderWhatsAppTemplate('lead_welcome', {
+      name: lead.name || 'ज्यू',
+      course: lead.course || 'Vocational Training'
+    });
 
   const handleOpenWhatsApp = (lead) => {
     if (!lead?.phone) return;

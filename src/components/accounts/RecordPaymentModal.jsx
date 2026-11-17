@@ -27,7 +27,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import confetti from 'canvas-confetti';
 import { useAuth } from '../../context/AuthContext';
-import { sendMetaWhatsAppMessage } from '../../services/whatsappCloudApi';
+import { sendMetaWhatsAppMessage, renderWhatsAppTemplate } from '../../services/whatsappCloudApi';
 
 export const PAYMENT_METHODS = [
   'Cash',
@@ -200,28 +200,25 @@ export default function RecordPaymentModal({
       const totalPaidAfter = Number(selectedBalance.paid || 0) + payNum;
       const isFinalClearance = remainingDue <= 0;
       const isAdvance = Number(selectedBalance.paid || 0) === 0 && !isFinalClearance;
-      const billTitle = isFinalClearance
-        ? '🎉 *OFFICIAL FINAL FEE CLEARANCE BILL*'
+      const templateKey = isFinalClearance
+        ? 'final_clearance_bill'
         : isAdvance
-        ? '🧾 *OFFICIAL ADMISSION & ADVANCE RECEIPT*'
-        : '🧾 *OFFICIAL INSTALLMENT FEE RECEIPT*';
+        ? 'admission_receipt'
+        : 'installment_receipt';
 
-      const text = `${billTitle}\n` +
-        `Prabidhik School, Jorpati (CTEVT Accredited)\n\n` +
-        `Dear *${currentStudent.name}*,\n` +
-        `Your fee payment of *Rs. ${payNum.toLocaleString()}* has been successfully recorded!\n\n` +
-        `• *Receipt No:* ${receiptNo}\n` +
-        `• *Course:* ${selectedBalance.courseName}\n` +
-        `• *Payment Method:* ${paymentMethod.split(' (')[0]}\n` +
-        `• *Date:* ${paymentDate}\n` +
-        `• *Total Course Fee:* Rs. ${totalFee.toLocaleString()}\n` +
-        `• *Total Paid So Far:* Rs. ${totalPaidAfter.toLocaleString()}\n` +
-        `• *Remaining Due Balance:* Rs. ${remainingDue.toLocaleString()}\n` +
-        (isFinalClearance
-          ? `• *Status:* PAID IN FULL / CLEARED 🎉 (Eligible for Exam & Certificate)\n`
-          : `• *Status:* ${isAdvance ? 'Advance Paid (50-50 Policy)' : 'Installment Paid'}\n`) +
-        `• *Received By:* ${currentUser?.name || 'Accounts Office'}\n\n` +
-        `Thank you for training with Prabidhik School, Jorpati!`;
+      const text = renderWhatsAppTemplate(templateKey, {
+        name: currentStudent.name,
+        tgid: currentStudent.tgid || '-',
+        course: selectedBalance.courseName,
+        receiptNo,
+        method: paymentMethod.split(' (')[0],
+        date: paymentDate,
+        amount: payNum.toLocaleString(),
+        totalFee: totalFee.toLocaleString(),
+        paid: totalPaidAfter.toLocaleString(),
+        due: remainingDue.toLocaleString(),
+        receivedBy: currentUser?.name || 'Accounts Office'
+      });
 
       sendMetaWhatsAppMessage({
         to: currentStudent.phone,

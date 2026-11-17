@@ -181,22 +181,304 @@ export async function logWhatsAppMessage(logEntry) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// Custom Nepali WhatsApp Template Engine (Editable + Supabase Synced)
+// ---------------------------------------------------------------------------
+
+export const DEFAULT_NEPALI_WA_TEMPLATES = [
+  {
+    key: 'lead_welcome',
+    title: 'Lead अभिवादन (Inquiry Welcome)',
+    category: 'CRM / Lead',
+    isSystem: true,
+    body:
+      `नमस्ते *{name}* ज्यू! 🙏\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)* बाट सम्पर्क गरेका हौं।\n\n` +
+      `तपाईंले सोधपुछ गर्नुभएको *{course}* तालिमको विस्तृत जानकारी, सिफ्ट समय र भर्ना प्रक्रियाबारे सल्लाह गर्न चाहेका छौं।\n` +
+      `📞 फोन: 01-4910715 | WhatsApp: 9803614574`
+  },
+  {
+    key: 'admission_receipt',
+    title: 'भर्ना तथा Advance रसिद',
+    category: 'Billing / Receipt',
+    isSystem: true,
+    body:
+      `🎉 *आधिकारिक भर्ना तथा शुल्क रसिद* 🎉\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+      `• रसिद नं: *{receiptNo}*\n` +
+      `• विद्यार्थी: *{name}* ({tgid})\n` +
+      `• कोर्स: *{course}*\n` +
+      `• आज बुझाएको रकम: *Rs. {amount}*\n` +
+      `• जम्मा शुल्क: *Rs. {totalFee}* | बाँकी रकम: *Rs. {due}*\n` +
+      `• मिति: {date} ({method})\n\n` +
+      `📍 जोरपाटी, गोकर्णेश्वर, काठमाडौं | 📞 01-4910715 / 9803614574\n` +
+      `यो मेसेजलाई डिजिटल भुक्तानी प्रमाणको रूपमा सुरक्षित राख्नुहोला। प्राविधिक स्कुलमा स्वागत छ!`
+  },
+  {
+    key: 'installment_receipt',
+    title: 'किस्ता शुल्क रसिद (Installment)',
+    category: 'Billing / Receipt',
+    isSystem: true,
+    body:
+      `🧾 *आधिकारिक किस्ता शुल्क रसिद*\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+      `आदरणीय *{name}* ज्यू, तपाईंको *Rs. {amount}* शुल्क भुक्तानी सफलतापूर्वक दर्ता भएको छ।\n\n` +
+      `• रसिद नं: *{receiptNo}*\n` +
+      `• कोर्स: *{course}*\n` +
+      `• भुक्तानी माध्यम: {method} | मिति: {date}\n` +
+      `• जम्मा शुल्क: Rs. {totalFee}\n` +
+      `• हालसम्म बुझाएको: *Rs. {paid}*\n` +
+      `• बाँकी रकम: *Rs. {due}*\n\n` +
+      `📞 01-4910715 / 9803614574 — धन्यवाद!`
+  },
+  {
+    key: 'final_clearance_bill',
+    title: 'पूर्ण चुक्ता बिल (Final Clearance Bill)',
+    category: 'Billing / Receipt',
+    isSystem: true,
+    body:
+      `🎉 *आधिकारिक पूर्ण शुल्क चुक्ता बिल (Final Clearance Bill)* 🎉\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+      `बधाई छ *{name}* ज्यू! तपाईंको तालिमको सम्पूर्ण शुल्क *100% चुक्ता* भएको छ।\n\n` +
+      `• रसिद नं: *{receiptNo}*\n` +
+      `• कोर्स: *{course}* ({tgid})\n` +
+      `• जम्मा कोर्स शुल्क: *Rs. {totalFee}*\n` +
+      `• जम्मा भुक्तानी: *Rs. {paid}*\n` +
+      `• बाँकी रकम: *Rs. 0 (PAID IN FULL / CLEARED)* ✅\n` +
+      `• मिति: {date}\n\n` +
+      `तपाईं अब अन्तिम परीक्षा, OJT र प्रमाणपत्रका लागि योग्य हुनुभएको छ।\n` +
+      `📞 01-4910715 / 9803614574`
+  },
+  {
+    key: 'fee_reminder',
+    title: 'शुल्क रिमाइन्डर (Fee Reminder)',
+    category: 'Billing / Receipt',
+    isSystem: true,
+    body:
+      `नमस्ते *{name}* ज्यू, 🙏\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)* को लेखा शाखाबाट विनम्र अनुरोध:\n\n` +
+      `तपाईंको *{course}* तालिमको बाँकी शिक्षण शुल्क *Rs. {due}* समयमै बुझाई सहयोग गरिदिनुहुन अनुरोध छ।\n` +
+      `📞 थप जानकारीका लागि: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'absent_alert',
+    title: 'दैनिक अनुपस्थिति सूचना (Absent Alert)',
+    category: 'Attendance',
+    isSystem: true,
+    body:
+      `⚠️ *दैनिक हाजिरी सूचना — प्राविधिक स्कुल, जोरपाटी*\n` +
+      `*(ग्लोबल एरा मल्टी सर्भिस प्रा. लि.)*\n\n` +
+      `आदरणीय अभिभावक ज्यू,\n` +
+      `आज मिति *{date}* मा तपाईंको विद्यार्थी *{name}* ({shift}) कक्षामा *अनुपस्थित (ABSENT)* रहनुभएको जानकारी गराइन्छ।\n\n` +
+      `CTEVT मान्यता प्राप्त परीक्षा र OJT का लागि कम्तीमा 80% प्रयोगात्मक हाजिरी अनिवार्य छ।\n` +
+      `📞 यदि पूर्व-स्वीकृत वा स्वास्थ्य कारण हो भने कृपया कार्यालयमा सम्पर्क गर्नुहोला: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'course_brochure',
+    title: 'कोर्स ब्रोसर र सिलेबस',
+    category: 'Academics',
+    isSystem: true,
+    body:
+      `🌟 *ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)* 🌟\n` +
+      `*आधिकारिक कोर्स ब्रोसर: {course}* ({hours} Hours — 80% प्रयोगात्मक तालिम)\n\n` +
+      `📍 *ठेगाना:* जोरपाटी, गोकर्णेश्वर, काठमाडौं\n` +
+      `⏱️ *दैनिक 2 घण्टे सिफ्ट:* Shift A (7–9 AM) देखि Shift E (4–6 PM)\n` +
+      `💳 *सहज शुल्क नीति:* भर्ना हुँदा 50% + मध्य-कोर्समा 50%\n` +
+      `🛠️ *औजार तथा सामग्री:* 100% प्रयोगात्मक औजार संस्थाबाटै उपलब्ध\n` +
+      `💼 *रोजगार सहायता:* OJT र रोजगारी समन्वय\n\n` +
+      `🌐 पूरा सिलेबस हेर्न: {verifyUrl}\n` +
+      `📞 परामर्श तथा भर्नाको लागि: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'certificate_verify',
+    title: 'प्रमाणपत्र अनलाइन भेरिफिकेसन लिङ्क',
+    category: 'Certificates',
+    isSystem: true,
+    body:
+      `🎓 *आधिकारिक प्रमाणपत्र भेरिफिकेसन — प्राविधिक स्कुल, जोरपाटी*\n` +
+      `*(ग्लोबल एरा मल्टी सर्भिस प्रा. लि.)*\n\n` +
+      `नमस्ते *{name}* ज्यू, तपाईंको आधिकारिक तालिम प्रमाणपत्र अब अनलाइनबाट जुनसुकै बेला भेरिफाई गर्न सकिन्छ:\n` +
+      `🔗 {verifyUrl}\n\n` +
+      `📞 01-4910715 / 9803614574`
+  },
+  {
+    key: 'ojt_update',
+    title: 'OJT / रोजगारी अपडेट',
+    category: 'Placement / OJT',
+    isSystem: true,
+    body:
+      `नमस्ते *{name}* ज्यू, 🙏\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)* बाट तपाईंको OJT / रोजगारी (Placement) सम्बन्धी नयाँ अपडेट छ।\n` +
+      `कृपया समय मिलाई रिप्लाई गर्नुहोला वा 01-4910715 / 9803614574 मा सम्पर्क गर्नुहोला।`
+  },
+  {
+    key: 'campus_location',
+    title: 'संस्थाको ठेगाना र समय (/location)',
+    category: 'Slash Command',
+    slashCmd: '/location',
+    isSystem: true,
+    body:
+      `📍 *ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n` +
+      `ठेगाना: जोरपाटी, गोकर्णेश्वर, काठमाडौं (मित्रपार्क हब नजिक)\n` +
+      `⏰ खुल्ने समय: बिहान 7:00 AM – बेलुका 6:00 PM (आइतबार–शुक्रबार)\n` +
+      `📞 फोन: 01-4910715 | WhatsApp: 9803614574\n` +
+      `🌐 वेबसाइट: https://globalera.vercel.app`
+  },
+  {
+    key: 'slash_fee',
+    title: '५०-५० शुल्क नीति (/fee)',
+    category: 'Slash Command',
+    slashCmd: '/fee',
+    isSystem: true,
+    body:
+      `💳 *ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)* मा सजिलो 50%-50% शुल्क नीति छ:\n` +
+      `• भर्ना हुँदा 50% Advance र आधा कोर्स सकिएपछि बाँकी 50%।\n` +
+      `📞 कोर्स अनुसारको शुल्क बुझ्न: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'slash_shift',
+    title: 'दैनिक सिफ्ट समय (/shift)',
+    category: 'Slash Command',
+    slashCmd: '/shift',
+    isSystem: true,
+    body:
+      `⏱️ *दैनिक कक्षा सिफ्ट समय (आइतबार–शुक्रबार):*\n` +
+      `• Shift A: 7:00 – 9:00 AM\n` +
+      `• Shift B: 10:00 AM – 12:00 PM\n` +
+      `• Shift C: 12:00 – 2:00 PM\n` +
+      `• Shift D: 2:00 – 4:00 PM\n` +
+      `• Shift E: 4:00 – 6:00 PM\n` +
+      `📍 प्राविधिक स्कुल, जोरपाटी | 📞 01-4910715`
+  },
+  {
+    key: 'slash_documents',
+    title: 'भर्नाका लागि चाहिने कागजात (/documents)',
+    category: 'Slash Command',
+    slashCmd: '/documents',
+    isSystem: true,
+    body:
+      `📋 *भर्नाका लागि आवश्यक कागजातहरू:*\n` +
+      `1) नागरिकताको प्रतिलिपि (1 प्रति)\n` +
+      `2) पासपोर्ट साइजको फोटो (2 प्रति)\n` +
+      `3) अन्तिम शैक्षिक योग्यताको प्रमाणपत्र प्रतिलिपि\n` +
+      `4) 50% भर्ना शुल्क (Advance)\n` +
+      `📍 प्राविधिक स्कुल, जोरपाटी | 📞 01-4910715`
+  },
+  {
+    key: 'slash_caregiver',
+    title: 'केयरगिभर तालिम (/caregiver)',
+    category: 'Slash Command',
+    slashCmd: '/caregiver',
+    isSystem: true,
+    body:
+      `🏥 *केयरगिभर तालिम (Caregiver — 390 Hours / 3 Months)*\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n` +
+      `• 80% प्रयोगात्मक क्लिनिकल ल्याब अभ्यास\n` +
+      `• Vital Signs, वृद्धवृद्धा/बिरामी स्याहार, First Aid & CPR\n` +
+      `• CTEVT मान्यता प्राप्त प्रमाणपत्र र OJT व्यवस्था\n` +
+      `📞 भर्नाका लागि: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'slash_tailoring',
+    title: 'टेलरिङ तथा फेसन (/tailoring)',
+    category: 'Slash Command',
+    slashCmd: '/tailoring',
+    isSystem: true,
+    body:
+      `👗 *टेलरिङ तथा फेसन डिजाइनिङ (390 Hours / 3 Months)*\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n` +
+      `• प्रत्येक विद्यार्थीलाई छुट्टै Juki Industrial Sewing Machine\n` +
+      `• कुर्ता-सुरुवाल, ब्लाउज, प्याटर्न ड्राफ्टिङ र आधुनिक सिलाइ\n` +
+      `• 100% वर्कशप सामग्री सहित रोजगार समन्वय\n` +
+      `📞 भर्नाका लागि: 01-4910715 / 9803614574`
+  },
+  {
+    key: 'slash_beautician',
+    title: 'ब्युटिसियन तथा कस्मेटोलोजी (/beautician)',
+    category: 'Slash Command',
+    slashCmd: '/beautician',
+    isSystem: true,
+    body:
+      `💄 *ब्युटिसियन तथा कस्मेटोलोजी (390 Hours / 3 Months)*\n` +
+      `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n` +
+      `• स्किन केयर, फेसियल, हेयर स्टाइल, र ब्राइडल मेकअप\n` +
+      `• आधुनिक सलुन उपकरण र प्रयोगात्मक अभ्यास\n` +
+      `• प्रमाणित ट्रेनर र सलुन OJT प्लेसमेन्ट\n` +
+      `📞 भर्नाका लागि: 01-4910715 / 9803614574`
+  }
+];
+
+export function getWhatsAppTemplates() {
+  const db = loadDB();
+  const saved = Array.isArray(db.whatsappTemplates) ? db.whatsappTemplates : [];
+  const byKey = new Map();
+  DEFAULT_NEPALI_WA_TEMPLATES.forEach((tpl) => byKey.set(tpl.key, { ...tpl }));
+  saved.forEach((tpl) => {
+    if (tpl?.key) {
+      const base = byKey.get(tpl.key) || {};
+      byKey.set(tpl.key, { ...base, ...tpl });
+    }
+  });
+  return Array.from(byKey.values());
+}
+
+export function saveWhatsAppTemplates(templatesList) {
+  const db = loadDB();
+  const nextDb = { ...db, whatsappTemplates: templatesList };
+  saveDB(nextDb);
+  return nextDb;
+}
+
+export function resetWhatsAppTemplates() {
+  const db = loadDB();
+  const nextDb = { ...db, whatsappTemplates: DEFAULT_NEPALI_WA_TEMPLATES };
+  saveDB(nextDb);
+  return DEFAULT_NEPALI_WA_TEMPLATES;
+}
+
+export function renderWhatsAppTemplate(keyOrTemplate, vars = {}) {
+  const templates = getWhatsAppTemplates();
+  const tpl =
+    typeof keyOrTemplate === 'string'
+      ? templates.find((t) => t.key === keyOrTemplate) || DEFAULT_NEPALI_WA_TEMPLATES.find((t) => t.key === keyOrTemplate)
+      : keyOrTemplate;
+  let body = tpl?.body || '';
+  const safeVars = {
+    name: 'Trainee',
+    course: 'Vocational Training',
+    amount: '0',
+    totalFee: '0',
+    paid: '0',
+    due: '0',
+    receiptNo: '-',
+    method: 'Cash',
+    date: new Date().toISOString().slice(0, 10),
+    tgid: '-',
+    shift: 'Regular Shift',
+    hours: '390',
+    verifyUrl: 'https://globalera.vercel.app',
+    receivedBy: 'Accounts Office',
+    ...vars
+  };
+  Object.entries(safeVars).forEach(([k, v]) => {
+    body = body.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v ?? ''));
+  });
+  return body;
+}
+
 /**
  * 1-Click Action: Send Course Brochure & Syllabus via Meta WhatsApp Cloud API
  */
 export async function sendWhatsAppBrochureDirect(phone, course) {
   const cTitle = course?.title || 'Vocational Training';
   const hours = course?.totalHours || 390;
+  const verifyUrl = `https://globalera.vercel.app/?course=${course?.id || ''}`;
 
-  const msg = `🌟 *Prabidhik School (Global Era Multi Service Pvt. Ltd.) — Official Syllabus & Brochure* 🌟\n\n` +
-    `Hello! Here is the official vocational curriculum details for *${cTitle}* (${hours} Hours — 80% Practical Hands-on Training):\n\n` +
-    `📍 *Campus:* Jorpati, Gokarneshwor, Kathmandu\n` +
-    `⏱️ *Daily 2-Hour Flexible Shifts:* Shift A (7-9 AM) to Shift E (4-6 PM)\n` +
-    `💳 *Affordable TVET Fee Structure:* 50% on Enrollment + 50% Mid-Course\n` +
-    `🛠️ *Tools & Materials:* 100% individual toolsets provided in workshop\n` +
-    `💼 *Career Support:* 1-Click Graduation Portfolio Dossier & OJT Job Placement\n\n` +
-    `🌐 *View Full Interactive Syllabus Online:* https://globalera.com.np/?course=${course?.id || ''}\n\n` +
-    `For counseling or admissions assistance, reply to this message directly or call 014910715 / WhatsApp 9705147147.`;
+  const msg = renderWhatsAppTemplate('course_brochure', {
+    course: cTitle,
+    hours: String(hours),
+    verifyUrl
+  });
 
   return sendMetaWhatsAppMessage({
     to: phone,
@@ -214,19 +496,21 @@ export async function sendWhatsAppAdmissionReceiptDirect(phone, student, admissi
   const tgid = student?.tgid || 'GETS-STD';
   const paid = Number(admission?.advanceFee || 0).toLocaleString();
   const due = Number(admission?.dueFee || 0).toLocaleString();
+  const totalFee = Number(admission?.totalFee || Number(admission?.advanceFee || 0) + Number(admission?.dueFee || 0)).toLocaleString();
   const receiptNo = admission?.receiptNo || `REC-${Date.now().toString().slice(-6)}`;
 
-  const msg = `🎉 *Official Admission Confirmation & Fee Receipt* 🎉\n\n` +
-    `*Prabidhik School (Global Era Multi Service Pvt. Ltd.)*\n` +
-    `Receipt No: *${receiptNo}*\n` +
-    `Student Name: *${sName}*\n` +
-    `Registration TGID: *${tgid}*\n` +
-    `Enrolled Course: *${cTitle}*\n\n` +
-    `💰 *Fee Payment Summary (50-50 Policy):*\n` +
-    `• Amount Paid Today: *NPR ${paid}* (Advance 50%)\n` +
-    `• Remaining Due: *NPR ${due}* (Due at Mid-Course)\n\n` +
-    `📍 Campus: Jorpati, Gokarneshwor, Kathmandu | Phone: 014910715 | WhatsApp: 9705147147\n` +
-    `Please keep this message as your official digital payment proof. Welcome to Prabidhik School!`;
+  const msg = renderWhatsAppTemplate('admission_receipt', {
+    name: sName,
+    course: cTitle,
+    tgid,
+    amount: paid,
+    paid,
+    due,
+    totalFee,
+    receiptNo,
+    method: admission?.paymentMethod || 'Cash',
+    date: admission?.admissionDate || new Date().toISOString().slice(0, 10)
+  });
 
   return sendMetaWhatsAppMessage({
     to: phone,
@@ -240,15 +524,14 @@ export async function sendWhatsAppAdmissionReceiptDirect(phone, student, admissi
  */
 export async function sendWhatsAppAbsenceAlertDirect(parentPhone, student, group, date) {
   const sName = student?.name || 'Student';
-  const shift = group?.shift ? `Shift ${group.shift}` : 'regular class';
+  const shift = group?.shift ? `Shift ${group.shift}` : 'Regular Class';
   const dateStr = date || new Date().toISOString().slice(0, 10);
 
-  const msg = `⚠️ *Prabidhik School — Daily Attendance Notice*\n\n` +
-    `Dear Guardian/Parent,\n` +
-    `This is to notify that your ward *${sName}* was recorded *ABSENT* from the ${shift} vocational training on *${dateStr}*.\n\n` +
-    `CTEVT accreditation requires at least 80% practical attendance for final examination and OJT eligibility.\n` +
-    `If this absence was pre-approved or due to medical reasons, please contact the front desk at 014910715 / 9705147147.\n\n` +
-    `Admin Office, Prabidhik School (Global Era Multi Service Pvt. Ltd.)`;
+  const msg = renderWhatsAppTemplate('absent_alert', {
+    name: sName,
+    shift,
+    date: dateStr
+  });
 
   return sendMetaWhatsAppMessage({
     to: parentPhone,

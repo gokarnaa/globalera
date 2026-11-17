@@ -71,7 +71,9 @@ import {
   toggleBotPause,
   togglePinContact,
   assignThreadStaff,
-  addInternalStaffNote
+  addInternalStaffNote,
+  getWhatsAppTemplates,
+  renderWhatsAppTemplate
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -441,11 +443,16 @@ export default function WhatsAppWorkspace({
         setSending(false);
       }
     } else if (kind === 'location') {
-      await handleSend(
-        `📍 *Prabidhik School (Global Era Technical School)*\nCampus: Jorpati, Gokarneshwor, Kathmandu (Near MitraPark Hub)\n⏰ Timing: 7:00 AM – 6:00 PM (Sun–Fri)\n📞 Office: 014910715 / 9803614574\n🌐 Map & Website: https://globalera.vercel.app`
-      );
+      await handleSend(renderWhatsAppTemplate('campus_location', { name: activeThread.name }));
     } else if (kind === 'fee') {
-      await handleSend(QUICK_TEMPLATES[1].build(activeThread));
+      const due = Number(studentLedgerData?.due ?? activeThread.entity?.dueFee ?? 0).toLocaleString();
+      await handleSend(
+        renderWhatsAppTemplate('fee_reminder', {
+          name: activeThread.name,
+          course: studentLedgerData?.courseName || activeThread.entity?.course || 'Vocational Training',
+          due
+        })
+      );
     } else if (kind === 'certificate') {
       const cert = (currentDb.certificates || []).find(
         (c) => activeThread.entity?.id && c.studentId === activeThread.entity.id
@@ -455,7 +462,10 @@ export default function WhatsAppWorkspace({
         ? `https://globalera.vercel.app/?verify=${encodeURIComponent(certNum)}`
         : `https://globalera.vercel.app`;
       await handleSend(
-        `🎓 *Official Certificate Verification — Prabidhik School*\nHello ${activeThread.name}, you can verify your official vocational certificate online anytime here:\n${verifyUrl}`
+        renderWhatsAppTemplate('certificate_verify', {
+          name: activeThread.name,
+          verifyUrl
+        })
       );
     }
   };
@@ -1424,32 +1434,43 @@ export default function WhatsAppWorkspace({
               gap: 0.4
             }}
           >
-            {SLASH_COMMANDS.filter((s) =>
-              s.cmd.startsWith(draft.trim().toLowerCase()) || s.label.toLowerCase().includes(draft.slice(1).toLowerCase())
-            ).map((s) => (
-              <Box
-                key={s.cmd}
-                onClick={() => setDraft(s.text)}
-                sx={{
-                  px: 1,
-                  py: 0.6,
-                  borderRadius: 1.5,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 1,
-                  '&:hover': { bgcolor: '#EFF6FF' }
-                }}
-              >
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59' }}>
-                  {s.cmd} — {s.label}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B' }} noWrap>
-                  {s.text.slice(0, 48)}...
-                </Typography>
-              </Box>
-            ))}
+            {getWhatsAppTemplates()
+              .filter((s) => Boolean(s.slashCmd))
+              .filter((s) =>
+                s.slashCmd.toLowerCase().startsWith(draft.trim().toLowerCase()) ||
+                (s.title || '').toLowerCase().includes(draft.slice(1).toLowerCase())
+              )
+              .map((s) => {
+                const rendered = renderWhatsAppTemplate(s, {
+                  name: activeThread.name,
+                  course: activeThread.entity?.course || 'Vocational Training',
+                  due: Number(studentLedgerData?.due ?? activeThread.entity?.dueFee ?? 0).toLocaleString()
+                });
+                return (
+                  <Box
+                    key={s.key}
+                    onClick={() => setDraft(rendered)}
+                    sx={{
+                      px: 1,
+                      py: 0.6,
+                      borderRadius: 1.5,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 1,
+                      '&:hover': { bgcolor: '#EFF6FF' }
+                    }}
+                  >
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59' }}>
+                      {s.slashCmd} — {s.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B' }} noWrap>
+                      {rendered.slice(0, 48)}...
+                    </Typography>
+                  </Box>
+                );
+              })}
           </Paper>
         )}
 
@@ -1486,18 +1507,28 @@ export default function WhatsAppWorkspace({
             anchorEl={templateAnchor}
             open={Boolean(templateAnchor)}
             onClose={() => setTemplateAnchor(null)}
+            PaperProps={{ sx: { maxHeight: 340 } }}
           >
-            {QUICK_TEMPLATES.map((tpl) => (
-              <MenuItem
-                key={tpl.id}
-                onClick={() => {
-                  setDraft(tpl.build(activeThread));
-                  setTemplateAnchor(null);
-                }}
-              >
-                {tpl.label}
-              </MenuItem>
-            ))}
+            {getWhatsAppTemplates()
+              .filter((tpl) => !tpl.slashCmd)
+              .map((tpl) => (
+                <MenuItem
+                  key={tpl.key}
+                  onClick={() => {
+                    setDraft(
+                      renderWhatsAppTemplate(tpl, {
+                        name: activeThread.name,
+                        course: studentLedgerData?.courseName || activeThread.entity?.course || 'Vocational Training',
+                        due: Number(studentLedgerData?.due ?? activeThread.entity?.dueFee ?? 0).toLocaleString(),
+                        tgid: activeThread.entity?.tgid || '-'
+                      })
+                    );
+                    setTemplateAnchor(null);
+                  }}
+                >
+                  {tpl.title}
+                </MenuItem>
+              ))}
             <Divider />
             <MenuItem
               onClick={() => {

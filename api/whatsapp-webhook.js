@@ -142,36 +142,39 @@ export default async function handler(req, res) {
       const lower = `${messageText} ${referral?.headline || ''}`.toLowerCase();
 
       if (lower === '1' || lower.includes('caregiver') || lower.includes('care') || lower.includes('nurse')) {
-        botReply = `🏥 *Caregiver Training (390 Hours / 3 Months)*\n\n` +
-          `• 80% Practical Hands-on Training & Clinical Demos\n` +
-          `• Curriculum: Vital signs, Elderly & Dementia care, Patient mobility, Emergency First Aid & Adult CPR\n` +
-          `• CTEVT Accredited Certification with QR Verification\n` +
-          `• Affordable Fee Policy: 50% on Enrollment + 50% Mid-Course\n` +
-          `• Campus: Jorpati, Gokarneshwor, Kathmandu\n\n` +
-          `Reply with *APPLY* to start your admission or call *01410715*.`;
+        botReply = `🏥 *केयरगिभर तालिम (Caregiver — 390 Hours / 3 Months)*\n` +
+          `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+          `• 80% प्रयोगात्मक क्लिनिकल ल्याब अभ्यास\n` +
+          `• विषयवस्तु: Vital Signs, वृद्धवृद्धा तथा बिरामी स्याहार, First Aid र Adult CPR\n` +
+          `• CTEVT मान्यता प्राप्त प्रमाणपत्र (QR Verification सहित)\n` +
+          `• सहज शुल्क नीति: भर्ना हुँदा 50% + मध्य-कोर्समा 50%\n` +
+          `• ठेगाना: जोरपाटी, गोकर्णेश्वर, काठमाडौं\n\n` +
+          `भर्ना वा परामर्शको लागि *APPLY* लेखेर पठाउनुहोस् वा फोन गर्नुहोस्: 01-4910715 / 9803614574`;
       } else if (lower === '2' || lower.includes('tailor') || lower.includes('fashion') || lower.includes('dress') || lower.includes('sew')) {
-        botReply = `👗 *Tailoring & Fashion Designing (390 Hours / 3 Months)*\n\n` +
-          `• Individual Juki Industrial Sewing Machine guaranteed for every student\n` +
-          `• Master Kurtha-Suruwal, Blouse variations, Pattern drafting, and Modern embroidery\n` +
-          `• 100% Workshop Tools & Fabrics included\n` +
-          `• 1-Click Graduation Portfolio Dossier & Boutique Job Placement support\n\n` +
-          `Reply with *APPLY* to reserve your seat in the upcoming batch.`;
+        botReply = `👗 *टेलरिङ तथा फेसन डिजाइनिङ (390 Hours / 3 Months)*\n` +
+          `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+          `• प्रत्येक विद्यार्थीलाई छुट्टै Juki Industrial Sewing Machine को ग्यारेन्टी\n` +
+          `• कुर्ता-सुरुवाल, ब्लाउज, प्याटर्न ड्राफ्टिङ र आधुनिक सिलाइ अभ्यास\n` +
+          `• 100% वर्कशप औजार र कपडा संस्थाबाटै उपलब्ध\n` +
+          `• रोजगारी तथा बुटिक प्लेसमेन्ट समन्वय\n\n` +
+          `सिट सुरक्षित गर्न *APPLY* लेखेर पठाउनुहोस् वा फोन गर्नुहोस्: 01-4910715 / 9803614574`;
       } else if (lower === '3' || lower.includes('beauty') || lower.includes('salon') || lower.includes('parlor') || lower.includes('makeup')) {
-        botReply = `💄 *Beautician & Cosmetology (390 Hours / 3 Months)*\n\n` +
-          `• Professional Skin Care, Fruit Facial, Hair Treatment, Styling & Bridal Makeup\n` +
-          `• International Standard Salon Equipment & Cosmetics provided\n` +
-          `• Certified Trainer mentorship & Salon OJT Placement\n\n` +
-          `Reply with *APPLY* to reserve your seat in the upcoming batch.`;
+        botReply = `💄 *ब्युटिसियन तथा कस्मेटोलोजी (390 Hours / 3 Months)*\n` +
+          `*ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)*\n\n` +
+          `• प्रोफेसनल स्किन केयर, फेसियल, हेयर ट्रिटमेन्ट, स्टाइलिङ र ब्राइडल मेकअप\n` +
+          `• अन्तर्राष्ट्रिय स्तरका सलुन उपकरण र कस्मेटिक सामग्री उपलब्ध\n` +
+          `• प्रमाणित ट्रेनरद्वारा प्रशिक्षण र सलुन OJT प्लेसमेन्ट\n\n` +
+          `भर्नाका लागि *APPLY* लेखेर पठाउनुहोस् वा फोन गर्नुहोस्: 01-4910715 / 9803614574`;
       } else {
-        botReply = `🌟 *Welcome to Global Era Technical School!* 🌟\n` +
-          `CTEVT Accredited Vocational Training Institute\n` +
-          `Location: Jorpati, Gokarneshwor, Kathmandu (Near MitraPark Hub)\n\n` +
-          `Please reply with a number to receive instant curriculum and fee details:\n` +
-          `*1* — Caregiver Training (Healthcare)\n` +
-          `*2* — Tailoring & Fashion Designing\n` +
-          `*3* — Beautician & Cosmetology\n` +
-          `*4* — Speak with our Admission Counselor (01410715)\n\n` +
-          `🌐 Website: https://globalera.vercel.app`;
+        botReply = `🌟 *ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) मा स्वागत छ!* 🌟\n` +
+          `CTEVT मान्यता प्राप्त व्यावसायिक तालिम केन्द्र\n` +
+          `ठेगाना: जोरपाटी, गोकर्णेश्वर, काठमाडौं (मित्रपार्क हब नजिक)\n\n` +
+          `तत्काल कोर्स र शुल्क जानकारी पाउन तलको नम्बर टाइप गरी पठाउनुहोस्:\n` +
+          `*1* — केयरगिभर तालिम (Caregiver)\n` +
+          `*2* — टेलरिङ तथा फेसन डिजाइनिङ (Tailoring)\n` +
+          `*3* — ब्युटिसियन तथा कस्मेटोलोजी (Beautician)\n` +
+          `*4* — भर्ना परामर्शदातासँग कुरा गर्न (01-4910715 / 9803614574)\n\n` +
+          `🌐 वेबसाइट: https://globalera.vercel.app`;
       }
 
       if (currentPhoneId && META_ACCESS_TOKEN) {

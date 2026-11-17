@@ -28,7 +28,7 @@ import DrawIcon from '@mui/icons-material/Draw';
 import { QRCodeSVG } from 'qrcode.react';
 import { DigitalSignatureModal } from '../common';
 import { loadDB } from '../../services/storage';
-import { sendBillElementToWhatsApp } from '../../services/whatsappCloudApi';
+import { sendBillElementToWhatsApp, renderWhatsAppTemplate } from '../../services/whatsappCloudApi';
 
 // ============================================================================
 // 1. NUMBER TO WORDS HELPERS (ENGLISH)
@@ -704,7 +704,18 @@ export default function ReceiptModal({
     setSendingWa(true);
     setWaFeedback(null);
     try {
-      const caption = `🧾 *Official Fee Receipt (${payment.receiptNo || payment.id})*\nStudent: *${payment.studentName || student?.name || 'Trainee'}*\nAmount Paid: *Rs. ${Number(payment.amount || 0).toLocaleString()}*${digitallySigned ? '\n✅ Digitally Signed & Verified' : ''}`;
+      const caption = renderWhatsAppTemplate('installment_receipt', {
+        name: payment.studentName || student?.name || 'Trainee',
+        tgid: payment.tgid || student?.tgid || '-',
+        course: payment.courseName || course?.title || 'Vocational Course',
+        receiptNo: payment.receiptNo || payment.id,
+        amount: Number(payment.amount || 0).toLocaleString(),
+        totalFee: Number(payment.lockedCourseFee || course?.price || 0).toLocaleString(),
+        paid: Number(payment.amount || 0).toLocaleString(),
+        due: Math.max(0, (Number(payment.lockedCourseFee) || Number(course?.price) || 0) - (Number(payment.amount) || 0)).toLocaleString(),
+        date: payment.date || new Date().toISOString().slice(0, 10),
+        method: payment.paymentMethod || 'Cash'
+      }) + (digitallySigned ? '\n✅ Digitally Signed & Verified' : '');
       await sendBillElementToWhatsApp({
         elementId: 'printableReceiptModalCanvas',
         phone,
