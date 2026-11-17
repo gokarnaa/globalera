@@ -36,6 +36,7 @@ import {
   fetchRemoteWhatsAppData,
   buildWhatsAppHubState,
   sendMetaWhatsAppMessage,
+  sendWhatsAppAbsenceAlertDirect,
   getWhatsAppSettings
 } from '../../services/whatsappCloudApi';
 
@@ -179,6 +180,40 @@ export default function WhatsAppHubManager() {
     });
     syncHub();
   };
+
+  const handleSendAbsentAlertsToday = async () => {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const todayRecs = (db.attendance || []).filter((a) => a.date === todayStr && a.status === 'A');
+    if (todayRecs.length === 0) {
+      setBroadcastResult({ type: 'info', text: `No students marked Absent today (${todayStr}).` });
+      return;
+    }
+    setBroadcasting(true);
+    setBroadcastResult(null);
+    let sent = 0;
+    for (const rec of todayRecs.slice(0, 25)) {
+      const std = (db.students || []).find((s) => s.id === rec.studentId);
+      const grp = (db.trainingGroups || []).find((g) => g.id === std?.trainingGroupId);
+      const phone = std?.guardianPhone || std?.parentPhone || std?.phone;
+      if (!phone) continue;
+      try {
+        await sendWhatsAppAbsenceAlertDirect(phone, std, grp, todayStr);
+        sent += 1;
+      } catch {
+        // continue remaining alerts
+      }
+    }
+    setBroadcasting(false);
+    setBroadcastResult({ type: 'success', text: `Sent ${sent} absent alert(s) for ${todayStr}.` });
+    syncHub();
+  };
+
+  const outboundLogs = useMemo(() => hubState.auditLogs.filter((l) => l.direction === 'outbound'), [hubState.auditLogs]);
+  const deliveredCount = useMemo(
+    () => outboundLogs.filter((l) => l.status === 'delivered' || l.status === 'read' || l.status === 'sent').length,
+    [outboundLogs]
+  );
+  const deliveryRate = outboundLogs.length > 0 ? Math.round((deliveredCount / outboundLogs.length) * 100) : 100;
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -525,26 +560,53 @@ export default function WhatsAppHubManager() {
           </Grid>
 
           <Grid item xs={12} md={5}>
-            <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, border: '1px solid #A7F3D0', bgcolor: '#ECFDF5', display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CheckCircleIcon sx={{ color: '#059669' }} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#065F46' }}>
-                  Live Cloud API Configuration
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                  Auto-Pilot Event Triggers & Analytics
                 </Typography>
-              </Box>
-              <Typography variant="body2" sx={{ color: '#047857' }}>
-                <strong>Phone Number ID:</strong> {waSettings.phoneNumberId}
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#047857' }}>
-                <strong>WABA ID:</strong> {waSettings.wabaId}
-              </Typography>
-              <Typography variant="body2" sx={{ color: '#047857', wordBreak: 'break-all' }}>
-                <strong>Webhook URL:</strong> {waSettings.webhookUrl}
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#065F46', mt: 0.5 }}>
-                All messages sent from the Floating Window, 3-Pane Inbox, or Broadcast are systematically logged in Supabase and local audit storage.
-              </Typography>
-            </Paper>
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1 }}>
+                  <Box sx={{ p: 1.1, borderRadius: 2, bgcolor: '#EFF6FF' }}>
+                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, display: 'block' }}>Delivery Rate</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#1D4ED8' }}>{deliveryRate}%</Typography>
+                  </Box>
+                  <Box sx={{ p: 1.1, borderRadius: 2, bgcolor: '#FAF5FF' }}>
+                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, display: 'block' }}>Outbound / Inbound</Typography>
+                    <Typography variant="h6" sx={{ fontWeight: 800, color: '#7E22CE' }}>
+                      {outboundLogs.length} / {hubState.auditLogs.length - outboundLogs.length}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="warning"
+                  disabled={broadcasting}
+                  onClick={handleSendAbsentAlertsToday}
+                  sx={{ fontWeight: 800 }}
+                >
+                  Send Today&apos;s Absent Alerts via WhatsApp
+                </Button>
+              </Paper>
+
+              <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, border: '1px solid #A7F3D0', bgcolor: '#ECFDF5', display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CheckCircleIcon sx={{ color: '#059669' }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#065F46' }}>
+                    Live Cloud API Configuration
+                  </Typography>
+                </Box>
+                <Typography variant="body2" sx={{ color: '#047857' }}>
+                  <strong>Phone Number ID:</strong> {waSettings.phoneNumberId}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#047857' }}>
+                  <strong>WABA ID:</strong> {waSettings.wabaId}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#047857', wordBreak: 'break-all' }}>
+                  <strong>Webhook URL:</strong> {waSettings.webhookUrl}
+                </Typography>
+              </Paper>
+            </Box>
           </Grid>
         </Grid>
       )}

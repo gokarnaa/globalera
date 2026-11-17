@@ -309,6 +309,48 @@ export function toggleBotPause(phone, paused) {
   saveThreadMetaMap(map);
 }
 
+export function togglePinContact(phone) {
+  const key = normalizePhoneKey(phone);
+  if (!key) return false;
+  const map = getThreadMetaMap();
+  const nextPinned = !Boolean(map[key]?.pinned);
+  map[key] = {
+    ...(map[key] || {}),
+    pinned: nextPinned
+  };
+  saveThreadMetaMap(map);
+  return nextPinned;
+}
+
+export function assignThreadStaff(phone, staffName) {
+  const key = normalizePhoneKey(phone);
+  if (!key) return;
+  const map = getThreadMetaMap();
+  map[key] = {
+    ...(map[key] || {}),
+    assignedTo: staffName || ''
+  };
+  saveThreadMetaMap(map);
+}
+
+export function addInternalStaffNote({ phone, note, author = 'Staff' }) {
+  const cleanNote = String(note || '').trim();
+  if (!phone || !cleanNote) return;
+  const db = loadDB();
+  const newNote = {
+    id: `NOTE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    createdAt: new Date().toISOString(),
+    phone,
+    direction: 'internal_note',
+    messageType: 'internal_note',
+    status: 'internal',
+    author,
+    content: cleanNote
+  };
+  const nextLogs = [newNote, ...(db.whatsappLogs || [])].slice(0, 500);
+  saveDB({ ...db, whatsappLogs: nextLogs });
+}
+
 /**
  * Fetch remote inbound events and delivery logs from Supabase
  */
@@ -353,7 +395,9 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
         messages: [],
         adReferral: null,
         unreadCount: 0,
-        botPaused: Boolean(metaMap[key]?.botPaused)
+        botPaused: Boolean(metaMap[key]?.botPaused),
+        pinned: Boolean(metaMap[key]?.pinned),
+        assignedTo: metaMap[key]?.assignedTo || ''
       });
     }
   };
@@ -376,7 +420,9 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
         messages: [],
         adReferral: null,
         unreadCount: 0,
-        botPaused: Boolean(metaMap[key]?.botPaused)
+        botPaused: Boolean(metaMap[key]?.botPaused),
+        pinned: Boolean(metaMap[key]?.pinned),
+        assignedTo: metaMap[key]?.assignedTo || ''
       });
     }
     return contactsByKey.get(key);
@@ -409,9 +455,10 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
     });
   };
 
-  // 1. Remote Supabase inbound events (preserve rich referral metadata)
+  // 1. Remote Supabase inbound events (preserve rich referral + media metadata)
   (remoteData.inbound || []).forEach((ev) => {
     const referral = ev?.raw_payload?.referral || null;
+    const media = ev?.raw_payload?.media || null;
     pushMessage({
       id: `INB-${ev.id}`,
       key: normalizePhoneKey(ev.phone),
@@ -423,7 +470,8 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
       content: ev.message_text || '',
       createdAt: ev.created_at || new Date().toISOString(),
       metaMessageId: ev?.raw_payload?.message_id || null,
-      adReferral: referral
+      adReferral: referral,
+      media
     });
   });
 
@@ -489,6 +537,7 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
   });
 
   threads.sort((a, b) => {
+    if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
     if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
     if (a.lastTimestamp && b.lastTimestamp) return new Date(b.lastTimestamp) - new Date(a.lastTimestamp);
     if (a.lastTimestamp) return -1;

@@ -52,6 +52,10 @@ import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { StatusBadge } from '../common';
@@ -64,7 +68,10 @@ import {
   sendMetaWhatsAppMessage,
   sendWhatsAppBrochureDirect,
   markThreadRead,
-  toggleBotPause
+  toggleBotPause,
+  togglePinContact,
+  assignThreadStaff,
+  addInternalStaffNote
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -102,6 +109,16 @@ const QUICK_TEMPLATES = [
     build: (t) =>
       `Namaste ${t.name}, we have an OJT / Job Placement update ready for you at Prabidhik School. Please reply when convenient or call 014910715.`
   }
+];
+
+const SLASH_COMMANDS = [
+  { cmd: '/fee', label: 'Fee Policy (50-50)', text: 'Our TVET course fee follows an easy 50-50 policy: 50% upon admission and 50% at mid-course. Call 014910715 for exact course fee details.' },
+  { cmd: '/shift', label: 'Daily 2-Hour Shifts', text: 'We run 5 flexible daily shifts (Sun–Fri): Shift A (7–9 AM), Shift B (10–12), Shift C (12–2 PM), Shift D (2–4 PM), and Shift E (4–6 PM).' },
+  { cmd: '/documents', label: 'Admission Documents', text: 'For admission, please bring: 1) Citizenship copy, 2) 2 PP-size photos, 3) Last academic certificate copy, and 50% advance fee.' },
+  { cmd: '/location', label: 'Jorpati Campus Location', text: '📍 Prabidhik School (Global Era Technical School), Jorpati, Gokarneshwor, Kathmandu (Near MitraPark Hub). Phone: 014910715 / 9803614574.' },
+  { cmd: '/caregiver', label: 'Caregiver (390 Hrs)', text: '🏥 Caregiver Training (390 Hours / 3 Months, CTEVT Accredited): 80% practical clinical labs, elderly & patient care, First Aid & CPR.' },
+  { cmd: '/tailoring', label: 'Tailoring & Fashion', text: '👗 Tailoring & Fashion Designing (390 Hours / 3 Months): Individual Juki machine, pattern drafting, Kurtha/Blouse/Boutique stitching.' },
+  { cmd: '/beautician', label: 'Beautician & Cosmetology', text: '💄 Beautician & Cosmetology (390 Hours / 3 Months): Skin care, facial, hair styling, bridal makeup & Salon OJT placement.' }
 ];
 
 function formatTimeShort(iso) {
@@ -201,6 +218,7 @@ export default function WhatsAppWorkspace({
     const todayStr = new Date().toISOString().slice(0, 10);
     return threads.filter((t) => {
       if (roleFilter === 'Unread' && t.unreadCount === 0) return false;
+      if (roleFilter === 'Pinned' && !t.pinned) return false;
       if (roleFilter === 'Due / Today') {
         const isLeadDue = t.role === 'Lead' && t.entity?.nextFollowUp && t.entity.nextFollowUp <= todayStr && t.entity.stage !== 'Converted';
         const isFeeDue = t.role === 'Student' && Number(t.entity?.dueFee || 0) > 0;
@@ -310,6 +328,12 @@ export default function WhatsAppWorkspace({
     setSendFeedback(null);
     try {
       const currentDb = loadDB();
+      if (sendChannel === 'Note' && !customText) {
+        addInternalStaffNote({ phone: activeThread.phone, note: textToSend, author: 'Staff' });
+        setDraft('');
+        if (onRefresh) onRefresh();
+        return;
+      }
       if (sendChannel === 'SMS' && !customText) {
         sendAakashSmsSimulated(activeThread.phone, textToSend, currentDb.settings?.aakashSmsToken);
         logCommunication(currentDb, {
@@ -564,7 +588,7 @@ export default function WhatsAppWorkspace({
               '&::-webkit-scrollbar-thumb': { bgcolor: '#CBD5E1', borderRadius: 99 }
             }}
           >
-            {['All', 'Unread', 'Due / Today', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
+            {['All', 'Unread', 'Pinned', 'Due / Today', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
               const active = roleFilter === tab;
               return (
                 <Chip
@@ -656,9 +680,13 @@ export default function WhatsAppWorkspace({
                         color: '#0F172A',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
+                        whiteSpace: 'nowrap',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 0.4
                       }}
                     >
+                      {t.pinned && <StarIcon sx={{ fontSize: 13, color: '#F59E0B', flexShrink: 0 }} />}
                       {t.name}
                     </Typography>
                     <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', flexShrink: 0 }}>
@@ -743,8 +771,8 @@ export default function WhatsAppWorkspace({
           gap: 1.5
         }}
       >
-        {/* Identity Summary Card */}
-        <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+        {/* Identity Summary Card + Staff Assignment */}
+        <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
             <Avatar
               src={entity?.photo || entity?.photoUrl || undefined}
@@ -765,6 +793,20 @@ export default function WhatsAppWorkspace({
               tone={activeThread.role === 'Student' ? 'success' : activeThread.role === 'Lead' ? 'warning' : 'primary'}
             />
           </Box>
+          <TextField
+            select
+            size="small"
+            label="Assigned Team / Desk"
+            value={activeThread.assignedTo || ''}
+            onChange={(e) => assignThreadStaff(activeThread.phone, e.target.value)}
+            SelectProps={{ native: true }}
+          >
+            <option value="">Unassigned</option>
+            <option value="Admission Counselor">Admission Counselor</option>
+            <option value="Accounts Desk">Accounts Desk</option>
+            <option value="Placement & OJT">Placement & OJT</option>
+            <option value="Super Admin">Super Admin</option>
+          </TextField>
         </Paper>
 
         {workflowSavedMsg && (
@@ -1081,6 +1123,18 @@ export default function WhatsAppWorkspace({
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+            <Tooltip title={activeThread.pinned ? 'Unpin contact' : 'Pin priority contact'}>
+              <IconButton
+                size="small"
+                onClick={() => togglePinContact(activeThread.phone)}
+                sx={{
+                  bgcolor: activeThread.pinned ? '#FFFBEB' : '#F1F5F9',
+                  color: activeThread.pinned ? '#D97706' : '#64748B'
+                }}
+              >
+                {activeThread.pinned ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
             <Tooltip title={activeThread.botPaused ? 'Resume Auto-Bot' : 'Pause Auto-Bot (Human Takeover)'}>
               <Chip
                 size="small"
@@ -1144,10 +1198,12 @@ export default function WhatsAppWorkspace({
           ) : (
             activeThread.messages.map((m, idx) => {
               const isOutbound = m.direction === 'outbound';
+              const isInternalNote = m.direction === 'internal_note';
               const prevMsg = idx > 0 ? activeThread.messages[idx - 1] : null;
               const currDay = m.createdAt ? new Date(m.createdAt).toDateString() : '';
               const prevDay = prevMsg?.createdAt ? new Date(prevMsg.createdAt).toDateString() : '';
               const showDateDivider = currDay && currDay !== prevDay;
+              const mediaUrl = m.media?.id ? `/api/whatsapp-media?id=${encodeURIComponent(m.media.id)}` : null;
               return (
                 <React.Fragment key={m.id}>
                   {showDateDivider && (
@@ -1167,17 +1223,31 @@ export default function WhatsAppWorkspace({
                   )}
                   <Box
                     sx={{
-                      alignSelf: isOutbound ? 'flex-end' : 'flex-start',
-                      maxWidth: { xs: '88%', sm: '74%' },
-                      bgcolor: isOutbound ? '#DCFCE7' : '#FFFFFF',
+                      alignSelf: isInternalNote ? 'center' : isOutbound ? 'flex-end' : 'flex-start',
+                      maxWidth: isInternalNote ? '90%' : { xs: '88%', sm: '74%' },
+                      bgcolor: isInternalNote ? '#FEF3C7' : isOutbound ? '#DCFCE7' : '#FFFFFF',
                       color: '#0F172A',
                       px: 1.5,
                       py: 1,
-                      borderRadius: isOutbound ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                      border: isOutbound ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
+                      borderRadius: isInternalNote
+                        ? 2.5
+                        : isOutbound
+                        ? '14px 14px 4px 14px'
+                        : '14px 14px 14px 4px',
+                      border: isInternalNote
+                        ? '1px dashed #F59E0B'
+                        : isOutbound
+                        ? '1px solid #BBF7D0'
+                        : '1px solid #E2E8F0',
                       boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)'
                     }}
                   >
+                  {isInternalNote && (
+                    <Typography variant="caption" sx={{ display: 'flex', alignItems: 'center', gap: 0.4, fontWeight: 800, color: '#92400E', fontSize: '0.67rem', mb: 0.25 }}>
+                      <LockOutlinedIcon sx={{ fontSize: 12 }} />
+                      Internal Staff Note (Not sent to WhatsApp)
+                    </Typography>
+                  )}
                   {m.messageType === 'auto_bot' && (
                     <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#047857', fontSize: '0.66rem', mb: 0.25 }}>
                       🤖 Auto-Bot Reply
@@ -1187,6 +1257,42 @@ export default function WhatsAppWorkspace({
                     <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#1D4ED8', fontSize: '0.66rem', mb: 0.25 }}>
                       📢 Facebook Ad Inquiry
                     </Typography>
+                  )}
+                  {mediaUrl && m.media?.type === 'image' && (
+                    <Box
+                      component="a"
+                      href={mediaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      sx={{ display: 'block', mb: 0.75 }}
+                    >
+                      <Box
+                        component="img"
+                        src={mediaUrl}
+                        alt="WhatsApp Media"
+                        sx={{
+                          maxWidth: '100%',
+                          maxHeight: 220,
+                          borderRadius: 2,
+                          objectFit: 'cover',
+                          border: '1px solid #CBD5E1'
+                        }}
+                      />
+                    </Box>
+                  )}
+                  {mediaUrl && m.media?.type !== 'image' && (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      component="a"
+                      href={mediaUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      startIcon={<DownloadForOfflineIcon />}
+                      sx={{ mb: 0.75, fontWeight: 700 }}
+                    >
+                      {m.media?.filename || `Download ${m.media?.type || 'File'}`}
+                    </Button>
                   )}
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.84rem', lineHeight: 1.45 }}>
                     {m.content}
@@ -1287,8 +1393,59 @@ export default function WhatsAppWorkspace({
               <SmsIcon sx={{ fontSize: 14, mr: 0.4, color: '#0284C7' }} />
               SMS
             </ToggleButton>
+            <ToggleButton value="Note" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
+              <LockOutlinedIcon sx={{ fontSize: 13, mr: 0.4, color: '#D97706' }} />
+              Note
+            </ToggleButton>
           </ToggleButtonGroup>
         </Box>
+
+        {/* Slash Quick-Reply Autocomplete Strip */}
+        {draft.startsWith('/') && (
+          <Paper
+            elevation={3}
+            sx={{
+              mx: 1.25,
+              mb: 0.5,
+              p: 0.75,
+              borderRadius: 2,
+              border: '1px solid #CBD5E1',
+              bgcolor: '#FFFFFF',
+              maxHeight: 180,
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0.4
+            }}
+          >
+            {SLASH_COMMANDS.filter((s) =>
+              s.cmd.startsWith(draft.trim().toLowerCase()) || s.label.toLowerCase().includes(draft.slice(1).toLowerCase())
+            ).map((s) => (
+              <Box
+                key={s.cmd}
+                onClick={() => setDraft(s.text)}
+                sx={{
+                  px: 1,
+                  py: 0.6,
+                  borderRadius: 1.5,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 1,
+                  '&:hover': { bgcolor: '#EFF6FF' }
+                }}
+              >
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59' }}>
+                  {s.cmd} — {s.label}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }} noWrap>
+                  {s.text.slice(0, 48)}...
+                </Typography>
+              </Box>
+            ))}
+          </Paper>
+        )}
 
         {/* Composer Bar */}
         <Box
@@ -1361,9 +1518,11 @@ export default function WhatsAppWorkspace({
               }
             }}
             placeholder={
-              sendChannel === 'SMS'
+              sendChannel === 'Note'
+                ? 'Write private internal staff note (not sent to student)...'
+                : sendChannel === 'SMS'
                 ? `Send Aakash SMS to ${activeThread.name}...`
-                : `Message ${activeThread.name} via WhatsApp Cloud API...`
+                : `Message ${activeThread.name} (type / for quick replies)...`
             }
           />
 
@@ -1373,15 +1532,17 @@ export default function WhatsAppWorkspace({
             onClick={() => handleSend()}
             endIcon={sending ? <CircularProgress size={14} color="inherit" /> : <SendIcon />}
             sx={{
-              bgcolor: sendChannel === 'SMS' ? '#0284C7' : '#16A34A',
-              '&:hover': { bgcolor: sendChannel === 'SMS' ? '#0369A1' : '#15803D' },
+              bgcolor: sendChannel === 'Note' ? '#D97706' : sendChannel === 'SMS' ? '#0284C7' : '#16A34A',
+              '&:hover': {
+                bgcolor: sendChannel === 'Note' ? '#B45309' : sendChannel === 'SMS' ? '#0369A1' : '#15803D'
+              },
               fontWeight: 800,
               px: 2,
               py: 0.85,
               flexShrink: 0
             }}
           >
-            {sendChannel === 'SMS' ? 'Send SMS' : 'Send'}
+            {sendChannel === 'Note' ? 'Save Note' : sendChannel === 'SMS' ? 'Send SMS' : 'Send'}
           </Button>
         </Box>
 

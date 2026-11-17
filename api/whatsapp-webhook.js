@@ -104,6 +104,16 @@ export default async function handler(req, res) {
         ? `[FB Ad: ${referral.headline || referral.source_id || 'Campaign'}] `
         : '';
 
+      const mediaObj = message.image || message.document || message.audio || message.video || null;
+      const mediaInfo = mediaObj?.id
+        ? {
+            id: mediaObj.id,
+            type: message.type,
+            mimeType: mediaObj.mime_type || '',
+            filename: mediaObj.filename || ''
+          }
+        : null;
+
       // Store inbound message in Supabase for Live 3-Pane Hub & Tracking
       await supabaseRest('whatsapp_inbound_events', 'POST', {
         phone: senderPhone,
@@ -113,7 +123,8 @@ export default async function handler(req, res) {
           message_id: message.id,
           type: message.type,
           timestamp: message.timestamp,
-          referral
+          referral,
+          media: mediaInfo
         }
       });
 
