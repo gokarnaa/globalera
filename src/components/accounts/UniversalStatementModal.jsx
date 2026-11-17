@@ -23,7 +23,9 @@ import {
   IconButton,
   Divider,
   Stack,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import SchoolIcon from '@mui/icons-material/School';
@@ -59,6 +61,8 @@ export default function UniversalStatementModal({
   initialEntityType = 'LANDLORD',
   initialEntityId = null
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [entityType, setEntityType] = useState(initialEntityType); // 'STUDENT' | 'LANDLORD' | 'SUPPLIER' | 'TRAINER' | 'BANK'
   const [selectedId, setSelectedId] = useState(initialEntityId || '');
   const [fiscalYear, setFiscalYear] = useState('2082/083');
@@ -311,9 +315,10 @@ export default function UniversalStatementModal({
       onClose={onClose}
       maxWidth="lg"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 25px 70px -15px rgba(15, 23, 42, 0.45)'
         }

@@ -51,6 +51,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import StudentProfileModal from '../students/StudentProfileModal';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 const getInitials = (name = '') => {
   const parts = name.trim().split(' ').filter(Boolean);
@@ -75,6 +76,7 @@ const getAvatarBg = (industry = '', name = '') => {
 export default function EmployerManager() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isBelowMd = useMediaQuery(theme.breakpoints.down('md'));
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -610,7 +612,7 @@ export default function EmployerManager() {
               exclusive
               onChange={(e, next) => next && setViewMode(next)}
               size="small"
-              sx={{ bgcolor: '#ffffff' }}
+              sx={{ bgcolor: '#ffffff', display: { xs: 'none', md: 'inline-flex' } }}
             >
               <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
                 <ViewListIcon fontSize="small" />
@@ -624,9 +626,16 @@ export default function EmployerManager() {
       </Card>
 
       {/* Main Content: Table View vs Card View */}
-      {viewMode === 'table' ? (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-          <TableContainer>
+      {isBelowMd || viewMode === 'table' ? (
+        <ResponsiveDataView
+          rows={filteredEmployers}
+          keyExtractor={(emp) => emp.id}
+          emptyIcon={<BusinessIcon />}
+          emptyTitle="No employer partners found"
+          emptySubtitle="No employer partners found matching the filter criteria."
+          renderTable={() => (
+            <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+              <TableContainer>
             <Table size="small">
               <TableHead
                 sx={{
@@ -784,6 +793,126 @@ export default function EmployerManager() {
             </Table>
           </TableContainer>
         </Card>
+          )}
+          renderCard={(emp) => {
+            const ojtCount = (db.ojts || []).filter((o) => o.employerId === emp.id).length;
+            const placedCount = (db.placements || []).filter((p) => p.employerId === emp.id).length;
+            const statusTone = emp.status === 'Active' ? 'success' : emp.status === 'Pending Approval' ? 'warning' : 'error';
+
+            return (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+                    <Avatar
+                      sx={{
+                        width: 38,
+                        height: 38,
+                        fontWeight: 800,
+                        fontSize: '0.82rem',
+                        bgcolor: getAvatarBg(emp.industry, emp.name),
+                        color: '#ffffff',
+                        borderRadius: '10px',
+                        flexShrink: 0
+                      }}
+                    >
+                      {getInitials(emp.name)}
+                    </Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem', lineHeight: 1.2 }} noWrap>
+                        {emp.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.72rem' }} noWrap>
+                        {emp.industry || 'General'}{emp.location ? ` • ${emp.location}` : ''}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <StatusBadge label={emp.status || 'Active'} tone={statusTone} showDot />
+                </Box>
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1.1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #F1F5F9', mb: 1.25 }}>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
+                      CONTACT PERSON
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }} noWrap>
+                      {emp.contactPerson || '—'} {emp.phone ? `• ${emp.phone}` : ''}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
+                      VACANCIES / TRAINEES
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
+                      {ojtCount} OJT • {placedCount} Placed • Cap {emp.ojtCapacity || 5}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
+                  <Stack direction="row" spacing={0.75}>
+                    {emp.phone && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        component="a"
+                        href={`tel:${emp.phone}`}
+                        startIcon={<PhoneIcon sx={{ fontSize: 14 }} />}
+                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                      >
+                        Call
+                      </Button>
+                    )}
+                    {emp.phone && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        color="success"
+                        component="a"
+                        href={getWhatsAppUrl(emp.phone, 'Namaste, greetings from Prabidhik School, Jorpati.')}
+                        target="_blank"
+                        startIcon={<WhatsAppIcon sx={{ fontSize: 14 }} />}
+                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                      >
+                        WhatsApp
+                      </Button>
+                    )}
+                  </Stack>
+                  <Stack direction="row" spacing={0.75}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<VisibilityIcon sx={{ fontSize: 14 }} />}
+                      onClick={() => {
+                        setProfileEmployer(emp);
+                        setProfileTab(0);
+                      }}
+                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                    >
+                      Profile
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
+                      onClick={() => handleOpenEdit(emp)}
+                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                    >
+                      Edit
+                    </Button>
+                  </Stack>
+                </Box>
+              </Paper>
+            );
+          }}
+        />
       ) : (
         /* Card View */
         <Box>
@@ -1208,6 +1337,7 @@ export default function EmployerManager() {
         <DialogActions
           sx={{
             p: { xs: 1.5, sm: 2.5 },
+            pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 2.5,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',
@@ -1258,7 +1388,8 @@ export default function EmployerManager() {
         onClose={() => setProfileEmployer(null)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3, overflow: 'hidden' } }}
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3, overflow: 'hidden' } }}
       >
         {profileEmployer && (() => {
           const employerOjts = (db.ojts || []).filter((o) => o.employerId === profileEmployer.id);
@@ -1734,7 +1865,7 @@ export default function EmployerManager() {
                 )}
               </DialogContent>
 
-              <DialogActions sx={{ px: 2.5, py: 1.25 }}>
+              <DialogActions sx={{ px: 2.5, py: 1.25, pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 1.25 }}>
                 <Button size="small" onClick={() => setProfileEmployer(null)}>Close</Button>
               </DialogActions>
             </>
@@ -1769,7 +1900,14 @@ export default function EmployerManager() {
       </Dialog>
 
       {/* In-Employer Add OJT Modal */}
-      <Dialog open={openAddOjtModal} onClose={() => setOpenAddOjtModal(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openAddOjtModal}
+        onClose={() => setOpenAddOjtModal(false)}
+        maxWidth="sm"
+        fullWidth
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+      >
         <DialogTitle sx={{ fontWeight: 800 }}>
           Assign OJT Trainee to {profileEmployer?.name}
         </DialogTitle>
@@ -1859,7 +1997,7 @@ export default function EmployerManager() {
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 2, pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 2 }}>
           <Button onClick={() => setOpenAddOjtModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleSaveOjtForEmployer} sx={{ fontWeight: 800, bgcolor: '#1a56b0' }}>
             Assign OJT
@@ -1868,7 +2006,14 @@ export default function EmployerManager() {
       </Dialog>
 
       {/* In-Employer Add Placement Modal */}
-      <Dialog open={openAddPlacementModal} onClose={() => setOpenAddPlacementModal(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openAddPlacementModal}
+        onClose={() => setOpenAddPlacementModal(false)}
+        maxWidth="sm"
+        fullWidth
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 3 } }}
+      >
         <DialogTitle sx={{ fontWeight: 800 }}>
           Record Placed Graduate at {profileEmployer?.name}
         </DialogTitle>
@@ -1975,7 +2120,7 @@ export default function EmployerManager() {
             />
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
+        <DialogActions sx={{ p: 2, pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 2 }}>
           <Button onClick={() => setOpenAddPlacementModal(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleSavePlacementForEmployer} sx={{ fontWeight: 800, bgcolor: '#16834b' }}>
             Record Placement

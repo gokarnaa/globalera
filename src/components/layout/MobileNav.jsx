@@ -13,10 +13,12 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import BusinessIcon from '@mui/icons-material/Business';
 import WorkIcon from '@mui/icons-material/Work';
+import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import { useAuth } from '../../context/AuthContext';
 
 export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
-  const { isStudent, isEmployer } = useAuth();
+  const { isStudent, isEmployer, isTrainer } = useAuth();
 
   const handleChange = (event, newValue) => {
     if (newValue === 'menu') {
@@ -29,8 +31,8 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
   let navConfig;
   if (isStudent) {
     navConfig = {
-      accentColor: '#0d9488',
-      selectedBg: 'rgba(13, 148, 136, 0.10)',
+      accentColor: '#0D9488',
+      selectedBg: 'rgba(13, 148, 136, 0.12)',
       items: [
         { label: 'My Portal', value: 'student_portal', icon: <SchoolIcon /> },
         { label: 'Certificate', value: 'certificates', icon: <WorkspacePremiumIcon /> },
@@ -40,23 +42,35 @@ export default function MobileNav({ currentTab, onSelectTab, onOpenMenu }) {
     };
   } else if (isEmployer) {
     navConfig = {
-      accentColor: '#0284c7',
-      selectedBg: 'rgba(2, 132, 199, 0.10)',
+      accentColor: '#0284C7',
+      selectedBg: 'rgba(2, 132, 199, 0.12)',
       items: [
         { label: 'Employer', value: 'employer_portal', icon: <BusinessIcon /> },
         { label: 'OJT / Jobs', value: 'placements', icon: <WorkIcon /> },
         { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
       ]
     };
-  } else {
+  } else if (isTrainer) {
     navConfig = {
-      accentColor: '#1a56b0',
-      selectedBg: 'rgba(26, 86, 176, 0.10)',
+      accentColor: '#0F2C59',
+      selectedBg: 'rgba(15, 44, 89, 0.10)',
       items: [
         { label: 'Home', value: 'dashboard', icon: <DashboardIcon /> },
         { label: 'Groups', value: 'groups', icon: <GroupWorkIcon /> },
         { label: 'Attendance', value: 'attendance', icon: <FactCheckIcon /> },
         { label: 'Students', value: 'students', icon: <SchoolIcon /> },
+        { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
+      ]
+    };
+  } else {
+    navConfig = {
+      accentColor: '#0F2C59',
+      selectedBg: 'rgba(15, 44, 89, 0.10)',
+      items: [
+        { label: 'Home', value: 'dashboard', icon: <DashboardIcon /> },
+        { label: 'Leads', value: 'leads', icon: <PersonAddAlt1Icon /> },
+        { label: 'Students', value: 'students', icon: <SchoolIcon /> },
+        { label: 'Accounts', value: 'accounts', icon: <AccountBalanceWalletIcon /> },
         { label: 'Menu', value: 'menu', icon: <MenuIcon /> }
       ]
     };

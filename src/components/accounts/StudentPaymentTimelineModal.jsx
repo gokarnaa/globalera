@@ -15,7 +15,9 @@ import {
   Stepper,
   Step,
   StepLabel,
-  StepContent
+  StepContent,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -34,6 +36,8 @@ export default function StudentPaymentTimelineModal({
   onCollectDue,
   onOpenClearanceCertificate
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   if (!student || !ledger) return null;
 
   const studentPayments = payments.filter((p) => p.studentId === student.id);
@@ -57,7 +61,7 @@ export default function StudentPaymentTimelineModal({
   }
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth scroll="paper">
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth fullScreen={isMobile} scroll="paper">
       <DialogTitle
         sx={{
           bgcolor: '#0f2e5a',

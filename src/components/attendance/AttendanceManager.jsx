@@ -68,6 +68,7 @@ import {
   formatPunchTime
 } from '../../services/biometricService';
 import { playBiometricBeep } from '../../services/soundUtils';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 export default function AttendanceManager({ initialGroupId = null }) {
   const theme = useTheme();
@@ -348,6 +349,19 @@ export default function AttendanceManager({ initialGroupId = null }) {
         }
       };
     });
+  };
+
+  // Direct status update for segmented pill buttons (P / A / L)
+  const handleSetStatus = (studentId, nextStatus) => {
+    setSessionRecords((prev) => ({
+      ...prev,
+      [studentId]: {
+        ...prev[studentId],
+        status: nextStatus,
+        source: 'ADMIN_MANUAL',
+        verifiedBy: `${currentUser?.name || 'Admin'} (Manual)`
+      }
+    }));
   };
 
   const handleBulkStatus = (statusValue) => {
@@ -816,7 +830,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
           >
             <Grid container spacing={1.25} alignItems="center">
               {/* Group Selector */}
-              <Grid item xs={7} sm={5.5}>
+              <Grid item xs={12} sm={5.5}>
                 <TextField
                   select
                   size="small"
@@ -835,7 +849,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
               </Grid>
 
               {/* Date Picker */}
-              <Grid item xs={5} sm={3.5}>
+              <Grid item xs={12} sm={3.5}>
                 <TextField
                   type="date"
                   size="small"
@@ -1030,7 +1044,7 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 exclusive
                 onChange={(e, next) => next && setMarkViewMode(next)}
                 size="small"
-                sx={{ bgcolor: '#fff' }}
+                sx={{ display: { xs: 'none', md: 'inline-flex' }, bgcolor: '#fff' }}
               >
                 <ToggleButton value="table" sx={{ fontWeight: 700, px: { xs: 1.1, sm: 1.5 }, py: 0.5, fontSize: { xs: '0.75rem', sm: '0.82rem' } }}>
                   <ViewListIcon fontSize="small" sx={{ mr: 0.5 }} /> Table View
@@ -1042,18 +1056,24 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Box>
           </Box>
 
-          {/* 2. TABLE VIEW: ROCK-SOLID SINGLE CYCLE BUTTON (P -> A -> L) */}
+          {/* 2. TABLE VIEW (Desktop) & NATIVE MOBILE CARD VIEW (ResponsiveDataView) */}
           {markViewMode === 'table' ? (
-            <Card
-              elevation={0}
-              sx={{
-                borderRadius: 2,
-                border: '1px solid #e2e8f0',
-                overflow: 'hidden',
-                mb: 2.5
-              }}
-            >
-              <TableContainer sx={{ overflowX: { xs: 'hidden', md: 'auto' } }}>
+            <Box sx={{ mb: 2.5 }}>
+              <ResponsiveDataView
+                rows={displayedStudents}
+                keyExtractor={(std) => std.id}
+                emptyTitle="No students matched."
+                emptySubtitle="Try adjusting your search or selecting a different training group."
+                renderTable={() => (
+                  <Card
+                    elevation={0}
+                    sx={{
+                      borderRadius: 2,
+                      border: '1px solid #e2e8f0',
+                      overflow: 'hidden'
+                    }}
+                  >
+                    <TableContainer sx={{ overflowX: { xs: 'hidden', md: 'auto' } }}>
                 <Table size="small" sx={{ minWidth: { xs: 0, md: 650 }, tableLayout: { xs: 'fixed', md: 'auto' } }}>
                   <TableHead
                     sx={{
@@ -1352,6 +1372,187 @@ export default function AttendanceManager({ initialGroupId = null }) {
                 </Button>
               </Box>
             </Card>
+                )}
+                renderCard={(std, idx) => {
+                  const rec = sessionRecords[std.id] || { status: 'P', remarks: '' };
+                  const selectedStatus = rec.status;
+                  const statusMeta =
+                    selectedStatus === 'P'
+                      ? { label: 'Present', tone: 'success' }
+                      : selectedStatus === 'A'
+                      ? { label: 'Absent', tone: 'error' }
+                      : { label: 'Late', tone: 'warning' };
+
+                  const pillOptions = [
+                    { value: 'P', label: 'Present', activeBg: '#16834b', activeBorder: '#118146' },
+                    { value: 'A', label: 'Absent', activeBg: '#d5372f', activeBorder: '#b82b24' },
+                    { value: 'L', label: 'Late', activeBg: '#d48806', activeBorder: '#b57204' }
+                  ];
+
+                  return (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 1.5,
+                        borderRadius: 2.5,
+                        border: '1px solid #E2E8F0',
+                        bgcolor: '#FFFFFF'
+                      }}
+                    >
+                      {/* Top Row: Avatar/Initial + Student Name + Student Code + StatusBadge */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.25 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0, flex: 1 }}>
+                          <Avatar
+                            src={std.photoUrl}
+                            sx={{
+                              width: 40,
+                              height: 40,
+                              bgcolor: '#1a56b0',
+                              fontWeight: 800,
+                              fontSize: '0.95rem',
+                              flexShrink: 0
+                            }}
+                          >
+                            {std.name?.[0] || idx + 1}
+                          </Avatar>
+                          <Box sx={{ minWidth: 0, flex: 1 }}>
+                            <Typography
+                              variant="subtitle2"
+                              noWrap
+                              sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.25 }}
+                            >
+                              {std.name}
+                            </Typography>
+                            <Typography
+                              variant="caption"
+                              noWrap
+                              sx={{ color: '#64748B', fontWeight: 600, display: 'block', mt: 0.15 }}
+                            >
+                              {std.tgid} • #{idx + 1}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        <StatusBadge
+                          label={statusMeta.label}
+                          tone={statusMeta.tone}
+                          showDot
+                        />
+                      </Box>
+
+                      {/* Optional Check-in / Remarks Strip */}
+                      {(rec.checkInTime || rec.source === 'BIOMETRIC' || rec.remarks) && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexWrap: 'wrap', mt: 1 }}>
+                          {(rec.checkInTime || rec.source === 'BIOMETRIC') && (
+                            <Chip
+                              size="small"
+                              icon={<FingerprintIcon sx={{ fontSize: '12px !important', color: '#15803D !important' }} />}
+                              label={
+                                rec.source === 'BIOMETRIC'
+                                  ? `Biometric (${rec.checkInTime || 'On-time'})`
+                                  : `Check-in: ${rec.checkInTime}`
+                              }
+                              sx={{
+                                height: 20,
+                                fontSize: '0.67rem',
+                                fontWeight: 700,
+                                bgcolor: '#DCFCE7',
+                                color: '#15803D'
+                              }}
+                            />
+                          )}
+                          {rec.remarks && (
+                            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                              Note: {rec.remarks}
+                            </Typography>
+                          )}
+                        </Box>
+                      )}
+
+                      {/* Bottom Row: Touch-Friendly Segmented Present / Absent / Late Pill Buttons */}
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 1.25 }}>
+                        <Box
+                          sx={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(3, 1fr)',
+                            gap: 0.75,
+                            flex: 1
+                          }}
+                        >
+                          {pillOptions.map((opt) => {
+                            const isActive = selectedStatus === opt.value;
+                            return (
+                              <Button
+                                key={opt.value}
+                                size="small"
+                                onClick={() => handleSetStatus(std.id, opt.value)}
+                                aria-pressed={isActive}
+                                sx={{
+                                  minHeight: 36,
+                                  borderRadius: '999px',
+                                  fontWeight: 800,
+                                  fontSize: '0.76rem',
+                                  textTransform: 'none',
+                                  border: `1.5px solid ${isActive ? opt.activeBorder : '#E2E8F0'}`,
+                                  bgcolor: isActive ? opt.activeBg : '#F8FAFC',
+                                  color: isActive ? '#FFFFFF' : '#475569',
+                                  boxShadow: isActive ? '0 2px 8px rgba(15, 23, 42, 0.14)' : 'none',
+                                  '&:hover': {
+                                    bgcolor: isActive ? opt.activeBg : '#F1F5F9'
+                                  }
+                                }}
+                              >
+                                {opt.label}
+                              </Button>
+                            );
+                          })}
+                        </Box>
+
+                        {selectedStatus === 'A' && (
+                          <Tooltip title="Send WhatsApp absent notice to parent">
+                            <IconButton
+                              size="small"
+                              component="a"
+                              href={getWhatsAppUrl(
+                                std.guardianContact || std.phone,
+                                `Namaste, this is from KITE Training Center. Student ${std.name} (${std.tgid}) was marked Absent on ${selectedDate}.`
+                              )}
+                              target="_blank"
+                              sx={{
+                                color: '#25D366',
+                                bgcolor: '#e5f8ee',
+                                border: '1px solid #bdf0d2',
+                                width: 36,
+                                height: 36,
+                                flexShrink: 0,
+                                '&:hover': { bgcolor: '#c9efd9' }
+                              }}
+                            >
+                              <WhatsAppIcon sx={{ fontSize: 18 }} />
+                            </IconButton>
+                          </Tooltip>
+                        )}
+                      </Box>
+                    </Paper>
+                  );
+                }}
+              />
+
+              {displayedStudents.length > 0 && (
+                <Box sx={{ display: { xs: 'flex', md: 'none' }, mt: 1.5 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    startIcon={<SaveIcon />}
+                    onClick={handleSaveAttendance}
+                    sx={{ fontWeight: 900, borderRadius: 2.5, py: 1.1 }}
+                  >
+                    Submit Attendance ({pCount}P / {aCount}A / {lCount}L)
+                  </Button>
+                </Box>
+              )}
+            </Box>
           ) : (
             /* CARD VIEW */
             <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -2735,7 +2936,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Card>
 
             {/* MODAL 1: USB / PENDRIVE LOG IMPORT DIALOG */}
-            <Dialog open={openUsbDialog} onClose={() => setOpenUsbDialog(false)} maxWidth="sm" fullWidth>
+            <Dialog
+              open={openUsbDialog}
+              onClose={() => setOpenUsbDialog(false)}
+              maxWidth="sm"
+              fullWidth
+              fullScreen={isMobile}
+              PaperProps={{ sx: { borderRadius: isMobile ? 0 : 2.5 } }}
+            >
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
                 📁 Import Offline USB / Flash Drive Logs
               </DialogTitle>
@@ -2787,7 +2995,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Dialog>
 
             {/* MODAL 2: SHIFT TIMINGS & GRACE SETTINGS DIALOG */}
-            <Dialog open={openSettingsDialog} onClose={() => setOpenSettingsDialog(false)} maxWidth="sm" fullWidth>
+            <Dialog
+              open={openSettingsDialog}
+              onClose={() => setOpenSettingsDialog(false)}
+              maxWidth="sm"
+              fullWidth
+              fullScreen={isMobile}
+              PaperProps={{ sx: { borderRadius: isMobile ? 0 : 2.5 } }}
+            >
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
                 ⚙️ Biometric Device & Shift Schedule Settings
               </DialogTitle>
@@ -2889,7 +3104,14 @@ export default function AttendanceManager({ initialGroupId = null }) {
             </Dialog>
 
             {/* MODAL 3: LIVE SIMULATION PUNCH TEST DIALOG */}
-            <Dialog open={openSimulateDialog} onClose={() => setOpenSimulateDialog(false)} maxWidth="sm" fullWidth>
+            <Dialog
+              open={openSimulateDialog}
+              onClose={() => setOpenSimulateDialog(false)}
+              maxWidth="sm"
+              fullWidth
+              fullScreen={isMobile}
+              PaperProps={{ sx: { borderRadius: isMobile ? 0 : 2.5 } }}
+            >
               <DialogTitle sx={{ fontWeight: 900, bgcolor: '#0F2E5A', color: '#FFFFFF' }}>
                 🧪 Live Thumb Scan Simulation Test
               </DialogTitle>

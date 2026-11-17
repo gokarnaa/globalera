@@ -24,7 +24,10 @@ import {
   Tooltip,
   InputAdornment,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  Paper,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -41,10 +44,15 @@ import WorkIcon from '@mui/icons-material/Work';
 import PersonIcon from '@mui/icons-material/Person';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 export default function PlacementManager() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isBelowMd = useMediaQuery(theme.breakpoints.down('md'));
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -476,7 +484,7 @@ export default function PlacementManager() {
               exclusive
               onChange={(e, next) => next && setViewMode(next)}
               size="small"
-              sx={{ bgcolor: '#ffffff' }}
+              sx={{ bgcolor: '#ffffff', display: { xs: 'none', md: 'inline-flex' } }}
             >
               <ToggleButton value="table" title="Table View" sx={{ py: 0.4, px: 0.9 }}>
                 <ViewListIcon fontSize="small" />
@@ -490,9 +498,16 @@ export default function PlacementManager() {
       </Card>
 
       {/* Main Content: Table View vs Card View */}
-      {viewMode === 'table' ? (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-          <TableContainer>
+      {isBelowMd || viewMode === 'table' ? (
+        <ResponsiveDataView
+          rows={filteredPlacements}
+          keyExtractor={(plc) => plc.id}
+          emptyIcon={<RocketLaunchIcon />}
+          emptyTitle="No placement records found"
+          emptySubtitle="No placement records found matching the filter criteria."
+          renderTable={() => (
+            <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+              <TableContainer>
             <Table size="small">
               <TableHead
                 sx={{
@@ -603,6 +618,94 @@ export default function PlacementManager() {
             </Table>
           </TableContainer>
         </Card>
+          )}
+          renderCard={(plc, idx) => {
+            const std = (db.students || []).find((s) => s.id === plc.studentId);
+            const emp = (db.employers || []).find((e) => e.id === plc.employerId);
+            const statusTone = plc.status === 'Placed' ? 'success' : plc.status === 'Ongoing' ? 'warning' : 'primary';
+
+            return (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
+                }}
+              >
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+                    <Avatar src={std?.photoUrl} sx={{ width: 38, height: 38, bgcolor: '#1a56b0', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0 }}>
+                      {std?.name?.[0] || 'S'}
+                    </Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem', lineHeight: 1.2 }} noWrap>
+                        {std?.name || 'Student'}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, display: 'block', fontSize: '0.72rem' }} noWrap>
+                        {plc.targetJob} • {emp?.name || 'Self-Employed / Freelance'}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <StatusBadge label={plc.status} tone={statusTone} showDot />
+                </Box>
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1.1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #F1F5F9', mb: 1.25 }}>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
+                      SALARY / LOCATION
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }} noWrap>
+                      {plc.expectedSalary || 'Negotiable'} • {plc.preferredLocation || emp?.location || 'Nepal'}
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
+                      PLACEMENT DATE
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
+                      {plc.placementDate || plc.createdAt?.slice(0, 10) || '—'}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
+                    {std?.tgid || `#${idx + 1}`} • {plc.employmentType}
+                  </Typography>
+                  <Stack direction="row" spacing={0.75}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<VisibilityIcon sx={{ fontSize: 14 }} />}
+                      onClick={() => handleOpenEdit(plc)}
+                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                    >
+                      View
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
+                      onClick={() => handleOpenEdit(plc)}
+                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
+                    >
+                      Edit
+                    </Button>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDelete(plc.id)}
+                      sx={{ color: '#d5372f', bgcolor: '#fef2f2', borderRadius: 1.5, '&:hover': { bgcolor: '#fee2e2' } }}
+                    >
+                      <DeleteOutlineIcon sx={{ fontSize: 17 }} />
+                    </IconButton>
+                  </Stack>
+                </Box>
+              </Paper>
+            );
+          }}
+        />
       ) : (
         /* Card View */
         <Box>
@@ -779,12 +882,13 @@ export default function PlacementManager() {
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: isMobile ? 0 : 4,
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -960,6 +1064,7 @@ export default function PlacementManager() {
         <DialogActions
           sx={{
             p: 2.5,
+            pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 2.5,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

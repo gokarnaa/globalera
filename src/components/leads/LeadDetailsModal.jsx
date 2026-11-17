@@ -15,7 +15,9 @@ import {
   TextField,
   Avatar,
   Stack,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PhoneIcon from '@mui/icons-material/Phone';
@@ -44,6 +46,8 @@ export default function LeadDetailsModal({
   onEditLead,
   onConvertToStudent
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { currentUser } = useAuth();
   const [newNote, setNewNote] = useState('');
 
@@ -79,9 +83,14 @@ export default function LeadDetailsModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
+      scroll="paper"
       PaperProps={{
         sx: {
-          borderRadius: 3,
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100dvh' : '92vh',
+          display: 'flex',
+          flexDirection: 'column',
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
           border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -94,6 +103,7 @@ export default function LeadDetailsModal({
           m: 0,
           py: 1.75,
           px: 2.5,
+          flexShrink: 0,
           background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           borderBottom: '2.5px solid #F59E0B',
@@ -194,7 +204,7 @@ export default function LeadDetailsModal({
         </Stack>
       </DialogTitle>
 
-      <DialogContent sx={{ p: { xs: 1.75, sm: 2.25 }, bgcolor: '#F8FAFC' }}>
+      <DialogContent sx={{ p: { xs: 1.75, sm: 2.25 }, bgcolor: '#F8FAFC', flex: 1, overflowY: 'auto' }}>
         {/* 1-Row Horizontal Stepped Pipeline Bar */}
         <Paper
           elevation={0}
@@ -493,7 +503,17 @@ export default function LeadDetailsModal({
         </Grid>
       </DialogContent>
 
-      <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+      <DialogActions
+        sx={{
+          px: 2.5,
+          pt: 1.5,
+          pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 1.5,
+          flexShrink: 0,
+          bgcolor: '#FFFFFF',
+          borderTop: '1px solid #E2E8F0',
+          justifyContent: 'space-between'
+        }}
+      >
         <Button size="small" onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
           Close
         </Button>

@@ -54,6 +54,7 @@ import confetti from 'canvas-confetti';
 import { loadDB, saveDB, logAudit, COURSE_TIERS, DURATION_PRESETS } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 // Quick Template presets for new vocational courses
 const COURSE_TEMPLATES = [
@@ -830,8 +831,105 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
           VIEW 2: SORTABLE PRODUCTION TABLE VIEW
           ======================================================= */}
       {viewMode === 'table' && (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-          <TableContainer>
+        <ResponsiveDataView
+          rows={filteredAndSortedCourses}
+          keyExtractor={(crs) => crs.id}
+          emptyIcon={<SchoolIcon sx={{ fontSize: 28 }} />}
+          emptyTitle="No Courses Found"
+          emptySubtitle="No courses match your current search or filter criteria."
+          emptyAction={
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+              Add Course
+            </Button>
+          }
+          renderCard={(crs) => {
+            const occ = (db.occupations || []).find((o) => o.id === crs.occupationId);
+            const syllabusUnits = (db.syllabi || []).filter((s) => s.courseId === crs.id);
+            const batches = (db.trainingGroups || []).filter((g) => g.courseId === crs.id);
+            const statusLabel = crs.status || 'Active';
+            const statusTone = statusLabel === 'Active' ? 'success' : 'error';
+
+            return (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.3 }}>
+                      {crs.title}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600 }}>
+                      {occ?.name || 'Technical Trade'} • {crs.level || 'CTEVT Level 1'}
+                    </Typography>
+                  </Box>
+                  <StatusBadge label={statusLabel} tone={statusTone} showDot />
+                </Stack>
+
+                <Divider sx={{ my: 1.25, borderColor: '#F1F5F9' }} />
+
+                <Grid container spacing={1} sx={{ mb: 1.25 }}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Duration
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.8rem' }}>
+                      {crs.durationValue} {crs.durationUnit} ({crs.totalHours || 390}h)
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6} sx={{ textAlign: 'right' }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Course Fee
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.88rem', fontVariantNumeric: 'tabular-nums' }}>
+                      Rs. {Number(crs.price || 0).toLocaleString()}
+                    </Typography>
+                  </Grid>
+                </Grid>
+
+                <Stack direction="row" spacing={0.75} justifyContent="flex-end" alignItems="center">
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<MenuBookIcon sx={{ fontSize: '14px !important' }} />}
+                    onClick={() =>
+                      onNavigateToSyllabus
+                        ? onNavigateToSyllabus(crs.id)
+                        : setSelectedCourseDetails({ ...crs, occupation: occ, syllabusUnits, batches })
+                    }
+                    sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none' }}
+                  >
+                    Syllabus
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+                    onClick={() => handleOpenEdit(crs)}
+                    sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#0F2E5A', borderColor: '#CBD5E1' }}
+                  >
+                    Edit
+                  </Button>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(crs.id)}
+                    aria-label="Delete course"
+                    sx={{ color: '#EF4444', bgcolor: '#FEF2F2', p: 0.6, borderRadius: 1.5 }}
+                  >
+                    <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Stack>
+              </Paper>
+            );
+          }}
+          renderTable={() => (
+            <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+              <TableContainer>
             <Table size="small">
               <TableHead
                 sx={{
@@ -1025,6 +1123,8 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
             </Table>
           </TableContainer>
         </Card>
+          )}
+        />
       )}
 
       {/* =======================================================
@@ -1333,7 +1433,9 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         </DialogContent>
         <DialogActions
           sx={{
-            p: { xs: 1.5, sm: 2.5 },
+            px: { xs: 1.5, sm: 2.5 },
+            pt: { xs: 1.5, sm: 2 },
+            pb: isMobile ? 'calc(12px + env(safe-area-inset-bottom))' : 2.5,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

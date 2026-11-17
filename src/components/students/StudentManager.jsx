@@ -49,17 +49,22 @@ import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import CallIcon from '@mui/icons-material/Call';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { exportToExcel, getWhatsAppUrl } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
+import { ResponsiveDataView, StatusBadge } from '../common';
+import StudentPaymentTimelineModal from '../accounts/StudentPaymentTimelineModal';
 import StudentProfileModal from './StudentProfileModal';
 import StudentIdCardModal from '../admission/StudentIdCardModal';
 
 export default function StudentManager() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isBelowMd = useMediaQuery(theme.breakpoints.down('md'));
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
   const { confirm, alert } = useDialog();
@@ -78,6 +83,7 @@ export default function StudentManager() {
   const [editingItem, setEditingItem] = useState(null);
   const [profileStudent, setProfileStudent] = useState(null);
   const [idCardStudent, setIdCardStudent] = useState(null);
+  const [timelineStudent, setTimelineStudent] = useState(null);
   const [profileTab, setProfileTab] = useState(0);
 
   const [filterGroup, setFilterGroup] = useState('ALL');
@@ -510,9 +516,17 @@ export default function StudentManager() {
       </Card>
 
       {/* Students Data View (Table or Card) */}
-      {viewMode === 'table' ? (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-          <TableContainer>
+      {isBelowMd || viewMode === 'table' ? (
+        <Box>
+          <ResponsiveDataView
+            rows={paginatedStudents}
+            keyExtractor={(student) => student.id}
+            emptyIcon={<SchoolIcon />}
+            emptyTitle="No students found"
+            emptySubtitle="No students found matching your criteria."
+            renderTable={() => (
+              <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+                <TableContainer>
             <Table size="small">
               <TableHead
                 sx={{
@@ -718,12 +732,266 @@ export default function StudentManager() {
               setRowsPerPage(parseInt(e.target.value, 10));
               setPage(0);
             }}
-            sx={{
-              borderTop: '1px solid #E2E8F0',
-              bgcolor: '#F8FAFC'
+                sx={{
+                  borderTop: '1px solid #E2E8F0',
+                  bgcolor: '#F8FAFC'
+                }}
+              />
+            </Card>
+            )}
+            renderCard={(student) => {
+              const grp = (db.trainingGroups || []).find((g) => g.id === student.groupId);
+              const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+              const fee = getStudentFeeSummary(student);
+              const statusTone =
+                student.status === 'Active'
+                  ? 'success'
+                  : student.status === 'Completed'
+                  ? 'info'
+                  : student.status === 'Dropped'
+                  ? 'error'
+                  : 'neutral';
+
+              return (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 1.75,
+                    borderRadius: 2.5,
+                    border: '1px solid #E2E8F0',
+                    bgcolor: '#FFFFFF'
+                  }}
+                >
+                  {/* Top Row: Avatar/Photo + Student Name + Reg/Code + StatusBadge */}
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1.25, mb: 1.25 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                      <Avatar
+                        src={student.photoUrl}
+                        sx={{ width: 44, height: 44, bgcolor: '#1a56b0', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}
+                      >
+                        {student.name?.[0] || 'S'}
+                      </Avatar>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography
+                          sx={{
+                            fontWeight: 800,
+                            fontSize: '0.92rem',
+                            color: '#0F172A',
+                            lineHeight: 1.25,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {student.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', mt: 0.2 }}>
+                          {student.tgid || 'N/A'} {student.biometricId ? `• #${student.biometricId}` : ''}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <StatusBadge label={student.status || 'Active'} tone={statusTone} showDot />
+                  </Box>
+
+                  {/* Middle 2-column grid: Course/Trade, Batch/Group, Phone, and Fee/Due summary */}
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+                      gap: 1,
+                      p: 1.2,
+                      borderRadius: 2,
+                      bgcolor: '#F8FAFC',
+                      border: '1px solid #F1F5F9',
+                      mb: 1.25
+                    }}
+                  >
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', fontWeight: 700, display: 'block' }}>
+                        Course / Trade
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
+                        {course?.title || 'Vocational Training'}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', fontWeight: 700, display: 'block' }}>
+                        Batch / Group
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#1E40AF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
+                      >
+                        {grp?.groupCode || 'Unassigned'}{grp?.shift ? ` • ${grp.shift}` : ''}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', fontWeight: 700, display: 'block' }}>
+                        Phone
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 700, fontSize: '0.78rem', color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+                        {student.phone || 'N/A'}
+                      </Typography>
+                    </Box>
+
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', fontWeight: 700, display: 'block' }}>
+                        Fee / Due
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          fontWeight: 800,
+                          fontSize: '0.78rem',
+                          color: fee.due > 0 ? '#DC2626' : '#047857',
+                          fontVariantNumeric: 'tabular-nums'
+                        }}
+                      >
+                        {fee.due > 0 ? `Due Rs. ${fee.due.toLocaleString()}` : `${fee.status} (Rs. ${fee.totalPaid.toLocaleString()})`}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Bottom Action Bar: 1-tap View Profile, Payment Timeline, ID Card, Edit, Call/WhatsApp */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 0.75,
+                      pt: 1,
+                      borderTop: '1px solid #F1F5F9'
+                    }}
+                  >
+                    <Stack direction="row" spacing={0.75} alignItems="center" sx={{ flexWrap: 'wrap', rowGap: 0.75 }}>
+                      <Button
+                        size="small"
+                        startIcon={<VisibilityIcon sx={{ fontSize: '14px !important' }} />}
+                        onClick={() => setProfileStudent(student)}
+                        sx={{
+                          px: 1,
+                          py: 0.45,
+                          minWidth: 0,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          textTransform: 'none',
+                          color: '#1a56b0',
+                          bgcolor: '#eff6ff',
+                          border: '1px solid #bfdbfe',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        View Profile
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<TimelineIcon sx={{ fontSize: '14px !important' }} />}
+                        onClick={() => setTimelineStudent(student)}
+                        sx={{
+                          px: 1,
+                          py: 0.45,
+                          minWidth: 0,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          textTransform: 'none',
+                          color: '#0F766E',
+                          bgcolor: '#F0FDFA',
+                          border: '1px solid #99F6E4',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        Payment Timeline
+                      </Button>
+                      <Button
+                        size="small"
+                        startIcon={<QrCode2Icon sx={{ fontSize: '14px !important' }} />}
+                        onClick={() => setIdCardStudent(student)}
+                        sx={{
+                          px: 1,
+                          py: 0.45,
+                          minWidth: 0,
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          textTransform: 'none',
+                          color: '#6c3fc9',
+                          bgcolor: '#f5f3ff',
+                          border: '1px solid #ddd6fe',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        ID Card
+                      </Button>
+                    </Stack>
+
+                    <Stack direction="row" spacing={0.5} alignItems="center">
+                      <Tooltip title="Edit Student">
+                        <IconButton
+                          size="small"
+                          aria-label="Edit Student"
+                          onClick={() => handleOpenEdit(student)}
+                          sx={{ color: '#1a56b0', bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', p: 0.65 }}
+                        >
+                          <EditIcon sx={{ fontSize: '1rem' }} />
+                        </IconButton>
+                      </Tooltip>
+                      {student.phone && (
+                        <>
+                          <Tooltip title="Call Student">
+                            <IconButton
+                              size="small"
+                              aria-label="Call Student"
+                              component="a"
+                              href={`tel:${student.phone}`}
+                              sx={{ color: '#0369A1', bgcolor: '#F0F9FF', border: '1px solid #BAE6FD', p: 0.65 }}
+                            >
+                              <CallIcon sx={{ fontSize: '1rem' }} />
+                            </IconButton>
+                          </Tooltip>
+                          <Tooltip title="WhatsApp Student">
+                            <IconButton
+                              size="small"
+                              aria-label="WhatsApp Student"
+                              component="a"
+                              href={getWhatsAppUrl(student.phone, `Namaste ${student.name}, update from Prabidhik School, Jorpati.`)}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{ color: '#15803D', bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', p: 0.65 }}
+                            >
+                              <WhatsAppIcon sx={{ fontSize: '1rem' }} />
+                            </IconButton>
+                          </Tooltip>
+                        </>
+                      )}
+                    </Stack>
+                  </Box>
+                </Paper>
+              );
             }}
           />
-        </Card>
+          {isBelowMd && filteredStudents.length > 0 && (
+            <Card sx={{ mt: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#fff', overflow: 'hidden' }}>
+              <TablePagination
+                rowsPerPageOptions={[10, 25, 50, 100]}
+                component="div"
+                count={filteredStudents.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                onPageChange={(e, newPage) => setPage(newPage)}
+                onRowsPerPageChange={(e) => {
+                  setRowsPerPage(parseInt(e.target.value, 10));
+                  setPage(0);
+                }}
+                sx={{ bgcolor: '#F8FAFC' }}
+              />
+            </Card>
+          )}
+        </Box>
       ) : (
         /* Card View */
         <Box>
@@ -1193,7 +1461,12 @@ export default function StudentManager() {
         </DialogContent>
         <DialogActions
           sx={{
-            p: { xs: 1.5, sm: 2.5 },
+            position: 'sticky',
+            bottom: 0,
+            zIndex: 2,
+            px: { xs: 2, sm: 2.5 },
+            pt: { xs: 1.5, sm: 2 },
+            pb: { xs: 'calc(12px + env(safe-area-inset-bottom))', sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',
@@ -1265,6 +1538,37 @@ export default function StudentManager() {
           admission={(db.admissions || []).find((a) => a.studentId === idCardStudent.id || a.tgid === idCardStudent.tgid)}
         />
       )}
+
+      {/* Direct Payment Timeline Modal (from Mobile Card View) */}
+      {timelineStudent && (() => {
+        const grp = (db.trainingGroups || []).find((g) => g.id === timelineStudent.groupId);
+        const course = (db.courses || []).find((c) => c.id === grp?.courseId);
+        const fee = getStudentFeeSummary(timelineStudent);
+        return (
+          <StudentPaymentTimelineModal
+            open={Boolean(timelineStudent)}
+            onClose={() => setTimelineStudent(null)}
+            student={timelineStudent}
+            ledger={{
+              courseTitle: course?.title || 'Vocational Training',
+              groupCode: grp?.groupCode || grp?.name || 'Batch',
+              lockedFee: fee.lockedFee,
+              netFee: fee.lockedFee,
+              discountAmount: timelineStudent.discountAmount || 0,
+              totalPaid: fee.totalPaid,
+              due: fee.due,
+              dueDateStr: timelineStudent.expectedEndDate || '2025-12-31',
+              paymentStatus: fee.status
+            }}
+            payments={db.payments || []}
+            onCollectDue={() => {
+              const target = timelineStudent;
+              setTimelineStudent(null);
+              setProfileStudent(target);
+            }}
+          />
+        );
+      })()}
     </Box>
   );
 }

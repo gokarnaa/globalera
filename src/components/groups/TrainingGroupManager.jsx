@@ -51,10 +51,12 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, getActiveGroupTrainees, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 export default function TrainingGroupManager({ onNavigateToAttendance, onNavigateToStudents }) {
   const theme = useTheme();
@@ -918,8 +920,113 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
           VIEW 2: SORTABLE PRODUCTION TABLE VIEW
           ======================================================= */}
       {viewMode === 'table' && (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
-          <TableContainer>
+        <ResponsiveDataView
+          rows={filteredAndSortedGroups}
+          keyExtractor={(grp) => grp.id}
+          emptyIcon={<GroupWorkIcon sx={{ fontSize: 28 }} />}
+          emptyTitle="No Training Groups Found"
+          emptySubtitle="No training groups match your current search or filter criteria."
+          emptyAction={
+            <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+              Create Training Group
+            </Button>
+          }
+          renderCard={(grp) => {
+            const course = (db.courses || []).find((c) => c.id === grp.courseId);
+            const trainer = (db.trainers || []).find((t) => t.id === grp.trainerId);
+            const studentsInGroup = (db.students || []).filter((s) => s.groupId === grp.id);
+            const batchModeLabel = grp.batchMode === 'COHORT' ? 'Cohort' : 'Rolling';
+            const statusLabel = grp.status || 'Active';
+            const statusTone = statusLabel === 'Running' || statusLabel === 'Active' ? 'success' : 'primary';
+
+            return (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
+                }}
+              >
+                <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', letterSpacing: '0.02em' }}>
+                      {grp.groupCode}
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.3 }}>
+                      {course?.title || 'Vocational Course'}
+                    </Typography>
+                  </Box>
+                  <Stack direction="row" spacing={0.5} flexShrink={0}>
+                    <StatusBadge label={batchModeLabel} tone="info" />
+                    <StatusBadge label={statusLabel} tone={statusTone} showDot />
+                  </Stack>
+                </Stack>
+
+                <Divider sx={{ my: 1.25, borderColor: '#F1F5F9' }} />
+
+                <Grid container spacing={1} sx={{ mb: 1.25 }}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Trainer
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem' }}>
+                      {trainer?.name || 'Unassigned'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Shift &amp; Timing
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem' }}>
+                      Shift {grp.shift} ({grp.startTime} – {grp.endTime})
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Enrolled
+                    </Typography>
+                    <Typography sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.8rem', fontVariantNumeric: 'tabular-nums' }}>
+                      {studentsInGroup.length} Trainees
+                    </Typography>
+                  </Grid>
+                </Grid>
+
+                <Stack direction="row" spacing={0.75} justifyContent="flex-end" alignItems="center">
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<VisibilityIcon sx={{ fontSize: '14px !important' }} />}
+                    onClick={() => setRosterGroup(grp)}
+                    sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none' }}
+                  >
+                    View
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+                    onClick={() => handleOpenEdit(grp)}
+                    sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#0F2E5A', borderColor: '#CBD5E1' }}
+                  >
+                    Edit
+                  </Button>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDelete(grp.id)}
+                    aria-label="Delete group"
+                    sx={{ color: '#EF4444', bgcolor: '#FEF2F2', p: 0.6, borderRadius: 1.5 }}
+                  >
+                    <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Stack>
+              </Paper>
+            );
+          }}
+          renderTable={() => (
+            <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+              <TableContainer>
             <Table size="small">
               <TableHead
                 sx={{
@@ -1165,6 +1272,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
             </Table>
           </TableContainer>
         </Card>
+          )}
+        />
       )}
 
       {/* =======================================================
@@ -1469,7 +1578,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
 
         <DialogActions
           sx={{
-            p: { xs: 1.5, sm: 2.5 },
+            px: { xs: 1.5, sm: 2.5 },
+            pt: { xs: 1.5, sm: 2 },
+            pb: isMobile ? 'calc(12px + env(safe-area-inset-bottom))' : 2.5,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

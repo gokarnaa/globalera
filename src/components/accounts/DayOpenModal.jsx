@@ -13,7 +13,9 @@ import {
   Divider,
   Chip,
   IconButton,
-  InputAdornment
+  InputAdornment,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import CloseIcon from '@mui/icons-material/Close';
@@ -25,6 +27,8 @@ import confetti from 'canvas-confetti';
 import { saveDB } from '../../services/storage';
 
 export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDayOpened }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const today = new Date().toISOString().slice(0, 10);
   const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -91,9 +95,10 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
           border: '1px solid rgba(226, 232, 240, 0.8)'

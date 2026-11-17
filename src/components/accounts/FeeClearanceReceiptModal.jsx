@@ -10,7 +10,9 @@ import {
   Stack,
   IconButton,
   Chip,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PrintIcon from '@mui/icons-material/Print';
@@ -53,7 +55,7 @@ export default function FeeClearanceReceiptModal({ open, onClose, student, ledge
   const studentPayments = payments.filter((p) => p.studentId === student.id);
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth fullScreen={useMediaQuery(useTheme().breakpoints.down('sm'))} scroll="paper">
       {/* Top Action Toolbar */}
       <DialogTitle
         className="no-print"

@@ -23,7 +23,9 @@ import {
   Paper,
   Grid,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
@@ -34,8 +36,11 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import CloseIcon from '@mui/icons-material/Close';
 
 import { postDoubleEntryJournal, saveDB } from '../../services/storage';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 export default function ExpenseManagerView({ db, setDb, showToast }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [viewMode, setViewMode] = useState('table'); // 'table' | 'cards'
@@ -274,65 +279,126 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
 
       {/* Table View Mode */}
       {viewMode === 'table' && (
-      <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
-        <TableContainer>
-          <Table size="small">
-            <TableHead
+      <ResponsiveDataView
+        rows={filtered}
+        keyExtractor={(e) => e.id}
+        emptyIcon={<ReceiptLongIcon sx={{ fontSize: 24 }} />}
+        emptyTitle="No expenses found."
+        emptySubtitle="Try adjusting your search or category filter."
+        renderTable={() => (
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <TableContainer>
+              <Table size="small">
+                <TableHead
+                  sx={{
+                    bgcolor: '#0F2E5A',
+                    '& .MuiTableCell-head': {
+                      bgcolor: '#0F2E5A !important',
+                      color: '#FFFFFF !important',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      py: 1,
+                      px: 1.25,
+                      borderBottom: '2px solid #F59E0B',
+                      whiteSpace: 'nowrap'
+                    }
+                  }}
+                >
+                  <TableRow>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Voucher No.</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 110 }}>Date</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payee / Vendor</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 170 }}>Category</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Payment Method</TableCell>
+                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right', width: 130 }}>Amount</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {filtered.map((e) => (
+                    <TableRow key={e.id} hover>
+                      <TableCell sx={{ fontWeight: 800, color: '#DC2626', fontFamily: 'monospace' }}>{e.voucherNo}</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>{e.date}</TableCell>
+                      <TableCell>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>{e.payee}</Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B' }}>{e.description}</Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Chip label={e.category} size="small" sx={{ fontWeight: 700, fontSize: '0.72rem' }} />
+                      </TableCell>
+                      <TableCell>
+                        <Chip label={e.paymentMethod} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
+                      </TableCell>
+                      <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#DC2626', fontSize: '0.95rem' }}>
+                        Rs. {Number(e.amount).toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Card>
+        )}
+        renderCard={(e) => (
+          <Paper
+            elevation={0}
+            sx={{
+              p: 1.75,
+              borderRadius: 2.5,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                  {e.payee}
+                </Typography>
+                <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#DC2626' }}>
+                  {e.voucherNo}
+                </Typography>
+              </Box>
+              <StatusBadge label={e.category} tone="error" showDot />
+            </Box>
+
+            <Box
               sx={{
-                bgcolor: '#0F2E5A',
-                '& .MuiTableCell-head': {
-                  bgcolor: '#0F2E5A !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.72rem',
-                  py: 1,
-                  px: 1.25,
-                  borderBottom: '2px solid #F59E0B',
-                  whiteSpace: 'nowrap'
-                }
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr',
+                gap: 1.25,
+                py: 1.1,
+                borderTop: '1px solid #F1F5F9',
+                borderBottom: e.description ? '1px solid #F1F5F9' : 'none'
               }}
             >
-              <TableRow>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Voucher No.</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 110 }}>Date</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payee / Vendor</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 170 }}>Category</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 130 }}>Payment Method</TableCell>
-                <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right', width: 130 }}>Amount</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                    No expenses found.
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filtered.map((e) => (
-                  <TableRow key={e.id} hover>
-                    <TableCell sx={{ fontWeight: 800, color: '#DC2626', fontFamily: 'monospace' }}>{e.voucherNo}</TableCell>
-                    <TableCell sx={{ fontWeight: 600 }}>{e.date}</TableCell>
-                    <TableCell>
-                      <Typography variant="body2" sx={{ fontWeight: 700, color: '#1E293B' }}>{e.payee}</Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B' }}>{e.description}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={e.category} size="small" sx={{ fontWeight: 700, fontSize: '0.72rem' }} />
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={e.paymentMethod} size="small" variant="outlined" sx={{ fontWeight: 700 }} />
-                    </TableCell>
-                    <TableCell sx={{ textAlign: 'right', fontWeight: 900, color: '#DC2626', fontSize: '0.95rem' }}>
-                      Rs. {Number(e.amount).toLocaleString()}
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+              <Box>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                  Expense Amount
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 900, color: '#DC2626', fontVariantNumeric: 'tabular-nums' }}>
+                  Rs. {Number(e.amount).toLocaleString()}
+                </Typography>
+              </Box>
+              <Box>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                  Method &amp; Date
+                </Typography>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#0F172A', display: 'block' }}>
+                  {e.paymentMethod}
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#64748B', fontVariantNumeric: 'tabular-nums' }}>
+                  {e.date}
+                </Typography>
+              </Box>
+            </Box>
+
+            {e.description && (
+              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 1 }}>
+                {e.description}
+              </Typography>
+            )}
+          </Paper>
+        )}
+      />
       )}
 
       {/* Cards View Mode */}
@@ -412,7 +478,7 @@ export default function ExpenseManagerView({ db, setDb, showToast }) {
       )}
 
       {/* Record Expense Modal */}
-      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth>
+      <Dialog open={openModal} onClose={() => setOpenModal(false)} maxWidth="sm" fullWidth fullScreen={isMobile}>
         <DialogTitle
           sx={{
             background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',

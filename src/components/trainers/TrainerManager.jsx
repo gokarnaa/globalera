@@ -43,10 +43,12 @@ import SchoolIcon from '@mui/icons-material/School';
 import BusinessIcon from '@mui/icons-material/Business';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CloseIcon from '@mui/icons-material/Close';
+import PhoneIcon from '@mui/icons-material/Phone';
 import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useDialog } from '../../context/DialogContext';
+import { ResponsiveDataView, StatusBadge } from '../common';
 
 export default function TrainerManager() {
   const theme = useTheme();
@@ -239,8 +241,118 @@ export default function TrainerManager() {
         </Grid>
       </Card>
 
-      <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-        <TableContainer>
+      <ResponsiveDataView
+        rows={db.trainers || []}
+        keyExtractor={(trn) => trn.id}
+        emptyIcon={<PeopleAltIcon sx={{ fontSize: 28 }} />}
+        emptyTitle="No Trainers Found"
+        emptySubtitle="Add a trainer or instructor to assign batches and manage schedules."
+        emptyAction={
+          <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAdd}>
+            Add Trainer
+          </Button>
+        }
+        renderCard={(trn) => {
+          const occ = (db.occupations || []).find((o) => o.id === trn.occupationId);
+          const assignedGroups = (db.trainingGroups || []).filter((g) => g.trainerId === trn.id);
+          const statusLabel = trn.status || 'Active';
+          const statusTone = statusLabel === 'Active' ? 'success' : 'error';
+
+          return (
+            <Paper
+              elevation={0}
+              sx={{
+                p: 1.75,
+                borderRadius: 2.5,
+                border: '1px solid #E2E8F0',
+                bgcolor: '#FFFFFF'
+              }}
+            >
+              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+                  <Avatar
+                    src={trn.photo}
+                    sx={{ width: 40, height: 40, bgcolor: '#1a9c5c', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}
+                  >
+                    {trn.name?.[0] || 'T'}
+                  </Avatar>
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.25 }}>
+                      {trn.name}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block' }}>
+                      {occ?.name || 'General'} • {trn.specialization || 'Instructor'}
+                    </Typography>
+                  </Box>
+                </Box>
+                <StatusBadge label={statusLabel} tone={statusTone} showDot />
+              </Stack>
+
+              <Box sx={{ mt: 1.25, pt: 1.25, borderTop: '1px solid #F1F5F9', mb: 1.25 }}>
+                <Grid container spacing={1}>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Phone
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.79rem', fontVariantNumeric: 'tabular-nums' }}>
+                      {trn.phone || '—'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Email
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {trn.email || '—'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
+                      Assigned Batches
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#0F2E5A', fontSize: '0.79rem' }}>
+                      {assignedGroups.map((g) => g.groupCode).join(', ') || 'No active batch'}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              <Stack direction="row" spacing={0.75} justifyContent="flex-end" alignItems="center">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  component="a"
+                  href={trn.phone ? `tel:${trn.phone}` : undefined}
+                  disabled={!trn.phone}
+                  startIcon={<PhoneIcon sx={{ fontSize: '14px !important' }} />}
+                  sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#059669', borderColor: '#A7F3D0' }}
+                >
+                  Call
+                </Button>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
+                  onClick={() => handleOpenEdit(trn)}
+                  sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#0F2E5A', borderColor: '#CBD5E1' }}
+                >
+                  Edit
+                </Button>
+                <IconButton
+                  size="small"
+                  onClick={() => handleDelete(trn.id)}
+                  aria-label="Delete trainer"
+                  sx={{ color: '#EF4444', bgcolor: '#FEF2F2', p: 0.6, borderRadius: 1.5 }}
+                >
+                  <DeleteOutlineIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Stack>
+            </Paper>
+          );
+        }}
+        renderTable={() => (
+          <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+            <TableContainer>
           <Table size="small">
             <TableHead
               sx={{
@@ -411,6 +523,8 @@ export default function TrainerManager() {
           </Table>
         </TableContainer>
       </Card>
+        )}
+      />
 
       {/* Add / Edit Dialog */}
       <Dialog
@@ -619,7 +733,9 @@ export default function TrainerManager() {
         </DialogContent>
         <DialogActions
           sx={{
-            p: { xs: 1.5, sm: 2.5 },
+            px: { xs: 1.5, sm: 2.5 },
+            pt: { xs: 1.5, sm: 2 },
+            pb: isMobile ? 'calc(12px + env(safe-area-inset-bottom))' : 2.5,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

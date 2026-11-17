@@ -25,7 +25,9 @@ import {
   Alert,
   Dialog,
   DialogTitle,
-  DialogContent
+  DialogContent,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import AddIcon from '@mui/icons-material/Add';
@@ -46,12 +48,15 @@ import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
+import { ResponsiveDataView, StatusBadge } from '../common';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
 import CertificateStudioManager from '../settings/CertificateStudioManager';
 import { computeNextCertificateNumber } from '../settings/CompanyProfileSettings';
 
 export default function CertificateManager() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer, isAdmin } = useAuth();
 
@@ -588,6 +593,7 @@ export default function CertificateManager() {
               exclusive
               onChange={(e, next) => next && setViewMode(next)}
               size="small"
+              sx={{ display: { xs: 'none', md: 'inline-flex' } }}
             >
               <ToggleButton value="table" sx={{ py: 0.4, px: 0.9 }}>
                 <ViewListIcon fontSize="small" />
@@ -600,225 +606,397 @@ export default function CertificateManager() {
         </Grid>
       </Card>
 
-      {/* 4. TABLE VIEW */}
+      {/* 4. TABLE VIEW / MOBILE NATIVE CARD VIEW */}
       {viewMode === 'table' ? (
-        <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
-          <TableContainer>
-            <Table size="small">
-              <TableHead
+        <ResponsiveDataView
+          rows={filteredData}
+          keyExtractor={(item) => item.student.id}
+          emptyIcon={<WorkspacePremiumIcon />}
+          emptyTitle="No trainees found"
+          emptySubtitle="No trainees found matching your filter criteria."
+          renderCard={(item, idx) => {
+            const { student, attPercent, isIssued, isEligible, certificate } = item;
+            const courseTitle = selectedCourse?.title || selectedGroup?.courseName || 'Vocational Training';
+
+            return (
+              <Paper
+                elevation={0}
                 sx={{
-                  bgcolor: '#0F2E5A',
-                  '& .MuiTableCell-head': {
-                    bgcolor: '#0F2E5A !important',
-                    color: '#FFFFFF !important',
-                    fontWeight: 800,
-                    fontSize: '0.72rem',
-                    py: 1,
-                    px: 1.25,
-                    borderBottom: '2px solid #F59E0B',
-                    whiteSpace: 'nowrap'
-                  }
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
                 }}
               >
-                <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
-                    S.N.
-                  </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainee Name</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Attendance %</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Certificate No</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Issue Date</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredData.map((item, idx) => {
-                  const { student, attPercent, isIssued, isEligible, certificate } = item;
+                {/* Top Row: S.N., Student Name, StatusBadge */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.1 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
+                    <Avatar
+                      src={student.photoUrl}
+                      sx={{ width: 40, height: 40, bgcolor: '#0b2545', fontWeight: 900, fontSize: '0.9rem' }}
+                    >
+                      {student.name?.[0]}
+                    </Avatar>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.25 }}>
+                        {student.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                        #{idx + 1} • TGID: {student.tgid}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                  return (
-                    <TableRow key={student.id} hover>
-                      <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', width: 48, fontSize: '0.75rem' }}>
-                        {idx + 1}
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                          <Avatar
-                            src={student.photoUrl}
-                            sx={{ width: 30, height: 30, bgcolor: '#0b2545', fontWeight: 800, fontSize: '0.78rem' }}
-                          >
-                            {student.name?.[0]}
-                          </Avatar>
-                          <Box>
-                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
-                              {student.name}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
-                              {student.permanentAddress || 'Nepal'}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: '#647089', fontSize: '0.76rem' }}>
-                        {student.tgid}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'center' }}>
-                        <Typography
-                          variant="body2"
-                          sx={{
-                            fontWeight: 900,
-                            fontSize: '0.78rem',
-                            color: attPercent >= 80 ? '#16834b' : '#dc2626'
-                          }}
-                        >
-                          {attPercent}%
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.67rem' }}>
-                          {attPercent >= 80 ? 'CTEVT Eligible' : 'Low Attendance'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
-                        {certificate ? certificate.certificateNo : '—'}
-                      </TableCell>
-                      <TableCell sx={{ fontSize: '0.76rem', color: '#475569', whiteSpace: 'nowrap' }}>
-                        {certificate ? certificate.issueDate : '—'}
-                      </TableCell>
-                      <TableCell>
-                        {isIssued ? (
-                          <Chip
-                            icon={<CheckCircleIcon sx={{ fontSize: '13px !important' }} />}
-                            label="Issued & Valid"
-                            size="small"
-                            color="success"
-                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
-                          />
-                        ) : item.feeDue > 0 ? (
-                          <Chip
-                            icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
-                            label={`Due: NPR ${item.feeDue.toLocaleString()} (Lock)`}
-                            size="small"
-                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
-                          />
-                        ) : isEligible ? (
-                          <Chip
-                            label="Eligible (Ready)"
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
-                          />
-                        ) : (
-                          <Chip
-                            icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
-                            label="Ineligible (<80%)"
-                            size="small"
-                            color="error"
-                            variant="outlined"
-                            sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        {isIssued ? (
-                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.4 }}>
-                            <Tooltip title="View & Print A4 Landscape Certificate">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  setActiveCertificateItem({
-                                    certificate,
-                                    student,
-                                    course: selectedCourse,
-                                    group: selectedGroup,
-                                    trainer
-                                  });
-                                  setCertificateModalOpen(true);
-                                }}
-                                sx={{ color: '#0b2545', p: 0.4 }}
-                              >
-                                <VisibilityIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                  {isIssued ? (
+                    <StatusBadge label="Issued & Valid" tone="success" showDot />
+                  ) : item.feeDue > 0 ? (
+                    <StatusBadge label={`Due: NPR ${item.feeDue.toLocaleString()}`} tone="error" showDot />
+                  ) : isEligible ? (
+                    <StatusBadge label="Eligible (Ready)" tone="primary" showDot />
+                  ) : (
+                    <StatusBadge label="Ineligible (<80%)" tone="warning" showDot />
+                  )}
+                </Box>
 
-                            <Tooltip title="Test Public Online Verification">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  setVerifyTargetItem({
-                                    certificate,
-                                    student,
-                                    course: selectedCourse,
-                                    group: selectedGroup
-                                  });
-                                  setVerifyModalOpen(true);
-                                }}
-                                sx={{ color: '#c59b27', p: 0.4 }}
-                              >
-                                <VerifiedIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                {/* Middle: Course/Trade, Certificate No, Issue Date & Attendance */}
+                <Box
+                  sx={{
+                    p: 1.1,
+                    borderRadius: 2,
+                    bgcolor: '#F8FAFC',
+                    border: '1px solid #F1F5F9',
+                    mb: 1.25
+                  }}
+                >
+                  <Typography sx={{ fontWeight: 700, color: '#0F2E5A', fontSize: '0.8rem', lineHeight: 1.3 }}>
+                    {courseTitle} {selectedGroup?.groupCode ? `• ${selectedGroup.groupCode}` : ''}
+                  </Typography>
+                  <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" sx={{ mt: 0.5 }}>
+                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700 }}>
+                      Cert No: <b style={{ color: '#0B2545' }}>{certificate ? certificate.certificateNo : '—'}</b>
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>
+                      Issued: {certificate ? certificate.issueDate : '—'}
+                    </Typography>
+                    <Typography
+                      variant="caption"
+                      sx={{ fontWeight: 800, color: attPercent >= 80 ? '#16834b' : '#dc2626' }}
+                    >
+                      Att: {attPercent}%
+                    </Typography>
+                  </Stack>
+                </Box>
 
-                            <Tooltip title="Copy Verification Link">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleCopyLink(certificate.certificateNo)}
-                                sx={{ color: '#1a56b0', p: 0.4 }}
-                              >
-                                <LinkIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                {/* Bottom: 1-Tap Preview / Download(Print) / Verify Actions */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.75 }}>
+                  {isIssued ? (
+                    <>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<VisibilityIcon sx={{ fontSize: '15px !important' }} />}
+                        onClick={() => {
+                          setActiveCertificateItem({
+                            certificate,
+                            student,
+                            course: selectedCourse,
+                            group: selectedGroup,
+                            trainer
+                          });
+                          setCertificateModalOpen(true);
+                        }}
+                        sx={{
+                          flex: 1,
+                          fontWeight: 800,
+                          fontSize: '0.74rem',
+                          color: '#0b2545',
+                          borderColor: '#CBD5E1',
+                          py: 0.55
+                        }}
+                      >
+                        Preview / Print
+                      </Button>
 
-                            <Tooltip title="Revoke Certificate">
-                              <IconButton
-                                size="small"
-                                onClick={() => handleRevokeCertificate(certificate.id)}
-                                sx={{ color: '#dc2626', p: 0.4 }}
-                              >
-                                <DeleteOutlineIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                        ) : isEligible ? (
-                          <Button
-                            variant="contained"
-                            size="small"
-                            onClick={() => handleIssueCertificate(student)}
-                            sx={{
-                              bgcolor: '#0b2545',
-                              fontWeight: 800,
-                              fontSize: '0.7rem',
-                              px: 0.9,
-                              py: 0.3,
-                              whiteSpace: 'nowrap'
-                            }}
-                          >
-                            + Issue Certificate
-                          </Button>
-                        ) : item.feeDue > 0 ? (
-                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800, fontSize: '0.7rem' }}>
-                            ⛔ Fee Due (Locked)
-                          </Typography>
-                        ) : (
-                          <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700, fontSize: '0.7rem' }}>
-                            Attendance under 80%
-                          </Typography>
-                        )}
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<VerifiedIcon sx={{ fontSize: '15px !important' }} />}
+                        onClick={() => {
+                          setVerifyTargetItem({
+                            certificate,
+                            student,
+                            course: selectedCourse,
+                            group: selectedGroup
+                          });
+                          setVerifyModalOpen(true);
+                        }}
+                        sx={{
+                          flex: 1,
+                          fontWeight: 800,
+                          fontSize: '0.74rem',
+                          color: '#B45309',
+                          borderColor: '#FDE68A',
+                          bgcolor: '#FFFBEB',
+                          py: 0.55
+                        }}
+                      >
+                        Verify
+                      </Button>
+
+                      <IconButton
+                        size="small"
+                        aria-label="Copy verification link"
+                        onClick={() => handleCopyLink(certificate.certificateNo)}
+                        sx={{ color: '#1a56b0', border: '1px solid #DBEAFE', bgcolor: '#EFF6FF', p: 0.6 }}
+                      >
+                        <LinkIcon fontSize="small" />
+                      </IconButton>
+
+                      <IconButton
+                        size="small"
+                        aria-label="Revoke certificate"
+                        onClick={() => handleRevokeCertificate(certificate.id)}
+                        sx={{ color: '#dc2626', border: '1px solid #FEE2E2', bgcolor: '#FEF2F2', p: 0.6 }}
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </>
+                  ) : isEligible ? (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      fullWidth
+                      onClick={() => handleIssueCertificate(student)}
+                      sx={{ bgcolor: '#0b2545', fontWeight: 800, py: 0.7 }}
+                    >
+                      + Issue Certificate
+                    </Button>
+                  ) : item.feeDue > 0 ? (
+                    <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800 }}>
+                      ⛔ Fee Due (Locked) — Clear NPR {item.feeDue.toLocaleString()} to unlock
+                    </Typography>
+                  ) : (
+                    <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
+                      Ineligible (Attendance {attPercent}% &lt; 80% CTEVT minimum)
+                    </Typography>
+                  )}
+                </Box>
+              </Paper>
+            );
+          }}
+          renderTable={() => (
+            <Card elevation={0} sx={{ borderRadius: 2, overflow: 'hidden', border: '1px solid #E2E8F0' }}>
+              <TableContainer>
+                <Table size="small">
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
+                        S.N.
                       </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainee Name</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'center' }}>Attendance %</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Certificate No</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Issue Date</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, textAlign: 'right' }}>Actions</TableCell>
                     </TableRow>
-                  );
-                })}
-                {filteredData.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={8} sx={{ textAlign: 'center', py: 3.5, color: '#94a3b8', fontSize: '0.8rem' }}>
-                      No trainees found matching your filter criteria.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Card>
+                  </TableHead>
+                  <TableBody>
+                    {filteredData.map((item, idx) => {
+                      const { student, attPercent, isIssued, isEligible, certificate } = item;
+
+                      return (
+                        <TableRow key={student.id} hover>
+                          <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', width: 48, fontSize: '0.75rem' }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                              <Avatar
+                                src={student.photoUrl}
+                                sx={{ width: 30, height: 30, bgcolor: '#0b2545', fontWeight: 800, fontSize: '0.78rem' }}
+                              >
+                                {student.name?.[0]}
+                              </Avatar>
+                              <Box>
+                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.8rem' }}>
+                                  {student.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.7rem' }}>
+                                  {student.permanentAddress || 'Nepal'}
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 700, color: '#647089', fontSize: '0.76rem' }}>
+                            {student.tgid}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'center' }}>
+                            <Typography
+                              variant="body2"
+                              sx={{
+                                fontWeight: 900,
+                                fontSize: '0.78rem',
+                                color: attPercent >= 80 ? '#16834b' : '#dc2626'
+                              }}
+                            >
+                              {attPercent}%
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#647089', fontSize: '0.67rem' }}>
+                              {attPercent >= 80 ? 'CTEVT Eligible' : 'Low Attendance'}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ fontWeight: 800, color: '#0b2545', fontSize: '0.78rem', whiteSpace: 'nowrap' }}>
+                            {certificate ? certificate.certificateNo : '—'}
+                          </TableCell>
+                          <TableCell sx={{ fontSize: '0.76rem', color: '#475569', whiteSpace: 'nowrap' }}>
+                            {certificate ? certificate.issueDate : '—'}
+                          </TableCell>
+                          <TableCell>
+                            {isIssued ? (
+                              <Chip
+                                icon={<CheckCircleIcon sx={{ fontSize: '13px !important' }} />}
+                                label="Issued & Valid"
+                                size="small"
+                                color="success"
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
+                              />
+                            ) : item.feeDue > 0 ? (
+                              <Chip
+                                icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
+                                label={`Due: NPR ${item.feeDue.toLocaleString()} (Lock)`}
+                                size="small"
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800, bgcolor: '#FEE2E2', color: '#DC2626' }}
+                              />
+                            ) : isEligible ? (
+                              <Chip
+                                label="Eligible (Ready)"
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 800 }}
+                              />
+                            ) : (
+                              <Chip
+                                icon={<WarningAmberIcon sx={{ fontSize: '13px !important' }} />}
+                                label="Ineligible (<80%)"
+                                size="small"
+                                color="error"
+                                variant="outlined"
+                                sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }}
+                              />
+                            )}
+                          </TableCell>
+                          <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                            {isIssued ? (
+                              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 0.4 }}>
+                                <Tooltip title="View & Print A4 Landscape Certificate">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      setActiveCertificateItem({
+                                        certificate,
+                                        student,
+                                        course: selectedCourse,
+                                        group: selectedGroup,
+                                        trainer
+                                      });
+                                      setCertificateModalOpen(true);
+                                    }}
+                                    sx={{ color: '#0b2545', p: 0.4 }}
+                                  >
+                                    <VisibilityIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Test Public Online Verification">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      setVerifyTargetItem({
+                                        certificate,
+                                        student,
+                                        course: selectedCourse,
+                                        group: selectedGroup
+                                      });
+                                      setVerifyModalOpen(true);
+                                    }}
+                                    sx={{ color: '#c59b27', p: 0.4 }}
+                                  >
+                                    <VerifiedIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Copy Verification Link">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleCopyLink(certificate.certificateNo)}
+                                    sx={{ color: '#1a56b0', p: 0.4 }}
+                                  >
+                                    <LinkIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+
+                                <Tooltip title="Revoke Certificate">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleRevokeCertificate(certificate.id)}
+                                    sx={{ color: '#dc2626', p: 0.4 }}
+                                  >
+                                    <DeleteOutlineIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            ) : isEligible ? (
+                              <Button
+                                variant="contained"
+                                size="small"
+                                onClick={() => handleIssueCertificate(student)}
+                                sx={{
+                                  bgcolor: '#0b2545',
+                                  fontWeight: 800,
+                                  fontSize: '0.7rem',
+                                  px: 0.9,
+                                  py: 0.3,
+                                  whiteSpace: 'nowrap'
+                                }}
+                              >
+                                + Issue Certificate
+                              </Button>
+                            ) : item.feeDue > 0 ? (
+                              <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800, fontSize: '0.7rem' }}>
+                                ⛔ Fee Due (Locked)
+                              </Typography>
+                            ) : (
+                              <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700, fontSize: '0.7rem' }}>
+                                Attendance under 80%
+                              </Typography>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Card>
+          )}
+        />
       ) : (
         /* 5. CARD VIEW */
         <Grid container spacing={2}>
@@ -958,10 +1136,11 @@ export default function CertificateManager() {
         onClose={() => setStudioModalOpen(false)}
         maxWidth="xl"
         fullWidth
+        fullScreen={isMobile}
         scroll="paper"
         PaperProps={{
           sx: {
-            borderRadius: 3,
+            borderRadius: isMobile ? 0 : 3,
             bgcolor: '#F8FAFC'
           }
         }}
@@ -970,7 +1149,7 @@ export default function CertificateManager() {
           sx={{
             bgcolor: '#0F2E5A',
             color: '#FFFFFF',
-            p: 2,
+            p: { xs: 1.5, sm: 2 },
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
@@ -978,7 +1157,7 @@ export default function CertificateManager() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
             <ColorLensIcon sx={{ color: '#F59E0B', fontSize: 28 }} />
-            <Typography variant="h6" sx={{ fontWeight: 900 }}>
+            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: { xs: '1rem', sm: '1.25rem' } }}>
               Certificate Studio & Template Designer
             </Typography>
           </Box>
@@ -986,7 +1165,7 @@ export default function CertificateManager() {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ p: { xs: 1.5, sm: 3 } }}>
+        <DialogContent sx={{ p: { xs: 1.5, sm: 3 }, pb: isMobile ? 'calc(16px + env(safe-area-inset-bottom))' : 3 }}>
           <CertificateStudioManager
             onSaveSuccess={() => {
               setDb(loadDB());

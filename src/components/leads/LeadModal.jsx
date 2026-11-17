@@ -575,7 +575,8 @@ export default function LeadModal({
         <DialogActions
           sx={{
             px: 2.5,
-            py: 1.5,
+            pt: 1.5,
+            pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 1.5,
             bgcolor: '#FFFFFF',
             borderTop: '1px solid #E2E8F0',
             flexShrink: 0,

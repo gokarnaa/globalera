@@ -52,6 +52,7 @@ import { loadDB, saveDB } from '../../services/storage';
 import { exportToExcel } from '../../services/exportUtils';
 import { useAuth } from '../../context/AuthContext';
 import { postDoubleEntryJournal } from '../../services/storage';
+import { ResponsiveDataView, StatusBadge } from '../common';
 import RecordPaymentModal from './RecordPaymentModal';
 import TrainerPayoutModal from './TrainerPayoutModal';
 import ReceiptModal from './ReceiptModal';
@@ -1219,73 +1220,130 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               </Box>
 
-              <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
-                <Table size="small">
-                  <TableHead
+              <ResponsiveDataView
+                rows={payments.slice(0, 5)}
+                keyExtractor={(p, idx) => p.id || idx}
+                emptyTitle="No fee collections recorded yet."
+                emptySubtitle="New student fee receipts will appear here."
+                renderTable={() => (
+                  <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
+                    <Table size="small">
+                      <TableHead
+                        sx={{
+                          bgcolor: '#0F2E5A',
+                          '& .MuiTableCell-head': {
+                            bgcolor: '#0F2E5A !important',
+                            color: '#FFFFFF !important',
+                            fontWeight: 800,
+                            fontSize: '0.72rem',
+                            py: 1,
+                            px: 1.25,
+                            borderBottom: '2px solid #F59E0B',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
+                      >
+                        <TableRow>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt No</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                          <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {payments.slice(0, 5).map((p, idx) => (
+                          <TableRow key={p.id} hover>
+                            <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
+                              {p.receiptNo}
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontWeight: 700 }}>{p.studentName}</Typography>
+                              <Typography variant="caption" sx={{ color: '#64748B' }}>{p.courseName}</Typography>
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#059669', fontSize: '0.85rem' }}>
+                              Rs. {Number(p.amount).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontSize: '0.78rem' }}>{p.paymentDate}</TableCell>
+                            <TableCell align="right">
+                              <Tooltip title="Print Receipt">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => setSelectedReceiptPayment(p)}
+                                  sx={{ color: '#0284C7', bgcolor: '#F0F9FF' }}
+                                >
+                                  <PrintIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+                renderCard={(p) => (
+                  <Paper
+                    elevation={0}
                     sx={{
-                      bgcolor: '#0F2E5A',
-                      '& .MuiTableCell-head': {
-                        bgcolor: '#0F2E5A !important',
-                        color: '#FFFFFF !important',
-                        fontWeight: 800,
-                        fontSize: '0.72rem',
-                        py: 1,
-                        px: 1.25,
-                        borderBottom: '2px solid #F59E0B',
-                        whiteSpace: 'nowrap'
-                      }
+                      p: 1.75,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0',
+                      bgcolor: '#FFFFFF'
                     }}
                   >
-                    <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {payments.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#94A3B8' }}>
-                          No fee collections recorded yet.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      payments.slice(0, 5).map((p, idx) => (
-                        <TableRow key={p.id} hover>
-                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
-                            {p.receiptNo}
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{p.studentName}</Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>{p.courseName}</Typography>
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#059669', fontSize: '0.85rem' }}>
-                            Rs. {Number(p.amount).toLocaleString()}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: '0.78rem' }}>{p.paymentDate}</TableCell>
-                          <TableCell align="right">
-                            <Tooltip title="Print Receipt">
-                              <IconButton
-                                size="small"
-                                onClick={() => setSelectedReceiptPayment(p)}
-                                sx={{ color: '#0284C7', bgcolor: '#F0F9FF' }}
-                              >
-                                <PrintIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                          {p.studentName}
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#1E40AF' }}>
+                          {p.receiptNo}
+                        </Typography>
+                      </Box>
+                      <StatusBadge label="Paid" tone="success" showDot />
+                    </Box>
+
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, py: 1, borderTop: '1px solid #F1F5F9', borderBottom: '1px solid #F1F5F9' }}>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Amount Paid
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
+                          Rs. {Number(p.amount).toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Course &amp; Date
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', display: 'block' }} noWrap>
+                          {p.courseName}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontVariantNumeric: 'tabular-nums' }}>
+                          {p.paymentDate}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<PrintIcon sx={{ fontSize: '0.9rem !important' }} />}
+                        onClick={() => setSelectedReceiptPayment(p)}
+                        sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 1.5 }}
+                      >
+                        Receipt
+                      </Button>
+                    </Box>
+                  </Paper>
+                )}
+              />
             </Card>
           </Grid>
 
@@ -1319,78 +1377,124 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               </Box>
 
-              <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
-                <Table size="small">
-                  <TableHead
+              <ResponsiveDataView
+                rows={trainerPayouts.slice(0, 5)}
+                keyExtractor={(tp, idx) => tp.id || idx}
+                emptyTitle="No instructor payouts recorded yet."
+                emptySubtitle="Recent commission and salary payouts will appear here."
+                renderTable={() => (
+                  <TableContainer sx={{ borderRadius: 2, overflowX: 'auto', border: '1px solid #E2E8F0' }}>
+                    <Table size="small">
+                      <TableHead
+                        sx={{
+                          bgcolor: '#0F2E5A',
+                          '& .MuiTableCell-head': {
+                            bgcolor: '#0F2E5A !important',
+                            color: '#FFFFFF !important',
+                            fontWeight: 800,
+                            fontSize: '0.72rem',
+                            py: 1,
+                            px: 1.25,
+                            borderBottom: '2px solid #F59E0B',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
+                      >
+                        <TableRow>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Voucher No</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainer</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                          <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {trainerPayouts.slice(0, 5).map((tp, idx) => (
+                          <TableRow key={tp.id} hover>
+                            <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#B45309', fontSize: '0.78rem' }}>
+                              {tp.voucherNo}
+                            </TableCell>
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>
+                                {tp.trainerName}
+                              </Typography>
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 900, color: '#B45309', fontSize: '0.85rem' }}>
+                              Rs. {Number(tp.amount).toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontSize: '0.76rem', color: '#64748B' }}>
+                              {tp.payoutDate}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Chip
+                                label={tp.payoutType === 'COMMISSION' ? 'Commission' : 'Salary'}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  fontSize: '0.68rem',
+                                  height: 20,
+                                  bgcolor: tp.payoutType === 'COMMISSION' ? '#FEF3C7' : '#EFF6FF',
+                                  color: tp.payoutType === 'COMMISSION' ? '#92400E' : '#1D4ED8'
+                                }}
+                              />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+                renderCard={(tp) => (
+                  <Paper
+                    elevation={0}
                     sx={{
-                      bgcolor: '#0F2E5A',
-                      '& .MuiTableCell-head': {
-                        bgcolor: '#0F2E5A !important',
-                        color: '#FFFFFF !important',
-                        fontWeight: 800,
-                        fontSize: '0.72rem',
-                        py: 1,
-                        px: 1.25,
-                        borderBottom: '2px solid #F59E0B',
-                        whiteSpace: 'nowrap'
-                      }
+                      p: 1.75,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0',
+                      bgcolor: '#FFFFFF'
                     }}
                   >
-                    <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>SN</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Voucher No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Trainer</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {trainerPayouts.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} align="center" sx={{ py: 4, color: '#94A3B8' }}>
-                          No instructor payouts recorded yet.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      trainerPayouts.slice(0, 5).map((tp, idx) => (
-                        <TableRow key={tp.id} hover>
-                          <TableCell sx={{ fontWeight: 800, color: '#64748B', textAlign: 'center', width: 50 }}>
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#B45309', fontSize: '0.78rem' }}>
-                            {tp.voucherNo}
-                          </TableCell>
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>
-                              {tp.trainerName}
-                            </Typography>
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 900, color: '#B45309', fontSize: '0.85rem' }}>
-                            Rs. {Number(tp.amount).toLocaleString()}
-                          </TableCell>
-                          <TableCell sx={{ fontSize: '0.76rem', color: '#64748B' }}>
-                            {tp.payoutDate}
-                          </TableCell>
-                          <TableCell align="right">
-                            <Chip
-                              label={tp.payoutType === 'COMMISSION' ? 'Commission' : 'Salary'}
-                              size="small"
-                              sx={{
-                                fontWeight: 800,
-                                fontSize: '0.68rem',
-                                height: 20,
-                                bgcolor: tp.payoutType === 'COMMISSION' ? '#FEF3C7' : '#EFF6FF',
-                                color: tp.payoutType === 'COMMISSION' ? '#92400E' : '#1D4ED8'
-                              }}
-                            />
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                          {tp.trainerName}
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#B45309' }}>
+                          {tp.voucherNo}
+                        </Typography>
+                      </Box>
+                      <StatusBadge
+                        label={tp.payoutType === 'COMMISSION' ? 'Commission' : 'Salary'}
+                        tone={tp.payoutType === 'COMMISSION' ? 'warning' : 'primary'}
+                        showDot
+                      />
+                    </Box>
+
+                    <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.25, pt: 1, borderTop: '1px solid #F1F5F9' }}>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Disbursed Amount
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 800, color: '#B45309', fontVariantNumeric: 'tabular-nums' }}>
+                          Rs. {Number(tp.amount).toLocaleString()}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Payout Date
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155', fontVariantNumeric: 'tabular-nums' }}>
+                          {tp.payoutDate}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Paper>
+                )}
+              />
             </Card>
           </Grid>
         </Grid>
@@ -1524,234 +1628,407 @@ export default function AccountsManager({ initialTab = 0 }) {
 
           {/* Table View Mode */}
           {studentViewMode === 'table' && (
-          <TableContainer sx={{ maxHeight: 620 }}>
-            <Table stickyHeader size="small">
-              <TableHead
-                sx={{
-                  bgcolor: '#0F2E5A',
-                  '& .MuiTableCell-head': {
-                    bgcolor: '#0F2E5A !important',
-                    color: '#FFFFFF !important',
-                    fontWeight: 800,
-                    fontSize: '0.72rem',
-                    py: 1,
-                    px: 1.25,
-                    borderBottom: '2px solid #F59E0B',
-                    whiteSpace: 'nowrap'
-                  }
-                }}
-              >
-                <TableRow>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
-                    S.N.
-                  </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student Name</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course &amp; Batch</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Locked Total Fee</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount Paid</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Outstanding Due</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
-                  <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>2nd Installment Due Date</TableCell>
-                  <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {filteredStudents.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={10} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                      No students found.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredStudents.map((st, idx) => {
-                    const l = getStudentLedger(st);
+          <ResponsiveDataView
+            rows={filteredStudents}
+            keyExtractor={(st) => st.id}
+            emptyIcon={<SchoolIcon sx={{ fontSize: 24 }} />}
+            emptyTitle="No students found."
+            emptySubtitle="Try adjusting your search or filter criteria."
+            renderTable={() => (
+              <TableContainer sx={{ maxHeight: 620 }}>
+                <Table stickyHeader size="small">
+                  <TableHead
+                    sx={{
+                      bgcolor: '#0F2E5A',
+                      '& .MuiTableCell-head': {
+                        bgcolor: '#0F2E5A !important',
+                        color: '#FFFFFF !important',
+                        fontWeight: 800,
+                        fontSize: '0.72rem',
+                        py: 1,
+                        px: 1.25,
+                        borderBottom: '2px solid #F59E0B',
+                        whiteSpace: 'nowrap'
+                      }
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
+                        S.N.
+                      </TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>TGID</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Student Name</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Course &amp; Batch</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Locked Total Fee</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount Paid</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Outstanding Due</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Status</TableCell>
+                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>2nd Installment Due Date</TableCell>
+                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredStudents.map((st, idx) => {
+                      const l = getStudentLedger(st);
 
-                    return (
-                      <TableRow key={st.id} hover>
-                        <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
-                          {idx + 1}
-                        </TableCell>
-                        <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
-                          {st.tgid}
-                        </TableCell>
+                      return (
+                        <TableRow key={st.id} hover>
+                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: '#1E40AF' }}>
+                            {st.tgid}
+                          </TableCell>
 
-                        <TableCell>
-                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                            {st.name}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            {st.phone}
-                          </Typography>
-                        </TableCell>
-
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                            {l.courseTitle}
-                          </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B' }}>
-                            Batch: {l.groupCode}
-                          </Typography>
-                        </TableCell>
-
-                        <TableCell>
-                          <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                            Rs. {l.lockedFee.toLocaleString()}
-                          </Typography>
-                          {l.discountAmount > 0 && (
-                            <Typography variant="caption" sx={{ color: '#DC2626', display: 'block' }}>
-                              Discount: -Rs. {l.discountAmount.toLocaleString()} ({l.discountPercent}%)
+                          <TableCell>
+                            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                              {st.name}
                             </Typography>
-                          )}
-                        </TableCell>
+                            <Typography variant="caption" sx={{ color: '#64748B' }}>
+                              {st.phone}
+                            </Typography>
+                          </TableCell>
 
-                        <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
-                          Rs. {l.totalPaid.toLocaleString()}
-                        </TableCell>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                              {l.courseTitle}
+                            </Typography>
+                            <Typography variant="caption" sx={{ color: '#64748B' }}>
+                              Batch: {l.groupCode}
+                            </Typography>
+                          </TableCell>
 
-                        <TableCell sx={{ fontWeight: 900, color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669' }}>
-                          Rs. {l.due.toLocaleString()}
-                        </TableCell>
-
-                        <TableCell>
-                          <Chip
-                            label={
-                              l.paymentStatus === 'Paid'
-                                ? 'Paid (Clear)'
-                                : l.paymentStatus === 'Overdue'
-                                ? 'Overdue (>30D)'
-                                : l.paymentStatus === 'Partial'
-                                ? 'Partial'
-                                : 'Unpaid'
-                            }
-                            size="small"
-                            color={
-                              l.paymentStatus === 'Paid'
-                                ? 'success'
-                                : l.paymentStatus === 'Overdue'
-                                ? 'error'
-                                : l.paymentStatus === 'Partial'
-                                ? 'warning'
-                                : 'default'
-                            }
-                            sx={{ fontWeight: 800, fontSize: '0.7rem', height: 22 }}
-                          />
-                        </TableCell>
-
-                        <TableCell>
-                          <Typography
-                            variant="caption"
-                            sx={{
-                              fontWeight: l.isOverdue ? 900 : 600,
-                              color: l.isOverdue ? '#DC2626' : '#475569'
-                            }}
-                          >
-                            {l.due > 0 ? l.dueDateStr : '-'}
-                          </Typography>
-                        </TableCell>
-
-                        <TableCell align="right">
-                          <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
-                            {l.due > 0 && (
-                              <Button
-                                size="small"
-                                variant="contained"
-                                startIcon={<PointOfSaleIcon sx={{ fontSize: '0.85rem !important' }} />}
-                                onClick={() => {
-                                  setPreselectedStudentId(st.id);
-                                  setOpenCollectModal(true);
-                                }}
-                                sx={{
-                                  background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-                                  fontWeight: 800,
-                                  fontSize: '0.7rem',
-                                  px: 0.9,
-                                  py: 0.3,
-                                  whiteSpace: 'nowrap',
-                                  textTransform: 'none',
-                                  borderRadius: 1.5
-                                }}
-                              >
-                                Collect Fee
-                              </Button>
+                          <TableCell>
+                            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                              Rs. {l.lockedFee.toLocaleString()}
+                            </Typography>
+                            {l.discountAmount > 0 && (
+                              <Typography variant="caption" sx={{ color: '#DC2626', display: 'block' }}>
+                                Discount: -Rs. {l.discountAmount.toLocaleString()} ({l.discountPercent}%)
+                              </Typography>
                             )}
+                          </TableCell>
 
-                            {l.due === 0 && (
-                              <Tooltip title="Print Official Fee Clearance Certificate">
+                          <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
+                            Rs. {l.totalPaid.toLocaleString()}
+                          </TableCell>
+
+                          <TableCell sx={{ fontWeight: 900, color: l.due > 0 ? (l.isOverdue ? '#DC2626' : '#D97706') : '#059669' }}>
+                            Rs. {l.due.toLocaleString()}
+                          </TableCell>
+
+                          <TableCell>
+                            <Chip
+                              label={
+                                l.paymentStatus === 'Paid'
+                                  ? 'Paid (Clear)'
+                                  : l.paymentStatus === 'Overdue'
+                                  ? 'Overdue (>30D)'
+                                  : l.paymentStatus === 'Partial'
+                                  ? 'Partial'
+                                  : 'Unpaid'
+                              }
+                              size="small"
+                              color={
+                                l.paymentStatus === 'Paid'
+                                  ? 'success'
+                                  : l.paymentStatus === 'Overdue'
+                                  ? 'error'
+                                  : l.paymentStatus === 'Partial'
+                                  ? 'warning'
+                                  : 'default'
+                              }
+                              sx={{ fontWeight: 800, fontSize: '0.7rem', height: 22 }}
+                            />
+                          </TableCell>
+
+                          <TableCell>
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontWeight: l.isOverdue ? 900 : 600,
+                                color: l.isOverdue ? '#DC2626' : '#475569'
+                              }}
+                            >
+                              {l.due > 0 ? l.dueDateStr : '-'}
+                            </Typography>
+                          </TableCell>
+
+                          <TableCell align="right">
+                            <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
+                              {l.due > 0 && (
                                 <Button
                                   size="small"
                                   variant="contained"
-                                  color="warning"
-                                  startIcon={<VerifiedIcon sx={{ fontSize: '0.85rem !important' }} />}
+                                  startIcon={<PointOfSaleIcon sx={{ fontSize: '0.85rem !important' }} />}
                                   onClick={() => {
-                                    setClearanceStudent(st);
-                                    setClearanceLedger(l);
+                                    setPreselectedStudentId(st.id);
+                                    setOpenCollectModal(true);
                                   }}
                                   sx={{
-                                    bgcolor: '#F59E0B',
-                                    color: '#0F2E5A',
+                                    background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
                                     fontWeight: 800,
                                     fontSize: '0.7rem',
                                     px: 0.9,
                                     py: 0.3,
                                     whiteSpace: 'nowrap',
                                     textTransform: 'none',
-                                    borderRadius: 1.5,
-                                    '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
+                                    borderRadius: 1.5
                                   }}
                                 >
-                                  Fee Cleared
+                                  Collect Fee
                                 </Button>
-                              </Tooltip>
-                            )}
+                              )}
 
-                            <Tooltip title="Student Fee Statement / Passbook">
-                              <IconButton
-                                size="small"
-                                onClick={() => {
-                                  setStatementType('STUDENT');
-                                  setStatementTargetId(st.id);
-                                  setUniversalStatementOpen(true);
-                                }}
-                                sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
-                              >
-                                <ArticleIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
+                              {l.due === 0 && (
+                                <Tooltip title="Print Official Fee Clearance Certificate">
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="warning"
+                                    startIcon={<VerifiedIcon sx={{ fontSize: '0.85rem !important' }} />}
+                                    onClick={() => {
+                                      setClearanceStudent(st);
+                                      setClearanceLedger(l);
+                                    }}
+                                    sx={{
+                                      bgcolor: '#F59E0B',
+                                      color: '#0F2E5A',
+                                      fontWeight: 800,
+                                      fontSize: '0.7rem',
+                                      px: 0.9,
+                                      py: 0.3,
+                                      whiteSpace: 'nowrap',
+                                      textTransform: 'none',
+                                      borderRadius: 1.5,
+                                      '&:hover': { bgcolor: '#D97706', color: '#FFFFFF' }
+                                    }}
+                                  >
+                                    Fee Cleared
+                                  </Button>
+                                </Tooltip>
+                              )}
 
-                            <Tooltip title="View Installment Timeline & History">
-                              <IconButton
-                                size="small"
-                                onClick={() => setTimelineStudent({ student: st, ledger: l })}
-                                sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
-                              >
-                                <AccessTimeIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-
-                            {l.paymentCount > 0 && (
-                              <Tooltip title="View Latest Receipt">
+                              <Tooltip title="Student Fee Statement / Passbook">
                                 <IconButton
                                   size="small"
                                   onClick={() => {
-                                    const latestP = payments.filter((p) => p.studentId === st.id).slice(-1)[0];
-                                    if (latestP) setSelectedReceiptPayment(latestP);
+                                    setStatementType('STUDENT');
+                                    setStatementTargetId(st.id);
+                                    setUniversalStatementOpen(true);
                                   }}
-                                  sx={{ color: '#0284C7', bgcolor: '#F0F9FF' }}
+                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
                                 >
-                                  <ReceiptLongIcon fontSize="small" />
+                                  <ArticleIcon fontSize="small" />
                                 </IconButton>
                               </Tooltip>
-                            )}
-                          </Stack>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
+
+                              <Tooltip title="View Installment Timeline & History">
+                                <IconButton
+                                  size="small"
+                                  onClick={() => setTimelineStudent({ student: st, ledger: l })}
+                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                                >
+                                  <AccessTimeIcon fontSize="small" />
+                                </IconButton>
+                              </Tooltip>
+
+                              {l.paymentCount > 0 && (
+                                <Tooltip title="View Latest Receipt">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      const latestP = payments.filter((p) => p.studentId === st.id).slice(-1)[0];
+                                      if (latestP) setSelectedReceiptPayment(latestP);
+                                    }}
+                                    sx={{ color: '#0284C7', bgcolor: '#F0F9FF' }}
+                                  >
+                                    <ReceiptLongIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              )}
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            renderCard={(st) => {
+              const l = getStudentLedger(st);
+              const badgeTone =
+                l.paymentStatus === 'Paid'
+                  ? 'success'
+                  : l.paymentStatus === 'Overdue'
+                  ? 'error'
+                  : l.paymentStatus === 'Partial'
+                  ? 'warning'
+                  : 'neutral';
+              const badgeLabel =
+                l.paymentStatus === 'Paid'
+                  ? 'Paid (Clear)'
+                  : l.paymentStatus === 'Overdue'
+                  ? 'Overdue (>30D)'
+                  : l.paymentStatus === 'Partial'
+                  ? 'Partial'
+                  : 'Unpaid';
+
+              return (
+                <Paper
+                  elevation={0}
+                  sx={{
+                    p: 1.75,
+                    borderRadius: 2.5,
+                    border: '1px solid #E2E8F0',
+                    bgcolor: '#FFFFFF'
+                  }}
+                >
+                  {/* Top Row: Student Name + TGID + StatusBadge */}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                    <Box sx={{ minWidth: 0 }}>
+                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                        {st.name}
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: '#1E40AF' }}>
+                        {st.tgid}
+                      </Typography>
+                      {st.phone && (
+                        <Typography variant="caption" sx={{ color: '#64748B', ml: 1 }}>
+                          • {st.phone}
+                        </Typography>
+                      )}
+                    </Box>
+                    <StatusBadge label={badgeLabel} tone={badgeTone} showDot />
+                  </Box>
+
+                  {/* Middle 2-column grid */}
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: 1.25,
+                      py: 1.1,
+                      borderTop: '1px solid #F1F5F9',
+                      borderBottom: '1px solid #F1F5F9'
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                        Total Fee: <Box component="span" sx={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.lockedFee.toLocaleString()}</Box>
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                        Paid: <Box component="span" sx={{ color: '#059669', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.totalPaid.toLocaleString()}</Box>
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                        Due: <Box component="span" sx={{ color: l.due > 0 ? '#DC2626' : '#059669', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.due.toLocaleString()}</Box>
+                      </Typography>
+                    </Box>
+
+                    <Box>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                        Course &amp; Batch
+                      </Typography>
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#0F172A', display: 'block' }} noWrap>
+                        {l.courseTitle}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                        Batch: {l.groupCode}
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: l.isOverdue ? '#DC2626' : '#64748B', fontWeight: l.isOverdue ? 800 : 600, fontVariantNumeric: 'tabular-nums' }}>
+                        Due Date: {l.due > 0 ? l.dueDateStr : '-'}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Bottom Action Bar */}
+                  <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mt: 1.25 }}>
+                    {l.due > 0 ? (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<PointOfSaleIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        onClick={() => {
+                          setPreselectedStudentId(st.id);
+                          setOpenCollectModal(true);
+                        }}
+                        sx={{
+                          background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          textTransform: 'none',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        Collect Fee
+                      </Button>
+                    ) : (
+                      <Button
+                        size="small"
+                        variant="contained"
+                        color="warning"
+                        startIcon={<VerifiedIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        onClick={() => {
+                          setClearanceStudent(st);
+                          setClearanceLedger(l);
+                        }}
+                        sx={{
+                          bgcolor: '#F59E0B',
+                          color: '#0F2E5A',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          textTransform: 'none',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        Fee Cleared
+                      </Button>
+                    )}
+
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<AccessTimeIcon sx={{ fontSize: '0.85rem !important' }} />}
+                      onClick={() => setTimelineStudent({ student: st, ledger: l })}
+                      sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                    >
+                      View Timeline
+                    </Button>
+
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      startIcon={<ArticleIcon sx={{ fontSize: '0.85rem !important' }} />}
+                      onClick={() => {
+                        setStatementType('STUDENT');
+                        setStatementTargetId(st.id);
+                        setUniversalStatementOpen(true);
+                      }}
+                      sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                    >
+                      Statement
+                    </Button>
+
+                    {l.paymentCount > 0 && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ReceiptLongIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        onClick={() => {
+                          const latestP = payments.filter((p) => p.studentId === st.id).slice(-1)[0];
+                          if (latestP) setSelectedReceiptPayment(latestP);
+                        }}
+                        sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                      >
+                        Receipt
+                      </Button>
+                    )}
+                  </Stack>
+                </Paper>
+              );
+            }}
+          />
           )}
 
           {/* Cards View Mode */}
@@ -2323,148 +2600,247 @@ export default function AccountsManager({ initialTab = 0 }) {
 
           {/* Table View Mode */}
           {trainerViewMode === 'table' && (
-            <TableContainer sx={{ maxHeight: 620 }}>
-              <Table stickyHeader size="small">
-                <TableHead
-                  sx={{
-                    bgcolor: '#0F2E5A',
-                    '& .MuiTableCell-head': {
-                      bgcolor: '#0F2E5A !important',
-                      color: '#FFFFFF !important',
-                      fontWeight: 800,
-                      fontSize: '0.72rem',
-                      py: 1,
-                      px: 1.25,
-                      borderBottom: '2px solid #F59E0B',
-                      whiteSpace: 'nowrap'
-                    }
-                  }}
-                >
-                  <TableRow>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
-                      S.N.
-                    </TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Instructor Details</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Model</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Assigned Batches</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Batch Fee Collected</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Accrued Remuneration</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Total Disbursed</TableCell>
-                    <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payable Due</TableCell>
-                    <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {filteredTrainers.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                        No instructors found.
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredTrainers.map((trn, idx) => {
-                      const l = getTrainerLedger(trn);
+            <ResponsiveDataView
+              rows={filteredTrainers}
+              keyExtractor={(trn) => trn.id}
+              emptyIcon={<PersonIcon sx={{ fontSize: 24 }} />}
+              emptyTitle="No instructors found."
+              emptySubtitle="Try adjusting your search or filter criteria."
+              renderTable={() => (
+                <TableContainer sx={{ maxHeight: 620 }}>
+                  <Table stickyHeader size="small">
+                    <TableHead
+                      sx={{
+                        bgcolor: '#0F2E5A',
+                        '& .MuiTableCell-head': {
+                          bgcolor: '#0F2E5A !important',
+                          color: '#FFFFFF !important',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          py: 1,
+                          px: 1.25,
+                          borderBottom: '2px solid #F59E0B',
+                          whiteSpace: 'nowrap'
+                        }
+                      }}
+                    >
+                      <TableRow>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
+                          S.N.
+                        </TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Instructor Details</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Model</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Assigned Batches</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Batch Fee Collected</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Accrued Remuneration</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Total Disbursed</TableCell>
+                        <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Payable Due</TableCell>
+                        <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Actions</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {filteredTrainers.map((trn, idx) => {
+                        const l = getTrainerLedger(trn);
 
-                      return (
-                        <TableRow key={trn.id} hover>
-                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
-                              <Avatar
-                                src={trn.photo}
-                                sx={{ width: 32, height: 32, bgcolor: '#B45309', fontWeight: 800, fontSize: '0.8rem' }}
-                              >
-                                {trn.name ? trn.name.charAt(0) : 'T'}
-                              </Avatar>
-                              <Box>
-                                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                                  {trn.name}
-                                </Typography>
-                                <Typography variant="caption" sx={{ color: '#64748B' }}>
-                                  {trn.specialization || 'Instructor'} • {trn.phone || ''}
-                                </Typography>
+                        return (
+                          <TableRow key={trn.id} hover>
+                            <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 50 }}>
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2 }}>
+                                <Avatar
+                                  src={trn.photo}
+                                  sx={{ width: 32, height: 32, bgcolor: '#B45309', fontWeight: 800, fontSize: '0.8rem' }}
+                                >
+                                  {trn.name ? trn.name.charAt(0) : 'T'}
+                                </Avatar>
+                                <Box>
+                                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                                    {trn.name}
+                                  </Typography>
+                                  <Typography variant="caption" sx={{ color: '#64748B' }}>
+                                    {trn.specialization || 'Instructor'} • {trn.phone || ''}
+                                  </Typography>
+                                </Box>
                               </Box>
-                            </Box>
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={trn.remunerationType === 'SALARY' ? 'Monthly Salary' : 'Commission (%)'}
-                              size="small"
-                              sx={{
-                                fontWeight: 800,
-                                fontSize: '0.68rem',
-                                bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
-                                color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
-                              }}
-                            />
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
-                            {l.assignedGroupsCount} Batches
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
-                            Rs. {l.totalCollectedInGroups.toLocaleString()}
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>
-                            Rs. {l.totalEarned.toLocaleString()}
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 800, color: '#10B981' }}>
-                            Rs. {l.totalPaid.toLocaleString()}
-                          </TableCell>
-                          <TableCell sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
-                            Rs. {l.balanceDue.toLocaleString()}
-                          </TableCell>
-                          <TableCell align="right">
-                            <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
-                              <Button
+                            </TableCell>
+                            <TableCell>
+                              <Chip
+                                label={trn.remunerationType === 'SALARY' ? 'Monthly Salary' : 'Commission (%)'}
                                 size="small"
-                                variant="contained"
-                                startIcon={<PaymentsIcon sx={{ fontSize: '0.85rem !important' }} />}
-                                onClick={() => {
-                                  setPreselectedTrainerId(trn.id);
-                                  setOpenPayoutModal(true);
-                                }}
                                 sx={{
-                                  background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
                                   fontWeight: 800,
-                                  fontSize: '0.7rem',
-                                  px: 0.9,
-                                  py: 0.3,
-                                  whiteSpace: 'nowrap',
-                                  borderRadius: 1.5,
-                                  textTransform: 'none'
+                                  fontSize: '0.68rem',
+                                  bgcolor: trn.remunerationType === 'SALARY' ? '#EFF6FF' : '#FEF3C7',
+                                  color: trn.remunerationType === 'SALARY' ? '#1D4ED8' : '#92400E'
                                 }}
-                              >
-                                Disburse
-                              </Button>
-                              <Tooltip title="Instructor Remuneration & Commission Ledger">
-                                <IconButton
+                              />
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 700, color: '#334155' }}>
+                              {l.assignedGroupsCount} Batches
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
+                              Rs. {l.totalCollectedInGroups.toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#0F172A' }}>
+                              Rs. {l.totalEarned.toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 800, color: '#10B981' }}>
+                              Rs. {l.totalPaid.toLocaleString()}
+                            </TableCell>
+                            <TableCell sx={{ fontWeight: 900, color: l.balanceDue > 0 ? '#B45309' : '#059669' }}>
+                              Rs. {l.balanceDue.toLocaleString()}
+                            </TableCell>
+                            <TableCell align="right">
+                              <Stack direction="row" spacing={0.6} justifyContent="flex-end" alignItems="center">
+                                <Button
                                   size="small"
+                                  variant="contained"
+                                  startIcon={<PaymentsIcon sx={{ fontSize: '0.85rem !important' }} />}
                                   onClick={() => {
-                                    setStatementType('TRAINER');
-                                    setStatementTargetId(trn.id);
-                                    setUniversalStatementOpen(true);
+                                    setPreselectedTrainerId(trn.id);
+                                    setOpenPayoutModal(true);
                                   }}
                                   sx={{
-                                    border: '1px solid #CBD5E1',
-                                    borderRadius: 2,
-                                    color: '#0F2E5A',
-                                    bgcolor: '#F8FAFC'
+                                    background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+                                    fontWeight: 800,
+                                    fontSize: '0.7rem',
+                                    px: 0.9,
+                                    py: 0.3,
+                                    whiteSpace: 'nowrap',
+                                    borderRadius: 1.5,
+                                    textTransform: 'none'
                                   }}
                                 >
-                                  <ArticleIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </Stack>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </TableContainer>
+                                  Disburse
+                                </Button>
+                                <Tooltip title="Instructor Remuneration & Commission Ledger">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => {
+                                      setStatementType('TRAINER');
+                                      setStatementTargetId(trn.id);
+                                      setUniversalStatementOpen(true);
+                                    }}
+                                    sx={{
+                                      border: '1px solid #CBD5E1',
+                                      borderRadius: 2,
+                                      color: '#0F2E5A',
+                                      bgcolor: '#F8FAFC'
+                                    }}
+                                  >
+                                    <ArticleIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </Stack>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+              renderCard={(trn) => {
+                const l = getTrainerLedger(trn);
+                return (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 1.75,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0',
+                      bgcolor: '#FFFFFF'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                          {trn.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          {trn.specialization || 'Instructor'} {trn.phone ? `• ${trn.phone}` : ''}
+                        </Typography>
+                      </Box>
+                      <StatusBadge
+                        label={trn.remunerationType === 'SALARY' ? 'Monthly Salary' : 'Commission (%)'}
+                        tone={trn.remunerationType === 'SALARY' ? 'primary' : 'warning'}
+                        showDot
+                      />
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 1.25,
+                        py: 1.1,
+                        borderTop: '1px solid #F1F5F9',
+                        borderBottom: '1px solid #F1F5F9'
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Earned: <Box component="span" sx={{ color: '#0F172A', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.totalEarned.toLocaleString()}</Box>
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Disbursed: <Box component="span" sx={{ color: '#059669', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.totalPaid.toLocaleString()}</Box>
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Payable Due: <Box component="span" sx={{ color: l.balanceDue > 0 ? '#DC2626' : '#059669', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>Rs. {l.balanceDue.toLocaleString()}</Box>
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Batches &amp; Collection
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#0F172A', display: 'block' }}>
+                          {l.assignedGroupsCount} Batches
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>
+                          Fee: Rs. {l.totalCollectedInGroups.toLocaleString()}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Stack direction="row" spacing={0.75} sx={{ mt: 1.25 }}>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        startIcon={<PaymentsIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        onClick={() => {
+                          setPreselectedTrainerId(trn.id);
+                          setOpenPayoutModal(true);
+                        }}
+                        sx={{
+                          background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+                          fontWeight: 800,
+                          fontSize: '0.72rem',
+                          textTransform: 'none',
+                          borderRadius: 1.5
+                        }}
+                      >
+                        Disburse
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ArticleIcon sx={{ fontSize: '0.85rem !important' }} />}
+                        onClick={() => {
+                          setStatementType('TRAINER');
+                          setStatementTargetId(trn.id);
+                          setUniversalStatementOpen(true);
+                        }}
+                        sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                      >
+                        Statement
+                      </Button>
+                    </Stack>
+                  </Paper>
+                );
+              }}
+            />
           )}
         </Card>
       )}
@@ -2641,101 +3017,189 @@ export default function AccountsManager({ initialTab = 0 }) {
 
               {/* Table View Mode */}
               {txViewMode === 'table' && (
-              <TableContainer sx={{ maxHeight: 620 }}>
-                <Table stickyHeader size="small">
-                  <TableHead
+              <ResponsiveDataView
+                rows={combinedTransactions}
+                keyExtractor={(tx) => tx.id}
+                emptyIcon={<ReceiptLongIcon sx={{ fontSize: 24 }} />}
+                emptyTitle="No transactions found."
+                emptySubtitle="Try adjusting your transaction type filter."
+                renderTable={() => (
+                  <TableContainer sx={{ maxHeight: 620 }}>
+                    <Table stickyHeader size="small">
+                      <TableHead
+                        sx={{
+                          bgcolor: '#0F2E5A',
+                          '& .MuiTableCell-head': {
+                            bgcolor: '#0F2E5A !important',
+                            color: '#FFFFFF !important',
+                            fontWeight: 800,
+                            fontSize: '0.72rem',
+                            py: 1,
+                            px: 1.25,
+                            borderBottom: '2px solid #F59E0B',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
+                      >
+                        <TableRow>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
+                            S.N.
+                          </TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt / Voucher No</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Party / Person</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Method</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Narration</TableCell>
+                          <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Print</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {combinedTransactions.map((tx, idx) => (
+                          <TableRow key={tx.id} hover>
+                            <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: tx.isInflow ? '#1E40AF' : '#B45309' }}>
+                              {tx.refNo}
+                            </TableCell>
+
+                            <TableCell>
+                              <Chip
+                                label={tx.isInflow ? 'Fee Inflow (+)' : 'Payout Outflow (-)'}
+                                size="small"
+                                sx={{
+                                  fontWeight: 800,
+                                  fontSize: '0.7rem',
+                                  bgcolor: tx.isInflow ? '#ECFDF5' : '#FEF3C7',
+                                  color: tx.isInflow ? '#047857' : '#92400E'
+                                }}
+                              />
+                            </TableCell>
+
+                            <TableCell>
+                              <Typography variant="body2" sx={{ fontWeight: 700 }}>{tx.name}</Typography>
+                              <Typography variant="caption" sx={{ color: '#64748B' }}>{tx.sub}</Typography>
+                            </TableCell>
+
+                            <TableCell sx={{ fontWeight: 900, color: tx.isInflow ? '#059669' : '#B45309', fontSize: '0.95rem' }}>
+                              {tx.isInflow ? '+' : '-'} Rs. {Number(tx.amount).toLocaleString()}
+                            </TableCell>
+
+                            <TableCell sx={{ fontSize: '0.8rem' }}>{tx.method}</TableCell>
+                            <TableCell sx={{ fontSize: '0.8rem' }}>{tx.date}</TableCell>
+                            <TableCell sx={{ fontSize: '0.8rem', color: '#64748B' }}>{tx.remarks || '-'}</TableCell>
+
+                            <TableCell align="right">
+                              {tx.isInflow ? (
+                                <Tooltip title="Print Receipt">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => setSelectedReceiptPayment(tx.rawObj)}
+                                    sx={{ color: '#0284C7' }}
+                                  >
+                                    <PrintIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              ) : (
+                                <Chip label="Voucher" size="small" sx={{ fontWeight: 700, fontSize: '0.68rem' }} />
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+                renderCard={(tx) => (
+                  <Paper
+                    elevation={0}
                     sx={{
-                      bgcolor: '#0F2E5A',
-                      '& .MuiTableCell-head': {
-                        bgcolor: '#0F2E5A !important',
-                        color: '#FFFFFF !important',
-                        fontWeight: 800,
-                        fontSize: '0.72rem',
-                        py: 1,
-                        px: 1.25,
-                        borderBottom: '2px solid #F59E0B',
-                        whiteSpace: 'nowrap'
-                      }
+                      p: 1.75,
+                      borderRadius: 2.5,
+                      border: '1px solid #E2E8F0',
+                      bgcolor: '#FFFFFF'
                     }}
                   >
-                    <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
-                        S.N.
-                      </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Receipt / Voucher No</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Type</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Party / Person</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Amount (Rs.)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Method</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Date</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Narration</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Print</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {combinedTransactions.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={9} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                          No transactions found.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      combinedTransactions.map((tx, idx) => (
-                        <TableRow key={tx.id} hover>
-                          <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell sx={{ fontFamily: 'monospace', fontWeight: 800, color: tx.isInflow ? '#1E40AF' : '#B45309' }}>
-                            {tx.refNo}
-                          </TableCell>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                      <Box sx={{ minWidth: 0 }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+                          {tx.name}
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontFamily: 'monospace', fontWeight: 700, color: tx.isInflow ? '#1E40AF' : '#B45309' }}>
+                          {tx.refNo}
+                        </Typography>
+                      </Box>
+                      <StatusBadge
+                        label={tx.isInflow ? 'Fee Inflow' : 'Payout Outflow'}
+                        tone={tx.isInflow ? 'success' : 'warning'}
+                        showDot
+                      />
+                    </Box>
 
-                          <TableCell>
-                            <Chip
-                              label={tx.isInflow ? 'Fee Inflow (+)' : 'Payout Outflow (-)'}
-                              size="small"
-                              sx={{
-                                fontWeight: 800,
-                                fontSize: '0.7rem',
-                                bgcolor: tx.isInflow ? '#ECFDF5' : '#FEF3C7',
-                                color: tx.isInflow ? '#047857' : '#92400E'
-                              }}
-                            />
-                          </TableCell>
+                    <Box
+                      sx={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 1fr',
+                        gap: 1.25,
+                        py: 1.1,
+                        borderTop: '1px solid #F1F5F9',
+                        borderBottom: '1px solid #F1F5F9'
+                      }}
+                    >
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Amount
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 900,
+                            color: tx.isInflow ? '#059669' : '#DC2626',
+                            fontVariantNumeric: 'tabular-nums'
+                          }}
+                        >
+                          {tx.isInflow ? '+' : '-'} Rs. {Number(tx.amount).toLocaleString()}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B' }}>
+                          Method: {tx.method}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                          Category &amp; Date
+                        </Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, color: '#0F172A', display: 'block' }} noWrap>
+                          {tx.sub || '-'}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: '#64748B', fontVariantNumeric: 'tabular-nums' }}>
+                          {tx.date}
+                        </Typography>
+                      </Box>
+                    </Box>
 
-                          <TableCell>
-                            <Typography variant="body2" sx={{ fontWeight: 700 }}>{tx.name}</Typography>
-                            <Typography variant="caption" sx={{ color: '#64748B' }}>{tx.sub}</Typography>
-                          </TableCell>
-
-                          <TableCell sx={{ fontWeight: 900, color: tx.isInflow ? '#059669' : '#B45309', fontSize: '0.95rem' }}>
-                            {tx.isInflow ? '+' : '-'} Rs. {Number(tx.amount).toLocaleString()}
-                          </TableCell>
-
-                          <TableCell sx={{ fontSize: '0.8rem' }}>{tx.method}</TableCell>
-                          <TableCell sx={{ fontSize: '0.8rem' }}>{tx.date}</TableCell>
-                          <TableCell sx={{ fontSize: '0.8rem', color: '#64748B' }}>{tx.remarks || '-'}</TableCell>
-
-                          <TableCell align="right">
-                            {tx.isInflow ? (
-                              <Tooltip title="Print Receipt">
-                                <IconButton
-                                  size="small"
-                                  onClick={() => setSelectedReceiptPayment(tx.rawObj)}
-                                  sx={{ color: '#0284C7' }}
-                                >
-                                  <PrintIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            ) : (
-                              <Chip label="Voucher" size="small" sx={{ fontWeight: 700, fontSize: '0.68rem' }} />
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 1.25, gap: 1 }}>
+                      <Typography variant="caption" sx={{ color: '#64748B', flex: 1 }} noWrap>
+                        {tx.remarks || 'No narration'}
+                      </Typography>
+                      {tx.isInflow ? (
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<PrintIcon sx={{ fontSize: '0.85rem !important' }} />}
+                          onClick={() => setSelectedReceiptPayment(tx.rawObj)}
+                          sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                        >
+                          Receipt
+                        </Button>
+                      ) : (
+                        <StatusBadge label="Voucher" tone="neutral" />
+                      )}
+                    </Box>
+                  </Paper>
+                )}
+              />
               )}
 
               {/* Cards View Mode */}
@@ -2895,123 +3359,195 @@ export default function AccountsManager({ initialTab = 0 }) {
                 </Button>
               </Box>
 
-              <TableContainer sx={{ maxHeight: 620 }}>
-                <Table stickyHeader size="small">
-                  <TableHead
-                    sx={{
-                      bgcolor: '#0F2E5A',
-                      '& .MuiTableCell-head': {
-                        bgcolor: '#0F2E5A !important',
-                        color: '#FFFFFF !important',
-                        fontWeight: 800,
-                        fontSize: '0.72rem',
-                        py: 1,
-                        px: 1.25,
-                        borderBottom: '2px solid #F59E0B',
-                        whiteSpace: 'nowrap'
-                      }
-                    }}
-                  >
-                    <TableRow>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
-                        S.N.
-                      </TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Closing Date &amp; Time</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Opening Balance</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Inflow (+)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Outflow (-)</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Expected Closing</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Physical Count</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Denominations Breakdown</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Reconciliation Status</TableCell>
-                      <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cashier</TableCell>
-                      <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Slip</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {(db.cashClosings || []).length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={11} align="center" sx={{ py: 6, color: '#94A3B8' }}>
-                          No daily cash closing records found.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      (db.cashClosings || []).map((c, idx) => {
-                        const den = c.denominations || {};
-                        const denText = [
-                          den['1000'] ? `1000×${den['1000']}` : null,
-                          den['500'] ? `500×${den['500']}` : null,
-                          den['100'] ? `100×${den['100']}` : null,
-                          den['50'] ? `50×${den['50']}` : null,
-                          den['20'] ? `20×${den['20']}` : null,
-                          den['10'] ? `10×${den['10']}` : null,
-                          den['5'] ? `5×${den['5']}` : null,
-                          den['coins'] ? `Coins:${den['coins']}` : null
-                        ].filter(Boolean).join(', ') || '-';
+              <ResponsiveDataView
+                rows={db.cashClosings || []}
+                keyExtractor={(c, idx) => c.id || idx}
+                emptyIcon={<LockIcon sx={{ fontSize: 24 }} />}
+                emptyTitle="No daily cash closing records found."
+                emptySubtitle="Perform today's cash closing to record a counter reconciliation."
+                renderTable={() => (
+                  <TableContainer sx={{ maxHeight: 620 }}>
+                    <Table stickyHeader size="small">
+                      <TableHead
+                        sx={{
+                          bgcolor: '#0F2E5A',
+                          '& .MuiTableCell-head': {
+                            bgcolor: '#0F2E5A !important',
+                            color: '#FFFFFF !important',
+                            fontWeight: 800,
+                            fontSize: '0.72rem',
+                            py: 1,
+                            px: 1.25,
+                            borderBottom: '2px solid #F59E0B',
+                            whiteSpace: 'nowrap'
+                          }
+                        }}
+                      >
+                        <TableRow>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 50, textAlign: 'center' }}>
+                            S.N.
+                          </TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Closing Date &amp; Time</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Opening Balance</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Inflow (+)</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cash Outflow (-)</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Expected Closing</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Physical Count</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Denominations Breakdown</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Reconciliation Status</TableCell>
+                          <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Cashier</TableCell>
+                          <TableCell align="right" sx={{ color: '#FFFFFF !important', fontWeight: 800 }}>Slip</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {(db.cashClosings || []).map((c, idx) => {
+                          const den = c.denominations || {};
+                          const denText = [
+                            den['1000'] ? `1000×${den['1000']}` : null,
+                            den['500'] ? `500×${den['500']}` : null,
+                            den['100'] ? `100×${den['100']}` : null,
+                            den['50'] ? `50×${den['50']}` : null,
+                            den['20'] ? `20×${den['20']}` : null,
+                            den['10'] ? `10×${den['10']}` : null,
+                            den['5'] ? `5×${den['5']}` : null,
+                            den['coins'] ? `Coins:${den['coins']}` : null
+                          ].filter(Boolean).join(', ') || '-';
 
-                        return (
-                          <TableRow key={c.id || idx} hover>
-                            <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
-                              {idx + 1}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 800, color: '#0F2E5A' }}>
-                              {c.closingDate} {c.closingTime ? `(${c.closingTime})` : ''}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 700, color: '#64748B' }}>
-                              Rs. {Number(c.openingBalance || 0).toLocaleString()}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
-                              +Rs. {Number(c.cashReceived || 0).toLocaleString()}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 800, color: '#DC2626' }}>
-                              -Rs. {Number(c.cashPaid || 0).toLocaleString()}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 800, color: '#1E40AF' }}>
-                              Rs. {Number(c.expectedClosing || 0).toLocaleString()}
-                            </TableCell>
-                            <TableCell sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.92rem' }}>
-                              Rs. {Number(c.physicalCount || 0).toLocaleString()}
-                            </TableCell>
-                            <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#475569', maxWidth: 180 }}>
-                              <Tooltip title={denText}>
-                                <Typography variant="caption" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                  {denText}
-                                </Typography>
-                              </Tooltip>
-                            </TableCell>
-                            <TableCell>
-                              <Chip
-                                label={c.variance === 0 ? '✓ Matched' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`}
-                                size="small"
-                                sx={{
-                                  fontWeight: 800,
-                                  fontSize: '0.68rem',
-                                  bgcolor: c.variance === 0 ? '#ECFDF5' : c.variance > 0 ? '#EFF6FF' : '#FEF2F2',
-                                  color: c.variance === 0 ? '#065F46' : c.variance > 0 ? '#1D4ED8' : '#DC2626'
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
-                              {c.closedBy || 'Cashier'}
-                            </TableCell>
-                            <TableCell align="right">
-                              <Tooltip title="View Closing Slip">
-                                <IconButton
+                          return (
+                            <TableRow key={c.id || idx} hover>
+                              <TableCell sx={{ fontWeight: 800, textAlign: 'center', color: '#64748B', width: 65 }}>
+                                {idx + 1}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                                {c.closingDate} {c.closingTime ? `(${c.closingTime})` : ''}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 700, color: '#64748B' }}>
+                                Rs. {Number(c.openingBalance || 0).toLocaleString()}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#059669' }}>
+                                +Rs. {Number(c.cashReceived || 0).toLocaleString()}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#DC2626' }}>
+                                -Rs. {Number(c.cashPaid || 0).toLocaleString()}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 800, color: '#1E40AF' }}>
+                                Rs. {Number(c.expectedClosing || 0).toLocaleString()}
+                              </TableCell>
+                              <TableCell sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.92rem' }}>
+                                Rs. {Number(c.physicalCount || 0).toLocaleString()}
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#475569', maxWidth: 180 }}>
+                                <Tooltip title={denText}>
+                                  <Typography variant="caption" sx={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {denText}
+                                  </Typography>
+                                </Tooltip>
+                              </TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={c.variance === 0 ? '✓ Matched' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`}
                                   size="small"
-                                  onClick={() => setOpenCashClosingModal(true)}
-                                  sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
-                                >
-                                  <ArticleIcon fontSize="small" />
-                                </IconButton>
-                              </Tooltip>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                                  sx={{
+                                    fontWeight: 800,
+                                    fontSize: '0.68rem',
+                                    bgcolor: c.variance === 0 ? '#ECFDF5' : c.variance > 0 ? '#EFF6FF' : '#FEF2F2',
+                                    color: c.variance === 0 ? '#065F46' : c.variance > 0 ? '#1D4ED8' : '#DC2626'
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                                {c.closedBy || 'Cashier'}
+                              </TableCell>
+                              <TableCell align="right">
+                                <Tooltip title="View Closing Slip">
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => setOpenCashClosingModal(true)}
+                                    sx={{ color: '#0F2E5A', bgcolor: '#F1F5F9' }}
+                                  >
+                                    <ArticleIcon fontSize="small" />
+                                  </IconButton>
+                                </Tooltip>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                )}
+                renderCard={(c) => {
+                  const statusTone = c.variance === 0 ? 'success' : c.variance > 0 ? 'info' : 'error';
+                  const statusLabel = c.variance === 0 ? 'Matched' : c.variance > 0 ? `+${c.variance}` : `${c.variance}`;
+
+                  return (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 1.75,
+                        borderRadius: 2.5,
+                        border: '1px solid #E2E8F0',
+                        bgcolor: '#FFFFFF'
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
+                            {c.closingDate} {c.closingTime ? `(${c.closingTime})` : ''}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B' }}>
+                            Cashier: {c.closedBy || 'Cashier'}
+                          </Typography>
+                        </Box>
+                        <StatusBadge label={statusLabel} tone={statusTone} showDot />
+                      </Box>
+
+                      <Box
+                        sx={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: 1.25,
+                          py: 1.1,
+                          borderTop: '1px solid #F1F5F9',
+                          borderBottom: '1px solid #F1F5F9'
+                        }}
+                      >
+                        <Box>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                            Opening: <Box component="span" sx={{ color: '#0F172A', fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>Rs. {Number(c.openingBalance || 0).toLocaleString()}</Box>
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                            Inflow: <Box component="span" sx={{ color: '#059669', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>+Rs. {Number(c.cashReceived || 0).toLocaleString()}</Box>
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                            Outflow: <Box component="span" sx={{ color: '#DC2626', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>-Rs. {Number(c.cashPaid || 0).toLocaleString()}</Box>
+                          </Typography>
+                        </Box>
+                        <Box>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                            Expected: <Box component="span" sx={{ color: '#1E40AF', fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>Rs. {Number(c.expectedClosing || 0).toLocaleString()}</Box>
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontWeight: 600 }}>
+                            Physical: <Box component="span" sx={{ color: '#0F2E5A', fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>Rs. {Number(c.physicalCount || 0).toLocaleString()}</Box>
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 1.25 }}>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          startIcon={<ArticleIcon sx={{ fontSize: '0.85rem !important' }} />}
+                          onClick={() => setOpenCashClosingModal(true)}
+                          sx={{ fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', borderRadius: 1.5 }}
+                        >
+                          View Closing Slip
+                        </Button>
+                      </Box>
+                    </Paper>
+                  );
+                }}
+              />
             </Card>
           )}
         </Box>

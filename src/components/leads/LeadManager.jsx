@@ -24,7 +24,9 @@ import {
   InputAdornment,
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -64,8 +66,36 @@ import LeadModal, { LEAD_STAGES, LEAD_PRIORITIES, LEAD_SOURCES } from './LeadMod
 import LeadDetailsModal from './LeadDetailsModal';
 import ConvertToStudentModal from './ConvertToStudentModal';
 import LeadImportModal from './LeadImportModal';
+import { ResponsiveDataView, StatusBadge } from '../common';
+
+const getPriorityTone = (priority) => {
+  if (priority === 'High') return 'error';
+  if (priority === 'Medium') return 'warning';
+  return 'neutral';
+};
+
+const getStageTone = (stage) => {
+  switch (stage) {
+    case 'New Lead':
+      return 'primary';
+    case 'Contacted':
+      return 'info';
+    case 'Interested':
+      return 'warning';
+    case 'Follow-up':
+      return 'teal';
+    case 'Converted':
+      return 'success';
+    case 'Lost':
+      return 'error';
+    default:
+      return 'neutral';
+  }
+};
 
 export default function LeadManager({ onNavigateToAdmission }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
 
@@ -842,18 +872,25 @@ export default function LeadManager({ onNavigateToAdmission }) {
       </Card>
 
       {/* ========================================================= */}
-      {/* VIEW 1: TABLE VIEW                                       */}
+      {/* VIEW 1: TABLE / MOBILE NATIVE CARD VIEW                  */}
       {/* ========================================================= */}
       {viewMode === 'table' && (
-        <Card
-          elevation={0}
-          sx={{
-            borderRadius: 2,
-            border: '1px solid #E2E8F0',
-            overflow: 'hidden'
-          }}
-        >
-          <TableContainer sx={{ maxHeight: 600 }}>
+        <ResponsiveDataView
+          rows={filteredLeads}
+          keyExtractor={(lead) => lead.id}
+          emptyIcon={<ContactPhoneIcon />}
+          emptyTitle="No leads matching filter"
+          emptySubtitle="Try adjusting your search or filter criteria, or add a new lead."
+          renderTable={() => (
+            <Card
+              elevation={0}
+              sx={{
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                overflow: 'hidden'
+              }}
+            >
+              <TableContainer sx={{ maxHeight: 600 }}>
             <Table size="small" stickyHeader>
               <TableHead
                 sx={{
@@ -1125,6 +1162,281 @@ export default function LeadManager({ onNavigateToAdmission }) {
             </Table>
           </TableContainer>
         </Card>
+          )}
+          renderCard={(lead, idx) => {
+            const stgObj = LEAD_STAGES.find((s) => s.value === lead.stage) || LEAD_STAGES[0];
+            const prObj = LEAD_PRIORITIES.find((p) => p.value === lead.priority) || LEAD_PRIORITIES[1];
+            const historyCount = lead.timeline?.length || 0;
+
+            return (
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 1.75,
+                  borderRadius: 2.5,
+                  border: '1px solid #E2E8F0',
+                  bgcolor: '#FFFFFF'
+                }}
+              >
+                {/* Top Row: # Serial Badge, Lead Name + Location, Priority & Stage StatusBadges */}
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, minWidth: 0, flex: 1 }}>
+                    <Box
+                      sx={{
+                        px: 0.75,
+                        py: 0.25,
+                        borderRadius: 1.25,
+                        bgcolor: '#EFF6FF',
+                        border: '1px solid #BFDBFE',
+                        color: '#1E40AF',
+                        fontWeight: 800,
+                        fontSize: '0.7rem',
+                        fontVariantNumeric: 'tabular-nums',
+                        flexShrink: 0,
+                        mt: 0.15
+                      }}
+                    >
+                      #{idx + 1}
+                    </Box>
+                    <Box sx={{ minWidth: 0, flex: 1 }}>
+                      <Typography
+                        onClick={() => setDetailsLead(lead)}
+                        noWrap
+                        sx={{
+                          fontWeight: 800,
+                          color: '#0F172A',
+                          fontSize: '0.9rem',
+                          lineHeight: 1.25,
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {lead.name}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          color: '#64748B',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.3,
+                          fontSize: '0.72rem',
+                          mt: 0.2
+                        }}
+                      >
+                        <LocationOnIcon sx={{ fontSize: '0.82rem', color: '#94A3B8', flexShrink: 0 }} />
+                        {lead.address || 'Location not specified'}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Stack direction="row" spacing={0.5} flexShrink={0} flexWrap="wrap" justifyContent="flex-end">
+                    <StatusBadge
+                      label={prObj.label.split(' (')[0]}
+                      tone={getPriorityTone(lead.priority)}
+                    />
+                    <StatusBadge
+                      label={stgObj.label.split(' (')[0]}
+                      tone={getStageTone(lead.stage)}
+                      showDot
+                    />
+                  </Stack>
+                </Box>
+
+                {/* Middle 2-Column Grid: Course/Trade (Rs. ...), Phone, Next Follow-up, History */}
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: 1,
+                    p: 1.15,
+                    borderRadius: 2,
+                    bgcolor: '#F8FAFC',
+                    border: '1px solid #F1F5F9',
+                    mb: 1.25
+                  }}
+                >
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
+                      Course / Trade
+                    </Typography>
+                    <Typography noWrap sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem' }}>
+                      {lead.course || 'General'}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#047857', fontWeight: 700, fontSize: '0.7rem' }}>
+                      Rs. {Number(lead.price || 0).toLocaleString()}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
+                      Phone
+                    </Typography>
+                    <Typography noWrap sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#0F172A', fontSize: '0.8rem' }}>
+                      {lead.phone || '-'}
+                    </Typography>
+                    {(lead.agentName || lead.agentCode) && (
+                      <Typography noWrap variant="caption" sx={{ color: '#92400E', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
+                        Agent: {lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}
+                      </Typography>
+                    )}
+                  </Box>
+
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
+                      Next Follow-up
+                    </Typography>
+                    <Typography sx={{ fontWeight: 700, color: '#334155', fontSize: '0.76rem' }}>
+                      {lead.followUpDate || '-'}
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
+                      History
+                    </Typography>
+                    <Typography
+                      onClick={() => setDetailsLead(lead)}
+                      sx={{
+                        fontWeight: 700,
+                        color: '#2563EB',
+                        fontSize: '0.76rem',
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 0.4
+                      }}
+                    >
+                      <HistoryIcon sx={{ fontSize: '0.88rem' }} />
+                      {historyCount} {historyCount === 1 ? 'log' : 'logs'}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Bottom Action Bar */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 0.75,
+                    pt: 0.75,
+                    borderTop: '1px solid #F1F5F9'
+                  }}
+                >
+                  <Stack direction="row" spacing={0.75} alignItems="center">
+                    <Tooltip title="Call">
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={`tel:${lead.phone}`}
+                        aria-label={`Call ${lead.name}`}
+                        sx={{
+                          color: '#0284C7',
+                          bgcolor: '#F0F9FF',
+                          border: '1px solid #BAE6FD',
+                          p: 0.85
+                        }}
+                      >
+                        <PhoneIcon sx={{ fontSize: '1.05rem' }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="WhatsApp">
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={getWaLink(lead)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`WhatsApp ${lead.name}`}
+                        sx={{
+                          color: '#059669',
+                          bgcolor: '#ECFDF5',
+                          border: '1px solid #A7F3D0',
+                          p: 0.85
+                        }}
+                      >
+                        <WhatsAppIcon sx={{ fontSize: '1.05rem' }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="View Profile">
+                      <IconButton
+                        size="small"
+                        onClick={() => setDetailsLead(lead)}
+                        aria-label={`View profile for ${lead.name}`}
+                        sx={{
+                          color: '#2563EB',
+                          bgcolor: '#EFF6FF',
+                          border: '1px solid #BFDBFE',
+                          p: 0.85
+                        }}
+                      >
+                        <VisibilityIcon sx={{ fontSize: '1.05rem' }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+
+                  <Stack direction="row" spacing={0.75} alignItems="center">
+                    {lead.stage !== 'Converted' && (
+                      <Tooltip title="Admit">
+                        <IconButton
+                          size="small"
+                          onClick={() => setConvertLead(lead)}
+                          aria-label={`Admit ${lead.name}`}
+                          sx={{
+                            color: '#047857',
+                            bgcolor: '#ECFDF5',
+                            border: '1px solid #6EE7B7',
+                            p: 0.85
+                          }}
+                        >
+                          <HowToRegIcon sx={{ fontSize: '1.05rem' }} />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+
+                    <Tooltip title="Edit">
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setEditingLead(lead);
+                          setOpenAddEditModal(true);
+                        }}
+                        aria-label={`Edit ${lead.name}`}
+                        sx={{
+                          color: '#D97706',
+                          bgcolor: '#FFFBEB',
+                          border: '1px solid #FDE68A',
+                          p: 0.85
+                        }}
+                      >
+                        <EditIcon sx={{ fontSize: '1.05rem' }} />
+                      </IconButton>
+                    </Tooltip>
+
+                    <Tooltip title="Delete">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteLead(lead.id)}
+                        aria-label={`Delete ${lead.name}`}
+                        sx={{
+                          color: '#DC2626',
+                          bgcolor: '#FEF2F2',
+                          border: '1px solid #FECACA',
+                          p: 0.85
+                        }}
+                      >
+                        <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
+                      </IconButton>
+                    </Tooltip>
+                  </Stack>
+                </Box>
+              </Paper>
+            );
+          }}
+        />
       )}
 
       {/* ========================================================= */}
@@ -1833,13 +2145,27 @@ export default function LeadManager({ onNavigateToAdmission }) {
         onClose={() => setOpenAddAgentModal(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
+        fullScreen={isMobile}
+        scroll="paper"
+        PaperProps={{
+          sx: {
+            borderRadius: isMobile ? 0 : 3.5,
+            maxHeight: isMobile ? '100dvh' : '92vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }
+        }}
       >
-        <form onSubmit={handleSaveAgent}>
-          <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A' }}>
+        <Box
+          component="form"
+          onSubmit={handleSaveAgent}
+          sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}
+        >
+          <DialogTitle sx={{ fontWeight: 900, color: '#0F2E5A', flexShrink: 0, px: 2.5, py: 1.75 }}>
             + Add Referral Partner (Agent)
           </DialogTitle>
-          <DialogContent dividers>
+          <DialogContent dividers sx={{ flex: 1, overflowY: 'auto', px: 2.5 }}>
             <Stack spacing={2.2} sx={{ pt: 1 }}>
               <TextField
                 required
@@ -1922,7 +2248,16 @@ export default function LeadManager({ onNavigateToAdmission }) {
               />
             </Stack>
           </DialogContent>
-          <DialogActions sx={{ p: 2 }}>
+          <DialogActions
+            sx={{
+              px: 2.5,
+              pt: 1.5,
+              pb: isMobile ? 'calc(14px + env(safe-area-inset-bottom))' : 1.5,
+              flexShrink: 0,
+              bgcolor: '#FFFFFF',
+              borderTop: '1px solid #E2E8F0'
+            }}
+          >
             <Button onClick={() => setOpenAddAgentModal(false)} sx={{ fontWeight: 700 }}>
               Cancel
             </Button>
@@ -1930,7 +2265,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
               Save Agent
             </Button>
           </DialogActions>
-        </form>
+        </Box>
       </Dialog>
 
       {/* Snackbar Feedback */}

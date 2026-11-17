@@ -364,5 +364,114 @@ export const theme = createTheme({
         },
       },
     },
+    MuiMenu: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 10,
+          border: '1px solid #E2E8F0',
+          boxShadow: '0 12px 32px -4px rgba(15, 23, 42, 0.14)',
+          marginTop: 4,
+        },
+      },
+    },
+    MuiMenuItem: {
+      styleOverrides: {
+        root: {
+          fontSize: '0.8125rem',
+          fontWeight: 500,
+          borderRadius: 6,
+          margin: '2px 6px',
+          padding: '7px 10px',
+          '&.Mui-selected': {
+            backgroundColor: '#EFF6FF',
+            color: '#0F2C59',
+            fontWeight: 700,
+            '&:hover': {
+              backgroundColor: '#DBEAFE',
+            },
+          },
+        },
+      },
+    },
+    MuiToggleButtonGroup: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#F1F5F9',
+          padding: 3,
+          borderRadius: 9,
+          border: '1px solid #E2E8F0',
+          gap: 3,
+        },
+      },
+    },
+    MuiToggleButton: {
+      styleOverrides: {
+        root: {
+          border: 'none',
+          borderRadius: '7px !important',
+          textTransform: 'none',
+          fontWeight: 700,
+          fontSize: '0.77rem',
+          color: '#475569',
+          padding: '5px 12px',
+          transition: 'all 0.15s ease',
+          '&.Mui-selected': {
+            backgroundColor: '#FFFFFF',
+            color: '#0F2C59',
+            boxShadow: '0 1px 3px rgba(15, 23, 42, 0.12)',
+            '&:hover': {
+              backgroundColor: '#FFFFFF',
+            },
+          },
+        },
+      },
+    },
+    MuiTabs: {
+      styleOverrides: {
+        indicator: {
+          height: 3,
+          borderRadius: '3px 3px 0 0',
+          backgroundColor: '#0F2C59',
+        },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          fontWeight: 700,
+          fontSize: '0.8rem',
+          minHeight: 42,
+          color: '#64748B',
+          '&.Mui-selected': {
+            color: '#0F2C59',
+            fontWeight: 800,
+          },
+        },
+      },
+    },
+    MuiTooltip: {
+      styleOverrides: {
+        tooltip: {
+          backgroundColor: '#0F172A',
+          fontSize: '0.73rem',
+          fontWeight: 600,
+          borderRadius: 7,
+          padding: '6px 10px',
+        },
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        primary: {
+          backgroundColor: '#0F2C59',
+          color: '#FFFFFF',
+          boxShadow: '0 8px 24px rgba(15, 44, 89, 0.35)',
+          '&:hover': {
+            backgroundColor: '#0A1F40',
+          },
+        },
+      },
+    },
   },
 });

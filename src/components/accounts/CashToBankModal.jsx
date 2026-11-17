@@ -14,7 +14,9 @@ import {
   Chip,
   IconButton,
   InputAdornment,
-  MenuItem
+  MenuItem,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CloseIcon from '@mui/icons-material/Close';
@@ -26,6 +28,8 @@ import confetti from 'canvas-confetti';
 import { saveDB, postDoubleEntryJournal } from '../../services/storage';
 
 export default function CashToBankModal({ open, onClose, db, setDb, showToast, currentCashInHand = 0 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const today = new Date().toISOString().slice(0, 10);
 
   const [depositAmount, setDepositAmount] = useState('');
@@ -134,9 +138,10 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
           border: '1px solid rgba(226, 232, 240, 0.8)'
