@@ -1114,215 +1114,285 @@ export default function UserManager() {
       </TableContainer>
 
       {/* 5. Add / Edit User Modal Dialog */}
-      <Dialog open={openUserModal} onClose={() => setOpenUserModal(false)} maxWidth="sm" fullWidth>
+      <Dialog
+        open={openUserModal}
+        onClose={() => setOpenUserModal(false)}
+        maxWidth="sm"
+        fullWidth
+        BackdropProps={{
+          sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
+        }}
+        PaperProps={{
+          sx: {
+            borderRadius: 3.5,
+            overflow: 'hidden',
+            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }
+        }}
+      >
         <form onSubmit={handleSaveUser}>
-          <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)', color: '#ffffff', fontWeight: 900, py: 2.2, px: 3, borderBottom: '3px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <DialogTitle sx={{ background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)', color: '#ffffff', fontWeight: 900, py: 2.2, px: 3, borderBottom: '3px solid #F59E0B', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span>{editingUser ? 'Edit User Profile' : '+ Add New User'}</span>
-            <IconButton onClick={() => setOpenUserModal(false)} sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}>
+            <IconButton
+              size="small"
+              aria-label="Close user dialog"
+              onClick={() => setOpenUserModal(false)}
+              sx={{ color: 'rgba(255,255,255,0.85)', bgcolor: 'rgba(255,255,255,0.1)', '&:hover': { bgcolor: 'rgba(255,255,255,0.25)', color: '#ffffff' } }}
+            >
               <CloseIcon fontSize="small" />
             </IconButton>
           </DialogTitle>
-          <DialogContent sx={{ p: 3 }}>
-            <Stack spacing={2.5} sx={{ mt: 1 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Role"
-                    value={formData.role}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setFormData({ ...formData, role: val });
-                    }}
-                    required
-                  >
-                    <MenuItem value="STUDENT">Student</MenuItem>
-                    <MenuItem value="TRAINER">Trainer</MenuItem>
-                    <MenuItem value="AGENT">🤝 Referral Partner / Agent</MenuItem>
-                    <MenuItem value="STAFF">Staff / Front Desk</MenuItem>
-                    <MenuItem value="ADMIN">Super Admin</MenuItem>
-                  </TextField>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Status"
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  >
-                    <MenuItem value="Active">Active</MenuItem>
-                    <MenuItem value="Suspended">Suspended</MenuItem>
-                  </TextField>
-                </Grid>
-              </Grid>
-
-              {/* Agent Specific Fields */}
-              {formData.role === 'AGENT' && (
-                <Paper sx={{ p: 2, bgcolor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 2 }}>
-                  <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mb: 1.5 }}>
-                    🤝 Agent Policy Settings
-                  </Typography>
-                  <Grid container spacing={2}>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="Agent Referral Code"
-                        value={formData.agentCode}
-                        onChange={(e) => setFormData({ ...formData, agentCode: e.target.value })}
-                        placeholder="e.g. AGE-101"
-                        helperText="Leave empty to auto-generate."
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        select
-                        fullWidth
-                        size="small"
-                        label="Commission Type"
-                        value={formData.commissionType}
-                        onChange={(e) => setFormData({ ...formData, commissionType: e.target.value })}
-                      >
-                        <MenuItem value="FIXED">Fixed Amount (Rs.)</MenuItem>
-                        <MenuItem value="PERCENTAGE">Percentage (%)</MenuItem>
-                      </TextField>
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        type="number"
-                        fullWidth
-                        size="small"
-                        label={formData.commissionType === 'PERCENTAGE' ? 'Commission Rate (%)' : 'Commission Amount (Rs.)'}
-                        value={formData.defaultRate}
-                        onChange={(e) => setFormData({ ...formData, defaultRate: e.target.value })}
-                      />
-                    </Grid>
-                    <Grid item xs={12} sm={6}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="City / Address"
-                        value={formData.address}
-                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        label="Payment / Bank / eSewa Details"
-                        value={formData.paymentInfo}
-                        onChange={(e) => setFormData({ ...formData, paymentInfo: e.target.value })}
-                        placeholder="e.g. eSewa: 9841234567 or Nabil Bank A/C: 0192837..."
-                      />
-                    </Grid>
+          <DialogContent
+            dividers
+            sx={{
+              p: { xs: 2, sm: 2.5 },
+              bgcolor: '#F8FAFC',
+              '&::-webkit-scrollbar': { width: 6 },
+              '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
+              '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
+              '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            }}
+          >
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Stack spacing={2}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="Role"
+                      value={formData.role}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData({ ...formData, role: val });
+                      }}
+                      required
+                    >
+                      <MenuItem value="STUDENT">Student</MenuItem>
+                      <MenuItem value="TRAINER">Trainer</MenuItem>
+                      <MenuItem value="AGENT">🤝 Referral Partner / Agent</MenuItem>
+                      <MenuItem value="STAFF">Staff / Front Desk</MenuItem>
+                      <MenuItem value="ADMIN">Super Admin</MenuItem>
+                    </TextField>
                   </Grid>
-                </Paper>
-              )}
 
-              {/* Link with Existing Profile if Trainer */}
-              {formData.role === 'TRAINER' && (
-                <TextField
-                  select
-                  fullWidth
-                  label="Link Trainer Profile"
-                  value={formData.trainerId}
-                  onChange={(e) => {
-                    const tId = e.target.value;
-                    const t = (db.trainers || []).find((x) => x.id === tId);
-                    setFormData({
-                      ...formData,
-                      trainerId: tId,
-                      name: t ? t.name : formData.name,
-                      phone: t ? t.phone : formData.phone,
-                      pin: t ? t.pin || '1234' : formData.pin
-                    });
-                  }}
-                >
-                  <MenuItem value="">-- Select Trainer --</MenuItem>
-                  {(db.trainers || []).map((t) => (
-                    <MenuItem key={t.id} value={t.id}>
-                      {t.name} ({t.specialization}) - {t.phone}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-
-              {/* Link with Existing Profile if Student */}
-              {formData.role === 'STUDENT' && (
-                <TextField
-                  select
-                  fullWidth
-                  label="Link Student Profile"
-                  value={formData.studentId}
-                  onChange={(e) => {
-                    const sId = e.target.value;
-                    const s = (db.students || []).find((x) => x.id === sId);
-                    setFormData({
-                      ...formData,
-                      studentId: sId,
-                      name: s ? s.name : formData.name,
-                      phone: s ? s.phone : formData.phone,
-                      pin: s ? s.pin || '1234' : formData.pin
-                    });
-                  }}
-                >
-                  <MenuItem value="">-- Select Student --</MenuItem>
-                  {(db.students || []).map((s) => (
-                    <MenuItem key={s.id} value={s.id}>
-                      {s.name} ({s.tgid}) - {s.phone}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              )}
-
-              <TextField
-                fullWidth
-                label="Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                required
-              />
-
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Phone Number"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    required
-                  />
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="Status"
+                      value={formData.status}
+                      onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                    >
+                      <MenuItem value="Active">Active</MenuItem>
+                      <MenuItem value="Suspended">Suspended</MenuItem>
+                    </TextField>
+                  </Grid>
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Username"
-                    value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                    placeholder="e.g. staff01 or trainer01"
-                  />
-                </Grid>
-              </Grid>
+                {/* Agent Specific Fields */}
+                {formData.role === 'AGENT' && (
+                  <Paper elevation={0} sx={{ p: 2, bgcolor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#92400E', fontWeight: 800, display: 'block', mb: 1.5 }}>
+                      🤝 Agent Policy Settings
+                    </Typography>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Agent Referral Code"
+                          value={formData.agentCode}
+                          onChange={(e) => setFormData({ ...formData, agentCode: e.target.value })}
+                          placeholder="e.g. AGE-101"
+                          helperText="Leave empty to auto-generate."
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          label="Commission Type"
+                          value={formData.commissionType}
+                          onChange={(e) => setFormData({ ...formData, commissionType: e.target.value })}
+                        >
+                          <MenuItem value="FIXED">Fixed Amount (Rs.)</MenuItem>
+                          <MenuItem value="PERCENTAGE">Percentage (%)</MenuItem>
+                        </TextField>
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          type="number"
+                          fullWidth
+                          size="small"
+                          label={formData.commissionType === 'PERCENTAGE' ? 'Commission Rate (%)' : 'Commission Amount (Rs.)'}
+                          value={formData.defaultRate}
+                          onChange={(e) => setFormData({ ...formData, defaultRate: e.target.value })}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="City / Address"
+                          value={formData.address}
+                          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Payment / Bank / eSewa Details"
+                          value={formData.paymentInfo}
+                          onChange={(e) => setFormData({ ...formData, paymentInfo: e.target.value })}
+                          placeholder="e.g. eSewa: 9841234567 or Nabil Bank A/C: 0192837..."
+                        />
+                      </Grid>
+                    </Grid>
+                  </Paper>
+                )}
 
-              <TextField
-                fullWidth
-                label="4-Digit Access PIN"
-                value={formData.pin}
-                onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
-                inputProps={{ maxLength: 6 }}
-                required
-                helperText="Secret PIN code used to log in to the portal."
-              />
-            </Stack>
+                {/* Link with Existing Profile if Trainer */}
+                {formData.role === 'TRAINER' && (
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Link Trainer Profile"
+                    value={formData.trainerId}
+                    onChange={(e) => {
+                      const tId = e.target.value;
+                      const t = (db.trainers || []).find((x) => x.id === tId);
+                      setFormData({
+                        ...formData,
+                        trainerId: tId,
+                        name: t ? t.name : formData.name,
+                        phone: t ? t.phone : formData.phone,
+                        pin: t ? t.pin || '1234' : formData.pin
+                      });
+                    }}
+                  >
+                    <MenuItem value="">-- Select Trainer --</MenuItem>
+                    {(db.trainers || []).map((t) => (
+                      <MenuItem key={t.id} value={t.id}>
+                        {t.name} ({t.specialization}) - {t.phone}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                {/* Link with Existing Profile if Student */}
+                {formData.role === 'STUDENT' && (
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Link Student Profile"
+                    value={formData.studentId}
+                    onChange={(e) => {
+                      const sId = e.target.value;
+                      const s = (db.students || []).find((x) => x.id === sId);
+                      setFormData({
+                        ...formData,
+                        studentId: sId,
+                        name: s ? s.name : formData.name,
+                        phone: s ? s.phone : formData.phone,
+                        pin: s ? s.pin || '1234' : formData.pin
+                      });
+                    }}
+                  >
+                    <MenuItem value="">-- Select Student --</MenuItem>
+                    {(db.students || []).map((s) => (
+                      <MenuItem key={s.id} value={s.id}>
+                        {s.name} ({s.tgid}) - {s.phone}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                )}
+
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Full Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  required
+                />
+
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Phone Number"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      required
+                    />
+                  </Grid>
+
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      size="small"
+                      label="Username"
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                      placeholder="e.g. staff01 or trainer01"
+                    />
+                  </Grid>
+                </Grid>
+
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="4-Digit Access PIN"
+                  value={formData.pin}
+                  onChange={(e) => setFormData({ ...formData, pin: e.target.value })}
+                  inputProps={{ maxLength: 6 }}
+                  required
+                  helperText="Secret PIN code used to log in to the portal."
+                />
+              </Stack>
+            </Paper>
           </DialogContent>
-          <DialogActions sx={{ p: 2.5 }}>
-            <Button onClick={() => setOpenUserModal(false)}>Cancel</Button>
-            <Button type="submit" variant="contained" sx={{ bgcolor: '#0F2E5A', fontWeight: 800 }}>
+          <DialogActions sx={{ p: { xs: 1.5, sm: 2.5 }, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'flex-end', gap: 1.5 }}>
+            <Button
+              onClick={() => setOpenUserModal(false)}
+              sx={{
+                fontWeight: 700,
+                color: '#64748B',
+                border: '1px solid #E2E8F0',
+                borderRadius: 2,
+                px: 2.5,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#F1F5F9', color: '#0F172A' }
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                fontWeight: 800,
+                background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+                color: '#FFFFFF',
+                borderRadius: 2,
+                px: 3,
+                boxShadow: '0 4px 12px rgba(15, 44, 89, 0.25)',
+                textTransform: 'none',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #0F2444 0%, #172554 100%)',
+                  boxShadow: '0 6px 16px rgba(15, 44, 89, 0.35)'
+                }
+              }}
+            >
               Save User
             </Button>
           </DialogActions>

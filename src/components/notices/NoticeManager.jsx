@@ -478,7 +478,8 @@ export default function NoticeManager() {
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -496,6 +497,7 @@ export default function NoticeManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close notice dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.8)',
@@ -509,76 +511,78 @@ export default function NoticeManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          <Stack spacing={2.5}>
-            <TextField
-              label="Notice Title (e.g. Dashain Break / CTEVT Inspection) *"
-              fullWidth
-              size="small"
-              placeholder="e.g. Regarding Dashain Vacation / CTEVT Inspection"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack spacing={2}>
+              <TextField
+                label="Notice Title (e.g. Dashain Break / CTEVT Inspection)"
+                fullWidth
+                size="small"
+                placeholder="e.g. Regarding Dashain Vacation / CTEVT Inspection"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  select
-                  label="Target Audience"
-                  fullWidth
-                  size="small"
-                  value={formData.targetRole}
-                  onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
-                >
-                  <MenuItem value="ALL">Entire Institute (All)</MenuItem>
-                  <MenuItem value="TRAINERS">Trainers Only</MenuItem>
-                  <MenuItem value="STUDENTS">Students Only</MenuItem>
-                </TextField>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Target Audience"
+                    fullWidth
+                    size="small"
+                    value={formData.targetRole}
+                    onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
+                  >
+                    <MenuItem value="ALL">Entire Institute (All)</MenuItem>
+                    <MenuItem value="TRAINERS">Trainers Only</MenuItem>
+                    <MenuItem value="STUDENTS">Students Only</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Priority Level"
+                    fullWidth
+                    size="small"
+                    value={formData.priority}
+                    onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                  >
+                    <MenuItem value="Normal">Normal Notice</MenuItem>
+                    <MenuItem value="Urgent">Urgent / Immediate Action</MenuItem>
+                  </TextField>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  select
-                  label="Priority Level"
-                  fullWidth
-                  size="small"
-                  value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                >
-                  <MenuItem value="Normal">Normal Notice</MenuItem>
-                  <MenuItem value="Urgent">Urgent / Immediate Action</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
 
-            <TextField
-              label="Notice Content / Circular Directives *"
-              multiline
-              rows={4}
-              fullWidth
-              size="small"
-              placeholder="Full notice details, dates, and instructions to follow..."
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              required
-            />
+              <TextField
+                label="Notice Content / Circular Directives"
+                multiline
+                rows={4}
+                fullWidth
+                size="small"
+                placeholder="Full notice details, dates, and instructions to follow..."
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                required
+              />
 
-            <TextField
-              label="Author / Signing Authority"
-              fullWidth
-              size="small"
-              placeholder="e.g. Principal / Administration Department"
-              value={formData.author}
-              onChange={(e) => setFormData({ ...formData, author: e.target.value })}
-            />
-          </Stack>
+              <TextField
+                label="Author / Signing Authority"
+                fullWidth
+                size="small"
+                placeholder="e.g. Principal / Administration Department"
+                value={formData.author}
+                onChange={(e) => setFormData({ ...formData, author: e.target.value })}
+              />
+            </Stack>
+          </Paper>
         </DialogContent>
         <DialogActions
           sx={{

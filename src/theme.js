@@ -119,18 +119,19 @@ export const theme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
-          borderRadius: 7,
+          borderRadius: 8,
           fontSize: '0.8125rem',
           backgroundColor: '#FFFFFF',
+          boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)',
           transition: 'border-color 150ms ease-out, box-shadow 150ms ease-out',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: '#CBD5E1',
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#94A3B8',
+            borderColor: '#64748B',
           },
           '&.Mui-focused': {
-            boxShadow: '0 0 0 3px rgba(15, 46, 90, 0.08)',
+            boxShadow: '0 0 0 3px rgba(15, 44, 89, 0.12)',
             '& .MuiOutlinedInput-notchedOutline': {
               borderColor: '#0F2C59',
               borderWidth: '1.5px',
@@ -141,19 +142,23 @@ export const theme = createTheme({
           padding: '8px 12px',
         },
         inputSizeSmall: {
-          padding: '6.5px 10px',
+          padding: '7px 11px',
         },
       },
     },
     MuiInputLabel: {
       styleOverrides: {
         root: {
-          fontSize: '0.85rem',
+          fontSize: '0.82rem',
           fontWeight: 600,
           color: '#475569',
           '&.Mui-focused': {
             color: '#0F2C59',
             fontWeight: 700,
+          },
+          '& .MuiFormLabel-asterisk': {
+            color: '#DC2626',
+            fontWeight: 800,
           },
         },
         outlined: {

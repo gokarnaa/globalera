@@ -984,7 +984,7 @@ export default function LessonPlanManager() {
             {/* Work Plan Selector */}
             <TextField
               select
-              label="Related Work Plan Date & Unit *"
+              label="Related Work Plan Date & Unit"
               fullWidth
               size="small"
               value={formData.workPlanId}

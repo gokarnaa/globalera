@@ -836,7 +836,7 @@ export default function OjtManager() {
                 <>
                   <TextField
                     select
-                    label="Select Student *"
+                    label="Select Student"
                     fullWidth
                     size="small"
                     value={formData.studentId}
@@ -884,7 +884,7 @@ export default function OjtManager() {
 
             <TextField
               select
-              label="Select Host Employer Partner *"
+              label="Select Host Employer Partner"
               fullWidth
               size="small"
               value={formData.employerId}
@@ -905,7 +905,7 @@ export default function OjtManager() {
               <Grid item xs={6}>
                 <TextField
                   type="date"
-                  label="OJT Start Date *"
+                  label="OJT Start Date"
                   fullWidth
                   size="small"
                   InputLabelProps={{ shrink: true }}

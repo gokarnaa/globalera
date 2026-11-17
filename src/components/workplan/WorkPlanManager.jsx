@@ -1208,7 +1208,7 @@ export default function WorkPlanManager({ onNavigateToLessonPlan }) {
             <Grid item xs={12}>
               <TextField
                 select
-                label="Syllabus Unit *"
+                label="Syllabus Unit"
                 fullWidth
                 size="small"
                 value={formData.syllabusId}

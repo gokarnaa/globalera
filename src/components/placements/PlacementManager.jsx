@@ -840,7 +840,7 @@ export default function PlacementManager() {
           <Stack spacing={2.5}>
             <TextField
               select
-              label="Select Student *"
+              label="Select Student"
               fullWidth
               size="small"
               value={formData.studentId}
@@ -858,7 +858,7 @@ export default function PlacementManager() {
             </TextField>
 
             <TextField
-              label="Target Job / Trade Title *"
+              label="Target Job / Trade Title"
               fullWidth
               size="small"
               value={formData.targetJob}

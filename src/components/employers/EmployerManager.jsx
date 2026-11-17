@@ -1070,7 +1070,7 @@ export default function EmployerManager() {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <TextField
-                    label="Organization / Company Name *"
+                    label="Organization / Company Name"
                     fullWidth
                     size="small"
                     placeholder="e.g. Organization Name"
@@ -1121,7 +1121,7 @@ export default function EmployerManager() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Official Mobile / Phone *"
+                    label="Official Mobile / Phone"
                     fullWidth
                     size="small"
                     placeholder="98XXXXXXXX"

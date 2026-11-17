@@ -1142,7 +1142,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Occupation *"
+                    label="Occupation"
                     fullWidth
                     size="small"
                     value={formData.occupationId}
@@ -1162,7 +1162,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
 
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Course Title *"
+                    label="Course Title"
                     fullWidth
                     size="small"
                     placeholder="e.g. Professional Caregiver"

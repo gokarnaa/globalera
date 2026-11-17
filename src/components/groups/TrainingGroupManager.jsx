@@ -1247,7 +1247,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
                   <TextField
-                    label="Group Code *"
+                    label="Group Code"
                     fullWidth
                     size="small"
                     placeholder="e.g. GRP-01, BT-02, CG-03"
@@ -1260,7 +1260,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 <Grid item xs={12} sm={6}>
                   <TextField
                     select
-                    label="Select Course *"
+                    label="Select Course"
                     fullWidth
                     size="small"
                     value={formData.courseId}
@@ -1294,7 +1294,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 <Grid item xs={12}>
                   <TextField
                     select
-                    label="Assigned Trainer *"
+                    label="Assigned Trainer"
                     fullWidth
                     size="small"
                     value={formData.trainerId}
@@ -1337,10 +1337,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                     size="small"
                     value={formData.batchMode || 'ROLLING'}
                     onChange={(e) => setFormData({ ...formData, batchMode: e.target.value })}
-                    helperText="Rolling: trainees follow personal enroll-to-end timeline"
                   >
-                    <MenuItem value="ROLLING">Rolling / Continuous Batch (Default)</MenuItem>
-                    <MenuItem value="FIXED">Fixed Cohort Batch (All Same Dates)</MenuItem>
+                    <MenuItem value="ROLLING">Rolling (Personal Timeline)</MenuItem>
+                    <MenuItem value="FIXED">Fixed Batch (Shared Dates)</MenuItem>
                   </TextField>
                 </Grid>
                 <Grid item xs={12} sm={6}>
@@ -1358,10 +1357,9 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                         : formData.expectedEndDate;
                       setFormData({ ...formData, scheduleMode: nextMode, expectedEndDate: calcEnd });
                     }}
-                    helperText="Regular: Sun-Fri (Sat & Holidays Off) | Weekend: Sat & Holidays Only"
                   >
-                    <MenuItem value="REGULAR">Regular (Sun–Fri, Sat &amp; Holidays Off)</MenuItem>
-                    <MenuItem value="WEEKEND_ONLY">Special Weekend / Public Holiday Only</MenuItem>
+                    <MenuItem value="REGULAR">Regular (Sun–Fri)</MenuItem>
+                    <MenuItem value="WEEKEND_ONLY">Weekend (Sat &amp; Holidays)</MenuItem>
                   </TextField>
                 </Grid>
 
@@ -1417,7 +1415,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                 <Grid item xs={12} sm={6}>
                   <TextField
                     type="date"
-                    label="Start Date *"
+                    label="Start Date"
                     fullWidth
                     size="small"
                     InputLabelProps={{ shrink: true }}

@@ -849,7 +849,7 @@ export default function EvaluationManager() {
             {/* Student selection */}
             <TextField
               select
-              label="Select Student *"
+              label="Select Student"
               fullWidth
               size="small"
               value={formData.studentId}
@@ -869,7 +869,7 @@ export default function EvaluationManager() {
             {/* Syllabus Skill selection */}
             <TextField
               select
-              label="Select Syllabus Skill / Task *"
+              label="Select Syllabus Skill / Task"
               fullWidth
               size="small"
               value={formData.syllabusId}

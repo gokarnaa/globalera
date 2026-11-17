@@ -1633,7 +1633,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Full Name *"
+                      label="Full Name"
                       fullWidth
                       size="small"
                       required
@@ -1644,7 +1644,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label="Mobile Phone Number *"
+                      label="Mobile Phone Number"
                       fullWidth
                       size="small"
                       required
@@ -1905,7 +1905,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
                     <Grid container spacing={2}>
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label="Company / Salon / Business Name *"
+                          label="Company / Salon / Business Name"
                           fullWidth
                           size="small"
                           required
@@ -1935,7 +1935,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label="Contact Person Name *"
+                          label="Contact Person Name"
                           fullWidth
                           size="small"
                           required
@@ -1947,7 +1947,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label="Official Phone / Mobile *"
+                          label="Official Phone / Mobile"
                           fullWidth
                           size="small"
                           required
@@ -1970,7 +1970,7 @@ export default function PublicWebsite({ onNavigate, onVerifyCertificate }) {
 
                       <Grid item xs={12} sm={6}>
                         <TextField
-                          label="Office / Salon Location *"
+                          label="Office / Salon Location"
                           fullWidth
                           size="small"
                           required

@@ -20,7 +20,8 @@ import {
   MenuItem,
   Stack,
   Avatar,
-  Grid
+  Grid,
+  Paper
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -249,7 +250,8 @@ export default function OccupationManager() {
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -267,6 +269,7 @@ export default function OccupationManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close trade dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.8)',
@@ -280,36 +283,38 @@ export default function OccupationManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          <Stack spacing={2.5}>
-            <TextField
-              label="Occupation Name (e.g. Care Giver) *"
-              fullWidth
-              size="small"
-              placeholder="e.g. Care Giver / Beautician / Tailoring"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-            <TextField
-              select
-              label="Status"
-              fullWidth
-              size="small"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
-            </TextField>
-          </Stack>
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack spacing={2}>
+              <TextField
+                label="Occupation Name (e.g. Care Giver)"
+                fullWidth
+                size="small"
+                placeholder="e.g. Care Giver / Beautician / Tailoring"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+              <TextField
+                select
+                label="Status"
+                fullWidth
+                size="small"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </TextField>
+            </Stack>
+          </Paper>
         </DialogContent>
         <DialogActions
           sx={{

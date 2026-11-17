@@ -1104,7 +1104,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="Party / Vendor / Landlord Name *"
+                  label="Party / Vendor / Landlord Name"
                   value={partyName}
                   onChange={(e) => setPartyName(e.target.value)}
                   placeholder="e.g., Ram Kumar Shrestha (Landlord)"
@@ -1265,7 +1265,7 @@ export default function PartyManagerView({ db, setDb, showToast }) {
                   fullWidth
                   required
                   size="small"
-                  label="Select Vendor / Party *"
+                  label="Select Vendor / Party"
                   value={purchasePartyId}
                   onChange={(e) => setPurchasePartyId(e.target.value)}
                 >

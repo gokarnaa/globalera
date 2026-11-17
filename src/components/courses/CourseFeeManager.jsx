@@ -1137,7 +1137,7 @@ export default function CourseFeeManager() {
 
                   {/* Revision Reason & Effective Date */}
                   <TextField
-                    label="5. Revision Reason *"
+                    label="5. Revision Reason"
                     fullWidth
                     size="small"
                     required

@@ -24,7 +24,8 @@ import {
   InputAdornment,
   ToggleButton,
   ToggleButtonGroup,
-  Avatar
+  Avatar,
+  Paper
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -517,7 +518,8 @@ export default function HolidayManager() {
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center'
+            alignItems: 'center',
+            borderBottom: '3px solid #F59E0B'
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -535,6 +537,7 @@ export default function HolidayManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close holiday dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.8)',
@@ -548,79 +551,81 @@ export default function HolidayManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          <Stack spacing={2.5}>
-            <TextField
-              label="Holiday Title (e.g. Dashain Festival Vacation) *"
-              fullWidth
-              size="small"
-              placeholder="e.g. Dashain Holiday / Tihar Holiday"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack spacing={2}>
+              <TextField
+                label="Holiday Title (e.g. Dashain Festival Vacation)"
+                fullWidth
+                size="small"
+                placeholder="e.g. Dashain Holiday / Tihar Holiday"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                required
+              />
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  type="date"
-                  label="Start Date *"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.startDate}
-                  onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  required
-                />
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="date"
+                    label="Start Date"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.startDate}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="date"
+                    label="End Date"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.endDate}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
+                    required
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  type="date"
-                  label="End Date *"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.endDate}
-                  onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  required
-                />
-              </Grid>
-            </Grid>
 
-            <TextField
-              select
-              label="Holiday Type"
-              fullWidth
-              size="small"
-              value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- Select Holiday Type --
-              </MenuItem>
-              <MenuItem value="Public Festival">Public Festival</MenuItem>
-              <MenuItem value="National Holiday">National Holiday</MenuItem>
-              <MenuItem value="Institutional">Institutional / Local</MenuItem>
-            </TextField>
+              <TextField
+                select
+                label="Holiday Type"
+                fullWidth
+                size="small"
+                value={formData.type}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              >
+                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                  -- Select Holiday Type --
+                </MenuItem>
+                <MenuItem value="Public Festival">Public Festival</MenuItem>
+                <MenuItem value="National Holiday">National Holiday</MenuItem>
+                <MenuItem value="Institutional">Institutional / Local</MenuItem>
+              </TextField>
 
-            <TextField
-              label="Description / Circular Notes"
-              multiline
-              rows={2}
-              fullWidth
-              size="small"
-              placeholder="Additional notice details or instructions..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-          </Stack>
+              <TextField
+                label="Description / Circular Notes"
+                multiline
+                rows={2}
+                fullWidth
+                size="small"
+                placeholder="Additional notice details or instructions..."
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              />
+            </Stack>
+          </Paper>
         </DialogContent>
         <DialogActions
           sx={{
