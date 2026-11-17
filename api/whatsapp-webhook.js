@@ -132,15 +132,18 @@ async function isHumanTakeoverActive(senderPhone) {
   if (stateLog && stateLog.message_type === 'bot_pause_state') {
     return { paused: true, history: logs };
   }
+  const resumedAt = stateLog && stateLog.message_type === 'bot_resume_state'
+    ? new Date(stateLog.created_at).getTime()
+    : 0;
 
-  // Auto-pause for 30 minutes if a human staff member replied directly
+  // Auto-pause for 30 minutes if a human staff member replied directly (unless explicitly resumed afterwards)
   const thirtyMinAgo = Date.now() - 30 * 60 * 1000;
   const recentHumanReply = logs.find(
     (l) =>
       l.direction === 'outbound' &&
       l.message_type !== 'auto_bot' &&
       l.message_type !== 'bot_resume_state' &&
-      new Date(l.created_at).getTime() > thirtyMinAgo
+      new Date(l.created_at).getTime() > Math.max(thirtyMinAgo, resumedAt)
   );
   return { paused: Boolean(recentHumanReply), history: logs };
 }

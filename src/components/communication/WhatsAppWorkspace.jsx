@@ -58,6 +58,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { StatusBadge } from '../common';
 import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
@@ -73,7 +74,8 @@ import {
   assignThreadStaff,
   addInternalStaffNote,
   getWhatsAppTemplates,
-  renderWhatsAppTemplate
+  renderWhatsAppTemplate,
+  suggestGeminiReply
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -196,6 +198,7 @@ export default function WhatsAppWorkspace({
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [convertModalOpen, setConvertModalOpen] = useState(false);
+  const [aiDrafting, setAiDrafting] = useState(false);
 
   const messagesEndRef = useRef(null);
   const pillScrollRef = useRef(null);
@@ -1156,7 +1159,17 @@ export default function WhatsAppWorkspace({
                 size="small"
                 icon={<SmartToyIcon sx={{ fontSize: 15 }} />}
                 label={activeThread.botPaused ? 'Bot Paused' : 'Auto-Bot ON'}
-                onClick={() => toggleBotPause(activeThread.phone, !activeThread.botPaused)}
+                onClick={async () => {
+                  const nextPaused = !activeThread.botPaused;
+                  await toggleBotPause(activeThread.phone, nextPaused);
+                  setSendFeedback({
+                    type: 'info',
+                    text: nextPaused
+                      ? 'Auto-Bot paused for this contact (Human Takeover active).'
+                      : 'Auto-Bot resumed for this contact.'
+                  });
+                  onRefresh?.();
+                }}
                 sx={{
                   cursor: 'pointer',
                   fontWeight: 700,
@@ -1392,6 +1405,40 @@ export default function WhatsAppWorkspace({
                 sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#FAF5FF', color: '#7E22CE' }}
               />
             )}
+            <Chip
+              size="small"
+              icon={aiDrafting ? <CircularProgress size={12} color="inherit" /> : <AutoAwesomeIcon sx={{ fontSize: 14 }} />}
+              label={aiDrafting ? 'AI Drafting...' : 'AI Suggest'}
+              disabled={sending || aiDrafting}
+              onClick={async () => {
+                setAiDrafting(true);
+                setSendFeedback(null);
+                try {
+                  const studentInfo =
+                    activeThread.role === 'Student' && activeThread.entity
+                      ? `Name: ${activeThread.entity.name}, TGID: ${activeThread.entity.tgid || '-'}, Status: ${activeThread.entity.status || 'Active'}, Fee: Rs. ${Number(activeThread.entity.feeAmount || activeThread.entity.fee_amount || 0)}, Paid: Rs. ${Number(activeThread.entity.feePaid || activeThread.entity.fee_paid || 0)}`
+                      : '';
+                  const suggestion = await suggestGeminiReply({
+                    contactName: activeThread.name,
+                    role: activeThread.role,
+                    messages: activeThread.messages,
+                    studentInfo
+                  });
+                  setDraft(suggestion);
+                } catch (err) {
+                  setSendFeedback({ type: 'error', text: err?.message || 'AI suggestion failed.' });
+                } finally {
+                  setAiDrafting(false);
+                }
+              }}
+              sx={{
+                cursor: 'pointer',
+                fontWeight: 800,
+                bgcolor: '#EEF2FF',
+                color: '#4338CA',
+                border: '1px solid #C7D2FE'
+              }}
+            />
           </Box>
 
           <ToggleButtonGroup

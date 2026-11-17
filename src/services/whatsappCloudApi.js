@@ -738,6 +738,64 @@ export async function testGeminiConnection(apiKey) {
   throw new Error(lastError);
 }
 
+export async function suggestGeminiReply({ contactName, role, messages = [], studentInfo = '' }) {
+  const botCfg = await fetchRemoteBotSettings();
+  const apiKey = (botCfg?.geminiApiKey || '').trim();
+  if (!apiKey) {
+    throw new Error('Gemini API Key is not configured. Save it in WhatsApp -> Broadcast & Bot Info.');
+  }
+
+  const recentTurns = (messages || [])
+    .filter((m) => m.messageType !== 'internal_note' && m.content)
+    .slice(-8)
+    .map((m) => `${m.direction === 'inbound' ? 'Visitor' : 'Staff'}: ${m.content}`)
+    .join('\n');
+
+  const systemPrompt =
+    `You are drafting a warm, helpful WhatsApp reply for staff at "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)".\n` +
+    `RULES:\n` +
+    `1. Write in polite Nepali (Devanagari), keeping phone numbers (01-4910715, 9803614574), amounts (Rs. ...), and shift codes (Shift A-E) in English digits (0-9).\n` +
+    `2. Keep it concise (under 110 words) and ready to send on WhatsApp.\n` +
+    `3. Courses: Caregiver (390h/3m), Tailoring & Fashion Designing (390h/3m), Beautician & Cosmetology (390h/3m). Fee: 50% admission + 50% mid-course. Shifts Sun-Fri: A (7-9 AM), B (10-12 PM), C (12-2 PM), D (2-4 PM), E (4-6 PM).\n` +
+    (botCfg.aiInstructions ? `4. Institute Instructions: ${botCfg.aiInstructions}\n` : '') +
+    (studentInfo ? `5. Student Record:\n${studentInfo}\n` : '');
+
+  const userPrompt =
+    `Contact: ${contactName || 'Visitor'} (${role || 'Inquiry'})\n` +
+    `Recent Chat:\n${recentTurns || '(No prior messages — write a polite greeting & ask how we can help)'}\n\n` +
+    `Draft the next WhatsApp reply now (reply text only):`;
+
+  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  let lastError = 'Failed to generate AI reply.';
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 350 }
+          })
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (text) return text;
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        lastError = errData?.error?.message || `HTTP ${res.status}`;
+      }
+    } catch (err) {
+      lastError = err.message;
+    }
+  }
+  throw new Error(lastError);
+}
+
 export function togglePinContact(phone) {
   const key = normalizePhoneKey(phone);
   if (!key) return false;
