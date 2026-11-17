@@ -56,7 +56,9 @@ import {
   saveWhatsAppTemplates,
   resetWhatsAppTemplates,
   getBotSettings,
-  saveBotSettings
+  saveBotSettings,
+  fetchRemoteBotSettings,
+  testGeminiConnection
 } from '../../services/whatsappCloudApi';
 
 const STATUS_TONE = {
@@ -96,6 +98,7 @@ export default function WhatsAppHubManager() {
   // Auto-Bot & Gemini AI Counselor settings
   const [botCfg, setBotCfg] = useState(() => getBotSettings());
   const [botSaving, setBotSaving] = useState(false);
+  const [botTesting, setBotTesting] = useState(false);
   const [botSavedMsg, setBotSavedMsg] = useState(null);
 
   const waSettings = useMemo(() => getWhatsAppSettings(), [db]);
@@ -105,9 +108,12 @@ export default function WhatsAppHubManager() {
     try {
       setDb(loadDB());
       setTemplates(getWhatsAppTemplates());
-      setBotCfg(getBotSettings());
-      const remote = await fetchRemoteWhatsAppData();
+      const [remote, remoteBot] = await Promise.all([
+        fetchRemoteWhatsAppData(),
+        fetchRemoteBotSettings()
+      ]);
       setRemoteData(remote);
+      setBotCfg(remoteBot);
     } finally {
       setRefreshing(false);
     }
@@ -117,12 +123,37 @@ export default function WhatsAppHubManager() {
     setBotSaving(true);
     setBotSavedMsg(null);
     try {
-      await saveBotSettings(botCfg);
-      setBotSavedMsg({ severity: 'success', text: 'Auto-Bot & Gemini AI Counselor settings saved and synced.' });
+      const saved = await saveBotSettings(botCfg);
+      setBotCfg(saved);
+      setBotSavedMsg({
+        severity: 'success',
+        text: saved.syncedRemote
+          ? 'Auto-Bot & Gemini AI Counselor settings saved and synced to Supabase.'
+          : 'Saved locally (Supabase not connected).'
+      });
     } catch (err) {
       setBotSavedMsg({ severity: 'error', text: err?.message || 'Failed to save bot settings.' });
     } finally {
       setBotSaving(false);
+    }
+  };
+
+  const handleTestGemini = async () => {
+    setBotTesting(true);
+    setBotSavedMsg(null);
+    try {
+      const res = await testGeminiConnection(botCfg.geminiApiKey);
+      setBotSavedMsg({
+        severity: 'success',
+        text: `Gemini AI connected successfully (${res.model}). Click "Save Bot & AI Settings" to activate.`
+      });
+    } catch (err) {
+      setBotSavedMsg({
+        severity: 'error',
+        text: `Gemini test failed: ${err?.message || 'Unknown error'}`
+      });
+    } finally {
+      setBotTesting(false);
     }
   };
 
@@ -686,15 +717,26 @@ export default function WhatsAppHubManager() {
                     {botSavedMsg.text}
                   </Alert>
                 )}
-                <Button
-                  size="small"
-                  variant="contained"
-                  disabled={botSaving}
-                  onClick={handleSaveBotSettings}
-                  sx={{ bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' }, fontWeight: 800, alignSelf: 'flex-start' }}
-                >
-                  {botSaving ? 'Saving...' : 'Save Bot & AI Settings'}
-                </Button>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  <Button
+                    size="small"
+                    variant="contained"
+                    disabled={botSaving || botTesting}
+                    onClick={handleSaveBotSettings}
+                    sx={{ bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' }, fontWeight: 800 }}
+                  >
+                    {botSaving ? 'Saving...' : 'Save Bot & AI Settings'}
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={botSaving || botTesting}
+                    onClick={handleTestGemini}
+                    sx={{ fontWeight: 700 }}
+                  >
+                    {botTesting ? 'Testing AI...' : 'Test Gemini AI'}
+                  </Button>
+                </Stack>
               </Paper>
 
               <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, border: '1px solid #A7F3D0', bgcolor: '#ECFDF5', display: 'flex', flexDirection: 'column', gap: 1 }}>

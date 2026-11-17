@@ -164,10 +164,10 @@ export async function logWhatsAppMessage(logEntry) {
     const nextLogs = [newLog, ...(db.whatsappLogs || [])].slice(0, 500);
     saveDB({ ...db, whatsappLogs: nextLogs });
 
-    // Also push to Supabase if connected
+    // Also push to Supabase if connected (whatsapp_logs with communication_logs fallback)
     const supabase = getSupabaseClient();
     if (supabase) {
-      await supabase.from('whatsapp_logs').insert({
+      const { error } = await supabase.from('whatsapp_logs').insert({
         phone: logEntry.phone,
         direction: logEntry.direction || 'outbound',
         message_type: logEntry.messageType || 'text',
@@ -175,6 +175,18 @@ export async function logWhatsAppMessage(logEntry) {
         content: logEntry.content || '',
         meta_message_id: logEntry.metaMessageId || null
       });
+      if (error) {
+        await supabase.from('communication_logs').insert({
+          id: `WA-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          organization_id: 'ORG-GLOBALERA-01',
+          channel: logEntry.direction === 'inbound' ? 'WhatsApp_Inbound' : 'WhatsApp_Outbound',
+          recipient_name: logEntry.senderName || 'WhatsApp Contact',
+          recipient_phone: normalizePhoneKey(logEntry.phone) || logEntry.phone,
+          message: logEntry.content || '',
+          status: logEntry.status || 'sent',
+          sent_at: new Date().toISOString()
+        });
+      }
     }
   } catch (err) {
     console.debug('[WhatsApp Log Notice]:', err.message);
@@ -595,13 +607,25 @@ export async function toggleBotPause(phone, paused) {
   try {
     const supabase = getSupabaseClient();
     if (supabase) {
-      await supabase.from('whatsapp_logs').insert({
+      const { error } = await supabase.from('whatsapp_logs').insert({
         phone: formatToWhatsAppRecipient(phone) || key,
         direction: 'outbound',
         message_type: paused ? 'bot_pause_state' : 'bot_resume_state',
         status: paused ? 'paused' : 'resumed',
         content: paused ? '[Human Takeover: Auto-Bot Paused]' : '[Auto-Bot Resumed]'
       });
+      if (error) {
+        await supabase.from('communication_logs').insert({
+          id: `WABOT-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          organization_id: 'ORG-GLOBALERA-01',
+          channel: paused ? 'WhatsApp_Bot_Pause' : 'WhatsApp_Bot_Resume',
+          recipient_name: 'System Bot State',
+          recipient_phone: key,
+          message: paused ? '[Human Takeover: Auto-Bot Paused]' : '[Auto-Bot Resumed]',
+          status: paused ? 'paused' : 'resumed',
+          sent_at: new Date().toISOString()
+        });
+      }
     }
   } catch {
     // non-fatal
@@ -619,6 +643,30 @@ export function getBotSettings() {
   };
 }
 
+export async function fetchRemoteBotSettings() {
+  try {
+    const supabase = getSupabaseClient();
+    if (!supabase) return getBotSettings();
+    const { data, error } = await supabase.from('system_settings').select('id, company_profile').limit(1);
+    if (!error && Array.isArray(data) && data[0]?.company_profile?.whatsappBot) {
+      const remoteBot = data[0].company_profile.whatsappBot;
+      const merged = { ...getBotSettings(), ...remoteBot };
+      const db = loadDB();
+      saveDB({
+        ...db,
+        settings: {
+          ...(db.settings || {}),
+          whatsappBot: merged
+        }
+      });
+      return merged;
+    }
+  } catch {
+    // fallback to local
+  }
+  return getBotSettings();
+}
+
 export async function saveBotSettings(nextBot) {
   const db = loadDB();
   const merged = { ...getBotSettings(), ...nextBot };
@@ -631,26 +679,63 @@ export async function saveBotSettings(nextBot) {
   };
   saveDB(nextDb);
 
-  try {
-    const supabase = getSupabaseClient();
-    if (supabase) {
-      const { data } = await supabase.from('system_settings').select('id, extra_settings').limit(1);
-      if (Array.isArray(data) && data[0]?.id) {
-        await supabase
-          .from('system_settings')
-          .update({
-            extra_settings: {
-              ...(data[0].extra_settings || {}),
-              whatsappBot: merged
-            }
-          })
-          .eq('id', data[0].id);
-      }
-    }
-  } catch {
-    // non-fatal
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return { ...merged, syncedRemote: false };
   }
-  return merged;
+
+  const { data, error: readErr } = await supabase
+    .from('system_settings')
+    .select('id, company_profile')
+    .limit(1);
+  if (readErr || !Array.isArray(data) || !data[0]?.id) {
+    throw new Error(readErr?.message || 'Could not read system_settings from Supabase.');
+  }
+
+  const nextProfile = {
+    ...(data[0].company_profile || {}),
+    whatsappBot: merged
+  };
+  const { error: updErr } = await supabase
+    .from('system_settings')
+    .update({ company_profile: nextProfile, updated_at: new Date().toISOString() })
+    .eq('id', data[0].id);
+  if (updErr) {
+    throw new Error(updErr.message || 'Failed to sync bot settings to Supabase.');
+  }
+  return { ...merged, syncedRemote: true };
+}
+
+export async function testGeminiConnection(apiKey) {
+  const key = (apiKey || '').trim();
+  if (!key) {
+    throw new Error('Please paste your Gemini API Key first.');
+  }
+  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  let lastError = 'Gemini API request failed.';
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: 'Reply with OK in one word.' }] }],
+            generationConfig: { maxOutputTokens: 16 }
+          })
+        }
+      );
+      if (res.ok) {
+        return { ok: true, model };
+      }
+      const errData = await res.json().catch(() => ({}));
+      lastError = errData?.error?.message || `HTTP ${res.status}`;
+    } catch (err) {
+      lastError = err.message;
+    }
+  }
+  throw new Error(lastError);
 }
 
 export function togglePinContact(phone) {
@@ -703,13 +788,41 @@ export async function fetchRemoteWhatsAppData() {
     const supabase = getSupabaseClient();
     if (!supabase) return { logs: [], inbound: [] };
 
-    const [logsRes, inboundRes] = await Promise.all([
+    const [logsRes, inboundRes, commRes] = await Promise.all([
       supabase.from('whatsapp_logs').select('*').order('created_at', { ascending: false }).limit(250),
-      supabase.from('whatsapp_inbound_events').select('*').order('created_at', { ascending: false }).limit(250)
+      supabase.from('whatsapp_inbound_events').select('*').order('created_at', { ascending: false }).limit(250),
+      supabase
+        .from('communication_logs')
+        .select('*')
+        .ilike('channel', 'WhatsApp_%')
+        .order('sent_at', { ascending: false })
+        .limit(250)
     ]);
 
+    const mappedCommLogs = (commRes?.data || []).map((c) => {
+      const ch = String(c.channel || '');
+      const direction = ch === 'WhatsApp_Inbound' ? 'inbound' : 'outbound';
+      const message_type =
+        ch === 'WhatsApp_Bot'
+          ? 'auto_bot'
+          : ch === 'WhatsApp_Bot_Pause'
+            ? 'bot_pause_state'
+            : ch === 'WhatsApp_Bot_Resume'
+              ? 'bot_resume_state'
+              : 'text';
+      return {
+        id: c.id,
+        phone: c.recipient_phone,
+        direction,
+        message_type,
+        status: c.status || 'sent',
+        content: c.message || '',
+        created_at: c.sent_at
+      };
+    });
+
     return {
-      logs: logsRes?.data || [],
+      logs: logsRes?.data && logsRes.data.length > 0 ? logsRes.data : mappedCommLogs,
       inbound: inboundRes?.data || []
     };
   } catch {

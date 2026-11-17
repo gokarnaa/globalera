@@ -42,20 +42,89 @@ function last10(phone) {
 async function getRemoteBotConfig() {
   const rows = await supabaseRest('system_settings?select=*&limit=1', 'GET');
   const s = Array.isArray(rows) && rows[0] ? rows[0] : {};
-  const waBot = s.extra_settings?.whatsappBot || s.whatsapp_bot || {};
+  const waBot =
+    s.company_profile?.whatsappBot ||
+    s.extra_settings?.whatsappBot ||
+    s.whatsapp_bot ||
+    {};
   return {
     autoBotEnabled: waBot.autoBotEnabled !== false,
     aiCounselorEnabled: waBot.aiCounselorEnabled !== false,
-    geminiApiKey: waBot.geminiApiKey || ENV_GEMINI_KEY,
+    geminiApiKey: (waBot.geminiApiKey || ENV_GEMINI_KEY || '').trim(),
     aiInstructions: waBot.aiInstructions || ''
   };
 }
 
-async function isHumanTakeoverActive(senderPhone) {
-  const logs = await supabaseRest(
-    `whatsapp_logs?phone=ilike.*${encodeURIComponent(last10(senderPhone))}&order=created_at.desc&limit=12`,
+async function fetchConversationHistory(senderPhone) {
+  const phone10 = last10(senderPhone);
+  const waLogs = await supabaseRest(
+    `whatsapp_logs?phone=ilike.*${encodeURIComponent(phone10)}&order=created_at.desc&limit=12`,
     'GET'
   );
+  if (Array.isArray(waLogs)) return waLogs;
+
+  // Fallback to communication_logs if whatsapp_logs table is not yet migrated
+  const commLogs = await supabaseRest(
+    `communication_logs?recipient_phone=ilike.*${encodeURIComponent(phone10)}&channel=ilike.WhatsApp*&order=sent_at.desc&limit=12`,
+    'GET'
+  );
+  if (!Array.isArray(commLogs)) return [];
+  return commLogs.map((c) => {
+    const ch = String(c.channel || '');
+    const direction = ch === 'WhatsApp_Inbound' ? 'inbound' : 'outbound';
+    const message_type =
+      ch === 'WhatsApp_Bot'
+        ? 'auto_bot'
+        : ch === 'WhatsApp_Bot_Pause'
+          ? 'bot_pause_state'
+          : ch === 'WhatsApp_Bot_Resume'
+            ? 'bot_resume_state'
+            : 'text';
+    return {
+      direction,
+      message_type,
+      content: c.message || '',
+      created_at: c.sent_at
+    };
+  });
+}
+
+async function logToSupabase({ phone, senderName, direction, messageType, status, content, metaMessageId }) {
+  const ok = await supabaseRest('whatsapp_logs', 'POST', {
+    phone,
+    direction,
+    message_type: messageType,
+    status,
+    content,
+    meta_message_id: metaMessageId || null
+  });
+  if (ok) return true;
+
+  // Fallback to communication_logs (always present in schema)
+  const channel =
+    direction === 'inbound'
+      ? 'WhatsApp_Inbound'
+      : messageType === 'auto_bot'
+        ? 'WhatsApp_Bot'
+        : messageType === 'bot_pause_state'
+          ? 'WhatsApp_Bot_Pause'
+          : messageType === 'bot_resume_state'
+            ? 'WhatsApp_Bot_Resume'
+            : 'WhatsApp_Outbound';
+  return supabaseRest('communication_logs', 'POST', {
+    id: `WA-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    organization_id: 'ORG-GLOBALERA-01',
+    channel,
+    recipient_name: senderName || 'WhatsApp Visitor',
+    recipient_phone: last10(phone) || phone,
+    message: content || '',
+    status: status || 'sent',
+    sent_at: new Date().toISOString()
+  });
+}
+
+async function isHumanTakeoverActive(senderPhone) {
+  const logs = await fetchConversationHistory(senderPhone);
   if (!Array.isArray(logs) || logs.length === 0) return { paused: false, history: [] };
 
   // Check explicit pause/resume state
@@ -93,8 +162,8 @@ async function getStudentSelfServiceContext(senderPhone) {
 
   const paid = Array.isArray(payments) && payments.length > 0
     ? payments.reduce((sum, p) => sum + Number(p.amount || 0), 0)
-    : Number(std.paid_fee || 0);
-  const totalFee = Number(std.total_fee || 0);
+    : Number(std.fee_paid ?? std.paid_fee ?? 0);
+  const totalFee = Number(std.fee_amount ?? std.total_fee ?? 0);
   const due = Math.max(0, totalFee - paid);
   const certNo = Array.isArray(certs) && certs[0]?.certificate_no ? certs[0].certificate_no : null;
 
@@ -126,13 +195,13 @@ async function autoCaptureLeadIfNeeded(senderPhone, senderName, messageText, ref
 
   await supabaseRest('leads', 'POST', {
     id: `LD-WA-${Date.now().toString().slice(-6)}`,
+    organization_id: 'ORG-GLOBALERA-01',
     name: senderName || 'WhatsApp Inquiry',
     phone: phone10 || senderPhone,
-    course: referral?.headline || 'Vocational Training Inquiry',
     source: referral ? 'Facebook Ad (WhatsApp)' : 'WhatsApp Auto-Bot',
-    stage: 'New Lead',
+    status: 'New',
     priority: 'High',
-    notes: `Auto-captured from WhatsApp: ${messageText}`,
+    notes: `${referral?.headline ? `Ad: ${referral.headline} | ` : ''}Auto-captured from WhatsApp: ${messageText}`,
     created_at: new Date().toISOString()
   });
 }
@@ -169,27 +238,30 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
     `Latest message from ${senderName}:\n"${messageText}"\n\n` +
     `Write the Counselor reply now:`;
 
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(geminiKey)}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-          generationConfig: { temperature: 0.4, maxOutputTokens: 450 }
-        })
-      }
-    );
-    if (!res.ok) return null;
-    const data = await res.json();
-    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-    return reply || null;
-  } catch (err) {
-    console.debug('[Gemini Counselor Fallback]:', err.message);
-    return null;
+  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 450 }
+          })
+        }
+      );
+      if (!res.ok) continue;
+      const data = await res.json();
+      const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+      if (reply) return reply;
+    } catch (err) {
+      console.debug(`[Gemini Counselor Fallback ${model}]:`, err.message);
+    }
   }
+  return null;
 }
 
 function buildKeywordFallbackReply(messageText, referral) {
@@ -345,13 +417,14 @@ export default async function handler(req, res) {
         }
       });
 
-      await supabaseRest('whatsapp_logs', 'POST', {
+      await logToSupabase({
         phone: senderPhone,
+        senderName,
         direction: 'inbound',
-        message_type: referral ? 'fb_ad_inquiry' : (message.type || 'text'),
+        messageType: referral ? 'fb_ad_inquiry' : (message.type || 'text'),
         status: 'received',
         content: `${adTag}${messageText}`,
-        meta_message_id: message.id || null
+        metaMessageId: message.id || null
       });
 
       // Auto-capture lead if admission intent or FB Ad
@@ -404,13 +477,14 @@ export default async function handler(req, res) {
           });
           const sendJson = await sendRes.json();
           const botMsgId = sendJson?.messages?.[0]?.id || null;
-          await supabaseRest('whatsapp_logs', 'POST', {
+          await logToSupabase({
             phone: senderPhone,
+            senderName,
             direction: 'outbound',
-            message_type: 'auto_bot',
+            messageType: 'auto_bot',
             status: sendRes.ok ? 'sent' : 'failed',
             content: botReply,
-            meta_message_id: botMsgId
+            metaMessageId: botMsgId
           });
         } catch (apiErr) {
           console.error('[Meta API Send Error]:', apiErr.message);
