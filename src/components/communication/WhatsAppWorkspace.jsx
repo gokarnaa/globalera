@@ -49,10 +49,16 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import HowToRegIcon from '@mui/icons-material/HowToReg';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { StatusBadge } from '../common';
-import { loadDB, saveDB, logCommunication } from '../../services/storage';
+import RecordPaymentModal from '../accounts/RecordPaymentModal';
+import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
+import ConvertToStudentModal from '../leads/ConvertToStudentModal';
+import { loadDB, saveDB, logCommunication, postDoubleEntryJournal } from '../../services/storage';
 import { sendAakashSmsSimulated } from '../../services/exportUtils';
 import {
   sendMetaWhatsAppMessage,
@@ -166,6 +172,9 @@ export default function WhatsAppWorkspace({
   const [callOutcome, setCallOutcome] = useState('Connected');
   const [callNote, setCallNote] = useState('');
   const [workflowSavedMsg, setWorkflowSavedMsg] = useState('');
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+  const [receiptModalOpen, setReceiptModalOpen] = useState(false);
+  const [convertModalOpen, setConvertModalOpen] = useState(false);
 
   const messagesEndRef = useRef(null);
   const pillScrollRef = useRef(null);
@@ -213,6 +222,71 @@ export default function WhatsAppWorkspace({
     () => threads.find((t) => t.key === selectedKey) || filteredThreads[0] || null,
     [threads, filteredThreads, selectedKey]
   );
+
+  const liveDb = useMemo(() => loadDB(), [threads, activeThread?.key, workflowSavedMsg]);
+
+  const studentLedgerData = useMemo(() => {
+    if (!activeThread || activeThread.role !== 'Student' || !activeThread.entity) return null;
+    const std = activeThread.entity;
+    const course = (liveDb.courses || []).find((c) => c.id === std.courseId);
+    const totalFee = Number(std.totalFee ?? course?.fee ?? 0);
+    const studentPayments = (liveDb.payments || []).filter((p) => p.studentId === std.id);
+    const paidFromPayments = studentPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
+    const paid = studentPayments.length > 0 ? paidFromPayments : Number(std.paidFee || 0);
+    const due = Math.max(0, totalFee - paid);
+    const stage =
+      due <= 0 && totalFee > 0
+        ? { label: 'Cleared — Final Bill Ready', tone: 'success' }
+        : paid === 0
+        ? { label: 'Advance Pending (50%)', tone: 'warning' }
+        : { label: 'Installment / Partial', tone: 'info' };
+
+    return {
+      totalFee,
+      paid,
+      due,
+      courseName: course?.title || 'Vocational Course',
+      stage,
+      studentPayments,
+      ledgerObj: {
+        totalFee,
+        paid,
+        due,
+        courseName: course?.title || 'Vocational Course',
+        status: due <= 0 && totalFee > 0 ? 'Cleared' : paid > 0 ? 'Partial' : 'Pending'
+      }
+    };
+  }, [activeThread, liveDb]);
+
+  const handleSavePaymentFromHub = (newPayment) => {
+    const currentDb = loadDB();
+    const nextPayments = [newPayment, ...(currentDb.payments || [])];
+    const nextStudents = (currentDb.students || []).map((s) => {
+      if (s.id !== newPayment.studentId) return s;
+      const total = Number(s.totalFee || 0);
+      const paid = nextPayments
+        .filter((p) => p.studentId === s.id)
+        .reduce((acc, p) => acc + Number(p.amount || 0), 0);
+      return { ...s, paidFee: paid, dueFee: Math.max(0, total - paid) };
+    });
+    let nextDb = { ...currentDb, payments: nextPayments, students: nextStudents };
+    try {
+      nextDb = postDoubleEntryJournal(nextDb, {
+        date: newPayment.date,
+        narration: `Fee Receipt ${newPayment.receiptNo} (${activeThread?.name || 'Student'})`,
+        debitAccount: newPayment.method === 'Cash' ? 'Cash in Hand' : 'Bank Account',
+        creditAccount: 'Tuition Fee Income',
+        amount: Number(newPayment.amount || 0),
+        referenceId: newPayment.receiptNo
+      });
+    } catch {
+      // ignore if journal helper throws
+    }
+    saveDB(nextDb);
+    setWorkflowSavedMsg(`Receipt ${newPayment.receiptNo} saved & sent!`);
+    setTimeout(() => setWorkflowSavedMsg(''), 3500);
+    if (onRefresh) onRefresh();
+  };
 
   useEffect(() => {
     if (messagesEndRef.current) {
@@ -773,45 +847,110 @@ export default function WhatsAppWorkspace({
             >
               Save Workflow Update
             </Button>
+            {entity.stage !== 'Converted' && (
+              <Button
+                variant="contained"
+                size="small"
+                color="success"
+                startIcon={<HowToRegIcon />}
+                onClick={() => setConvertModalOpen(true)}
+                sx={{ fontWeight: 800, bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
+              >
+                Admit / Convert to Student
+              </Button>
+            )}
           </Paper>
         )}
 
-        {activeThread.role === 'Student' && entity && (
+        {activeThread.role === 'Student' && entity && studentLedgerData && (
           <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1.1 }}>
-            <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59', textTransform: 'uppercase' }}>
-              Trainee Fee & Academic Status
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 0.75, flexWrap: 'wrap' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59', textTransform: 'uppercase' }}>
+                Fee & Billing Workflow
+              </Typography>
+              <StatusBadge label={studentLedgerData.stage.label} tone={studentLedgerData.stage.tone} showDot />
+            </Box>
+
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, bgcolor: '#F8FAFC', p: 1, borderRadius: 2 }}>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>TGID</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>{entity.tgid || '-'}</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>TGID / Total Fee</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>
+                  {entity.tgid || '-'} • Rs. {studentLedgerData.totalFee.toLocaleString()}
+                </Typography>
               </Box>
               <Box>
                 <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Status</Typography>
                 <Typography variant="body2" sx={{ fontWeight: 800 }}>{entity.status || 'Active'}</Typography>
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Paid</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669' }}>
-                  Rs. {Number(entity.paidFee || 0).toLocaleString()}
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Total Paid</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#059669', fontVariantNumeric: 'tabular-nums' }}>
+                  Rs. {studentLedgerData.paid.toLocaleString()}
                 </Typography>
               </Box>
               <Box>
-                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Due</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 800, color: Number(entity.dueFee || 0) > 0 ? '#DC2626' : '#059669' }}>
-                  Rs. {Number(entity.dueFee || 0).toLocaleString()}
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Remaining Due</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: studentLedgerData.due > 0 ? '#DC2626' : '#059669', fontVariantNumeric: 'tabular-nums' }}>
+                  Rs. {studentLedgerData.due.toLocaleString()}
                 </Typography>
               </Box>
             </Box>
+
+            {studentLedgerData.due > 0 && (
+              <Button
+                variant="contained"
+                size="small"
+                startIcon={<PointOfSaleIcon />}
+                onClick={() => setPaymentModalOpen(true)}
+                sx={{ fontWeight: 800, bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }}
+              >
+                Collect Fee & Send Receipt
+              </Button>
+            )}
+
             <Button
-              variant="outlined"
+              variant={studentLedgerData.due === 0 ? 'contained' : 'outlined'}
               size="small"
-              startIcon={<PaymentsIcon />}
-              onClick={() => handleSend(QUICK_TEMPLATES[1].build(activeThread))}
+              startIcon={<ReceiptLongIcon />}
+              onClick={() => setReceiptModalOpen(true)}
               sx={{ fontWeight: 800 }}
             >
-              Send Fee Reminder via WA
+              {studentLedgerData.due === 0 ? 'View / Print Final Clearance Bill' : 'View / Print Bill & Receipts'}
             </Button>
+
+            {studentLedgerData.due > 0 && (
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PaymentsIcon />}
+                onClick={() => handleSend(QUICK_TEMPLATES[1].build(activeThread))}
+                sx={{ fontWeight: 800 }}
+              >
+                Send Fee Reminder via WA
+              </Button>
+            )}
+
+            {studentLedgerData.studentPayments.length > 0 && (
+              <Box sx={{ pt: 0.5, borderTop: '1px solid #F1F5F9', display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
+                  Recent Receipts (Click to Resend WA)
+                </Typography>
+                {studentLedgerData.studentPayments.slice(0, 3).map((p) => (
+                  <Chip
+                    key={p.id}
+                    size="small"
+                    icon={<WhatsAppIcon sx={{ fontSize: 14, color: '#16A34A' }} />}
+                    label={`${p.receiptNo || p.id} • Rs. ${Number(p.amount || 0).toLocaleString()}`}
+                    onClick={() =>
+                      handleSend(
+                        `🧾 *Receipt Copy — Prabidhik School*\nReceipt No: *${p.receiptNo || p.id}*\nStudent: *${entity.name}*\nAmount Paid: *Rs. ${Number(p.amount || 0).toLocaleString()}*\nDate: ${p.date || '-'}\nRemaining Due: *Rs. ${studentLedgerData.due.toLocaleString()}*`
+                      )
+                    }
+                    sx={{ cursor: 'pointer', justifyContent: 'flex-start', fontWeight: 700, bgcolor: '#ECFDF5', color: '#065F46' }}
+                  />
+                ))}
+              </Box>
+            )}
           </Paper>
         )}
 
@@ -1341,6 +1480,42 @@ export default function WhatsAppWorkspace({
           {renderCenterPane()}
           {renderWorkflowPanel()}
         </>
+      )}
+
+      {/* Embedded Live Billing, Final Bill & Admission Modals */}
+      {paymentModalOpen && activeThread?.role === 'Student' && activeThread?.entity && (
+        <RecordPaymentModal
+          open={paymentModalOpen}
+          onClose={() => setPaymentModalOpen(false)}
+          onSavePayment={handleSavePaymentFromHub}
+          db={liveDb}
+          preselectedStudentId={activeThread.entity.id}
+        />
+      )}
+
+      {receiptModalOpen && activeThread?.role === 'Student' && activeThread?.entity && studentLedgerData && (
+        <FeeClearanceReceiptModal
+          open={receiptModalOpen}
+          onClose={() => setReceiptModalOpen(false)}
+          student={activeThread.entity}
+          ledger={studentLedgerData.ledgerObj}
+          payments={studentLedgerData.studentPayments}
+        />
+      )}
+
+      {convertModalOpen && activeThread?.role === 'Lead' && activeThread?.entity && (
+        <ConvertToStudentModal
+          open={convertModalOpen}
+          onClose={() => setConvertModalOpen(false)}
+          lead={activeThread.entity}
+          db={liveDb}
+          onConverted={() => {
+            setConvertModalOpen(false);
+            setWorkflowSavedMsg('Lead admitted & converted to Student!');
+            setTimeout(() => setWorkflowSavedMsg(''), 3500);
+            if (onRefresh) onRefresh();
+          }}
+        />
       )}
     </Paper>
   );

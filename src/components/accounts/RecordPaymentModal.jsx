@@ -198,10 +198,20 @@ export default function RecordPaymentModal({
       } catch (err) {}
     }
 
-    // Auto WhatsApp payment voucher dispatch
+    // Auto WhatsApp payment voucher / stage-based bill dispatch
     if (sendWhatsApp && selectedStudent?.phone) {
       const remainingDue = Math.max(0, selectedBalance.due - payNum);
-      const text = `🧾 *Official Tuition Fee Payment Voucher*\n` +
+      const totalFee = Number(selectedBalance.totalFee || 0);
+      const totalPaidAfter = Number(selectedBalance.paid || 0) + payNum;
+      const isFinalClearance = remainingDue <= 0;
+      const isAdvance = Number(selectedBalance.paid || 0) === 0 && !isFinalClearance;
+      const billTitle = isFinalClearance
+        ? '🎉 *OFFICIAL FINAL FEE CLEARANCE BILL*'
+        : isAdvance
+        ? '🧾 *OFFICIAL ADMISSION & ADVANCE RECEIPT*'
+        : '🧾 *OFFICIAL INSTALLMENT FEE RECEIPT*';
+
+      const text = `${billTitle}\n` +
         `Prabidhik School, Jorpati (CTEVT Accredited)\n\n` +
         `Dear *${selectedStudent.name}*,\n` +
         `Your fee payment of *Rs. ${payNum.toLocaleString()}* has been successfully recorded!\n\n` +
@@ -209,15 +219,19 @@ export default function RecordPaymentModal({
         `• *Course:* ${selectedBalance.courseName}\n` +
         `• *Payment Method:* ${paymentMethod.split(' (')[0]}\n` +
         `• *Date:* ${paymentDate}\n` +
+        `• *Total Course Fee:* Rs. ${totalFee.toLocaleString()}\n` +
+        `• *Total Paid So Far:* Rs. ${totalPaidAfter.toLocaleString()}\n` +
         `• *Remaining Due Balance:* Rs. ${remainingDue.toLocaleString()}\n` +
-        (remainingDue <= 0 ? `• *Status:* Fee Fully Cleared 🎉\n` : `• *Status:* Partially Paid\n`) +
+        (isFinalClearance
+          ? `• *Status:* PAID IN FULL / CLEARED 🎉 (Eligible for Exam & Certificate)\n`
+          : `• *Status:* ${isAdvance ? 'Advance Paid (50-50 Policy)' : 'Installment Paid'}\n`) +
         `• *Received By:* ${currentUser?.name || 'Accounts Office'}\n\n` +
         `Thank you for training with Prabidhik School, Jorpati!`;
 
       sendMetaWhatsAppMessage({
         to: selectedStudent.phone,
         type: 'text',
-        text: text
+        text
       }).catch((e) => console.warn('Payment WhatsApp notice failed:', e));
     }
 
