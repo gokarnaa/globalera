@@ -26,7 +26,9 @@ import {
   Grid,
   Paper,
   LinearProgress,
-  InputAdornment
+  InputAdornment,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import AddIcon from '@mui/icons-material/Add';
@@ -47,6 +49,8 @@ import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useDialog } from '../../context/DialogContext';
 
 export default function TrainerManager() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { confirm, alert } = useDialog();
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
@@ -414,12 +418,13 @@ export default function TrainerManager() {
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: isMobile ? 0 : 3.5,
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -428,8 +433,8 @@ export default function TrainerManager() {
       >
         <DialogTitle
           sx={{
-            p: 2.5,
-            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            p: { xs: 2, sm: 2.5 },
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
@@ -452,6 +457,7 @@ export default function TrainerManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close trainer dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.85)',
@@ -465,110 +471,155 @@ export default function TrainerManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 }
           }}
         >
-          <Stack spacing={2.2}>
-            <TextField
-              label="Trainer Full Name"
-              fullWidth
-              size="small"
-              placeholder="e.g. Trainer Full Name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-            <TextField
-              label="Mobile Number (for WhatsApp/SMS)"
-              fullWidth
-              size="small"
-              placeholder="98XXXXXXXX"
-              value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              required
-            />
-            <TextField
-              label="Biometric Machine ID"
-              fullWidth
-              size="small"
-              placeholder="e.g. 2001"
-              value={formData.biometricId || ''}
-              onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <FingerprintIcon sx={{ fontSize: 18, color: '#0F2E5A' }} />
-                  </InputAdornment>
-                )
-              }}
-              helperText="User ID registered on ZKTeco / Biometric device"
-            />
-            <TextField
-              select
-              label="Primary Occupation Specialization"
-              fullWidth
-              size="small"
-              value={formData.occupationId}
-              onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
-              required
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- Select Occupation --
-              </MenuItem>
-              {db.occupations.map((occ) => (
-                <MenuItem key={occ.id} value={occ.id}>
-                  {occ.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              label="4-Digit Security PIN (for mobile unlock)"
-              fullWidth
-              size="small"
-              type="password"
-              inputProps={{ maxLength: 4 }}
-              placeholder="e.g. 1234"
-              value={formData.pin}
-              onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
-              helperText="Instructors use this 4-digit PIN for mobile portal login."
-              required
-            />
-            <TextField
-              label="Specialization Details"
-              fullWidth
-              size="small"
-              value={formData.specialization}
-              onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
-              placeholder="e.g. Cosmetology & Hair Styling / Caregiver"
-            />
-            <TextField
-              label="Photo URL (Optional)"
-              fullWidth
-              size="small"
-              placeholder="https://example.com/trainer-photo.jpg"
-              value={formData.photo}
-              onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
-            />
-            <TextField
-              select
-              label="Status"
-              fullWidth
-              size="small"
-              value={formData.status}
-              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-            >
-              <MenuItem value="Active">Active</MenuItem>
-              <MenuItem value="Inactive">Inactive</MenuItem>
-            </TextField>
+          <Stack spacing={2}>
+            {/* Section 1: Instructor Identity & Contact */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2C59' }} />
+                1. Instructor Identity & Contact
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Trainer Full Name"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Trainer Full Name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Mobile Number (for WhatsApp/SMS)"
+                    fullWidth
+                    size="small"
+                    placeholder="98XXXXXXXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Biometric Machine ID"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. 2001"
+                    value={formData.biometricId || ''}
+                    onChange={(e) => setFormData({ ...formData, biometricId: e.target.value })}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <FingerprintIcon sx={{ fontSize: 18, color: '#0F2E5A' }} />
+                        </InputAdornment>
+                      )
+                    }}
+                    helperText="User ID registered on ZKTeco / Biometric device"
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Section 2: Specialization & Portal Access */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
+                2. Specialization & Portal Access
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Primary Occupation Specialization"
+                    fullWidth
+                    size="small"
+                    value={formData.occupationId}
+                    onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Occupation --
+                    </MenuItem>
+                    {db.occupations.map((occ) => (
+                      <MenuItem key={occ.id} value={occ.id}>
+                        {occ.name}
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="4-Digit Security PIN (for mobile unlock)"
+                    fullWidth
+                    size="small"
+                    type="password"
+                    inputProps={{ maxLength: 4 }}
+                    placeholder="e.g. 1234"
+                    value={formData.pin}
+                    onChange={(e) => setFormData({ ...formData, pin: e.target.value.replace(/\D/g, '').slice(0, 4) })}
+                    helperText="Instructors use this 4-digit PIN for mobile portal login."
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Specialization Details"
+                    fullWidth
+                    size="small"
+                    value={formData.specialization}
+                    onChange={(e) => setFormData({ ...formData, specialization: e.target.value })}
+                    placeholder="e.g. Cosmetology & Hair Styling / Caregiver"
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Section 3: Profile & Status */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
+                3. Profile & Status
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Photo URL (Optional)"
+                    fullWidth
+                    size="small"
+                    placeholder="https://example.com/trainer-photo.jpg"
+                    value={formData.photo}
+                    onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Status"
+                    fullWidth
+                    size="small"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+            </Paper>
           </Stack>
         </DialogContent>
         <DialogActions
           sx={{
-            p: 2.5,
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

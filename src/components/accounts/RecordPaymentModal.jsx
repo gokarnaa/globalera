@@ -18,7 +18,9 @@ import {
   Stack,
   Chip,
   FormControlLabel,
-  Checkbox
+  Checkbox,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -48,6 +50,8 @@ export default function RecordPaymentModal({
   db,
   preselectedStudentId = null
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { currentUser } = useAuth();
 
   const [studentId, setStudentId] = useState('');
@@ -227,20 +231,22 @@ export default function RecordPaymentModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          border: isMobile ? 'none' : '1px solid rgba(226, 232, 240, 0.8)'
         }
       }}
     >
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
-          background: 'linear-gradient(135deg, #065F46 0%, #047857 100%)',
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
@@ -248,243 +254,337 @@ export default function RecordPaymentModal({
           borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
               width: 42,
               height: 42,
               borderRadius: 2,
-              bgcolor: 'rgba(255,255,255,0.2)',
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF'
+              color: '#F59E0B',
+              flexShrink: 0
             }}
           >
             <PointOfSaleIcon />
           </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, lineHeight: 1.2 }}>
               Collect Student Fee & Issue Receipt
             </Typography>
-            <Typography variant="caption" sx={{ color: '#A7F3D0', fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block', noWrap: true }}>
               Record installment payment and issue printable receipt
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ color: '#A7F3D0', '&:hover': { color: '#FFF' } }}>
+        <IconButton
+          aria-label="Close record payment modal"
+          onClick={onClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit}>
-        <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+      >
+        <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
           {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {errorMsg}
             </Alert>
           )}
 
-          {/* Student Selector */}
-          <TextField
-            select
-            fullWidth
-            required
-            label="Select Student"
-            value={studentId}
-            onChange={(e) => handleStudentSelect(e.target.value)}
-            sx={{ mb: 2.5 }}
+          {/* Section 1: Student & Fee Balance */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
           >
-            <MenuItem value="">
-              <em>-- Select Student --</em>
-            </MenuItem>
-            {students.map((st) => {
-              const b = getStudentBalance(st.id);
-              return (
-                <MenuItem key={st.id} value={st.id} disabled={b.due <= 0}>
-                  {st.name} ({st.tgid}) — Remaining Due: Rs. {b.due.toLocaleString()} {b.due <= 0 ? '(Cleared)' : ''}
-                </MenuItem>
-              );
-            })}
-          </TextField>
-
-          {/* Live Student Account Balance Card */}
-          {selectedBalance && (
-            <Paper
-              elevation={0}
+            <Typography
               sx={{
-                p: 2,
-                mb: 3,
-                borderRadius: 2.5,
-                bgcolor: '#ECFDF5',
-                border: '1.5px solid #A7F3D0'
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
               }}
             >
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#065F46' }}>
-                  {currentStudent?.name} ({currentStudent?.tgid})
-                </Typography>
-                <Chip
-                  label={selectedBalance.due === 0 ? 'Cleared (Paid)' : `Remaining Due: Rs. ${selectedBalance.due.toLocaleString()}`}
-                  size="small"
-                  color={selectedBalance.due === 0 ? 'success' : 'warning'}
-                  sx={{ fontWeight: 800, fontSize: '0.75rem' }}
-                />
-              </Box>
+              Student &amp; Fee Balance
+            </Typography>
 
-              <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Course:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{selectedBalance.courseName}</Typography>
+            <TextField
+              select
+              fullWidth
+              required
+              size="small"
+              label="Select Student"
+              value={studentId}
+              onChange={(e) => handleStudentSelect(e.target.value)}
+            >
+              <MenuItem value="">
+                <em>-- Select Student --</em>
+              </MenuItem>
+              {students.map((st) => {
+                const b = getStudentBalance(st.id);
+                return (
+                  <MenuItem key={st.id} value={st.id} disabled={b.due <= 0}>
+                    {st.name} ({st.tgid}) — Remaining Due: Rs. {b.due.toLocaleString()} {b.due <= 0 ? '(Cleared)' : ''}
+                  </MenuItem>
+                );
+              })}
+            </TextField>
+
+            {selectedBalance && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: { xs: 1.5, sm: 2 },
+                  borderRadius: 2,
+                  bgcolor: '#F8FAFC',
+                  border: '1px solid #CBD5E1'
+                }}
+              >
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
+                    {currentStudent?.name} ({currentStudent?.tgid})
+                  </Typography>
+                  <Chip
+                    label={selectedBalance.due === 0 ? 'Cleared (Paid)' : `Due: Rs. ${selectedBalance.due.toLocaleString()}`}
+                    size="small"
+                    color={selectedBalance.due === 0 ? 'success' : 'warning'}
+                    sx={{ fontWeight: 800, fontSize: '0.75rem' }}
+                  />
+                </Box>
+
+                <Grid container spacing={1.5}>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Course</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>{selectedBalance.courseName}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Locked Total Fee</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>Rs. {selectedBalance.lockedFee.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Total Paid So Far</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#059669' }}>Rs. {selectedBalance.paid.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Remaining Due</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {selectedBalance.due.toLocaleString()}</Typography>
+                  </Grid>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Locked Total Fee:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>Rs. {selectedBalance.lockedFee.toLocaleString()}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Total Paid So Far:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#10B981' }}>Rs. {selectedBalance.paid.toLocaleString()}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Remaining Due:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {selectedBalance.due.toLocaleString()}</Typography>
-                </Grid>
+
+                {selectedBalance.due > 0 && (
+                  <Box sx={{ mt: 1.5, pt: 1.2, borderTop: '1px dashed #CBD5E1', display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setAmount(Math.round(selectedBalance.lockedFee * 0.5))}
+                      sx={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        borderColor: '#1E3A8A',
+                        color: '#0F2C59',
+                        bgcolor: '#FFFFFF'
+                      }}
+                    >
+                      50% Installment (Rs. {Math.round(selectedBalance.lockedFee * 0.5).toLocaleString()})
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => setAmount(selectedBalance.due)}
+                      sx={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        borderColor: '#059669',
+                        color: '#065F46',
+                        bgcolor: '#FFFFFF'
+                      }}
+                    >
+                      Full Remaining (Rs. {selectedBalance.due.toLocaleString()})
+                    </Button>
+                  </Box>
+                )}
+              </Box>
+            )}
+          </Paper>
+
+          {/* Section 2: Payment Details */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
+              }}
+            >
+              Payment Details
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  type="number"
+                  label="Payment Amount (Rs.)"
+                  placeholder="e.g. 6000"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MonetizationOnIcon sx={{ color: '#059669' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
               </Grid>
 
-              {/* Quick Installment Buttons */}
-              {selectedBalance.due > 0 && (
-                <Box sx={{ mt: 1.5, pt: 1.2, borderTop: '1px dashed #A7F3D0', display: 'flex', gap: 1 }}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => setAmount(Math.round(selectedBalance.lockedFee * 0.5))}
-                    sx={{
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      borderColor: '#10B981',
-                      color: '#047857',
-                      bgcolor: '#FFFFFF'
-                    }}
-                  >
-                    50% Installment (Rs. {Math.round(selectedBalance.lockedFee * 0.5).toLocaleString()})
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => setAmount(selectedBalance.due)}
-                    sx={{
-                      fontSize: '0.72rem',
-                      fontWeight: 700,
-                      borderColor: '#059669',
-                      color: '#065F46',
-                      bgcolor: '#FFFFFF'
-                    }}
-                  >
-                    Full Remaining (Rs. {selectedBalance.due.toLocaleString()})
-                  </Button>
-                </Box>
-              )}
-            </Paper>
-          )}
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Payment Method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  {PAYMENT_METHODS.map((pm) => (
+                    <MenuItem key={pm} value={pm}>
+                      {pm}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Payment Amount (Rs.)"
-                placeholder="e.g. 6000"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MonetizationOnIcon sx={{ color: '#059669' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Payment Method"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                {PAYMENT_METHODS.map((pm) => (
-                  <MenuItem key={pm} value={pm}>
-                    {pm}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Payment Date"
-                InputLabelProps={{ shrink: true }}
-                value={paymentDate}
-                onChange={(e) => setPaymentDate(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="month"
-                label="Accounting Month"
-                InputLabelProps={{ shrink: true }}
-                value={paymentMonth}
-                onChange={(e) => setPaymentMonth(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Remarks"
-                placeholder="e.g. 1st installment 50% admission fee paid..."
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <NoteAltIcon sx={{ color: '#64748B' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Box sx={{ p: 1.5, bgcolor: '#F0FDF4', borderRadius: 2.5, border: '1px solid #BBF7D0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <FormControlLabel
-                  control={<Checkbox checked={sendWhatsApp} onChange={(e) => setSendWhatsApp(e.target.checked)} color="success" />}
-                  label={
-                    <Box>
-                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#166534' }}>
-                        Dispatch Official Receipt Voucher to Trainee WhatsApp
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#15803D' }}>
-                        Sends official receipt with remaining balance to trainee mobile
-                      </Typography>
-                    </Box>
-                  }
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Payment Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={paymentDate}
+                  onChange={(e) => setPaymentDate(e.target.value)}
                 />
-                <Chip icon={<WhatsAppIcon sx={{ color: '#25D366 !important' }} />} label="Live 1-Click" size="small" sx={{ bgcolor: '#DCFCE7', color: '#166534', fontWeight: 800 }} />
-              </Box>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="month"
+                  label="Accounting Month"
+                  InputLabelProps={{ shrink: true }}
+                  value={paymentMonth}
+                  onChange={(e) => setPaymentMonth(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Remarks"
+                  placeholder="e.g. 1st installment 50% admission fee paid..."
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <NoteAltIcon sx={{ color: '#64748B' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
+          </Paper>
+
+          {/* Section 3: Receipt Notification */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1
+              }}
+            >
+              Receipt &amp; Notification
+            </Typography>
+            <Box
+              sx={{
+                p: 1.5,
+                bgcolor: '#F0FDF4',
+                borderRadius: 2,
+                border: '1px solid #BBF7D0',
+                display: 'flex',
+                flexWrap: 'wrap',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 1
+              }}
+            >
+              <FormControlLabel
+                control={<Checkbox checked={sendWhatsApp} onChange={(e) => setSendWhatsApp(e.target.checked)} color="success" />}
+                label={
+                  <Box>
+                    <Typography variant="body2" sx={{ fontWeight: 800, color: '#166534' }}>
+                      Dispatch Official Receipt Voucher to Trainee WhatsApp
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#15803D' }}>
+                      Sends official receipt with remaining balance to trainee mobile
+                    </Typography>
+                  </Box>
+                }
+              />
+              <Chip icon={<WhatsAppIcon sx={{ color: '#25D366 !important' }} />} label="Live 1-Click" size="small" sx={{ bgcolor: '#DCFCE7', color: '#166534', fontWeight: 800 }} />
+            </Box>
+          </Paper>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
-          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+        <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700, textTransform: 'none' }}>
             Cancel
           </Button>
           <Button
@@ -493,18 +593,19 @@ export default function RecordPaymentModal({
             disabled={!studentId || !amount || Number(amount) <= 0}
             startIcon={<PointOfSaleIcon />}
             sx={{
-              background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
               fontWeight: 800,
-              px: 3.5,
+              textTransform: 'none',
+              px: 3,
               py: 1,
-              borderRadius: 2.5,
-              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+              borderRadius: 2,
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)'
             }}
           >
-            Record & Generate Receipt
+            Record &amp; Generate Receipt
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }

@@ -21,7 +21,9 @@ import {
   Stack,
   FormControl,
   FormLabel,
-  Avatar
+  Avatar,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -39,6 +41,9 @@ import {
 } from '../../services/storage';
 
 export default function NewAdmissionModal({ open, onClose, db, setDb, showToast, onAdmissionCreated, initialLead = null }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   // Personal Info
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
@@ -425,72 +430,133 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="md"
+      fullWidth
+      fullScreen={isMobile}
+      scroll="paper"
+      PaperProps={{
+        sx: {
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100vh' : '92vh',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }
+      }}
+    >
       <DialogTitle
         sx={{
-          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-          color: '#ffffff',
+          m: 0,
+          px: { xs: 2, sm: 2.5 },
+          py: 1.75,
+          flexShrink: 0,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+          color: '#FFFFFF',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          py: 2.2,
-          px: 3,
           borderBottom: '3px solid #F59E0B'
         }}
       >
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Avatar sx={{ bgcolor: 'rgba(255, 255, 255, 0.15)', color: '#F59E0B', width: 44, height: 44, borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.25)' }}>
-            <HowToRegIcon sx={{ fontSize: 26 }} />
+          <Avatar
+            sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.14)',
+              color: '#F59E0B',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              border: '1px solid rgba(245, 158, 11, 0.35)'
+            }}
+          >
+            <HowToRegIcon sx={{ fontSize: 22 }} />
           </Avatar>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.05rem', lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2 }}>
               New Student Admission & Training Agreement
             </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem' }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontSize: '0.74rem', display: 'block' }}>
               50% advance collection, OJT preference & dual-copy A4 agreement system
             </Typography>
           </Box>
         </Stack>
-        <IconButton onClick={onClose} sx={{ color: 'rgba(255, 255, 255, 0.85)', bgcolor: 'rgba(255, 255, 255, 0.1)', '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#ffffff' } }}>
+        <IconButton
+          aria-label="Close admission dialog"
+          onClick={onClose}
+          sx={{
+            color: 'rgba(255, 255, 255, 0.85)',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.25)', color: '#FFFFFF' }
+          }}
+        >
           <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: { xs: 2, sm: 3.5 }, bgcolor: '#f8fafc' }}>
-        {initialLead && (
-          <Alert
-            severity="info"
-            icon={<HowToRegIcon fontSize="small" sx={{ color: '#1D4ED8' }} />}
-            sx={{
-              mb: 2.5,
-              borderRadius: 2.5,
-              border: '1px solid #BFDBFE',
-              bgcolor: '#EFF6FF',
-              fontWeight: 700,
-              color: '#1E3A8A'
-            }}
-          >
-            Admitting from Lead Inquiry #{initialLead.id} ({initialLead.name}) — Information pre-populated. Confirming will generate Agreement #{`GE-AGR-2025-${String((db.admissions || []).length + 1).padStart(3, '0')}`} and automatically update lead stage to Converted.
-          </Alert>
-        )}
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden'
+        }}
+      >
+        <DialogContent
+          dividers
+          sx={{
+            p: { xs: 1.5, sm: 2.5 },
+            bgcolor: '#F8FAFC',
+            flex: 1,
+            overflowY: 'auto'
+          }}
+        >
+          {initialLead && (
+            <Alert
+              severity="info"
+              icon={<HowToRegIcon fontSize="small" sx={{ color: '#1D4ED8' }} />}
+              sx={{
+                mb: 2,
+                borderRadius: 2,
+                border: '1px solid #BFDBFE',
+                bgcolor: '#EFF6FF',
+                fontWeight: 700,
+                color: '#1E3A8A'
+              }}
+            >
+              Admitting from Lead Inquiry #{initialLead.id} ({initialLead.name}) — Information pre-populated. Confirming will generate Agreement #{`GE-AGR-2025-${String((db.admissions || []).length + 1).padStart(3, '0')}`} and automatically update lead stage to Converted.
+            </Alert>
+          )}
 
-        {errorMsg && (
-          <Alert severity="error" sx={{ mb: 2.5 }}>
-            {errorMsg}
-          </Alert>
-        )}
+          {errorMsg && (
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
+              {errorMsg}
+            </Alert>
+          )}
 
-        <Box component="form" onSubmit={handleSubmit}>
           {/* Section 1: Student Personal Details */}
-          <Paper elevation={0} sx={{ p: 2.5, mb: 3, border: '1px solid #e2e8f0', borderRadius: 2 }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-              <SchoolIcon sx={{ color: '#0f2e5a' }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
-                1. Student Personal Details
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, border: '1px solid #E2E8F0', borderRadius: 2, bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <SchoolIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                1. Student Personal & Contact Details
               </Typography>
             </Stack>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={1.75}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
@@ -503,7 +569,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 />
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   required
@@ -515,7 +581,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 />
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
                   label="Secondary Phone"
@@ -525,7 +591,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 />
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   select
                   fullWidth
@@ -540,7 +606,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={4}>
                 <TextField
                   select
                   fullWidth
@@ -561,13 +627,23 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                 </TextField>
               </Grid>
 
-              <Grid item xs={12} sm={3}>
+              <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
                   label="Citizenship / ID No"
                   value={citizenshipNumber}
                   onChange={(e) => setCitizenshipNumber(e.target.value)}
                   placeholder="e.g. 27-01-76-01234"
+                  size="small"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Guardian / Parent Name"
+                  value={fatherName}
+                  onChange={(e) => setFatherName(e.target.value)}
                   size="small"
                 />
               </Grid>
@@ -593,29 +669,27 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                   size="small"
                 />
               </Grid>
-
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Guardian / Parent Name"
-                  value={fatherName}
-                  onChange={(e) => setFatherName(e.target.value)}
-                  size="small"
-                />
-              </Grid>
             </Grid>
           </Paper>
 
           {/* Section 2: Course, Batch & OJT Details */}
-          <Paper elevation={0} sx={{ p: 2.5, mb: 3, border: '1px solid #e2e8f0', borderRadius: 2 }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-              <WorkIcon sx={{ color: '#0f2e5a' }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, border: '1px solid #E2E8F0', borderRadius: 2, bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <WorkIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
                 2. Course, Batch & OJT Preference
               </Typography>
             </Stack>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={1.75}>
               <Grid item xs={12} sm={6}>
                 <TextField
                   select
@@ -668,8 +742,8 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <Box sx={{ p: 1, border: '1px solid #e2e8f0', borderRadius: 1, bgcolor: '#f8fafc' }}>
-                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748b', display: 'block' }}>
+                <Box sx={{ p: 1, border: '1px solid #E2E8F0', borderRadius: 1.5, bgcolor: '#F8FAFC' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 700, color: '#64748B', display: 'block' }}>
                     OJT (On-the-Job Training) Placement Preference:
                   </Typography>
                   <RadioGroup
@@ -680,12 +754,12 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                     <FormControlLabel
                       value="REQUIRED"
                       control={<Radio size="small" color="primary" />}
-                      label={<Typography variant="body2" sx={{ fontWeight: 700, color: '#065f46' }}>Required (Complimentary)</Typography>}
+                      label={<Typography variant="body2" sx={{ fontWeight: 700, color: '#065F46' }}>Required (Complimentary)</Typography>}
                     />
                     <FormControlLabel
                       value="NOT_REQUIRED"
                       control={<Radio size="small" color="secondary" />}
-                      label={<Typography variant="body2" sx={{ color: '#64748b' }}>Not Required</Typography>}
+                      label={<Typography variant="body2" sx={{ color: '#64748B' }}>Not Required</Typography>}
                     />
                   </RadioGroup>
                 </Box>
@@ -707,15 +781,23 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
           </Paper>
 
           {/* Section 3: Fee Structure & 50% Rule */}
-          <Paper elevation={0} sx={{ p: 2.5, mb: 1, border: '1.5px solid #0f2e5a', borderRadius: 2, bgcolor: '#ffffff' }}>
-            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 2 }}>
-              <PaymentsIcon sx={{ color: '#0f2e5a' }} />
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, border: '1px solid #E2E8F0', borderRadius: 2, bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <PaymentsIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
                 3. Fee Structure & Terms (50% Advance & Remaining within 30 Days)
               </Typography>
             </Stack>
 
-            <Grid container spacing={2}>
+            <Grid container spacing={1.75}>
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
@@ -744,9 +826,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               </Grid>
 
               <Grid item xs={12} sm={4}>
-                <Box sx={{ p: 1, bgcolor: '#f1f5f9', borderRadius: 1, border: '1px solid #cbd5e1' }}>
-                  <Typography variant="caption" sx={{ color: '#64748b' }}>Net Payable Fee:</Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f2e5a' }}>
+                <Box sx={{ p: 1, bgcolor: '#F1F5F9', borderRadius: 1.5, border: '1px solid #CBD5E1' }}>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Net Payable Fee:</Typography>
+                  <Typography variant="h6" sx={{ fontWeight: 800, color: '#0F2C59', lineHeight: 1.2 }}>
                     Rs. {netPayableFee.toLocaleString()}
                   </Typography>
                 </Box>
@@ -754,8 +836,8 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
               {/* Advance Payment Box (50% or 100% Full Upfront for Basic Course) */}
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse ? '#eff6ff' : '#ecfdf5', border: `1.5px solid ${isFullOnlyCourse ? '#3b82f6' : '#10b981'}`, borderRadius: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse ? '#1d4ed8' : '#065f46', mb: 1 }}>
+                <Paper elevation={0} sx={{ p: 1.5, bgcolor: isFullOnlyCourse ? '#EFF6FF' : '#ECFDF5', border: `1.5px solid ${isFullOnlyCourse ? '#3B82F6' : '#10B981'}`, borderRadius: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse ? '#1D4ED8' : '#065F46', mb: 1 }}>
                     {isFullOnlyCourse ? '⚡ Lump Sum Payment (100% Due on Enrollment):' : '1st Installment (50% Advance at Enrollment):'}
                   </Typography>
                   <TextField
@@ -765,9 +847,9 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
                     value={advancePaid}
                     onChange={(e) => setAdvancePaid(Number(e.target.value) || 0)}
                     size="small"
-                    sx={{ bgcolor: '#ffffff', borderRadius: 1 }}
+                    sx={{ bgcolor: '#FFFFFF', borderRadius: 1 }}
                   />
-                  <Typography variant="caption" sx={{ color: isFullOnlyCourse ? '#1e40af' : '#047857', display: 'block', mt: 0.8, fontWeight: 700 }}>
+                  <Typography variant="caption" sx={{ color: isFullOnlyCourse ? '#1E40AF' : '#047857', display: 'block', mt: 0.8, fontWeight: 700 }}>
                     {isFullOnlyCourse
                       ? '⚡ Installments are not available for this basic course. Full fee is settled at enrollment.'
                       : `* Student must pay at least 50% (Rs. ${Math.round(netPayableFee * 0.5).toLocaleString()}) at registration.`}
@@ -777,24 +859,24 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
               {/* Remaining Due Box */}
               <Grid item xs={12} sm={6}>
-                <Paper sx={{ p: 2, bgcolor: isFullOnlyCourse && dueAmount50 === 0 ? '#f0fdf4' : '#fff1f2', border: `1.5px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#22c55e' : '#f43f5e'}`, borderRadius: 1.5 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#9f1239', mb: 1 }}>
+                <Paper elevation={0} sx={{ p: 1.5, bgcolor: isFullOnlyCourse && dueAmount50 === 0 ? '#F0FDF4' : '#FFF1F2', border: `1.5px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#22C55E' : '#F43F5E'}`, borderRadius: 1.5 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803D' : '#9F1239', mb: 1 }}>
                     {isFullOnlyCourse ? 'Remaining Balance:' : '2nd Installment (Remaining 50%):'}
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803d' : '#be123c', mb: 0.5 }}>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: isFullOnlyCourse && dueAmount50 === 0 ? '#15803D' : '#BE123C', mb: 0.5 }}>
                     Rs. {dueAmount50.toLocaleString()}
                   </Typography>
-                  <Box sx={{ bgcolor: '#ffffff', p: 0.8, borderRadius: 1, border: `1px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#bbf7d0' : '#fecdd3'}` }}>
+                  <Box sx={{ bgcolor: '#FFFFFF', p: 0.8, borderRadius: 1, border: `1px solid ${isFullOnlyCourse && dueAmount50 === 0 ? '#BBF7D0' : '#FECDD3'}` }}>
                     {isFullOnlyCourse && dueAmount50 === 0 ? (
-                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#16a34a', display: 'block' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#16A34A', display: 'block' }}>
                         ✓ Full Paid at Admission
                       </Typography>
                     ) : (
                       <>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#9f1239', display: 'block' }}>
+                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#9F1239', display: 'block' }}>
                           Due Date: {calculatedDueDate}
                         </Typography>
-                        <Typography variant="caption" sx={{ color: '#e11d48' }}>
+                        <Typography variant="caption" sx={{ color: '#E11D48' }}>
                           (Mandatory within 30 days of training start)
                         </Typography>
                       </>
@@ -831,29 +913,40 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
               </Grid>
             </Grid>
           </Paper>
+        </DialogContent>
 
-          <DialogActions sx={{ px: 0, pt: 3, justifyContent: 'space-between' }}>
-            <Button onClick={onClose} color="inherit" sx={{ fontWeight: 600 }}>
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              size="large"
-              startIcon={<HowToRegIcon />}
-              sx={{
-                bgcolor: '#0f2e5a',
-                color: '#ffffff',
-                fontWeight: 800,
-                px: 4,
-                '&:hover': { bgcolor: '#1e3a8a' }
-              }}
-            >
-              Enroll & Generate Agreement
-            </Button>
-          </DialogActions>
-        </Box>
-      </DialogContent>
+        <DialogActions
+          sx={{
+            px: 2.5,
+            py: 1.5,
+            bgcolor: '#FFFFFF',
+            borderTop: '1px solid #E2E8F0',
+            flexShrink: 0,
+            justifyContent: 'space-between'
+          }}
+        >
+          <Button onClick={onClose} size="small" sx={{ color: '#64748B', fontWeight: 700, py: 0.8 }}>
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            size="small"
+            startIcon={<HowToRegIcon />}
+            sx={{
+              bgcolor: '#0F2C59',
+              color: '#FFFFFF',
+              fontWeight: 800,
+              px: 3,
+              py: 0.8,
+              borderRadius: 2,
+              '&:hover': { bgcolor: '#1E3A8A' }
+            }}
+          >
+            Enroll & Generate Agreement
+          </Button>
+        </DialogActions>
+      </Box>
     </Dialog>
   );
 }

@@ -146,186 +146,240 @@ export default function CashToBankModal({ open, onClose, db, setDb, showToast, c
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
-          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '2px solid #F59E0B'
+          borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 2.5,
-              bgcolor: 'rgba(255,255,255,0.18)',
+              width: 42,
+              height: 42,
+              borderRadius: 2,
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF'
+              color: '#F59E0B',
+              flexShrink: 0
             }}
           >
-            <AccountBalanceIcon sx={{ fontSize: '1.4rem' }} />
+            <AccountBalanceIcon />
           </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, lineHeight: 1.2, color: '#FFFFFF' }}>
               Deposit Cash to Bank
             </Typography>
-            <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block' }}>
               Contra Entry • Direct transfer of drawer cash to bank account
             </Typography>
           </Box>
         </Box>
 
-        <IconButton onClick={onClose} sx={{ color: '#93C5FD', '&:hover': { color: '#FFF' } }}>
+        <IconButton
+          aria-label="Close cash to bank modal"
+          onClick={onClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleDepositSubmit}>
-        <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <Box
+        component="form"
+        onSubmit={handleDepositSubmit}
+        sx={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+      >
+        <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
           {errorMsg && (
             <Box sx={{ mb: 2, p: 1.5, bgcolor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 2, color: '#DC2626', fontWeight: 700, fontSize: '0.85rem' }}>
               {errorMsg}
             </Box>
           )}
 
-          {/* Visual Transfer Flow: Cash Drawer -> Bank Account */}
+          {/* Section 1: Contra Transfer Flow */}
           <Paper
             elevation={0}
             sx={{
-              p: 2,
-              mb: 2.5,
-              borderRadius: 3,
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
               bgcolor: '#FFFFFF',
-              border: '1.5px solid #CBD5E1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
+              border: '1px solid #E2E8F0'
             }}
           >
-            {/* Source */}
-            <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Source Account</Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
-                💵 Counter Cash (1010)
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
-                Balance: Rs. {currentCashInHand.toLocaleString()}
-              </Typography>
-            </Box>
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.2
+              }}
+            >
+              Contra Transfer Flow
+            </Typography>
 
-            <Box sx={{ px: 1, color: '#0F2E5A', display: 'flex', alignItems: 'center' }}>
-              <ArrowForwardIcon />
-            </Box>
+            <Box
+              sx={{
+                p: 1.5,
+                borderRadius: 2,
+                bgcolor: '#F8FAFC',
+                border: '1px solid #CBD5E1',
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: { xs: 1.25, sm: 1 }
+              }}
+            >
+              <Box sx={{ textAlign: 'center', flex: 1 }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>Source Account</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>
+                  Counter Cash (1010)
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800 }}>
+                  Balance: Rs. {currentCashInHand.toLocaleString()}
+                </Typography>
+              </Box>
 
-            {/* Destination */}
-            <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Target Account</Typography>
-              <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
-                🏦 Bank Account ({targetBank})
-              </Typography>
-              <Typography variant="caption" sx={{ color: '#1E40AF', fontWeight: 800 }}>
-                {targetBank === '1020' ? 'Global IME Bank' : 'Nabil Bank'}
-              </Typography>
+              <Box sx={{ px: 1, color: '#0F2C59', display: 'flex', alignItems: 'center', transform: { xs: 'rotate(90deg)', sm: 'none' } }}>
+                <ArrowForwardIcon />
+              </Box>
+
+              <Box sx={{ textAlign: 'center', flex: 1 }}>
+                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>Target Account</Typography>
+                <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59' }}>
+                  Bank Account ({targetBank})
+                </Typography>
+                <Typography variant="caption" sx={{ color: '#1E3A8A', fontWeight: 800 }}>
+                  {targetBank === '1020' ? 'Global IME Bank' : 'Nabil Bank'}
+                </Typography>
+              </Box>
             </Box>
           </Paper>
 
-          {/* Target Bank Account Selector */}
-          <Box sx={{ mb: 2.2 }}>
-            <TextField
-              select
-              fullWidth
-              size="small"
-              label="Select Bank Account"
-              value={targetBank}
-              onChange={(e) => handleBankChange(e.target.value)}
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
+          {/* Section 2: Deposit & Slip Details */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              bgcolor: '#FFFFFF',
+              border: '1px solid #E2E8F0'
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
+              }}
             >
-              <MenuItem value="1020">🏦 Global IME Bank (A/C 01200012345)</MenuItem>
-              <MenuItem value="1021">🏦 Nabil Bank Ltd. (A/C 01234567890)</MenuItem>
-            </TextField>
-          </Box>
+              Deposit &amp; Slip Details
+            </Typography>
 
-          {/* Amount Input */}
-          <Box sx={{ mb: 2.2 }}>
-            <TextField
-              fullWidth
-              required
-              type="number"
-              label="Deposit Amount (in Rs.)"
-              value={depositAmount}
-              onChange={(e) => {
-                setDepositAmount(e.target.value);
-                setErrorMsg('');
-              }}
-              InputProps={{
-                startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
-              }}
-              helperText={`Maximum depositable amount: Rs. ${currentCashInHand.toLocaleString()}`}
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-            />
-          </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Select Bank Account"
+                  value={targetBank}
+                  onChange={(e) => handleBankChange(e.target.value)}
+                >
+                  <MenuItem value="1020">Global IME Bank (A/C 01200012345)</MenuItem>
+                  <MenuItem value="1021">Nabil Bank Ltd. (A/C 01234567890)</MenuItem>
+                </TextField>
+              </Grid>
 
-          {/* Bank Slip Reference No */}
-          <Box sx={{ mb: 2.2 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Deposit Slip Ref No."
-              placeholder="e.g. GIME-DEP-84920"
-              value={slipReference}
-              onChange={(e) => setSlipReference(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <ReceiptLongIcon sx={{ color: '#64748B' }} />
-                  </InputAdornment>
-                )
-              }}
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-            />
-          </Box>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  type="number"
+                  label="Deposit Amount (in Rs.)"
+                  value={depositAmount}
+                  onChange={(e) => {
+                    setDepositAmount(e.target.value);
+                    setErrorMsg('');
+                  }}
+                  InputProps={{
+                    startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
+                  }}
+                  helperText={`Max depositable: Rs. ${currentCashInHand.toLocaleString()}`}
+                />
+              </Grid>
 
-          {/* Remarks */}
-          <TextField
-            fullWidth
-            multiline
-            rows={2}
-            size="small"
-            label="Remarks"
-            placeholder="e.g. Deposited excess counter fee collection to Global IME Bank"
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-            sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-          />
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Deposit Slip Ref No."
+                  placeholder="e.g. GIME-DEP-84920"
+                  value={slipReference}
+                  onChange={(e) => setSlipReference(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <ReceiptLongIcon sx={{ color: '#64748B' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  size="small"
+                  label="Remarks"
+                  placeholder="e.g. Deposited excess counter fee collection to Global IME Bank"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
         </DialogContent>
 
-        <DialogActions sx={{ p: 2.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+        <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748B', textTransform: 'none' }}>
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
+            startIcon={<AccountBalanceIcon />}
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               textTransform: 'none',
-              background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-              boxShadow: '0 4px 14px rgba(15, 46, 90, 0.35)',
-              borderRadius: 2.2,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)',
+              borderRadius: 2,
               px: 3,
-              py: 0.9,
-              fontSize: '0.88rem'
+              py: 1
             }}
           >
-            🏦 Confirm Deposit
+            Confirm Deposit
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }

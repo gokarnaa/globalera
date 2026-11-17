@@ -104,155 +104,209 @@ export default function DayOpenModal({ open, onClose, db, setDb, showToast, onDa
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
-          background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '2px solid #34D399'
+          borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 2.5,
-              bgcolor: 'rgba(255,255,255,0.2)',
+              width: 42,
+              height: 42,
+              borderRadius: 2,
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF'
+              color: '#F59E0B',
+              flexShrink: 0
             }}
           >
-            <LockOpenIcon sx={{ fontSize: '1.4rem' }} />
+            <LockOpenIcon />
           </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, lineHeight: 1.2, color: '#FFFFFF' }}>
               Day Open Counter
             </Typography>
-            <Typography variant="caption" sx={{ color: '#D1FAE5', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block' }}>
               Date: {today} • Time: {currentTime} • Daily Fee Collection Open
             </Typography>
           </Box>
         </Box>
 
-        <IconButton onClick={onClose} sx={{ color: '#D1FAE5', '&:hover': { color: '#FFF' } }}>
+        <IconButton
+          aria-label="Close day open modal"
+          onClick={onClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleConfirmOpen}>
-        <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
-          <Typography variant="body2" sx={{ color: '#64748B', mb: 2.5 }}>
-            Verify the opening float / petty cash in the drawer before opening the counter for the day:
-          </Typography>
-
-          {/* Previous Closing Cash Banner */}
+      <Box
+        component="form"
+        onSubmit={handleConfirmOpen}
+        sx={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+      >
+        <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
+          {/* Section 1: Opening Balance Reference */}
           <Paper
             elevation={0}
             sx={{
-              p: 2,
-              borderRadius: 2.5,
-              bgcolor: '#ECFDF5',
-              border: '1.5px solid #A7F3D0',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              mb: 2.5
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
             }}
           >
-            <Box>
-              <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
-                Last Day Closing Balance
-              </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.3 }}>
-                Rs. {Number(lastClosingCash).toLocaleString()}
-              </Typography>
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.2
+              }}
+            >
+              Opening Balance Reference
+            </Typography>
+            <Box
+              sx={{
+                p: 1.75,
+                borderRadius: 2,
+                bgcolor: '#ECFDF5',
+                border: '1px solid #A7F3D0',
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1.5,
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}
+            >
+              <Box>
+                <Typography variant="caption" sx={{ color: '#065F46', fontWeight: 800, textTransform: 'uppercase' }}>
+                  Last Day Closing Balance
+                </Typography>
+                <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.2 }}>
+                  Rs. {Number(lastClosingCash).toLocaleString()}
+                </Typography>
+              </Box>
+              <Chip
+                label="Opening Cash"
+                size="small"
+                sx={{ bgcolor: '#059669', color: '#FFF', fontWeight: 800 }}
+              />
             </Box>
-            <Chip
-              label="Opening Cash"
-              size="small"
-              sx={{ bgcolor: '#059669', color: '#FFF', fontWeight: 800 }}
-            />
           </Paper>
 
-          {/* Cash Input */}
-          <Box sx={{ mb: 2.5 }}>
-            <TextField
-              fullWidth
-              required
-              type="number"
-              label="Opening Float Cash (in Rs.)"
-              value={openingCash}
-              onChange={(e) => setOpeningCash(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AccountBalanceWalletIcon sx={{ color: '#059669' }} />
-                  </InputAdornment>
-                )
+          {/* Section 2: Counter Opening Details */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
               }}
-              helperText="Actual balance of cash and notes currently in the drawer"
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-            />
-          </Box>
+            >
+              Counter Opening Details
+            </Typography>
 
-          {/* Cashier Name */}
-          <Box sx={{ mb: 2.5 }}>
-            <TextField
-              fullWidth
-              required
-              label="Opening Cashier / Staff Name"
-              value={cashierName}
-              onChange={(e) => setCashierName(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <PersonIcon sx={{ color: '#64748B' }} />
-                  </InputAdornment>
-                )
-              }}
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-            />
-          </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  type="number"
+                  label="Opening Float Cash (in Rs.)"
+                  value={openingCash}
+                  onChange={(e) => setOpeningCash(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccountBalanceWalletIcon sx={{ color: '#059669' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                  helperText="Actual drawer cash balance"
+                />
+              </Grid>
 
-          {/* Opening Notes */}
-          <TextField
-            fullWidth
-            multiline
-            rows={2}
-            size="small"
-            label="Opening Remarks"
-            value={openingNotes}
-            onChange={(e) => setOpeningNotes(e.target.value)}
-            sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-          />
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Opening Cashier / Staff Name"
+                  value={cashierName}
+                  onChange={(e) => setCashierName(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: '#64748B' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  multiline
+                  rows={2}
+                  size="small"
+                  label="Opening Remarks"
+                  value={openingNotes}
+                  onChange={(e) => setOpeningNotes(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
         </DialogContent>
 
-        <DialogActions sx={{ p: 2.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+        <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
           <Button onClick={onClose} sx={{ fontWeight: 700, color: '#64748B', textTransform: 'none' }}>
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
+            startIcon={<LockOpenIcon />}
             sx={{
-              fontWeight: 900,
+              fontWeight: 800,
               textTransform: 'none',
-              background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
-              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)',
-              borderRadius: 2.2,
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)',
+              borderRadius: 2,
               px: 3,
-              py: 0.9,
-              fontSize: '0.88rem'
+              py: 1
             }}
           >
-            🟢 Open Day Counter
+            Open Day Counter
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }

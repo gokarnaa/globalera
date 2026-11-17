@@ -897,8 +897,8 @@ export default function StudentManager() {
       >
         <DialogTitle
           sx={{
-            p: 2.5,
-            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            p: { xs: 2, sm: 2.5 },
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
@@ -921,6 +921,7 @@ export default function StudentManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close student dialog"
             onClick={() => setOpenAddDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.85)',
@@ -935,16 +936,16 @@ export default function StudentManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
+            p: { xs: 2, sm: 2.5 },
             bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 }
           }}
         >
-          <Stack spacing={2.5}>
+          <Stack spacing={2}>
             {/* Section 1: Batch & Identity */}
-            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2E5A' }} />
                 1. Batch Assignment & Identity
@@ -1020,7 +1021,7 @@ export default function StudentManager() {
             </Paper>
 
             {/* Section 2: Contact & Demographics */}
-            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
                 2. Contact & Demographics
@@ -1091,7 +1092,7 @@ export default function StudentManager() {
             </Paper>
 
             {/* Section 3: Address & Family */}
-            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
                 3. Address & Family
@@ -1142,7 +1143,7 @@ export default function StudentManager() {
             </Paper>
 
             {/* Section 4: Admission & Status */}
-            <Paper elevation={0} sx={{ p: 2.2, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2E5A', mb: 1.8, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#D97706' }} />
                 4. Admission & Status
@@ -1192,7 +1193,7 @@ export default function StudentManager() {
         </DialogContent>
         <DialogActions
           sx={{
-            p: 2.5,
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

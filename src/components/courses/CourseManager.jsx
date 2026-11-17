@@ -27,7 +27,9 @@ import {
   Tooltip,
   Divider,
   Avatar,
-  TableSortLabel
+  TableSortLabel,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -94,6 +96,8 @@ const COURSE_TEMPLATES = [
 ];
 
 export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
   const { confirm, alert } = useDialog();
@@ -1031,12 +1035,13 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         onClose={() => setOpenDialog(false)}
         maxWidth="md"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: isMobile ? 0 : 3.5,
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -1045,8 +1050,8 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
       >
         <DialogTitle
           sx={{
-            p: 2.5,
-            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            p: { xs: 2, sm: 2.5 },
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
@@ -1069,6 +1074,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
           </Box>
           <IconButton
             size="small"
+            aria-label="Close course dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.85)',
@@ -1083,234 +1089,251 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          {/* Quick Preset Selector for instant prefill */}
-          {!editingItem && (
-            <Box sx={{ mb: 2.5, p: 2, bgcolor: '#F8FAFC', borderRadius: 2.5, border: '1px solid #E2E8F0' }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.2 }}>
-                <AutoAwesomeIcon sx={{ fontSize: 18, color: '#F59E0B' }} />
-                <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59' }}>
-                  Quick CTEVT Template (1-Click Auto-Fill):
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                {COURSE_TEMPLATES.map((tmpl, idx) => (
-                  <Button
-                    key={idx}
-                    size="small"
-                    variant="outlined"
-                    onClick={() => handleApplyTemplate(tmpl)}
-                    sx={{
-                      fontSize: '0.74rem',
-                      fontWeight: 800,
-                      textTransform: 'none',
-                      borderRadius: 2,
-                      bgcolor: '#FFFFFF',
-                      borderColor: '#CBD5E1',
-                      color: '#0F2C59',
-                      '&:hover': { bgcolor: '#EFF6FF', borderColor: '#2563EB' }
-                    }}
-                  >
-                    + {tmpl.title}
-                  </Button>
-                ))}
-              </Stack>
-            </Box>
-          )}
-
-          <Grid container spacing={2}>
-            {/* Select Occupation */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                label="Occupation *"
-                fullWidth
-                size="small"
-                value={formData.occupationId}
-                onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
-                required
-              >
-                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- Select Occupation --
-                </MenuItem>
-                {(db.occupations || []).map((occ) => (
-                  <MenuItem key={occ.id} value={occ.id}>
-                    {occ.name} ({occ.id})
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            {/* Course Title */}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Course Title *"
-                fullWidth
-                size="small"
-                placeholder="e.g. Professional Caregiver"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                required
-              />
-            </Grid>
-
-            {/* Course Tier / CTEVT Level */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                label="Course Tier / Level"
-                fullWidth
-                size="small"
-                value={formData.level}
-                onChange={(e) => setFormData({ ...formData, level: e.target.value })}
-              >
-                <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                  -- Select Tier / Level --
-                </MenuItem>
-                <MenuItem value="Basic">Basic</MenuItem>
-                <MenuItem value="Intermediate">Intermediate</MenuItem>
-                <MenuItem value="Advance">Advance</MenuItem>
-                <MenuItem value="Master">Master</MenuItem>
-                <MenuItem value="CTEVT Level 1">CTEVT Level 1 (Basic)</MenuItem>
-                <MenuItem value="CTEVT Level 2">CTEVT Level 2 (Intermediate)</MenuItem>
-                <MenuItem value="Short Term">Short Term</MenuItem>
-                <MenuItem value="ToT Certified">ToT Certified (Trainer Training)</MenuItem>
-              </TextField>
-            </Grid>
-
-            {/* Total Training Hours */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                type="number"
-                label="Total Hours *"
-                fullWidth
-                size="small"
-                placeholder="390"
-                value={formData.totalHours}
-                onChange={(e) => setFormData({ ...formData, totalHours: e.target.value === '' ? '' : Number(e.target.value) })}
-                helperText="CTEVT Standard: 390 Hours"
-              />
-            </Grid>
-
-            {/* Fee Structure Overview */}
-            <Grid item xs={12} sm={4}>
-              <Box sx={{ p: 1, bgcolor: '#F0FDF4', borderRadius: 1.5, border: '1px solid #A7F3D0' }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block', mb: 0.3 }}>
-                  Total Net Fee (Including 13% VAT):
-                </Typography>
-                <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#065F46' }}>
-                  Rs. {(formData.price || 0).toLocaleString()}
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', display: 'block' }}>
-                  💡 Detailed breakdown, campaign discounts, and installment policies are managed in the "Course Fee Structure" module.
-                </Typography>
-              </Box>
-            </Grid>
-
-            {/* Quick Duration Presets */}
-            <Grid item xs={12}>
-              <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.8 }}>
-                Quick Timing / Duration Presets:
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
-                {DURATION_PRESETS.map((preset) => {
-                  const isActive =
-                    Number(formData.durationValue) === preset.durationValue &&
-                    formData.durationUnit === preset.durationUnit;
-                  return (
-                    <Chip
-                      key={preset.label}
-                      label={preset.label}
+          <Stack spacing={2}>
+            {/* Quick Preset Selector for instant prefill */}
+            {!editingItem && (
+              <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1.2 }}>
+                  <AutoAwesomeIcon sx={{ fontSize: 18, color: '#F59E0B' }} />
+                  <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2C59' }}>
+                    Quick CTEVT Template (1-Click Auto-Fill):
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {COURSE_TEMPLATES.map((tmpl, idx) => (
+                    <Button
+                      key={idx}
                       size="small"
-                      clickable
-                      onClick={() =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          durationValue: preset.durationValue,
-                          durationUnit: preset.durationUnit
-                        }))
-                      }
+                      variant="outlined"
+                      onClick={() => handleApplyTemplate(tmpl)}
                       sx={{
+                        fontSize: '0.74rem',
                         fontWeight: 800,
-                        bgcolor: isActive ? '#0F2E5A' : '#F1F5F9',
-                        color: isActive ? '#FFFFFF' : '#334155',
-                        '&:hover': { bgcolor: isActive ? '#0F2E5A' : '#E2E8F0' }
+                        textTransform: 'none',
+                        borderRadius: 2,
+                        bgcolor: '#FFFFFF',
+                        borderColor: '#CBD5E1',
+                        color: '#0F2C59',
+                        '&:hover': { bgcolor: '#EFF6FF', borderColor: '#2563EB' }
                       }}
-                    />
-                  );
-                })}
-              </Box>
-            </Grid>
+                    >
+                      + {tmpl.title}
+                    </Button>
+                  ))}
+                </Stack>
+              </Paper>
+            )}
 
-            {/* Duration Value */}
-            <Grid item xs={6} sm={4}>
-              <TextField
-                type="number"
-                label="Duration Value"
-                fullWidth
-                size="small"
-                placeholder="3"
-                value={formData.durationValue}
-                onChange={(e) => setFormData({ ...formData, durationValue: e.target.value === '' ? '' : Number(e.target.value) })}
-              />
-            </Grid>
+            {/* Section 1: Course Identity & Classification */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2C59' }} />
+                1. Course Identity & Classification
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Occupation *"
+                    fullWidth
+                    size="small"
+                    value={formData.occupationId}
+                    onChange={(e) => setFormData({ ...formData, occupationId: e.target.value })}
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Occupation --
+                    </MenuItem>
+                    {(db.occupations || []).map((occ) => (
+                      <MenuItem key={occ.id} value={occ.id}>
+                        {occ.name} ({occ.id})
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
 
-            {/* Duration Unit */}
-            <Grid item xs={6} sm={4}>
-              <TextField
-                select
-                label="Duration Unit"
-                fullWidth
-                size="small"
-                value={formData.durationUnit}
-                onChange={(e) => setFormData({ ...formData, durationUnit: e.target.value })}
-              >
-                <MenuItem value="Months">Months</MenuItem>
-                <MenuItem value="Weeks">Weeks</MenuItem>
-                <MenuItem value="Days">Days</MenuItem>
-              </TextField>
-            </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Course Title *"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Professional Caregiver"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                    required
+                  />
+                </Grid>
 
-            {/* Status */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                label="Status"
-                fullWidth
-                size="small"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              >
-                <MenuItem value="Active">Active</MenuItem>
-                <MenuItem value="Inactive">Inactive</MenuItem>
-              </TextField>
-            </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Course Tier / Level"
+                    fullWidth
+                    size="small"
+                    value={formData.level}
+                    onChange={(e) => setFormData({ ...formData, level: e.target.value })}
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Tier / Level --
+                    </MenuItem>
+                    <MenuItem value="Basic">Basic</MenuItem>
+                    <MenuItem value="Intermediate">Intermediate</MenuItem>
+                    <MenuItem value="Advance">Advance</MenuItem>
+                    <MenuItem value="Master">Master</MenuItem>
+                    <MenuItem value="CTEVT Level 1">CTEVT Level 1 (Basic)</MenuItem>
+                    <MenuItem value="CTEVT Level 2">CTEVT Level 2 (Intermediate)</MenuItem>
+                    <MenuItem value="Short Term">Short Term</MenuItem>
+                    <MenuItem value="ToT Certified">ToT Certified (Trainer Training)</MenuItem>
+                  </TextField>
+                </Grid>
 
-            {/* Description */}
-            <Grid item xs={12}>
-              <TextField
-                label="Description / Scope"
-                multiline
-                rows={3}
-                fullWidth
-                size="small"
-                placeholder="Brief summary of the course's main objectives, technical skills, and employment prospects..."
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              />
-            </Grid>
-          </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Status"
+                    fullWidth
+                    size="small"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <MenuItem value="Active">Active</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Section 2: Duration, Hours & Fee Overview */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
+                2. Duration, Hours & Fee Overview
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', display: 'block', mb: 0.8 }}>
+                    Quick Timing / Duration Presets:
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
+                    {DURATION_PRESETS.map((preset) => {
+                      const isActive =
+                        Number(formData.durationValue) === preset.durationValue &&
+                        formData.durationUnit === preset.durationUnit;
+                      return (
+                        <Chip
+                          key={preset.label}
+                          label={preset.label}
+                          size="small"
+                          clickable
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              durationValue: preset.durationValue,
+                              durationUnit: preset.durationUnit
+                            }))
+                          }
+                          sx={{
+                            fontWeight: 800,
+                            bgcolor: isActive ? '#0F2C59' : '#F1F5F9',
+                            color: isActive ? '#FFFFFF' : '#334155',
+                            '&:hover': { bgcolor: isActive ? '#0F2C59' : '#E2E8F0' }
+                          }}
+                        />
+                      );
+                    })}
+                  </Box>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    type="number"
+                    label="Duration Value"
+                    fullWidth
+                    size="small"
+                    placeholder="3"
+                    value={formData.durationValue}
+                    onChange={(e) => setFormData({ ...formData, durationValue: e.target.value === '' ? '' : Number(e.target.value) })}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    label="Duration Unit"
+                    fullWidth
+                    size="small"
+                    value={formData.durationUnit}
+                    onChange={(e) => setFormData({ ...formData, durationUnit: e.target.value })}
+                  >
+                    <MenuItem value="Months">Months</MenuItem>
+                    <MenuItem value="Weeks">Weeks</MenuItem>
+                    <MenuItem value="Days">Days</MenuItem>
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    type="number"
+                    label="Total Hours *"
+                    fullWidth
+                    size="small"
+                    placeholder="390"
+                    value={formData.totalHours}
+                    onChange={(e) => setFormData({ ...formData, totalHours: e.target.value === '' ? '' : Number(e.target.value) })}
+                    helperText="CTEVT Standard: 390 Hours"
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <Box sx={{ p: 1.5, bgcolor: '#F0FDF4', borderRadius: 1.5, border: '1px solid #A7F3D0' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#047857', display: 'block', mb: 0.3 }}>
+                      Total Net Fee (Including 13% VAT):
+                    </Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#065F46' }}>
+                      Rs. {(formData.price || 0).toLocaleString()}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: '#059669', fontSize: '0.68rem', display: 'block' }}>
+                      Detailed breakdown, campaign discounts, and installment policies are managed in the "Course Fee Structure" module.
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </Paper>
+
+            {/* Section 3: Curriculum Scope & Description */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
+                3. Curriculum Scope & Description
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Description / Scope"
+                    multiline
+                    rows={3}
+                    fullWidth
+                    size="small"
+                    placeholder="Brief summary of the course's main objectives, technical skills, and employment prospects..."
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </Grid>
+              </Grid>
+            </Paper>
+          </Stack>
         </DialogContent>
         <DialogActions
           sx={{
-            p: 2.5,
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

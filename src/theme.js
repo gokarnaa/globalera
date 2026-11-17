@@ -173,10 +173,23 @@ export const theme = createTheme({
     MuiDialog: {
       styleOverrides: {
         paper: {
-          borderRadius: 16,
+          borderRadius: 12,
           boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.35)',
           border: '1px solid rgba(226, 232, 240, 0.9)',
           overflow: 'hidden',
+          '@media (max-width:599.95px)': {
+            margin: '8px',
+            width: 'calc(100% - 16px)',
+            maxWidth: 'calc(100% - 16px) !important',
+            maxHeight: '92dvh',
+            '&.MuiDialog-paperFullScreen': {
+              margin: 0,
+              width: '100%',
+              maxWidth: '100% !important',
+              maxHeight: '100dvh',
+              borderRadius: 0,
+            },
+          },
         },
       },
     },
@@ -185,8 +198,16 @@ export const theme = createTheme({
         root: {
           backgroundColor: '#0F2C59',
           color: '#FFFFFF',
-          padding: '16px 22px',
+          padding: '14px 20px',
           borderBottom: '2px solid #F59E0B',
+        },
+      },
+    },
+    MuiDialogContent: {
+      styleOverrides: {
+        root: {
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#CBD5E1 #F1F5F9',
         },
       },
     },
@@ -195,8 +216,8 @@ export const theme = createTheme({
         root: {
           backgroundColor: '#F8FAFC',
           borderTop: '1px solid #E2E8F0',
-          padding: '16px 24px',
-          gap: 12,
+          padding: '12px 20px',
+          gap: 10,
         },
       },
     },

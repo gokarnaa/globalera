@@ -12,9 +12,10 @@ import {
   Box,
   IconButton,
   Alert,
-  Divider,
   Paper,
-  Chip
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
@@ -39,6 +40,9 @@ export default function ConvertToStudentModal({
   onConverted,
   onNavigateToAdmission
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [selectedGroupId, setSelectedGroupId] = useState('');
   const [tgid, setTgid] = useState('');
   const [gender, setGender] = useState('Female');
@@ -350,11 +354,12 @@ export default function ConvertToStudentModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       scroll="paper"
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
-          maxHeight: '92vh',
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100vh' : '92vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
@@ -366,44 +371,52 @@ export default function ConvertToStudentModal({
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
+          px: { xs: 2, sm: 2.5 },
+          py: 1.75,
           flexShrink: 0,
-          background: 'linear-gradient(135deg, #065F46 0%, #047857 100%)',
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '3px solid #F59E0B'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               borderRadius: 2,
-              bgcolor: 'rgba(255,255,255,0.2)',
+              bgcolor: 'rgba(255, 255, 255, 0.14)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF'
+              color: '#F59E0B'
             }}
           >
-            <HowToRegIcon />
+            <HowToRegIcon fontSize="small" />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.1rem', lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2 }}>
               Convert Lead to Student Admission
             </Typography>
-            <Typography variant="caption" sx={{ color: '#A7F3D0', fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500, display: 'block' }}>
               {lead.name} • {lead.id}
             </Typography>
           </Box>
         </Box>
         <IconButton
+          aria-label="Close convert lead dialog"
           onClick={onClose}
-          sx={{ color: '#A7F3D0', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+          sx={{
+            color: 'rgba(255, 255, 255, 0.85)',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255, 255, 255, 0.25)' }
+          }}
         >
-          <CloseIcon />
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
@@ -421,219 +434,287 @@ export default function ConvertToStudentModal({
         <DialogContent
           dividers
           sx={{
-            p: { xs: 2, sm: 3 },
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             flex: 1,
-            overflowY: 'auto',
-            '&::-webkit-scrollbar': { width: 7 },
-            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
-            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
-            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            overflowY: 'auto'
           }}
         >
           {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {errorMsg}
             </Alert>
           )}
 
-          {/* Lead Summary Info */}
+          {/* Section 1: Lead Summary Info */}
           <Paper
             elevation={0}
             sx={{
-              p: 2,
-              mb: 3,
-              borderRadius: 2.5,
-              border: '1px solid #D1FAE5',
-              bgcolor: '#ECFDF5'
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
             }}
           >
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#065F46', mb: 1 }}>
-              Lead Overview
-            </Typography>
-            <Grid container spacing={1}>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Name:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.name}</Typography>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.25 }}>
+              <PersonIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                1. Lead Overview
+              </Typography>
+            </Stack>
+            <Grid container spacing={1.25}>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Name:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>{lead.name}</Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Phone:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.phone}</Typography>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Phone:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>{lead.phone}</Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Address:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#064E3B' }}>{lead.address || 'N/A'}</Typography>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Address:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: '#334155' }}>{lead.address || 'N/A'}</Typography>
               </Grid>
-              <Grid item xs={6}>
-                <Typography variant="caption" sx={{ color: '#047857', display: 'block' }}>Course:</Typography>
-                <Typography variant="body2" sx={{ fontWeight: 700, color: '#064E3B' }}>{lead.course || 'N/A'}</Typography>
+              <Grid item xs={12} sm={6}>
+                <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>Course:</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F2C59' }}>{lead.course || 'N/A'}</Typography>
               </Grid>
             </Grid>
           </Paper>
 
-          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#334155', mb: 2 }}>
-            Admission & Batch Setup
-          </Typography>
-
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Student Registration Code (TGID)"
-                value={tgid}
-                onChange={(e) => setTgid(e.target.value)}
-                helperText="Unique Student Identification Code"
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Gender"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-              >
-                <MenuItem value="Female">Female</MenuItem>
-                <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Other">Other</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                select
-                fullWidth
-                required
-                label="Training Batch"
-                value={selectedGroupId}
-                onChange={(e) => handleGroupChange(e.target.value)}
-              >
-                {(db.trainingGroups || []).map((grp) => {
-                  const courseObj = (db.courses || []).find((c) => c.id === grp.courseId);
-                  return (
-                    <MenuItem key={grp.id} value={grp.id}>
-                      {grp.groupCode || grp.name || grp.id} — {courseObj?.title || grp.courseId} (Shift: {grp.shift || 'A'})
-                    </MenuItem>
-                  );
-                })}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Admission Date"
-                InputLabelProps={{ shrink: true }}
-                value={admissionDate}
-                onChange={(e) => setAdmissionDate(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Expected End Date"
-                InputLabelProps={{ shrink: true }}
-                value={expectedEndDate}
-                onChange={(e) => setExpectedEndDate(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Father's Name"
-                placeholder="Optional"
-                value={fatherName}
-                onChange={(e) => setFatherName(e.target.value)}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Guardian Phone"
-                placeholder="Optional"
-                value={guardianContact}
-                onChange={(e) => setGuardianContact(e.target.value)}
-              />
-            </Grid>
-
-            {/* Fee & Payment Details */}
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Total Course Fee (NPR)"
-                value={totalCourseFee}
-                onChange={(e) => {
-                  const val = Number(e.target.value) || 0;
-                  setTotalCourseFee(val);
-                  setAdvancePaid(Math.round(val * 0.5));
+          {/* Section 2: Admission & Batch Setup */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <GroupWorkIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
                 }}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                fullWidth
-                type="number"
-                label="50% Advance Paid (NPR)"
-                value={advancePaid}
-                onChange={(e) => setAdvancePaid(Number(e.target.value) || 0)}
-                helperText={`Due: NPR ${Math.max(0, (Number(totalCourseFee) || 0) - (Number(advancePaid) || 0))}`}
-              />
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Payment Method"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
               >
-                <MenuItem value="Cash">Cash (Counter)</MenuItem>
-                <MenuItem value="Fonepay">Fonepay / QR</MenuItem>
-                <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                <MenuItem value="eSewa">eSewa</MenuItem>
-              </TextField>
+                2. Admission & Batch Setup
+              </Typography>
+            </Stack>
+
+            <Grid container spacing={1.75}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Student Registration Code (TGID)"
+                  value={tgid}
+                  onChange={(e) => setTgid(e.target.value)}
+                  helperText="Unique Student Identification Code"
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Gender"
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value)}
+                >
+                  <MenuItem value="Female">Female</MenuItem>
+                  <MenuItem value="Male">Male</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12}>
+                <TextField
+                  select
+                  fullWidth
+                  required
+                  size="small"
+                  label="Training Batch"
+                  value={selectedGroupId}
+                  onChange={(e) => handleGroupChange(e.target.value)}
+                >
+                  {(db.trainingGroups || []).map((grp) => {
+                    const courseObj = (db.courses || []).find((c) => c.id === grp.courseId);
+                    return (
+                      <MenuItem key={grp.id} value={grp.id}>
+                        {grp.groupCode || grp.name || grp.id} — {courseObj?.title || grp.courseId} (Shift: {grp.shift || 'A'})
+                      </MenuItem>
+                    );
+                  })}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Admission Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={admissionDate}
+                  onChange={(e) => setAdmissionDate(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Expected End Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={expectedEndDate}
+                  onChange={(e) => setExpectedEndDate(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Father's Name"
+                  placeholder="Optional"
+                  value={fatherName}
+                  onChange={(e) => setFatherName(e.target.value)}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Guardian Phone"
+                  placeholder="Optional"
+                  value={guardianContact}
+                  onChange={(e) => setGuardianContact(e.target.value)}
+                />
+              </Grid>
             </Grid>
-          </Grid>
+          </Paper>
+
+          {/* Section 3: Fee & Payment Details */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <SchoolIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                3. Fee & Advance Payment
+              </Typography>
+            </Stack>
+
+            <Grid container spacing={1.75}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Total Course Fee (NPR)"
+                  value={totalCourseFee}
+                  onChange={(e) => {
+                    const val = Number(e.target.value) || 0;
+                    setTotalCourseFee(val);
+                    setAdvancePaid(Math.round(val * 0.5));
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="50% Advance Paid (NPR)"
+                  value={advancePaid}
+                  onChange={(e) => setAdvancePaid(Number(e.target.value) || 0)}
+                  helperText={`Due: NPR ${Math.max(0, (Number(totalCourseFee) || 0) - (Number(advancePaid) || 0))}`}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Payment Method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <MenuItem value="Cash">Cash (Counter)</MenuItem>
+                  <MenuItem value="Fonepay">Fonepay / QR</MenuItem>
+                  <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                  <MenuItem value="eSewa">eSewa</MenuItem>
+                </TextField>
+              </Grid>
+            </Grid>
+          </Paper>
         </DialogContent>
 
         <DialogActions
           sx={{
-            px: 3,
-            py: 2,
+            px: 2.5,
+            py: 1.5,
             bgcolor: '#FFFFFF',
             borderTop: '1px solid #E2E8F0',
             flexShrink: 0,
             display: 'flex',
+            flexWrap: 'wrap',
+            gap: 1,
             justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: '0 -4px 12px rgba(0,0,0,0.03)',
-            zIndex: 10
+            alignItems: 'center'
           }}
         >
           <Stack direction="row" spacing={1}>
-            <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+            <Button onClick={onClose} size="small" sx={{ color: '#64748B', fontWeight: 700, py: 0.8 }}>
               Cancel
             </Button>
             {onNavigateToAdmission && (
               <Button
                 variant="outlined"
                 color="primary"
+                size="small"
                 startIcon={<OpenInNewIcon />}
                 onClick={() => {
                   onClose();
                   onNavigateToAdmission(lead);
                 }}
-                sx={{ fontWeight: 800, textTransform: 'none', borderRadius: 2 }}
+                sx={{ fontWeight: 700, textTransform: 'none', borderRadius: 2, py: 0.8 }}
               >
                 Open Full Admission Desk
               </Button>
@@ -643,14 +724,15 @@ export default function ConvertToStudentModal({
           <Button
             type="submit"
             variant="contained"
+            size="small"
             startIcon={<HowToRegIcon />}
             sx={{
-              background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)',
+              bgcolor: '#0F2C59',
               fontWeight: 800,
-              px: 3.5,
-              py: 1,
-              borderRadius: 2.5,
-              boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+              px: 2.5,
+              py: 0.8,
+              borderRadius: 2,
+              '&:hover': { bgcolor: '#1E3A8A' }
             }}
           >
             Confirm Admission & Generate Agreement

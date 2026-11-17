@@ -12,8 +12,11 @@ import {
   Box,
   IconButton,
   InputAdornment,
-  Divider,
-  Alert
+  Paper,
+  Stack,
+  Alert,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
@@ -82,6 +85,9 @@ export default function LeadModal({
   editingLead,
   courses = []
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -186,11 +192,12 @@ export default function LeadModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       scroll="paper"
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
-          maxHeight: '92vh',
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100vh' : '92vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
@@ -203,9 +210,10 @@ export default function LeadModal({
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
+          px: { xs: 2, sm: 2.5 },
+          py: 1.75,
           flexShrink: 0,
-          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
@@ -216,29 +224,30 @@ export default function LeadModal({
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 2.5,
-              background: 'linear-gradient(135deg, #3B82F6, #6366F1)',
+              width: 40,
+              height: 40,
+              borderRadius: 2,
+              bgcolor: 'rgba(255, 255, 255, 0.14)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fff',
-              boxShadow: '0 8px 16px rgba(59, 130, 246, 0.35)'
+              color: '#F59E0B'
             }}
           >
-            <AutoAwesomeIcon />
+            <AutoAwesomeIcon fontSize="small" />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2, color: '#FFFFFF' }}>
               {editingLead ? 'Edit Lead / Inquiry' : 'New Lead / Inquiry Entry'}
             </Typography>
-            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500, display: 'block' }}>
               {editingLead ? `Lead ID: ${editingLead.id}` : 'Enter prospective student inquiry & counselling details'}
             </Typography>
           </Box>
         </Box>
         <IconButton
+          aria-label="Close lead dialog"
           onClick={onClose}
           sx={{
             color: 'rgba(255, 255, 255, 0.85)',
@@ -265,321 +274,330 @@ export default function LeadModal({
         <DialogContent
           dividers
           sx={{
-            p: { xs: 2.2, sm: 3 },
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             flex: 1,
-            overflowY: 'auto',
-            '&::-webkit-scrollbar': { width: 7 },
-            '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
-            '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
-            '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+            overflowY: 'auto'
           }}
         >
           {validationError && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {validationError}
             </Alert>
           )}
 
           {/* SECTION 1: Personal & Contact Information */}
-          <Typography
-            variant="subtitle2"
-            sx={{
-              fontWeight: 800,
-              color: '#334155',
-              mb: 1.5,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
-            <PersonIcon sx={{ color: '#3B82F6', fontSize: '1.2rem' }} />
-            1. Student Contact Information
-          </Typography>
-
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Full Name"
-                placeholder="e.g. Full Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PersonIcon sx={{ color: '#64748B' }} />
-                    </InputAdornment>
-                  )
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <PersonIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
                 }}
-              />
-            </Grid>
+              >
+                1. Student Contact Information
+              </Typography>
+            </Stack>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                label="Mobile Phone / WhatsApp"
-                placeholder="9841......"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <PhoneIcon sx={{ color: '#10B981' }} />
-                    </InputAdornment>
-                  )
-                }}
-                helperText="Primary contact number"
-              />
-            </Grid>
+            <Grid container spacing={1.75}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Full Name"
+                  placeholder="e.g. Full Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PersonIcon sx={{ color: '#64748B', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={12}>
-              <TextField
-                fullWidth
-                label="Address / Location"
-                placeholder="e.g. Jorpati, Kathmandu"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <LocationOnIcon sx={{ color: '#F59E0B' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-          </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  label="Mobile Phone / WhatsApp"
+                  placeholder="9841......"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <PhoneIcon sx={{ color: '#10B981', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                  helperText="Primary contact number"
+                />
+              </Grid>
 
-          <Divider sx={{ my: 2.5 }} />
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Address / Location"
+                  placeholder="e.g. Jorpati, Kathmandu"
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <LocationOnIcon sx={{ color: '#F59E0B', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
 
           {/* SECTION 2: Course & Academic Interest */}
-          <Typography
-            variant="subtitle2"
-            sx={{
-              fontWeight: 800,
-              color: '#334155',
-              mb: 1.5,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
-            <SchoolIcon sx={{ color: '#6366F1', fontSize: '1.2rem' }} />
-            2. Program & Course Interest
-          </Typography>
-
-          <Grid container spacing={2} sx={{ mb: 3 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Master Subject / Sector"
-                value={formData.subject}
-                onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-              >
-                <MenuItem value="">
-                  <em>-- Select Sector --</em>
-                </MenuItem>
-                {MASTER_SUBJECTS.map((subj) => (
-                  <MenuItem key={subj} value={subj}>
-                    {subj}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Course"
-                value={formData.course}
-                onChange={(e) => handleCourseChange(e.target.value)}
-              >
-                <MenuItem value="">
-                  <em>-- Select Course --</em>
-                </MenuItem>
-                {courses.map((crs) => (
-                  <MenuItem key={crs.id} value={crs.title}>
-                    {crs.title} {crs.level ? `(${crs.level})` : ''}
-                  </MenuItem>
-                ))}
-                <MenuItem value="Custom / Other Course">Other / Custom Course</MenuItem>
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                label="Course Duration"
-                placeholder="e.g. 3 Months (390 hrs)"
-                value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AccessTimeIcon sx={{ color: '#64748B' }} />
-                    </InputAdornment>
-                  )
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <SchoolIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
                 }}
-              />
-            </Grid>
+              >
+                2. Program & Course Interest
+              </Typography>
+            </Stack>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="number"
-                label="Course Fee (Rs.)"
-                placeholder="e.g. 15000"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MonetizationOnIcon sx={{ color: '#10B981' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-          </Grid>
+            <Grid container spacing={1.75}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Master Subject / Sector"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                >
+                  <MenuItem value="">
+                    <em>-- Select Sector --</em>
+                  </MenuItem>
+                  {MASTER_SUBJECTS.map((subj) => (
+                    <MenuItem key={subj} value={subj}>
+                      {subj}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
 
-          <Divider sx={{ my: 2.5 }} />
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Course"
+                  value={formData.course}
+                  onChange={(e) => handleCourseChange(e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>-- Select Course --</em>
+                  </MenuItem>
+                  {courses.map((crs) => (
+                    <MenuItem key={crs.id} value={crs.title}>
+                      {crs.title} {crs.level ? `(${crs.level})` : ''}
+                    </MenuItem>
+                  ))}
+                  <MenuItem value="Custom / Other Course">Other / Custom Course</MenuItem>
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Course Duration"
+                  placeholder="e.g. 3 Months (390 hrs)"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AccessTimeIcon sx={{ color: '#64748B', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="number"
+                  label="Course Fee (Rs.)"
+                  placeholder="e.g. 15000"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MonetizationOnIcon sx={{ color: '#10B981', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Paper>
 
           {/* SECTION 3: Lead Tracking & Pipeline Management */}
-          <Typography
-            variant="subtitle2"
-            sx={{
-              fontWeight: 800,
-              color: '#334155',
-              mb: 1.5,
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1
-            }}
-          >
-            <CampaignIcon sx={{ color: '#EC4899', fontSize: '1.2rem' }} />
-            3. Inquiry Source & Pipeline Tracking
-          </Typography>
-
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Lead Source"
-                value={formData.source}
-                onChange={(e) => setFormData({ ...formData, source: e.target.value })}
-              >
-                {LEAD_SOURCES.map((src) => (
-                  <MenuItem key={src} value={src}>
-                    {src}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Priority"
-                value={formData.priority}
-                onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-              >
-                {LEAD_PRIORITIES.map((p) => (
-                  <MenuItem key={p.value} value={p.value} sx={{ color: p.color, fontWeight: 700 }}>
-                    {p.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={4}>
-              <TextField
-                select
-                fullWidth
-                label="Pipeline Stage"
-                value={formData.stage}
-                onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
-              >
-                {LEAD_STAGES.map((s) => (
-                  <MenuItem key={s.value} value={s.value} sx={{ color: s.color, fontWeight: 700 }}>
-                    {s.label}
-                  </MenuItem>
-                ))}
-              </TextField>
-            </Grid>
-
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Next Follow-up Date"
-                InputLabelProps={{ shrink: true }}
-                value={formData.followUpDate}
-                onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <CalendarMonthIcon sx={{ color: '#0EA5E9' }} />
-                    </InputAdornment>
-                  )
+          <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+            <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
+              <CampaignIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
                 }}
-              />
-            </Grid>
+              >
+                3. Inquiry Source & Pipeline Tracking
+              </Typography>
+            </Stack>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                multiline
-                rows={2}
-                label="Counselor Notes & Remarks"
-                placeholder="Student preferences, shift availability, discussion summary..."
-                value={formData.notes}
-                onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <NoteAltIcon sx={{ color: '#64748B', alignSelf: 'flex-start', mt: 1 }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
+            <Grid container spacing={1.75}>
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Lead Source"
+                  value={formData.source}
+                  onChange={(e) => setFormData({ ...formData, source: e.target.value })}
+                >
+                  {LEAD_SOURCES.map((src) => (
+                    <MenuItem key={src} value={src}>
+                      {src}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Priority"
+                  value={formData.priority}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
+                >
+                  {LEAD_PRIORITIES.map((p) => (
+                    <MenuItem key={p.value} value={p.value} sx={{ color: p.color, fontWeight: 700 }}>
+                      {p.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={4}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Pipeline Stage"
+                  value={formData.stage}
+                  onChange={(e) => setFormData({ ...formData, stage: e.target.value })}
+                >
+                  {LEAD_STAGES.map((s) => (
+                    <MenuItem key={s.value} value={s.value} sx={{ color: s.color, fontWeight: 700 }}>
+                      {s.label}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Next Follow-up Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={formData.followUpDate}
+                  onChange={(e) => setFormData({ ...formData, followUpDate: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <CalendarMonthIcon sx={{ color: '#0EA5E9', fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  multiline
+                  rows={2}
+                  label="Counselor Notes & Remarks"
+                  placeholder="Student preferences, shift availability, discussion summary..."
+                  value={formData.notes}
+                  onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <NoteAltIcon sx={{ color: '#64748B', alignSelf: 'flex-start', mt: 0.5, fontSize: 18 }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
             </Grid>
-          </Grid>
+          </Paper>
         </DialogContent>
 
         <DialogActions
           sx={{
-            px: 3,
-            py: 2,
+            px: 2.5,
+            py: 1.5,
             bgcolor: '#FFFFFF',
             borderTop: '1px solid #E2E8F0',
             flexShrink: 0,
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'center',
-            boxShadow: '0 -4px 12px rgba(0,0,0,0.03)',
-            zIndex: 10
+            alignItems: 'center'
           }}
         >
-          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+          <Button onClick={onClose} size="small" sx={{ color: '#64748B', fontWeight: 700, py: 0.8 }}>
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
+            size="small"
             sx={{
-              background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
+              bgcolor: '#0F2C59',
               fontWeight: 800,
-              px: 3.5,
-              py: 1,
-              borderRadius: 2.5,
-              boxShadow: '0 4px 14px rgba(37, 99, 235, 0.35)'
+              px: 3,
+              py: 0.8,
+              borderRadius: 2,
+              '&:hover': { bgcolor: '#1E3A8A' }
             }}
           >
             {editingLead ? 'Update Lead' : 'Save Lead'}

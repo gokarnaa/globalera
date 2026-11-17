@@ -22,7 +22,9 @@ import {
   TableRow,
   InputAdornment,
   Stack,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
@@ -37,6 +39,8 @@ import { saveDB } from '../../services/storage';
 export const DENOMINATION_RATES = [1000, 500, 100, 50, 20, 10, 5];
 
 export default function DailyCashClosingModal({ open, onClose, db, setDb, showToast, onDayClosed }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const today = new Date().toISOString().slice(0, 10);
   const currentTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -208,12 +212,13 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          border: isMobile ? 'none' : '1px solid rgba(226, 232, 240, 0.8)'
         }
       }}
     >
@@ -221,52 +226,58 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
-          background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          borderBottom: '2px solid #F59E0B'
+          borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
-              width: 44,
-              height: 44,
-              borderRadius: 2.5,
-              bgcolor: 'rgba(255,255,255,0.18)',
+              width: 42,
+              height: 42,
+              borderRadius: 2,
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              color: '#F59E0B',
+              flexShrink: 0
             }}
           >
-            <LockIcon sx={{ fontSize: '1.4rem' }} />
+            <LockIcon />
           </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 900, fontSize: '1.15rem', lineHeight: 1.2, color: '#FFFFFF' }}>
-              Daily Counter Cash Closing & Denomination Count
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, lineHeight: 1.2, color: '#FFFFFF' }}>
+              Daily Counter Cash Closing &amp; Denomination
             </Typography>
-            <Typography variant="caption" sx={{ color: '#93C5FD', fontWeight: 600 }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block' }}>
               Date: {today} • Time: {currentTime} • Physical Denomination Sheet
             </Typography>
           </Box>
         </Box>
 
-        <IconButton onClick={onClose} sx={{ color: '#93C5FD', '&:hover': { color: '#FFF' } }}>
+        <IconButton
+          aria-label="Close daily cash closing modal"
+          onClick={onClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
         {/* Printable Closing Slip View (Shown after closing or when triggered) */}
         {showPrintView && savedClosingRecord ? (
-          <Box id="printable-cash-closing" sx={{ bgcolor: '#FFFFFF', p: 3, borderRadius: 3, border: '1.5px solid #0F2E5A' }}>
+          <Box id="printable-cash-closing" sx={{ bgcolor: '#FFFFFF', p: { xs: 2, sm: 3 }, borderRadius: 2, border: '1.5px solid #0F2C59' }}>
             <Box sx={{ textAlign: 'center', pb: 2, borderBottom: '2px dashed #CBD5E1', mb: 2 }}>
-              <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2E5A' }}>
+              <Typography variant="h6" sx={{ fontWeight: 900, color: '#0F2C59' }}>
                 PRABIDHIK SCHOOL, JORPATI
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
@@ -275,7 +286,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
               <Chip
                 label="DAILY CASH CLOSING & DENOMINATION SLIP"
                 size="small"
-                sx={{ bgcolor: '#0F2E5A', color: '#FFF', fontWeight: 900, fontSize: '0.72rem', mt: 1 }}
+                sx={{ bgcolor: '#0F2C59', color: '#FFF', fontWeight: 900, fontSize: '0.72rem', mt: 1 }}
               />
               <Typography variant="caption" sx={{ display: 'block', mt: 1, color: '#475569' }}>
                 Closing ID: <strong>{savedClosingRecord.id}</strong> • Date: <strong>{savedClosingRecord.closingDate}</strong> ({savedClosingRecord.closingTime})
@@ -284,39 +295,39 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
 
             {/* Financial Summary */}
             <Grid container spacing={1.5} sx={{ mb: 2.5 }}>
-              <Grid item xs={3}>
-                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', textAlign: 'center' }}>
+              <Grid item xs={6} sm={3}>
+                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', textAlign: 'center', borderRadius: 2 }}>
                   <Typography variant="caption" sx={{ color: '#64748B' }}>Opening Balance</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900 }}>Rs. {savedClosingRecord.openingBalance.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
-              <Grid item xs={3}>
-                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', textAlign: 'center' }}>
+              <Grid item xs={6} sm={3}>
+                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', textAlign: 'center', borderRadius: 2 }}>
                   <Typography variant="caption" sx={{ color: '#059669' }}>Cash Received (+)</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#059669' }}>Rs. {savedClosingRecord.cashReceived.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
-              <Grid item xs={3}>
-                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#FEF2F2', border: '1px solid #FECACA', textAlign: 'center' }}>
+              <Grid item xs={6} sm={3}>
+                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#FEF2F2', border: '1px solid #FECACA', textAlign: 'center', borderRadius: 2 }}>
                   <Typography variant="caption" sx={{ color: '#DC2626' }}>Cash Paid (-)</Typography>
                   <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {savedClosingRecord.cashPaid.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
-              <Grid item xs={3}>
-                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#EFF6FF', border: '1px solid #BFDBFE', textAlign: 'center' }}>
-                  <Typography variant="caption" sx={{ color: '#1E40AF' }}>Expected Balance</Typography>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#1E40AF' }}>Rs. {savedClosingRecord.expectedClosing.toLocaleString()}</Typography>
+              <Grid item xs={6} sm={3}>
+                <Paper elevation={0} sx={{ p: 1.2, bgcolor: '#EFF6FF', border: '1px solid #BFDBFE', textAlign: 'center', borderRadius: 2 }}>
+                  <Typography variant="caption" sx={{ color: '#1E3A8A' }}>Expected Balance</Typography>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#1E3A8A' }}>Rs. {savedClosingRecord.expectedClosing.toLocaleString()}</Typography>
                 </Paper>
               </Grid>
             </Grid>
 
             {/* Denomination Breakdown Table */}
-            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2E5A', mb: 1 }}>
-              💵 Physical Cash Denomination:
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', mb: 1 }}>
+              Physical Cash Denomination
             </Typography>
             <TableContainer sx={{ border: '1px solid #CBD5E1', borderRadius: 2, mb: 2 }}>
               <Table size="small">
-                <TableHead sx={{ bgcolor: '#0F2E5A' }}>
+                <TableHead sx={{ bgcolor: '#0F2C59' }}>
                   <TableRow>
                     <TableCell sx={{ color: '#FFF !important', fontWeight: 900 }}>Rate</TableCell>
                     <TableCell align="center" sx={{ color: '#FFF !important', fontWeight: 900 }}>Count</TableCell>
@@ -330,15 +341,15 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                       <TableCell align="center" sx={{ fontWeight: 800, fontFamily: 'monospace' }}>
                         {savedClosingRecord.denominations[r] || 0}
                       </TableCell>
-                      <TableCell align="right" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                      <TableCell align="right" sx={{ fontWeight: 800, color: '#0F2C59' }}>
                         Rs. {(r * (savedClosingRecord.denominations[r] || 0)).toLocaleString()}
                       </TableCell>
                     </TableRow>
                   ))}
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 800 }}>Coins & Loose Change</TableCell>
+                    <TableCell sx={{ fontWeight: 800 }}>Coins &amp; Loose Change</TableCell>
                     <TableCell align="center" sx={{ fontWeight: 800 }}>-</TableCell>
-                    <TableCell align="right" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                    <TableCell align="right" sx={{ fontWeight: 800, color: '#0F2C59' }}>
                       Rs. {(savedClosingRecord.denominations.coins || 0).toLocaleString()}
                     </TableCell>
                   </TableRow>
@@ -356,9 +367,9 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             </TableContainer>
 
             {/* Reconciliation Variance */}
-            <Box sx={{ p: 1.5, bgcolor: savedClosingRecord.variance === 0 ? '#ECFDF5' : '#FEF2F2', borderRadius: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+            <Box sx={{ p: 1.5, bgcolor: savedClosingRecord.variance === 0 ? '#ECFDF5' : '#FEF2F2', borderRadius: 2, display: 'flex', flexWrap: 'wrap', gap: 1, justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
               <Typography variant="body2" sx={{ fontWeight: 800, color: savedClosingRecord.variance === 0 ? '#065F46' : '#991B1B' }}>
-                Reconciliation Status: {savedClosingRecord.variance === 0 ? '✓ Exact Match' : `Variance: Rs. ${savedClosingRecord.variance.toLocaleString()}`}
+                Reconciliation Status: {savedClosingRecord.variance === 0 ? 'Exact Match' : `Variance: Rs. ${savedClosingRecord.variance.toLocaleString()}`}
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B' }}>
                 Remarks: {savedClosingRecord.notes}
@@ -366,20 +377,20 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             </Box>
 
             {/* Signatures */}
-            <Grid container spacing={4} sx={{ pt: 3, borderTop: '1px dashed #CBD5E1' }}>
-              <Grid item xs={4} sx={{ textAlign: 'center' }}>
+            <Grid container spacing={3} sx={{ pt: 3, borderTop: '1px dashed #CBD5E1' }}>
+              <Grid item xs={12} sm={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderBottom: '1px solid #475569', pb: 0.5, mb: 0.5, minHeight: 25 }} />
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>
                   {savedClosingRecord.closedBy}
                 </Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>Counter Cashier</Typography>
               </Grid>
-              <Grid item xs={4} sx={{ textAlign: 'center' }}>
+              <Grid item xs={12} sm={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderBottom: '1px solid #475569', pb: 0.5, mb: 0.5, minHeight: 25 }} />
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>Finance Officer</Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>Verified By (Accountant)</Typography>
               </Grid>
-              <Grid item xs={4} sx={{ textAlign: 'center' }}>
+              <Grid item xs={12} sm={4} sx={{ textAlign: 'center' }}>
                 <Box sx={{ borderBottom: '1px solid #475569', pb: 0.5, mb: 0.5, minHeight: 25 }} />
                 <Typography variant="caption" sx={{ fontWeight: 800, display: 'block' }}>Campus Chief / Director</Typography>
                 <Typography variant="caption" sx={{ color: '#64748B' }}>Approved By (Campus Chief)</Typography>
@@ -389,47 +400,84 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
         ) : (
           /* Normal Denomination Input Mode */
           <Box>
-            {/* Step 1: System Cash Status Cards */}
-            <Grid container spacing={2} sx={{ mb: 2.8 }}>
-              <Grid item xs={6} sm={3}>
-                <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Opening Balance</Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>Rs. {openingBalance.toLocaleString()}</Typography>
-                </Paper>
+            {/* Section 1: System Cash Summary */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                mb: 2,
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                bgcolor: '#FFFFFF'
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  mb: 1.5
+                }}
+              >
+                System Cash Summary
+              </Typography>
+              <Grid container spacing={1.5}>
+                <Grid item xs={6} sm={3}>
+                  <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>Opening Balance</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F172A' }}>Rs. {openingBalance.toLocaleString()}</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700, display: 'block' }}>Cash Collection (+)</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#059669' }}>Rs. {todayCashIn.toLocaleString()}</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 700, display: 'block' }}>Cash Expenses (-)</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {todayCashOut.toLocaleString()}</Typography>
+                  </Paper>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                  <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#1E3A8A', fontWeight: 800, display: 'block' }}>Expected Closing</Typography>
+                    <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#0F2C59' }}>Rs. {expectedClosing.toLocaleString()}</Typography>
+                  </Paper>
+                </Grid>
               </Grid>
-              <Grid item xs={6} sm={3}>
-                <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 700 }}>Cash Collection (+)</Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#059669' }}>Rs. {todayCashIn.toLocaleString()}</Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#DC2626', fontWeight: 700 }}>Cash Expenses (-)</Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#DC2626' }}>Rs. {todayCashOut.toLocaleString()}</Typography>
-                </Paper>
-              </Grid>
-              <Grid item xs={6} sm={3}>
-                <Paper elevation={0} sx={{ p: 1.5, textAlign: 'center', bgcolor: '#EEF2FF', border: '1.5px solid #C7D2FE', borderRadius: 2.5 }}>
-                  <Typography variant="caption" sx={{ color: '#4338CA', fontWeight: 800 }}>Expected Closing Cash</Typography>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#1E40AF', fontSize: '1.1rem' }}>Rs. {expectedClosing.toLocaleString()}</Typography>
-                </Paper>
-              </Grid>
-            </Grid>
+            </Paper>
 
-            {/* Step 2: Denomination Sheet (2 Columns Table) */}
-            <Paper elevation={0} sx={{ p: 2, borderRadius: 3, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', mb: 2.8 }}>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.8 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CalculateIcon sx={{ color: '#0F2E5A' }} />
-                  <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F172A' }}>
-                    Physical Cash Denomination Counter:
-                  </Typography>
-                </Box>
+            {/* Section 2: Physical Cash Denomination Counter */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                mb: 2,
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                bgcolor: '#FFFFFF'
+              }}
+            >
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 1, mb: 1.5 }}>
+                <Typography
+                  sx={{
+                    fontSize: '0.7rem',
+                    fontWeight: 800,
+                    color: '#64748B',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Physical Cash Denomination Counter
+                </Typography>
                 <Chip
                   label={`Total Notes: ${totalNotesCount}`}
                   size="small"
-                  sx={{ fontWeight: 800, bgcolor: '#F1F5F9', color: '#0F2E5A' }}
+                  sx={{ fontWeight: 800, bgcolor: '#F1F5F9', color: '#0F2C59' }}
                 />
               </Box>
 
@@ -444,16 +492,17 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
+                          gap: 1,
                           p: 1,
                           bgcolor: '#F8FAFC',
                           borderRadius: 2,
                           border: '1px solid #E2E8F0'
                         }}
                       >
-                        <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.88rem' }}>
+                        <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: { xs: 56, sm: 72 }, fontSize: '0.85rem' }}>
                           Rs. {rate}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>×</Typography>
                           <TextField
                             size="small"
@@ -461,11 +510,11 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                             placeholder="0"
                             value={denominations[rate]}
                             onChange={(e) => handleDenominationChange(rate, e.target.value)}
-                            inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 60, padding: '4px 6px' } }}
+                            inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 56, padding: '4px 6px' } }}
                             sx={{ bgcolor: '#FFFFFF', borderRadius: 1.5 }}
                           />
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>=</Typography>
-                          <Typography sx={{ fontWeight: 900, color: '#0F2E5A', minWidth: 90, textAlign: 'right', fontSize: '0.88rem' }}>
+                          <Typography sx={{ fontWeight: 900, color: '#0F2C59', minWidth: { xs: 72, sm: 85 }, textAlign: 'right', fontSize: '0.85rem' }}>
                             Rs. {(rateSubtotals[rate] || 0).toLocaleString()}
                           </Typography>
                         </Box>
@@ -484,16 +533,17 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
+                          gap: 1,
                           p: 1,
                           bgcolor: '#F8FAFC',
                           borderRadius: 2,
                           border: '1px solid #E2E8F0'
                         }}
                       >
-                        <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.88rem' }}>
+                        <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: { xs: 56, sm: 72 }, fontSize: '0.85rem' }}>
                           Rs. {rate}
                         </Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>×</Typography>
                           <TextField
                             size="small"
@@ -501,11 +551,11 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                             placeholder="0"
                             value={denominations[rate]}
                             onChange={(e) => handleDenominationChange(rate, e.target.value)}
-                            inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 60, padding: '4px 6px' } }}
+                            inputProps={{ min: 0, style: { textAlign: 'center', fontWeight: 800, width: 56, padding: '4px 6px' } }}
                             sx={{ bgcolor: '#FFFFFF', borderRadius: 1.5 }}
                           />
                           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>=</Typography>
-                          <Typography sx={{ fontWeight: 900, color: '#0F2E5A', minWidth: 90, textAlign: 'right', fontSize: '0.88rem' }}>
+                          <Typography sx={{ fontWeight: 900, color: '#0F2C59', minWidth: { xs: 72, sm: 85 }, textAlign: 'right', fontSize: '0.85rem' }}>
                             Rs. {(rateSubtotals[rate] || 0).toLocaleString()}
                           </Typography>
                         </Box>
@@ -518,16 +568,17 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
+                        gap: 1,
                         p: 1,
                         bgcolor: '#F8FAFC',
                         borderRadius: 2,
                         border: '1px solid #E2E8F0'
                       }}
                     >
-                      <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: 80, fontSize: '0.85rem' }}>
-                        Coins / Loose
+                      <Typography sx={{ fontWeight: 800, color: '#0F172A', minWidth: { xs: 56, sm: 72 }, fontSize: '0.85rem' }}>
+                        Coins
                       </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
                         <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>Rs.</Typography>
                         <TextField
                           size="small"
@@ -535,10 +586,10 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                           placeholder="0"
                           value={denominations.coins}
                           onChange={(e) => handleDenominationChange('coins', e.target.value)}
-                          inputProps={{ min: 0, style: { textAlign: 'right', fontWeight: 800, width: 85, padding: '4px 6px' } }}
+                          inputProps={{ min: 0, style: { textAlign: 'right', fontWeight: 800, width: 68, padding: '4px 6px' } }}
                           sx={{ bgcolor: '#FFFFFF', borderRadius: 1.5 }}
                         />
-                        <Typography sx={{ fontWeight: 900, color: '#0F2E5A', minWidth: 90, textAlign: 'right', fontSize: '0.88rem' }}>
+                        <Typography sx={{ fontWeight: 900, color: '#0F2C59', minWidth: { xs: 72, sm: 85 }, textAlign: 'right', fontSize: '0.85rem' }}>
                           Rs. {(Number(denominations.coins) || 0).toLocaleString()}
                         </Typography>
                       </Box>
@@ -548,71 +599,91 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
               </Grid>
             </Paper>
 
-            {/* Step 3: Variance & Comparison Banner */}
+            {/* Section 3: Reconciliation & Closing Notes */}
             <Paper
               elevation={0}
               sx={{
-                p: 2.2,
-                borderRadius: 2.5,
-                bgcolor: variance === 0 ? '#ECFDF5' : variance > 0 ? '#EFF6FF' : '#FEF2F2',
-                border: variance === 0 ? '1.5px solid #A7F3D0' : variance > 0 ? '1.5px solid #BFDBFE' : '1.5px solid #FECACA',
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                mb: 2.5
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                bgcolor: '#FFFFFF'
               }}
             >
-              <Box>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
-                  Total Physical Count
-                </Typography>
-                <Typography variant="h5" sx={{ fontWeight: 900, color: variance === 0 ? '#059669' : variance > 0 ? '#1E40AF' : '#DC2626' }}>
-                  Rs. {physicalCount.toLocaleString()}
-                </Typography>
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  mb: 1.5
+                }}
+              >
+                Reconciliation &amp; Closing Remarks
+              </Typography>
+
+              <Box
+                sx={{
+                  p: { xs: 1.5, sm: 2 },
+                  borderRadius: 2,
+                  bgcolor: variance === 0 ? '#ECFDF5' : variance > 0 ? '#EFF6FF' : '#FEF2F2',
+                  border: variance === 0 ? '1px solid #A7F3D0' : variance > 0 ? '1px solid #BFDBFE' : '1px solid #FECACA',
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  gap: 1.5,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  mb: 2
+                }}
+              >
+                <Box>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>
+                    Total Physical Count
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 900, color: variance === 0 ? '#059669' : variance > 0 ? '#1E3A8A' : '#DC2626' }}>
+                    Rs. {physicalCount.toLocaleString()}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+                  <Chip
+                    label={
+                      variance === 0
+                        ? 'Exact Match'
+                        : variance > 0
+                        ? `Excess Cash (+Rs. ${variance.toLocaleString()})`
+                        : `Shortage (-Rs. ${Math.abs(variance).toLocaleString()})`
+                    }
+                    size="small"
+                    sx={{
+                      fontWeight: 900,
+                      fontSize: '0.78rem',
+                      bgcolor: variance === 0 ? '#10B981' : variance > 0 ? '#3B82F6' : '#EF4444',
+                      color: '#FFFFFF'
+                    }}
+                  />
+                  <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#64748B', fontWeight: 600 }}>
+                    System expects Rs. {expectedClosing.toLocaleString()}
+                  </Typography>
+                </Box>
               </Box>
 
-              <Box sx={{ textAlign: 'right' }}>
-                <Chip
-                  label={
-                    variance === 0
-                      ? '✓ Exact Match'
-                      : variance > 0
-                      ? `Excess Cash (+Rs. ${variance.toLocaleString()})`
-                      : `Shortage (-Rs. ${Math.abs(variance).toLocaleString()})`
-                  }
-                  size="small"
-                  sx={{
-                    fontWeight: 900,
-                    fontSize: '0.78rem',
-                    bgcolor: variance === 0 ? '#10B981' : variance > 0 ? '#3B82F6' : '#EF4444',
-                    color: '#FFFFFF',
-                    py: 0.5,
-                    px: 1
-                  }}
-                />
-                <Typography variant="caption" sx={{ display: 'block', mt: 0.5, color: '#64748B', fontWeight: 600 }}>
-                  System expects Rs. {expectedClosing.toLocaleString()}
-                </Typography>
-              </Box>
+              <TextField
+                fullWidth
+                multiline
+                rows={2}
+                size="small"
+                label="Closing Notes / Remarks"
+                placeholder="e.g. Counter closed successfully. Cash verified and locked in institute vault."
+                value={closingNotes}
+                onChange={(e) => setClosingNotes(e.target.value)}
+              />
             </Paper>
-
-            {/* Step 4: Closing Notes */}
-            <TextField
-              fullWidth
-              multiline
-              rows={2}
-              size="small"
-              label="Closing Notes / Remarks"
-              placeholder="e.g. Counter closed successfully. Cash verified and locked in institute vault."
-              value={closingNotes}
-              onChange={(e) => setClosingNotes(e.target.value)}
-              sx={{ bgcolor: '#FFFFFF', borderRadius: 2 }}
-            />
           </Box>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+      <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
         {showPrintView ? (
           <>
             <Button
@@ -629,7 +700,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 onClick={handlePrint}
                 sx={{
                   bgcolor: '#F59E0B',
-                  color: '#0F2E5A',
+                  color: '#0F2C59',
                   fontWeight: 900,
                   textTransform: 'none',
                   '&:hover': { bgcolor: '#D97706' }
@@ -641,7 +712,7 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
                 variant="contained"
                 onClick={onClose}
                 sx={{
-                  bgcolor: '#0F2E5A',
+                  background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
                   color: '#FFFFFF',
                   fontWeight: 800,
                   textTransform: 'none'
@@ -659,18 +730,18 @@ export default function DailyCashClosingModal({ open, onClose, db, setDb, showTo
             <Button
               variant="contained"
               onClick={handleConfirmClose}
+              startIcon={<LockIcon />}
               sx={{
-                fontWeight: 900,
+                fontWeight: 800,
                 textTransform: 'none',
-                background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
-                boxShadow: '0 4px 14px rgba(15, 46, 90, 0.35)',
-                borderRadius: 2.2,
-                px: 2.8,
-                py: 0.9,
-                fontSize: '0.88rem'
+                background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+                boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)',
+                borderRadius: 2,
+                px: 3,
+                py: 1
               }}
             >
-              🔒 Confirm & Lock Day Close
+              Confirm &amp; Lock Day Close
             </Button>
           </>
         )}

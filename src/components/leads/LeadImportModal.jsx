@@ -16,7 +16,10 @@ import {
   TableRow,
   Paper,
   Alert,
-  Chip
+  Chip,
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -29,6 +32,9 @@ export default function LeadImportModal({
   onClose,
   onImportSuccess
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   const [parsedRows, setParsedRows] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
   const [fileName, setFileName] = useState('');
@@ -149,11 +155,12 @@ export default function LeadImportModal({
       onClose={onClose}
       maxWidth="md"
       fullWidth
+      fullScreen={isMobile}
       scroll="paper"
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
-          maxHeight: '92vh',
+          borderRadius: isMobile ? 0 : 3,
+          maxHeight: isMobile ? '100vh' : '92vh',
           display: 'flex',
           flexDirection: 'column',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
@@ -165,120 +172,159 @@ export default function LeadImportModal({
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.2,
+          px: { xs: 2, sm: 2.5 },
+          py: 1.75,
           flexShrink: 0,
-          background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          borderBottom: '3px solid #F59E0B'
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
           <Box
             sx={{
-              width: 42,
-              height: 42,
+              width: 40,
+              height: 40,
               borderRadius: 2,
-              bgcolor: 'rgba(59, 130, 246, 0.2)',
+              bgcolor: 'rgba(255, 255, 255, 0.14)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#60A5FA'
+              color: '#F59E0B'
             }}
           >
-            <CloudUploadIcon />
+            <CloudUploadIcon fontSize="small" />
           </Box>
           <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1rem', sm: '1.1rem' }, lineHeight: 1.2 }}>
               Bulk Import Leads from Excel / CSV
             </Typography>
-            <Typography variant="caption" sx={{ color: '#94A3B8', fontWeight: 500 }}>
-              Import prospective student inquiries from external spreadsheets or digital ad campaigns
+            <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 500, display: 'block' }}>
+              Import prospective student inquiries from external spreadsheets or ad campaigns
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ color: '#94A3B8', '&:hover': { color: '#FFF' } }}>
-          <CloseIcon />
+        <IconButton
+          aria-label="Close bulk import dialog"
+          onClick={onClose}
+          sx={{
+            color: 'rgba(255, 255, 255, 0.85)',
+            bgcolor: 'rgba(255, 255, 255, 0.1)',
+            '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255, 255, 255, 0.25)' }
+          }}
+        >
+          <CloseIcon fontSize="small" />
         </IconButton>
       </DialogTitle>
 
       <DialogContent
         dividers
         sx={{
-          p: { xs: 2, sm: 3 },
+          p: { xs: 1.5, sm: 2.5 },
           bgcolor: '#F8FAFC',
           flex: 1,
-          overflowY: 'auto',
-          '&::-webkit-scrollbar': { width: 7 },
-          '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
-          '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 4 },
-          '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
+          overflowY: 'auto'
         }}
       >
         {errorMsg && (
-          <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+          <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
             {errorMsg}
           </Alert>
         )}
 
         {/* Step 1: Download Template & Upload Area */}
-        <Box
+        <Paper
+          elevation={0}
           sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            gap: 2,
-            mb: 3
+            p: { xs: 1.5, sm: 2 },
+            mb: 2,
+            borderRadius: 2,
+            border: '1px solid #E2E8F0',
+            bgcolor: '#FFFFFF'
           }}
         >
-          <Button
-            variant="outlined"
-            onClick={handleDownloadTemplate}
-            startIcon={<FileDownloadIcon />}
+          <Typography
             sx={{
-              py: 1.5,
-              px: 2.5,
-              fontWeight: 700,
-              borderRadius: 2.5,
-              borderColor: '#CBD5E1',
-              color: '#334155',
-              bgcolor: '#FFFFFF',
-              '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
-            }}
-          >
-            Download Sample Excel Template
-          </Button>
-
-          <Button
-            variant="contained"
-            component="label"
-            startIcon={<CloudUploadIcon />}
-            sx={{
-              flexGrow: 1,
-              py: 1.5,
-              px: 2.5,
+              fontSize: '0.7rem',
               fontWeight: 800,
-              borderRadius: 2.5,
-              bgcolor: '#2563EB',
-              '&:hover': { bgcolor: '#1D4ED8' }
+              color: '#64748B',
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
+              mb: 1.5
             }}
           >
-            {fileName ? `Selected File: ${fileName}` : 'Upload Excel (.xlsx) or CSV File'}
-            <input
-              type="file"
-              hidden
-              accept=".xlsx, .xls, .csv"
-              onChange={handleFileUpload}
-            />
-          </Button>
-        </Box>
+            1. Template & Spreadsheet Upload
+          </Typography>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
+            <Button
+              variant="outlined"
+              onClick={handleDownloadTemplate}
+              startIcon={<FileDownloadIcon />}
+              sx={{
+                py: 1.1,
+                px: 2.5,
+                fontWeight: 700,
+                borderRadius: 2,
+                borderColor: '#CBD5E1',
+                color: '#334155',
+                bgcolor: '#FFFFFF',
+                '&:hover': { bgcolor: '#F1F5F9', borderColor: '#94A3B8' }
+              }}
+            >
+              Download Sample Excel Template
+            </Button>
+
+            <Button
+              variant="contained"
+              component="label"
+              startIcon={<CloudUploadIcon />}
+              sx={{
+                flexGrow: 1,
+                py: 1.1,
+                px: 2.5,
+                fontWeight: 800,
+                borderRadius: 2,
+                bgcolor: '#0F2C59',
+                '&:hover': { bgcolor: '#1E3A8A' }
+              }}
+            >
+              {fileName ? `Selected File: ${fileName}` : 'Upload Excel (.xlsx) or CSV File'}
+              <input
+                type="file"
+                hidden
+                accept=".xlsx, .xls, .csv"
+                onChange={handleFileUpload}
+              />
+            </Button>
+          </Stack>
+        </Paper>
 
         {/* Preview Table */}
         {parsedRows.length > 0 && (
-          <Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }}>
-                Preview Import List ({parsedRows.length} Leads)
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.04em',
+                  textTransform: 'uppercase'
+                }}
+              >
+                2. Preview Import List ({parsedRows.length} Leads)
               </Typography>
               <Chip
                 icon={<CheckCircleIcon />}
@@ -290,13 +336,12 @@ export default function LeadImportModal({
             </Box>
 
             <TableContainer
-              component={Paper}
-              elevation={0}
               sx={{
                 maxHeight: 320,
-                borderRadius: 2.5,
+                borderRadius: 1.5,
                 border: '1px solid #E2E8F0',
-                bgcolor: '#FFFFFF'
+                bgcolor: '#FFFFFF',
+                overflowX: 'auto'
               }}
             >
               <Table size="small" stickyHeader>
@@ -326,24 +371,35 @@ export default function LeadImportModal({
                 </TableBody>
               </Table>
             </TableContainer>
-          </Box>
+          </Paper>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
-        <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+      <DialogActions
+        sx={{
+          px: 2.5,
+          py: 1.5,
+          bgcolor: '#FFFFFF',
+          borderTop: '1px solid #E2E8F0',
+          flexShrink: 0,
+          justifyContent: 'space-between'
+        }}
+      >
+        <Button onClick={onClose} size="small" sx={{ color: '#64748B', fontWeight: 700, py: 0.8 }}>
           Cancel
         </Button>
         <Button
           onClick={handleConfirmImport}
           variant="contained"
+          size="small"
           disabled={parsedRows.length === 0}
           sx={{
-            background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%)',
+            bgcolor: '#0F2C59',
             fontWeight: 800,
-            px: 3.5,
-            py: 1,
-            borderRadius: 2.5
+            px: 3,
+            py: 0.8,
+            borderRadius: 2,
+            '&:hover': { bgcolor: '#1E3A8A' }
           }}
         >
           Import All ({parsedRows.length}) Leads

@@ -29,7 +29,9 @@ import {
   TableSortLabel,
   LinearProgress,
   Tooltip,
-  Divider
+  Divider,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -55,6 +57,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 
 export default function TrainingGroupManager({ onNavigateToAttendance, onNavigateToStudents }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
   const { confirm, alert } = useDialog();
@@ -1171,12 +1175,13 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: isMobile ? 0 : 3.5,
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -1185,8 +1190,8 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
       >
         <DialogTitle
           sx={{
-            p: 2.5,
-            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            p: { xs: 2, sm: 2.5 },
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
@@ -1209,6 +1214,7 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
           </Box>
           <IconButton
             size="small"
+            aria-label="Close training group dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.85)',
@@ -1223,228 +1229,249 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          <Stack spacing={2.5}>
-            <TextField
-              label="Group Code *"
-              fullWidth
-              size="small"
-              placeholder="e.g. GRP-01, BT-02, CG-03"
-              value={formData.groupCode}
-              onChange={(e) => setFormData({ ...formData, groupCode: e.target.value })}
-              required
-            />
+          <Stack spacing={2}>
+            {/* Section 1: Batch Identity & Assignment */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2C59' }} />
+                1. Batch Identity & Assignment
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Group Code *"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. GRP-01, BT-02, CG-03"
+                    value={formData.groupCode}
+                    onChange={(e) => setFormData({ ...formData, groupCode: e.target.value })}
+                    required
+                  />
+                </Grid>
 
-            {/* Course Selector */}
-            <TextField
-              select
-              label="Select Course *"
-              fullWidth
-              size="small"
-              value={formData.courseId}
-              onChange={(e) => handleCourseChange(e.target.value)}
-              required
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- Select Course --
-              </MenuItem>
-              {(db.courses || []).map((crs) => (
-                <MenuItem key={crs.id} value={crs.id}>
-                  <b>{crs.title}</b> ({crs.durationValue} {crs.durationUnit} • {crs.totalHours || 390} hrs)
-                </MenuItem>
-              ))}
-            </TextField>
-
-            {/* Auto Cascade Context Info Box */}
-            {selectedCourseInForm && (
-              <Alert severity="info" sx={{ borderRadius: 2.5, bgcolor: '#EFF6FF', border: '1px solid #DBEAFE' }}>
-                <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E3A8A', display: 'block' }}>
-                  AUTO-CASCADED CONTEXT:
-                </Typography>
-                <Typography variant="caption" sx={{ color: '#1E40AF' }}>
-                  Occupation: <b>{selectedOccupationInForm?.name || 'N/A'}</b> • Duration: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
-                </Typography>
-              </Alert>
-            )}
-
-            {/* Assigned Trainer */}
-            <TextField
-              select
-              label="Assigned Trainer *"
-              fullWidth
-              size="small"
-              value={formData.trainerId}
-              onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
-              required
-            >
-              <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                -- Select Lead Trainer --
-              </MenuItem>
-              {matchingTrainersInForm.map((trn) => (
-                <MenuItem key={trn.id} value={trn.id}>
-                  <b>{trn.name}</b> ({trn.specialization || 'Trainer'})
-                </MenuItem>
-              ))}
-            </TextField>
-
-            {trainerClashGroup && (
-              <Alert severity="warning" sx={{ py: 0.5, fontWeight: 700, fontSize: '0.78rem' }}>
-                Schedule Clash Warning: This trainer is already assigned to active batch <b>{trainerClashGroup.groupCode}</b> in Shift {trainerClashGroup.shift} ({(trainerClashGroup.scheduleMode || 'REGULAR') === 'WEEKEND_ONLY' ? 'Weekend/Holiday-Only' : 'Regular Sun–Fri'}).
-              </Alert>
-            )}
-
-            {/* Batch Mode & Schedule Mode */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="Batch Mode"
-                  fullWidth
-                  size="small"
-                  value={formData.batchMode || 'ROLLING'}
-                  onChange={(e) => setFormData({ ...formData, batchMode: e.target.value })}
-                  helperText="Rolling: trainees follow personal enroll-to-end timeline"
-                >
-                  <MenuItem value="ROLLING">Rolling / Continuous Batch (Default)</MenuItem>
-                  <MenuItem value="FIXED">Fixed Cohort Batch (All Same Dates)</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="Class Schedule Mode"
-                  fullWidth
-                  size="small"
-                  value={formData.scheduleMode || 'REGULAR'}
-                  onChange={(e) => {
-                    const nextMode = e.target.value;
-                    const course = (db.courses || []).find((c) => c.id === formData.courseId);
-                    const calcEnd = course && formData.startDate
-                      ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit, db.holidays || [], nextMode)
-                      : formData.expectedEndDate;
-                    setFormData({ ...formData, scheduleMode: nextMode, expectedEndDate: calcEnd });
-                  }}
-                  helperText="Regular: Sun-Fri (Sat & Holidays Off) | Weekend: Sat & Holidays Only"
-                >
-                  <MenuItem value="REGULAR">Regular (Sun–Fri, Sat &amp; Holidays Off)</MenuItem>
-                  <MenuItem value="WEEKEND_ONLY">Special Weekend / Public Holiday Only</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-
-            {/* Shift Selection -> Auto fills Start and End Time */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <TextField
-                  select
-                  label="Shift"
-                  fullWidth
-                  size="small"
-                  value={formData.shift}
-                  onChange={(e) => handleShiftChange(e.target.value)}
-                >
-                  <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
-                    -- Select Shift --
-                  </MenuItem>
-                  {SHIFT_DEFINITIONS.map((sh) => (
-                    <MenuItem key={sh.code} value={sh.code}>
-                      Shift {sh.code} ({sh.time})
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Select Course *"
+                    fullWidth
+                    size="small"
+                    value={formData.courseId}
+                    onChange={(e) => handleCourseChange(e.target.value)}
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Course --
                     </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <TextField
-                  label="Start Time"
-                  fullWidth
-                  size="small"
-                  placeholder="07:00 AM"
-                  value={formData.startTime}
-                  onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={6} sm={4}>
-                <TextField
-                  label="End Time"
-                  fullWidth
-                  size="small"
-                  placeholder="09:00 AM"
-                  value={formData.endTime}
-                  onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+                    {(db.courses || []).map((crs) => (
+                      <MenuItem key={crs.id} value={crs.id}>
+                        <b>{crs.title}</b> ({crs.durationValue} {crs.durationUnit} • {crs.totalHours || 390} hrs)
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
 
-            {/* Dates: Start & Auto End */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="date"
-                  label="Start Date *"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.startDate}
-                  onChange={(e) => handleStartDateChange(e.target.value)}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="date"
-                  label="Auto End Date"
-                  fullWidth
-                  size="small"
-                  InputLabelProps={{ shrink: true }}
-                  value={formData.expectedEndDate}
-                  onChange={(e) => setFormData({ ...formData, expectedEndDate: e.target.value })}
-                  helperText={formData.expectedEndDate ? "Auto-calculated based on course duration" : "Will be auto-calculated after selecting start date and course"}
-                />
-              </Grid>
-            </Grid>
+                {selectedCourseInForm && (
+                  <Grid item xs={12}>
+                    <Alert severity="info" sx={{ borderRadius: 2, bgcolor: '#EFF6FF', border: '1px solid #DBEAFE' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 800, color: '#1E3A8A', display: 'block' }}>
+                        AUTO-CASCADED CONTEXT:
+                      </Typography>
+                      <Typography variant="caption" sx={{ color: '#1E40AF' }}>
+                        Occupation: <b>{selectedOccupationInForm?.name || 'N/A'}</b> • Duration: <b>{selectedCourseInForm.durationValue} {selectedCourseInForm.durationUnit} ({selectedCourseInForm.totalHours || 390} hrs)</b>
+                      </Typography>
+                    </Alert>
+                  </Grid>
+                )}
 
-            {/* Capacity & Status */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  type="number"
-                  label="Trainee Capacity"
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. 20"
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: e.target.value === '' ? '' : Number(e.target.value) })}
-                />
+                <Grid item xs={12}>
+                  <TextField
+                    select
+                    label="Assigned Trainer *"
+                    fullWidth
+                    size="small"
+                    value={formData.trainerId}
+                    onChange={(e) => setFormData({ ...formData, trainerId: e.target.value })}
+                    required
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Lead Trainer --
+                    </MenuItem>
+                    {matchingTrainersInForm.map((trn) => (
+                      <MenuItem key={trn.id} value={trn.id}>
+                        <b>{trn.name}</b> ({trn.specialization || 'Trainer'})
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+
+                {trainerClashGroup && (
+                  <Grid item xs={12}>
+                    <Alert severity="warning" sx={{ py: 0.5, fontWeight: 700, fontSize: '0.78rem' }}>
+                      Schedule Clash Warning: This trainer is already assigned to active batch <b>{trainerClashGroup.groupCode}</b> in Shift {trainerClashGroup.shift} ({(trainerClashGroup.scheduleMode || 'REGULAR') === 'WEEKEND_ONLY' ? 'Weekend/Holiday-Only' : 'Regular Sun–Fri'}).
+                    </Alert>
+                  </Grid>
+                )}
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  label="Status"
-                  fullWidth
-                  size="small"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                >
-                  <MenuItem value="Running">Running</MenuItem>
-                  <MenuItem value="OJT Phase">OJT Phase</MenuItem>
-                  <MenuItem value="Upcoming">Upcoming</MenuItem>
-                  <MenuItem value="Completed">Completed</MenuItem>
-                </TextField>
+            </Paper>
+
+            {/* Section 2: Schedule & Shift Timing */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
+                2. Schedule & Shift Timing
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Batch Mode"
+                    fullWidth
+                    size="small"
+                    value={formData.batchMode || 'ROLLING'}
+                    onChange={(e) => setFormData({ ...formData, batchMode: e.target.value })}
+                    helperText="Rolling: trainees follow personal enroll-to-end timeline"
+                  >
+                    <MenuItem value="ROLLING">Rolling / Continuous Batch (Default)</MenuItem>
+                    <MenuItem value="FIXED">Fixed Cohort Batch (All Same Dates)</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Class Schedule Mode"
+                    fullWidth
+                    size="small"
+                    value={formData.scheduleMode || 'REGULAR'}
+                    onChange={(e) => {
+                      const nextMode = e.target.value;
+                      const course = (db.courses || []).find((c) => c.id === formData.courseId);
+                      const calcEnd = course && formData.startDate
+                        ? calculateExpectedEndDate(formData.startDate, course.durationValue, course.durationUnit, db.holidays || [], nextMode)
+                        : formData.expectedEndDate;
+                      setFormData({ ...formData, scheduleMode: nextMode, expectedEndDate: calcEnd });
+                    }}
+                    helperText="Regular: Sun-Fri (Sat & Holidays Off) | Weekend: Sat & Holidays Only"
+                  >
+                    <MenuItem value="REGULAR">Regular (Sun–Fri, Sat &amp; Holidays Off)</MenuItem>
+                    <MenuItem value="WEEKEND_ONLY">Special Weekend / Public Holiday Only</MenuItem>
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    select
+                    label="Shift"
+                    fullWidth
+                    size="small"
+                    value={formData.shift}
+                    onChange={(e) => handleShiftChange(e.target.value)}
+                  >
+                    <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
+                      -- Select Shift --
+                    </MenuItem>
+                    {SHIFT_DEFINITIONS.map((sh) => (
+                      <MenuItem key={sh.code} value={sh.code}>
+                        Shift {sh.code} ({sh.time})
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="Start Time"
+                    fullWidth
+                    size="small"
+                    placeholder="07:00 AM"
+                    value={formData.startTime}
+                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    label="End Time"
+                    fullWidth
+                    size="small"
+                    placeholder="09:00 AM"
+                    value={formData.endTime}
+                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                  />
+                </Grid>
               </Grid>
-            </Grid>
+            </Paper>
+
+            {/* Section 3: Timeline, Capacity & Status */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
+                3. Timeline, Capacity & Status
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="date"
+                    label="Start Date *"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.startDate}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="date"
+                    label="Auto End Date"
+                    fullWidth
+                    size="small"
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.expectedEndDate}
+                    onChange={(e) => setFormData({ ...formData, expectedEndDate: e.target.value })}
+                    helperText={formData.expectedEndDate ? "Auto-calculated based on course duration" : "Will be auto-calculated after selecting start date and course"}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    type="number"
+                    label="Trainee Capacity"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. 20"
+                    value={formData.capacity}
+                    onChange={(e) => setFormData({ ...formData, capacity: e.target.value === '' ? '' : Number(e.target.value) })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Status"
+                    fullWidth
+                    size="small"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <MenuItem value="Running">Running</MenuItem>
+                    <MenuItem value="OJT Phase">OJT Phase</MenuItem>
+                    <MenuItem value="Upcoming">Upcoming</MenuItem>
+                    <MenuItem value="Completed">Completed</MenuItem>
+                  </TextField>
+                </Grid>
+              </Grid>
+            </Paper>
           </Stack>
         </DialogContent>
 
         <DialogActions
           sx={{
-            p: 2.5,
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',

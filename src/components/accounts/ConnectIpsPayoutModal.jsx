@@ -14,7 +14,10 @@ import {
   Divider,
   InputAdornment,
   Chip,
-  IconButton
+  IconButton,
+  Stack,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import PaymentIcon from '@mui/icons-material/Payment';
@@ -36,6 +39,8 @@ export default function ConnectIpsPayoutModal({
   setDb,
   onSuccess
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { alert } = useDialog();
   const [amount, setAmount] = useState('');
   const [payMethod, setPayMethod] = useState('CONNECT_IPS');
@@ -205,44 +210,65 @@ export default function ConnectIpsPayoutModal({
       onClose={handleResetAndClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
-          boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.4)'
+          boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.4)',
+          border: isMobile ? 'none' : '1px solid rgba(226, 232, 240, 0.8)'
         }
       }}
     >
       <DialogTitle
         sx={{
-          bgcolor: '#0F2E5A',
-          color: '#FFFFFF',
-          fontWeight: 900,
+          m: 0,
+          px: { xs: 2, sm: 2.5 },
           py: 2,
-          px: 3,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+          color: '#FFFFFF',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          borderBottom: '2px solid #F59E0B'
+          borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <AccountBalanceIcon sx={{ color: '#F59E0B', fontSize: 26 }} />
-          <Box>
-            <Typography variant="subtitle1" sx={{ fontWeight: 900, color: '#FFFFFF', lineHeight: 1.2 }}>
-              {completedVoucher ? 'Payment Completed Successfully (Receipt Voucher)' : 'ConnectIPS / Bank Payout Terminal'}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
+          <Box
+            sx={{
+              width: 42,
+              height: 42,
+              borderRadius: 2,
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#F59E0B',
+              flexShrink: 0
+            }}
+          >
+            <AccountBalanceIcon />
+          </Box>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, color: '#FFFFFF', lineHeight: 1.2 }}>
+              {completedVoucher ? 'Payment Completed (Receipt Voucher)' : 'ConnectIPS / Bank Payout Terminal'}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#94A3B8' }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block' }}>
               Party: {party.name} ({party.category})
             </Typography>
           </Box>
         </Box>
-        <IconButton size="small" onClick={handleResetAndClose} sx={{ color: '#94A3B8', '&:hover': { color: '#FFF' } }}>
-          <CloseIcon fontSize="small" />
+        <IconButton
+          aria-label="Close ConnectIPS payout modal"
+          onClick={handleResetAndClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
+          <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ p: 3 }}>
+      <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
         {completedVoucher ? (
           /* =========================================================
              VOUCHER SUCCESS CONFIRMATION SLIP
@@ -273,27 +299,37 @@ export default function ConnectIpsPayoutModal({
               Voucher No: <strong>{completedVoucher.voucherNo}</strong> • Date: {completedVoucher.date}
             </Typography>
 
-            <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 3, bgcolor: '#F8FAFC', textAlign: 'left', mb: 3 }}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                textAlign: 'left',
+                mb: 2.5
+              }}
+            >
               <Grid container spacing={1.5}>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>Beneficiary Party:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>{party.name}</Typography>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Beneficiary Party</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2C59' }}>{party.name}</Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>Payment Amount:</Typography>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Payment Amount</Typography>
                   <Typography variant="body1" sx={{ fontWeight: 900, color: '#059669' }}>
                     Rs. {completedVoucher.amount.toLocaleString()}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>Method & Account:</Typography>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>Method &amp; Account</Typography>
                   <Typography variant="body2" sx={{ fontWeight: 700 }}>
                     {completedVoucher.paymentMethod} • {completedVoucher.toBank}
                   </Typography>
                 </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#64748B' }}>ConnectIPS Txn ID:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, fontFamily: 'monospace', color: '#1E40AF' }}>
+                <Grid item xs={12} sm={6}>
+                  <Typography variant="caption" sx={{ color: '#64748B' }}>ConnectIPS Txn ID</Typography>
+                  <Typography variant="body2" sx={{ fontWeight: 800, fontFamily: 'monospace', color: '#1E3A8A' }}>
                     {completedVoucher.txnReference}
                   </Typography>
                 </Grid>
@@ -307,12 +343,12 @@ export default function ConnectIpsPayoutModal({
               </Grid>
             </Paper>
 
-            <Stack direction="row" spacing={1.5} justifyContent="center">
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} justifyContent="center">
               <Button
                 variant="outlined"
                 startIcon={<PrintIcon />}
                 onClick={() => window.print()}
-                sx={{ borderRadius: 2.5, fontWeight: 800, py: 1, textTransform: 'none' }}
+                sx={{ borderRadius: 2, fontWeight: 800, py: 1, textTransform: 'none' }}
               >
                 Print Voucher
               </Button>
@@ -326,7 +362,7 @@ export default function ConnectIpsPayoutModal({
                   `Dear ${party.name},\n\nPayment of Rs. ${completedVoucher.amount.toLocaleString()} has been processed via ConnectIPS from Prabidhik School, Jorpati (Global Era Multi Service Pvt. Ltd.).\n\nVoucher No: ${completedVoucher.voucherNo}\nConnectIPS Ref ID: ${completedVoucher.txnReference}\nDate: ${completedVoucher.date}\nRemarks: ${completedVoucher.remarks}\n\nThank you!`
                 )}
                 target="_blank"
-                sx={{ borderRadius: 2.5, fontWeight: 900, py: 1, textTransform: 'none', bgcolor: '#25D366' }}
+                sx={{ borderRadius: 2, fontWeight: 900, py: 1, textTransform: 'none', bgcolor: '#25D366' }}
               >
                 Send Slip via WhatsApp
               </Button>
@@ -337,34 +373,46 @@ export default function ConnectIpsPayoutModal({
              PAYMENT INPUT FORM
              ========================================================= */
           <Box>
-            {/* Party Profile Summary Card */}
+            {/* Section 1: Beneficiary & Liability Summary */}
             <Paper
               elevation={0}
               sx={{
-                p: 2,
-                mb: 2.5,
-                borderRadius: 2.5,
-                bgcolor: '#F1F5F9',
-                border: '1px solid #CBD5E1'
+                p: { xs: 1.5, sm: 2 },
+                mb: 2,
+                borderRadius: 2,
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0'
               }}
             >
-              <Grid container spacing={1}>
-                <Grid item xs={7}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                    Saved Beneficiary Bank Details:
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  mb: 1.2
+                }}
+              >
+                Beneficiary &amp; Liability Summary
+              </Typography>
+              <Grid container spacing={1.5} alignItems="center">
+                <Grid item xs={12} sm={7}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
+                    Saved Beneficiary Bank Details
                   </Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2C59' }}>
                     {toBankName} • A/C: {toAccountNumber}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#475569' }}>
                     Account Holder: {toAccountHolder}
                   </Typography>
                 </Grid>
-                <Grid item xs={5} sx={{ textAlign: 'right' }}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                    Current Payable Liability:
+                <Grid item xs={12} sm={5} sx={{ textAlign: { xs: 'left', sm: 'right' } }}>
+                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, display: 'block' }}>
+                    Current Payable Liability
                   </Typography>
-                  <Typography variant="h6" sx={{ fontWeight: 900, color: party.currentDue > 0 ? '#DC2626' : '#059669' }}>
+                  <Typography variant="h6" sx={{ fontWeight: 900, color: party.currentDue > 0 ? '#DC2626' : '#059669', lineHeight: 1.2 }}>
                     Rs. {(party.currentDue || 0).toLocaleString()}
                   </Typography>
                   {party.monthlyRent && (
@@ -376,166 +424,225 @@ export default function ConnectIpsPayoutModal({
               </Grid>
             </Paper>
 
-            <Grid container spacing={2}>
-              {/* Payment Method */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  label="Payment Method"
-                  value={payMethod}
-                  onChange={(e) => setPayMethod(e.target.value)}
-                >
-                  <MenuItem value="CONNECT_IPS">⚡ ConnectIPS (Immediate)</MenuItem>
-                  <MenuItem value="BANK_TRANSFER">🏦 Bank Account Transfer</MenuItem>
-                  <MenuItem value="ACCOUNT_DEPOSIT">💵 Direct Bank Deposit</MenuItem>
-                  <MenuItem value="ESEWA">📱 eSewa / Khalti</MenuItem>
-                  <MenuItem value="CASH">💵 Counter Cash</MenuItem>
-                </TextField>
+            {/* Section 2: Payment & Banking Details */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                mb: 2,
+                borderRadius: 2,
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0'
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  mb: 1.5
+                }}
+              >
+                Payment &amp; Banking Details
+              </Typography>
+
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Payment Method"
+                    value={payMethod}
+                    onChange={(e) => setPayMethod(e.target.value)}
+                  >
+                    <MenuItem value="CONNECT_IPS">ConnectIPS (Immediate)</MenuItem>
+                    <MenuItem value="BANK_TRANSFER">Bank Account Transfer</MenuItem>
+                    <MenuItem value="ACCOUNT_DEPOSIT">Direct Bank Deposit</MenuItem>
+                    <MenuItem value="ESEWA">eSewa / Khalti</MenuItem>
+                    <MenuItem value="CASH">Counter Cash</MenuItem>
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="From Institution Account"
+                    value={fromBank}
+                    onChange={(e) => setFromBank(e.target.value)}
+                  >
+                    <MenuItem value="Nabil Bank (A/C: 0123456789)">Nabil Bank Ltd. (Main Operation)</MenuItem>
+                    <MenuItem value="Global IME Bank (A/C: 0987654321)">Global IME Bank Ltd.</MenuItem>
+                    <MenuItem value="Counter Cash Balance (Counter Cash)">Counter Cash Balance (Cash Box)</MenuItem>
+                  </TextField>
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    required
+                    size="small"
+                    label="Payment Amount (Rs.)"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => {
+                      setAmount(e.target.value);
+                      handleCalculateTds(e.target.value);
+                    }}
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
+                    }}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Payment Date"
+                    type="date"
+                    value={paymentDate}
+                    onChange={(e) => setPaymentDate(e.target.value)}
+                    InputLabelProps={{ shrink: true }}
+                  />
+                </Grid>
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    required={payMethod === 'CONNECT_IPS'}
+                    size="small"
+                    label="ConnectIPS Trx ID / UTR / Voucher Ref No."
+                    placeholder="e.g. CIP-90812894129"
+                    value={txnReference}
+                    onChange={(e) => setTxnReference(e.target.value)}
+                    helperText="Enter the ConnectIPS transaction ID for audit and verification."
+                  />
+                </Grid>
               </Grid>
+            </Paper>
 
-              {/* Paying From Bank */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  fullWidth
-                  size="small"
-                  label="From Institution Account"
-                  value={fromBank}
-                  onChange={(e) => setFromBank(e.target.value)}
-                >
-                  <MenuItem value="Nabil Bank (A/C: 0123456789)">Nabil Bank Ltd. (Main Operation)</MenuItem>
-                  <MenuItem value="Global IME Bank (A/C: 0987654321)">Global IME Bank Ltd.</MenuItem>
-                  <MenuItem value="Counter Cash Balance (Counter Cash)">Counter Cash Balance (Cash Box)</MenuItem>
-                </TextField>
+            {/* Section 3: Tax, Rent & Remarks */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: { xs: 1.5, sm: 2 },
+                borderRadius: 2,
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0'
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: '0.7rem',
+                  fontWeight: 800,
+                  color: '#64748B',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                  mb: 1.5
+                }}
+              >
+                {party.category === 'LANDLORD' ? 'Rent, TDS & Remarks' : 'Narration & Remarks'}
+              </Typography>
+
+              <Grid container spacing={2}>
+                {party.category === 'LANDLORD' && (
+                  <>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        select
+                        fullWidth
+                        size="small"
+                        label="Target Rent Month"
+                        value={monthTarget}
+                        onChange={(e) => setMonthTarget(e.target.value)}
+                      >
+                        {['Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra', 'Baisakh', 'Jestha', 'Ashad'].map((m) => (
+                          <MenuItem key={m} value={m}>{m} Rent</MenuItem>
+                        ))}
+                      </TextField>
+                    </Grid>
+
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="TDS Deduction Amount (10%)"
+                        type="number"
+                        value={tdsDeducted}
+                        onChange={(e) => setTdsDeducted(Number(e.target.value) || 0)}
+                        InputProps={{
+                          startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
+                        }}
+                        helperText={`Net Payable to Landlord: Rs. ${(Math.max(0, (Number(amount) || 0) - tdsDeducted)).toLocaleString()}`}
+                      />
+                    </Grid>
+                  </>
+                )}
+
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    label="Remarks"
+                    value={remarks}
+                    onChange={(e) => setRemarks(e.target.value)}
+                    placeholder="e.g. Building rent for Baisakh paid via ConnectIPS"
+                  />
+                </Grid>
               </Grid>
-
-              {/* Amount */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  required
-                  size="small"
-                  label="Payment Amount (Rs.)"
-                  type="number"
-                  value={amount}
-                  onChange={(e) => {
-                    setAmount(e.target.value);
-                    handleCalculateTds(e.target.value);
-                  }}
-                  InputProps={{
-                    startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
-                  }}
-                />
-              </Grid>
-
-              {/* Payment Date */}
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Payment Date"
-                  type="date"
-                  value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-
-              {/* Transaction Ref / ConnectIPS Txn ID */}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  required={payMethod === 'CONNECT_IPS'}
-                  size="small"
-                  label="ConnectIPS Trx ID / UTR / Voucher Ref No."
-                  placeholder="e.g. CIP-90812894129"
-                  value={txnReference}
-                  onChange={(e) => setTxnReference(e.target.value)}
-                  helperText="Enter the ConnectIPS transaction ID for audit and verification."
-                />
-              </Grid>
-
-              {/* Landlord Rent Details (if applicable) */}
-              {party.category === 'LANDLORD' && (
-                <>
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      select
-                      fullWidth
-                      size="small"
-                      label="Target Rent Month"
-                      value={monthTarget}
-                      onChange={(e) => setMonthTarget(e.target.value)}
-                    >
-                      {['Shrawan', 'Bhadra', 'Ashwin', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra', 'Baisakh', 'Jestha', 'Ashad'].map((m) => (
-                        <MenuItem key={m} value={m}>{m} Rent</MenuItem>
-                      ))}
-                    </TextField>
-                  </Grid>
-
-                  <Grid item xs={12} sm={6}>
-                    <TextField
-                      fullWidth
-                      size="small"
-                      label="TDS Deduction Amount (10%)"
-                      type="number"
-                      value={tdsDeducted}
-                      onChange={(e) => setTdsDeducted(Number(e.target.value) || 0)}
-                      InputProps={{
-                        startAdornment: <InputAdornment position="start">Rs.</InputAdornment>
-                      }}
-                      helperText={`Net Payable to Landlord: Rs. ${(Math.max(0, (Number(amount) || 0) - tdsDeducted)).toLocaleString()}`}
-                    />
-                  </Grid>
-                </>
-              )}
-
-              {/* Remarks */}
-              <Grid item xs={12}>
-                <TextField
-                  fullWidth
-                  size="small"
-                  label="Remarks"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                  placeholder="e.g. Building rent for Baisakh paid via ConnectIPS"
-                />
-              </Grid>
-            </Grid>
+            </Paper>
           </Box>
         )}
       </DialogContent>
 
-      <DialogActions sx={{ p: 2.5, bgcolor: '#F8FAFC', borderTop: '1px solid #E2E8F0' }}>
+      <DialogActions
+        sx={{
+          px: 2.5,
+          py: 1.5,
+          bgcolor: '#FFFFFF',
+          borderTop: '1px solid #E2E8F0',
+          justifyContent: completedVoucher ? 'flex-end' : 'space-between'
+        }}
+      >
         {completedVoucher ? (
           <Button
             variant="contained"
             onClick={handleResetAndClose}
-            sx={{ bgcolor: '#0F2E5A', borderRadius: 2.5, px: 3, fontWeight: 800 }}
+            sx={{
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+              borderRadius: 2,
+              px: 3,
+              fontWeight: 800,
+              textTransform: 'none'
+            }}
           >
             Close
           </Button>
         ) : (
           <>
-            <Button onClick={handleResetAndClose} sx={{ color: '#64748B', fontWeight: 800 }}>
+            <Button onClick={handleResetAndClose} sx={{ color: '#64748B', fontWeight: 700, textTransform: 'none' }}>
               Cancel
             </Button>
             <Button
               variant="contained"
               onClick={handleProcessPayment}
+              startIcon={<PaymentIcon />}
               sx={{
-                bgcolor: '#0F2E5A',
-                borderRadius: 2.5,
-                px: 3.5,
+                background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
+                borderRadius: 2,
+                px: 3,
                 py: 1,
-                fontWeight: 900,
-                boxShadow: '0 4px 14px rgba(15, 46, 90, 0.35)',
-                '&:hover': { bgcolor: '#174276' }
+                fontWeight: 800,
+                textTransform: 'none',
+                boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)'
               }}
             >
-              💸 Confirm Payout
+              Confirm Payout
             </Button>
           </>
         )}

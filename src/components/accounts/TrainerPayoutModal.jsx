@@ -15,7 +15,9 @@ import {
   Paper,
   InputAdornment,
   Divider,
-  Chip
+  Chip,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PaymentsIcon from '@mui/icons-material/Payments';
@@ -30,6 +32,8 @@ export default function TrainerPayoutModal({
   db,
   preselectedTrainerId = null
 }) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { currentUser } = useAuth();
 
   const [trainerId, setTrainerId] = useState('');
@@ -201,20 +205,22 @@ export default function TrainerPayoutModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      fullScreen={isMobile}
       PaperProps={{
         sx: {
-          borderRadius: 3.5,
+          borderRadius: isMobile ? 0 : 3.5,
           overflow: 'hidden',
           boxShadow: '0 24px 60px rgba(15, 23, 42, 0.25)',
-          border: '1px solid rgba(226, 232, 240, 0.8)'
+          border: isMobile ? 'none' : '1px solid rgba(226, 232, 240, 0.8)'
         }
       }}
     >
       <DialogTitle
         sx={{
           m: 0,
-          p: 2.5,
-          background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+          px: { xs: 2, sm: 2.5 },
+          py: 2,
+          background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
           color: '#FFFFFF',
           display: 'flex',
           alignItems: 'center',
@@ -222,215 +228,279 @@ export default function TrainerPayoutModal({
           borderBottom: '3px solid #F59E0B'
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 }}>
           <Box
             sx={{
               width: 42,
               height: 42,
               borderRadius: 2,
-              bgcolor: 'rgba(255,255,255,0.2)',
+              bgcolor: 'rgba(245, 158, 11, 0.18)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#FFFFFF'
+              color: '#F59E0B',
+              flexShrink: 0
             }}
           >
             <PaymentsIcon />
           </Box>
-          <Box>
-            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: '1.15rem', lineHeight: 1.2 }}>
-              Trainer Remuneration & Commission Payout
+          <Box sx={{ minWidth: 0 }}>
+            <Typography variant="h6" sx={{ fontWeight: 800, fontSize: { xs: '1.05rem', sm: '1.15rem' }, lineHeight: 1.2 }}>
+              Trainer Remuneration &amp; Commission Payout
             </Typography>
-            <Typography variant="caption" sx={{ color: '#FDE68A', fontWeight: 500 }}>
+            <Typography variant="caption" sx={{ color: '#CBD5E1', fontWeight: 500, display: 'block' }}>
               Issue commission or monthly salary payout voucher
             </Typography>
           </Box>
         </Box>
-        <IconButton onClick={onClose} sx={{ color: '#FDE68A', '&:hover': { color: '#FFF' } }}>
+        <IconButton
+          aria-label="Close trainer payout modal"
+          onClick={onClose}
+          sx={{ color: '#CBD5E1', '&:hover': { color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.1)' } }}
+        >
           <CloseIcon />
         </IconButton>
       </DialogTitle>
 
-      <form onSubmit={handleSubmit}>
-        <DialogContent sx={{ p: 3, bgcolor: '#F8FAFC' }}>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}
+      >
+        <DialogContent sx={{ p: { xs: 2, sm: 2.5 }, bgcolor: '#F8FAFC', overflowY: 'auto' }}>
           {errorMsg && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, borderRadius: 2 }}>
               {errorMsg}
             </Alert>
           )}
 
-          {/* Trainer Selector */}
-          <TextField
-            select
-            fullWidth
-            required
-            label="Select Trainer"
-            value={trainerId}
-            onChange={(e) => handleTrainerChange(e.target.value)}
-            sx={{ mb: 2.5 }}
+          {/* Section 1: Trainer & Remuneration Model */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              mb: 2,
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
           >
-            <MenuItem value="">
-              <em>-- Select Trainer --</em>
-            </MenuItem>
-            {trainers.map((t) => (
-              <MenuItem key={t.id} value={t.id}>
-                {t.name} ({t.remunerationType === 'SALARY' ? `Monthly Salary: Rs. ${(t.monthlySalary || 25000).toLocaleString()}` : 'Commission Model'})
-              </MenuItem>
-            ))}
-          </TextField>
+            <Typography
+              sx={{
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
+              }}
+            >
+              Trainer &amp; Remuneration Model
+            </Typography>
 
-          {/* Payout Type Selector */}
-          <Grid container spacing={2} sx={{ mb: 2.5 }}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Payout Type"
-                value={payoutType}
-                onChange={(e) => setPayoutType(e.target.value)}
-              >
-                <MenuItem value="COMMISSION">Batch Commission (% Commission)</MenuItem>
-                <MenuItem value="SALARY">Fixed Monthly Salary</MenuItem>
-              </TextField>
-            </Grid>
-
-            {payoutType === 'COMMISSION' && (
-              <Grid item xs={12} sm={6}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
                 <TextField
                   select
                   fullWidth
                   required
-                  label="Assigned Training Batch"
-                  value={groupId}
-                  onChange={(e) => handleGroupChange(e.target.value)}
+                  size="small"
+                  label="Select Trainer"
+                  value={trainerId}
+                  onChange={(e) => handleTrainerChange(e.target.value)}
                 >
                   <MenuItem value="">
-                    <em>-- Select Batch --</em>
+                    <em>-- Select Trainer --</em>
                   </MenuItem>
-                  {assignedGroups.map((g) => (
-                    <MenuItem key={g.id} value={g.id}>
-                      {g.groupCode || g.id} (Commission: {g.trainerCommissionPercent || 25}%)
+                  {trainers.map((t) => (
+                    <MenuItem key={t.id} value={t.id}>
+                      {t.name} ({t.remunerationType === 'SALARY' ? `Monthly Salary: Rs. ${(t.monthlySalary || 25000).toLocaleString()}` : 'Commission Model'})
                     </MenuItem>
                   ))}
                 </TextField>
               </Grid>
-            )}
-          </Grid>
 
-          {/* Commission Calculation Overview Card */}
-          {payoutType === 'COMMISSION' && selectedGroupCommission && (
-            <Paper
-              elevation={0}
+              <Grid item xs={12} sm={payoutType === 'COMMISSION' ? 6 : 12}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Payout Type"
+                  value={payoutType}
+                  onChange={(e) => setPayoutType(e.target.value)}
+                >
+                  <MenuItem value="COMMISSION">Batch Commission (% Commission)</MenuItem>
+                  <MenuItem value="SALARY">Fixed Monthly Salary</MenuItem>
+                </TextField>
+              </Grid>
+
+              {payoutType === 'COMMISSION' && (
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    fullWidth
+                    required
+                    size="small"
+                    label="Assigned Training Batch"
+                    value={groupId}
+                    onChange={(e) => handleGroupChange(e.target.value)}
+                  >
+                    <MenuItem value="">
+                      <em>-- Select Batch --</em>
+                    </MenuItem>
+                    {assignedGroups.map((g) => (
+                      <MenuItem key={g.id} value={g.id}>
+                        {g.groupCode || g.id} (Commission: {g.trainerCommissionPercent || 25}%)
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                </Grid>
+              )}
+            </Grid>
+
+            {payoutType === 'COMMISSION' && selectedGroupCommission && (
+              <Box
+                sx={{
+                  mt: 2,
+                  p: { xs: 1.5, sm: 2 },
+                  borderRadius: 2,
+                  bgcolor: '#FFFBEB',
+                  border: '1px solid #FDE68A'
+                }}
+              >
+                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#92400E', mb: 1.2 }}>
+                  Actual Collected Fee &amp; Commission Calculation
+                </Typography>
+                <Grid container spacing={1.5}>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Fee Collected</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>Rs. {selectedGroupCommission.collected.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Commission Rate</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>{selectedGroupCommission.commPercent}%</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Total Accrued Commission</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#047857' }}>Rs. {selectedGroupCommission.totalEarned.toLocaleString()}</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Payable Balance Due</Typography>
+                    <Typography variant="body2" sx={{ fontWeight: 900, color: '#B45309' }}>Rs. {selectedGroupCommission.due.toLocaleString()}</Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+            )}
+          </Paper>
+
+          {/* Section 2: Disbursement Details */}
+          <Paper
+            elevation={0}
+            sx={{
+              p: { xs: 1.5, sm: 2 },
+              borderRadius: 2,
+              border: '1px solid #E2E8F0',
+              bgcolor: '#FFFFFF'
+            }}
+          >
+            <Typography
               sx={{
-                p: 2,
-                mb: 3,
-                borderRadius: 2.5,
-                bgcolor: '#FEF3C7',
-                border: '1.5px solid #FCD34D'
+                fontSize: '0.7rem',
+                fontWeight: 800,
+                color: '#64748B',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+                mb: 1.5
               }}
             >
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#92400E', mb: 1 }}>
-                Actual Collected Fee & Commission Calculation
-              </Typography>
-              <Grid container spacing={1} sx={{ fontSize: '0.85rem' }}>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Fee Collected:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>Rs. {selectedGroupCommission.collected.toLocaleString()}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Commission Rate:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#92400E' }}>{selectedGroupCommission.commPercent}%</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Total Accrued Commission:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 700, color: '#047857' }}>Rs. {selectedGroupCommission.totalEarned.toLocaleString()}</Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="caption" sx={{ color: '#78350F', display: 'block' }}>Payable Balance Due:</Typography>
-                  <Typography variant="body2" sx={{ fontWeight: 900, color: '#B45309' }}>Rs. {selectedGroupCommission.due.toLocaleString()}</Typography>
-                </Grid>
+              Disbursement Details
+            </Typography>
+
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  required
+                  size="small"
+                  type="number"
+                  label="Payout Amount (Rs.)"
+                  placeholder="e.g. 5000"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MonetizationOnIcon sx={{ color: '#B45309' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
               </Grid>
-            </Paper>
-          )}
 
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                required
-                type="number"
-                label="Payout Amount (Rs.)"
-                placeholder="e.g. 5000"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MonetizationOnIcon sx={{ color: '#B45309' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Payment Method"
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                >
+                  <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
+                  <MenuItem value="Cash">Cash</MenuItem>
+                  <MenuItem value="Cheque">Cheque</MenuItem>
+                  <MenuItem value="Fonepay / QR">Fonepay / QR</MenuItem>
+                </TextField>
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                select
-                fullWidth
-                label="Payment Method"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              >
-                <MenuItem value="Bank Transfer">Bank Transfer</MenuItem>
-                <MenuItem value="Cash">Cash</MenuItem>
-                <MenuItem value="Cheque">Cheque</MenuItem>
-                <MenuItem value="Fonepay / QR">Fonepay / QR</MenuItem>
-              </TextField>
-            </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="date"
+                  label="Payout Date"
+                  InputLabelProps={{ shrink: true }}
+                  value={payoutDate}
+                  onChange={(e) => setPayoutDate(e.target.value)}
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="date"
-                label="Payout Date"
-                InputLabelProps={{ shrink: true }}
-                value={payoutDate}
-                onChange={(e) => setPayoutDate(e.target.value)}
-              />
-            </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  type="month"
+                  label="Month"
+                  InputLabelProps={{ shrink: true }}
+                  value={payoutMonth}
+                  onChange={(e) => setPayoutMonth(e.target.value)}
+                />
+              </Grid>
 
-            <Grid item xs={12} sm={6}>
-              <TextField
-                fullWidth
-                type="month"
-                label="Month"
-                InputLabelProps={{ shrink: true }}
-                value={payoutMonth}
-                onChange={(e) => setPayoutMonth(e.target.value)}
-              />
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  label="Remarks"
+                  placeholder="e.g. Batch BT-01 commission or monthly salary payout..."
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <NoteAltIcon sx={{ color: '#64748B' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </Grid>
             </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Remarks"
-                placeholder="e.g. Batch BT-01 commission or monthly salary payout..."
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <NoteAltIcon sx={{ color: '#64748B' }} />
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </Grid>
-          </Grid>
+          </Paper>
         </DialogContent>
 
-        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
-          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700 }}>
+        <DialogActions sx={{ px: 2.5, py: 1.5, bgcolor: '#FFFFFF', borderTop: '1px solid #E2E8F0', justifyContent: 'space-between' }}>
+          <Button onClick={onClose} sx={{ color: '#64748B', fontWeight: 700, textTransform: 'none' }}>
             Cancel
           </Button>
           <Button
@@ -439,18 +509,19 @@ export default function TrainerPayoutModal({
             disabled={!trainerId || !amount || Number(amount) <= 0}
             startIcon={<PaymentsIcon />}
             sx={{
-              background: 'linear-gradient(135deg, #78350F 0%, #B45309 100%)',
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
               fontWeight: 800,
-              px: 3.5,
+              textTransform: 'none',
+              px: 3,
               py: 1,
-              borderRadius: 2.5,
-              boxShadow: '0 4px 14px rgba(180, 83, 9, 0.35)'
+              borderRadius: 2,
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.3)'
             }}
           >
             Disburse Payout
           </Button>
         </DialogActions>
-      </form>
+      </Box>
     </Dialog>
   );
 }

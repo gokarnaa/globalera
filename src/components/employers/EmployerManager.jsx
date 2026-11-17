@@ -27,7 +27,9 @@ import {
   Paper,
   InputAdornment,
   ToggleButton,
-  ToggleButtonGroup
+  ToggleButtonGroup,
+  useTheme,
+  useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -71,6 +73,8 @@ const getAvatarBg = (industry = '', name = '') => {
 };
 
 export default function EmployerManager() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [db, setDb] = useState(loadDB());
   const [openDialog, setOpenDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
@@ -995,12 +999,13 @@ export default function EmployerManager() {
         onClose={() => setOpenDialog(false)}
         maxWidth="sm"
         fullWidth
+        fullScreen={isMobile}
         BackdropProps={{
           sx: { backdropFilter: 'blur(5px)', bgcolor: 'rgba(15, 23, 42, 0.45)' }
         }}
         PaperProps={{
           sx: {
-            borderRadius: 4,
+            borderRadius: isMobile ? 0 : 3.5,
             overflow: 'hidden',
             boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
             border: '1px solid rgba(226, 232, 240, 0.8)'
@@ -1009,8 +1014,8 @@ export default function EmployerManager() {
       >
         <DialogTitle
           sx={{
-            p: 2.5,
-            background: 'linear-gradient(135deg, #0F2E5A 0%, #1E40AF 100%)',
+            p: { xs: 2, sm: 2.5 },
+            background: 'linear-gradient(135deg, #0F2C59 0%, #1E3A8A 100%)',
             color: '#FFFFFF',
             display: 'flex',
             justifyContent: 'space-between',
@@ -1033,6 +1038,7 @@ export default function EmployerManager() {
           </Box>
           <IconButton
             size="small"
+            aria-label="Close employer dialog"
             onClick={() => setOpenDialog(false)}
             sx={{
               color: 'rgba(255, 255, 255, 0.85)',
@@ -1046,141 +1052,162 @@ export default function EmployerManager() {
         <DialogContent
           dividers
           sx={{
-            p: 3,
-            bgcolor: '#FFFFFF',
+            p: { xs: 2, sm: 2.5 },
+            bgcolor: '#F8FAFC',
             '&::-webkit-scrollbar': { width: 6 },
             '&::-webkit-scrollbar-track': { background: '#F1F5F9' },
             '&::-webkit-scrollbar-thumb': { background: '#CBD5E1', borderRadius: 3 },
             '&::-webkit-scrollbar-thumb:hover': { background: '#94A3B8' }
           }}
         >
-          <Stack spacing={2.5}>
-            <TextField
-              label="Organization / Company Name *"
-              fullWidth
-              size="small"
-              placeholder="e.g. Organization Name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
-            />
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  label="Industry / Field"
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. Hospital & Healthcare"
-                  value={formData.industry}
-                  onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
-                />
+          <Stack spacing={2}>
+            {/* Section 1: Organization Profile */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#0F2C59' }} />
+                1. Organization Profile
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    label="Organization / Company Name *"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Organization Name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Industry / Field"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Hospital & Healthcare"
+                    value={formData.industry}
+                    onChange={(e) => setFormData({ ...formData, industry: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Office Location"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Thapathali, Kathmandu"
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="Office Location"
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. Thapathali, Kathmandu"
-                  value={formData.location}
-                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                />
-              </Grid>
-            </Grid>
+            </Paper>
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  label="Contact Person Name"
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. Dr. Rajesh KC (HR Head)"
-                  value={formData.contactPerson}
-                  onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                />
+            {/* Section 2: Primary Contact & Status */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#2563EB' }} />
+                2. Primary Contact & Status
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Contact Person Name"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. Dr. Rajesh KC (HR Head)"
+                    value={formData.contactPerson}
+                    onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Official Mobile / Phone *"
+                    fullWidth
+                    size="small"
+                    placeholder="98XXXXXXXX"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="Email Address"
+                    fullWidth
+                    size="small"
+                    placeholder="hr@example.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="Status"
+                    fullWidth
+                    size="small"
+                    value={formData.status}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  >
+                    <MenuItem value="Active">Active Partner</MenuItem>
+                    <MenuItem value="Pending Approval">Pending Approval</MenuItem>
+                    <MenuItem value="Inactive">Inactive</MenuItem>
+                  </TextField>
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="Official Mobile / Phone *"
-                  fullWidth
-                  size="small"
-                  placeholder="98XXXXXXXX"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-              </Grid>
-            </Grid>
+            </Paper>
 
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  label="Email Address"
-                  fullWidth
-                  size="small"
-                  placeholder="hr@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
+            {/* Section 3: OJT Capacity & MoU Agreement */}
+            <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', mb: 1.5, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: '#059669' }} />
+                3. OJT Capacity & MoU Agreement
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    label="OJT Seat Capacity"
+                    type="number"
+                    fullWidth
+                    size="small"
+                    placeholder="e.g. 5"
+                    value={formData.ojtCapacity || ''}
+                    onChange={(e) => setFormData({ ...formData, ojtCapacity: e.target.value })}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    select
+                    label="MoU Agreement Status"
+                    fullWidth
+                    size="small"
+                    value={formData.mouStatus || 'Signed'}
+                    onChange={(e) => setFormData({ ...formData, mouStatus: e.target.value })}
+                  >
+                    <MenuItem value="Signed">Signed MoU</MenuItem>
+                    <MenuItem value="Pending Renewal">Pending Renewal</MenuItem>
+                    <MenuItem value="Trial / Verbal">Trial / Verbal</MenuItem>
+                  </TextField>
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    label="MoU Terms / Notes"
+                    multiline
+                    rows={2}
+                    fullWidth
+                    size="small"
+                    placeholder="Additional details regarding the Memorandum of Understanding (MoU)..."
+                    value={formData.remarks}
+                    onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  select
-                  label="Status"
-                  fullWidth
-                  size="small"
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                >
-                  <MenuItem value="Active">Active Partner</MenuItem>
-                  <MenuItem value="Pending Approval">Pending Approval</MenuItem>
-                  <MenuItem value="Inactive">Inactive</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  label="OJT Seat Capacity"
-                  type="number"
-                  fullWidth
-                  size="small"
-                  placeholder="e.g. 5"
-                  value={formData.ojtCapacity || ''}
-                  onChange={(e) => setFormData({ ...formData, ojtCapacity: e.target.value })}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  select
-                  label="MoU Agreement Status"
-                  fullWidth
-                  size="small"
-                  value={formData.mouStatus || 'Signed'}
-                  onChange={(e) => setFormData({ ...formData, mouStatus: e.target.value })}
-                >
-                  <MenuItem value="Signed">Signed MoU</MenuItem>
-                  <MenuItem value="Pending Renewal">Pending Renewal</MenuItem>
-                  <MenuItem value="Trial / Verbal">Trial / Verbal</MenuItem>
-                </TextField>
-              </Grid>
-            </Grid>
-
-            <TextField
-              label="MoU Terms / Notes"
-              multiline
-              rows={2}
-              fullWidth
-              size="small"
-              placeholder="Additional details regarding the Memorandum of Understanding (MoU)..."
-              value={formData.remarks}
-              onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-            />
+            </Paper>
           </Stack>
         </DialogContent>
         <DialogActions
           sx={{
-            p: 2.5,
+            p: { xs: 1.5, sm: 2.5 },
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',
