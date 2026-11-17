@@ -581,7 +581,7 @@ export function markThreadRead(phone) {
   saveThreadMetaMap(map);
 }
 
-export function toggleBotPause(phone, paused) {
+export async function toggleBotPause(phone, paused) {
   const key = normalizePhoneKey(phone);
   if (!key) return;
   const map = getThreadMetaMap();
@@ -590,6 +590,67 @@ export function toggleBotPause(phone, paused) {
     botPaused: Boolean(paused)
   };
   saveThreadMetaMap(map);
+
+  // Sync explicit pause/resume state to Supabase so Vercel Webhook respects Human Takeover
+  try {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      await supabase.from('whatsapp_logs').insert({
+        phone: formatToWhatsAppRecipient(phone) || key,
+        direction: 'outbound',
+        message_type: paused ? 'bot_pause_state' : 'bot_resume_state',
+        status: paused ? 'paused' : 'resumed',
+        content: paused ? '[Human Takeover: Auto-Bot Paused]' : '[Auto-Bot Resumed]'
+      });
+    }
+  } catch {
+    // non-fatal
+  }
+}
+
+export function getBotSettings() {
+  const db = loadDB();
+  const bot = db.settings?.whatsappBot || {};
+  return {
+    autoBotEnabled: bot.autoBotEnabled !== false,
+    aiCounselorEnabled: bot.aiCounselorEnabled !== false,
+    geminiApiKey: bot.geminiApiKey || '',
+    aiInstructions: bot.aiInstructions || ''
+  };
+}
+
+export async function saveBotSettings(nextBot) {
+  const db = loadDB();
+  const merged = { ...getBotSettings(), ...nextBot };
+  const nextDb = {
+    ...db,
+    settings: {
+      ...(db.settings || {}),
+      whatsappBot: merged
+    }
+  };
+  saveDB(nextDb);
+
+  try {
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      const { data } = await supabase.from('system_settings').select('id, extra_settings').limit(1);
+      if (Array.isArray(data) && data[0]?.id) {
+        await supabase
+          .from('system_settings')
+          .update({
+            extra_settings: {
+              ...(data[0].extra_settings || {}),
+              whatsappBot: merged
+            }
+          })
+          .eq('id', data[0].id);
+      }
+    }
+  } catch {
+    // non-fatal
+  }
+  return merged;
 }
 
 export function togglePinContact(phone) {
@@ -758,8 +819,9 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
     });
   });
 
-  // 2. Remote Supabase whatsapp_logs (outbound, auto_bot, delivery statuses)
+  // 2. Remote Supabase whatsapp_logs (outbound, auto_bot, delivery statuses; skip internal bot state markers)
   (remoteData.logs || []).forEach((lg) => {
+    if (lg.message_type === 'bot_pause_state' || lg.message_type === 'bot_resume_state') return;
     pushMessage({
       id: `RLOG-${lg.id}`,
       key: normalizePhoneKey(lg.phone),

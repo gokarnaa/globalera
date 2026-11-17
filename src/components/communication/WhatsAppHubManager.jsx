@@ -24,7 +24,9 @@ import {
   DialogContent,
   DialogActions,
   IconButton,
-  Stack
+  Stack,
+  Switch,
+  FormControlLabel
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -40,6 +42,7 @@ import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import { loadDB, logCommunication } from '../../services/storage';
@@ -51,7 +54,9 @@ import {
   getWhatsAppSettings,
   getWhatsAppTemplates,
   saveWhatsAppTemplates,
-  resetWhatsAppTemplates
+  resetWhatsAppTemplates,
+  getBotSettings,
+  saveBotSettings
 } from '../../services/whatsappCloudApi';
 
 const STATUS_TONE = {
@@ -88,6 +93,11 @@ export default function WhatsAppHubManager() {
   const [tplDialogOpen, setTplDialogOpen] = useState(false);
   const [editingTpl, setEditingTpl] = useState({ key: '', title: '', category: 'Custom', slashCmd: '', body: '', isSystem: false });
 
+  // Auto-Bot & Gemini AI Counselor settings
+  const [botCfg, setBotCfg] = useState(() => getBotSettings());
+  const [botSaving, setBotSaving] = useState(false);
+  const [botSavedMsg, setBotSavedMsg] = useState(null);
+
   const waSettings = useMemo(() => getWhatsAppSettings(), [db]);
 
   const syncHub = useCallback(async () => {
@@ -95,12 +105,26 @@ export default function WhatsAppHubManager() {
     try {
       setDb(loadDB());
       setTemplates(getWhatsAppTemplates());
+      setBotCfg(getBotSettings());
       const remote = await fetchRemoteWhatsAppData();
       setRemoteData(remote);
     } finally {
       setRefreshing(false);
     }
   }, []);
+
+  const handleSaveBotSettings = async () => {
+    setBotSaving(true);
+    setBotSavedMsg(null);
+    try {
+      await saveBotSettings(botCfg);
+      setBotSavedMsg({ severity: 'success', text: 'Auto-Bot & Gemini AI Counselor settings saved and synced.' });
+    } catch (err) {
+      setBotSavedMsg({ severity: 'error', text: err?.message || 'Failed to save bot settings.' });
+    } finally {
+      setBotSaving(false);
+    }
+  };
 
   useEffect(() => {
     syncHub();
@@ -608,6 +632,68 @@ export default function WhatsAppHubManager() {
                   sx={{ fontWeight: 800 }}
                 >
                   Send Today&apos;s Absent Alerts via WhatsApp
+                </Button>
+              </Paper>
+
+              <Paper elevation={0} sx={{ p: 2, borderRadius: 2.5, border: '1px solid #C7D2FE', bgcolor: '#F8FAFF', display: 'flex', flexDirection: 'column', gap: 1.25 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <SmartToyIcon sx={{ color: '#4F46E5' }} />
+                  <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E1B4B' }}>
+                    Auto-Bot &amp; Gemini AI Counselor
+                  </Typography>
+                </Box>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      checked={Boolean(botCfg.autoBotEnabled)}
+                      onChange={(e) => setBotCfg((prev) => ({ ...prev, autoBotEnabled: e.target.checked }))}
+                    />
+                  }
+                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Auto-Bot Enabled (24/7 Replies)</Typography>}
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      color="secondary"
+                      checked={Boolean(botCfg.aiCounselorEnabled)}
+                      onChange={(e) => setBotCfg((prev) => ({ ...prev, aiCounselorEnabled: e.target.checked }))}
+                    />
+                  }
+                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Gemini 2.5 Flash AI Counselor</Typography>}
+                />
+                <TextField
+                  size="small"
+                  type="password"
+                  label="Gemini API Key (Optional if set in Vercel)"
+                  placeholder="AIza... or AQ...."
+                  value={botCfg.geminiApiKey || ''}
+                  onChange={(e) => setBotCfg((prev) => ({ ...prev, geminiApiKey: e.target.value }))}
+                  helperText="Stored in Supabase system settings; falls back to Vercel GEMINI_API_KEY."
+                />
+                <TextField
+                  size="small"
+                  multiline
+                  rows={2}
+                  label="Custom AI Instructions (Offers / New Batch Info)"
+                  placeholder="e.g. New Barista & Cook batch starts Sunday 10 AM..."
+                  value={botCfg.aiInstructions || ''}
+                  onChange={(e) => setBotCfg((prev) => ({ ...prev, aiInstructions: e.target.value }))}
+                />
+                {botSavedMsg && (
+                  <Alert severity={botSavedMsg.severity} onClose={() => setBotSavedMsg(null)}>
+                    {botSavedMsg.text}
+                  </Alert>
+                )}
+                <Button
+                  size="small"
+                  variant="contained"
+                  disabled={botSaving}
+                  onClick={handleSaveBotSettings}
+                  sx={{ bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' }, fontWeight: 800, alignSelf: 'flex-start' }}
+                >
+                  {botSaving ? 'Saving...' : 'Save Bot & AI Settings'}
                 </Button>
               </Paper>
 
