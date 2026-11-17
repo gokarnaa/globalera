@@ -112,6 +112,21 @@ function formatTimeShort(iso) {
   }
 }
 
+function formatDateDivider(iso) {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const yest = new Date(now);
+    yest.setDate(now.getDate() - 1);
+    if (d.toDateString() === now.toDateString()) return 'Today';
+    if (d.toDateString() === yest.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
 /**
  * Shared 3-Pane WhatsApp-Style Communication & Workflow Workspace.
  * Used in both the Floating Window and the Dedicated WhatsApp Sidebar Module.
@@ -988,23 +1003,42 @@ export default function WhatsAppWorkspace({
               </Typography>
             </Paper>
           ) : (
-            activeThread.messages.map((m) => {
+            activeThread.messages.map((m, idx) => {
               const isOutbound = m.direction === 'outbound';
+              const prevMsg = idx > 0 ? activeThread.messages[idx - 1] : null;
+              const currDay = m.createdAt ? new Date(m.createdAt).toDateString() : '';
+              const prevDay = prevMsg?.createdAt ? new Date(prevMsg.createdAt).toDateString() : '';
+              const showDateDivider = currDay && currDay !== prevDay;
               return (
-                <Box
-                  key={m.id}
-                  sx={{
-                    alignSelf: isOutbound ? 'flex-end' : 'flex-start',
-                    maxWidth: { xs: '88%', sm: '74%' },
-                    bgcolor: isOutbound ? '#DCFCE7' : '#FFFFFF',
-                    color: '#0F172A',
-                    px: 1.5,
-                    py: 1,
-                    borderRadius: isOutbound ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
-                    border: isOutbound ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
-                    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)'
-                  }}
-                >
+                <React.Fragment key={m.id}>
+                  {showDateDivider && (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 0.75 }}>
+                      <Chip
+                        size="small"
+                        label={formatDateDivider(m.createdAt)}
+                        sx={{
+                          height: 22,
+                          fontSize: '0.68rem',
+                          fontWeight: 700,
+                          bgcolor: '#E2E8F0',
+                          color: '#334155'
+                        }}
+                      />
+                    </Box>
+                  )}
+                  <Box
+                    sx={{
+                      alignSelf: isOutbound ? 'flex-end' : 'flex-start',
+                      maxWidth: { xs: '88%', sm: '74%' },
+                      bgcolor: isOutbound ? '#DCFCE7' : '#FFFFFF',
+                      color: '#0F172A',
+                      px: 1.5,
+                      py: 1,
+                      borderRadius: isOutbound ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                      border: isOutbound ? '1px solid #BBF7D0' : '1px solid #E2E8F0',
+                      boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)'
+                    }}
+                  >
                   {m.messageType === 'auto_bot' && (
                     <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#047857', fontSize: '0.66rem', mb: 0.25 }}>
                       🤖 Auto-Bot Reply
@@ -1034,7 +1068,8 @@ export default function WhatsAppWorkspace({
                       )
                     )}
                   </Box>
-                </Box>
+                  </Box>
+                </React.Fragment>
               );
             })
           )}
