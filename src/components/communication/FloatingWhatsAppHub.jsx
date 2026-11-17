@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   Fab,
   Badge,
@@ -18,6 +18,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import { loadDB } from '../../services/storage';
+import { playLeadChime } from '../../services/soundUtils';
 import {
   fetchRemoteWhatsAppData,
   buildWhatsAppHubState
@@ -59,6 +60,14 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   }, [syncHub]);
 
   const hubState = useMemo(() => buildWhatsAppHubState(db, remoteData), [db, remoteData]);
+  const prevUnreadRef = useRef(0);
+
+  useEffect(() => {
+    if (hubState.totalUnread > prevUnreadRef.current && prevUnreadRef.current !== 0) {
+      playLeadChime();
+    }
+    prevUnreadRef.current = hubState.totalUnread;
+  }, [hubState.totalUnread]);
 
   return (
     <>

@@ -84,11 +84,17 @@ export default async function handler(req, res) {
 
       const senderPhone = message.from;
       const senderName = contact?.profile?.name || 'WhatsApp Visitor';
+      const mediaCaption =
+        message.image?.caption ||
+        message.document?.caption ||
+        message.video?.caption ||
+        '';
+      const mediaFilename = message.document?.filename || '';
       const messageText = (
         message.text?.body ||
         message.button?.text ||
         message.interactive?.button_reply?.title ||
-        `[${message.type || 'media'}]`
+        (mediaCaption ? `[${message.type}: ${mediaFilename || 'media'}] ${mediaCaption}` : `[${message.type || 'media'}${mediaFilename ? `: ${mediaFilename}` : ''}]`)
       ).trim();
       const currentPhoneId = metadata?.phone_number_id || PHONE_NUMBER_ID;
 

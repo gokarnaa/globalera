@@ -18,6 +18,12 @@ import {
   Drawer,
   CircularProgress,
   Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  ToggleButtonGroup,
+  ToggleButton,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -37,12 +43,20 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import SmsIcon from '@mui/icons-material/Sms';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
+import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { StatusBadge } from '../common';
 import { loadDB, saveDB, logCommunication } from '../../services/storage';
+import { sendAakashSmsSimulated } from '../../services/exportUtils';
 import {
   sendMetaWhatsAppMessage,
+  sendWhatsAppBrochureDirect,
   markThreadRead,
   toggleBotPause
 } from '../../services/whatsappCloudApi';
@@ -123,10 +137,19 @@ export default function WhatsAppWorkspace({
   const [sendFeedback, setSendFeedback] = useState(null);
   const [templateAnchor, setTemplateAnchor] = useState(null);
 
-  // Right-pane quick workflow state
+  // Composer channel & modals
+  const [sendChannel, setSendChannel] = useState('WhatsApp'); // 'WhatsApp' | 'SMS'
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [docForm, setDocForm] = useState({ url: '', filename: 'Brochure.pdf', caption: '' });
+  const [tplModalOpen, setTplModalOpen] = useState(false);
+  const [metaTplForm, setMetaTplForm] = useState({ name: 'hello_world', language: 'en_US' });
+
+  // Right-pane quick workflow & call log state
   const [noteText, setNoteText] = useState('');
   const [nextFollowUp, setNextFollowUp] = useState('');
   const [newLeadCourse, setNewLeadCourse] = useState('Caregiver Training');
+  const [callOutcome, setCallOutcome] = useState('Connected');
+  const [callNote, setCallNote] = useState('');
   const [workflowSavedMsg, setWorkflowSavedMsg] = useState('');
 
   const messagesEndRef = useRef(null);
@@ -151,8 +174,14 @@ export default function WhatsAppWorkspace({
 
   const filteredThreads = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
+    const todayStr = new Date().toISOString().slice(0, 10);
     return threads.filter((t) => {
       if (roleFilter === 'Unread' && t.unreadCount === 0) return false;
+      if (roleFilter === 'Due / Today') {
+        const isLeadDue = t.role === 'Lead' && t.entity?.nextFollowUp && t.entity.nextFollowUp <= todayStr && t.entity.stage !== 'Converted';
+        const isFeeDue = t.role === 'Student' && Number(t.entity?.dueFee || 0) > 0;
+        if (!isLeadDue && !isFeeDue) return false;
+      }
       if (roleFilter === 'FB Ads' && !t.adReferral && !t.messages.some((m) => m.messageType === 'fb_ad_inquiry')) return false;
       if (['Lead', 'Student', 'Trainer', 'Employer'].includes(roleFilter) && t.role !== roleFilter) return false;
       if (!q) return true;
@@ -191,20 +220,33 @@ export default function WhatsAppWorkspace({
     setSending(true);
     setSendFeedback(null);
     try {
-      await sendMetaWhatsAppMessage({
-        to: activeThread.phone,
-        type: 'text',
-        text: textToSend
-      });
       const currentDb = loadDB();
-      logCommunication(currentDb, {
-        recipientType: activeThread.role || 'Contact',
-        recipientId: activeThread.entity?.id || activeThread.key,
-        recipientName: activeThread.name,
-        recipientPhone: activeThread.phone,
-        channel: 'WhatsApp',
-        messageText: textToSend
-      });
+      if (sendChannel === 'SMS' && !customText) {
+        sendAakashSmsSimulated(activeThread.phone, textToSend, currentDb.settings?.aakashSmsToken);
+        logCommunication(currentDb, {
+          recipientType: activeThread.role || 'Contact',
+          recipientId: activeThread.entity?.id || activeThread.key,
+          recipientName: activeThread.name,
+          recipientPhone: activeThread.phone,
+          channel: 'SMS',
+          messageText: textToSend
+        });
+        setSendFeedback({ type: 'success', text: `SMS queued for ${activeThread.name} (${activeThread.phone}).` });
+      } else {
+        await sendMetaWhatsAppMessage({
+          to: activeThread.phone,
+          type: 'text',
+          text: textToSend
+        });
+        logCommunication(currentDb, {
+          recipientType: activeThread.role || 'Contact',
+          recipientId: activeThread.entity?.id || activeThread.key,
+          recipientName: activeThread.name,
+          recipientPhone: activeThread.phone,
+          channel: 'WhatsApp',
+          messageText: textToSend
+        });
+      }
       if (!customText) setDraft('');
       markThreadRead(activeThread.phone);
       if (onRefresh) onRefresh();
@@ -213,6 +255,108 @@ export default function WhatsAppWorkspace({
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSendDocument = async () => {
+    if (!activeThread || !docForm.url.trim()) return;
+    setSending(true);
+    setSendFeedback(null);
+    try {
+      await sendMetaWhatsAppMessage({
+        to: activeThread.phone,
+        type: 'document',
+        document: {
+          url: docForm.url.trim(),
+          filename: docForm.filename.trim() || 'Document.pdf',
+          caption: docForm.caption.trim()
+        },
+        text: `[Document: ${docForm.filename || 'PDF'}] ${docForm.caption || docForm.url}`
+      });
+      setDocModalOpen(false);
+      setDocForm({ url: '', filename: 'Brochure.pdf', caption: '' });
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      setSendFeedback({ type: 'error', text: err.message });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSendMetaTemplate = async () => {
+    if (!activeThread || !metaTplForm.name.trim()) return;
+    setSending(true);
+    setSendFeedback(null);
+    try {
+      await sendMetaWhatsAppMessage({
+        to: activeThread.phone,
+        type: 'template',
+        template: {
+          name: metaTplForm.name.trim(),
+          language: { code: metaTplForm.language.trim() || 'en_US' }
+        },
+        text: `[Meta Template: ${metaTplForm.name.trim()}]`
+      });
+      setTplModalOpen(false);
+      if (onRefresh) onRefresh();
+    } catch (err) {
+      setSendFeedback({ type: 'error', text: err.message });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleQuickShare = async (kind) => {
+    if (!activeThread) return;
+    const currentDb = loadDB();
+    if (kind === 'brochure') {
+      const courseName = activeThread.entity?.course || activeThread.entity?.subject || '';
+      const matchedCourse = (currentDb.courses || []).find((c) =>
+        courseName ? (c.title || '').toLowerCase().includes(courseName.toLowerCase()) : false
+      ) || (currentDb.courses || [])[0];
+      setSending(true);
+      try {
+        await sendWhatsAppBrochureDirect(activeThread.phone, matchedCourse);
+        if (onRefresh) onRefresh();
+      } catch (err) {
+        setSendFeedback({ type: 'error', text: err.message });
+      } finally {
+        setSending(false);
+      }
+    } else if (kind === 'location') {
+      await handleSend(
+        `📍 *Prabidhik School (Global Era Technical School)*\nCampus: Jorpati, Gokarneshwor, Kathmandu (Near MitraPark Hub)\n⏰ Timing: 7:00 AM – 6:00 PM (Sun–Fri)\n📞 Office: 014910715 / 9803614574\n🌐 Map & Website: https://globalera.vercel.app`
+      );
+    } else if (kind === 'fee') {
+      await handleSend(QUICK_TEMPLATES[1].build(activeThread));
+    } else if (kind === 'certificate') {
+      const cert = (currentDb.certificates || []).find(
+        (c) => activeThread.entity?.id && c.studentId === activeThread.entity.id
+      );
+      const verifyUrl = cert?.certNo
+        ? `https://globalera.vercel.app/?verify=${encodeURIComponent(cert.certNo)}`
+        : `https://globalera.vercel.app`;
+      await handleSend(
+        `🎓 *Official Certificate Verification — Prabidhik School*\nHello ${activeThread.name}, you can verify your official vocational certificate online anytime here:\n${verifyUrl}`
+      );
+    }
+  };
+
+  const handleLogCall = () => {
+    if (!activeThread) return;
+    const currentDb = loadDB();
+    logCommunication(currentDb, {
+      recipientType: activeThread.role || 'Contact',
+      recipientId: activeThread.entity?.id || activeThread.key,
+      recipientName: activeThread.name,
+      recipientPhone: activeThread.phone,
+      channel: 'Phone Call',
+      callStatus: callOutcome,
+      messageText: `[Call: ${callOutcome}] ${callNote.trim() || 'Phone follow-up logged from WhatsApp Hub'}`
+    });
+    setCallNote('');
+    setWorkflowSavedMsg(`Call (${callOutcome}) logged!`);
+    setTimeout(() => setWorkflowSavedMsg(''), 2500);
+    if (onRefresh) onRefresh();
   };
 
   const handleSaveLeadWorkflow = (nextStage) => {
@@ -331,7 +475,7 @@ export default function WhatsAppWorkspace({
               '&::-webkit-scrollbar-thumb': { bgcolor: '#CBD5E1', borderRadius: 99 }
             }}
           >
-            {['All', 'Unread', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
+            {['All', 'Unread', 'Due / Today', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
               const active = roleFilter === tab;
               return (
                 <Chip
@@ -692,6 +836,41 @@ export default function WhatsAppWorkspace({
             </Button>
           </Paper>
         )}
+
+        {/* Call Outcome Tracker */}
+        <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2.5, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+            <PhoneInTalkIcon sx={{ fontSize: 16, color: '#0F2C59' }} />
+            <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2C59', textTransform: 'uppercase' }}>
+              Phone Call Outcome Log
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+            {['Connected', 'No Answer', 'Busy', 'Call Back Later'].map((st) => (
+              <Chip
+                key={st}
+                size="small"
+                label={st}
+                onClick={() => setCallOutcome(st)}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  bgcolor: callOutcome === st ? '#0F2C59' : '#F1F5F9',
+                  color: callOutcome === st ? '#FFFFFF' : '#475569'
+                }}
+              />
+            ))}
+          </Box>
+          <TextField
+            size="small"
+            placeholder="Call summary note..."
+            value={callNote}
+            onChange={(e) => setCallNote(e.target.value)}
+          />
+          <Button size="small" variant="outlined" startIcon={<PhoneInTalkIcon />} onClick={handleLogCall} sx={{ fontWeight: 800 }}>
+            Log Phone Call
+          </Button>
+        </Paper>
       </Box>
     );
   };
@@ -868,24 +1047,102 @@ export default function WhatsAppWorkspace({
           </Alert>
         )}
 
+        {/* 1-Click ERP Quick Share Bar + Dual Channel Switcher */}
+        <Box
+          sx={{
+            px: 1.25,
+            py: 0.75,
+            bgcolor: '#F8FAFC',
+            borderTop: '1px solid #E2E8F0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1,
+            flexWrap: 'wrap'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, overflowX: 'auto', flex: 1 }}>
+            <Chip
+              size="small"
+              icon={<MenuBookIcon sx={{ fontSize: 14 }} />}
+              label="Brochure"
+              onClick={() => handleQuickShare('brochure')}
+              disabled={sending}
+              sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#EFF6FF', color: '#1D4ED8' }}
+            />
+            <Chip
+              size="small"
+              icon={<LocationOnIcon sx={{ fontSize: 14 }} />}
+              label="Location"
+              onClick={() => handleQuickShare('location')}
+              disabled={sending}
+              sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#ECFDF5', color: '#047857' }}
+            />
+            <Chip
+              size="small"
+              icon={<PaymentsIcon sx={{ fontSize: 14 }} />}
+              label="Fee Info"
+              onClick={() => handleQuickShare('fee')}
+              disabled={sending}
+              sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#FFFBEB', color: '#B45309' }}
+            />
+            {activeThread.role === 'Student' && (
+              <Chip
+                size="small"
+                icon={<WorkspacePremiumIcon sx={{ fontSize: 14 }} />}
+                label="Cert Link"
+                onClick={() => handleQuickShare('certificate')}
+                disabled={sending}
+                sx={{ cursor: 'pointer', fontWeight: 700, bgcolor: '#FAF5FF', color: '#7E22CE' }}
+              />
+            )}
+          </Box>
+
+          <ToggleButtonGroup
+            size="small"
+            exclusive
+            value={sendChannel}
+            onChange={(_, v) => v && setSendChannel(v)}
+            aria-label="Select messaging channel"
+          >
+            <ToggleButton value="WhatsApp" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
+              <WhatsAppIcon sx={{ fontSize: 14, mr: 0.4, color: '#16A34A' }} />
+              WA
+            </ToggleButton>
+            <ToggleButton value="SMS" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
+              <SmsIcon sx={{ fontSize: 14, mr: 0.4, color: '#0284C7' }} />
+              SMS
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Box>
+
         {/* Composer Bar */}
         <Box
           sx={{
             p: 1.25,
             bgcolor: '#FFFFFF',
-            borderTop: '1px solid #E2E8F0',
+            borderTop: '1px solid #F1F5F9',
             display: 'flex',
             alignItems: 'flex-end',
-            gap: 1
+            gap: 0.75
           }}
         >
-          <Tooltip title="Insert Quick Template">
+          <Tooltip title="Quick Templates & Meta Approved Template">
             <IconButton
               size="small"
               onClick={(e) => setTemplateAnchor(e.currentTarget)}
               sx={{ bgcolor: '#EFF6FF', color: '#0F2C59', mb: 0.25 }}
             >
               <BoltIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title="Send PDF / Document URL">
+            <IconButton
+              size="small"
+              onClick={() => setDocModalOpen(true)}
+              sx={{ bgcolor: '#F1F5F9', color: '#475569', mb: 0.25 }}
+            >
+              <AttachFileIcon fontSize="small" />
             </IconButton>
           </Tooltip>
           <Menu
@@ -904,6 +1161,16 @@ export default function WhatsAppWorkspace({
                 {tpl.label}
               </MenuItem>
             ))}
+            <Divider />
+            <MenuItem
+              onClick={() => {
+                setTemplateAnchor(null);
+                setTplModalOpen(true);
+              }}
+              sx={{ fontWeight: 700, color: '#0F2C59' }}
+            >
+              Send Meta Approved Template (24h+)...
+            </MenuItem>
           </Menu>
 
           <TextField
@@ -919,7 +1186,11 @@ export default function WhatsAppWorkspace({
                 handleSend();
               }
             }}
-            placeholder={`Message ${activeThread.name} via WhatsApp Cloud API...`}
+            placeholder={
+              sendChannel === 'SMS'
+                ? `Send Aakash SMS to ${activeThread.name}...`
+                : `Message ${activeThread.name} via WhatsApp Cloud API...`
+            }
           />
 
           <Button
@@ -928,17 +1199,79 @@ export default function WhatsAppWorkspace({
             onClick={() => handleSend()}
             endIcon={sending ? <CircularProgress size={14} color="inherit" /> : <SendIcon />}
             sx={{
-              bgcolor: '#16A34A',
-              '&:hover': { bgcolor: '#15803D' },
+              bgcolor: sendChannel === 'SMS' ? '#0284C7' : '#16A34A',
+              '&:hover': { bgcolor: sendChannel === 'SMS' ? '#0369A1' : '#15803D' },
               fontWeight: 800,
               px: 2,
               py: 0.85,
               flexShrink: 0
             }}
           >
-            Send
+            {sendChannel === 'SMS' ? 'Send SMS' : 'Send'}
           </Button>
         </Box>
+
+        {/* Attach Document URL Dialog */}
+        <Dialog open={docModalOpen} onClose={() => setDocModalOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle>Send Document / PDF via WhatsApp</DialogTitle>
+          <DialogContent sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <TextField
+              size="small"
+              label="Public PDF / Document URL"
+              required
+              placeholder="https://..."
+              value={docForm.url}
+              onChange={(e) => setDocForm({ ...docForm, url: e.target.value })}
+            />
+            <TextField
+              size="small"
+              label="File Name"
+              value={docForm.filename}
+              onChange={(e) => setDocForm({ ...docForm, filename: e.target.value })}
+            />
+            <TextField
+              size="small"
+              label="Caption (Optional)"
+              value={docForm.caption}
+              onChange={(e) => setDocForm({ ...docForm, caption: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setDocModalOpen(false)}>Cancel</Button>
+            <Button variant="contained" onClick={handleSendDocument} disabled={sending || !docForm.url.trim()}>
+              Send Document
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Meta Approved Template Dialog */}
+        <Dialog open={tplModalOpen} onClose={() => setTplModalOpen(false)} maxWidth="xs" fullWidth>
+          <DialogTitle>Send Meta Approved Template</DialogTitle>
+          <DialogContent sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Typography variant="caption" sx={{ color: '#64748B' }}>
+              Use an approved template name from Meta WhatsApp Manager to re-open conversations older than 24 hours.
+            </Typography>
+            <TextField
+              size="small"
+              label="Template Name"
+              required
+              value={metaTplForm.name}
+              onChange={(e) => setMetaTplForm({ ...metaTplForm, name: e.target.value })}
+            />
+            <TextField
+              size="small"
+              label="Language Code"
+              value={metaTplForm.language}
+              onChange={(e) => setMetaTplForm({ ...metaTplForm, language: e.target.value })}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setTplModalOpen(false)}>Cancel</Button>
+            <Button variant="contained" onClick={handleSendMetaTemplate} disabled={sending || !metaTplForm.name.trim()}>
+              Send Template
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     );
   };
