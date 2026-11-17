@@ -37,6 +37,8 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { StatusBadge } from '../common';
 import { loadDB, saveDB, logCommunication } from '../../services/storage';
 import {
@@ -128,6 +130,7 @@ export default function WhatsAppWorkspace({
   const [workflowSavedMsg, setWorkflowSavedMsg] = useState('');
 
   const messagesEndRef = useRef(null);
+  const pillScrollRef = useRef(null);
 
   useEffect(() => {
     if (initialPhone) {
@@ -193,12 +196,14 @@ export default function WhatsAppWorkspace({
         type: 'text',
         text: textToSend
       });
-      logCommunication({
+      const currentDb = loadDB();
+      logCommunication(currentDb, {
+        recipientType: activeThread.role || 'Contact',
+        recipientId: activeThread.entity?.id || activeThread.key,
         recipientName: activeThread.name,
-        phone: activeThread.phone,
+        recipientPhone: activeThread.phone,
         channel: 'WhatsApp',
-        message: textToSend,
-        status: 'Sent'
+        messageText: textToSend
       });
       if (!customText) setDraft('');
       markThreadRead(activeThread.phone);
@@ -298,35 +303,62 @@ export default function WhatsAppWorkspace({
           )}
         </Box>
 
-        {/* Horizontal Filter Pills */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 0.6,
-            overflowX: 'auto',
-            pb: 0.25,
-            '&::-webkit-scrollbar': { display: 'none' },
-            scrollbarWidth: 'none'
-          }}
-        >
-          {['All', 'Unread', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
-            const active = roleFilter === tab;
-            return (
-              <Chip
-                key={tab}
-                size="small"
-                label={tab === 'Lead' ? 'Leads' : tab === 'Student' ? 'Students' : tab === 'Trainer' ? 'Trainers' : tab === 'Employer' ? 'Employers' : tab}
-                onClick={() => setRoleFilter(tab)}
-                sx={{
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  bgcolor: active ? '#0F2C59' : '#F1F5F9',
-                  color: active ? '#FFFFFF' : '#475569',
-                  '&:hover': { bgcolor: active ? '#0F2C59' : '#E2E8F0' }
-                }}
-              />
-            );
-          })}
+        {/* Horizontal Scrollable Filter Pills with Arrows */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
+          <IconButton
+            size="small"
+            aria-label="Scroll filters left"
+            onClick={() => pillScrollRef.current?.scrollBy({ left: -120, behavior: 'smooth' })}
+            sx={{ p: 0.25, color: '#64748B' }}
+          >
+            <ChevronLeftIcon sx={{ fontSize: 17 }} />
+          </IconButton>
+          <Box
+            ref={pillScrollRef}
+            onWheel={(e) => {
+              if (pillScrollRef.current && Math.abs(e.deltaY) > 0) {
+                pillScrollRef.current.scrollLeft += e.deltaY;
+              }
+            }}
+            sx={{
+              display: 'flex',
+              gap: 0.6,
+              overflowX: 'auto',
+              flex: 1,
+              py: 0.25,
+              scrollBehavior: 'smooth',
+              '&::-webkit-scrollbar': { height: 3 },
+              '&::-webkit-scrollbar-thumb': { bgcolor: '#CBD5E1', borderRadius: 99 }
+            }}
+          >
+            {['All', 'Unread', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
+              const active = roleFilter === tab;
+              return (
+                <Chip
+                  key={tab}
+                  size="small"
+                  label={tab === 'Lead' ? 'Leads' : tab === 'Student' ? 'Students' : tab === 'Trainer' ? 'Trainers' : tab === 'Employer' ? 'Employers' : tab}
+                  onClick={() => setRoleFilter(tab)}
+                  sx={{
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    fontWeight: 700,
+                    bgcolor: active ? '#0F2C59' : '#F1F5F9',
+                    color: active ? '#FFFFFF' : '#475569',
+                    '&:hover': { bgcolor: active ? '#0F2C59' : '#E2E8F0' }
+                  }}
+                />
+              );
+            })}
+          </Box>
+          <IconButton
+            size="small"
+            aria-label="Scroll filters right"
+            onClick={() => pillScrollRef.current?.scrollBy({ left: 120, behavior: 'smooth' })}
+            sx={{ p: 0.25, color: '#64748B' }}
+          >
+            <ChevronRightIcon sx={{ fontSize: 17 }} />
+          </IconButton>
         </Box>
       </Box>
 

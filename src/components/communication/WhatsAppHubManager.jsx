@@ -159,12 +159,13 @@ export default function WhatsAppHubManager() {
     for (const r of recipients.slice(0, 25)) {
       try {
         await sendMetaWhatsAppMessage({ to: r.phone, type: 'text', text: broadcastText });
-        logCommunication({
+        logCommunication(loadDB(), {
+          recipientType: broadcastGroup === 'ACTIVE_LEADS' ? 'Lead' : 'Student',
+          recipientId: r.id,
           recipientName: r.name,
-          phone: r.phone,
+          recipientPhone: r.phone,
           channel: 'WhatsApp',
-          message: broadcastText,
-          status: 'Sent'
+          messageText: broadcastText
         });
         sent += 1;
       } catch {
