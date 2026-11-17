@@ -48,7 +48,7 @@ import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
 import PublicCertificateVerify from './PublicCertificateVerify';
 import CertificateStudioManager from '../settings/CertificateStudioManager';
@@ -610,178 +610,149 @@ export default function CertificateManager() {
       {viewMode === 'table' ? (
         <ResponsiveDataView
           rows={filteredData}
+          enableDesktopCardToggle={true}
           keyExtractor={(item) => item.student.id}
           emptyIcon={<WorkspacePremiumIcon />}
           emptyTitle="No trainees found"
           emptySubtitle="No trainees found matching your filter criteria."
-          renderCard={(item, idx) => {
+          renderCard={(item) => {
             const { student, attPercent, isIssued, isEligible, certificate } = item;
             const courseTitle = selectedCourse?.title || selectedGroup?.courseName || 'Vocational Training';
+            const initials = (student.name || 'S')
+              .trim()
+              .split(/\s+/)
+              .map((p) => p[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase();
+            const accentColor = isIssued
+              ? '#059669'
+              : item.feeDue > 0
+                ? '#D97706'
+                : isEligible
+                  ? '#0284C7'
+                  : '#94A3B8';
+            const statusObj = isIssued
+              ? { label: 'Issued & Valid', tone: 'success', showDot: true }
+              : item.feeDue > 0
+                ? { label: `Due: NPR ${item.feeDue.toLocaleString()}`, tone: 'error', showDot: true }
+                : isEligible
+                  ? { label: 'Eligible (Ready)', tone: 'primary', showDot: true }
+                  : { label: 'Ineligible (<80%)', tone: 'warning', showDot: true };
+
+            const openPreview = () => {
+              setActiveCertificateItem({
+                certificate,
+                student,
+                course: selectedCourse,
+                group: selectedGroup,
+                trainer
+              });
+              setCertificateModalOpen(true);
+            };
+
+            const openVerify = () => {
+              setVerifyTargetItem({
+                certificate,
+                student,
+                course: selectedCourse,
+                group: selectedGroup
+              });
+              setVerifyModalOpen(true);
+            };
 
             return (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.75,
-                  borderRadius: 2.5,
-                  border: '1px solid #E2E8F0',
-                  bgcolor: '#FFFFFF'
-                }}
-              >
-                {/* Top Row: S.N., Student Name, StatusBadge */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
-                    <Avatar
-                      src={student.photoUrl}
-                      sx={{ width: 40, height: 40, bgcolor: '#0b2545', fontWeight: 900, fontSize: '0.9rem' }}
-                    >
-                      {student.name?.[0]}
-                    </Avatar>
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.25 }}>
-                        {student.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
-                        #{idx + 1} • TGID: {student.tgid}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {isIssued ? (
-                    <StatusBadge label="Issued & Valid" tone="success" showDot />
-                  ) : item.feeDue > 0 ? (
-                    <StatusBadge label={`Due: NPR ${item.feeDue.toLocaleString()}`} tone="error" showDot />
-                  ) : isEligible ? (
-                    <StatusBadge label="Eligible (Ready)" tone="primary" showDot />
-                  ) : (
-                    <StatusBadge label="Ineligible (<80%)" tone="warning" showDot />
-                  )}
-                </Box>
-
-                {/* Middle: Course/Trade, Certificate No, Issue Date & Attendance */}
-                <Box
-                  sx={{
-                    p: 1.1,
-                    borderRadius: 2,
-                    bgcolor: '#F8FAFC',
-                    border: '1px solid #F1F5F9',
-                    mb: 1.25
-                  }}
-                >
-                  <Typography sx={{ fontWeight: 700, color: '#0F2E5A', fontSize: '0.8rem', lineHeight: 1.3 }}>
-                    {courseTitle} {selectedGroup?.groupCode ? `• ${selectedGroup.groupCode}` : ''}
-                  </Typography>
-                  <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap" sx={{ mt: 0.5 }}>
-                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700 }}>
-                      Cert No: <b style={{ color: '#0B2545' }}>{certificate ? certificate.certificateNo : '—'}</b>
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#475569', fontWeight: 600 }}>
-                      Issued: {certificate ? certificate.issueDate : '—'}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{ fontWeight: 800, color: attPercent >= 80 ? '#16834b' : '#dc2626' }}
-                    >
-                      Att: {attPercent}%
-                    </Typography>
-                  </Stack>
-                </Box>
-
-                {/* Bottom: 1-Tap Preview / Download(Print) / Verify Actions */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.75 }}>
-                  {isIssued ? (
-                    <>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<VisibilityIcon sx={{ fontSize: '15px !important' }} />}
-                        onClick={() => {
-                          setActiveCertificateItem({
-                            certificate,
-                            student,
-                            course: selectedCourse,
-                            group: selectedGroup,
-                            trainer
-                          });
-                          setCertificateModalOpen(true);
-                        }}
-                        sx={{
-                          flex: 1,
-                          fontWeight: 800,
-                          fontSize: '0.74rem',
-                          color: '#0b2545',
-                          borderColor: '#CBD5E1',
-                          py: 0.55
-                        }}
-                      >
-                        Preview / Print
-                      </Button>
-
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<VerifiedIcon sx={{ fontSize: '15px !important' }} />}
-                        onClick={() => {
-                          setVerifyTargetItem({
-                            certificate,
-                            student,
-                            course: selectedCourse,
-                            group: selectedGroup
-                          });
-                          setVerifyModalOpen(true);
-                        }}
-                        sx={{
-                          flex: 1,
-                          fontWeight: 800,
-                          fontSize: '0.74rem',
+              <EntityCard
+                accentColor={accentColor}
+                avatarSrc={student.photoUrl}
+                avatarText={initials}
+                avatarBg="#EFF6FF"
+                avatarColor="#0F2C59"
+                title={student.name}
+                code={certificate ? certificate.certificateNo : student.tgid}
+                subtitle={`${courseTitle}${selectedGroup?.groupCode ? ` • ${selectedGroup.groupCode}` : ''}`}
+                status={statusObj}
+                onCardClick={isIssued ? openPreview : isEligible ? () => handleIssueCertificate(student) : undefined}
+                fields={[
+                  {
+                    label: 'Issue Date',
+                    value: certificate ? certificate.issueDate : '—'
+                  },
+                  {
+                    label: 'Attendance %',
+                    value: `${attPercent}%`,
+                    color: attPercent >= 80 ? '#059669' : '#DC2626'
+                  },
+                  {
+                    label: 'Fee Status',
+                    value: item.feeDue > 0 ? `Due NPR ${item.feeDue.toLocaleString()}` : 'Cleared',
+                    color: item.feeDue > 0 ? '#DC2626' : '#059669'
+                  },
+                  {
+                    label: 'Verify Code',
+                    value: certificate ? (certificate.verifyCode || certificate.certificateNo) : (student.tgid || '—')
+                  }
+                ]}
+                highlight={
+                  !isIssued && !isEligible
+                    ? {
+                        text:
+                          item.feeDue > 0
+                            ? `Fee Due (Locked) — Clear NPR ${item.feeDue.toLocaleString()} to unlock`
+                            : `Ineligible (Attendance ${attPercent}% < 80% CTEVT minimum)`,
+                        color: '#DC2626',
+                        bg: '#FEF2F2',
+                        border: '#FECACA',
+                        icon: <WarningAmberIcon sx={{ fontSize: 15 }} />
+                      }
+                    : undefined
+                }
+                actions={
+                  isIssued
+                    ? [
+                        {
+                          label: 'Preview / Print',
+                          icon: <PrintIcon sx={{ fontSize: 16 }} />,
+                          color: '#0F2C59',
+                          bgColor: 'rgba(15, 44, 89, 0.08)',
+                          onClick: openPreview
+                        },
+                        {
+                          label: 'Verify',
+                          icon: <VerifiedIcon sx={{ fontSize: 16 }} />,
                           color: '#B45309',
-                          borderColor: '#FDE68A',
-                          bgcolor: '#FFFBEB',
-                          py: 0.55
-                        }}
-                      >
-                        Verify
-                      </Button>
-
-                      <IconButton
-                        size="small"
-                        aria-label="Copy verification link"
-                        onClick={() => handleCopyLink(certificate.certificateNo)}
-                        sx={{ color: '#1a56b0', border: '1px solid #DBEAFE', bgcolor: '#EFF6FF', p: 0.6 }}
-                      >
-                        <LinkIcon fontSize="small" />
-                      </IconButton>
-
-                      <IconButton
-                        size="small"
-                        aria-label="Revoke certificate"
-                        onClick={() => handleRevokeCertificate(certificate.id)}
-                        sx={{ color: '#dc2626', border: '1px solid #FEE2E2', bgcolor: '#FEF2F2', p: 0.6 }}
-                      >
-                        <DeleteOutlineIcon fontSize="small" />
-                      </IconButton>
-                    </>
-                  ) : isEligible ? (
-                    <Button
-                      variant="contained"
-                      size="small"
-                      fullWidth
-                      onClick={() => handleIssueCertificate(student)}
-                      sx={{ bgcolor: '#0b2545', fontWeight: 800, py: 0.7 }}
-                    >
-                      + Issue Certificate
-                    </Button>
-                  ) : item.feeDue > 0 ? (
-                    <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 800 }}>
-                      ⛔ Fee Due (Locked) — Clear NPR {item.feeDue.toLocaleString()} to unlock
-                    </Typography>
-                  ) : (
-                    <Typography variant="caption" sx={{ color: '#dc2626', fontWeight: 700 }}>
-                      Ineligible (Attendance {attPercent}% &lt; 80% CTEVT minimum)
-                    </Typography>
-                  )}
-                </Box>
-              </Paper>
+                          bgColor: 'rgba(217, 119, 6, 0.10)',
+                          onClick: openVerify
+                        },
+                        {
+                          label: 'Copy Link',
+                          icon: <LinkIcon sx={{ fontSize: 16 }} />,
+                          color: '#0284C7',
+                          bgColor: 'rgba(2, 132, 199, 0.09)',
+                          onClick: () => handleCopyLink(certificate.certificateNo)
+                        },
+                        {
+                          label: 'Revoke',
+                          icon: <DeleteOutlineIcon sx={{ fontSize: 16 }} />,
+                          color: '#DC2626',
+                          bgColor: 'rgba(220, 38, 38, 0.08)',
+                          onClick: () => handleRevokeCertificate(certificate.id)
+                        }
+                      ]
+                    : []
+                }
+                primaryAction={
+                  !isIssued && isEligible
+                    ? {
+                        label: 'Issue',
+                        icon: <WorkspacePremiumIcon sx={{ fontSize: 15 }} />,
+                        bgcolor: '#0F2C59',
+                        hoverBgcolor: '#0B2545',
+                        onClick: () => handleIssueCertificate(student)
+                      }
+                    : undefined
+                }
+              />
             );
           }}
           renderTable={() => (

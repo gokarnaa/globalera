@@ -51,7 +51,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { loadDB, saveDB, logAudit } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import StudentProfileModal from '../students/StudentProfileModal';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
 const getInitials = (name = '') => {
   const parts = name.trim().split(' ').filter(Boolean);
@@ -195,14 +195,15 @@ export default function EmployerManager() {
     setConfirmDeleteEmp(null);
   };
 
-  const handleOpenAddOjtForEmployer = () => {
-    if (!profileEmployer) return;
+  const handleOpenAddOjtForEmployer = (targetEmp) => {
+    const emp = targetEmp && targetEmp.id ? targetEmp : profileEmployer;
+    if (!emp) return;
     setNewOjtData({
       studentId: '',
       startDate: new Date().toISOString().slice(0, 10),
       endDate: '',
-      relatedPerson: profileEmployer.contactPerson || '',
-      contactNumber: profileEmployer.phone || '',
+      relatedPerson: emp.contactPerson || '',
+      contactNumber: emp.phone || '',
       status: 'Ongoing',
       remarks: ''
     });
@@ -264,12 +265,13 @@ export default function EmployerManager() {
     setOpenAddOjtModal(false);
   };
 
-  const handleOpenAddPlacementForEmployer = () => {
-    if (!profileEmployer) return;
+  const handleOpenAddPlacementForEmployer = (targetEmp) => {
+    const emp = targetEmp && targetEmp.id ? targetEmp : profileEmployer;
+    if (!emp) return;
     setNewPlacementData({
       studentId: '',
       targetJob: '',
-      preferredLocation: profileEmployer.location || '',
+      preferredLocation: emp.location || '',
       expectedSalary: '',
       employmentType: 'Full-Time Employee',
       workSchedule: '09:00 AM – 05:00 PM',
@@ -629,6 +631,7 @@ export default function EmployerManager() {
       {isBelowMd || viewMode === 'table' ? (
         <ResponsiveDataView
           rows={filteredEmployers}
+          enableDesktopCardToggle={true}
           keyExtractor={(emp) => emp.id}
           emptyIcon={<BusinessIcon />}
           emptyTitle="No employer partners found"
@@ -800,116 +803,99 @@ export default function EmployerManager() {
             const statusTone = emp.status === 'Active' ? 'success' : emp.status === 'Pending Approval' ? 'warning' : 'error';
 
             return (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.75,
-                  borderRadius: 2.5,
-                  border: '1px solid #E2E8F0',
-                  bgcolor: '#FFFFFF'
+              <EntityCard
+                accentColor="#0284C7"
+                avatarText={getInitials(emp.name)}
+                avatarBg={getAvatarBg(emp.industry, emp.name)}
+                avatarColor="#FFFFFF"
+                title={emp.name}
+                subtitle={`${emp.industry || 'General'}${emp.location ? ` • ${emp.location}` : ''}`}
+                status={{ label: emp.status || 'Active', tone: statusTone, showDot: true }}
+                onCardClick={() => {
+                  setProfileEmployer(emp);
+                  setProfileTab(0);
                 }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
-                    <Avatar
-                      sx={{
-                        width: 38,
-                        height: 38,
-                        fontWeight: 800,
-                        fontSize: '0.82rem',
-                        bgcolor: getAvatarBg(emp.industry, emp.name),
-                        color: '#ffffff',
-                        borderRadius: '10px',
-                        flexShrink: 0
-                      }}
-                    >
-                      {getInitials(emp.name)}
-                    </Avatar>
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem', lineHeight: 1.2 }} noWrap>
-                        {emp.name}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.72rem' }} noWrap>
-                        {emp.industry || 'General'}{emp.location ? ` • ${emp.location}` : ''}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <StatusBadge label={emp.status || 'Active'} tone={statusTone} showDot />
-                </Box>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1.1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #F1F5F9', mb: 1.25 }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      CONTACT PERSON
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }} noWrap>
-                      {emp.contactPerson || '—'} {emp.phone ? `• ${emp.phone}` : ''}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      VACANCIES / TRAINEES
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
-                      {ojtCount} OJT • {placedCount} Placed • Cap {emp.ojtCapacity || 5}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 0.75, flexWrap: 'wrap' }}>
-                  <Stack direction="row" spacing={0.75}>
-                    {emp.phone && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        component="a"
-                        href={`tel:${emp.phone}`}
-                        startIcon={<PhoneIcon sx={{ fontSize: 14 }} />}
-                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                      >
-                        Call
-                      </Button>
-                    )}
-                    {emp.phone && (
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        color="success"
-                        component="a"
-                        href={getWhatsAppUrl(emp.phone, 'Namaste, greetings from Prabidhik School, Jorpati.')}
-                        target="_blank"
-                        startIcon={<WhatsAppIcon sx={{ fontSize: 14 }} />}
-                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                      >
-                        WhatsApp
-                      </Button>
-                    )}
-                  </Stack>
-                  <Stack direction="row" spacing={0.75}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<VisibilityIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => {
-                        setProfileEmployer(emp);
-                        setProfileTab(0);
-                      }}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      Profile
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => handleOpenEdit(emp)}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      Edit
-                    </Button>
-                  </Stack>
-                </Box>
-              </Paper>
+                fields={[
+                  {
+                    label: 'Contact Person',
+                    value: emp.contactPerson || '—',
+                    icon: <PersonIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Phone',
+                    value: emp.phone || '—',
+                    icon: <PhoneIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Active OJT / Trainees',
+                    value: `${ojtCount} OJT • ${placedCount} Placed`,
+                    icon: <SchoolIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Vacancies',
+                    value: `${emp.ojtCapacity || 5} Seats`,
+                    icon: <WorkIcon sx={{ fontSize: 13 }} />
+                  }
+                ]}
+                actions={[
+                  {
+                    label: 'View Profile',
+                    icon: <VisibilityIcon sx={{ fontSize: 16 }} />,
+                    color: '#0284C7',
+                    bgColor: 'rgba(2, 132, 199, 0.09)',
+                    onClick: () => {
+                      setProfileEmployer(emp);
+                      setProfileTab(0);
+                    }
+                  },
+                  {
+                    label: 'Call',
+                    icon: <PhoneIcon sx={{ fontSize: 16 }} />,
+                    color: '#0F766E',
+                    bgColor: 'rgba(15, 118, 110, 0.09)',
+                    href: `tel:${emp.phone}`,
+                    hidden: !emp.phone
+                  },
+                  {
+                    label: 'WhatsApp',
+                    icon: <WhatsAppIcon sx={{ fontSize: 16 }} />,
+                    color: '#16A34A',
+                    bgColor: 'rgba(22, 163, 74, 0.09)',
+                    href: getWhatsAppUrl(emp.phone, 'Namaste, greetings from Prabidhik School, Jorpati.'),
+                    target: '_blank',
+                    hidden: !emp.phone
+                  },
+                  {
+                    label: 'Assign OJT',
+                    icon: <SchoolIcon sx={{ fontSize: 16 }} />,
+                    color: '#7C3AED',
+                    bgColor: 'rgba(124, 58, 237, 0.09)',
+                    onClick: () => {
+                      setProfileEmployer(emp);
+                      setProfileTab(1);
+                      handleOpenAddOjtForEmployer(emp);
+                    }
+                  },
+                  {
+                    label: 'Post Job',
+                    icon: <WorkIcon sx={{ fontSize: 16 }} />,
+                    color: '#D97706',
+                    bgColor: 'rgba(217, 119, 6, 0.09)',
+                    onClick: () => {
+                      setProfileEmployer(emp);
+                      setProfileTab(2);
+                      handleOpenAddPlacementForEmployer(emp);
+                    }
+                  },
+                  {
+                    label: 'Edit',
+                    icon: <EditIcon sx={{ fontSize: 16 }} />,
+                    color: '#0F2C59',
+                    bgColor: 'rgba(15, 44, 89, 0.08)',
+                    onClick: () => handleOpenEdit(emp)
+                  }
+                ]}
+              />
             );
           }}
         />

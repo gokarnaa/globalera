@@ -47,7 +47,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
 export default function PlacementManager() {
   const theme = useTheme();
@@ -501,6 +501,7 @@ export default function PlacementManager() {
       {isBelowMd || viewMode === 'table' ? (
         <ResponsiveDataView
           rows={filteredPlacements}
+          enableDesktopCardToggle={true}
           keyExtractor={(plc) => plc.id}
           emptyIcon={<RocketLaunchIcon />}
           emptyTitle="No placement records found"
@@ -622,87 +623,69 @@ export default function PlacementManager() {
           renderCard={(plc, idx) => {
             const std = (db.students || []).find((s) => s.id === plc.studentId);
             const emp = (db.employers || []).find((e) => e.id === plc.employerId);
+            const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+            const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
             const statusTone = plc.status === 'Placed' ? 'success' : plc.status === 'Ongoing' ? 'warning' : 'primary';
+            const accentColor = plc.status === 'Placed' ? '#059669' : '#0F2C59';
 
             return (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.75,
-                  borderRadius: 2.5,
-                  border: '1px solid #E2E8F0',
-                  bgcolor: '#FFFFFF'
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
-                    <Avatar src={std?.photoUrl} sx={{ width: 38, height: 38, bgcolor: '#1a56b0', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0 }}>
-                      {std?.name?.[0] || 'S'}
-                    </Avatar>
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem', lineHeight: 1.2 }} noWrap>
-                        {std?.name || 'Student'}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#475569', fontWeight: 700, display: 'block', fontSize: '0.72rem' }} noWrap>
-                        {plc.targetJob} • {emp?.name || 'Self-Employed / Freelance'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <StatusBadge label={plc.status} tone={statusTone} showDot />
-                </Box>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1.1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #F1F5F9', mb: 1.25 }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      SALARY / LOCATION
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }} noWrap>
-                      {plc.expectedSalary || 'Negotiable'} • {plc.preferredLocation || emp?.location || 'Nepal'}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      PLACEMENT DATE
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
-                      {plc.placementDate || plc.createdAt?.slice(0, 10) || '—'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
-                    {std?.tgid || `#${idx + 1}`} • {plc.employmentType}
-                  </Typography>
-                  <Stack direction="row" spacing={0.75}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<VisibilityIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => handleOpenEdit(plc)}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => handleOpenEdit(plc)}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      Edit
-                    </Button>
-                    <IconButton
-                      size="small"
-                      onClick={() => handleDelete(plc.id)}
-                      sx={{ color: '#d5372f', bgcolor: '#fef2f2', borderRadius: 1.5, '&:hover': { bgcolor: '#fee2e2' } }}
-                    >
-                      <DeleteOutlineIcon sx={{ fontSize: 17 }} />
-                    </IconButton>
-                  </Stack>
-                </Box>
-              </Paper>
+              <EntityCard
+                accentColor={accentColor}
+                avatarSrc={std?.photoUrl}
+                avatarText={std?.name?.[0] || 'S'}
+                avatarBg="#EFF6FF"
+                avatarColor="#0F2C59"
+                title={std?.name || 'Student'}
+                code={std?.tgid || `#${idx + 1}`}
+                subtitle={`${plc.targetJob} • ${emp?.name || 'Self-Employed / Freelance'}`}
+                status={{ label: plc.status, tone: statusTone, showDot: true }}
+                onCardClick={() => handleOpenEdit(plc)}
+                fields={[
+                  {
+                    label: 'Salary / Package',
+                    value: plc.expectedSalary || 'Negotiable',
+                    icon: <AttachMoneyIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Location',
+                    value: plc.preferredLocation || emp?.location || 'Nepal',
+                    icon: <LocationOnIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Placement Date',
+                    value: plc.placementDate || plc.createdAt?.slice(0, 10) || '—',
+                    icon: <WorkIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Course / Trade',
+                    value: crs?.title || plc.employmentType || '—',
+                    icon: <BusinessIcon sx={{ fontSize: 13 }} />
+                  }
+                ]}
+                actions={[
+                  {
+                    label: 'View',
+                    icon: <VisibilityIcon sx={{ fontSize: 16 }} />,
+                    color: '#0284C7',
+                    bgColor: 'rgba(2, 132, 199, 0.09)',
+                    onClick: () => handleOpenEdit(plc)
+                  },
+                  {
+                    label: 'Edit',
+                    icon: <EditIcon sx={{ fontSize: 16 }} />,
+                    color: '#0F2C59',
+                    bgColor: 'rgba(15, 44, 89, 0.08)',
+                    onClick: () => handleOpenEdit(plc)
+                  },
+                  {
+                    label: 'Delete',
+                    icon: <DeleteOutlineIcon sx={{ fontSize: 16 }} />,
+                    color: '#DC2626',
+                    bgColor: 'rgba(220, 38, 38, 0.08)',
+                    onClick: () => handleDelete(plc.id)
+                  }
+                ]}
+              />
             );
           }}
         />

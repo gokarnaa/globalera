@@ -48,7 +48,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
 // Helper: Check student fee clearance status (2nd installment due rule)
 export const getStudentFeeDue = (studentId, db) => {
@@ -488,6 +488,7 @@ export default function OjtManager() {
       {isBelowMd || viewMode === 'table' ? (
         <ResponsiveDataView
           rows={filteredOjts}
+          enableDesktopCardToggle={true}
           keyExtractor={(ojt) => ojt.id}
           emptyIcon={<WorkIcon />}
           emptyTitle="No OJT records found"
@@ -628,93 +629,85 @@ export default function OjtManager() {
           renderCard={(ojt, idx) => {
             const std = (db.students || []).find((s) => s.id === ojt.studentId);
             const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
+            const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+            const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
             const statusTone = ojt.status === 'Completed' ? 'success' : ojt.status === 'Ongoing' ? 'primary' : 'warning';
+            const accentColor = ojt.status === 'Completed' ? '#059669' : ojt.status === 'Ongoing' ? '#0284C7' : '#D97706';
             const feeInfo = getStudentFeeDue(std?.id, db);
 
             return (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.75,
-                  borderRadius: 2.5,
-                  border: '1px solid #E2E8F0',
-                  bgcolor: '#FFFFFF'
-                }}
-              >
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, minWidth: 0 }}>
-                    <Avatar src={std?.photoUrl} sx={{ width: 38, height: 38, bgcolor: '#1a56b0', fontWeight: 800, fontSize: '0.85rem', flexShrink: 0 }}>
-                      {std?.name?.[0] || 'S'}
-                    </Avatar>
-                    <Box sx={{ minWidth: 0 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.88rem', lineHeight: 1.2 }} noWrap>
-                        {std?.name || 'Student'}
-                      </Typography>
-                      <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block', fontSize: '0.72rem' }} noWrap>
-                        {emp?.name || 'Host Employer'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <StatusBadge label={ojt.status} tone={statusTone} showDot />
-                </Box>
-
-                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, p: 1.1, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #F1F5F9', mb: 1.25 }}>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      START / END DATES
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
-                      {ojt.startDate || '—'} → {ojt.endDate || '—'}
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                      STIPEND / HOURS
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#0F172A', fontWeight: 700, fontSize: '0.73rem' }}>
-                      {ojt.stipend || 'Training'} • {ojt.hours || 'Standard'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                  <Typography variant="caption" sx={{ color: feeInfo.due > 0 ? '#DC2626' : '#059669', fontWeight: 700, fontSize: '0.7rem' }}>
-                    {std?.tgid || `#${idx + 1}`} • {feeInfo.due > 0 ? `Due NPR ${feeInfo.due.toLocaleString()}` : 'Fee Cleared'}
-                  </Typography>
-                  <Stack direction="row" spacing={0.75}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<VisibilityIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => handleOpenEdit(ojt)}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<EditIcon sx={{ fontSize: 14 }} />}
-                      onClick={() => handleOpenEdit(ojt)}
-                      sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5 }}
-                    >
-                      Edit
-                    </Button>
-                    {ojt.status !== 'Completed' && (
-                      <Button
-                        size="small"
-                        variant="contained"
-                        color="success"
-                        startIcon={<CheckCircleIcon sx={{ fontSize: 14 }} />}
-                        onClick={() => handleCompleteOjt(ojt)}
-                        sx={{ textTransform: 'none', fontWeight: 700, fontSize: '0.72rem', py: 0.3, px: 1, borderRadius: 1.5, boxShadow: 'none' }}
-                      >
-                        Complete
-                      </Button>
-                    )}
-                  </Stack>
-                </Box>
-              </Paper>
+              <EntityCard
+                accentColor={accentColor}
+                avatarSrc={std?.photoUrl}
+                avatarText={std?.name?.[0] || 'S'}
+                avatarBg="#EFF6FF"
+                avatarColor="#0F2C59"
+                title={std?.name || 'Student'}
+                code={std?.tgid || `#${idx + 1}`}
+                subtitle={emp?.name || 'Host Employer'}
+                status={{ label: ojt.status, tone: statusTone, showDot: true }}
+                onCardClick={() => handleOpenEdit(ojt)}
+                fields={[
+                  {
+                    label: 'Start Date',
+                    value: ojt.startDate || '—',
+                    icon: <CalendarTodayIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'End Date',
+                    value: ojt.endDate || '—',
+                    icon: <CalendarTodayIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Stipend / Hours',
+                    value: `${ojt.stipend || 'Training'} • ${ojt.hours || 'Standard'}`,
+                    icon: <WorkIcon sx={{ fontSize: 13 }} />
+                  },
+                  {
+                    label: 'Supervisor / Course',
+                    value: ojt.relatedPerson || crs?.title || emp?.contactPerson || '—',
+                    icon: <PersonIcon sx={{ fontSize: 13 }} />
+                  }
+                ]}
+                highlight={
+                  feeInfo.due > 0
+                    ? {
+                        text: `Fee Due: NPR ${feeInfo.due.toLocaleString()}`,
+                        color: '#DC2626',
+                        bg: '#FEF2F2',
+                        border: '#FECACA',
+                        icon: <WarningAmberIcon sx={{ fontSize: 15 }} />
+                      }
+                    : undefined
+                }
+                actions={[
+                  {
+                    label: 'View',
+                    icon: <VisibilityIcon sx={{ fontSize: 16 }} />,
+                    color: '#0284C7',
+                    bgColor: 'rgba(2, 132, 199, 0.09)',
+                    onClick: () => handleOpenEdit(ojt)
+                  },
+                  {
+                    label: 'Edit',
+                    icon: <EditIcon sx={{ fontSize: 16 }} />,
+                    color: '#0F2C59',
+                    bgColor: 'rgba(15, 44, 89, 0.08)',
+                    onClick: () => handleOpenEdit(ojt)
+                  }
+                ]}
+                primaryAction={
+                  ojt.status === 'Ongoing'
+                    ? {
+                        label: 'Complete OJT',
+                        icon: <CheckCircleIcon sx={{ fontSize: 15 }} />,
+                        bgcolor: '#059669',
+                        hoverBgcolor: '#047857',
+                        onClick: () => handleCompleteOjt(ojt)
+                      }
+                    : undefined
+                }
+              />
             );
           }}
         />

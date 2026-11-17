@@ -41,6 +41,7 @@ import ViewWeekIcon from '@mui/icons-material/ViewWeek';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -66,7 +67,7 @@ import LeadModal, { LEAD_STAGES, LEAD_PRIORITIES, LEAD_SOURCES } from './LeadMod
 import LeadDetailsModal from './LeadDetailsModal';
 import ConvertToStudentModal from './ConvertToStudentModal';
 import LeadImportModal from './LeadImportModal';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
 const getPriorityTone = (priority) => {
   if (priority === 'High') return 'error';
@@ -878,6 +879,7 @@ export default function LeadManager({ onNavigateToAdmission }) {
         <ResponsiveDataView
           rows={filteredLeads}
           keyExtractor={(lead) => lead.id}
+          enableDesktopCardToggle={true}
           emptyIcon={<ContactPhoneIcon />}
           emptyTitle="No leads matching filter"
           emptySubtitle="Try adjusting your search or filter criteria, or add a new lead."
@@ -1164,276 +1166,118 @@ export default function LeadManager({ onNavigateToAdmission }) {
         </Card>
           )}
           renderCard={(lead, idx) => {
-            const stgObj = LEAD_STAGES.find((s) => s.value === lead.stage) || LEAD_STAGES[0];
             const prObj = LEAD_PRIORITIES.find((p) => p.value === lead.priority) || LEAD_PRIORITIES[1];
             const historyCount = lead.timeline?.length || 0;
+            const accentColor =
+              lead.stage === 'Converted'
+                ? '#059669'
+                : lead.priority === 'High'
+                ? '#DC2626'
+                : lead.priority === 'Medium'
+                ? '#D97706'
+                : '#0284C7';
+            const initials = (lead.name || 'L')
+              .trim()
+              .split(/\s+/)
+              .map((p) => p[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase();
 
             return (
-              <Paper
-                elevation={0}
-                sx={{
-                  p: 1.75,
-                  borderRadius: 2.5,
-                  border: '1px solid #E2E8F0',
-                  bgcolor: '#FFFFFF'
+              <EntityCard
+                accentColor={accentColor}
+                avatarText={initials}
+                title={lead.name}
+                code={`#${idx + 1}`}
+                subtitle={lead.address || 'Location not specified'}
+                status={{
+                  label: lead.stage,
+                  tone: getStageTone(lead.stage),
+                  showDot: true
                 }}
-              >
-                {/* Top Row: # Serial Badge, Lead Name + Location, Priority & Stage StatusBadges */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 1.25 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1, minWidth: 0, flex: 1 }}>
-                    <Box
-                      sx={{
-                        px: 0.75,
-                        py: 0.25,
-                        borderRadius: 1.25,
-                        bgcolor: '#EFF6FF',
-                        border: '1px solid #BFDBFE',
-                        color: '#1E40AF',
-                        fontWeight: 800,
-                        fontSize: '0.7rem',
-                        fontVariantNumeric: 'tabular-nums',
-                        flexShrink: 0,
-                        mt: 0.15
-                      }}
-                    >
-                      #{idx + 1}
-                    </Box>
-                    <Box sx={{ minWidth: 0, flex: 1 }}>
-                      <Typography
-                        onClick={() => setDetailsLead(lead)}
-                        noWrap
-                        sx={{
-                          fontWeight: 800,
-                          color: '#0F172A',
-                          fontSize: '0.9rem',
-                          lineHeight: 1.25,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {lead.name}
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        noWrap
-                        sx={{
-                          color: '#64748B',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 0.3,
-                          fontSize: '0.72rem',
-                          mt: 0.2
-                        }}
-                      >
-                        <LocationOnIcon sx={{ fontSize: '0.82rem', color: '#94A3B8', flexShrink: 0 }} />
-                        {lead.address || 'Location not specified'}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Stack direction="row" spacing={0.5} flexShrink={0} flexWrap="wrap" justifyContent="flex-end">
-                    <StatusBadge
-                      label={prObj.label.split(' (')[0]}
-                      tone={getPriorityTone(lead.priority)}
-                    />
-                    <StatusBadge
-                      label={stgObj.label.split(' (')[0]}
-                      tone={getStageTone(lead.stage)}
-                      showDot
-                    />
-                  </Stack>
-                </Box>
-
-                {/* Middle 2-Column Grid: Course/Trade (Rs. ...), Phone, Next Follow-up, History */}
-                <Box
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: 1,
-                    p: 1.15,
-                    borderRadius: 2,
-                    bgcolor: '#F8FAFC',
-                    border: '1px solid #F1F5F9',
-                    mb: 1.25
-                  }}
-                >
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
-                      Course / Trade
-                    </Typography>
-                    <Typography noWrap sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem' }}>
-                      {lead.course || 'General'}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#047857', fontWeight: 700, fontSize: '0.7rem' }}>
-                      Rs. {Number(lead.price || 0).toLocaleString()}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
-                      Phone
-                    </Typography>
-                    <Typography noWrap sx={{ fontWeight: 700, fontFamily: 'monospace', color: '#0F172A', fontSize: '0.8rem' }}>
-                      {lead.phone || '-'}
-                    </Typography>
-                    {(lead.agentName || lead.agentCode) && (
-                      <Typography noWrap variant="caption" sx={{ color: '#92400E', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                        Agent: {lead.agentName ? lead.agentName.split(' ')[0] : lead.agentCode}
-                      </Typography>
-                    )}
-                  </Box>
-
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
-                      Next Follow-up
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700, color: '#334155', fontSize: '0.76rem' }}>
-                      {lead.followUpDate || '-'}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700, fontSize: '0.66rem', display: 'block', textTransform: 'uppercase' }}>
-                      History
-                    </Typography>
-                    <Typography
-                      onClick={() => setDetailsLead(lead)}
-                      sx={{
-                        fontWeight: 700,
-                        color: '#2563EB',
-                        fontSize: '0.76rem',
-                        cursor: 'pointer',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 0.4
-                      }}
-                    >
-                      <HistoryIcon sx={{ fontSize: '0.88rem' }} />
-                      {historyCount} {historyCount === 1 ? 'log' : 'logs'}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Bottom Action Bar */}
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 0.75,
-                    pt: 0.75,
-                    borderTop: '1px solid #F1F5F9'
-                  }}
-                >
-                  <Stack direction="row" spacing={0.75} alignItems="center">
-                    <Tooltip title="Call">
-                      <IconButton
-                        size="small"
-                        component="a"
-                        href={`tel:${lead.phone}`}
-                        aria-label={`Call ${lead.name}`}
-                        sx={{
-                          color: '#0284C7',
-                          bgcolor: '#F0F9FF',
-                          border: '1px solid #BAE6FD',
-                          p: 0.85
-                        }}
-                      >
-                        <PhoneIcon sx={{ fontSize: '1.05rem' }} />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="WhatsApp">
-                      <IconButton
-                        size="small"
-                        component="a"
-                        href={getWaLink(lead)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={`WhatsApp ${lead.name}`}
-                        sx={{
-                          color: '#059669',
-                          bgcolor: '#ECFDF5',
-                          border: '1px solid #A7F3D0',
-                          p: 0.85
-                        }}
-                      >
-                        <WhatsAppIcon sx={{ fontSize: '1.05rem' }} />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="View Profile">
-                      <IconButton
-                        size="small"
-                        onClick={() => setDetailsLead(lead)}
-                        aria-label={`View profile for ${lead.name}`}
-                        sx={{
-                          color: '#2563EB',
-                          bgcolor: '#EFF6FF',
-                          border: '1px solid #BFDBFE',
-                          p: 0.85
-                        }}
-                      >
-                        <VisibilityIcon sx={{ fontSize: '1.05rem' }} />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-
-                  <Stack direction="row" spacing={0.75} alignItems="center">
-                    {lead.stage !== 'Converted' && (
-                      <Tooltip title="Admit">
-                        <IconButton
-                          size="small"
-                          onClick={() => setConvertLead(lead)}
-                          aria-label={`Admit ${lead.name}`}
-                          sx={{
-                            color: '#047857',
-                            bgcolor: '#ECFDF5',
-                            border: '1px solid #6EE7B7',
-                            p: 0.85
-                          }}
-                        >
-                          <HowToRegIcon sx={{ fontSize: '1.05rem' }} />
-                        </IconButton>
-                      </Tooltip>
-                    )}
-
-                    <Tooltip title="Edit">
-                      <IconButton
-                        size="small"
-                        onClick={() => {
-                          setEditingLead(lead);
-                          setOpenAddEditModal(true);
-                        }}
-                        aria-label={`Edit ${lead.name}`}
-                        sx={{
-                          color: '#D97706',
-                          bgcolor: '#FFFBEB',
-                          border: '1px solid #FDE68A',
-                          p: 0.85
-                        }}
-                      >
-                        <EditIcon sx={{ fontSize: '1.05rem' }} />
-                      </IconButton>
-                    </Tooltip>
-
-                    <Tooltip title="Delete">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleDeleteLead(lead.id)}
-                        aria-label={`Delete ${lead.name}`}
-                        sx={{
-                          color: '#DC2626',
-                          bgcolor: '#FEF2F2',
-                          border: '1px solid #FECACA',
-                          p: 0.85
-                        }}
-                      >
-                        <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />
-                      </IconButton>
-                    </Tooltip>
-                  </Stack>
-                </Box>
-              </Paper>
+                extraBadges={
+                  <StatusBadge
+                    label={prObj.label.split(' (')[0]}
+                    tone={getPriorityTone(lead.priority)}
+                  />
+                }
+                onCardClick={() => setDetailsLead(lead)}
+                fields={[
+                  {
+                    label: 'Course / Subject',
+                    value: `${lead.course || 'General'} (Rs. ${Number(lead.price || 0).toLocaleString()})`,
+                    color: '#047857'
+                  },
+                  {
+                    label: 'Phone',
+                    value: lead.phone || '-'
+                  },
+                  {
+                    label: 'Next Follow-up',
+                    value: lead.nextFollowUp || lead.followUpDate || '-'
+                  },
+                  {
+                    label: 'History',
+                    value: `${historyCount} ${historyCount === 1 ? 'log' : 'logs'}`,
+                    color: '#2563EB'
+                  }
+                ]}
+                actions={[
+                  {
+                    label: 'Call',
+                    icon: <PhoneIcon sx={{ fontSize: '1.05rem' }} />,
+                    href: lead.phone ? `tel:${lead.phone}` : undefined,
+                    disabled: !lead.phone,
+                    color: '#0284C7',
+                    bgColor: '#F0F9FF'
+                  },
+                  {
+                    label: 'WhatsApp',
+                    icon: <WhatsAppIcon sx={{ fontSize: '1.05rem' }} />,
+                    href: lead.phone ? getWaLink(lead) : undefined,
+                    target: '_blank',
+                    disabled: !lead.phone,
+                    color: '#059669',
+                    bgColor: '#ECFDF5'
+                  },
+                  {
+                    label: 'View 360° Profile',
+                    icon: <VisibilityIcon sx={{ fontSize: '1.05rem' }} />,
+                    onClick: () => setDetailsLead(lead),
+                    color: '#2563EB',
+                    bgColor: '#EFF6FF'
+                  },
+                  {
+                    label: 'Edit',
+                    icon: <EditIcon sx={{ fontSize: '1.05rem' }} />,
+                    onClick: () => {
+                      setEditingLead(lead);
+                      setOpenAddEditModal(true);
+                    },
+                    color: '#D97706',
+                    bgColor: '#FFFBEB'
+                  },
+                  {
+                    label: 'Delete',
+                    icon: <DeleteOutlineIcon sx={{ fontSize: '1.05rem' }} />,
+                    onClick: () => handleDeleteLead(lead.id),
+                    color: '#DC2626',
+                    bgColor: '#FEF2F2'
+                  }
+                ]}
+                primaryAction={
+                  lead.stage !== 'Converted'
+                    ? {
+                        label: 'Admit',
+                        icon: <PersonAddIcon sx={{ fontSize: '0.95rem' }} />,
+                        bgcolor: '#059669',
+                        hoverBgcolor: '#047857',
+                        onClick: () => setConvertLead(lead)
+                      }
+                    : undefined
+                }
+              />
             );
           }}
         />

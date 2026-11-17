@@ -31,11 +31,15 @@ export default function ResponsiveDataView({
   emptyAction,
   showViewToggle = true,
   defaultMobileMode = 'card',
-  cardSpacing = 1.25
+  defaultDesktopMode = 'table',
+  enableDesktopCardToggle = false,
+  cardGridColumns = { xs: 1, sm: 2, lg: 3 },
+  cardSpacing = 1.5
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileMode, setMobileMode] = useState(defaultMobileMode);
+  const [desktopMode, setDesktopMode] = useState(defaultDesktopMode);
 
   if (loading) {
     return (
@@ -95,27 +99,30 @@ export default function ResponsiveDataView({
     );
   }
 
-  const shouldRenderCards = isMobile && renderCard && mobileMode === 'card';
+  const activeMode = isMobile ? mobileMode : (enableDesktopCardToggle ? desktopMode : 'table');
+  const setActiveMode = isMobile ? setMobileMode : setDesktopMode;
+  const shouldRenderCards = Boolean(renderCard) && activeMode === 'card';
+  const showSwitcher = Boolean(renderCard && renderTable && showViewToggle && (isMobile || enableDesktopCardToggle));
 
   return (
     <Box>
-      {isMobile && renderCard && renderTable && showViewToggle && (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25 }}>
+      {showSwitcher && (
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
           <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
             {rows.length} {rows.length === 1 ? 'record' : 'records'}
           </Typography>
           <ToggleButtonGroup
             size="small"
             exclusive
-            value={mobileMode}
-            onChange={(_, val) => val && setMobileMode(val)}
-            aria-label="Switch mobile view mode"
+            value={activeMode}
+            onChange={(_, val) => val && setActiveMode(val)}
+            aria-label="Switch view mode"
           >
-            <ToggleButton value="card" aria-label="Card View" sx={{ py: 0.35, px: 1 }}>
+            <ToggleButton value="card" aria-label="Card View" sx={{ py: 0.35, px: 1.1 }}>
               <ViewAgendaOutlinedIcon sx={{ fontSize: 15, mr: 0.5 }} />
               Cards
             </ToggleButton>
-            <ToggleButton value="table" aria-label="Table View" sx={{ py: 0.35, px: 1 }}>
+            <ToggleButton value="table" aria-label="Table View" sx={{ py: 0.35, px: 1.1 }}>
               <TableRowsOutlinedIcon sx={{ fontSize: 15, mr: 0.5 }} />
               Table
             </ToggleButton>
@@ -124,13 +131,23 @@ export default function ResponsiveDataView({
       )}
 
       {shouldRenderCards ? (
-        <Stack spacing={cardSpacing}>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: `repeat(${cardGridColumns.xs || 1}, minmax(0, 1fr))`,
+              sm: `repeat(${cardGridColumns.sm || 2}, minmax(0, 1fr))`,
+              lg: `repeat(${cardGridColumns.lg || 3}, minmax(0, 1fr))`
+            },
+            gap: cardSpacing
+          }}
+        >
           {rows.map((row, idx) => (
             <React.Fragment key={keyExtractor(row, idx)}>
               {renderCard(row, idx)}
             </React.Fragment>
           ))}
-        </Stack>
+        </Box>
       ) : (
         renderTable()
       )}

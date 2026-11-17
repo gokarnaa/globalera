@@ -48,7 +48,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useDialog } from '../../context/DialogContext';
-import { ResponsiveDataView, StatusBadge } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
 export default function TrainerManager() {
   const theme = useTheme();
@@ -244,6 +244,7 @@ export default function TrainerManager() {
       <ResponsiveDataView
         rows={db.trainers || []}
         keyExtractor={(trn) => trn.id}
+        enableDesktopCardToggle={true}
         emptyIcon={<PeopleAltIcon sx={{ fontSize: 28 }} />}
         emptyTitle="No Trainers Found"
         emptySubtitle="Add a trainer or instructor to assign batches and manage schedules."
@@ -257,97 +258,76 @@ export default function TrainerManager() {
           const assignedGroups = (db.trainingGroups || []).filter((g) => g.trainerId === trn.id);
           const statusLabel = trn.status || 'Active';
           const statusTone = statusLabel === 'Active' ? 'success' : 'error';
+          const initials =
+            (trn.name || 'T')
+              .split(' ')
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((w) => w[0].toUpperCase())
+              .join('') || 'T';
+          const payrollDisplay = trn.payrollModel
+            ? trn.rate
+              ? `${trn.payrollModel} (NPR ${Number(trn.rate).toLocaleString()})`
+              : trn.payrollModel
+            : trn.salary
+              ? `NPR ${Number(trn.salary).toLocaleString()}/mo`
+              : trn.hourlyRate
+                ? `NPR ${Number(trn.hourlyRate).toLocaleString()}/hr`
+                : 'Standard';
 
           return (
-            <Paper
-              elevation={0}
-              sx={{
-                p: 1.75,
-                borderRadius: 2.5,
-                border: '1px solid #E2E8F0',
-                bgcolor: '#FFFFFF'
+            <EntityCard
+              accentColor="#0D9488"
+              avatarSrc={trn.photo}
+              avatarText={initials}
+              avatarBg="#CCFBF1"
+              avatarColor="#0F766E"
+              title={trn.name}
+              subtitle={trn.specialization || occ?.name || 'Instructor'}
+              status={{
+                label: statusLabel,
+                tone: statusTone,
+                showDot: true
               }}
-            >
-              <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
-                  <Avatar
-                    src={trn.photo}
-                    sx={{ width: 40, height: 40, bgcolor: '#1a9c5c', fontWeight: 800, fontSize: '0.95rem', flexShrink: 0 }}
-                  >
-                    {trn.name?.[0] || 'T'}
-                  </Avatar>
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.92rem', lineHeight: 1.25 }}>
-                      {trn.name}
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, display: 'block' }}>
-                      {occ?.name || 'General'} • {trn.specialization || 'Instructor'}
-                    </Typography>
-                  </Box>
-                </Box>
-                <StatusBadge label={statusLabel} tone={statusTone} showDot />
-              </Stack>
-
-              <Box sx={{ mt: 1.25, pt: 1.25, borderTop: '1px solid #F1F5F9', mb: 1.25 }}>
-                <Grid container spacing={1}>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-                      Phone
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.79rem', fontVariantNumeric: 'tabular-nums' }}>
-                      {trn.phone || '—'}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-                      Email
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700, color: '#1E293B', fontSize: '0.78rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {trn.email || '—'}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.68rem' }}>
-                      Assigned Batches
-                    </Typography>
-                    <Typography sx={{ fontWeight: 700, color: '#0F2E5A', fontSize: '0.79rem' }}>
-                      {assignedGroups.map((g) => g.groupCode).join(', ') || 'No active batch'}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Box>
-
-              <Stack direction="row" spacing={0.75} justifyContent="flex-end" alignItems="center">
-                <Button
-                  size="small"
-                  variant="outlined"
-                  component="a"
-                  href={trn.phone ? `tel:${trn.phone}` : undefined}
-                  disabled={!trn.phone}
-                  startIcon={<PhoneIcon sx={{ fontSize: '14px !important' }} />}
-                  sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#059669', borderColor: '#A7F3D0' }}
-                >
-                  Call
-                </Button>
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<EditIcon sx={{ fontSize: '14px !important' }} />}
-                  onClick={() => handleOpenEdit(trn)}
-                  sx={{ borderRadius: 1.5, fontWeight: 700, fontSize: '0.72rem', textTransform: 'none', color: '#0F2E5A', borderColor: '#CBD5E1' }}
-                >
-                  Edit
-                </Button>
-                <IconButton
-                  size="small"
-                  onClick={() => handleDelete(trn.id)}
-                  aria-label="Delete trainer"
-                  sx={{ color: '#EF4444', bgcolor: '#FEF2F2', p: 0.6, borderRadius: 1.5 }}
-                >
-                  <DeleteOutlineIcon sx={{ fontSize: 16 }} />
-                </IconButton>
-              </Stack>
-            </Paper>
+              onCardClick={() => {
+                setProfileTrainer(trn);
+                setProfileTab(0);
+              }}
+              fields={[
+                { label: 'Phone', value: trn.phone || '-' },
+                { label: 'Email', value: trn.email || '-' },
+                { label: 'Payroll / Rate', value: payrollDisplay },
+                {
+                  label: 'Assigned Batches',
+                  value: assignedGroups.map((g) => g.groupCode).join(', ') || 'None',
+                  color: '#0D9488'
+                }
+              ]}
+              actions={[
+                {
+                  label: 'Call',
+                  icon: <PhoneIcon sx={{ fontSize: 17 }} />,
+                  href: trn.phone ? `tel:${trn.phone}` : undefined,
+                  disabled: !trn.phone,
+                  color: '#059669',
+                  bgColor: 'rgba(5, 150, 105, 0.09)'
+                },
+                {
+                  label: 'Edit',
+                  icon: <EditIcon sx={{ fontSize: 17 }} />,
+                  onClick: () => handleOpenEdit(trn),
+                  color: '#0F2C59',
+                  bgColor: 'rgba(15, 44, 89, 0.08)'
+                },
+                {
+                  label: 'Delete',
+                  icon: <DeleteOutlineIcon sx={{ fontSize: 17 }} />,
+                  onClick: () => handleDelete(trn.id),
+                  color: '#EF4444',
+                  bgColor: 'rgba(239, 68, 68, 0.09)'
+                }
+              ]}
+            />
           );
         }}
         renderTable={() => (
