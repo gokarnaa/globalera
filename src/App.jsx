@@ -43,6 +43,8 @@ const PublicCertificateVerify = lazy(() => import('./components/certificates/Pub
 const A4LandscapeCertificateModal = lazy(() => import('./components/certificates/A4LandscapeCertificateModal'));
 const HolidayManager = lazy(() => import('./components/holidays/HolidayManager'));
 const CommunicationManager = lazy(() => import('./components/communication/CommunicationManager'));
+const WhatsAppHubManager = lazy(() => import('./components/communication/WhatsAppHubManager'));
+const FloatingWhatsAppHub = lazy(() => import('./components/communication/FloatingWhatsAppHub'));
 const NoticeManager = lazy(() => import('./components/notices/NoticeManager'));
 const SnapshotAuditManager = lazy(() => import('./components/snapshots/SnapshotAuditManager'));
 const SettingsManager = lazy(() => import('./components/settings/SettingsManager'));
@@ -362,6 +364,8 @@ export default function App() {
         return <CertificateManager />;
       case 'certificate_studio':
         return <CertificateStudioManager />;
+      case 'whatsapp_hub':
+        return <WhatsAppHubManager />;
       case 'communication':
         return <CommunicationManager />;
       case 'notices':
@@ -756,6 +760,12 @@ export default function App() {
             🔔 New Lead Received! {globalLeadAlert.name} ({globalLeadAlert.course || globalLeadAlert.subject || 'Course'})
           </Alert>
         </Snackbar>
+      )}
+      {/* Global Floating WhatsApp 3-Pane Hub for Admin & Staff */}
+      {currentUser && !isStudent && !isEmployer && (
+        <Suspense fallback={null}>
+          <FloatingWhatsAppHub onOpenFullModule={() => setCurrentTab('whatsapp_hub')} />
+        </Suspense>
       )}
     </Box>
   );

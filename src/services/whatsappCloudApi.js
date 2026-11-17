@@ -256,3 +256,253 @@ export async function sendWhatsAppAbsenceAlertDirect(parentPhone, student, group
     text: msg
   });
 }
+
+// ---------------------------------------------------------------------------
+// Unified WhatsApp Hub: Thread Metadata, Live Sync & Directory Builder
+// ---------------------------------------------------------------------------
+
+const THREAD_META_KEY = 'kite_wa_thread_meta_v1';
+
+export function getThreadMetaMap() {
+  try {
+    const raw = localStorage.getItem(THREAD_META_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveThreadMetaMap(map) {
+  try {
+    localStorage.setItem(THREAD_META_KEY, JSON.stringify(map));
+    window.dispatchEvent(new Event('kite_db_updated'));
+  } catch {
+    // ignore storage quota errors
+  }
+}
+
+export function normalizePhoneKey(phone) {
+  const digits = String(phone || '').replace(/\D/g, '');
+  if (!digits) return '';
+  return digits.length > 10 ? digits.slice(-10) : digits;
+}
+
+export function markThreadRead(phone) {
+  const key = normalizePhoneKey(phone);
+  if (!key) return;
+  const map = getThreadMetaMap();
+  map[key] = {
+    ...(map[key] || {}),
+    lastReadAt: new Date().toISOString()
+  };
+  saveThreadMetaMap(map);
+}
+
+export function toggleBotPause(phone, paused) {
+  const key = normalizePhoneKey(phone);
+  if (!key) return;
+  const map = getThreadMetaMap();
+  map[key] = {
+    ...(map[key] || {}),
+    botPaused: Boolean(paused)
+  };
+  saveThreadMetaMap(map);
+}
+
+/**
+ * Fetch remote inbound events and delivery logs from Supabase
+ */
+export async function fetchRemoteWhatsAppData() {
+  try {
+    const supabase = getSupabaseClient();
+    if (!supabase) return { logs: [], inbound: [] };
+
+    const [logsRes, inboundRes] = await Promise.all([
+      supabase.from('whatsapp_logs').select('*').order('created_at', { ascending: false }).limit(250),
+      supabase.from('whatsapp_inbound_events').select('*').order('created_at', { ascending: false }).limit(250)
+    ]);
+
+    return {
+      logs: logsRes?.data || [],
+      inbound: inboundRes?.data || []
+    };
+  } catch {
+    return { logs: [], inbound: [] };
+  }
+}
+
+/**
+ * Build unified contacts, threads, unread counts, and systematic audit logs
+ * combining Leads, Students, Trainers, Employers, and Unknown/FB Ad visitors.
+ */
+export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }) {
+  const metaMap = getThreadMetaMap();
+  const contactsByKey = new Map();
+
+  const registerEntity = (entity, role) => {
+    const rawPhone = entity?.phone || entity?.mobile || entity?.contactPhone;
+    const key = normalizePhoneKey(rawPhone);
+    if (!key) return;
+    if (!contactsByKey.has(key)) {
+      contactsByKey.set(key, {
+        key,
+        phone: rawPhone,
+        name: entity.name || entity.companyName || entity.contactPerson || 'Contact',
+        role,
+        entity,
+        messages: [],
+        adReferral: null,
+        unreadCount: 0,
+        botPaused: Boolean(metaMap[key]?.botPaused)
+      });
+    }
+  };
+
+  (db.leads || []).forEach((l) => registerEntity(l, 'Lead'));
+  (db.students || []).forEach((s) => registerEntity(s, 'Student'));
+  (db.trainers || []).forEach((t) => registerEntity(t, 'Trainer'));
+  (db.employers || []).forEach((e) => registerEntity(e, 'Employer'));
+
+  const ensureThread = (phone, fallbackName = 'WhatsApp Visitor') => {
+    const key = normalizePhoneKey(phone);
+    if (!key) return null;
+    if (!contactsByKey.has(key)) {
+      contactsByKey.set(key, {
+        key,
+        phone,
+        name: fallbackName,
+        role: 'New Inquiry',
+        entity: null,
+        messages: [],
+        adReferral: null,
+        unreadCount: 0,
+        botPaused: Boolean(metaMap[key]?.botPaused)
+      });
+    }
+    return contactsByKey.get(key);
+  };
+
+  const seenIds = new Set();
+  const allAuditLogs = [];
+
+  const pushMessage = (msg) => {
+    const dedupeKey = msg.metaMessageId || `${msg.key}|${msg.direction}|${msg.content}|${(msg.createdAt || '').slice(0, 16)}`;
+    if (seenIds.has(dedupeKey)) return;
+    seenIds.add(dedupeKey);
+
+    const thread = ensureThread(msg.phone, msg.senderName || 'WhatsApp Visitor');
+    if (!thread) return;
+    if (msg.adReferral && !thread.adReferral) {
+      thread.adReferral = msg.adReferral;
+    }
+    thread.messages.push(msg);
+
+    const lastRead = metaMap[thread.key]?.lastReadAt;
+    if (msg.direction === 'inbound' && (!lastRead || new Date(msg.createdAt) > new Date(lastRead))) {
+      thread.unreadCount += 1;
+    }
+
+    allAuditLogs.push({
+      ...msg,
+      contactName: thread.name,
+      contactRole: thread.role
+    });
+  };
+
+  // 1. Remote Supabase inbound events (preserve rich referral metadata)
+  (remoteData.inbound || []).forEach((ev) => {
+    const referral = ev?.raw_payload?.referral || null;
+    pushMessage({
+      id: `INB-${ev.id}`,
+      key: normalizePhoneKey(ev.phone),
+      phone: ev.phone,
+      senderName: ev.sender_name || 'WhatsApp Visitor',
+      direction: 'inbound',
+      messageType: referral ? 'fb_ad_inquiry' : 'text',
+      status: 'received',
+      content: ev.message_text || '',
+      createdAt: ev.created_at || new Date().toISOString(),
+      metaMessageId: ev?.raw_payload?.message_id || null,
+      adReferral: referral
+    });
+  });
+
+  // 2. Remote Supabase whatsapp_logs (outbound, auto_bot, delivery statuses)
+  (remoteData.logs || []).forEach((lg) => {
+    pushMessage({
+      id: `RLOG-${lg.id}`,
+      key: normalizePhoneKey(lg.phone),
+      phone: lg.phone,
+      senderName: 'WhatsApp Visitor',
+      direction: lg.direction || 'outbound',
+      messageType: lg.message_type || 'text',
+      status: lg.status || 'sent',
+      content: lg.content || '',
+      createdAt: lg.created_at || new Date().toISOString(),
+      metaMessageId: lg.meta_message_id || null,
+      adReferral: null
+    });
+  });
+
+  // 3. Local whatsappLogs
+  (db.whatsappLogs || []).forEach((lg) => {
+    pushMessage({
+      id: lg.id,
+      key: normalizePhoneKey(lg.phone),
+      phone: lg.phone,
+      senderName: lg.recipientName || 'Contact',
+      direction: lg.direction || 'outbound',
+      messageType: lg.messageType || 'text',
+      status: lg.status || 'sent',
+      content: lg.content || '',
+      createdAt: lg.createdAt || new Date().toISOString(),
+      metaMessageId: lg.metaMessageId || null,
+      adReferral: lg.adReferral || null
+    });
+  });
+
+  // 4. Local communicationLogs (WhatsApp / SMS)
+  (db.communicationLogs || []).forEach((cl) => {
+    pushMessage({
+      id: cl.id,
+      key: normalizePhoneKey(cl.phone),
+      phone: cl.phone,
+      senderName: cl.recipientName || 'Contact',
+      direction: 'outbound',
+      messageType: cl.channel === 'SMS' ? 'sms' : 'text',
+      status: cl.status === 'Failed' ? 'failed' : 'sent',
+      content: cl.message || '',
+      createdAt: cl.createdAt || new Date().toISOString(),
+      metaMessageId: null,
+      adReferral: null
+    });
+  });
+
+  const threads = Array.from(contactsByKey.values()).map((t) => {
+    t.messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const lastMsg = t.messages[t.messages.length - 1] || null;
+    return {
+      ...t,
+      lastMessage: lastMsg?.content || '',
+      lastTimestamp: lastMsg?.createdAt || null
+    };
+  });
+
+  threads.sort((a, b) => {
+    if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
+    if (a.lastTimestamp && b.lastTimestamp) return new Date(b.lastTimestamp) - new Date(a.lastTimestamp);
+    if (a.lastTimestamp) return -1;
+    if (b.lastTimestamp) return 1;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+
+  allAuditLogs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  const totalUnread = threads.reduce((sum, t) => sum + t.unreadCount, 0);
+
+  return {
+    threads,
+    auditLogs: allAuditLogs,
+    totalUnread
+  };
+}

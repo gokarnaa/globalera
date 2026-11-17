@@ -34,6 +34,7 @@ import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import EventBusyIcon from '@mui/icons-material/EventBusy';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ForumIcon from '@mui/icons-material/Forum';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import CloudDoneIcon from '@mui/icons-material/CloudDone';
@@ -91,6 +92,7 @@ const NAV_ITEMS = [
   { section: '6. SYSTEM & SETTINGS' },
   { id: 'users', label: 'User Access & Portals', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
   { id: 'settings', label: 'Institute Profile & Sync', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' },
+  { id: 'whatsapp_hub', label: 'WhatsApp', icon: <WhatsAppIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'Live' },
   { id: 'communication', label: 'SMS / WhatsApp Hub', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'notices', label: 'Notice Board', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'snapshots', label: 'Audit Trail & Snapshots', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
