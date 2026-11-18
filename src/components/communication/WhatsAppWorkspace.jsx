@@ -178,7 +178,8 @@ export default function WhatsAppWorkspace({
   initialDraft = '',
   jumpNonce = null,
   botCfg: propBotCfg = null,
-  onChangeReplyMode: propOnChangeReplyMode = null
+  onChangeReplyMode: propOnChangeReplyMode = null,
+  hideGlobalModeSwitcher = false
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -1350,11 +1351,37 @@ export default function WhatsAppWorkspace({
                 {activeThread.pinned ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
-            <Tooltip title={activeThread.botPaused ? 'Auto-Bot is currently PAUSED (Human Takeover). Click to RESUME 24/7 Bot' : 'Auto-Bot is ACTIVE 24/7 for this contact. Click to PAUSE (Human Takeover)'}>
+            <Tooltip
+              title={
+                activeThread.botPaused
+                  ? 'Auto-reply is currently PAUSED for this contact (Human Takeover). Click to RESUME.'
+                  : activeReplyMode === 'manual'
+                    ? 'Global Manual Mode is active (click to toggle per-chat pause)'
+                    : `${activeReplyMode === 'ai' ? 'AI Counselor' : 'Menu Bot'} is active for this contact. Click to PAUSE (Human Takeover).`
+              }
+            >
               <Chip
                 size="small"
-                icon={<SmartToyIcon sx={{ fontSize: 14 }} />}
-                label={activeThread.botPaused ? 'Bot Paused' : 'Auto-Bot ON'}
+                icon={
+                  activeThread.botPaused ? (
+                    <PersonIcon sx={{ fontSize: 14 }} />
+                  ) : activeReplyMode === 'ai' ? (
+                    <AutoAwesomeIcon sx={{ fontSize: 13 }} />
+                  ) : activeReplyMode === 'bot' ? (
+                    <SmartToyIcon sx={{ fontSize: 14 }} />
+                  ) : (
+                    <PersonIcon sx={{ fontSize: 14 }} />
+                  )
+                }
+                label={
+                  activeThread.botPaused
+                    ? 'Paused (Manual)'
+                    : activeReplyMode === 'ai'
+                      ? 'AI Active'
+                      : activeReplyMode === 'bot'
+                        ? 'Bot Active'
+                        : 'Manual Mode'
+                }
                 onClick={async () => {
                   const nextPaused = !activeThread.botPaused;
                   setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: nextPaused } }));
@@ -1362,67 +1389,87 @@ export default function WhatsAppWorkspace({
                   setSendFeedback({
                     type: nextPaused ? 'warning' : 'success',
                     text: nextPaused
-                      ? 'Auto-Bot paused for this contact (Human Takeover active).'
-                      : 'Auto-Bot resumed 24/7 for this contact.'
+                      ? 'Auto-reply paused for this contact (Human Takeover active).'
+                      : 'Auto-reply resumed 24/7 for this contact.'
                   });
                   onRefresh?.();
                 }}
                 sx={{
                   cursor: 'pointer',
                   fontWeight: 800,
-                  bgcolor: activeThread.botPaused ? '#FEF2F2' : '#ECFDF5',
-                  color: activeThread.botPaused ? '#DC2626' : '#059669',
-                  border: activeThread.botPaused ? '1px solid #FECACA' : '1px solid #A7F3D0',
+                  bgcolor: activeThread.botPaused
+                    ? '#FEF2F2'
+                    : activeReplyMode === 'ai'
+                      ? '#EEF2FF'
+                      : activeReplyMode === 'bot'
+                        ? '#ECFDF5'
+                        : '#FFFBEB',
+                  color: activeThread.botPaused
+                    ? '#DC2626'
+                    : activeReplyMode === 'ai'
+                      ? '#4338CA'
+                      : activeReplyMode === 'bot'
+                        ? '#059669'
+                        : '#B45309',
+                  border: activeThread.botPaused
+                    ? '1px solid #FECACA'
+                    : activeReplyMode === 'ai'
+                      ? '1px solid #C7D2FE'
+                      : activeReplyMode === 'bot'
+                        ? '1px solid #A7F3D0'
+                        : '1px solid #FDE68A',
                   height: 26
                 }}
               />
             </Tooltip>
 
-            <ToggleButtonGroup
-              size="small"
-              exclusive
-              value={activeReplyMode}
-              onChange={async (_, nextMode) => {
-                if (!nextMode) return;
-                await handleChangeWorkspaceReplyMode(nextMode);
-                if (nextMode !== 'manual' && activeThread.botPaused) {
-                  setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: false } }));
-                  await toggleBotPause(activeThread.phone, false);
-                  onRefresh?.();
-                }
-              }}
-              aria-label="Reply mode switcher"
-              sx={{
-                bgcolor: '#F1F5F9',
-                borderRadius: 2,
-                border: '1px solid #E2E8F0',
-                '& .MuiToggleButton-root': {
-                  border: 'none',
-                  py: 0.25,
-                  px: 0.85,
-                  fontSize: '0.68rem',
-                  fontWeight: 800,
-                  textTransform: 'none',
-                  color: '#475569',
-                  gap: 0.35,
-                  height: 26,
-                  '&.Mui-selected': { color: '#FFFFFF' }
-                }
-              }}
-            >
-              <ToggleButton value="ai" sx={{ '&.Mui-selected': { bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' } } }}>
-                <AutoAwesomeIcon sx={{ fontSize: 12 }} />
-                AI
-              </ToggleButton>
-              <ToggleButton value="bot" sx={{ '&.Mui-selected': { bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } } }}>
-                <SmartToyIcon sx={{ fontSize: 12 }} />
-                Bot
-              </ToggleButton>
-              <ToggleButton value="manual" sx={{ '&.Mui-selected': { bgcolor: '#D97706', '&:hover': { bgcolor: '#B45309' } } }}>
-                <PersonIcon sx={{ fontSize: 12 }} />
-                Manual
-              </ToggleButton>
-            </ToggleButtonGroup>
+            {!hideGlobalModeSwitcher && (
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={activeReplyMode}
+                onChange={async (_, nextMode) => {
+                  if (!nextMode) return;
+                  await handleChangeWorkspaceReplyMode(nextMode);
+                  if (nextMode !== 'manual' && activeThread.botPaused) {
+                    setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: false } }));
+                    await toggleBotPause(activeThread.phone, false);
+                    onRefresh?.();
+                  }
+                }}
+                aria-label="Reply mode switcher"
+                sx={{
+                  bgcolor: '#F1F5F9',
+                  borderRadius: 2,
+                  border: '1px solid #E2E8F0',
+                  '& .MuiToggleButton-root': {
+                    border: 'none',
+                    py: 0.25,
+                    px: 0.85,
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    textTransform: 'none',
+                    color: '#475569',
+                    gap: 0.35,
+                    height: 26,
+                    '&.Mui-selected': { color: '#FFFFFF' }
+                  }
+                }}
+              >
+                <ToggleButton value="ai" sx={{ '&.Mui-selected': { bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' } } }}>
+                  <AutoAwesomeIcon sx={{ fontSize: 12 }} />
+                  AI
+                </ToggleButton>
+                <ToggleButton value="bot" sx={{ '&.Mui-selected': { bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } } }}>
+                  <SmartToyIcon sx={{ fontSize: 12 }} />
+                  Bot
+                </ToggleButton>
+                <ToggleButton value="manual" sx={{ '&.Mui-selected': { bgcolor: '#D97706', '&:hover': { bgcolor: '#B45309' } } }}>
+                  <PersonIcon sx={{ fontSize: 12 }} />
+                  Manual
+                </ToggleButton>
+              </ToggleButtonGroup>
+            )}
             <Tooltip title="Call">
               <IconButton
                 size="small"

@@ -485,6 +485,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             jumpNonce={targetContact.nonce}
             botCfg={botCfg}
             onChangeReplyMode={handleChangeReplyMode}
+            hideGlobalModeSwitcher
           />
         </DialogContent>
       </Dialog>
