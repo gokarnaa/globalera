@@ -1,7 +1,8 @@
-// Vercel Serverless Function: Official Aakash SMS v1 API Proxy
-// Docs: https://aakashsms.com/admin/public/sms/v1/send | /credit | /report/api
+// Vercel Serverless Function: Official Aakash SMS API Proxy
+// Docs: https://sms.aakashsms.com/sms/v3/send/ | /sms/v1/credit | /sms/v1/report/api
 
-const AAKASH_BASE = 'https://aakashsms.com/admin/public/sms/v1';
+const AAKASH_BASE = 'https://sms.aakashsms.com/sms/v1';
+const AAKASH_SEND_URL = 'https://sms.aakashsms.com/sms/v3/send/';
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co';
 const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO';
 
@@ -114,7 +115,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'SMS text cannot be empty.' });
     }
 
-    const { ok, json } = await postForm(`${AAKASH_BASE}/send`, {
+    const { ok, json } = await postForm(AAKASH_SEND_URL, {
       auth_token: authToken,
       from: String(from || '31001'),
       to: normalizedTo,
