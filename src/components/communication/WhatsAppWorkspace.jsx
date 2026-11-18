@@ -78,7 +78,10 @@ import {
   getWhatsAppTemplates,
   renderWhatsAppTemplate,
   suggestGeminiReply,
-  cleanWhatsAppMarkdown
+  cleanWhatsAppMarkdown,
+  getBotSettings,
+  fetchRemoteBotSettings,
+  saveBotSettings
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -168,7 +171,10 @@ export default function WhatsAppWorkspace({
   height = '100%',
   initialPhone = null,
   initialDraft = '',
-  jumpNonce = null
+  jumpNonce = null,
+  botCfg: propBotCfg = null,
+  onToggleAiMode: propOnToggleAiMode = null,
+  onToggleGlobalBot: propOnToggleGlobalBot = null
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -202,7 +208,42 @@ export default function WhatsAppWorkspace({
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [aiDrafting, setAiDrafting] = useState(false);
+  const [aiAutoSending, setAiAutoSending] = useState(false);
   const [aiSandboxModalOpen, setAiSandboxModalOpen] = useState(false);
+  const [localBotCfg, setLocalBotCfg] = useState(() => getBotSettings());
+
+  const activeBotCfg = propBotCfg || localBotCfg;
+
+  useEffect(() => {
+    if (!propBotCfg) {
+      fetchRemoteBotSettings().then(setLocalBotCfg).catch(() => {});
+    }
+  }, [propBotCfg]);
+
+  const handleToggleWorkspaceAiMode = async () => {
+    if (propOnToggleAiMode) {
+      await propOnToggleAiMode();
+      return;
+    }
+    const nextAi = !localBotCfg.aiCounselorEnabled;
+    const nextCfg = {
+      ...localBotCfg,
+      aiCounselorEnabled: nextAi,
+      autoBotEnabled: nextAi ? true : localBotCfg.autoBotEnabled
+    };
+    setLocalBotCfg(nextCfg);
+    try {
+      await saveBotSettings(nextCfg);
+      setSendFeedback({
+        type: 'success',
+        text: nextAi
+          ? 'Real 2-Way AI Counselor Mode ON! Incoming WhatsApp messages will be handled automatically by AI.'
+          : 'AI Counselor Mode OFF (switched to Keyword Menu).'
+      });
+    } catch {
+      setLocalBotCfg(localBotCfg);
+    }
+  };
 
   // High-performance Optimistic State (0ms Seen/Unseen, 0ms Message Display, 0ms Bot Mode Toggle)
   const [optimisticReadSet, setOptimisticReadSet] = useState(() => new Set());
@@ -1266,20 +1307,33 @@ export default function WhatsAppWorkspace({
               />
             </Tooltip>
 
-            <Tooltip title="AI Counselor Mode: Gemini 3 Flash is active! Click to open Live AI Test Sandbox">
+            <Tooltip
+              title={
+                activeBotCfg.aiCounselorEnabled
+                  ? 'Real 2-Way AI Counselor Mode is ON (Handles incoming WhatsApp chats automatically). Click to turn OFF'
+                  : 'AI Counselor Mode is OFF (Keyword Menu). Click to enable Real 2-Way AI for this chat'
+              }
+            >
               <Chip
                 size="small"
-                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: '#4F46E5' }} />}
-                label="AI Mode"
-                onClick={() => setAiSandboxModalOpen(true)}
+                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: activeBotCfg.aiCounselorEnabled ? '#4F46E5' : '#64748B' }} />}
+                label={activeBotCfg.aiCounselorEnabled ? 'AI Mode: ON' : 'AI Mode: OFF'}
+                onClick={async () => {
+                  await handleToggleWorkspaceAiMode();
+                  if (!activeBotCfg.aiCounselorEnabled && activeThread.botPaused) {
+                    setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: false } }));
+                    await toggleBotPause(activeThread.phone, false);
+                    onRefresh?.();
+                  }
+                }}
                 sx={{
                   cursor: 'pointer',
                   fontWeight: 800,
-                  bgcolor: '#EEF2FF',
-                  color: '#4338CA',
-                  border: '1px solid #C7D2FE',
+                  bgcolor: activeBotCfg.aiCounselorEnabled ? '#EEF2FF' : '#F1F5F9',
+                  color: activeBotCfg.aiCounselorEnabled ? '#4338CA' : '#475569',
+                  border: activeBotCfg.aiCounselorEnabled ? '1px solid #C7D2FE' : '1px solid #CBD5E1',
                   height: 26,
-                  '&:hover': { bgcolor: '#E0E7FF' }
+                  '&:hover': { bgcolor: activeBotCfg.aiCounselorEnabled ? '#E0E7FF' : '#E2E8F0' }
                 }}
               />
             </Tooltip>
@@ -1513,8 +1567,8 @@ export default function WhatsAppWorkspace({
             <Chip
               size="small"
               icon={aiDrafting ? <CircularProgress size={12} color="inherit" /> : <AutoAwesomeIcon sx={{ fontSize: 14 }} />}
-              label={aiDrafting ? 'AI Drafting...' : 'AI Suggest'}
-              disabled={sending || aiDrafting}
+              label={aiDrafting ? 'Drafting...' : 'AI Suggest'}
+              disabled={sending || aiDrafting || aiAutoSending}
               onClick={async () => {
                 setAiDrafting(true);
                 setSendFeedback(null);
@@ -1544,6 +1598,64 @@ export default function WhatsAppWorkspace({
                 border: '1px solid #C7D2FE'
               }}
             />
+            <Tooltip title="Generate AI reply and immediately send it to this customer's real WhatsApp">
+              <Chip
+                size="small"
+                icon={aiAutoSending ? <CircularProgress size={12} color="inherit" /> : <BoltIcon sx={{ fontSize: 14 }} />}
+                label={aiAutoSending ? 'AI Sending...' : 'AI Reply & Send'}
+                disabled={sending || aiDrafting || aiAutoSending}
+                onClick={async () => {
+                  setAiAutoSending(true);
+                  setSendFeedback(null);
+                  try {
+                    const studentInfo =
+                      activeThread.role === 'Student' && activeThread.entity
+                        ? `Name: ${activeThread.entity.name}, TGID: ${activeThread.entity.tgid || '-'}, Status: ${activeThread.entity.status || 'Active'}, Fee: Rs. ${Number(activeThread.entity.feeAmount || activeThread.entity.fee_amount || 0)}, Paid: Rs. ${Number(activeThread.entity.feePaid || activeThread.entity.fee_paid || 0)}`
+                        : '';
+                    const aiText = await suggestGeminiReply({
+                      contactName: activeThread.name,
+                      role: activeThread.role,
+                      messages: activeThread.messages,
+                      studentInfo
+                    });
+                    const optId = `opt-${Date.now()}`;
+                    setOptimisticMessagesMap((prev) => ({
+                      ...prev,
+                      [activeThread.key]: [
+                        ...(prev[activeThread.key] || []),
+                        {
+                          id: optId,
+                          direction: 'outbound',
+                          messageType: 'auto_bot',
+                          status: 'sent',
+                          content: aiText,
+                          createdAt: new Date().toISOString()
+                        }
+                      ]
+                    }));
+                    await sendMetaWhatsAppMessage({
+                      to: activeThread.phone,
+                      type: 'text',
+                      text: aiText
+                    });
+                    setSendFeedback({ type: 'success', text: 'AI Counselor reply sent directly to WhatsApp!' });
+                    onRefresh?.();
+                  } catch (err) {
+                    setSendFeedback({ type: 'error', text: err?.message || 'AI Auto-Send failed.' });
+                  } finally {
+                    setAiAutoSending(false);
+                  }
+                }}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  bgcolor: '#ECFDF5',
+                  color: '#047857',
+                  border: '1px solid #A7F3D0',
+                  '&:hover': { bgcolor: '#D1FAE5' }
+                }}
+              />
+            </Tooltip>
           </Box>
 
           <ToggleButtonGroup

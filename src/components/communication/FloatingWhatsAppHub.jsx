@@ -70,6 +70,9 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     }
   }, []);
 
+  const isDialogOpen = windowMode === 'normal' || windowMode === 'maximized';
+  const isMaximized = windowMode === 'maximized';
+
   const handleToggleGlobalBot = async () => {
     const nextEnabled = !botCfg.autoBotEnabled;
     const nextCfg = { ...botCfg, autoBotEnabled: nextEnabled };
@@ -78,6 +81,22 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
       await saveBotSettings(nextCfg);
     } catch {
       // rollback if failed
+      setBotCfg(botCfg);
+    }
+  };
+
+  const handleToggleAiMode = async () => {
+    const nextAi = !botCfg.aiCounselorEnabled;
+    const nextCfg = {
+      ...botCfg,
+      aiCounselorEnabled: nextAi,
+      // Automatically ensure Auto-Bot is ON when turning AI Mode ON so real 2-way WhatsApp works immediately
+      autoBotEnabled: nextAi ? true : botCfg.autoBotEnabled
+    };
+    setBotCfg(nextCfg);
+    try {
+      await saveBotSettings(nextCfg);
+    } catch {
       setBotCfg(botCfg);
     }
   };
@@ -95,13 +114,17 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     };
     window.addEventListener('kite_db_updated', onDbUpdate);
     window.addEventListener('kite_open_whatsapp_hub', onOpenForContact);
-    const timer = setInterval(syncHub, 20000);
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
       window.removeEventListener('kite_open_whatsapp_hub', onOpenForContact);
-      clearInterval(timer);
     };
   }, [syncHub]);
+
+  // Poll every 5s when Floating Window is open for instant 2-way real chat updates, 20s when minimized/closed
+  useEffect(() => {
+    const timer = setInterval(syncHub, isDialogOpen ? 5000 : 20000);
+    return () => clearInterval(timer);
+  }, [syncHub, isDialogOpen]);
 
   const hubState = useMemo(() => buildWhatsAppHubState(db, remoteData), [db, remoteData]);
   const prevUnreadRef = useRef(0);
@@ -112,9 +135,6 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     }
     prevUnreadRef.current = hubState.totalUnread;
   }, [hubState.totalUnread, soundMuted]);
-
-  const isDialogOpen = windowMode === 'normal' || windowMode === 'maximized';
-  const isMaximized = windowMode === 'maximized';
 
   return (
     <>
@@ -332,21 +352,27 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               />
             </Tooltip>
 
-            <Tooltip title="AI Counselor Mode: प्राविधिक स्कुल काउन्सिलर सक्रिय छ (Click to test Sandbox)">
+            <Tooltip
+              title={
+                botCfg.aiCounselorEnabled
+                  ? 'Real 2-Way AI Counselor Mode is ON (Automatically handles incoming WhatsApp chats). Click to turn OFF (Keyword Menu)'
+                  : 'AI Counselor Mode is OFF (Using Keyword Menu). Click to enable Real 2-Way AI Counselor'
+              }
+            >
               <Chip
                 size="small"
-                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: '#C7D2FE' }} />}
-                label="AI Mode"
-                onClick={() => setAiSandboxOpen(true)}
+                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: botCfg.aiCounselorEnabled ? '#C7D2FE' : '#94A3B8' }} />}
+                label={botCfg.aiCounselorEnabled ? 'AI Mode: ON' : 'AI Mode: OFF'}
+                onClick={handleToggleAiMode}
                 sx={{
                   cursor: 'pointer',
                   fontWeight: 800,
-                  bgcolor: 'rgba(99, 102, 241, 0.28)',
+                  bgcolor: botCfg.aiCounselorEnabled ? 'rgba(99, 102, 241, 0.35)' : 'rgba(148, 163, 184, 0.22)',
                   color: '#FFFFFF',
-                  border: '1px solid #818CF8',
+                  border: botCfg.aiCounselorEnabled ? '1px solid #818CF8' : '1px solid #94A3B8',
                   fontSize: '0.72rem',
                   height: 26,
-                  '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.45)' }
+                  '&:hover': { bgcolor: botCfg.aiCounselorEnabled ? 'rgba(99, 102, 241, 0.50)' : 'rgba(148, 163, 184, 0.35)' }
                 }}
               />
             </Tooltip>
@@ -448,6 +474,9 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             initialPhone={targetContact.phone}
             initialDraft={targetContact.draft}
             jumpNonce={targetContact.nonce}
+            botCfg={botCfg}
+            onToggleAiMode={handleToggleAiMode}
+            onToggleGlobalBot={handleToggleGlobalBot}
           />
         </DialogContent>
       </Dialog>
