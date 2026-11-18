@@ -2213,24 +2213,6 @@ export default function WhatsAppWorkspace({
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75 }}>
-          <Tooltip title="Quick Templates & Meta Approved Template">
-            <IconButton
-              size="small"
-              onClick={(e) => setTemplateAnchor(e.currentTarget)}
-              sx={{ bgcolor: '#EFF6FF', color: '#0F2C59', mb: 0.25 }}
-            >
-              <BoltIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Send PDF / Document URL">
-            <IconButton
-              size="small"
-              onClick={() => setDocModalOpen(true)}
-              sx={{ bgcolor: '#F1F5F9', color: '#475569', mb: 0.25 }}
-            >
-              <AttachFileIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
           <Menu
             anchorEl={templateAnchor}
             open={Boolean(templateAnchor)}
@@ -2282,13 +2264,58 @@ export default function WhatsAppWorkspace({
                 handleSend();
               }
             }}
-            sx={{ '& textarea': { fontSize: { xs: '16px', md: '0.875rem' } } }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '24px',
+                bgcolor: sendChannel === 'Note' ? '#FEF3C7' : '#F8FAFC',
+                px: 0.75,
+                py: 0.4,
+                '& fieldset': { borderColor: sendChannel === 'Note' ? '#FCD34D' : '#CBD5E1' }
+              },
+              '& textarea': { fontSize: { xs: '16px', md: '0.875rem' }, lineHeight: 1.4 }
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start" sx={{ mr: 0.25 }}>
+                  <Tooltip title="Quick Templates & Meta Approved Template">
+                    <IconButton
+                      size="small"
+                      aria-label="Quick templates"
+                      onClick={(e) => setTemplateAnchor(e.currentTarget)}
+                      sx={{ color: '#0F2C59', p: 0.5 }}
+                    >
+                      <BoltIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end" sx={{ ml: 0.25 }}>
+                  <Tooltip title="Send PDF / Document URL">
+                    <IconButton
+                      size="small"
+                      aria-label="Attach document"
+                      onClick={() => setDocModalOpen(true)}
+                      sx={{ color: '#64748B', p: 0.5 }}
+                    >
+                      <AttachFileIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </InputAdornment>
+              )
+            }}
             placeholder={
-              sendChannel === 'Note'
-                ? 'Write private internal staff note (not sent to student)...'
-                : sendChannel === 'SMS'
-                ? `Send Aakash SMS to ${activeThread.name}...`
-                : `Message ${activeThread.name} (type / for quick replies)...`
+              isMobile
+                ? sendChannel === 'Note'
+                  ? 'Private note...'
+                  : sendChannel === 'SMS'
+                    ? 'Write SMS...'
+                    : 'Message...'
+                : sendChannel === 'Note'
+                  ? 'Write private internal staff note (not sent to student)...'
+                  : sendChannel === 'SMS'
+                    ? `Send Aakash SMS to ${activeThread.name}...`
+                    : `Message ${activeThread.name} (type / for quick replies)...`
             }
           />
 
