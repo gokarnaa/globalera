@@ -9,15 +9,17 @@ const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_
 async function fetchAakashTokenFromSupabase() {
   try {
     const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
-    const [sysRes, orgRes, cfgRes] = await Promise.all([
+    const [sysRes, orgRes, cfgRes, smsCfgRes] = await Promise.all([
       fetch(`${SUPABASE_URL}/rest/v1/system_settings?select=company_profile&limit=1`, { headers }),
       fetch(`${SUPABASE_URL}/rest/v1/organizations?select=settings&limit=1`, { headers }),
-      fetch(`${SUPABASE_URL}/rest/v1/communication_logs?channel=eq.WA_Config_Sync&order=sent_at.desc&limit=1`, { headers })
+      fetch(`${SUPABASE_URL}/rest/v1/communication_logs?channel=eq.WA_Config_Sync&order=sent_at.desc&limit=1`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/communication_logs?channel=eq.AAKASH_SMS_CONFIG&order=sent_at.desc&limit=1`, { headers })
     ]);
-    const [sysData, orgData, cfgData] = await Promise.all([
+    const [sysData, orgData, cfgData, smsCfgData] = await Promise.all([
       sysRes.ok ? sysRes.json() : [],
       orgRes.ok ? orgRes.json() : [],
-      cfgRes.ok ? cfgRes.json() : []
+      cfgRes.ok ? cfgRes.json() : [],
+      smsCfgRes.ok ? smsCfgRes.json() : []
     ]);
     let syncToken = '';
     if (Array.isArray(cfgData) && cfgData[0]?.message) {
@@ -27,10 +29,19 @@ async function fetchAakashTokenFromSupabase() {
         syncToken = '';
       }
     }
+    let dedicatedToken = '';
+    if (Array.isArray(smsCfgData) && smsCfgData[0]?.message) {
+      try {
+        dedicatedToken = JSON.parse(smsCfgData[0].message)?.aakashSmsToken || '';
+      } catch {
+        dedicatedToken = '';
+      }
+    }
     return String(
       orgData?.[0]?.settings?.aakashSmsToken ||
         sysData?.[0]?.company_profile?.aakashSmsToken ||
         syncToken ||
+        dedicatedToken ||
         ''
     ).trim();
   } catch {
