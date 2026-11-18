@@ -45,6 +45,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
+import AiCounselorSandbox from './AiCounselorSandbox';
 import { loadDB, logCommunication } from '../../services/storage';
 import {
   fetchRemoteWhatsAppData,
@@ -156,70 +157,6 @@ export default function WhatsAppHubManager() {
     } finally {
       setBotTesting(false);
     }
-  };
-
-  // Live AI Counselor Test Sandbox state
-  const [sandboxMessages, setSandboxMessages] = useState([
-    {
-      role: 'model',
-      text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ AI Counselor हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
-    }
-  ]);
-  const [sandboxInput, setSandboxInput] = useState('');
-  const [sandboxLoading, setSandboxLoading] = useState(false);
-  const [sandboxError, setSandboxError] = useState(null);
-  const [sandboxLeadDetected, setSandboxLeadDetected] = useState(null);
-
-  const handleSendSandboxMessage = async (customText) => {
-    const text = (customText || sandboxInput).trim();
-    if (!text || sandboxLoading) return;
-
-    const userMsg = { role: 'user', text };
-    const nextMessages = [...sandboxMessages, userMsg];
-    setSandboxMessages(nextMessages);
-    setSandboxInput('');
-    setSandboxLoading(true);
-    setSandboxError(null);
-
-    // Check admission lead intent simulation
-    const lower = text.toLowerCase();
-    if (
-      lower.includes('भर्ना') ||
-      lower.includes('admission') ||
-      lower.includes('apply') ||
-      lower.includes('आउँछु') ||
-      lower.includes('join') ||
-      lower === '4'
-    ) {
-      setSandboxLeadDetected({
-        title: 'High Priority Admission Lead Intent Detected!',
-        detail: `Visitor indicated admission/consultation intent ("${text}"). Auto-lead capture creates a high-priority lead in CRM and alerts counseling staff.`
-      });
-    }
-
-    try {
-      const res = await simulateGeminiCounselorTurn({
-        messages: nextMessages,
-        userInput: text,
-        customInstructions: botCfg.aiInstructions
-      });
-      setSandboxMessages((prev) => [...prev, { role: 'model', text: res.reply, model: res.model }]);
-    } catch (err) {
-      setSandboxError(err?.message || 'Failed to get AI Counselor reply.');
-    } finally {
-      setSandboxLoading(false);
-    }
-  };
-
-  const handleResetSandbox = () => {
-    setSandboxMessages([
-      {
-        role: 'model',
-        text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ AI Counselor हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
-      }
-    ]);
-    setSandboxLeadDetected(null);
-    setSandboxError(null);
   };
 
   useEffect(() => {
@@ -438,7 +375,7 @@ export default function WhatsAppHubManager() {
           <Tab icon={<ForumIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Live 3-Pane Inbox" />
           <Tab icon={<FactCheckIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`Message Tracking (${hubState.auditLogs.length})`} />
           <Tab icon={<CampaignIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`FB Ad Inquiries (${fbAdThreads.length})`} />
-          <Tab icon={<SendIcon sx={{ fontSize: 17 }} />} iconPosition="start" label="Broadcast & Bot Info" />
+          <Tab icon={<SmartToyIcon sx={{ fontSize: 17, color: '#4F46E5' }} />} iconPosition="start" label="Auto-Bot & AI Counselor Sandbox" />
           <Tab icon={<TranslateIcon sx={{ fontSize: 17 }} />} iconPosition="start" label={`Nepali Templates (${templates.length})`} />
         </Tabs>
       </Paper>
@@ -701,132 +638,9 @@ export default function WhatsAppHubManager() {
             </Paper>
 
             {/* Live AI Counselor Test Sandbox (Interactive 2-Way Simulator) */}
-            <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, border: '1px solid #C7D2FE', bgcolor: '#FFFFFF', display: 'flex', flexDirection: 'column', gap: 1.5, mt: 2 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <SmartToyIcon sx={{ color: '#4F46E5' }} />
-                  <Box>
-                    <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E1B4B' }}>
-                      Live AI Counselor Test Sandbox (Interactive 2-Way Simulator)
-                    </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B' }}>
-                      Test how Gemini AI converses in 2-way real time, remembers context, applies instructions, and detects leads before live WhatsApp delivery.
-                    </Typography>
-                  </Box>
-                </Box>
-                <Button size="small" variant="outlined" color="inherit" onClick={handleResetSandbox} sx={{ fontWeight: 700 }}>
-                  Reset Chat
-                </Button>
-              </Box>
-
-              {/* Quick sample prompt chips */}
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
-                {[
-                  'केयरगिभर तालिम कति महिनाको हो?',
-                  'दैनिक सिफ्ट कति बजे हुन्छ?',
-                  'शुल्क कति लाग्छ र तिर्ने तरिका के हो?',
-                  'म भोलि भर्ना हुन आउँछु सिट छ कि छैन?'
-                ].map((prompt) => (
-                  <Chip
-                    key={prompt}
-                    label={prompt}
-                    size="small"
-                    clickable
-                    disabled={sandboxLoading}
-                    onClick={() => handleSendSandboxMessage(prompt)}
-                    sx={{ bgcolor: '#F1F5F9', '&:hover': { bgcolor: '#E2E8F0' }, fontSize: '0.75rem', fontWeight: 600 }}
-                  />
-                ))}
-              </Box>
-
-              {/* Chat messages viewport */}
-              <Box
-                sx={{
-                  p: 1.5,
-                  borderRadius: 2,
-                  bgcolor: '#F8FAFC',
-                  border: '1px solid #E2E8F0',
-                  maxHeight: 320,
-                  minHeight: 200,
-                  overflowY: 'auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 1.25
-                }}
-              >
-                {sandboxMessages.map((m, idx) => {
-                  const isUser = m.role === 'user';
-                  return (
-                    <Box
-                      key={idx}
-                      sx={{
-                        alignSelf: isUser ? 'flex-end' : 'flex-start',
-                        maxWidth: '85%',
-                        p: 1.25,
-                        borderRadius: 2,
-                        bgcolor: isUser ? '#1E293B' : '#FFFFFF',
-                        color: isUser ? '#FFFFFF' : '#0F172A',
-                        border: isUser ? 'none' : '1px solid #E2E8F0',
-                        boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-                      }}
-                    >
-                      <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, mb: 0.25, color: isUser ? '#94A3B8' : '#4F46E5' }}>
-                        {isUser ? 'Visitor (You)' : `AI Counselor${m.model ? ` (${m.model})` : ''}`}
-                      </Typography>
-                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5, fontSize: '0.85rem' }}>
-                        {m.text}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-                {sandboxLoading && (
-                  <Box sx={{ alignSelf: 'flex-start', p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <CircularProgress size={14} sx={{ color: '#4F46E5' }} />
-                    <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-                      Gemini AI Counselor is thinking and drafting reply...
-                    </Typography>
-                  </Box>
-                )}
-              </Box>
-
-              {sandboxLeadDetected && (
-                <Alert severity="success" onClose={() => setSandboxLeadDetected(null)} sx={{ py: 0.5 }}>
-                  <strong>{sandboxLeadDetected.title}</strong> — {sandboxLeadDetected.detail}
-                </Alert>
-              )}
-
-              {sandboxError && (
-                <Alert severity="error" onClose={() => setSandboxError(null)} sx={{ py: 0.5 }}>
-                  {sandboxError}
-                </Alert>
-              )}
-
-              {/* Input bar */}
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <TextField
-                  size="small"
-                  fullWidth
-                  placeholder="Type a visitor question in Nepali, Roman Nepali, or English..."
-                  value={sandboxInput}
-                  disabled={sandboxLoading}
-                  onChange={(e) => setSandboxInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSendSandboxMessage();
-                    }
-                  }}
-                />
-                <Button
-                  variant="contained"
-                  disabled={sandboxLoading || !sandboxInput.trim()}
-                  onClick={() => handleSendSandboxMessage()}
-                  sx={{ bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' }, fontWeight: 700, px: 2.5 }}
-                >
-                  Send
-                </Button>
-              </Box>
-            </Paper>
+            <Box sx={{ mt: 2 }}>
+              <AiCounselorSandbox customInstructions={botCfg.aiInstructions} />
+            </Box>
           </Grid>
 
           <Grid item xs={12} md={5}>

@@ -23,7 +23,9 @@ import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
+import AiCounselorSandbox from './AiCounselorSandbox';
 import { loadDB } from '../../services/storage';
 import { playLeadChime } from '../../services/soundUtils';
 import {
@@ -43,6 +45,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   const [windowMode, setWindowMode] = useState('closed'); // 'closed' | 'normal' | 'minimized' | 'maximized'
   const [soundMuted, setSoundMuted] = useState(false);
   const [targetContact, setTargetContact] = useState({ phone: null, draft: '' });
+  const [aiSandboxOpen, setAiSandboxOpen] = useState(false);
   const [db, setDb] = useState(() => loadDB());
   const [remoteData, setRemoteData] = useState({ logs: [], inbound: [] });
   const [refreshing, setRefreshing] = useState(false);
@@ -289,6 +292,25 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<SmartToyIcon sx={{ fontSize: 15 }} />}
+              onClick={() => setAiSandboxOpen(true)}
+              sx={{
+                bgcolor: '#4F46E5',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                '&:hover': { bgcolor: '#4338CA' },
+                fontSize: '0.75rem',
+                py: 0.45,
+                px: 1.25,
+                borderRadius: 2
+              }}
+            >
+              AI Sandbox
+            </Button>
+
             {onOpenFullModule && (
               <Button
                 size="small"
@@ -368,6 +390,52 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             initialDraft={targetContact.draft}
             jumpNonce={targetContact.nonce}
           />
+        </DialogContent>
+      </Dialog>
+
+      {/* Standalone Live AI Counselor Sandbox Dialog */}
+      <Dialog
+        open={aiSandboxOpen}
+        onClose={() => setAiSandboxOpen(false)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(3px)',
+              backgroundColor: 'rgba(15, 23, 42, 0.55)'
+            }
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#0F2C59',
+            color: '#FFFFFF',
+            py: 1.25,
+            borderBottom: '2px solid #4F46E5'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SmartToyIcon sx={{ color: '#818CF8' }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+              Live AI Counselor Test Sandbox
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            aria-label="Close AI Sandbox"
+            onClick={() => setAiSandboxOpen(false)}
+            sx={{ color: '#FFFFFF' }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: '#F8FAFC' }}>
+          <AiCounselorSandbox inDialog />
         </DialogContent>
       </Dialog>
     </>
