@@ -653,7 +653,10 @@ export function normalizeBotConfig(bot = {}) {
     autoBotEnabled: replyMode !== 'manual',
     aiCounselorEnabled: replyMode === 'ai',
     geminiApiKey: bot.geminiApiKey || '',
-    aiInstructions: bot.aiInstructions || ''
+    aiInstructions: bot.aiInstructions || '',
+    fbPageId: bot.fbPageId || '',
+    fbPageAccessToken: bot.fbPageAccessToken || '',
+    fbAutoCommentReply: bot.fbAutoCommentReply !== false
   };
 }
 
@@ -780,8 +783,29 @@ export async function saveBotSettings(nextBot) {
   return { ...merged, syncedRemote: true };
 }
 
+export async function sendFacebookReply({ targetId, targetName, channel = 'messenger', text, messageType = 'text' }) {
+  const botCfg = getBotSettings();
+  const res = await fetch('/api/facebook-send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      targetId,
+      targetName,
+      channel,
+      text,
+      messageType,
+      pageToken: botCfg.fbPageAccessToken || undefined
+    })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `Facebook API error (HTTP ${res.status})`);
+  }
+  return data;
+}
+
 /**
- * Subscribe to real-time Supabase changes on communication_logs (WhatsApp channels)
+ * Subscribe to real-time Supabase changes on communication_logs (WhatsApp & Facebook channels)
  * so inbound customer messages & outbound AI replies appear instantly (< 0.5s).
  */
 export function subscribeWhatsAppRealtime(onEvent) {
@@ -794,8 +818,8 @@ export function subscribeWhatsAppRealtime(onEvent) {
       'postgres_changes',
       { event: '*', schema: 'public', table: 'communication_logs' },
       (payload) => {
-        const ch = payload?.new?.channel || payload?.old?.channel || '';
-        if (String(ch).startsWith('WhatsApp')) {
+        const ch = String(payload?.new?.channel || payload?.old?.channel || '');
+        if (ch.startsWith('WhatsApp') || ch.startsWith('FB_')) {
           onEvent(payload);
         }
       }
@@ -1044,25 +1068,35 @@ export async function fetchRemoteWhatsAppData() {
       supabase
         .from('communication_logs')
         .select('*')
-        .ilike('channel', 'WhatsApp_%')
+        .or('channel.ilike.WhatsApp_%,channel.ilike.FB_%')
         .order('sent_at', { ascending: false })
-        .limit(250)
+        .limit(300)
     ]);
 
     const mappedCommLogs = (commRes?.data || []).map((c) => {
       const ch = String(c.channel || '');
-      const direction = ch === 'WhatsApp_Inbound' ? 'inbound' : 'outbound';
+      const isFbMessenger = ch.startsWith('FB_Messenger_');
+      const isFbComment = ch.startsWith('FB_Comment_');
+      const channelPlatform = isFbMessenger ? 'messenger' : isFbComment ? 'fb_comment' : 'whatsapp';
+      const direction =
+        ch === 'WhatsApp_Inbound' || ch === 'FB_Messenger_Inbound' || ch === 'FB_Comment_Inbound'
+          ? 'inbound'
+          : 'outbound';
       const message_type =
-        ch === 'WhatsApp_Bot'
+        ch === 'WhatsApp_Bot' || ch === 'FB_Messenger_Bot' || ch === 'FB_Comment_Reply'
           ? 'auto_bot'
-          : ch === 'WhatsApp_Bot_Pause'
-            ? 'bot_pause_state'
-            : ch === 'WhatsApp_Bot_Resume'
-              ? 'bot_resume_state'
-              : 'text';
+          : ch === 'FB_Comment_Inbound'
+            ? 'fb_comment'
+            : ch === 'WhatsApp_Bot_Pause'
+              ? 'bot_pause_state'
+              : ch === 'WhatsApp_Bot_Resume'
+                ? 'bot_resume_state'
+                : 'text';
       return {
         id: c.id,
         phone: c.recipient_phone,
+        senderName: c.recipient_name || (isFbMessenger || isFbComment ? 'FB Visitor' : 'WhatsApp Visitor'),
+        channelPlatform,
         direction,
         message_type,
         status: c.status || 'sent',
@@ -1071,8 +1105,11 @@ export async function fetchRemoteWhatsAppData() {
       };
     });
 
+    const baseWaLogs = logsRes?.data && logsRes.data.length > 0 ? logsRes.data : mappedCommLogs.filter((l) => l.channelPlatform === 'whatsapp');
+    const fbLogs = mappedCommLogs.filter((l) => l.channelPlatform !== 'whatsapp');
+
     return {
-      logs: logsRes?.data && logsRes.data.length > 0 ? logsRes.data : mappedCommLogs,
+      logs: [...baseWaLogs, ...fbLogs],
       inbound: inboundRes?.data || []
     };
   } catch {
@@ -1114,15 +1151,16 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
   (db.trainers || []).forEach((t) => registerEntity(t, 'Trainer'));
   (db.employers || []).forEach((e) => registerEntity(e, 'Employer'));
 
-  const ensureThread = (phone, fallbackName = 'WhatsApp Visitor') => {
-    const key = normalizePhoneKey(phone);
+  const ensureThread = (phone, fallbackName = 'WhatsApp Visitor', channelPlatform = 'whatsapp') => {
+    const key = channelPlatform === 'whatsapp' ? normalizePhoneKey(phone) : `${channelPlatform}:${phone}`;
     if (!key) return null;
     if (!contactsByKey.has(key)) {
       contactsByKey.set(key, {
         key,
         phone,
+        channelPlatform,
         name: fallbackName,
-        role: 'New Inquiry',
+        role: channelPlatform === 'whatsapp' ? 'New Inquiry' : channelPlatform === 'messenger' ? 'FB Messenger' : 'FB Comment',
         entity: null,
         messages: [],
         adReferral: null,
@@ -1131,6 +1169,8 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
         pinned: Boolean(metaMap[key]?.pinned),
         assignedTo: metaMap[key]?.assignedTo || ''
       });
+    } else if (fallbackName && fallbackName !== 'WhatsApp Visitor' && fallbackName !== 'FB Visitor' && contactsByKey.get(key).name === 'FB Visitor') {
+      contactsByKey.get(key).name = fallbackName;
     }
     return contactsByKey.get(key);
   };
@@ -1139,11 +1179,12 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
   const allAuditLogs = [];
 
   const pushMessage = (msg) => {
-    const dedupeKey = msg.metaMessageId || `${msg.key}|${msg.direction}|${msg.content}|${(msg.createdAt || '').slice(0, 16)}`;
+    const platform = msg.channelPlatform || 'whatsapp';
+    const dedupeKey = msg.metaMessageId || `${platform}|${msg.key}|${msg.direction}|${msg.content}|${(msg.createdAt || '').slice(0, 16)}`;
     if (seenIds.has(dedupeKey)) return;
     seenIds.add(dedupeKey);
 
-    const thread = ensureThread(msg.phone, msg.senderName || 'WhatsApp Visitor');
+    const thread = ensureThread(msg.phone, msg.senderName || 'WhatsApp Visitor', platform);
     if (!thread) return;
     if (msg.adReferral && !thread.adReferral) {
       thread.adReferral = msg.adReferral;
@@ -1170,6 +1211,7 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
       id: `INB-${ev.id}`,
       key: normalizePhoneKey(ev.phone),
       phone: ev.phone,
+      channelPlatform: 'whatsapp',
       senderName: ev.sender_name || 'WhatsApp Visitor',
       direction: 'inbound',
       messageType: referral ? 'fb_ad_inquiry' : 'text',
@@ -1182,14 +1224,16 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
     });
   });
 
-  // 2. Remote Supabase whatsapp_logs (outbound, auto_bot, delivery statuses; skip internal bot state markers)
+  // 2. Remote Supabase whatsapp_logs & Facebook Messenger/Comments logs
   (remoteData.logs || []).forEach((lg) => {
     if (lg.message_type === 'bot_pause_state' || lg.message_type === 'bot_resume_state') return;
+    const platform = lg.channelPlatform || 'whatsapp';
     pushMessage({
       id: `RLOG-${lg.id}`,
-      key: normalizePhoneKey(lg.phone),
+      key: platform === 'whatsapp' ? normalizePhoneKey(lg.phone) : `${platform}:${lg.phone}`,
       phone: lg.phone,
-      senderName: 'WhatsApp Visitor',
+      channelPlatform: platform,
+      senderName: lg.senderName || (platform === 'whatsapp' ? 'WhatsApp Visitor' : 'FB Visitor'),
       direction: lg.direction || 'outbound',
       messageType: lg.message_type || 'text',
       status: lg.status || 'sent',

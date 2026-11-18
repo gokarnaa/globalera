@@ -83,7 +83,8 @@ import {
   getBotSettings,
   fetchRemoteBotSettings,
   saveBotSettings,
-  resolveBotMode
+  resolveBotMode,
+  sendFacebookReply
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -91,7 +92,9 @@ const ROLE_COLORS = {
   Student: { bg: '#ECFDF5', color: '#047857', border: '#A7F3D0' },
   Trainer: { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE' },
   Employer: { bg: '#F0F9FF', color: '#0369A1', border: '#BAE6FD' },
-  'New Inquiry': { bg: '#FAF5FF', color: '#7E22CE', border: '#E9D5FF' }
+  'New Inquiry': { bg: '#FAF5FF', color: '#7E22CE', border: '#E9D5FF' },
+  'FB Messenger': { bg: '#EFF6FF', color: '#1877F2', border: '#BFDBFE' },
+  'FB Comment': { bg: '#FDF2F8', color: '#BE185D', border: '#FBCFE8' }
 };
 
 const QUICK_TEMPLATES = [
@@ -313,6 +316,9 @@ export default function WhatsAppWorkspace({
         const isFeeDue = t.role === 'Student' && Number(t.entity?.dueFee || 0) > 0;
         if (!isLeadDue && !isFeeDue) return false;
       }
+      if (roleFilter === 'WhatsApp' && (t.channelPlatform || 'whatsapp') !== 'whatsapp') return false;
+      if (roleFilter === 'Messenger' && t.channelPlatform !== 'messenger') return false;
+      if (roleFilter === 'FB Comments' && t.channelPlatform !== 'fb_comment') return false;
       if (roleFilter === 'FB Ads' && !t.adReferral && !t.messages.some((m) => m.messageType === 'fb_ad_inquiry')) return false;
       if (['Lead', 'Student', 'Trainer', 'Employer'].includes(roleFilter) && t.role !== roleFilter) return false;
       if (!q) return true;
@@ -457,6 +463,13 @@ export default function WhatsAppWorkspace({
           messageText: textToSend
         });
         setSendFeedback({ type: 'success', text: `SMS sent via Aakash SMS to ${activeThread.name} (${activeThread.phone}).` });
+      } else if (activeThread.channelPlatform === 'messenger' || activeThread.channelPlatform === 'fb_comment') {
+        await sendFacebookReply({
+          targetId: activeThread.phone,
+          targetName: activeThread.name,
+          channel: activeThread.channelPlatform,
+          text: textToSend
+        });
       } else {
         await sendMetaWhatsAppMessage({
           to: activeThread.phone,
@@ -713,7 +726,7 @@ export default function WhatsAppWorkspace({
               '&::-webkit-scrollbar-thumb': { bgcolor: '#CBD5E1', borderRadius: 99 }
             }}
           >
-            {['All', 'Unread', 'Pinned', 'Due / Today', 'FB Ads', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
+            {['All', 'Unread', 'WhatsApp', 'Messenger', 'FB Comments', 'FB Ads', 'Pinned', 'Due / Today', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
               const active = roleFilter === tab;
               return (
                 <Chip
@@ -1658,12 +1671,22 @@ export default function WhatsAppWorkspace({
                         }
                       ]
                     }));
-                    await sendMetaWhatsAppMessage({
-                      to: activeThread.phone,
-                      type: 'text',
-                      text: aiText,
-                      messageType: 'auto_bot'
-                    });
+                    if (activeThread.channelPlatform === 'messenger' || activeThread.channelPlatform === 'fb_comment') {
+                      await sendFacebookReply({
+                        targetId: activeThread.phone,
+                        targetName: activeThread.name,
+                        channel: activeThread.channelPlatform,
+                        text: aiText,
+                        messageType: 'auto_bot'
+                      });
+                    } else {
+                      await sendMetaWhatsAppMessage({
+                        to: activeThread.phone,
+                        type: 'text',
+                        text: aiText,
+                        messageType: 'auto_bot'
+                      });
+                    }
                     setSendFeedback({ type: 'success', text: 'AI Counselor reply sent directly to WhatsApp!' });
                     onRefresh?.();
                   } catch (err) {

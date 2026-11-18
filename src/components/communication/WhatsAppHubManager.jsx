@@ -803,9 +803,35 @@ export default function WhatsAppHubManager() {
                   multiline
                   rows={2}
                   label="Custom AI Instructions (Offers / New Batch Info)"
-                  placeholder="e.g. New Barista & Cook batch starts Sunday 10 AM..."
+                  placeholder="e.g. New Tailoring batch starts Sunday 10 AM..."
                   value={botCfg.aiInstructions || ''}
                   onChange={(e) => setBotCfg((prev) => ({ ...prev, aiInstructions: e.target.value }))}
+                />
+                <TextField
+                  size="small"
+                  label="Facebook Page ID (Messenger & Comments)"
+                  placeholder="e.g. 102345678901234"
+                  value={botCfg.fbPageId || ''}
+                  onChange={(e) => setBotCfg((prev) => ({ ...prev, fbPageId: e.target.value }))}
+                />
+                <TextField
+                  size="small"
+                  type="password"
+                  label="Facebook Page Access Token"
+                  placeholder="EAA..."
+                  value={botCfg.fbPageAccessToken || ''}
+                  onChange={(e) => setBotCfg((prev) => ({ ...prev, fbPageAccessToken: e.target.value }))}
+                  helperText="From Meta Developer App -> Messenger API Settings -> Access Tokens"
+                />
+                <FormControlLabel
+                  control={
+                    <Switch
+                      size="small"
+                      checked={botCfg.fbAutoCommentReply !== false}
+                      onChange={(e) => setBotCfg((prev) => ({ ...prev, fbAutoCommentReply: e.target.checked }))}
+                    />
+                  }
+                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Auto-Reply on FB Page Comments (+ Private DM)</Typography>}
                 />
                 {botSavedMsg && (
                   <Alert severity={botSavedMsg.severity} onClose={() => setBotSavedMsg(null)}>
@@ -848,7 +874,10 @@ export default function WhatsAppHubManager() {
                   <strong>WABA ID:</strong> {waSettings.wabaId}
                 </Typography>
                 <Typography variant="body2" sx={{ color: '#047857', wordBreak: 'break-all' }}>
-                  <strong>Webhook URL:</strong> {waSettings.webhookUrl}
+                  <strong>WhatsApp Webhook:</strong> {waSettings.webhookUrl}
+                </Typography>
+                <Typography variant="body2" sx={{ color: '#047857', wordBreak: 'break-all' }}>
+                  <strong>Facebook Webhook:</strong> https://globalera.vercel.app/api/facebook-webhook
                 </Typography>
               </Paper>
             </Box>
