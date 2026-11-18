@@ -2,6 +2,40 @@
 // Docs: https://aakashsms.com/admin/public/sms/v1/send | /credit | /report/api
 
 const AAKASH_BASE = 'https://aakashsms.com/admin/public/sms/v1';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || 'https://yycybsmwuixixfmocrcz.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || 'sb_publishable_e8g5bAQNbCGpuI3aC0P1SA_Lb02m1cO';
+
+async function fetchAakashTokenFromSupabase() {
+  try {
+    const headers = { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` };
+    const [sysRes, orgRes, cfgRes] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/system_settings?select=company_profile&limit=1`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/organizations?select=settings&limit=1`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/communication_logs?channel=eq.WA_Config_Sync&order=sent_at.desc&limit=1`, { headers })
+    ]);
+    const [sysData, orgData, cfgData] = await Promise.all([
+      sysRes.ok ? sysRes.json() : [],
+      orgRes.ok ? orgRes.json() : [],
+      cfgRes.ok ? cfgRes.json() : []
+    ]);
+    let syncToken = '';
+    if (Array.isArray(cfgData) && cfgData[0]?.message) {
+      try {
+        syncToken = JSON.parse(cfgData[0].message)?.aakashSmsToken || '';
+      } catch {
+        syncToken = '';
+      }
+    }
+    return String(
+      orgData?.[0]?.settings?.aakashSmsToken ||
+        sysData?.[0]?.company_profile?.aakashSmsToken ||
+        syncToken ||
+        ''
+    ).trim();
+  } catch {
+    return '';
+  }
+}
 
 function normalizeNepal10List(to) {
   const parts = String(to || '')
@@ -41,7 +75,10 @@ export default async function handler(req, res) {
 
   try {
     const { action = 'send', token, from = '31001', to, text, page = 1 } = req.body || {};
-    const authToken = String(token || process.env.AAKASH_SMS_TOKEN || '').trim();
+    let authToken = String(token || process.env.AAKASH_SMS_TOKEN || '').trim();
+    if (!authToken) {
+      authToken = await fetchAakashTokenFromSupabase();
+    }
 
     if (!authToken) {
       return res.status(400).json({
