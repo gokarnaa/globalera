@@ -348,6 +348,19 @@ export default function WhatsAppWorkspace({
     }
   }, [computedThreads, selectedKey, isMobile]);
 
+  // Native mobile Back button / gesture returns from Chat -> Contact List smoothly
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat' || typeof window === 'undefined') return undefined;
+    window.history.pushState({ waMobileChat: true }, '');
+    const handlePop = () => {
+      setMobileView('list');
+    };
+    window.addEventListener('popstate', handlePop);
+    return () => {
+      window.removeEventListener('popstate', handlePop);
+    };
+  }, [isMobile, mobileView]);
+
   const searchDigits = useMemo(() => {
     const d = searchQuery.replace(/\D/g, '');
     const ten = d.length >= 10 ? d.slice(-10) : '';
@@ -826,6 +839,7 @@ export default function WhatsAppWorkspace({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search name, phone, message, course..."
+            sx={{ '& input': { fontSize: { xs: '16px', md: '0.875rem' } } }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -910,7 +924,7 @@ export default function WhatsAppWorkspace({
       </Box>
 
       {/* Contact List */}
-      <Box sx={{ flex: 1, overflowY: 'auto' }}>
+      <Box sx={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
         {canStartDirectChat && (
           <Box sx={{ p: 1.25, borderBottom: '1px solid #E2E8F0', bgcolor: '#F0FDF4' }}>
             <Typography variant="caption" sx={{ fontWeight: 700, color: '#166534', display: 'block', mb: 0.75 }}>
@@ -957,15 +971,17 @@ export default function WhatsAppWorkspace({
                 onClick={() => handleSelectThread(t)}
                 sx={{
                   px: 1.5,
-                  py: 1.15,
+                  py: { xs: 1.45, md: 1.15 },
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1.15,
+                  gap: 1.25,
                   borderBottom: '1px solid #F1F5F9',
                   bgcolor: isSelected ? '#EFF6FF' : '#FFFFFF',
                   borderLeft: isSelected ? '3px solid #0F2C59' : '3px solid transparent',
                   transition: 'background-color 0.12s ease',
+                  WebkitTapHighlightColor: 'transparent',
+                  '&:active': { bgcolor: '#E2E8F0' },
                   '&:hover': { bgcolor: isSelected ? '#EFF6FF' : '#F8FAFC' }
                 }}
               >
@@ -2091,9 +2107,9 @@ export default function WhatsAppWorkspace({
         {/* Composer Bar with Integrated Premium Channel Switcher */}
         <Box
           sx={{
-            px: 1.25,
+            px: { xs: 1, sm: 1.25 },
             pt: 0.85,
-            pb: 1.15,
+            pb: { xs: 'calc(10px + env(safe-area-inset-bottom))', sm: 1.15 },
             bgcolor: sendChannel === 'Note' ? '#FFFBEB' : sendChannel === 'SMS' ? '#F0F9FF' : '#FFFFFF',
             borderTop: sendChannel === 'Note' ? '1px solid #FDE68A' : sendChannel === 'SMS' ? '1px solid #BAE6FD' : '1px solid #E2E8F0',
             transition: 'background-color 0.15s ease'
@@ -2240,6 +2256,7 @@ export default function WhatsAppWorkspace({
                 handleSend();
               }
             }}
+            sx={{ '& textarea': { fontSize: { xs: '16px', md: '0.875rem' } } }}
             placeholder={
               sendChannel === 'Note'
                 ? 'Write private internal staff note (not sent to student)...'
@@ -2249,12 +2266,33 @@ export default function WhatsAppWorkspace({
             }
           />
 
+          <IconButton
+            aria-label="Send message"
+            disabled={sending || !draft.trim()}
+            onClick={() => handleSend()}
+            sx={{
+              display: { xs: 'inline-flex', sm: 'none' },
+              width: 42,
+              height: 42,
+              flexShrink: 0,
+              bgcolor: sendChannel === 'Note' ? '#D97706' : sendChannel === 'SMS' ? '#0284C7' : '#16A34A',
+              color: '#FFFFFF',
+              '&:hover': {
+                bgcolor: sendChannel === 'Note' ? '#B45309' : sendChannel === 'SMS' ? '#0369A1' : '#15803D'
+              },
+              '&.Mui-disabled': { bgcolor: '#E2E8F0', color: '#94A3B8' }
+            }}
+          >
+            {sending ? <CircularProgress size={18} color="inherit" /> : <SendIcon fontSize="small" />}
+          </IconButton>
+
           <Button
             variant="contained"
             disabled={sending || !draft.trim()}
             onClick={() => handleSend()}
             endIcon={sending ? <CircularProgress size={14} color="inherit" /> : <SendIcon />}
             sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
               bgcolor: sendChannel === 'Note' ? '#D97706' : sendChannel === 'SMS' ? '#0284C7' : '#16A34A',
               '&:hover': {
                 bgcolor: sendChannel === 'Note' ? '#B45309' : sendChannel === 'SMS' ? '#0369A1' : '#15803D'
@@ -2341,8 +2379,8 @@ export default function WhatsAppWorkspace({
       sx={{
         display: 'flex',
         height,
-        borderRadius: 2.5,
-        border: '1px solid #E2E8F0',
+        borderRadius: { xs: 0, md: 3 },
+        border: { xs: 'none', md: '1px solid #E2E8F0' },
         overflow: 'hidden',
         bgcolor: '#FFFFFF'
       }}
@@ -2351,11 +2389,23 @@ export default function WhatsAppWorkspace({
         <>
           {mobileView === 'list' ? renderLeftPane() : renderCenterPane()}
           <Drawer
-            anchor="right"
+            anchor="bottom"
             open={mobileWorkflowOpen}
             onClose={() => setMobileWorkflowOpen(false)}
-            PaperProps={{ sx: { width: '88vw', maxWidth: 340 } }}
+            PaperProps={{
+              sx: {
+                maxHeight: '85dvh',
+                borderTopLeftRadius: 18,
+                borderTopRightRadius: 18,
+                overflowY: 'auto',
+                WebkitOverflowScrolling: 'touch',
+                pb: 'env(safe-area-inset-bottom)'
+              }
+            }}
           >
+            <Box sx={{ display: 'flex', justifyContent: 'center', pt: 1, pb: 0.5 }}>
+              <Box sx={{ width: 40, height: 4, borderRadius: 99, bgcolor: '#CBD5E1' }} />
+            </Box>
             {renderWorkflowPanel()}
           </Drawer>
         </>

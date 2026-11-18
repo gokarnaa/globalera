@@ -325,16 +325,16 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           sx={{
             bgcolor: '#0F2C59',
             color: '#FFFFFF',
-            px: { xs: 1.5, sm: 2.25 },
-            py: 1.15,
+            px: { xs: 1.25, sm: 2.25 },
+            py: { xs: 0.85, sm: 1.15 },
             borderBottom: '2px solid #16A34A',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 1.25
+            gap: { xs: 0.75, sm: 1.25 }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.25 }, minWidth: 0 }}>
             {(isMaximized || isMobile) && (
               <Button
                 size="small"
@@ -347,15 +347,16 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                   bgcolor: 'rgba(255,255,255,0.08)',
                   textTransform: 'none',
                   fontWeight: 800,
-                  fontSize: '0.75rem',
-                  px: 1.1,
+                  fontSize: '0.74rem',
+                  px: { xs: 0.9, sm: 1.1 },
                   py: 0.35,
+                  minWidth: 'auto',
                   borderRadius: 2,
                   flexShrink: 0,
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.18)', borderColor: '#FFFFFF' }
                 }}
               >
-                Back to ERP
+                {isMobile ? 'Back' : 'Back to ERP'}
               </Button>
             )}
             <Box
@@ -365,7 +366,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 height: 34,
                 borderRadius: 2,
                 bgcolor: '#16A34A',
-                display: 'flex',
+                display: { xs: 'none', sm: 'flex' },
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
@@ -501,16 +502,18 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </IconButton>
             </Tooltip>
 
-            <Tooltip title="Minimize to dock">
-              <IconButton
-                size="small"
-                aria-label="Minimize WhatsApp Hub"
-                onClick={() => setWindowMode('minimized')}
-                sx={{ color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' } }}
-              >
-                <RemoveIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {!isMobile && (
+              <Tooltip title="Minimize to dock">
+                <IconButton
+                  size="small"
+                  aria-label="Minimize WhatsApp Hub"
+                  onClick={() => setWindowMode('minimized')}
+                  sx={{ color: '#FFFFFF', bgcolor: 'rgba(255,255,255,0.12)', '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' } }}
+                >
+                  <RemoveIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
 
             {!isMobile && (
               <Tooltip title={isMaximized ? 'Restore normal size' : 'Maximize full screen'}>
