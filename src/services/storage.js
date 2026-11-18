@@ -358,6 +358,7 @@ const IDB_STORE = 'erp_state';
 
 let memoryDBCache = null;
 let idbHydrationStarted = false;
+let cloudHydrated = false;
 
 function openIndexedDB() {
   return new Promise((resolve, reject) => {
@@ -395,7 +396,7 @@ function startIndexedDBHydration() {
       req.onsuccess = () => {
         const stored = req.result;
         idb.close();
-        if (stored && typeof stored === 'object') {
+        if (stored && typeof stored === 'object' && !cloudHydrated) {
           const currentLen = (memoryDBCache?.attendances?.length || 0) + (memoryDBCache?.biometricLogs?.length || 0) + (memoryDBCache?.students?.length || 0);
           const idbLen = (stored.attendances?.length || 0) + (stored.biometricLogs?.length || 0) + (stored.students?.length || 0);
           if (!memoryDBCache || idbLen > currentLen) {
@@ -705,7 +706,10 @@ export async function syncWithCloud(forcePush = false) {
           ...(cloudData.settings || {})
         }
       });
-      localStorage.setItem(DB_KEY, JSON.stringify(merged));
+      cloudHydrated = true;
+      memoryDBCache = merged;
+      writeLocalStorageSafe(merged);
+      writeToIndexedDB(merged);
       window.dispatchEvent(new Event('kite_db_updated'));
       console.log('[Cloud Sync] Hydrated local DB from Supabase Cloud successfully.');
       return { ok: true, action: 'pulled', data: merged };
