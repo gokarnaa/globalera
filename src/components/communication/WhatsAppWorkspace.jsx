@@ -1177,7 +1177,20 @@ export default function WhatsAppWorkspace({
                 {activeThread.phone}
               </Typography>
             </Box>
-            <Box sx={{ flexShrink: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexShrink: 0 }}>
+              {isMobile && (
+                <IconButton
+                  size="small"
+                  aria-label={activeThread.pinned ? 'Unpin contact' : 'Pin contact'}
+                  onClick={() => togglePinContact(activeThread.phone)}
+                  sx={{
+                    bgcolor: activeThread.pinned ? '#FFFBEB' : '#F1F5F9',
+                    color: activeThread.pinned ? '#D97706' : '#64748B'
+                  }}
+                >
+                  {activeThread.pinned ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
+                </IconButton>
+              )}
               <StatusBadge
                 label={activeThread.role}
                 tone={activeThread.role === 'Student' ? 'success' : activeThread.role === 'Lead' ? 'warning' : 'primary'}
@@ -1528,36 +1541,38 @@ export default function WhatsAppWorkspace({
         {/* Chat Header */}
         <Box
           sx={{
-            px: 1.75,
-            py: 1.1,
+            px: { xs: 1, sm: 1.75 },
+            py: { xs: 0.9, sm: 1.1 },
             bgcolor: '#FFFFFF',
             borderBottom: '1px solid #E2E8F0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 1
+            gap: 0.75
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1 }, minWidth: 0, flex: 1 }}>
             {isMobile && (
-              <IconButton size="small" onClick={() => setMobileView('list')} aria-label="Back to list">
+              <IconButton size="small" onClick={() => setMobileView('list')} aria-label="Back to list" sx={{ flexShrink: 0 }}>
                 <ArrowBackIcon fontSize="small" />
               </IconButton>
             )}
-            <Avatar sx={{ width: 36, height: 36, bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.8rem' }}>
+            <Avatar sx={{ width: 36, height: 36, bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}>
               {(activeThread.name || 'W').slice(0, 2).toUpperCase()}
             </Avatar>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
+            <Box sx={{ minWidth: 0, flex: 1 }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }} noWrap>
                 {activeThread.name}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontVariantNumeric: 'tabular-nums' }}>
-                {activeThread.phone} • {activeThread.role}
+              <Typography variant="caption" noWrap sx={{ color: '#64748B', display: 'block', fontVariantNumeric: 'tabular-nums', fontSize: '0.7rem' }}>
+                {isMobile && (activeThread.channelPlatform === 'messenger' || activeThread.channelPlatform === 'fb_comment')
+                  ? `${activeThread.role} • …${String(activeThread.phone || '').slice(-6)}`
+                  : `${activeThread.phone} • ${activeThread.role}`}
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 0.75 }, flexShrink: 0 }}>
             {waWindowStatus && (
               <Tooltip
                 title={
@@ -1586,6 +1601,7 @@ export default function WhatsAppWorkspace({
                 size="small"
                 onClick={() => togglePinContact(activeThread.phone)}
                 sx={{
+                  display: { xs: 'none', sm: 'inline-flex' },
                   bgcolor: activeThread.pinned ? '#FFFBEB' : '#F1F5F9',
                   color: activeThread.pinned ? '#D97706' : '#64748B'
                 }}
@@ -1617,12 +1633,12 @@ export default function WhatsAppWorkspace({
                 }
                 label={
                   activeThread.botPaused
-                    ? 'Paused (Manual)'
+                    ? (isMobile ? 'Paused' : 'Paused (Manual)')
                     : activeReplyMode === 'ai'
-                      ? 'AI Active'
+                      ? (isMobile ? 'AI' : 'AI Active')
                       : activeReplyMode === 'bot'
-                        ? 'Bot Active'
-                        : 'Manual Mode'
+                        ? (isMobile ? 'Bot' : 'Bot Active')
+                        : (isMobile ? 'Manual' : 'Manual Mode')
                 }
                 onClick={async () => {
                   const nextPaused = !activeThread.botPaused;
@@ -1712,16 +1728,18 @@ export default function WhatsAppWorkspace({
                 </ToggleButton>
               </ToggleButtonGroup>
             )}
-            <Tooltip title="Call">
-              <IconButton
-                size="small"
-                component="a"
-                href={`tel:${activeThread.phone}`}
-                sx={{ bgcolor: '#EFF6FF', color: '#0F2C59' }}
-              >
-                <CallIcon fontSize="small" />
-              </IconButton>
-            </Tooltip>
+            {(!isMobile || (activeThread.channelPlatform !== 'messenger' && activeThread.channelPlatform !== 'fb_comment')) && (
+              <Tooltip title="Call">
+                <IconButton
+                  size="small"
+                  component="a"
+                  href={`tel:${activeThread.phone}`}
+                  sx={{ bgcolor: '#EFF6FF', color: '#0F2C59' }}
+                >
+                  <CallIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            )}
             {isMobile && (
               <Tooltip title="Open Workflow Panel">
                 <IconButton
