@@ -1648,21 +1648,30 @@ export default function WhatsAppWorkspace({
           </Alert>
         )}
 
-        {/* 1-Click ERP Quick Share Bar + Dual Channel Switcher */}
+        {/* 1-Click ERP Quick Share Bar */}
         <Box
           sx={{
             px: 1.25,
-            py: 0.75,
+            py: 0.7,
             bgcolor: '#F8FAFC',
             borderTop: '1px solid #E2E8F0',
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 1,
-            flexWrap: 'wrap'
+            alignItems: 'center'
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, overflowX: 'auto', flex: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 0.65,
+              overflowX: 'auto',
+              minWidth: 0,
+              flex: 1,
+              pr: 0.5,
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' }
+            }}
+          >
             <Chip
               size="small"
               icon={<MenuBookIcon sx={{ fontSize: 14 }} />}
@@ -1801,27 +1810,6 @@ export default function WhatsAppWorkspace({
               />
             </Tooltip>
           </Box>
-
-          <ToggleButtonGroup
-            size="small"
-            exclusive
-            value={sendChannel}
-            onChange={(_, v) => v && setSendChannel(v)}
-            aria-label="Select messaging channel"
-          >
-            <ToggleButton value="WhatsApp" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
-              <WhatsAppIcon sx={{ fontSize: 14, mr: 0.4, color: '#16A34A' }} />
-              WA
-            </ToggleButton>
-            <ToggleButton value="SMS" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
-              <SmsIcon sx={{ fontSize: 14, mr: 0.4, color: '#0284C7' }} />
-              SMS
-            </ToggleButton>
-            <ToggleButton value="Note" sx={{ py: 0.25, px: 1, fontSize: '0.7rem' }}>
-              <LockOutlinedIcon sx={{ fontSize: 13, mr: 0.4, color: '#D97706' }} />
-              Note
-            </ToggleButton>
-          </ToggleButtonGroup>
         </Box>
 
         {/* Slash Quick-Reply Autocomplete Strip */}
@@ -1882,17 +1870,89 @@ export default function WhatsAppWorkspace({
           </Paper>
         )}
 
-        {/* Composer Bar */}
+        {/* Composer Bar with Integrated Premium Channel Switcher */}
         <Box
           sx={{
-            p: 1.25,
-            bgcolor: '#FFFFFF',
-            borderTop: '1px solid #F1F5F9',
-            display: 'flex',
-            alignItems: 'flex-end',
-            gap: 0.75
+            px: 1.25,
+            pt: 0.85,
+            pb: 1.15,
+            bgcolor: sendChannel === 'Note' ? '#FFFBEB' : sendChannel === 'SMS' ? '#F0F9FF' : '#FFFFFF',
+            borderTop: sendChannel === 'Note' ? '1px solid #FDE68A' : sendChannel === 'SMS' ? '1px solid #BAE6FD' : '1px solid #E2E8F0',
+            transition: 'background-color 0.15s ease'
           }}
         >
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.75, gap: 1 }}>
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={sendChannel}
+              onChange={(_, v) => v && setSendChannel(v)}
+              aria-label="Select messaging channel"
+              sx={{
+                bgcolor: '#F1F5F9',
+                p: '3px',
+                borderRadius: 2,
+                border: '1px solid #E2E8F0',
+                '& .MuiToggleButton-root': {
+                  border: 'none',
+                  borderRadius: '6px !important',
+                  py: 0.3,
+                  px: 1.1,
+                  fontSize: '0.72rem',
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  color: '#475569',
+                  gap: 0.45,
+                  lineHeight: 1.2,
+                  transition: 'all 0.15s ease',
+                  '&.Mui-selected': {
+                    color: '#FFFFFF',
+                    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.18)'
+                  }
+                }
+              }}
+            >
+              <ToggleButton
+                value="WhatsApp"
+                sx={{ '&.Mui-selected': { bgcolor: '#16A34A', '&:hover': { bgcolor: '#15803D' } } }}
+              >
+                <WhatsAppIcon sx={{ fontSize: 14, color: sendChannel === 'WhatsApp' ? '#FFFFFF' : '#16A34A' }} />
+                WA
+              </ToggleButton>
+              <ToggleButton
+                value="SMS"
+                sx={{ '&.Mui-selected': { bgcolor: '#0284C7', '&:hover': { bgcolor: '#0369A1' } } }}
+              >
+                <SmsIcon sx={{ fontSize: 14, color: sendChannel === 'SMS' ? '#FFFFFF' : '#0284C7' }} />
+                SMS
+              </ToggleButton>
+              <ToggleButton
+                value="Note"
+                sx={{ '&.Mui-selected': { bgcolor: '#D97706', '&:hover': { bgcolor: '#B45309' } } }}
+              >
+                <LockOutlinedIcon sx={{ fontSize: 13, color: sendChannel === 'Note' ? '#FFFFFF' : '#D97706' }} />
+                Note
+              </ToggleButton>
+            </ToggleButtonGroup>
+
+            <Typography
+              variant="caption"
+              sx={{
+                color: sendChannel === 'Note' ? '#B45309' : sendChannel === 'SMS' ? '#0369A1' : '#64748B',
+                fontWeight: 600,
+                fontSize: '0.68rem',
+                display: { xs: 'none', sm: 'block' }
+              }}
+            >
+              {sendChannel === 'Note'
+                ? 'Private staff note — hidden from student'
+                : sendChannel === 'SMS'
+                  ? 'Sending via Aakash SMS gateway'
+                  : 'Enter to send • Shift+Enter for new line'}
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: 0.75 }}>
           <Tooltip title="Quick Templates & Meta Approved Template">
             <IconButton
               size="small"
@@ -1989,6 +2049,7 @@ export default function WhatsAppWorkspace({
           >
             {sendChannel === 'Note' ? 'Save Note' : sendChannel === 'SMS' ? 'Send SMS' : 'Send'}
           </Button>
+          </Box>
         </Box>
 
         {/* Attach Document URL Dialog */}
