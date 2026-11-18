@@ -1180,12 +1180,30 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
 
   const pushMessage = (msg) => {
     const platform = msg.channelPlatform || 'whatsapp';
-    const dedupeKey = msg.metaMessageId || `${platform}|${msg.key}|${msg.direction}|${msg.content}|${(msg.createdAt || '').slice(0, 16)}`;
-    if (seenIds.has(dedupeKey)) return;
-    seenIds.add(dedupeKey);
+    if (msg.metaMessageId && seenIds.has(msg.metaMessageId)) return;
+
+    const normContent = String(msg.content || '').trim();
+    const minuteBucket = (msg.createdAt || '').slice(0, 16);
+    const contentKey = `${platform}|${msg.key}|${msg.direction}|${normContent}|${minuteBucket}`;
+    if (seenIds.has(contentKey)) return;
 
     const thread = ensureThread(msg.phone, msg.senderName || 'WhatsApp Visitor', platform);
     if (!thread) return;
+
+    // Also guard against minute-boundary / metaMessageId-vs-local duplicates in the same thread
+    const msgTs = new Date(msg.createdAt || Date.now()).getTime();
+    const isDupInThread = thread.messages.some((existing) => {
+      if (msg.metaMessageId && existing.metaMessageId && existing.metaMessageId === msg.metaMessageId) return true;
+      if (existing.direction !== msg.direction) return false;
+      if (String(existing.content || '').trim() !== normContent) return false;
+      const exTs = new Date(existing.createdAt || 0).getTime();
+      return Math.abs(msgTs - exTs) <= 120000;
+    });
+    if (isDupInThread) return;
+
+    if (msg.metaMessageId) seenIds.add(msg.metaMessageId);
+    seenIds.add(contentKey);
+
     if (msg.adReferral && !thread.adReferral) {
       thread.adReferral = msg.adReferral;
     }

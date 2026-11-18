@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   Box,
   Paper,
@@ -110,20 +110,30 @@ export default function WhatsAppHubManager() {
   const [botSavedMsg, setBotSavedMsg] = useState(null);
 
   const waSettings = useMemo(() => getWhatsAppSettings(), [db]);
+  const syncInFlightRef = useRef(false);
+  const realtimeDebounceRef = useRef(null);
 
-  const syncHub = useCallback(async () => {
-    setRefreshing(true);
+  const syncHub = useCallback(async ({ silent = false, includeBotSettings = true } = {}) => {
+    if (syncInFlightRef.current) return;
+    syncInFlightRef.current = true;
+    if (!silent) setRefreshing(true);
     try {
       setDb(loadDB());
       setTemplates(getWhatsAppTemplates());
-      const [remote, remoteBot] = await Promise.all([
-        fetchRemoteWhatsAppData(),
-        fetchRemoteBotSettings()
-      ]);
-      setRemoteData(remote);
-      setBotCfg(remoteBot);
+      if (includeBotSettings) {
+        const [remote, remoteBot] = await Promise.all([
+          fetchRemoteWhatsAppData(),
+          fetchRemoteBotSettings()
+        ]);
+        setRemoteData(remote);
+        setBotCfg(remoteBot);
+      } else {
+        const remote = await fetchRemoteWhatsAppData();
+        setRemoteData(remote);
+      }
     } finally {
-      setRefreshing(false);
+      syncInFlightRef.current = false;
+      if (!silent) setRefreshing(false);
     }
   }, []);
 
@@ -202,16 +212,22 @@ export default function WhatsAppHubManager() {
   };
 
   useEffect(() => {
-    syncHub();
+    syncHub({ silent: false, includeBotSettings: true });
     const onDbUpdate = () => setDb(loadDB());
     window.addEventListener('kite_db_updated', onDbUpdate);
     const unsubscribeRealtime = subscribeWhatsAppRealtime(() => {
-      syncHub();
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+      realtimeDebounceRef.current = setTimeout(() => {
+        syncHub({ silent: true, includeBotSettings: false });
+      }, 350);
     });
-    const timer = setInterval(syncHub, 15000);
+    const timer = setInterval(() => {
+      syncHub({ silent: true, includeBotSettings: false });
+    }, 20000);
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
       unsubscribeRealtime();
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
       clearInterval(timer);
     };
   }, [syncHub]);

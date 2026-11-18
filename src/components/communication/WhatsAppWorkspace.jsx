@@ -258,16 +258,52 @@ export default function WhatsAppWorkspace({
   const [optimisticReadSet, setOptimisticReadSet] = useState(() => new Set());
   const [optimisticMessagesMap, setOptimisticMessagesMap] = useState({});
   const [botModesMap, setBotModesMap] = useState({});
+  const [visibleLimit, setVisibleLimit] = useState(60);
 
   const messagesEndRef = useRef(null);
   const pillScrollRef = useRef(null);
+
+  useEffect(() => {
+    setVisibleLimit(60);
+  }, [roleFilter, searchQuery]);
+
+  // Reconcile & prune optimistic messages once persisted in threads (prevents duplicate bubbles)
+  const isOptimisticSynced = (optMsg, persistedMsgs) => {
+    if (!optMsg || optMsg.status === 'failed') return false;
+    const optContent = String(optMsg.content || '').trim();
+    const optTs = new Date(optMsg.createdAt || 0).getTime();
+    return (persistedMsgs || []).some((m) => {
+      if (m.direction !== optMsg.direction) return false;
+      if (String(m.content || '').trim() !== optContent) return false;
+      const mTs = new Date(m.createdAt || 0).getTime();
+      return Math.abs(mTs - optTs) <= 180000;
+    });
+  };
+
+  useEffect(() => {
+    setOptimisticMessagesMap((prev) => {
+      const keys = Object.keys(prev);
+      if (keys.length === 0) return prev;
+      let changed = false;
+      const next = {};
+      for (const k of keys) {
+        const list = prev[k] || [];
+        const thread = threads.find((t) => t.key === k);
+        const remaining = thread ? list.filter((m) => !isOptimisticSynced(m, thread.messages)) : list;
+        if (remaining.length !== list.length) changed = true;
+        if (remaining.length > 0) next[k] = remaining;
+      }
+      return changed ? next : prev;
+    });
+  }, [threads]);
 
   // Compute enriched threads with instant optimistic updates
   const computedThreads = useMemo(() => {
     return threads.map((t) => {
       const isRead = optimisticReadSet.has(t.key);
       const unreadCount = isRead ? 0 : t.unreadCount;
-      const optMsgs = optimisticMessagesMap[t.key] || [];
+      const rawOptMsgs = optimisticMessagesMap[t.key] || [];
+      const optMsgs = rawOptMsgs.length > 0 ? rawOptMsgs.filter((m) => !isOptimisticSynced(m, t.messages)) : [];
       const allMsgs = optMsgs.length > 0 ? [...t.messages, ...optMsgs] : t.messages;
       const lastMsg = allMsgs.length > 0 ? allMsgs[allMsgs.length - 1] : null;
       const botPaused = botModesMap[t.key] !== undefined ? botModesMap[t.key].paused : t.botPaused;
@@ -766,7 +802,7 @@ export default function WhatsAppWorkspace({
             </Typography>
           </Box>
         ) : (
-          filteredThreads.map((t) => {
+          filteredThreads.slice(0, visibleLimit).map((t) => {
             const isSelected = activeThread?.key === t.key;
             const roleStyle = ROLE_COLORS[t.role] || ROLE_COLORS['New Inquiry'];
             const hasAd = Boolean(t.adReferral) || t.messages.some((m) => m.messageType === 'fb_ad_inquiry');
@@ -913,6 +949,18 @@ export default function WhatsAppWorkspace({
               </Box>
             );
           })
+        )}
+        {filteredThreads.length > visibleLimit && (
+          <Box sx={{ p: 1.25, textAlign: 'center', borderTop: '1px solid #F1F5F9' }}>
+            <Button
+              size="small"
+              variant="outlined"
+              onClick={() => setVisibleLimit((prev) => prev + 60)}
+              sx={{ textTransform: 'none', fontWeight: 700, borderRadius: 2 }}
+            >
+              Show More ({filteredThreads.length - visibleLimit} remaining)
+            </Button>
+          </Box>
         )}
       </Box>
     </Box>
