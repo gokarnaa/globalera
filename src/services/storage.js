@@ -360,6 +360,20 @@ let memoryDBCache = null;
 let idbHydrationStarted = false;
 let cloudHydrated = false;
 
+const DEMO_LEAD_ID_RE = /^LD-(?:\d{3}|ACTIVE-\d+)$/;
+const DEMO_EMPLOYER_ID_RE = /^EMP-0[1-5]$/;
+
+function stripLegacyDemoEntities(data) {
+  if (!data || typeof data !== 'object') return data;
+  const cleanLeads = Array.isArray(data.leads)
+    ? data.leads.filter((l) => !DEMO_LEAD_ID_RE.test(String(l?.id || '')))
+    : data.leads;
+  const cleanEmployers = Array.isArray(data.employers)
+    ? data.employers.filter((e) => !DEMO_EMPLOYER_ID_RE.test(String(e?.id || '')))
+    : data.employers;
+  return { ...data, leads: cleanLeads, employers: cleanEmployers };
+}
+
 function openIndexedDB() {
   return new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined') return reject(new Error('IndexedDB unavailable'));
@@ -397,10 +411,11 @@ function startIndexedDBHydration() {
         const stored = req.result;
         idb.close();
         if (stored && typeof stored === 'object' && !cloudHydrated) {
+          const cleanedStored = stripLegacyDemoEntities(stored);
           const currentLen = (memoryDBCache?.attendances?.length || 0) + (memoryDBCache?.biometricLogs?.length || 0) + (memoryDBCache?.students?.length || 0);
-          const idbLen = (stored.attendances?.length || 0) + (stored.biometricLogs?.length || 0) + (stored.students?.length || 0);
+          const idbLen = (cleanedStored.attendances?.length || 0) + (cleanedStored.biometricLogs?.length || 0) + (cleanedStored.students?.length || 0);
           if (!memoryDBCache || idbLen > currentLen) {
-            memoryDBCache = stored;
+            memoryDBCache = cleanedStored;
             window.dispatchEvent(new Event('kite_db_updated'));
           }
         }
@@ -661,7 +676,7 @@ export function loadDB() {
       }
     };
 
-    const finalDb = reconcileUsersWithEntities(merged);
+    const finalDb = stripLegacyDemoEntities(reconcileUsersWithEntities(merged));
     memoryDBCache = finalDb;
     return finalDb;
   } catch (err) {
@@ -698,14 +713,14 @@ export async function syncWithCloud(forcePush = false) {
 
     const cloudData = await pullRemoteDBFromSupabase();
     if (cloudData) {
-      const merged = reconcileUsersWithEntities({
+      const merged = stripLegacyDemoEntities(reconcileUsersWithEntities({
         ...local,
         ...cloudData,
         settings: {
           ...local.settings,
           ...(cloudData.settings || {})
         }
-      });
+      }));
       cloudHydrated = true;
       memoryDBCache = merged;
       writeLocalStorageSafe(merged);
@@ -726,7 +741,7 @@ export async function syncWithCloud(forcePush = false) {
 
 export function saveDB(data) {
   try {
-    const reconciled = reconcileUsersWithEntities(data);
+    const reconciled = stripLegacyDemoEntities(reconcileUsersWithEntities(data));
     memoryDBCache = reconciled;
     writeLocalStorageSafe(reconciled);
     writeToIndexedDB(reconciled);
