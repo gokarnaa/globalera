@@ -67,7 +67,7 @@ import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
 import ConvertToStudentModal from '../leads/ConvertToStudentModal';
 import { loadDB, saveDB, logCommunication, postDoubleEntryJournal } from '../../services/storage';
-import { sendAakashSmsSimulated } from '../../services/exportUtils';
+import { sendAakashSmsReal } from '../../services/exportUtils';
 import {
   sendMetaWhatsAppMessage,
   sendWhatsAppBrochureDirect,
@@ -443,7 +443,11 @@ export default function WhatsAppWorkspace({
         return;
       }
       if (sendChannel === 'SMS' && !customText) {
-        sendAakashSmsSimulated(activeThread.phone, textToSend, currentDb.settings?.aakashSmsToken);
+        await sendAakashSmsReal({
+          to: activeThread.phone,
+          text: textToSend,
+          token: currentDb.settings?.aakashSmsToken
+        });
         logCommunication(currentDb, {
           recipientType: activeThread.role || 'Contact',
           recipientId: activeThread.entity?.id || activeThread.key,
@@ -452,7 +456,7 @@ export default function WhatsAppWorkspace({
           channel: 'SMS',
           messageText: textToSend
         });
-        setSendFeedback({ type: 'success', text: `SMS queued for ${activeThread.name} (${activeThread.phone}).` });
+        setSendFeedback({ type: 'success', text: `SMS sent via Aakash SMS to ${activeThread.name} (${activeThread.phone}).` });
       } else {
         await sendMetaWhatsAppMessage({
           to: activeThread.phone,

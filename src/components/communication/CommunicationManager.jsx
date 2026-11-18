@@ -44,7 +44,7 @@ import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CloudQueueIcon from '@mui/icons-material/CloudQueue';
 import { loadDB, saveDB, logCommunication, logAudit } from '../../services/storage';
-import { getWhatsAppUrl } from '../../services/exportUtils';
+import { getWhatsAppUrl, sendAakashSmsReal } from '../../services/exportUtils';
 import { sendMetaWhatsAppMessage } from '../../services/whatsappCloudApi';
 
 export default function CommunicationManager() {
@@ -216,7 +216,16 @@ export default function CommunicationManager() {
           failedList.push({ recipient, text, error: err.message });
         }
       } else {
-        successCount++;
+        try {
+          await sendAakashSmsReal({
+            to: recipient.phone,
+            text: text,
+            token: db.settings?.aakashSmsToken
+          });
+          successCount++;
+        } catch (err) {
+          failedList.push({ recipient, text, error: err.message });
+        }
       }
 
       updatedDb = logCommunication(updatedDb, {
@@ -260,16 +269,22 @@ export default function CommunicationManager() {
       setDispatchStatus({
         success: true,
         count: successCount,
-        channel: 'WhatsApp Cloud API',
+        channel: channel === 'WhatsApp' ? 'WhatsApp Cloud API' : 'SMS',
         wamid: lastWamid,
-        warning: `${failedList.length} numbers are outside Meta sandbox. Use the green 1-Click WhatsApp Direct button for personal chat.`
+        warning:
+          channel === 'SMS'
+            ? `${failedList.length} SMS failed: ${failedList[0]?.error || 'Check number/credit'}`
+            : `${failedList.length} numbers are outside Meta sandbox. Use the green 1-Click WhatsApp Direct button for personal chat.`
       });
     } else {
       setDispatchStatus({
         success: false,
-        error: `Meta Cloud API could not deliver to this number (recipient not added in Meta sandbox). Click the green WhatsApp button next to the recipient to chat directly via WhatsApp Web!`
+        error:
+          channel === 'SMS'
+            ? `Aakash SMS failed: ${failedList[0]?.error || 'Please check your Aakash SMS Auth Token in Settings.'}`
+            : `Meta Cloud API could not deliver to this number (recipient not added in Meta sandbox). Click the green WhatsApp button next to the recipient to chat directly via WhatsApp Web!`
       });
-      if (recipientList.length === 1) {
+      if (channel === 'WhatsApp' && recipientList.length === 1) {
         const single = recipientList[0];
         window.open(getWhatsAppUrl(single.phone, renderMessageFor(single)), '_blank');
       }

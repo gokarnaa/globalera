@@ -49,7 +49,7 @@ import {
   testSupabaseConnection,
   pushLocalDBToSupabase
 } from '../../services/supabaseClient';
-import { exportGoogleContactsVCF } from '../../services/exportUtils';
+import { exportGoogleContactsVCF, checkAakashSmsCredit } from '../../services/exportUtils';
 import { executeGraphQL, GRAPHQL_QUERIES } from '../../services/graphqlClient';
 import {
   sendMetaWhatsAppMessage,
@@ -81,6 +81,8 @@ export default function SettingsManager() {
 
   // Meta WhatsApp Cloud API State
   const [waSettings, setWaSettings] = useState(getWhatsAppSettings);
+  const [checkingSmsCredit, setCheckingSmsCredit] = useState(false);
+  const [smsCreditInfo, setSmsCreditInfo] = useState(null);
 
   // Biometric & Gate Hardware Settings State
   const [bioConfig, setBioConfig] = useState(() => ({
@@ -719,6 +721,36 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
                 value={settings.aakashSmsToken || ''}
                 onChange={(e) => setSettings({ ...settings, aakashSmsToken: e.target.value })}
               />
+
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  disabled={checkingSmsCredit || !settings.aakashSmsToken}
+                  onClick={async () => {
+                    setCheckingSmsCredit(true);
+                    setSmsCreditInfo(null);
+                    try {
+                      const res = await checkAakashSmsCredit(settings.aakashSmsToken);
+                      setSmsCreditInfo({
+                        severity: 'success',
+                        text: `Connected! Available Credit: ${res.available_credit ?? 0} | Total Sent: ${res.total_sms_sent ?? 0}`
+                      });
+                    } catch (err) {
+                      setSmsCreditInfo({ severity: 'error', text: err.message });
+                    } finally {
+                      setCheckingSmsCredit(false);
+                    }
+                  }}
+                >
+                  {checkingSmsCredit ? 'Checking Credit...' : 'Check SMS Credit'}
+                </Button>
+              </Box>
+              {smsCreditInfo && (
+                <Alert severity={smsCreditInfo.severity} onClose={() => setSmsCreditInfo(null)}>
+                  {smsCreditInfo.text}
+                </Alert>
+              )}
 
               <FormControlLabel
                 control={

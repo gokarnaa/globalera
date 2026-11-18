@@ -72,13 +72,42 @@ export function getWhatsAppUrl(phone, text) {
   return `https://wa.me/${cleaned}?text=${encodeURIComponent(text || '')}`;
 }
 
-// Aakash SMS payload helper
-export function sendAakashSmsSimulated(phone, message, token) {
+// Aakash SMS v1 Live API Helpers (via /api/aakash-sms Vercel proxy)
+export async function sendAakashSmsReal({ to, text, token, from = '31001' }) {
+  if (!to || !text) {
+    throw new Error('Recipient phone number and SMS text are required.');
+  }
+  const res = await fetch('/api/aakash-sms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'send', to, text, token, from })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `Aakash SMS failed (HTTP ${res.status})`);
+  }
+  return data;
+}
+
+export async function checkAakashSmsCredit(token) {
+  const res = await fetch('/api/aakash-sms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'credit', token })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) {
+    throw new Error(data.error || `Credit check failed (HTTP ${res.status})`);
+  }
+  return data;
+}
+
+export async function sendAakashSmsSimulated(phone, message, token) {
   if (!phone || !message) return { success: false, message: 'Phone and message required.' };
   if (!token) {
     console.log(`[Aakash SMS Simulated] To: ${phone} -> ${message}`);
     return { success: true, simulated: true, message: 'SMS simulated (API key not configured).' };
   }
-  // In real backend/edge function, POST to https://aakashsms.com/admin/public/sms/v3/send
-  return { success: true, simulated: false, message: 'SMS dispatched.' };
+  const data = await sendAakashSmsReal({ to: phone, text: message, token });
+  return { success: true, simulated: false, message: 'SMS dispatched via Aakash SMS.', data };
 }
