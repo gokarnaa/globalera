@@ -28,6 +28,7 @@ import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PersonIcon from '@mui/icons-material/Person';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import AiCounselorSandbox from './AiCounselorSandbox';
 import { loadDB } from '../../services/storage';
@@ -133,7 +134,20 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     };
   }, [syncHub]);
 
-  // Silent fallback sync every 20s (Realtime WebSocket handles instant updates)
+  // Browser / Mobile Back button exits Full Screen cleanly instead of leaving the ERP
+  useEffect(() => {
+    if (!isMaximized || typeof window === 'undefined') return undefined;
+    window.history.pushState({ waFull: true }, '');
+    const handlePopState = () => {
+      setWindowMode('normal');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [isMaximized]);
+
+  // Fallback sync every 20s (Realtime WebSocket handles instant updates)
   useEffect(() => {
     const timer = setInterval(() => {
       syncHub({ silent: true, includeBotSettings: false });
@@ -310,6 +324,29 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, minWidth: 0 }}>
+            {(isMaximized || isMobile) && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
+                onClick={() => setWindowMode('minimized')}
+                sx={{
+                  color: '#FFFFFF',
+                  borderColor: 'rgba(255,255,255,0.35)',
+                  bgcolor: 'rgba(255,255,255,0.08)',
+                  textTransform: 'none',
+                  fontWeight: 800,
+                  fontSize: '0.75rem',
+                  px: 1.1,
+                  py: 0.35,
+                  borderRadius: 2,
+                  flexShrink: 0,
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.18)', borderColor: '#FFFFFF' }
+                }}
+              >
+                Back to ERP
+              </Button>
+            )}
             <Box
               sx={{
                 position: 'relative',
