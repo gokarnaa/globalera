@@ -673,19 +673,29 @@ export async function fetchRemoteBotSettings() {
   try {
     const supabase = getSupabaseClient();
     if (!supabase) return getBotSettings();
-    const [{ data, error }, { data: orgData }] = await Promise.all([
+    const [{ data, error }, { data: orgData }, { data: cfgLogs }] = await Promise.all([
       supabase.from('system_settings').select('id, company_profile').limit(1),
-      supabase.from('organizations').select('id, settings').limit(1)
+      supabase.from('organizations').select('id, settings').limit(1),
+      supabase.from('communication_logs').select('message').eq('channel', 'WA_Config_Sync').order('sent_at', { ascending: false }).limit(1)
     ]);
     const sysBot = !error && Array.isArray(data) ? data[0]?.company_profile?.whatsappBot : null;
     const orgBot = Array.isArray(orgData) ? orgData[0]?.settings?.whatsappBot : null;
-    const remoteBot = sysBot || orgBot;
+    let logBot = null;
+    if (Array.isArray(cfgLogs) && cfgLogs[0]?.message) {
+      try {
+        logBot = JSON.parse(cfgLogs[0].message);
+      } catch {
+        logBot = null;
+      }
+    }
+    const remoteBot = sysBot || orgBot || logBot;
     if (remoteBot) {
       const merged = normalizeBotConfig({
         ...getBotSettings(),
+        ...(logBot || {}),
         ...(orgBot || {}),
         ...(sysBot || {}),
-        geminiApiKey: sysBot?.geminiApiKey || orgBot?.geminiApiKey || getBotSettings().geminiApiKey || ''
+        geminiApiKey: sysBot?.geminiApiKey || orgBot?.geminiApiKey || logBot?.geminiApiKey || getBotSettings().geminiApiKey || ''
       });
       const db = loadDB();
       saveDB({
@@ -740,7 +750,7 @@ export async function saveBotSettings(nextBot) {
     throw new Error(updErr.message || 'Failed to sync bot settings to Supabase.');
   }
 
-  // Also persist into organizations.settings.whatsappBot as resilient backup
+  // Also persist into organizations.settings.whatsappBot and WA_Config_Sync log as resilient backup
   if (Array.isArray(orgData) && orgData[0]?.id) {
     await supabase
       .from('organizations')
@@ -752,6 +762,16 @@ export async function saveBotSettings(nextBot) {
       })
       .eq('id', orgData[0].id);
   }
+  await supabase.from('communication_logs').insert({
+    id: `WACFG-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    organization_id: 'ORG-GLOBALERA-01',
+    channel: 'WA_Config_Sync',
+    recipient_name: 'System Bot Config',
+    recipient_phone: 'SYSTEM',
+    message: JSON.stringify(merged),
+    status: 'sent',
+    sent_at: new Date().toISOString()
+  });
   return { ...merged, syncedRemote: true };
 }
 

@@ -51,21 +51,31 @@ function cleanWhatsAppMarkdown(text) {
 }
 
 async function getRemoteBotConfig() {
-  const [rows, orgRows] = await Promise.all([
+  const [rows, orgRows, cfgLogs] = await Promise.all([
     supabaseRest('system_settings?select=*&limit=1', 'GET'),
-    supabaseRest('organizations?select=settings&limit=1', 'GET')
+    supabaseRest('organizations?select=settings&limit=1', 'GET'),
+    supabaseRest('communication_logs?channel=eq.WA_Config_Sync&order=sent_at.desc&limit=1', 'GET')
   ]);
   const s = Array.isArray(rows) && rows[0] ? rows[0] : {};
   const orgWaBot = Array.isArray(orgRows) && orgRows[0]?.settings?.whatsappBot ? orgRows[0].settings.whatsappBot : {};
+  let logWaBot = {};
+  if (Array.isArray(cfgLogs) && cfgLogs[0]?.message) {
+    try {
+      logWaBot = JSON.parse(cfgLogs[0].message) || {};
+    } catch {
+      logWaBot = {};
+    }
+  }
   const primaryWaBot =
     s.company_profile?.whatsappBot ||
     s.extra_settings?.whatsappBot ||
     s.whatsapp_bot ||
     {};
   const waBot = {
+    ...logWaBot,
     ...orgWaBot,
     ...primaryWaBot,
-    geminiApiKey: (primaryWaBot.geminiApiKey || orgWaBot.geminiApiKey || ENV_GEMINI_KEY || '').trim()
+    geminiApiKey: (primaryWaBot.geminiApiKey || orgWaBot.geminiApiKey || logWaBot.geminiApiKey || ENV_GEMINI_KEY || '').trim()
   };
   const replyMode =
     waBot.replyMode === 'ai' || waBot.replyMode === 'bot' || waBot.replyMode === 'manual'
