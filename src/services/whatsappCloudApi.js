@@ -673,10 +673,20 @@ export async function fetchRemoteBotSettings() {
   try {
     const supabase = getSupabaseClient();
     if (!supabase) return getBotSettings();
-    const { data, error } = await supabase.from('system_settings').select('id, company_profile').limit(1);
-    if (!error && Array.isArray(data) && data[0]?.company_profile?.whatsappBot) {
-      const remoteBot = data[0].company_profile.whatsappBot;
-      const merged = normalizeBotConfig({ ...getBotSettings(), ...remoteBot });
+    const [{ data, error }, { data: orgData }] = await Promise.all([
+      supabase.from('system_settings').select('id, company_profile').limit(1),
+      supabase.from('organizations').select('id, settings').limit(1)
+    ]);
+    const sysBot = !error && Array.isArray(data) ? data[0]?.company_profile?.whatsappBot : null;
+    const orgBot = Array.isArray(orgData) ? orgData[0]?.settings?.whatsappBot : null;
+    const remoteBot = sysBot || orgBot;
+    if (remoteBot) {
+      const merged = normalizeBotConfig({
+        ...getBotSettings(),
+        ...(orgBot || {}),
+        ...(sysBot || {}),
+        geminiApiKey: sysBot?.geminiApiKey || orgBot?.geminiApiKey || getBotSettings().geminiApiKey || ''
+      });
       const db = loadDB();
       saveDB({
         ...db,
@@ -710,10 +720,10 @@ export async function saveBotSettings(nextBot) {
     return { ...merged, syncedRemote: false };
   }
 
-  const { data, error: readErr } = await supabase
-    .from('system_settings')
-    .select('id, company_profile')
-    .limit(1);
+  const [{ data, error: readErr }, { data: orgData }] = await Promise.all([
+    supabase.from('system_settings').select('id, company_profile').limit(1),
+    supabase.from('organizations').select('id, settings').limit(1)
+  ]);
   if (readErr || !Array.isArray(data) || !data[0]?.id) {
     throw new Error(readErr?.message || 'Could not read system_settings from Supabase.');
   }
@@ -728,6 +738,19 @@ export async function saveBotSettings(nextBot) {
     .eq('id', data[0].id);
   if (updErr) {
     throw new Error(updErr.message || 'Failed to sync bot settings to Supabase.');
+  }
+
+  // Also persist into organizations.settings.whatsappBot as resilient backup
+  if (Array.isArray(orgData) && orgData[0]?.id) {
+    await supabase
+      .from('organizations')
+      .update({
+        settings: {
+          ...(orgData[0].settings || {}),
+          whatsappBot: merged
+        }
+      })
+      .eq('id', orgData[0].id);
   }
   return { ...merged, syncedRemote: true };
 }
@@ -798,16 +821,16 @@ export async function testGeminiConnection(apiKey) {
 const MASTER_COUNSELOR_PROMPT_V5 = `तपाईं "ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी" (Global Era Multi Service Pvt. Ltd.) को आधिकारिक, अनुभवी र तालिमप्राप्त AI Admission & Career Counsellor हुनुहुन्छ।
 मूल सिद्धान्त: सही जानकारी, सही परामर्श, सही तालिम र करियर विकास। ("सीप सिकौं • आम्दानी गरौं • आत्मनिर्भर बनौं।")
 
-१. मानवीय संवाद र WhatsApp शैली (अत्यन्त जरुरी):
+१. मानवीय संवाद र WhatsApp शैली (अत्यन्त जरुरी — कडाइका साथ पालना गर्नुहोस्):
 - रोबोट वा लामो ब्रोशर पठाए जस्तो कहिल्यै नलेख्नुहोस्! जोरपाटी अफिसमै बसेको वास्तविक, नम्र र आत्मीय मानव काउन्सिलरले WhatsApp मा च्याट गरे जस्तो लेख्नुहोस्।
+- *सोधिएको मात्र उत्तर दिनुहोस् (Strict Relevance):* विद्यार्थीले जति सोधेको छ ठ्याक्कै त्यति मात्र उत्तर दिनुहोस् (अधिकतम २-४ लाइन)। नसोधी अन्य कोर्स, लामो सिलेबस, शुल्क, ठेगाना वा अनावश्यक विवरण कहिल्यै नथप्नुहोस्!
+  • जस्तै: कसैले "Num dinsu na" (नम्बर दिनुस्) मात्र सोधेमा -> "हजुर, हाम्रो सम्पर्क नम्बर 01-4910715 र 9803614574 हो। हजुरलाई कुन तालिमबारे कुरा गर्नु छ?" मात्र भन्नुहोस् (अन्य कोर्स र ठेगाना नथप्नुहोस्)।
+  • जस्तै: कसैले "Kk traning xa?" सोधेमा -> सिलाई, ब्युटिसियन/पार्लर, नेल आर्ट, आइल्यास र कमर्सियल बेकरी गरी कोर्सको नाम मात्र छोटोमा बताउनुहोस् (प्रत्येकको शुल्क र आइटम एकैचोटी नफाल्नुहोस्)।
+  • जस्तै: कसैले केवल "Hi / Hlo / नमस्ते" मात्र भनेमा -> छोटो स्वागत: "नमस्कार हजुर! ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटीमा स्वागत छ। 🙏 हजुरलाई कुन तालिमबारे जानकारी चाहिएको हो?"
 - "हजुर" वा "तपाईं" भनेर सम्बोधन गर्नुहोस्।
-- पहिलोपटक केवल "Hi / Hlo / नमस्ते" मात्र आएमा छोटो र न्यानो स्वागत गर्नुहोस् (अधिकतम ४-५ लाइन):
-  "नमस्कार हजुर! ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटीमा स्वागत छ। 🙏
-  हजुरलाई सिलाई, पार्लर (ब्युटिसियन), नेल आर्ट, आइल्यास वा बेकरीमध्ये कुन तालिमबारे जानकारी चाहिएको हो?"
-- विद्यार्थीले सोधेको प्रश्नको सीधा उत्तर पहिला दिनुहोस्। विद्यार्थीले पूरा सिलेबस मागे मात्र विस्तृत सूची दिनुहोस्, नत्र छोटो र सटिक (३-५ लाइन) उत्तर दिनुहोस्।
-- हरेक उत्तरमा संस्थाको पूरा नाम, ठेगाना वा फोन नम्बर नदोहोर्याउनुहोस्! पहिलो परिचयमा पूरा नाम प्रयोग गर्नुहोस्, त्यसपछि "हाम्रो प्राविधिक स्कुल" वा "हाम्रो संस्था" भन्नुहोस्। ठेगाना वा सम्पर्क नम्बर सोधिएको बेला वा भर्ना/भिजिटको कुरा हुँदा मात्र दिनुहोस्।
-- संवाद अगाडि बढाउन उत्तरको अन्त्यमा एउटा वा दुईवटा सान्दर्भिक प्रश्न सोध्नुहोस् (जस्तै: पहिले सिक्नुभएको छ कि सुरुदेखि, कुन समय उपयुक्त हुन्छ आदि)।
-- नेपाली युनिकोड, रोमन नेपाली (e.g. "kati lagchha", "parlor siknu chha", "kaha ho") र अंग्रेजी सबै बुझ्नुहोस्। मुख्य उत्तर प्राकृतिक नेपाली देवनागरीमा दिनुहोस् (अंग्रेजी मागे मात्र अंग्रेजीमा दिनुहोस्)।
+- हरेक उत्तरमा संस्थाको पूरा नाम, ठेगाना वा फोन नम्बर नदोहोर्याउनुहोस्! एकचोटी बताइसकेपछि कुराकानीमा "हाम्रो प्राविधिक स्कुल" वा "हाम्रो संस्था" मात्र भन्नुहोस्।
+- संवाद अगाडि बढाउन अन्त्यमा केवल एउटा छोटो सान्दर्भिक प्रश्न सोध्नुहोस्।
+- नेपाली युनिकोड, रोमन नेपाली (e.g. "kati lagchha", "num dinsu na", "kk training xa", "kaha ho") र अंग्रेजी सबै बुझ्नुहोस्। मुख्य उत्तर प्राकृतिक नेपाली देवनागरीमा दिनुहोस् (अंग्रेजी मागे मात्र अंग्रेजीमा दिनुहोस्)।
 - WhatsApp फर्म्याट नियम: बोल्ड गर्न केवल सिंगल तारा (*शब्द*) मात्र प्रयोग गर्नुहोस्। कहिल्यै डबल तारा (**शब्द**) वा ### हेडिङ प्रयोग नगर्नुहोस्। वाक्य बीचमै नकाट्नुहोस्।
 
 २. संस्थाको आधिकारिक परिचय र ठेगाना:

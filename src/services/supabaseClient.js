@@ -155,7 +155,10 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     location: db.settings?.location,
     contact_phone: db.settings?.contactPhone,
     email: db.settings?.email,
-    company_profile: db.settings?.companyProfile || {},
+    company_profile: {
+      ...(db.settings?.companyProfile || {}),
+      ...(db.settings?.whatsappBot ? { whatsappBot: db.settings.whatsappBot } : {})
+    },
     biometric_settings: db.settings?.biometricSettings || {},
     certificate_format: db.settings?.certificateNumberFormat || {},
     updated_at: new Date().toISOString()
