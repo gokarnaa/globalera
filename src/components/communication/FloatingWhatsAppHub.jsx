@@ -325,41 +325,56 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           sx={{
             bgcolor: '#0F2C59',
             color: '#FFFFFF',
-            px: { xs: 1.25, sm: 2.25 },
-            py: { xs: 0.85, sm: 1.15 },
+            px: { xs: 1, sm: 2.25 },
+            py: { xs: 0.75, sm: 1.15 },
             borderBottom: '2px solid #16A34A',
             display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' },
-            alignItems: { xs: 'stretch', md: 'center' },
+            flexDirection: 'row',
+            alignItems: 'center',
             justifyContent: 'space-between',
-            gap: { xs: 0.75, md: 1.25 }
+            gap: { xs: 0.75, sm: 1.25 }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, minWidth: 0 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.25 }, minWidth: 0, flex: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.25 }, minWidth: 0, flex: { xs: '0 0 auto', md: 1 } }}>
             {(isMaximized || isMobile) && (
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
-                onClick={() => setWindowMode('minimized')}
-                sx={{
-                  color: '#FFFFFF',
-                  borderColor: 'rgba(255,255,255,0.35)',
-                  bgcolor: 'rgba(255,255,255,0.08)',
-                  textTransform: 'none',
-                  fontWeight: 800,
-                  fontSize: '0.74rem',
-                  px: { xs: 0.9, sm: 1.1 },
-                  py: 0.35,
-                  minWidth: 'auto',
-                  borderRadius: 2,
-                  flexShrink: 0,
-                  '&:hover': { bgcolor: 'rgba(255,255,255,0.18)', borderColor: '#FFFFFF' }
-                }}
-              >
-                {isMobile ? 'Back' : 'Back to ERP'}
-              </Button>
+              isMobile ? (
+                <IconButton
+                  size="small"
+                  aria-label="Back to ERP"
+                  onClick={() => setWindowMode('minimized')}
+                  sx={{
+                    color: '#FFFFFF',
+                    bgcolor: 'rgba(255,255,255,0.12)',
+                    border: '1px solid rgba(255,255,255,0.28)',
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.22)' }
+                  }}
+                >
+                  <ArrowBackIcon fontSize="small" />
+                </IconButton>
+              ) : (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
+                  onClick={() => setWindowMode('minimized')}
+                  sx={{
+                    color: '#FFFFFF',
+                    borderColor: 'rgba(255,255,255,0.35)',
+                    bgcolor: 'rgba(255,255,255,0.08)',
+                    textTransform: 'none',
+                    fontWeight: 800,
+                    fontSize: '0.74rem',
+                    px: 1.1,
+                    py: 0.35,
+                    minWidth: 'auto',
+                    borderRadius: 2,
+                    flexShrink: 0,
+                    '&:hover': { bgcolor: 'rgba(255,255,255,0.18)', borderColor: '#FFFFFF' }
+                  }}
+                >
+                  Back to ERP
+                </Button>
+              )
             )}
             <Box
               sx={{
@@ -388,40 +403,19 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 }}
               />
             </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, fontSize: { xs: '0.92rem', sm: '1rem' } }} noWrap>
-                {isMobile ? 'Global Era Hub' : 'WhatsApp Live Chat & Workflow Hub'}
-              </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', display: { xs: 'none', sm: 'block' } }} noWrap>
-                +977 980-3614574 • Synced with Full WhatsApp Tracking Section
-              </Typography>
-            </Box>
+            {!isMobile && (
+              <Box sx={{ minWidth: 0 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }} noWrap>
+                  WhatsApp Live Chat & Workflow Hub
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', display: 'block' }} noWrap>
+                  +977 980-3614574 • Synced with Full WhatsApp Tracking Section
+                </Typography>
+              </Box>
+            )}
           </Box>
 
-          {/* Mobile-only top-right Bell + Close so Row 1 stays clean */}
-          {isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flexShrink: 0 }}>
-              <IconButton
-                size="small"
-                aria-label={soundMuted ? 'Unmute chime' : 'Mute chime'}
-                onClick={() => setSoundMuted((prev) => !prev)}
-                sx={{ color: soundMuted ? '#FCA5A5' : '#86EFAC', bgcolor: 'rgba(255,255,255,0.10)' }}
-              >
-                {soundMuted ? <NotificationsOffIcon fontSize="small" /> : <NotificationsActiveIcon fontSize="small" />}
-              </IconButton>
-              <IconButton
-                size="small"
-                aria-label="Close WhatsApp Hub"
-                onClick={() => setWindowMode('closed')}
-                sx={{ color: '#FFFFFF', bgcolor: 'rgba(239,68,68,0.28)' }}
-              >
-                <CloseIcon fontSize="small" />
-              </IconButton>
-            </Box>
-          )}
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'space-between', md: 'flex-end' }, gap: 0.75, flexShrink: 0, flexWrap: 'nowrap' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'center', md: 'flex-end' }, gap: { xs: 0.5, sm: 0.75 }, flex: { xs: 1, md: '0 0 auto' }, minWidth: 0 }}>
             <ToggleButtonGroup
               size="small"
               exclusive
@@ -429,16 +423,16 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               onChange={(_, val) => val && handleChangeReplyMode(val)}
               aria-label="WhatsApp Reply Mode"
               sx={{
-                flex: { xs: 1, md: 'initial' },
                 bgcolor: 'rgba(15, 23, 42, 0.35)',
-                borderRadius: 2,
+                borderRadius: 999,
+                p: '2px',
                 border: '1px solid rgba(255,255,255,0.18)',
                 '& .MuiToggleButton-root': {
-                  flex: { xs: 1, md: 'initial' },
                   color: '#CBD5E1',
                   border: 'none',
-                  py: 0.35,
-                  px: { xs: 0.6, sm: 1 },
+                  borderRadius: '999px !important',
+                  py: { xs: 0.3, sm: 0.35 },
+                  px: { xs: 0.85, sm: 1 },
                   fontSize: { xs: '0.7rem', sm: '0.72rem' },
                   fontWeight: 800,
                   textTransform: 'none',
@@ -479,26 +473,28 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </ToggleButton>
             </ToggleButtonGroup>
 
-            <Button
-              size="small"
-              variant="contained"
-              startIcon={<SmartToyIcon sx={{ fontSize: 15 }} />}
-              onClick={() => setAiSandboxOpen(true)}
-              sx={{
-                bgcolor: '#4F46E5',
-                color: '#FFFFFF',
-                fontWeight: 800,
-                '&:hover': { bgcolor: '#4338CA' },
-                fontSize: { xs: '0.7rem', sm: '0.75rem' },
-                py: 0.45,
-                px: { xs: 1, sm: 1.25 },
-                borderRadius: 2,
-                whiteSpace: 'nowrap',
-                flexShrink: 0
-              }}
-            >
-              {isMobile ? 'Sandbox' : 'AI Sandbox'}
-            </Button>
+            {!isMobile && (
+              <Button
+                size="small"
+                variant="contained"
+                startIcon={<SmartToyIcon sx={{ fontSize: 15 }} />}
+                onClick={() => setAiSandboxOpen(true)}
+                sx={{
+                  bgcolor: '#4F46E5',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  '&:hover': { bgcolor: '#4338CA' },
+                  fontSize: '0.75rem',
+                  py: 0.45,
+                  px: 1.25,
+                  borderRadius: 2,
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0
+                }}
+              >
+                AI Sandbox
+              </Button>
+            )}
 
             {onOpenFullModule && (
               <Button
@@ -521,18 +517,16 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </Button>
             )}
 
-            {!isMobile && (
             <Tooltip title={soundMuted ? 'Unmute message chime' : 'Mute message chime'}>
               <IconButton
                 size="small"
                 aria-label={soundMuted ? 'Unmute chime' : 'Mute chime'}
                 onClick={() => setSoundMuted((prev) => !prev)}
-                sx={{ color: soundMuted ? '#FCA5A5' : '#86EFAC', bgcolor: 'rgba(255,255,255,0.10)' }}
+                sx={{ color: soundMuted ? '#FCA5A5' : '#86EFAC', bgcolor: 'rgba(255,255,255,0.10)', flexShrink: 0 }}
               >
                 {soundMuted ? <NotificationsOffIcon fontSize="small" /> : <NotificationsActiveIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
-            )}
 
             {!isMobile && (
               <Tooltip title="Minimize to dock">
@@ -560,18 +554,16 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </Tooltip>
             )}
 
-            {!isMobile && (
             <Tooltip title="Close">
               <IconButton
                 size="small"
                 aria-label="Close WhatsApp Hub"
                 onClick={() => setWindowMode('closed')}
-                sx={{ color: '#FFFFFF', bgcolor: 'rgba(239,68,68,0.25)', '&:hover': { bgcolor: 'rgba(239,68,68,0.45)' } }}
+                sx={{ color: '#FFFFFF', bgcolor: 'rgba(239,68,68,0.28)', '&:hover': { bgcolor: 'rgba(239,68,68,0.45)' }, flexShrink: 0 }}
               >
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-            )}
           </Box>
         </DialogTitle>
 
