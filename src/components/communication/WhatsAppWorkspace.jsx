@@ -1802,8 +1802,7 @@ export default function WhatsAppWorkspace({
                         ? '1px dashed #F59E0B'
                         : isOutbound
                         ? '1px solid #BBF7D0'
-                        : '1px solid #E2E8F0',
-                      boxShadow: '0 1px 2px rgba(15, 23, 42, 0.05)'
+                        : '1px solid #E2E8F0'
                     }}
                   >
                   {isInternalNote && (
