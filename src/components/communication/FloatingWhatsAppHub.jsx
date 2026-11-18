@@ -24,13 +24,17 @@ import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import AiCounselorSandbox from './AiCounselorSandbox';
 import { loadDB } from '../../services/storage';
 import { playLeadChime } from '../../services/soundUtils';
 import {
   fetchRemoteWhatsAppData,
-  buildWhatsAppHubState
+  buildWhatsAppHubState,
+  getBotSettings,
+  saveBotSettings,
+  fetchRemoteBotSettings
 } from '../../services/whatsappCloudApi';
 
 /**
@@ -46,6 +50,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   const [soundMuted, setSoundMuted] = useState(false);
   const [targetContact, setTargetContact] = useState({ phone: null, draft: '' });
   const [aiSandboxOpen, setAiSandboxOpen] = useState(false);
+  const [botCfg, setBotCfg] = useState(() => getBotSettings());
   const [db, setDb] = useState(() => loadDB());
   const [remoteData, setRemoteData] = useState({ logs: [], inbound: [] });
   const [refreshing, setRefreshing] = useState(false);
@@ -54,12 +59,28 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     setRefreshing(true);
     try {
       setDb(loadDB());
-      const remote = await fetchRemoteWhatsAppData();
+      const [remote, remoteBot] = await Promise.all([
+        fetchRemoteWhatsAppData(),
+        fetchRemoteBotSettings()
+      ]);
       setRemoteData(remote);
+      setBotCfg(remoteBot);
     } finally {
       setRefreshing(false);
     }
   }, []);
+
+  const handleToggleGlobalBot = async () => {
+    const nextEnabled = !botCfg.autoBotEnabled;
+    const nextCfg = { ...botCfg, autoBotEnabled: nextEnabled };
+    setBotCfg(nextCfg);
+    try {
+      await saveBotSettings(nextCfg);
+    } catch {
+      // rollback if failed
+      setBotCfg(botCfg);
+    }
+  };
 
   useEffect(() => {
     syncHub();
@@ -291,7 +312,45 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, flexWrap: 'wrap' }}>
+            <Tooltip title={botCfg.autoBotEnabled ? '24/7 Global Auto-Bot is ON (Click to toggle)' : 'Global Auto-Bot is OFF (Click to turn ON)'}>
+              <Chip
+                size="small"
+                icon={<SmartToyIcon sx={{ fontSize: 13, color: botCfg.autoBotEnabled ? '#4ADE80' : '#FCA5A5' }} />}
+                label={botCfg.autoBotEnabled ? 'Bot ON' : 'Bot OFF'}
+                onClick={handleToggleGlobalBot}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  bgcolor: botCfg.autoBotEnabled ? 'rgba(74, 222, 128, 0.20)' : 'rgba(239, 68, 68, 0.25)',
+                  color: '#FFFFFF',
+                  border: botCfg.autoBotEnabled ? '1px solid #4ADE80' : '1px solid #F87171',
+                  fontSize: '0.72rem',
+                  height: 26,
+                  '&:hover': { bgcolor: botCfg.autoBotEnabled ? 'rgba(74, 222, 128, 0.35)' : 'rgba(239, 68, 68, 0.40)' }
+                }}
+              />
+            </Tooltip>
+
+            <Tooltip title="AI Counselor Mode: Gemini 3 Flash is active (Click to test Sandbox)">
+              <Chip
+                size="small"
+                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: '#C7D2FE' }} />}
+                label="AI Mode"
+                onClick={() => setAiSandboxOpen(true)}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  bgcolor: 'rgba(99, 102, 241, 0.28)',
+                  color: '#FFFFFF',
+                  border: '1px solid #818CF8',
+                  fontSize: '0.72rem',
+                  height: 26,
+                  '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.45)' }
+                }}
+              />
+            </Tooltip>
+
             <Button
               size="small"
               variant="contained"

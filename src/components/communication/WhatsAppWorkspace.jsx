@@ -59,6 +59,8 @@ import DownloadForOfflineIcon from '@mui/icons-material/DownloadForOffline';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import CloseIcon from '@mui/icons-material/Close';
+import AiCounselorSandbox from './AiCounselorSandbox';
 import { StatusBadge } from '../common';
 import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
@@ -199,14 +201,43 @@ export default function WhatsAppWorkspace({
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [convertModalOpen, setConvertModalOpen] = useState(false);
   const [aiDrafting, setAiDrafting] = useState(false);
+  const [aiSandboxModalOpen, setAiSandboxModalOpen] = useState(false);
+
+  // High-performance Optimistic State (0ms Seen/Unseen, 0ms Message Display, 0ms Bot Mode Toggle)
+  const [optimisticReadSet, setOptimisticReadSet] = useState(() => new Set());
+  const [optimisticMessagesMap, setOptimisticMessagesMap] = useState({});
+  const [botModesMap, setBotModesMap] = useState({});
 
   const messagesEndRef = useRef(null);
   const pillScrollRef = useRef(null);
 
+  // Compute enriched threads with instant optimistic updates
+  const computedThreads = useMemo(() => {
+    return threads.map((t) => {
+      const isRead = optimisticReadSet.has(t.key);
+      const unreadCount = isRead ? 0 : t.unreadCount;
+      const optMsgs = optimisticMessagesMap[t.key] || [];
+      const allMsgs = optMsgs.length > 0 ? [...t.messages, ...optMsgs] : t.messages;
+      const lastMsg = allMsgs.length > 0 ? allMsgs[allMsgs.length - 1] : null;
+      const botPaused = botModesMap[t.key] !== undefined ? botModesMap[t.key].paused : t.botPaused;
+
+      return {
+        ...t,
+        unreadCount,
+        botPaused,
+        messages: allMsgs,
+        lastMessage: lastMsg ? lastMsg.content : t.lastMessage,
+        lastMessageStatus: lastMsg ? lastMsg.status : (t.lastMessageStatus || null),
+        lastMessageDirection: lastMsg ? lastMsg.direction : (t.lastMessageDirection || null),
+        lastTimestamp: lastMsg ? (lastMsg.createdAt || lastMsg.timestamp) : t.lastTimestamp
+      };
+    });
+  }, [threads, optimisticReadSet, optimisticMessagesMap, botModesMap]);
+
   useEffect(() => {
     if (initialPhone) {
       const digits = String(initialPhone).replace(/\D/g, '').slice(-10);
-      const match = threads.find((t) => t.key === digits);
+      const match = computedThreads.find((t) => t.key === digits);
       if (match) {
         setSelectedKey(match.key);
         if (isMobile) setMobileView('chat');
@@ -215,18 +246,18 @@ export default function WhatsAppWorkspace({
         setDraft(initialDraft);
       }
     }
-  }, [initialPhone, initialDraft, jumpNonce, threads, isMobile]);
+  }, [initialPhone, initialDraft, jumpNonce, computedThreads, isMobile]);
 
   useEffect(() => {
-    if (!selectedKey && threads.length > 0 && !isMobile) {
-      setSelectedKey(threads[0].key);
+    if (!selectedKey && computedThreads.length > 0 && !isMobile) {
+      setSelectedKey(computedThreads[0].key);
     }
-  }, [threads, selectedKey, isMobile]);
+  }, [computedThreads, selectedKey, isMobile]);
 
   const filteredThreads = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     const todayStr = new Date().toISOString().slice(0, 10);
-    return threads.filter((t) => {
+    return computedThreads.filter((t) => {
       if (roleFilter === 'Unread' && t.unreadCount === 0) return false;
       if (roleFilter === 'Pinned' && !t.pinned) return false;
       if (roleFilter === 'Due / Today') {
@@ -244,11 +275,11 @@ export default function WhatsAppWorkspace({
         (t.lastMessage || '').toLowerCase().includes(q)
       );
     });
-  }, [threads, roleFilter, searchQuery]);
+  }, [computedThreads, roleFilter, searchQuery]);
 
   const activeThread = useMemo(
-    () => threads.find((t) => t.key === selectedKey) || filteredThreads[0] || null,
-    [threads, filteredThreads, selectedKey]
+    () => computedThreads.find((t) => t.key === selectedKey) || filteredThreads[0] || null,
+    [computedThreads, filteredThreads, selectedKey]
   );
 
   const liveDb = useMemo(() => loadDB(), [threads, activeThread?.key, workflowSavedMsg]);
@@ -324,9 +355,8 @@ export default function WhatsAppWorkspace({
 
   const handleSelectThread = (thread) => {
     setSelectedKey(thread.key);
-    if (thread.unreadCount > 0) {
-      markThreadRead(thread.phone);
-    }
+    setOptimisticReadSet((prev) => new Set(prev).add(thread.key));
+    markThreadRead(thread.phone);
     if (isMobile) setMobileView('chat');
   };
 
@@ -334,13 +364,33 @@ export default function WhatsAppWorkspace({
     const textToSend = (customText ?? draft).trim();
     if (!textToSend || !activeThread) return;
 
+    if (!customText) setDraft('');
+
+    // Instant 1ms optimistic message preview in chat
+    const optId = `OPT-${Date.now()}`;
+    const optimisticMsg = {
+      id: optId,
+      key: activeThread.key,
+      phone: activeThread.phone,
+      direction: 'outbound',
+      messageType: sendChannel === 'Note' ? 'internal_note' : (sendChannel === 'SMS' ? 'sms' : 'text'),
+      status: 'sent',
+      content: textToSend,
+      createdAt: new Date().toISOString()
+    };
+    setOptimisticMessagesMap((prev) => ({
+      ...prev,
+      [activeThread.key]: [...(prev[activeThread.key] || []), optimisticMsg]
+    }));
+    setOptimisticReadSet((prev) => new Set(prev).add(activeThread.key));
+    markThreadRead(activeThread.phone);
+
     setSending(true);
     setSendFeedback(null);
     try {
       const currentDb = loadDB();
       if (sendChannel === 'Note' && !customText) {
         addInternalStaffNote({ phone: activeThread.phone, note: textToSend, author: 'Staff' });
-        setDraft('');
         if (onRefresh) onRefresh();
         return;
       }
@@ -370,10 +420,14 @@ export default function WhatsAppWorkspace({
           messageText: textToSend
         });
       }
-      if (!customText) setDraft('');
-      markThreadRead(activeThread.phone);
       if (onRefresh) onRefresh();
     } catch (err) {
+      setOptimisticMessagesMap((prev) => ({
+        ...prev,
+        [activeThread.key]: (prev[activeThread.key] || []).map((m) =>
+          m.id === optId ? { ...m, status: 'failed' } : m
+        )
+      }));
       setSendFeedback({ type: 'error', text: err.message });
     } finally {
       setSending(false);
@@ -671,9 +725,19 @@ export default function WhatsAppWorkspace({
               >
                 <Badge
                   badgeContent={t.unreadCount}
-                  color="success"
                   overlap="circular"
                   invisible={!t.unreadCount}
+                  sx={{
+                    '& .MuiBadge-badge': {
+                      bgcolor: '#25D366',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      height: 19,
+                      minWidth: 19,
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.18)'
+                    }
+                  }}
                 >
                   <Avatar
                     src={t.entity?.photo || t.entity?.photoUrl || undefined}
@@ -696,7 +760,7 @@ export default function WhatsAppWorkspace({
                       variant="subtitle2"
                       sx={{
                         fontWeight: t.unreadCount ? 800 : 700,
-                        color: '#0F172A',
+                        color: t.unreadCount ? '#0F172A' : '#1E293B',
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -708,7 +772,15 @@ export default function WhatsAppWorkspace({
                       {t.pinned && <StarIcon sx={{ fontSize: 13, color: '#F59E0B', flexShrink: 0 }} />}
                       {t.name}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.67rem', flexShrink: 0 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        color: t.unreadCount ? '#16A34A' : '#64748B',
+                        fontWeight: t.unreadCount ? 800 : 500,
+                        fontSize: '0.67rem',
+                        flexShrink: 0
+                      }}
+                    >
                       {formatTimeShort(t.lastTimestamp)}
                     </Typography>
                   </Box>
@@ -747,19 +819,30 @@ export default function WhatsAppWorkspace({
                         FB Ad
                       </Box>
                     )}
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: t.unreadCount ? '#0F172A' : '#64748B',
-                        fontWeight: t.unreadCount ? 700 : 400,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                        flex: 1
-                      }}
-                    >
-                      {t.lastMessage || t.phone}
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.35, minWidth: 0, flex: 1 }}>
+                      {t.lastMessageDirection === 'outbound' && (
+                        t.lastMessageStatus === 'read' ? (
+                          <DoneAllIcon sx={{ fontSize: 14, color: '#53BDEB', flexShrink: 0 }} />
+                        ) : t.lastMessageStatus === 'delivered' ? (
+                          <DoneAllIcon sx={{ fontSize: 14, color: '#8696A0', flexShrink: 0 }} />
+                        ) : (
+                          <DoneIcon sx={{ fontSize: 14, color: '#8696A0', flexShrink: 0 }} />
+                        )
+                      )}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          color: t.unreadCount ? '#0F172A' : '#64748B',
+                          fontWeight: t.unreadCount ? 700 : 400,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          flex: 1
+                        }}
+                      >
+                        {t.lastMessage || t.phone}
+                      </Typography>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
@@ -1154,27 +1237,48 @@ export default function WhatsAppWorkspace({
                 {activeThread.pinned ? <StarIcon fontSize="small" /> : <StarBorderIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
-            <Tooltip title={activeThread.botPaused ? 'Resume Auto-Bot' : 'Pause Auto-Bot (Human Takeover)'}>
+            <Tooltip title={activeThread.botPaused ? 'Auto-Bot is currently PAUSED (Human Takeover). Click to RESUME 24/7 Bot' : 'Auto-Bot is ACTIVE 24/7 for this contact. Click to PAUSE (Human Takeover)'}>
               <Chip
                 size="small"
-                icon={<SmartToyIcon sx={{ fontSize: 15 }} />}
+                icon={<SmartToyIcon sx={{ fontSize: 14 }} />}
                 label={activeThread.botPaused ? 'Bot Paused' : 'Auto-Bot ON'}
                 onClick={async () => {
                   const nextPaused = !activeThread.botPaused;
+                  setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: nextPaused } }));
                   await toggleBotPause(activeThread.phone, nextPaused);
                   setSendFeedback({
-                    type: 'info',
+                    type: nextPaused ? 'warning' : 'success',
                     text: nextPaused
                       ? 'Auto-Bot paused for this contact (Human Takeover active).'
-                      : 'Auto-Bot resumed for this contact.'
+                      : 'Auto-Bot resumed 24/7 for this contact.'
                   });
                   onRefresh?.();
                 }}
                 sx={{
                   cursor: 'pointer',
-                  fontWeight: 700,
+                  fontWeight: 800,
                   bgcolor: activeThread.botPaused ? '#FEF2F2' : '#ECFDF5',
-                  color: activeThread.botPaused ? '#B91C1C' : '#047857'
+                  color: activeThread.botPaused ? '#DC2626' : '#059669',
+                  border: activeThread.botPaused ? '1px solid #FECACA' : '1px solid #A7F3D0',
+                  height: 26
+                }}
+              />
+            </Tooltip>
+
+            <Tooltip title="AI Counselor Mode: Gemini 3 Flash is active! Click to open Live AI Test Sandbox">
+              <Chip
+                size="small"
+                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: '#4F46E5' }} />}
+                label="AI Mode"
+                onClick={() => setAiSandboxModalOpen(true)}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  bgcolor: '#EEF2FF',
+                  color: '#4338CA',
+                  border: '1px solid #C7D2FE',
+                  height: 26,
+                  '&:hover': { bgcolor: '#E0E7FF' }
                 }}
               />
             </Tooltip>
@@ -1334,11 +1438,11 @@ export default function WhatsAppWorkspace({
                       m.status === 'failed' ? (
                         <ErrorOutlineIcon sx={{ fontSize: 13, color: '#DC2626' }} />
                       ) : m.status === 'read' ? (
-                        <DoneAllIcon sx={{ fontSize: 14, color: '#2563EB' }} />
+                        <DoneAllIcon sx={{ fontSize: 14, color: '#53BDEB' }} />
                       ) : m.status === 'delivered' ? (
-                        <DoneAllIcon sx={{ fontSize: 14, color: '#64748B' }} />
+                        <DoneAllIcon sx={{ fontSize: 14, color: '#8696A0' }} />
                       ) : (
-                        <DoneIcon sx={{ fontSize: 13, color: '#64748B' }} />
+                        <DoneIcon sx={{ fontSize: 13, color: '#8696A0' }} />
                       )
                     )}
                   </Box>
@@ -1762,6 +1866,52 @@ export default function WhatsAppWorkspace({
           }}
         />
       )}
+
+      {/* Live AI Counselor Sandbox Dialog inside Workspace */}
+      <Dialog
+        open={aiSandboxModalOpen}
+        onClose={() => setAiSandboxModalOpen(false)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          backdrop: {
+            sx: {
+              backdropFilter: 'blur(3px)',
+              backgroundColor: 'rgba(15, 23, 42, 0.55)'
+            }
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#0F2C59',
+            color: '#FFFFFF',
+            py: 1.25,
+            borderBottom: '2px solid #4F46E5'
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <SmartToyIcon sx={{ color: '#818CF8' }} />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+              Live AI Counselor Test Sandbox
+            </Typography>
+          </Box>
+          <IconButton
+            size="small"
+            aria-label="Close AI Sandbox"
+            onClick={() => setAiSandboxModalOpen(false)}
+            sx={{ color: '#FFFFFF' }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: '#F8FAFC' }}>
+          <AiCounselorSandbox inDialog />
+        </DialogContent>
+      </Dialog>
     </Paper>
   );
 }
