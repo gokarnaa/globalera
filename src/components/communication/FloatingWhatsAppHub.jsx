@@ -179,7 +179,18 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               position: 'fixed',
               right: { xs: 16, md: 24 },
               bottom: { xs: 'calc(76px + env(safe-area-inset-bottom))', md: 24 },
-              zIndex: 1150
+              zIndex: 1150,
+              '& .MuiBadge-badge': {
+                zIndex: 5,
+                top: 3,
+                right: 3,
+                minWidth: 22,
+                height: 22,
+                fontSize: '0.72rem',
+                fontWeight: 800,
+                border: '2px solid #FFFFFF',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.45)'
+              }
             }}
           >
             <Fab
