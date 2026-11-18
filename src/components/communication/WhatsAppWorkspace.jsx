@@ -61,6 +61,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import CloseIcon from '@mui/icons-material/Close';
 import PersonIcon from '@mui/icons-material/Person';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import AiCounselorSandbox from './AiCounselorSandbox';
 import { StatusBadge } from '../common';
 import RecordPaymentModal from '../accounts/RecordPaymentModal';
@@ -263,7 +264,10 @@ export default function WhatsAppWorkspace({
   const [visibleLimit, setVisibleLimit] = useState(60);
 
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const swipeStartRef = useRef(null);
   const pillScrollRef = useRef(null);
+  const [showScrollDown, setShowScrollDown] = useState(false);
 
   useEffect(() => {
     setVisibleLimit(60);
@@ -359,6 +363,18 @@ export default function WhatsAppWorkspace({
     return () => {
       window.removeEventListener('popstate', handlePop);
     };
+  }, [isMobile, mobileView]);
+
+  // Keep latest message visible when mobile soft keyboard opens/resizes
+  useEffect(() => {
+    if (!isMobile || mobileView !== 'chat' || typeof window === 'undefined' || !window.visualViewport) return undefined;
+    const onResize = () => {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 80);
+    };
+    window.visualViewport.addEventListener('resize', onResize);
+    return () => window.visualViewport?.removeEventListener('resize', onResize);
   }, [isMobile, mobileView]);
 
   const searchDigits = useMemo(() => {
@@ -987,9 +1003,9 @@ export default function WhatsAppWorkspace({
                   borderBottom: '1px solid #F1F5F9',
                   bgcolor: isSelected ? '#EFF6FF' : '#FFFFFF',
                   borderLeft: isSelected ? '3px solid #0F2C59' : '3px solid transparent',
-                  transition: 'background-color 0.12s ease',
+                  transition: 'background-color 0.12s ease, transform 0.08s ease',
                   WebkitTapHighlightColor: 'transparent',
-                  '&:active': { bgcolor: '#E2E8F0' },
+                  '&:active': { bgcolor: '#E2E8F0', transform: 'scale(0.985)' },
                   '&:hover': { bgcolor: isSelected ? '#EFF6FF' : '#F8FAFC' }
                 }}
               >
@@ -1537,7 +1553,26 @@ export default function WhatsAppWorkspace({
     }
 
     return (
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', bgcolor: '#F1F5F9', minWidth: 0, height: '100%', minHeight: 0 }}>
+      <Box
+        onTouchStart={(e) => {
+          if (!isMobile || e.touches.length !== 1) return;
+          const t = e.touches[0];
+          swipeStartRef.current = { x: t.clientX, y: t.clientY, time: Date.now() };
+        }}
+        onTouchEnd={(e) => {
+          if (!isMobile || !swipeStartRef.current || e.changedTouches.length !== 1) return;
+          const t = e.changedTouches[0];
+          const dx = t.clientX - swipeStartRef.current.x;
+          const dy = Math.abs(t.clientY - swipeStartRef.current.y);
+          const dt = Date.now() - swipeStartRef.current.time;
+          const startX = swipeStartRef.current.x;
+          swipeStartRef.current = null;
+          if (startX < 80 && dx > 75 && dy < 45 && dt < 500) {
+            setMobileView('list');
+          }
+        }}
+        sx={{ flex: 1, display: 'flex', flexDirection: 'column', bgcolor: '#F1F5F9', minWidth: 0, height: '100%', minHeight: 0, position: 'relative' }}
+      >
         {/* Chat Header */}
         <Box
           sx={{
@@ -1756,9 +1791,17 @@ export default function WhatsAppWorkspace({
 
         {/* Chat Messages Scroll Area */}
         <Box
+          ref={messagesContainerRef}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+            setShowScrollDown(distFromBottom > 160);
+          }}
           sx={{
             flex: 1,
             overflowY: 'auto',
+            WebkitOverflowScrolling: 'touch',
+            overscrollBehavior: 'contain',
             p: { xs: 1.5, sm: 2 },
             display: 'flex',
             flexDirection: 'column',
@@ -1901,6 +1944,29 @@ export default function WhatsAppWorkspace({
           )}
           <div ref={messagesEndRef} />
         </Box>
+
+        {showScrollDown && (
+          <IconButton
+            size="small"
+            aria-label="Scroll to latest message"
+            onClick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })}
+            sx={{
+              position: 'absolute',
+              right: 16,
+              bottom: { xs: 130, sm: 136 },
+              zIndex: 10,
+              width: 36,
+              height: 36,
+              bgcolor: '#FFFFFF',
+              color: '#0F2C59',
+              border: '1px solid #CBD5E1',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.16)',
+              '&:hover': { bgcolor: '#F8FAFC' }
+            }}
+          >
+            <KeyboardArrowDownIcon fontSize="small" />
+          </IconButton>
+        )}
 
         {sendFeedback && (
           <Alert severity={sendFeedback.type} onClose={() => setSendFeedback(null)} sx={{ mx: 1.5, mb: 1, borderRadius: 2 }}>
