@@ -796,6 +796,71 @@ export async function suggestGeminiReply({ contactName, role, messages = [], stu
   throw new Error(lastError);
 }
 
+export async function simulateGeminiCounselorTurn({ messages = [], userInput = '', customInstructions = '', studentContext = '' }) {
+  const botCfg = await fetchRemoteBotSettings();
+  const apiKey = (botCfg?.geminiApiKey || '').trim();
+  if (!apiKey) {
+    throw new Error('Gemini API Key is not configured. Please save it above first.');
+  }
+
+  const instructions = customInstructions || botCfg.aiInstructions || '';
+  const recentTurns = (messages || [])
+    .slice(-8)
+    .map((m) => `${m.role === 'user' ? 'Visitor' : 'Counselor'}: ${m.text}`)
+    .join('\n');
+
+  const systemPrompt =
+    `You are the official 24/7 AI Admission & Student Counselor for "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (Global Era Multi Service Pvt. Ltd. — Prabidhik School, Jorpati, Gokarneshwor, Kathmandu, near MitraPark Hub).\n\n` +
+    `STRICT RULES:\n` +
+    `1. Reply warmly in polite, natural Nepali (Devanagari), but ALWAYS write phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and numbers using English digits (0-9).\n` +
+    `2. Keep replies concise and WhatsApp-friendly (under 140 words).\n` +
+    `3. Core Facts:\n` +
+    `   - Courses: Caregiver Training (390 Hours / 3 Months), Tailoring & Fashion Designing (390 Hours / 3 Months), Beautician & Cosmetology (390 Hours / 3 Months).\n` +
+    `   - Training style: 80% practical hands-on lab/workshop, CTEVT accredited certification with QR verification, OJT & job placement assistance.\n` +
+    `   - Fee Policy: Easy 50% on admission + 50% mid-course.\n` +
+    `   - Daily 2-hour shifts (Sun–Fri): Shift A (7–9 AM), Shift B (10–12 PM), Shift C (12–2 PM), Shift D (2–4 PM), Shift E (4–6 PM).\n` +
+    `   - Admission documents: Citizenship copy, 2 PP photos, last academic certificate copy, 50% advance fee.\n` +
+    `   - Website: https://globalera.vercel.app\n` +
+    `4. Never invent guaranteed visa, salary, or unverified fees. If unsure or asked for exact fee discounts, ask them to call 01-4910715 or 9803614574.\n` +
+    (instructions ? `5. Extra Institute Instructions:\n${instructions}\n` : '') +
+    (studentContext ? `\n${studentContext}\n` : '');
+
+  const userPrompt =
+    `Recent conversation:\n${recentTurns || '(New conversation)'}\n\n` +
+    `Latest message from Visitor:\n"${userInput}"\n\n` +
+    `Write the Counselor reply now:`;
+
+  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  let lastError = 'Failed to generate AI response.';
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            generationConfig: { temperature: 0.4, maxOutputTokens: 450 }
+          })
+        }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+        if (text) return { reply: text, model };
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        lastError = errData?.error?.message || `HTTP ${res.status}`;
+      }
+    } catch (err) {
+      lastError = err.message;
+    }
+  }
+  throw new Error(lastError);
+}
+
 export function togglePinContact(phone) {
   const key = normalizePhoneKey(phone);
   if (!key) return false;
