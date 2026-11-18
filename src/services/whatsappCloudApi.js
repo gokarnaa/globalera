@@ -632,15 +632,30 @@ export async function toggleBotPause(phone, paused) {
   }
 }
 
-export function getBotSettings() {
-  const db = loadDB();
-  const bot = db.settings?.whatsappBot || {};
+export function resolveBotMode(bot = {}) {
+  if (bot.replyMode === 'ai' || bot.replyMode === 'bot' || bot.replyMode === 'manual') {
+    return bot.replyMode;
+  }
+  if (bot.autoBotEnabled === false) return 'manual';
+  if (bot.aiCounselorEnabled === false) return 'bot';
+  return 'ai';
+}
+
+export function normalizeBotConfig(bot = {}) {
+  const replyMode = resolveBotMode(bot);
   return {
-    autoBotEnabled: bot.autoBotEnabled !== false,
-    aiCounselorEnabled: bot.aiCounselorEnabled !== false,
+    replyMode,
+    autoBotEnabled: replyMode !== 'manual',
+    aiCounselorEnabled: replyMode === 'ai',
     geminiApiKey: bot.geminiApiKey || '',
     aiInstructions: bot.aiInstructions || ''
   };
+}
+
+export function getBotSettings() {
+  const db = loadDB();
+  const bot = db.settings?.whatsappBot || {};
+  return normalizeBotConfig(bot);
 }
 
 export function cleanWhatsAppMarkdown(text) {
@@ -661,7 +676,7 @@ export async function fetchRemoteBotSettings() {
     const { data, error } = await supabase.from('system_settings').select('id, company_profile').limit(1);
     if (!error && Array.isArray(data) && data[0]?.company_profile?.whatsappBot) {
       const remoteBot = data[0].company_profile.whatsappBot;
-      const merged = { ...getBotSettings(), ...remoteBot };
+      const merged = normalizeBotConfig({ ...getBotSettings(), ...remoteBot });
       const db = loadDB();
       saveDB({
         ...db,
@@ -680,7 +695,7 @@ export async function fetchRemoteBotSettings() {
 
 export async function saveBotSettings(nextBot) {
   const db = loadDB();
-  const merged = { ...getBotSettings(), ...nextBot };
+  const merged = normalizeBotConfig({ ...getBotSettings(), ...nextBot });
   const nextDb = {
     ...db,
     settings: {
@@ -715,6 +730,37 @@ export async function saveBotSettings(nextBot) {
     throw new Error(updErr.message || 'Failed to sync bot settings to Supabase.');
   }
   return { ...merged, syncedRemote: true };
+}
+
+/**
+ * Subscribe to real-time Supabase changes on communication_logs (WhatsApp channels)
+ * so inbound customer messages & outbound AI replies appear instantly (< 0.5s).
+ */
+export function subscribeWhatsAppRealtime(onEvent) {
+  const supabase = getSupabaseClient();
+  if (!supabase || typeof onEvent !== 'function') return () => {};
+  const channelName = `wa-realtime-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const channel = supabase
+    .channel(channelName)
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'communication_logs' },
+      (payload) => {
+        const ch = payload?.new?.channel || payload?.old?.channel || '';
+        if (String(ch).startsWith('WhatsApp')) {
+          onEvent(payload);
+        }
+      }
+    )
+    .subscribe();
+
+  return () => {
+    try {
+      supabase.removeChannel(channel);
+    } catch {
+      // ignore cleanup error
+    }
+  };
 }
 
 export async function testGeminiConnection(apiKey) {

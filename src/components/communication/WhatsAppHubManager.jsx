@@ -26,7 +26,9 @@ import {
   IconButton,
   Stack,
   Switch,
-  FormControlLabel
+  FormControlLabel,
+  ToggleButton,
+  ToggleButtonGroup
 } from '@mui/material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -43,6 +45,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import PersonIcon from '@mui/icons-material/Person';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import AiCounselorSandbox from './AiCounselorSandbox';
@@ -60,7 +64,9 @@ import {
   saveBotSettings,
   fetchRemoteBotSettings,
   testGeminiConnection,
-  simulateGeminiCounselorTurn
+  simulateGeminiCounselorTurn,
+  resolveBotMode,
+  subscribeWhatsAppRealtime
 } from '../../services/whatsappCloudApi';
 
 const STATUS_TONE = {
@@ -140,19 +146,55 @@ export default function WhatsAppHubManager() {
     }
   };
 
+  const activeBotMode = resolveBotMode(botCfg);
+
+  const handleChangeBotMode = async (nextMode) => {
+    if (!nextMode || nextMode === activeBotMode) return;
+    const nextCfg = {
+      ...botCfg,
+      replyMode: nextMode,
+      autoBotEnabled: nextMode !== 'manual',
+      aiCounselorEnabled: nextMode === 'ai'
+    };
+    setBotCfg(nextCfg);
+    try {
+      const saved = await saveBotSettings(nextCfg);
+      setBotCfg(saved);
+      setBotSavedMsg({
+        severity: 'success',
+        text:
+          nextMode === 'ai'
+            ? '🤖 AI Mode activated & synced! Real 2-way AI Counselor is live 24/7.'
+            : nextMode === 'bot'
+              ? '📋 Bot Mode activated & synced! Keyword Menu Bot is live (AI OFF).'
+              : '👤 Manual Mode activated & synced! Both AI & Bot are OFF.'
+      });
+    } catch (err) {
+      setBotSavedMsg({ severity: 'error', text: err?.message || 'Failed to switch mode.' });
+    }
+  };
+
   const handleTestGemini = async () => {
     setBotTesting(true);
     setBotSavedMsg(null);
     try {
       const res = await testGeminiConnection(botCfg.geminiApiKey);
+      // Automatically save the validated key to Supabase so Real Mode activates immediately!
+      const saved = await saveBotSettings({
+        ...botCfg,
+        geminiApiKey: (botCfg.geminiApiKey || '').trim()
+      });
+      setBotCfg(saved);
       setBotSavedMsg({
         severity: 'success',
-        text: `प्राविधिक स्कुल AI Counselor connected successfully (${res.model}). Click "Save Bot & AI Settings" to activate in Real Mode.`
+        text: saved.syncedRemote
+          ? `प्राविधिक स्कुल AI Counselor connected (${res.model}) & automatically saved to Supabase! Real Mode is ready.`
+          : `Connected (${res.model}) and saved locally.`
       });
     } catch (err) {
       setBotSavedMsg({
         severity: 'error',
-        text: `Gemini test failed: ${err?.message || 'Unknown error'}`
+        text: `AI connection test failed: ${err?.message || 'Unknown error'}`
       });
     } finally {
       setBotTesting(false);
@@ -163,9 +205,13 @@ export default function WhatsAppHubManager() {
     syncHub();
     const onDbUpdate = () => setDb(loadDB());
     window.addEventListener('kite_db_updated', onDbUpdate);
-    const timer = setInterval(syncHub, 20000);
+    const unsubscribeRealtime = subscribeWhatsAppRealtime(() => {
+      syncHub();
+    });
+    const timer = setInterval(syncHub, 15000);
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
+      unsubscribeRealtime();
       clearInterval(timer);
     };
   }, [syncHub]);
@@ -388,6 +434,8 @@ export default function WhatsAppHubManager() {
           refreshing={refreshing}
           height={{ xs: '74dvh', md: '68dvh' }}
           initialPhone={jumpPhone}
+          botCfg={botCfg}
+          onChangeReplyMode={handleChangeBotMode}
         />
       )}
 
@@ -677,44 +725,68 @@ export default function WhatsAppHubManager() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <SmartToyIcon sx={{ color: '#4F46E5' }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E1B4B' }}>
-                    Auto-Bot &amp; AI Admission Counselor
+                    WhatsApp Reply Mode &amp; AI Counselor
                   </Typography>
                 </Box>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      size="small"
-                      checked={Boolean(botCfg.autoBotEnabled)}
-                      onChange={(e) => setBotCfg((prev) => ({ ...prev, autoBotEnabled: e.target.checked }))}
-                    />
-                  }
-                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Auto-Bot Enabled (24/7 Real Replies)</Typography>}
-                />
-                <FormControlLabel
-                  control={
-                    <Switch
-                      size="small"
-                      color="secondary"
-                      checked={Boolean(botCfg.aiCounselorEnabled)}
-                      onChange={(e) => {
-                        const nextVal = e.target.checked;
-                        setBotCfg((prev) => ({
-                          ...prev,
-                          aiCounselorEnabled: nextVal,
-                          autoBotEnabled: nextVal ? true : prev.autoBotEnabled
-                        }));
-                      }}
-                    />
-                  }
-                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>AI Admission Counselor (प्राविधिक स्कुल काउन्सिलर)</Typography>}
-                />
-                {botCfg.autoBotEnabled && botCfg.aiCounselorEnabled ? (
+                <ToggleButtonGroup
+                  fullWidth
+                  size="small"
+                  exclusive
+                  value={activeBotMode}
+                  onChange={(_, val) => val && handleChangeBotMode(val)}
+                  aria-label="WhatsApp Global Reply Mode"
+                  sx={{
+                    bgcolor: '#FFFFFF',
+                    borderRadius: 2,
+                    '& .MuiToggleButton-root': {
+                      fontWeight: 800,
+                      fontSize: '0.78rem',
+                      textTransform: 'none',
+                      py: 0.75,
+                      gap: 0.5
+                    }
+                  }}
+                >
+                  <ToggleButton
+                    value="ai"
+                    sx={{
+                      '&.Mui-selected': { bgcolor: '#4F46E5', color: '#FFFFFF', '&:hover': { bgcolor: '#4338CA' } }
+                    }}
+                  >
+                    <AutoAwesomeIcon sx={{ fontSize: 15 }} />
+                    AI Mode
+                  </ToggleButton>
+                  <ToggleButton
+                    value="bot"
+                    sx={{
+                      '&.Mui-selected': { bgcolor: '#059669', color: '#FFFFFF', '&:hover': { bgcolor: '#047857' } }
+                    }}
+                  >
+                    <SmartToyIcon sx={{ fontSize: 15 }} />
+                    Bot Mode
+                  </ToggleButton>
+                  <ToggleButton
+                    value="manual"
+                    sx={{
+                      '&.Mui-selected': { bgcolor: '#D97706', color: '#FFFFFF', '&:hover': { bgcolor: '#B45309' } }
+                    }}
+                  >
+                    <PersonIcon sx={{ fontSize: 15 }} />
+                    Manual
+                  </ToggleButton>
+                </ToggleButtonGroup>
+
+                {activeBotMode === 'ai' ? (
                   <Alert severity="success" sx={{ py: 0.5, fontSize: '0.78rem' }}>
-                    🟢 <strong>Real Mode Active:</strong> +977 980-3614574 मा आउने WhatsApp सन्देशहरूलाई काउन्सिलरले २४/७ स्वतः उत्तर दिनेछ।
+                    🤖 <strong>AI Mode Active:</strong> प्राविधिक स्कुल काउन्सिलरले २४/७ स्मार्ट २-तर्फी उत्तर दिनेछ (Keyword Bot OFF)।
+                  </Alert>
+                ) : activeBotMode === 'bot' ? (
+                  <Alert severity="info" sx={{ py: 0.5, fontSize: '0.78rem' }}>
+                    📋 <strong>Bot Mode Active:</strong> बेसिक मेनु (1/2/3/4) अटो-रिप्लाई मात्र चल्नेछ (AI OFF)।
                   </Alert>
                 ) : (
                   <Alert severity="warning" sx={{ py: 0.5, fontSize: '0.78rem' }}>
-                    ⚠️ <strong>Sandbox Only:</strong> Auto-Bot बन्द छ। बाहिरको रियल WhatsApp मा चल्न Auto-Bot Enabled लाई ON राख्नुहोस्।
+                    👤 <strong>Manual Mode Active:</strong> AI र Bot दुवै बन्द छन्। स्टाफले मात्र म्यानुअल रिप्लाई गर्नुहुनेछ।
                   </Alert>
                 )}
                 <TextField

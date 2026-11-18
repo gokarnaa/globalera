@@ -12,6 +12,8 @@ import {
   IconButton,
   Button,
   Tooltip,
+  ToggleButton,
+  ToggleButtonGroup,
   useTheme,
   useMediaQuery
 } from '@mui/material';
@@ -25,6 +27,7 @@ import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import NotificationsOffIcon from '@mui/icons-material/NotificationsOff';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import PersonIcon from '@mui/icons-material/Person';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import AiCounselorSandbox from './AiCounselorSandbox';
 import { loadDB } from '../../services/storage';
@@ -34,7 +37,9 @@ import {
   buildWhatsAppHubState,
   getBotSettings,
   saveBotSettings,
-  fetchRemoteBotSettings
+  fetchRemoteBotSettings,
+  resolveBotMode,
+  subscribeWhatsAppRealtime
 } from '../../services/whatsappCloudApi';
 
 /**
@@ -72,26 +77,15 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
 
   const isDialogOpen = windowMode === 'normal' || windowMode === 'maximized';
   const isMaximized = windowMode === 'maximized';
+  const activeReplyMode = resolveBotMode(botCfg);
 
-  const handleToggleGlobalBot = async () => {
-    const nextEnabled = !botCfg.autoBotEnabled;
-    const nextCfg = { ...botCfg, autoBotEnabled: nextEnabled };
-    setBotCfg(nextCfg);
-    try {
-      await saveBotSettings(nextCfg);
-    } catch {
-      // rollback if failed
-      setBotCfg(botCfg);
-    }
-  };
-
-  const handleToggleAiMode = async () => {
-    const nextAi = !botCfg.aiCounselorEnabled;
+  const handleChangeReplyMode = async (nextMode) => {
+    if (!nextMode || nextMode === activeReplyMode) return;
     const nextCfg = {
       ...botCfg,
-      aiCounselorEnabled: nextAi,
-      // Automatically ensure Auto-Bot is ON when turning AI Mode ON so real 2-way WhatsApp works immediately
-      autoBotEnabled: nextAi ? true : botCfg.autoBotEnabled
+      replyMode: nextMode,
+      autoBotEnabled: nextMode !== 'manual',
+      aiCounselorEnabled: nextMode === 'ai'
     };
     setBotCfg(nextCfg);
     try {
@@ -114,15 +108,20 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     };
     window.addEventListener('kite_db_updated', onDbUpdate);
     window.addEventListener('kite_open_whatsapp_hub', onOpenForContact);
+    // Real-time WebSocket subscription (<0.5s instant message & AI reply updates)
+    const unsubscribeRealtime = subscribeWhatsAppRealtime(() => {
+      syncHub();
+    });
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
       window.removeEventListener('kite_open_whatsapp_hub', onOpenForContact);
+      unsubscribeRealtime();
     };
   }, [syncHub]);
 
-  // Poll every 5s when Floating Window is open for instant 2-way real chat updates, 20s when minimized/closed
+  // Fallback sync every 5s when open, 15s when minimized/closed
   useEffect(() => {
-    const timer = setInterval(syncHub, isDialogOpen ? 5000 : 20000);
+    const timer = setInterval(syncHub, isDialogOpen ? 5000 : 15000);
     return () => clearInterval(timer);
   }, [syncHub, isDialogOpen]);
 
@@ -333,49 +332,59 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, flexWrap: 'wrap' }}>
-            <Tooltip title={botCfg.autoBotEnabled ? '24/7 Global Auto-Bot is ON (Click to toggle)' : 'Global Auto-Bot is OFF (Click to turn ON)'}>
-              <Chip
-                size="small"
-                icon={<SmartToyIcon sx={{ fontSize: 13, color: botCfg.autoBotEnabled ? '#4ADE80' : '#FCA5A5' }} />}
-                label={botCfg.autoBotEnabled ? 'Bot ON' : 'Bot OFF'}
-                onClick={handleToggleGlobalBot}
-                sx={{
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  bgcolor: botCfg.autoBotEnabled ? 'rgba(74, 222, 128, 0.20)' : 'rgba(239, 68, 68, 0.25)',
-                  color: '#FFFFFF',
-                  border: botCfg.autoBotEnabled ? '1px solid #4ADE80' : '1px solid #F87171',
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={activeReplyMode}
+              onChange={(_, val) => val && handleChangeReplyMode(val)}
+              aria-label="WhatsApp Reply Mode"
+              sx={{
+                bgcolor: 'rgba(15, 23, 42, 0.35)',
+                borderRadius: 2,
+                border: '1px solid rgba(255,255,255,0.18)',
+                '& .MuiToggleButton-root': {
+                  color: '#CBD5E1',
+                  border: 'none',
+                  py: 0.35,
+                  px: 1,
                   fontSize: '0.72rem',
-                  height: 26,
-                  '&:hover': { bgcolor: botCfg.autoBotEnabled ? 'rgba(74, 222, 128, 0.35)' : 'rgba(239, 68, 68, 0.40)' }
-                }}
-              />
-            </Tooltip>
-
-            <Tooltip
-              title={
-                botCfg.aiCounselorEnabled
-                  ? 'Real 2-Way AI Counselor Mode is ON (Automatically handles incoming WhatsApp chats). Click to turn OFF (Keyword Menu)'
-                  : 'AI Counselor Mode is OFF (Using Keyword Menu). Click to enable Real 2-Way AI Counselor'
-              }
+                  fontWeight: 800,
+                  textTransform: 'none',
+                  gap: 0.4,
+                  '&.Mui-selected': {
+                    color: '#FFFFFF'
+                  }
+                }
+              }}
             >
-              <Chip
-                size="small"
-                icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: botCfg.aiCounselorEnabled ? '#C7D2FE' : '#94A3B8' }} />}
-                label={botCfg.aiCounselorEnabled ? 'AI Mode: ON' : 'AI Mode: OFF'}
-                onClick={handleToggleAiMode}
+              <ToggleButton
+                value="ai"
                 sx={{
-                  cursor: 'pointer',
-                  fontWeight: 800,
-                  bgcolor: botCfg.aiCounselorEnabled ? 'rgba(99, 102, 241, 0.35)' : 'rgba(148, 163, 184, 0.22)',
-                  color: '#FFFFFF',
-                  border: botCfg.aiCounselorEnabled ? '1px solid #818CF8' : '1px solid #94A3B8',
-                  fontSize: '0.72rem',
-                  height: 26,
-                  '&:hover': { bgcolor: botCfg.aiCounselorEnabled ? 'rgba(99, 102, 241, 0.50)' : 'rgba(148, 163, 184, 0.35)' }
+                  '&.Mui-selected': { bgcolor: '#4F46E5', '&:hover': { bgcolor: '#4338CA' } }
                 }}
-              />
-            </Tooltip>
+              >
+                <AutoAwesomeIcon sx={{ fontSize: 13 }} />
+                AI Mode
+              </ToggleButton>
+              <ToggleButton
+                value="bot"
+                sx={{
+                  '&.Mui-selected': { bgcolor: '#059669', '&:hover': { bgcolor: '#047857' } }
+                }}
+              >
+                <SmartToyIcon sx={{ fontSize: 13 }} />
+                Bot Mode
+              </ToggleButton>
+              <ToggleButton
+                value="manual"
+                sx={{
+                  '&.Mui-selected': { bgcolor: '#D97706', '&:hover': { bgcolor: '#B45309' } }
+                }}
+              >
+                <PersonIcon sx={{ fontSize: 13 }} />
+                Manual
+              </ToggleButton>
+            </ToggleButtonGroup>
 
             <Button
               size="small"
@@ -475,8 +484,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             initialDraft={targetContact.draft}
             jumpNonce={targetContact.nonce}
             botCfg={botCfg}
-            onToggleAiMode={handleToggleAiMode}
-            onToggleGlobalBot={handleToggleGlobalBot}
+            onChangeReplyMode={handleChangeReplyMode}
           />
         </DialogContent>
       </Dialog>

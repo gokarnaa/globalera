@@ -58,12 +58,41 @@ async function getRemoteBotConfig() {
     s.extra_settings?.whatsappBot ||
     s.whatsapp_bot ||
     {};
+  const replyMode =
+    waBot.replyMode === 'ai' || waBot.replyMode === 'bot' || waBot.replyMode === 'manual'
+      ? waBot.replyMode
+      : waBot.autoBotEnabled === false
+        ? 'manual'
+        : waBot.aiCounselorEnabled === false
+          ? 'bot'
+          : 'ai';
   return {
-    autoBotEnabled: waBot.autoBotEnabled !== false,
-    aiCounselorEnabled: waBot.aiCounselorEnabled !== false,
+    replyMode,
+    autoBotEnabled: replyMode !== 'manual' && waBot.autoBotEnabled !== false,
+    aiCounselorEnabled: replyMode === 'ai' && waBot.aiCounselorEnabled !== false,
     geminiApiKey: (waBot.geminiApiKey || ENV_GEMINI_KEY || '').trim(),
     aiInstructions: waBot.aiInstructions || ''
   };
+}
+
+async function markMetaMessageAsRead(phoneId, messageId) {
+  if (!phoneId || !META_ACCESS_TOKEN || !messageId) return;
+  try {
+    await fetch(`https://graph.facebook.com/v19.0/${phoneId}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${META_ACCESS_TOKEN}`
+      },
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        status: 'read',
+        message_id: messageId
+      })
+    });
+  } catch {
+    // non-fatal
+  }
 }
 
 async function fetchConversationHistory(senderPhone) {
@@ -433,47 +462,43 @@ export default async function handler(req, res) {
           }
         : null;
 
-      // Always store inbound event & log for live ERP hub
-      await supabaseRest('whatsapp_inbound_events', 'POST', {
-        phone: senderPhone,
-        sender_name: senderName,
-        message_text: `${adTag}${messageText}`,
-        raw_payload: {
-          message_id: message.id,
-          type: message.type,
-          timestamp: message.timestamp,
-          referral,
-          media: mediaInfo
-        }
-      });
-
-      await logToSupabase({
-        phone: senderPhone,
-        senderName,
-        direction: 'inbound',
-        messageType: referral ? 'fb_ad_inquiry' : (message.type || 'text'),
-        status: 'received',
-        content: `${adTag}${messageText}`,
-        metaMessageId: message.id || null
-      });
-
-      // Auto-capture lead if admission intent or FB Ad
-      await autoCaptureLeadIfNeeded(senderPhone, senderName, messageText, referral);
-
-      // Check Global Bot switch & Server-side Human Takeover
-      const [botConfig, takeover] = await Promise.all([
+      // Run inbound logging, lead capture, blue-tick read receipt, bot config, takeover check & student lookup in parallel for ultra-fast response
+      const [, , , botConfig, takeover, studentCtx] = await Promise.all([
+        supabaseRest('whatsapp_inbound_events', 'POST', {
+          phone: senderPhone,
+          sender_name: senderName,
+          message_text: `${adTag}${messageText}`,
+          raw_payload: {
+            message_id: message.id,
+            type: message.type,
+            timestamp: message.timestamp,
+            referral,
+            media: mediaInfo
+          }
+        }),
+        logToSupabase({
+          phone: senderPhone,
+          senderName,
+          direction: 'inbound',
+          messageType: referral ? 'fb_ad_inquiry' : (message.type || 'text'),
+          status: 'received',
+          content: `${adTag}${messageText}`,
+          metaMessageId: message.id || null
+        }),
+        autoCaptureLeadIfNeeded(senderPhone, senderName, messageText, referral),
         getRemoteBotConfig(),
-        isHumanTakeoverActive(senderPhone)
+        isHumanTakeoverActive(senderPhone),
+        getStudentSelfServiceContext(senderPhone),
+        markMetaMessageAsRead(currentPhoneId, message.id)
       ]);
 
       if (!botConfig.autoBotEnabled || takeover.paused) {
-        return res.status(200).json({ status: 'skipped_human_takeover_or_disabled' });
+        return res.status(200).json({ status: 'skipped_human_takeover_or_disabled', replyMode: botConfig.replyMode });
       }
 
-      // Generate smart reply: Gemini Two-Way Counselor first, then Keyword Fallback
+      // Generate smart reply: AI Counselor when in 'ai' mode, or Keyword Fallback in 'bot' mode
       let botReply = null;
       if (botConfig.aiCounselorEnabled && botConfig.geminiApiKey) {
-        const studentCtx = await getStudentSelfServiceContext(senderPhone);
         botReply = await askGeminiCounselor({
           geminiKey: botConfig.geminiApiKey,
           messageText,
