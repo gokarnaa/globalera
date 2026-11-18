@@ -315,7 +315,7 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper">
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth scroll="paper" className="agreement-print-dialog">
       {/* Top Action Toolbar (Hidden in Print) */}
       <DialogTitle
         className="no-print"
@@ -397,20 +397,35 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
           html, body {
             margin: 0 !important;
             padding: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
             background: #ffffff !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          body * {
-            visibility: hidden !important;
+          #root,
+          .MuiBackdrop-root,
+          .no-print {
+            display: none !important;
           }
-          #printableAdmissionAgreement, #printableAdmissionAgreement * {
-            visibility: visible !important;
+          .agreement-print-dialog,
+          .agreement-print-dialog .MuiDialog-container,
+          .agreement-print-dialog .MuiDialog-paper,
+          .agreement-print-dialog .MuiDialogContent-root {
+            position: static !important;
+            display: block !important;
+            overflow: visible !important;
+            height: auto !important;
+            max-height: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+            background: #ffffff !important;
           }
           #printableAdmissionAgreement {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: static !important;
             width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -419,21 +434,19 @@ export default function AdmissionAgreementPrintModal({ open, onClose, admission 
           }
           .agreement-sheet {
             border: 1.5px solid #0f2e5a !important;
-            padding: 16mm 14mm !important;
+            padding: 14mm 12mm !important;
             box-sizing: border-box !important;
-            height: 275mm !important;
-            max-height: 275mm !important;
+            min-height: 268mm !important;
+            max-height: 274mm !important;
             display: flex !important;
             flex-direction: column !important;
-            justifyContent: space-between !important;
+            justify-content: space-between !important;
             page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
           .page-break {
             page-break-after: always !important;
             break-after: page !important;
-          }
-          .no-print {
-            display: none !important;
           }
         }
       `}</style>
