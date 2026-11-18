@@ -146,7 +146,12 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
   });
   results.organizations = 1;
 
-  // 2. System Settings
+  // 2. System Settings (preserve existing cloud secrets like aakashSmsToken & whatsappBot if absent locally)
+  const { data: existingSys } = await client.from('system_settings').select('company_profile').eq('id', 'GLOBAL_CONFIG').maybeSingle();
+  const existingProfile = existingSys?.company_profile || {};
+  const resolvedBot = db.settings?.whatsappBot || existingProfile.whatsappBot;
+  const resolvedSmsToken = db.settings?.aakashSmsToken || existingProfile.aakashSmsToken;
+
   await client.from('system_settings').upsert({
     id: 'GLOBAL_CONFIG',
     organization_id: orgId,
@@ -156,9 +161,10 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     contact_phone: db.settings?.contactPhone,
     email: db.settings?.email,
     company_profile: {
+      ...existingProfile,
       ...(db.settings?.companyProfile || {}),
-      ...(db.settings?.whatsappBot ? { whatsappBot: db.settings.whatsappBot } : {}),
-      ...(db.settings?.aakashSmsToken ? { aakashSmsToken: db.settings.aakashSmsToken } : {})
+      ...(resolvedBot ? { whatsappBot: resolvedBot } : {}),
+      ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
     },
     biometric_settings: db.settings?.biometricSettings || {},
     certificate_format: db.settings?.certificateNumberFormat || {},
@@ -856,7 +862,8 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
     studentTimelines,
     studentNotes,
     communicationLogs,
-    auditLogs
+    auditLogs,
+    systemSettingsRows
   ] = await Promise.all([
     fetchTable('users'),
     fetchTable('occupations'),
@@ -893,7 +900,8 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
     fetchTable('student_timelines'),
     fetchTable('student_notes'),
     fetchTable('communication_logs'),
-    fetchTable('audit_logs')
+    fetchTable('audit_logs'),
+    fetchTable('system_settings')
   ]);
 
   // If Supabase has zero records in critical tables, don't wipe out local database!
@@ -1349,7 +1357,10 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       entityId: al.entity_id,
       details: al.details,
       timestamp: al.timestamp
-    }))
+    })),
+    ...(systemSettingsRows?.[0]?.company_profile?.aakashSmsToken
+      ? { settings: { aakashSmsToken: systemSettingsRows[0].company_profile.aakashSmsToken } }
+      : {})
   };
 
   return cloudDb;

@@ -770,13 +770,21 @@ export async function saveBotSettings(nextBot) {
       })
       .eq('id', orgData[0].id);
   }
+  const preservedSmsToken =
+    data[0].company_profile?.aakashSmsToken ||
+    orgData?.[0]?.settings?.aakashSmsToken ||
+    '';
+
   await supabase.from('communication_logs').insert({
     id: `WACFG-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     organization_id: 'ORG-GLOBALERA-01',
     channel: 'WA_Config_Sync',
     recipient_name: 'System Bot Config',
     recipient_phone: 'SYSTEM',
-    message: JSON.stringify(merged),
+    message: JSON.stringify({
+      ...merged,
+      ...(preservedSmsToken ? { aakashSmsToken: preservedSmsToken } : {})
+    }),
     status: 'sent',
     sent_at: new Date().toISOString()
   });
