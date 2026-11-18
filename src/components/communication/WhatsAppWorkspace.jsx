@@ -839,7 +839,14 @@ export default function WhatsAppWorkspace({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search name, phone, message, course..."
-            sx={{ '& input': { fontSize: { xs: '16px', md: '0.875rem' } } }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 999,
+                bgcolor: '#F8FAFC',
+                '& fieldset': { borderColor: '#E2E8F0' }
+              },
+              '& input': { fontSize: { xs: '16px', md: '0.875rem' } }
+            }}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -864,13 +871,13 @@ export default function WhatsAppWorkspace({
           )}
         </Box>
 
-        {/* Horizontal Scrollable Filter Pills with Arrows */}
+        {/* Horizontal Scrollable Filter Pills */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25 }}>
           <IconButton
             size="small"
             aria-label="Scroll filters left"
             onClick={() => pillScrollRef.current?.scrollBy({ left: -120, behavior: 'smooth' })}
-            sx={{ p: 0.25, color: '#64748B' }}
+            sx={{ p: 0.25, color: '#64748B', display: { xs: 'none', md: 'inline-flex' } }}
           >
             <ChevronLeftIcon sx={{ fontSize: 17 }} />
           </IconButton>
@@ -888,8 +895,9 @@ export default function WhatsAppWorkspace({
               flex: 1,
               py: 0.25,
               scrollBehavior: 'smooth',
-              '&::-webkit-scrollbar': { height: 3 },
-              '&::-webkit-scrollbar-thumb': { bgcolor: '#CBD5E1', borderRadius: 99 }
+              WebkitOverflowScrolling: 'touch',
+              scrollbarWidth: 'none',
+              '&::-webkit-scrollbar': { display: 'none' }
             }}
           >
             {['All', 'Unread', 'WhatsApp', 'Messenger', 'FB Comments', 'FB Ads', 'Pinned', 'Due / Today', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
@@ -916,7 +924,7 @@ export default function WhatsAppWorkspace({
             size="small"
             aria-label="Scroll filters right"
             onClick={() => pillScrollRef.current?.scrollBy({ left: 120, behavior: 'smooth' })}
-            sx={{ p: 0.25, color: '#64748B' }}
+            sx={{ p: 0.25, color: '#64748B', display: { xs: 'none', md: 'inline-flex' } }}
           >
             <ChevronRightIcon sx={{ fontSize: 17 }} />
           </IconButton>
@@ -1787,8 +1795,9 @@ export default function WhatsAppWorkspace({
                       borderRadius: isInternalNote
                         ? 2.5
                         : isOutbound
-                        ? '14px 14px 4px 14px'
-                        : '14px 14px 14px 4px',
+                        ? '16px 16px 4px 16px'
+                        : '16px 16px 16px 4px',
+                      boxShadow: isInternalNote ? 'none' : '0 1px 2px rgba(15, 23, 42, 0.08)',
                       border: isInternalNote
                         ? '1px dashed #F59E0B'
                         : isOutbound

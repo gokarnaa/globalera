@@ -329,12 +329,14 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             py: { xs: 0.85, sm: 1.15 },
             borderBottom: '2px solid #16A34A',
             display: 'flex',
-            alignItems: 'center',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'stretch', md: 'center' },
             justifyContent: 'space-between',
-            gap: { xs: 0.75, sm: 1.25 }
+            gap: { xs: 0.75, md: 1.25 }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.25 }, minWidth: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, minWidth: 0 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.25 }, minWidth: 0, flex: 1 }}>
             {(isMaximized || isMobile) && (
               <Button
                 size="small"
@@ -387,16 +389,39 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               />
             </Box>
             <Box sx={{ minWidth: 0 }}>
-              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2 }} noWrap>
-                WhatsApp Live Chat & Workflow Hub
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#FFFFFF', lineHeight: 1.2, fontSize: { xs: '0.92rem', sm: '1rem' } }} noWrap>
+                {isMobile ? 'Global Era Hub' : 'WhatsApp Live Chat & Workflow Hub'}
               </Typography>
-              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', display: 'block' }} noWrap>
+              <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.78)', display: { xs: 'none', sm: 'block' } }} noWrap>
                 +977 980-3614574 • Synced with Full WhatsApp Tracking Section
               </Typography>
             </Box>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0, flexWrap: 'wrap' }}>
+          {/* Mobile-only top-right Bell + Close so Row 1 stays clean */}
+          {isMobile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, flexShrink: 0 }}>
+              <IconButton
+                size="small"
+                aria-label={soundMuted ? 'Unmute chime' : 'Mute chime'}
+                onClick={() => setSoundMuted((prev) => !prev)}
+                sx={{ color: soundMuted ? '#FCA5A5' : '#86EFAC', bgcolor: 'rgba(255,255,255,0.10)' }}
+              >
+                {soundMuted ? <NotificationsOffIcon fontSize="small" /> : <NotificationsActiveIcon fontSize="small" />}
+              </IconButton>
+              <IconButton
+                size="small"
+                aria-label="Close WhatsApp Hub"
+                onClick={() => setWindowMode('closed')}
+                sx={{ color: '#FFFFFF', bgcolor: 'rgba(239,68,68,0.28)' }}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: { xs: 'space-between', md: 'flex-end' }, gap: 0.75, flexShrink: 0, flexWrap: 'nowrap' }}>
             <ToggleButtonGroup
               size="small"
               exclusive
@@ -404,18 +429,21 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               onChange={(_, val) => val && handleChangeReplyMode(val)}
               aria-label="WhatsApp Reply Mode"
               sx={{
+                flex: { xs: 1, md: 'initial' },
                 bgcolor: 'rgba(15, 23, 42, 0.35)',
                 borderRadius: 2,
                 border: '1px solid rgba(255,255,255,0.18)',
                 '& .MuiToggleButton-root': {
+                  flex: { xs: 1, md: 'initial' },
                   color: '#CBD5E1',
                   border: 'none',
                   py: 0.35,
-                  px: 1,
-                  fontSize: '0.72rem',
+                  px: { xs: 0.6, sm: 1 },
+                  fontSize: { xs: '0.7rem', sm: '0.72rem' },
                   fontWeight: 800,
                   textTransform: 'none',
-                  gap: 0.4,
+                  gap: 0.35,
+                  whiteSpace: 'nowrap',
                   '&.Mui-selected': {
                     color: '#FFFFFF'
                   }
@@ -429,7 +457,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 }}
               >
                 <AutoAwesomeIcon sx={{ fontSize: 13 }} />
-                AI Mode
+                {isMobile ? 'AI' : 'AI Mode'}
               </ToggleButton>
               <ToggleButton
                 value="bot"
@@ -438,7 +466,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 }}
               >
                 <SmartToyIcon sx={{ fontSize: 13 }} />
-                Bot Mode
+                {isMobile ? 'Bot' : 'Bot Mode'}
               </ToggleButton>
               <ToggleButton
                 value="manual"
@@ -461,13 +489,15 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 color: '#FFFFFF',
                 fontWeight: 800,
                 '&:hover': { bgcolor: '#4338CA' },
-                fontSize: '0.75rem',
+                fontSize: { xs: '0.7rem', sm: '0.75rem' },
                 py: 0.45,
-                px: 1.25,
-                borderRadius: 2
+                px: { xs: 1, sm: 1.25 },
+                borderRadius: 2,
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}
             >
-              AI Sandbox
+              {isMobile ? 'Sandbox' : 'AI Sandbox'}
             </Button>
 
             {onOpenFullModule && (
@@ -491,6 +521,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </Button>
             )}
 
+            {!isMobile && (
             <Tooltip title={soundMuted ? 'Unmute message chime' : 'Mute message chime'}>
               <IconButton
                 size="small"
@@ -501,6 +532,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 {soundMuted ? <NotificationsOffIcon fontSize="small" /> : <NotificationsActiveIcon fontSize="small" />}
               </IconButton>
             </Tooltip>
+            )}
 
             {!isMobile && (
               <Tooltip title="Minimize to dock">
@@ -528,6 +560,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </Tooltip>
             )}
 
+            {!isMobile && (
             <Tooltip title="Close">
               <IconButton
                 size="small"
@@ -538,6 +571,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Tooltip>
+            )}
           </Box>
         </DialogTitle>
 
