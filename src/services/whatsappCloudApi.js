@@ -64,7 +64,7 @@ export function formatToWhatsAppRecipient(phone) {
  * Send WhatsApp Message via Meta Cloud API
  * POST https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages
  */
-export async function sendMetaWhatsAppMessage({ to, type = 'text', text, template, document }) {
+export async function sendMetaWhatsAppMessage({ to, type = 'text', text, template, document, messageType = null }) {
   const settings = getWhatsAppSettings();
   const recipient = formatToWhatsAppRecipient(to);
 
@@ -122,7 +122,7 @@ export async function sendMetaWhatsAppMessage({ to, type = 'text', text, templat
     logWhatsAppMessage({
       phone: recipient,
       direction: 'outbound',
-      messageType: type,
+      messageType: messageType || type,
       status: 'failed',
       content: text || JSON.stringify(payload),
       metaResponse: resData
@@ -134,7 +134,7 @@ export async function sendMetaWhatsAppMessage({ to, type = 'text', text, templat
   logWhatsAppMessage({
     phone: recipient,
     direction: 'outbound',
-    messageType: type,
+    messageType: messageType || type,
     status: 'sent',
     content: text || JSON.stringify(payload),
     metaMessageId: messageId,
@@ -179,7 +179,12 @@ export async function logWhatsAppMessage(logEntry) {
         await supabase.from('communication_logs').insert({
           id: `WA-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
           organization_id: 'ORG-GLOBALERA-01',
-          channel: logEntry.direction === 'inbound' ? 'WhatsApp_Inbound' : 'WhatsApp_Outbound',
+          channel:
+            logEntry.direction === 'inbound'
+              ? 'WhatsApp_Inbound'
+              : logEntry.messageType === 'auto_bot'
+                ? 'WhatsApp_Bot'
+                : 'WhatsApp_Outbound',
           recipient_name: logEntry.senderName || 'WhatsApp Contact',
           recipient_phone: normalizePhoneKey(logEntry.phone) || logEntry.phone,
           message: logEntry.content || '',

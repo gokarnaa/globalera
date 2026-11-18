@@ -1657,7 +1657,8 @@ export default function WhatsAppWorkspace({
                     await sendMetaWhatsAppMessage({
                       to: activeThread.phone,
                       type: 'text',
-                      text: aiText
+                      text: aiText,
+                      messageType: 'auto_bot'
                     });
                     setSendFeedback({ type: 'success', text: 'AI Counselor reply sent directly to WhatsApp!' });
                     onRefresh?.();
