@@ -604,7 +604,10 @@ export default function WhatsAppWorkspace({
           channel: 'SMS',
           messageText: textToSend
         });
-        setSendFeedback({ type: 'success', text: `SMS sent via Aakash SMS to ${activeThread.name} (${activeThread.phone}).` });
+        const cleanDigits = String(activeThread.phone || '').replace(/\D/g, '').slice(-10);
+        const nameHasPhone = cleanDigits && String(activeThread.name || '').replace(/\D/g, '').includes(cleanDigits);
+        const recipientLabel = nameHasPhone ? activeThread.name : `${activeThread.name} (${activeThread.phone})`;
+        setSendFeedback({ type: 'success', text: `SMS sent via Aakash SMS to ${recipientLabel}.` });
       } else if (activeThread.channelPlatform === 'messenger' || activeThread.channelPlatform === 'fb_comment') {
         await sendFacebookReply({
           targetId: activeThread.phone,
