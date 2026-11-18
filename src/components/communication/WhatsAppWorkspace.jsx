@@ -77,7 +77,8 @@ import {
   addInternalStaffNote,
   getWhatsAppTemplates,
   renderWhatsAppTemplate,
-  suggestGeminiReply
+  suggestGeminiReply,
+  cleanWhatsAppMarkdown
 } from '../../services/whatsappCloudApi';
 
 const ROLE_COLORS = {
@@ -1383,7 +1384,7 @@ export default function WhatsAppWorkspace({
                   )}
                   {m.messageType === 'auto_bot' && (
                     <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, color: '#047857', fontSize: '0.66rem', mb: 0.25 }}>
-                      🤖 Auto-Bot Reply
+                      प्राविधिक स्कुल काउन्सिलर (जोरपाटी)
                     </Typography>
                   )}
                   {m.messageType === 'fb_ad_inquiry' && (
@@ -1428,7 +1429,7 @@ export default function WhatsAppWorkspace({
                     </Button>
                   )}
                   <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: '0.84rem', lineHeight: 1.45 }}>
-                    {m.content}
+                    {cleanWhatsAppMarkdown(m.content)}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 0.5, mt: 0.4 }}>
                     <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.64rem' }}>

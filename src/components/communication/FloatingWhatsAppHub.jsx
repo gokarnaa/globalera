@@ -332,7 +332,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               />
             </Tooltip>
 
-            <Tooltip title="AI Counselor Mode: Gemini 3 Flash is active (Click to test Sandbox)">
+            <Tooltip title="AI Counselor Mode: प्राविधिक स्कुल काउन्सिलर सक्रिय छ (Click to test Sandbox)">
               <Chip
                 size="small"
                 icon={<AutoAwesomeIcon sx={{ fontSize: 13, color: '#C7D2FE' }} />}

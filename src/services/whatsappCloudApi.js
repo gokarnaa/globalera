@@ -643,6 +643,17 @@ export function getBotSettings() {
   };
 }
 
+export function cleanWhatsAppMarkdown(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/^#{1,6}\s*(.*?)$/gm, '*$1*')
+    .replace(/\*\*\*(.*?)\*\*\*/g, '*$1*')
+    .replace(/\*\*(.*?)\*\*/g, '*$1*')
+    .replace(/```[a-z]*\n?/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 export async function fetchRemoteBotSettings() {
   try {
     const supabase = getSupabaseClient();
@@ -757,7 +768,7 @@ export async function suggestGeminiReply({ contactName, role, messages = [], stu
     `1. Always reply in natural, polite Nepali (Devanagari). The official institute name MUST be spelled: "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (NEVER "ग्लोबल इरा").\n` +
     `2. Understand and handle Romanized Nepali (e.g. "hlo", "k k training hunchah", "kati lagchha", "shift baje ho", "admission garna k k chaincha", "bholi aauchhu") seamlessly.\n` +
     `3. ALWAYS format phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and hours/months using English digits (0-9).\n` +
-    `4. Format replies cleanly with WhatsApp bolding (*...*) and clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
+    `4. STRICT WHATSAPP FORMATTING: Meta WhatsApp ONLY supports single asterisks (*bold*) for bold text. NEVER use markdown double asterisks (**bold**). E.g. write *लोकेसन:*, *सम्पर्क:*, *शुल्क:* with single asterisks. Never use markdown headings like ###. Use clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
     `5. 3 Major CTEVT Accredited Courses (390 Hours / 3 Months):\n` +
     `   * 🏥 *केयरगिभर तालिम (Caregiver)* — वृद्धवृद्धा/बिरामी स्याहार, First Aid, Vital Signs & Adult CPR प्रयोगात्मक अभ्यास।\n` +
     `   * 👗 *टेलरिङ तथा फेसन डिजाइनिङ* — व्यक्तिगत Juki सिलाइ मेसिन ग्यारेन्टी, आधुनिक सिलाइ र कटिङ।\n` +
@@ -784,14 +795,14 @@ export async function suggestGeminiReply({ contactName, role, messages = [], stu
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
           })
         }
       );
       if (res.ok) {
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        if (text) return text;
+        if (text) return cleanWhatsAppMarkdown(text);
       } else {
         const errData = await res.json().catch(() => ({}));
         lastError = errData?.error?.message || `HTTP ${res.status}`;
@@ -822,7 +833,7 @@ export async function simulateGeminiCounselorTurn({ messages = [], userInput = '
     `1. Always reply in natural, polite Nepali (Devanagari). The official institute name MUST be spelled: "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (NEVER "ग्लोबल इरा").\n` +
     `2. Understand and handle Romanized Nepali (e.g. "hlo", "k k training hunchah", "kati lagchha", "shift baje ho", "admission garna k k chaincha", "bholi aauchhu") seamlessly.\n` +
     `3. ALWAYS format phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and hours/months using English digits (0-9).\n` +
-    `4. Format replies cleanly with WhatsApp bolding (*...*) and clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
+    `4. STRICT WHATSAPP FORMATTING: Meta WhatsApp ONLY supports single asterisks (*bold*) for bold text. NEVER use markdown double asterisks (**bold**). E.g. write *लोकेसन:*, *सम्पर्क:*, *शुल्क:* with single asterisks. Never use markdown headings like ###. Use clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
     `5. 3 Major CTEVT Accredited Courses (390 Hours / 3 Months):\n` +
     `   * 🏥 *केयरगिभर तालिम (Caregiver)* — वृद्धवृद्धा/बिरामी स्याहार, First Aid, Vital Signs & Adult CPR प्रयोगात्मक अभ्यास।\n` +
     `   * 👗 *टेलरिङ तथा फेसन डिजाइनिङ* — व्यक्तिगत Juki सिलाइ मेसिन ग्यारेन्टी, आधुनिक सिलाइ र कटिङ।\n` +
@@ -850,14 +861,14 @@ export async function simulateGeminiCounselorTurn({ messages = [], userInput = '
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
           })
         }
       );
       if (res.ok) {
         const data = await res.json();
         const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        if (text) return { reply: text, model };
+        if (text) return { reply: cleanWhatsAppMarkdown(text), model };
       } else {
         const errData = await res.json().catch(() => ({}));
         lastError = errData?.error?.message || `HTTP ${res.status}`;

@@ -12,13 +12,13 @@ import {
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SendIcon from '@mui/icons-material/Send';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import { simulateGeminiCounselorTurn } from '../../services/whatsappCloudApi';
+import { simulateGeminiCounselorTurn, cleanWhatsAppMarkdown } from '../../services/whatsappCloudApi';
 
 export default function AiCounselorSandbox({ customInstructions = '', inDialog = false }) {
   const [messages, setMessages] = useState([
     {
       role: 'model',
-      text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ AI Counselor हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
+      text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ काउन्सिलर हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
     }
   ]);
   const [input, setInput] = useState('');
@@ -59,7 +59,7 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
         userInput: text,
         customInstructions
       });
-      setMessages((prev) => [...prev, { role: 'model', text: res.reply, model: res.model }]);
+      setMessages((prev) => [...prev, { role: 'model', text: cleanWhatsAppMarkdown(res.reply), model: res.model }]);
     } catch (err) {
       setError(err?.message || 'Failed to get AI Counselor response.');
     } finally {
@@ -71,7 +71,7 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
     setMessages([
       {
         role: 'model',
-        text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ AI Counselor हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
+        text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ काउन्सिलर हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
       }
     ]);
     setLeadDetected(null);
@@ -166,8 +166,8 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
                 boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
               }}
             >
-              <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, mb: 0.25, color: isUser ? '#94A3B8' : '#4F46E5' }}>
-                {isUser ? 'Visitor (You)' : `AI Counselor${m.model ? ` (${m.model})` : ''}`}
+              <Typography variant="caption" sx={{ display: 'block', fontWeight: 800, mb: 0.25, color: isUser ? '#94A3B8' : '#15803D' }}>
+                {isUser ? 'Visitor (विद्यार्थी / सेवाग्राही)' : 'प्राविधिक स्कुल काउन्सिलर (जोरपाटी)'}
               </Typography>
               <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.5, fontSize: '0.85rem' }}>
                 {m.text}
@@ -177,9 +177,9 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
         })}
         {loading && (
           <Box sx={{ alignSelf: 'flex-start', p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 1 }}>
-            <CircularProgress size={14} sx={{ color: '#4F46E5' }} />
-            <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 700 }}>
-              Gemini AI Counselor is thinking and drafting reply...
+            <CircularProgress size={14} sx={{ color: '#16A34A' }} />
+            <Typography variant="caption" sx={{ color: '#15803D', fontWeight: 700 }}>
+              प्राविधिक स्कुल काउन्सिलर टाइप गर्दै हुनुहुन्छ... (Typing...)
             </Typography>
           </Box>
         )}

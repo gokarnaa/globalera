@@ -39,6 +39,17 @@ function last10(phone) {
   return d.length > 10 ? d.slice(-10) : d;
 }
 
+function cleanWhatsAppMarkdown(text) {
+  if (!text || typeof text !== 'string') return '';
+  return text
+    .replace(/^#{1,6}\s*(.*?)$/gm, '*$1*')
+    .replace(/\*\*\*(.*?)\*\*\*/g, '*$1*')
+    .replace(/\*\*(.*?)\*\*/g, '*$1*')
+    .replace(/```[a-z]*\n?/gi, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
 async function getRemoteBotConfig() {
   const rows = await supabaseRest('system_settings?select=*&limit=1', 'GET');
   const s = Array.isArray(rows) && rows[0] ? rows[0] : {};
@@ -227,7 +238,8 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
     `   - Understand and handle Romanized Nepali (e.g. "hlo", "k k training hunchah", "kati lagchha", "shift baje ho", "admission garna k k chaincha", "bholi aauchhu") seamlessly and reply politely in Devanagari.\n` +
     `   - ALWAYS format phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and hours/months using English digits (0-9).\n` +
     `2. Formatting & Completeness:\n` +
-    `   - Format your replies beautifully with WhatsApp bolding (*...*) and clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍).\n` +
+    `   - STRICT WHATSAPP FORMATTING: Meta WhatsApp ONLY supports single asterisks (*bold*) for bold text. Double asterisks (**bold**) are INVALID and broken in WhatsApp. You MUST NEVER use double asterisks (**). Always write *लोकेसन:*, *सम्पर्क:*, *शुल्क:* with single asterisks. Never use markdown headings like ###.\n` +
+    `   - Clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍).\n` +
     `   - NEVER cut off or stop mid-sentence. Always finish the reply completely with a warm, helpful closing and contact numbers.\n` +
     `3. Core Verified Facts:\n` +
     `   - 3 Major CTEVT Accredited Courses (each 390 Hours / 3 Months):\n` +
@@ -267,14 +279,14 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.4, maxOutputTokens: 1200 }
+            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
           })
         }
       );
       if (!res.ok) continue;
       const data = await res.json();
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-      if (reply) return reply;
+      if (reply) return cleanWhatsAppMarkdown(reply);
     } catch (err) {
       console.debug(`[Gemini Counselor Fallback ${model}]:`, err.message);
     }
@@ -476,6 +488,7 @@ export default async function handler(req, res) {
       if (!botReply) {
         botReply = buildKeywordFallbackReply(messageText, referral);
       }
+      botReply = cleanWhatsAppMarkdown(botReply);
 
       if (currentPhoneId && META_ACCESS_TOKEN) {
         try {

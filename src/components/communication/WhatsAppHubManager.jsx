@@ -147,7 +147,7 @@ export default function WhatsAppHubManager() {
       const res = await testGeminiConnection(botCfg.geminiApiKey);
       setBotSavedMsg({
         severity: 'success',
-        text: `Gemini AI connected successfully (${res.model}). Click "Save Bot & AI Settings" to activate.`
+        text: `प्राविधिक स्कुल AI Counselor connected successfully (${res.model}). Click "Save Bot & AI Settings" to activate in Real Mode.`
       });
     } catch (err) {
       setBotSavedMsg({
@@ -677,7 +677,7 @@ export default function WhatsAppHubManager() {
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <SmartToyIcon sx={{ color: '#4F46E5' }} />
                   <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#1E1B4B' }}>
-                    Auto-Bot &amp; Gemini AI Counselor
+                    Auto-Bot &amp; AI Admission Counselor
                   </Typography>
                 </Box>
                 <FormControlLabel
@@ -688,7 +688,7 @@ export default function WhatsAppHubManager() {
                       onChange={(e) => setBotCfg((prev) => ({ ...prev, autoBotEnabled: e.target.checked }))}
                     />
                   }
-                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Auto-Bot Enabled (24/7 Replies)</Typography>}
+                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Auto-Bot Enabled (24/7 Real Replies)</Typography>}
                 />
                 <FormControlLabel
                   control={
@@ -696,11 +696,27 @@ export default function WhatsAppHubManager() {
                       size="small"
                       color="secondary"
                       checked={Boolean(botCfg.aiCounselorEnabled)}
-                      onChange={(e) => setBotCfg((prev) => ({ ...prev, aiCounselorEnabled: e.target.checked }))}
+                      onChange={(e) => {
+                        const nextVal = e.target.checked;
+                        setBotCfg((prev) => ({
+                          ...prev,
+                          aiCounselorEnabled: nextVal,
+                          autoBotEnabled: nextVal ? true : prev.autoBotEnabled
+                        }));
+                      }}
                     />
                   }
-                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>Gemini 2.5 Flash AI Counselor</Typography>}
+                  label={<Typography variant="body2" sx={{ fontWeight: 700 }}>AI Admission Counselor (प्राविधिक स्कुल काउन्सिलर)</Typography>}
                 />
+                {botCfg.autoBotEnabled && botCfg.aiCounselorEnabled ? (
+                  <Alert severity="success" sx={{ py: 0.5, fontSize: '0.78rem' }}>
+                    🟢 <strong>Real Mode Active:</strong> +977 980-3614574 मा आउने WhatsApp सन्देशहरूलाई काउन्सिलरले २४/७ स्वतः उत्तर दिनेछ।
+                  </Alert>
+                ) : (
+                  <Alert severity="warning" sx={{ py: 0.5, fontSize: '0.78rem' }}>
+                    ⚠️ <strong>Sandbox Only:</strong> Auto-Bot बन्द छ। बाहिरको रियल WhatsApp मा चल्न Auto-Bot Enabled लाई ON राख्नुहोस्।
+                  </Alert>
+                )}
                 <TextField
                   size="small"
                   type="password"
@@ -741,7 +757,7 @@ export default function WhatsAppHubManager() {
                     onClick={handleTestGemini}
                     sx={{ fontWeight: 700 }}
                   >
-                    {botTesting ? 'Testing AI...' : 'Test Gemini AI'}
+                    {botTesting ? 'Testing AI...' : 'Test AI Connection'}
                   </Button>
                 </Stack>
               </Paper>
