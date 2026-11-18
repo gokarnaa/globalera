@@ -259,6 +259,7 @@ export default function WhatsAppWorkspace({
   const [optimisticReadSet, setOptimisticReadSet] = useState(() => new Set());
   const [optimisticMessagesMap, setOptimisticMessagesMap] = useState({});
   const [botModesMap, setBotModesMap] = useState({});
+  const [adHocThreads, setAdHocThreads] = useState([]);
   const [visibleLimit, setVisibleLimit] = useState(60);
 
   const messagesEndRef = useRef(null);
@@ -298,9 +299,14 @@ export default function WhatsAppWorkspace({
     });
   }, [threads]);
 
-  // Compute enriched threads with instant optimistic updates
+  // Compute enriched threads with instant optimistic updates + ad-hoc dialer threads
   const computedThreads = useMemo(() => {
-    return threads.map((t) => {
+    const existingKeys = new Set(threads.map((t) => t.key));
+    const mergedSource = [
+      ...adHocThreads.filter((a) => !existingKeys.has(a.key)),
+      ...threads
+    ];
+    return mergedSource.map((t) => {
       const isRead = optimisticReadSet.has(t.key);
       const unreadCount = isRead ? 0 : t.unreadCount;
       const rawOptMsgs = optimisticMessagesMap[t.key] || [];
@@ -320,7 +326,7 @@ export default function WhatsAppWorkspace({
         lastTimestamp: lastMsg ? (lastMsg.createdAt || lastMsg.timestamp) : t.lastTimestamp
       };
     });
-  }, [threads, optimisticReadSet, optimisticMessagesMap, botModesMap]);
+  }, [threads, adHocThreads, optimisticReadSet, optimisticMessagesMap, botModesMap]);
 
   useEffect(() => {
     if (initialPhone) {
@@ -342,8 +348,46 @@ export default function WhatsAppWorkspace({
     }
   }, [computedThreads, selectedKey, isMobile]);
 
+  const searchDigits = useMemo(() => {
+    const d = searchQuery.replace(/\D/g, '');
+    const ten = d.length >= 10 ? d.slice(-10) : '';
+    return /^9[678]\d{8}$/.test(ten) ? ten : '';
+  }, [searchQuery]);
+
+  const canStartDirectChat = useMemo(() => {
+    if (!searchDigits) return false;
+    return !computedThreads.some(
+      (t) => (t.channelPlatform || 'whatsapp') === 'whatsapp' && String(t.phone || '').replace(/\D/g, '').slice(-10) === searchDigits
+    );
+  }, [searchDigits, computedThreads]);
+
+  const handleStartDirectNumberChat = (digits, defaultChannel = 'SMS') => {
+    if (!digits) return;
+    const newThread = {
+      key: digits,
+      phone: digits,
+      channelPlatform: 'whatsapp',
+      name: `+977 ${digits}`,
+      role: 'New Inquiry',
+      entity: null,
+      messages: [],
+      adReferral: null,
+      unreadCount: 0,
+      botPaused: false,
+      pinned: false,
+      assignedTo: '',
+      lastMessage: 'New direct chat',
+      lastTimestamp: new Date().toISOString()
+    };
+    setAdHocThreads((prev) => (prev.some((p) => p.key === digits) ? prev : [newThread, ...prev]));
+    setSelectedKey(digits);
+    setSendChannel(defaultChannel);
+    if (isMobile) setMobileView('chat');
+  };
+
   const filteredThreads = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
+    const qDigits = searchQuery.replace(/\D/g, '');
     const todayStr = new Date().toISOString().slice(0, 10);
     return computedThreads.filter((t) => {
       if (roleFilter === 'Unread' && t.unreadCount === 0) return false;
@@ -359,11 +403,18 @@ export default function WhatsAppWorkspace({
       if (roleFilter === 'FB Ads' && !t.adReferral && !t.messages.some((m) => m.messageType === 'fb_ad_inquiry')) return false;
       if (['Lead', 'Student', 'Trainer', 'Employer'].includes(roleFilter) && t.role !== roleFilter) return false;
       if (!q) return true;
+      const phoneDigits = String(t.phone || '').replace(/\D/g, '');
+      const hasMessageMatch = (t.messages || []).some((m) => (m.content || '').toLowerCase().includes(q));
       return (
         (t.name || '').toLowerCase().includes(q) ||
         (t.phone || '').toLowerCase().includes(q) ||
+        (qDigits.length >= 3 && phoneDigits.includes(qDigits)) ||
         (t.entity?.tgid || '').toLowerCase().includes(q) ||
-        (t.lastMessage || '').toLowerCase().includes(q)
+        (t.entity?.course || '').toLowerCase().includes(q) ||
+        (t.assignedTo || '').toLowerCase().includes(q) ||
+        (t.role || '').toLowerCase().includes(q) ||
+        (t.lastMessage || '').toLowerCase().includes(q) ||
+        hasMessageMatch
       );
     });
   }, [computedThreads, roleFilter, searchQuery]);
@@ -408,6 +459,59 @@ export default function WhatsAppWorkspace({
     };
   }, [activeThread, liveDb]);
 
+  // 24-hour WhatsApp customer-service window indicator
+  const waWindowStatus = useMemo(() => {
+    if (!activeThread || (activeThread.channelPlatform && activeThread.channelPlatform !== 'whatsapp')) {
+      return null;
+    }
+    const inboundMsgs = (activeThread.messages || []).filter((m) => m.direction === 'inbound' && m.createdAt);
+    if (inboundMsgs.length === 0) return { isOpen: false, label: '24h Expired • Use Template or SMS' };
+    const latestInbound = inboundMsgs.reduce((max, m) => Math.max(max, new Date(m.createdAt).getTime()), 0);
+    const isOpen = Date.now() - latestInbound <= 24 * 60 * 60 * 1000;
+    return isOpen
+      ? { isOpen: true, label: '24h Open' }
+      : { isOpen: false, label: '24h Expired • Use Template or SMS' };
+  }, [activeThread]);
+
+  // Auto-detect Nepal 10-digit phone number inside FB Messenger / Comment messages
+  const detectedFbPhone = useMemo(() => {
+    if (!activeThread || !['messenger', 'fb_comment'].includes(activeThread.channelPlatform)) return '';
+    if (activeThread.role === 'Lead' || activeThread.role === 'Student') return '';
+    const msgs = [...(activeThread.messages || [])].reverse();
+    for (const m of msgs) {
+      const match = String(m.content || '').match(/(?:\+?977[\s-]?)?(9[678]\d{8})\b/);
+      if (match && match[1]) {
+        const digits = match[1];
+        const exists =
+          (liveDb.leads || []).some((l) => String(l.phone || '').replace(/\D/g, '').slice(-10) === digits) ||
+          (liveDb.students || []).some((s) => String(s.phone || '').replace(/\D/g, '').slice(-10) === digits);
+        if (!exists) return digits;
+      }
+    }
+    return '';
+  }, [activeThread, liveDb]);
+
+  const handleSaveDetectedFbLead = (phoneDigits) => {
+    if (!phoneDigits || !activeThread) return;
+    const db = loadDB();
+    const newLead = {
+      id: `LD-${Date.now()}`,
+      name: activeThread.name && activeThread.name !== 'FB Visitor' ? activeThread.name : `FB Lead ${phoneDigits.slice(-4)}`,
+      phone: phoneDigits,
+      course: '',
+      source: activeThread.channelPlatform === 'fb_comment' ? 'Facebook Comment' : 'Facebook Messenger',
+      status: 'New',
+      stage: 'New Lead',
+      priority: 'High',
+      notes: `Captured from ${activeThread.channelPlatform === 'fb_comment' ? 'FB Comment' : 'FB Messenger'} (${activeThread.phone})`,
+      createdAt: new Date().toISOString().slice(0, 10)
+    };
+    saveDB({ ...db, leads: [newLead, ...(db.leads || [])] });
+    setWorkflowSavedMsg(`Saved ${newLead.name} (${phoneDigits}) as Lead!`);
+    setTimeout(() => setWorkflowSavedMsg(''), 3500);
+    onRefresh?.();
+  };
+
   const handleSavePaymentFromHub = (newPayment) => {
     const currentDb = loadDB();
     const nextPayments = [newPayment, ...(currentDb.payments || [])];
@@ -451,10 +555,11 @@ export default function WhatsAppWorkspace({
     if (isMobile) setMobileView('chat');
   };
 
-  const handleSend = async (customText = null) => {
+  const handleSend = async (customText = null, opts = {}) => {
     const textToSend = (customText ?? draft).trim();
     if (!textToSend || !activeThread) return;
 
+    const effectiveChannel = opts.forceChannel || sendChannel;
     if (!customText) setDraft('');
 
     // Instant 1ms optimistic message preview in chat
@@ -464,7 +569,7 @@ export default function WhatsAppWorkspace({
       key: activeThread.key,
       phone: activeThread.phone,
       direction: 'outbound',
-      messageType: sendChannel === 'Note' ? 'internal_note' : (sendChannel === 'SMS' ? 'sms' : 'text'),
+      messageType: effectiveChannel === 'Note' ? 'internal_note' : (effectiveChannel === 'SMS' ? 'sms' : 'text'),
       status: 'sent',
       content: textToSend,
       createdAt: new Date().toISOString()
@@ -480,12 +585,12 @@ export default function WhatsAppWorkspace({
     setSendFeedback(null);
     try {
       const currentDb = loadDB();
-      if (sendChannel === 'Note' && !customText) {
+      if (effectiveChannel === 'Note' && (!customText || opts.forceChannel === 'Note')) {
         addInternalStaffNote({ phone: activeThread.phone, note: textToSend, author: 'Staff' });
         if (onRefresh) onRefresh();
         return;
       }
-      if (sendChannel === 'SMS' && !customText) {
+      if (effectiveChannel === 'SMS' && (!customText || opts.forceChannel === 'SMS')) {
         await sendAakashSmsReal({
           to: activeThread.phone,
           text: textToSend,
@@ -717,13 +822,20 @@ export default function WhatsAppWorkspace({
             size="small"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search name, phone, TGID..."
+            placeholder="Search name, phone, message, course..."
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
                   <SearchIcon sx={{ fontSize: 17, color: '#64748B' }} />
                 </InputAdornment>
-              )
+              ),
+              endAdornment: searchQuery ? (
+                <InputAdornment position="end">
+                  <IconButton size="small" aria-label="Clear search" onClick={() => setSearchQuery('')}>
+                    <CloseIcon sx={{ fontSize: 15, color: '#64748B' }} />
+                  </IconButton>
+                </InputAdornment>
+              ) : null
             }}
           />
           {onRefresh && (
@@ -796,7 +908,36 @@ export default function WhatsAppWorkspace({
 
       {/* Contact List */}
       <Box sx={{ flex: 1, overflowY: 'auto' }}>
-        {filteredThreads.length === 0 ? (
+        {canStartDirectChat && (
+          <Box sx={{ p: 1.25, borderBottom: '1px solid #E2E8F0', bgcolor: '#F0FDF4' }}>
+            <Typography variant="caption" sx={{ fontWeight: 700, color: '#166534', display: 'block', mb: 0.75 }}>
+              New mobile number detected: +977 {searchDigits}
+            </Typography>
+            <Stack direction="row" spacing={0.75}>
+              <Button
+                fullWidth
+                size="small"
+                variant="contained"
+                startIcon={<SmsIcon sx={{ fontSize: 15 }} />}
+                onClick={() => handleStartDirectNumberChat(searchDigits, 'SMS')}
+                sx={{ textTransform: 'none', fontWeight: 800, bgcolor: '#0284C7', '&:hover': { bgcolor: '#0369A1' }, fontSize: '0.72rem' }}
+              >
+                Send SMS
+              </Button>
+              <Button
+                fullWidth
+                size="small"
+                variant="outlined"
+                startIcon={<WhatsAppIcon sx={{ fontSize: 15 }} />}
+                onClick={() => handleStartDirectNumberChat(searchDigits, 'WhatsApp')}
+                sx={{ textTransform: 'none', fontWeight: 800, color: '#15803D', borderColor: '#86EFAC', bgcolor: '#FFFFFF', fontSize: '0.72rem' }}
+              >
+                WA Chat
+              </Button>
+            </Stack>
+          </Box>
+        )}
+        {filteredThreads.length === 0 && !canStartDirectChat ? (
           <Box sx={{ p: 3, textAlign: 'center' }}>
             <Typography variant="body2" sx={{ color: '#64748B', fontWeight: 600 }}>
               No matching contacts found.
@@ -1040,6 +1181,30 @@ export default function WhatsAppWorkspace({
           </Alert>
         )}
 
+        {/* Auto-Detected Phone from FB Messenger / Comment */}
+        {detectedFbPhone && (
+          <Paper
+            elevation={0}
+            sx={{ p: 1.35, borderRadius: 2.5, border: '1px solid #93C5FD', bgcolor: '#EFF6FF', display: 'flex', flexDirection: 'column', gap: 0.75 }}
+          >
+            <Typography variant="caption" sx={{ fontWeight: 800, color: '#1D4ED8', textTransform: 'uppercase' }}>
+              Phone Detected in Chat
+            </Typography>
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', fontVariantNumeric: 'tabular-nums' }}>
+              +977 {detectedFbPhone}
+            </Typography>
+            <Button
+              size="small"
+              variant="contained"
+              startIcon={<PersonAddIcon />}
+              onClick={() => handleSaveDetectedFbLead(detectedFbPhone)}
+              sx={{ fontWeight: 800, textTransform: 'none', bgcolor: '#2563EB', '&:hover': { bgcolor: '#1D4ED8' } }}
+            >
+              Save as Lead
+            </Button>
+          </Paper>
+        )}
+
         {/* FB Ad Referral Card */}
         {activeThread.adReferral && (
           <Paper
@@ -1186,15 +1351,33 @@ export default function WhatsAppWorkspace({
             </Button>
 
             {studentLedgerData.due > 0 && (
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<PaymentsIcon />}
-                onClick={() => handleSend(QUICK_TEMPLATES[1].build(activeThread))}
-                sx={{ fontWeight: 800 }}
-              >
-                Send Fee Reminder via WA
-              </Button>
+              <Stack direction="row" spacing={0.75}>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  startIcon={<PaymentsIcon />}
+                  onClick={() => handleSend(QUICK_TEMPLATES[1].build(activeThread))}
+                  sx={{ fontWeight: 800, fontSize: '0.72rem', textTransform: 'none' }}
+                >
+                  Fee Reminder (WA)
+                </Button>
+                <Button
+                  fullWidth
+                  variant="outlined"
+                  size="small"
+                  startIcon={<SmsIcon />}
+                  onClick={() =>
+                    handleSend(
+                      `Namaste ${entity.name}, Prabidhik School (Jorpati) bata fee reminder: Tapai ko baki fee Rs. ${studentLedgerData.due.toLocaleString()} chha. Samparka: 01-4910715.`,
+                      { forceChannel: 'SMS' }
+                    )
+                  }
+                  sx={{ fontWeight: 800, fontSize: '0.72rem', textTransform: 'none', color: '#0284C7', borderColor: '#7DD3FC' }}
+                >
+                  Fee Reminder (SMS)
+                </Button>
+              </Stack>
             )}
 
             {studentLedgerData.studentPayments.length > 0 && (
@@ -1348,6 +1531,29 @@ export default function WhatsAppWorkspace({
           </Box>
 
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, flexShrink: 0 }}>
+            {waWindowStatus && (
+              <Tooltip
+                title={
+                  waWindowStatus.isOpen
+                    ? 'Customer messaged within last 24h — free-text WhatsApp replies are allowed.'
+                    : 'No inbound message in last 24h — use a Meta Approved Template or Aakash SMS.'
+                }
+              >
+                <Chip
+                  size="small"
+                  label={waWindowStatus.label}
+                  sx={{
+                    display: { xs: 'none', lg: 'inline-flex' },
+                    height: 24,
+                    fontSize: '0.67rem',
+                    fontWeight: 700,
+                    bgcolor: waWindowStatus.isOpen ? '#F0FDF4' : '#FFFBEB',
+                    color: waWindowStatus.isOpen ? '#15803D' : '#B45309',
+                    border: waWindowStatus.isOpen ? '1px solid #BBF7D0' : '1px solid #FDE68A'
+                  }}
+                />
+              </Tooltip>
+            )}
             <Tooltip title={activeThread.pinned ? 'Unpin contact' : 'Pin priority contact'}>
               <IconButton
                 size="small"
