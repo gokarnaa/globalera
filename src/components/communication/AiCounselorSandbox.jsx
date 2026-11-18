@@ -14,11 +14,14 @@ import SendIcon from '@mui/icons-material/Send';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { simulateGeminiCounselorTurn, cleanWhatsAppMarkdown } from '../../services/whatsappCloudApi';
 
+const INITIAL_GREETING =
+  'नमस्कार हजुर! ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटीमा स्वागत छ। 🙏\nहजुरलाई सिलाई, पार्लर, नेल आर्ट, आइल्यास वा बेकरीमध्ये कुन तालिमबारे जानकारी चाहिएको हो?';
+
 export default function AiCounselorSandbox({ customInstructions = '', inDialog = false }) {
   const [messages, setMessages] = useState([
     {
       role: 'model',
-      text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ काउन्सिलर हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
+      text: INITIAL_GREETING
     }
   ]);
   const [input, setInput] = useState('');
@@ -71,7 +74,7 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
     setMessages([
       {
         role: 'model',
-        text: 'नमस्ते! म ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी) को २४/७ काउन्सिलर हुँ। म तपाईंलाई केयरगिभर, टेलरिङ, ब्युटिसियन कोर्स, शुल्क वा भर्नाबारे के जानकारी दिन सक्छु?'
+        text: INITIAL_GREETING
       }
     ]);
     setLeadDetected(null);
@@ -118,10 +121,10 @@ export default function AiCounselorSandbox({ customInstructions = '', inDialog =
       {/* Quick sample prompt chips */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
         {[
-          'केयरगिभर तालिम कति महिनाको हो?',
-          'दैनिक सिफ्ट कति बजे हुन्छ?',
-          'शुल्क कति लाग्छ र तिर्ने तरिका के हो?',
-          'म भोलि भर्ना हुन आउँछु सिट छ कि छैन?'
+          'सिलाई सिक्न कति पैसा लाग्छ?',
+          'कम्बो ब्युटिसियनमा के-के हुन्छ?',
+          'जागिर गर्ने व्यक्तिले तालिम लिन सक्छ?',
+          'तालिम केन्द्र कहाँ छ?'
         ].map((prompt) => (
           <Chip
             key={prompt}

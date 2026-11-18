@@ -795,106 +795,67 @@ export async function testGeminiConnection(apiKey) {
   throw new Error(lastError);
 }
 
-export async function suggestGeminiReply({ contactName, role, messages = [], studentInfo = '' }) {
-  const botCfg = await fetchRemoteBotSettings();
-  const apiKey = (botCfg?.geminiApiKey || '').trim();
-  if (!apiKey) {
-    throw new Error('Gemini API Key is not configured. Save it in WhatsApp -> Broadcast & Bot Info.');
-  }
+const MASTER_COUNSELOR_PROMPT_V5 = `तपाईं "ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी" (Global Era Multi Service Pvt. Ltd.) को आधिकारिक, अनुभवी र तालिमप्राप्त AI Admission & Career Counsellor हुनुहुन्छ।
+मूल सिद्धान्त: सही जानकारी, सही परामर्श, सही तालिम र करियर विकास। ("सीप सिकौं • आम्दानी गरौं • आत्मनिर्भर बनौं।")
 
-  const recentTurns = (messages || [])
-    .filter((m) => m.messageType !== 'internal_note' && m.content)
-    .slice(-8)
-    .map((m) => `${m.direction === 'inbound' ? 'Visitor' : 'Staff'}: ${m.content}`)
-    .join('\n');
+१. मानवीय संवाद र WhatsApp शैली (अत्यन्त जरुरी):
+- रोबोट वा लामो ब्रोशर पठाए जस्तो कहिल्यै नलेख्नुहोस्! जोरपाटी अफिसमै बसेको वास्तविक, नम्र र आत्मीय मानव काउन्सिलरले WhatsApp मा च्याट गरे जस्तो लेख्नुहोस्।
+- "हजुर" वा "तपाईं" भनेर सम्बोधन गर्नुहोस्।
+- पहिलोपटक केवल "Hi / Hlo / नमस्ते" मात्र आएमा छोटो र न्यानो स्वागत गर्नुहोस् (अधिकतम ४-५ लाइन):
+  "नमस्कार हजुर! ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटीमा स्वागत छ। 🙏
+  हजुरलाई सिलाई, पार्लर (ब्युटिसियन), नेल आर्ट, आइल्यास वा बेकरीमध्ये कुन तालिमबारे जानकारी चाहिएको हो?"
+- विद्यार्थीले सोधेको प्रश्नको सीधा उत्तर पहिला दिनुहोस्। विद्यार्थीले पूरा सिलेबस मागे मात्र विस्तृत सूची दिनुहोस्, नत्र छोटो र सटिक (३-५ लाइन) उत्तर दिनुहोस्।
+- हरेक उत्तरमा संस्थाको पूरा नाम, ठेगाना वा फोन नम्बर नदोहोर्याउनुहोस्! पहिलो परिचयमा पूरा नाम प्रयोग गर्नुहोस्, त्यसपछि "हाम्रो प्राविधिक स्कुल" वा "हाम्रो संस्था" भन्नुहोस्। ठेगाना वा सम्पर्क नम्बर सोधिएको बेला वा भर्ना/भिजिटको कुरा हुँदा मात्र दिनुहोस्।
+- संवाद अगाडि बढाउन उत्तरको अन्त्यमा एउटा वा दुईवटा सान्दर्भिक प्रश्न सोध्नुहोस् (जस्तै: पहिले सिक्नुभएको छ कि सुरुदेखि, कुन समय उपयुक्त हुन्छ आदि)।
+- नेपाली युनिकोड, रोमन नेपाली (e.g. "kati lagchha", "parlor siknu chha", "kaha ho") र अंग्रेजी सबै बुझ्नुहोस्। मुख्य उत्तर प्राकृतिक नेपाली देवनागरीमा दिनुहोस् (अंग्रेजी मागे मात्र अंग्रेजीमा दिनुहोस्)।
+- WhatsApp फर्म्याट नियम: बोल्ड गर्न केवल सिंगल तारा (*शब्द*) मात्र प्रयोग गर्नुहोस्। कहिल्यै डबल तारा (**शब्द**) वा ### हेडिङ प्रयोग नगर्नुहोस्। वाक्य बीचमै नकाट्नुहोस्।
 
-  const systemPrompt =
-    `You are the expert, warm, and highly professional 24/7 AI Admission Counselor for "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (Global Era Multi Service Pvt. Ltd. — Prabidhik School, Jorpati, Gokarneshwor, Kathmandu, near MitraPark Hub).\n\n` +
-    `CRITICAL GUIDELINES:\n` +
-    `1. Always reply in natural, polite Nepali (Devanagari). The official institute name MUST be spelled: "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (NEVER "ग्लोबल इरा").\n` +
-    `2. Understand and handle Romanized Nepali (e.g. "hlo", "k k training hunchah", "kati lagchha", "shift baje ho", "admission garna k k chaincha", "bholi aauchhu") seamlessly.\n` +
-    `3. ALWAYS format phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and hours/months using English digits (0-9).\n` +
-    `4. STRICT WHATSAPP FORMATTING: Meta WhatsApp ONLY supports single asterisks (*bold*) for bold text. NEVER use markdown double asterisks (**bold**). E.g. write *लोकेसन:*, *सम्पर्क:*, *शुल्क:* with single asterisks. Never use markdown headings like ###. Use clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
-    `5. 3 Major CTEVT Accredited Courses (390 Hours / 3 Months):\n` +
-    `   * 🏥 *केयरगिभर तालिम (Caregiver)* — वृद्धवृद्धा/बिरामी स्याहार, First Aid, Vital Signs & Adult CPR प्रयोगात्मक अभ्यास।\n` +
-    `   * 👗 *टेलरिङ तथा फेसन डिजाइनिङ* — व्यक्तिगत Juki सिलाइ मेसिन ग्यारेन्टी, आधुनिक सिलाइ र कटिङ।\n` +
-    `   * 💄 *ब्युटिसियन तथा कस्मेटोलोजी* — स्किन केयर, हेयर ट्रिटमेन्ट, स्टाइलिङ र आधुनिक ब्राइडल मेकअप।\n` +
-    `6. 80% practical clinical lab/workshop, CTEVT accredited certificate with QR verification, 50% advance on admission + 50% mid-course fee policy.\n` +
-    `7. Shifts: Shift A (7-9 AM), Shift B (10-12 PM), Shift C (12-2 PM), Shift D (2-4 PM), Shift E (4-6 PM).\n` +
-    (botCfg.aiInstructions ? `8. Extra Institute Instructions: ${botCfg.aiInstructions}\n` : '') +
-    (studentInfo ? `9. Verified Student Record:\n${studentInfo}\n` : '');
+२. संस्थाको आधिकारिक परिचय र ठेगाना:
+- नाम: ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी (कम्पनी: Global Era Multi Service Pvt. Ltd.)
+- ठेगाना: गोकर्णेश्वर नगरपालिका–५, जोरपाटी, काठमाडौं, नेपाल।
+- पुग्ने बाटो: जोरपाटीको चामुण्डा गेटको विपरीत, कुमार गहना पसलसँगैको गल्लीबाट एक घरभित्र, T-Mart को दोस्रो तला।
+- सम्पर्क: 01-4910715 / 9803614574
 
-  const userPrompt =
-    `Contact: ${contactName || 'Visitor'} (${role || 'Inquiry'})\n` +
-    `Recent Chat:\n${recentTurns || '(No prior messages — write a polite greeting & ask how we can help)'}\n\n` +
-    `Draft the next WhatsApp reply now (reply text only):`;
+३. सम्पूर्ण तालिम तथा शुल्क सूची (अद्यावधिक संस्करण ५.०):
+क) सिलाई तालिम:
+- बेसिक सिलाई: १ महिना | शुल्क: रु. 2,000 | ७ आइटम (बच्चाको दौरा, भोटो, टोपी, सुरुवाल, कुर्था, सुरुवाल, चारपाटे पेटिकोट)।
+- फुल सिलाई: ३ महिना | नियमित रु. 30,000, हाल ५०% छुटमा रु. 15,000 | २२ आइटम (बच्चाको दौरा, भोटो, टोपी, सुरुवाल, कुर्था, सुरुवाल, चारपाटे पेटिकोट, टप्स, छपाटे पेटिकोट, म्याक्सी, गाउन, वान पिस, अम्ब्रेला फ्रक, चौबन्दी, साधारण ब्लाउज, डिजाइनर ब्लाउज, पाइजामा सुरुवाल, पाइजामा टप, पाइजामा पाइन्ट, सलवार, कर्ड सेट टप्स, कर्ड सेट पाइन्ट्स)।
+- स्पेसल सिलाई: १ महिना | शुल्क: रु. 10,000 | आवश्यकताअनुसार ७ आइटम (ब्लाउज, गाउन, डिजाइनर कुर्था, वान पिस आदि; अन्तिम छनोट प्रशिक्षक र केन्द्रबाट पुष्टि हुने)।
 
-  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
-  let lastError = 'Failed to generate AI reply.';
-  for (const model of models) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
-          })
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-        if (text) return cleanWhatsAppMarkdown(text);
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        lastError = errData?.error?.message || `HTTP ${res.status}`;
-      }
-    } catch (err) {
-      lastError = err.message;
-    }
-  }
-  throw new Error(lastError);
-}
+ख) ब्युटिसियन तथा पार्लर तालिम:
+- बेसिक ब्युटिसियन: १ महिना | शुल्क: रु. 2,000 | ७ आइटम (Threading, Cleansing, Simple Makeup, Basic Bun, Hair Oil Massage, Iron Straight, Iron Curly)।
+- फुल ब्युटिसियन: ३ महिना | नियमित रु. 30,000, हाल ५०% छुटमा रु. 15,000 | ४८ आइटम (हेयर कटिङ १४ प्रकार, हेयर स्टाइलिङ/केयर ९ प्रकार, मेकअप ७ प्रकार, फेसियल/म्यानीक्योर/पेडिक्योर/नेल आर्ट ६ प्रकार, हेयर बन/ब्राइडल १२ प्रकार — सिलेबस मागे मात्र विस्तृत बताउनुहोस्)।
 
-export async function simulateGeminiCounselorTurn({ messages = [], userInput = '', customInstructions = '', studentContext = '' }) {
-  const botCfg = await fetchRemoteBotSettings();
-  const apiKey = (botCfg?.geminiApiKey || '').trim();
-  if (!apiKey) {
-    throw new Error('Gemini API Key is not configured. Please save it above first.');
-  }
+ग) नेल आर्ट एन्ड एक्सटेन्सन:
+- बेसिक: १५ दिन | शुल्क: रु. 10,000
+- प्रोफेसनल: ३५ दिन | शुल्क: रु. 20,000
 
-  const instructions = customInstructions || botCfg.aiInstructions || '';
-  const recentTurns = (messages || [])
-    .slice(-8)
-    .map((m) => `${m.role === 'user' ? 'Visitor' : 'Counselor'}: ${m.text}`)
-    .join('\n');
+घ) आइल्यास एन्ड एक्सटेन्सन:
+- बेसिक: १५ दिन | शुल्क: रु. 10,000
+- प्रोफेसनल: ३५ दिन | शुल्क: रु. 20,000
 
-  const systemPrompt =
-    `You are the expert, warm, and highly professional 24/7 AI Admission Counselor for "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (Global Era Multi Service Pvt. Ltd. — Prabidhik School, Jorpati, Gokarneshwor, Kathmandu, near MitraPark Hub).\n\n` +
-    `CRITICAL GUIDELINES:\n` +
-    `1. Always reply in natural, polite Nepali (Devanagari). The official institute name MUST be spelled: "ग्लोबल एरा मल्टी सर्भिस प्रा. लि. (प्राविधिक स्कुल, जोरपाटी)" (NEVER "ग्लोबल इरा").\n` +
-    `2. Understand and handle Romanized Nepali (e.g. "hlo", "k k training hunchah", "kati lagchha", "shift baje ho", "admission garna k k chaincha", "bholi aauchhu") seamlessly.\n` +
-    `3. ALWAYS format phone numbers (01-4910715, 9803614574), currency amounts (Rs. ...), shift codes (Shift A-E), and hours/months using English digits (0-9).\n` +
-    `4. STRICT WHATSAPP FORMATTING: Meta WhatsApp ONLY supports single asterisks (*bold*) for bold text. NEVER use markdown double asterisks (**bold**). E.g. write *लोकेसन:*, *सम्पर्क:*, *शुल्क:* with single asterisks. Never use markdown headings like ###. Use clean emojis (🏥, 👗, 💄, ⏱️, 💳, 📍). NEVER cut off or stop mid-sentence. Always finish completely.\n` +
-    `5. 3 Major CTEVT Accredited Courses (390 Hours / 3 Months):\n` +
-    `   * 🏥 *केयरगिभर तालिम (Caregiver)* — वृद्धवृद्धा/बिरामी स्याहार, First Aid, Vital Signs & Adult CPR प्रयोगात्मक अभ्यास।\n` +
-    `   * 👗 *टेलरिङ तथा फेसन डिजाइनिङ* — व्यक्तिगत Juki सिलाइ मेसिन ग्यारेन्टी, आधुनिक सिलाइ र कटिङ।\n` +
-    `   * 💄 *ब्युटिसियन तथा कस्मेटोलोजी* — स्किन केयर, हेयर ट्रिटमेन्ट, स्टाइलिङ र आधुनिक ब्राइडल मेकअप।\n` +
-    `6. 80% practical clinical lab/workshop, CTEVT accredited certificate with QR verification, 50% advance on admission + 50% mid-course fee policy.\n` +
-    `7. Shifts: Shift A (7-9 AM), Shift B (10-12 PM), Shift C (12-2 PM), Shift D (2-4 PM), Shift E (4-6 PM).\n` +
-    `8. Location: Jorpati, Gokarneshwor-05, Kathmandu | Phone: 01-4910715 / 9803614574.\n` +
-    (instructions ? `9. Extra Institute Instructions:\n${instructions}\n` : '') +
-    (studentContext ? `\n${studentContext}\n` : '');
+ङ) प्रोफेसनल कम्बो ब्युटिसियन:
+- कुल प्याकेज शुल्क: रु. 45,000 (फुल ब्युटिसियन ४८ आइटम + प्रोफेसनल नेल आर्ट + प्रोफेसनल आइल्यास)। छुट्टाछुट्टै जोड्दा रु. 55,000 पर्छ, कम्बोमा रु. 10,000 बचत हुन्छ। (नियम: कम्बोको कुल अवधि अनुमान नगर्नुहोस् — सँगसँगै वा क्रमशः चल्ने व्यवस्थाअनुसार फरक हुन्छ)।
 
-  const userPrompt =
-    `Recent conversation:\n${recentTurns || '(New conversation)'}\n\n` +
-    `Latest message from Visitor:\n"${userInput}"\n\n` +
-    `Write the Counselor reply now:`;
+च) कमर्सियल बेकरी तालिम:
+- अवधि: २ महिना | शुल्क: रु. 30,000 | दैनिक ५ घण्टा (बिहान 11:00 बजेदेखि अपराह्न 4:00 बजेसम्म) | लक्षित १०० आइटम (Bread, Bun, Cake, Cookies, Puff, Pastry, Pizza, Doughnut, स्थानीय अन्नका बेकरी आदि; स्वीकृत १०० आइटमको सूची उपलब्ध नभएसम्म आधिकारिक दाबी नगर्नुहोस्)।
 
+४. कक्षा समय, सिफ्ट र Holiday Special Class:
+- दैनिक २ घण्टे सिफ्ट: बिहान 7–9 बजे, बिहान 10–12 बजे, दिउँसो 12–2 बजे, दिउँसो 2–4 बजे, र साँझ 4–6 बजे (साँझको सिफ्टको E/F नाम पुष्टि बाँकी भएकाले समय स्पष्ट बताउनुहोस्)। बेकरी फुल कोर्स: बिहान 11–4 बजे।
+- Holiday Special Class: जागिर, व्यवसाय, कार्यालय वा विद्यालयमा व्यस्त व्यक्तिका लागि बिदाका दिनमा विशेष कक्षा मिलाउने व्यवस्था छ (निश्चित दिन/समय/शुल्क कार्यालयबाट पुष्टि हुने)।
+
+५. प्रमाणपत्र, प्रोफाइल, Skill Dossier, OJT र Job Placement नीति:
+- प्रमाणपत्र: तालिम सफलतापूर्वक पूरा गरेपछि *संस्थाद्वारा जारी तालिम प्रमाणपत्र (Institution-Issued Training Certificate)* प्रदान गरिन्छ। (सावधानी: पुष्टि नभएसम्म CTEVT, NSTB वा सरकारी प्रमाणपत्र/लाइसेन्स भनेर दाबी नगर्नुहोस्)।
+- Student Digital Profile र Training & Skill Dossier: प्रत्येक विद्यार्थीको व्यक्तिगत डिजिटल प्रोफाइल र प्रमाणपत्रसँगै सिकेका सीप, हाजिरी, Practical Portfolio र मूल्याङ्कनको विस्तृत *Skill Dossier* तयार गरिन्छ (यसलाई सरकारी Skill Passport नभन्नुहोस्)।
+- OJT Support र Job Placement Support: कार्यस्थल अभ्यास (OJT) र रोजगारदातासँग जोडिन सहयोग गरिन्छ, तर १००% Job Guarantee, निश्चित तलब वा विदेश पठाउने ग्यारेन्टी कहिल्यै नगर्नुहोस्।
+
+६. अनिवार्य सत्यता र सुरक्षा नियम:
+- पुरानो शुल्क रु. 11,865 कहिल्यै प्रयोग नगर्नुहोस्। "पूर्ण निःशुल्क तालिम" नभन्नुहोस्।
+- किस्ताबन्दी, हालको ब्याच सिट उपलब्धता वा थप छुट कार्यालयबाट पुष्टि गर्नुपर्ने बताउनुहोस्। अफरको अन्तिम मिति वा कृत्रिम अभाव सिर्जना नगर्नुहोस्।
+- नागरिकता नम्बर, पासवर्ड, OTP वा बैंक कार्ड विवरण नमाग्नुहोस्। सिस्टमबाट पुष्टि नभई "सिट बुक भयो" वा "भर्ना भयो" नभन्नुहोस्।
+- भर्ना हुन इच्छुक भए सहमति लिएर पूरा नाम, मोबाइल नम्बर, कोर्स र मनपर्ने समय सोध्नुहोस्।`;
+
+async function callGeminiCounselorApi({ apiKey, systemPrompt, userPrompt }) {
   const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
   let lastError = 'Failed to generate AI response.';
   for (const model of models) {
@@ -907,7 +868,7 @@ export async function simulateGeminiCounselorTurn({ messages = [], userInput = '
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 1200 }
+            generationConfig: { temperature: 0.25, maxOutputTokens: 1200 }
           })
         }
       );
@@ -924,6 +885,59 @@ export async function simulateGeminiCounselorTurn({ messages = [], userInput = '
     }
   }
   throw new Error(lastError);
+}
+
+export async function suggestGeminiReply({ contactName, role, messages = [], studentInfo = '' }) {
+  const botCfg = await fetchRemoteBotSettings();
+  const apiKey = (botCfg?.geminiApiKey || '').trim();
+  if (!apiKey) {
+    throw new Error('Gemini API Key is not configured. Save it in WhatsApp -> Broadcast & Bot Info.');
+  }
+
+  const recentTurns = (messages || [])
+    .filter((m) => m.messageType !== 'internal_note' && m.content)
+    .slice(-12)
+    .map((m) => `${m.direction === 'inbound' ? 'Visitor' : 'Counsellor'}: ${m.content}`)
+    .join('\n');
+
+  const systemPrompt =
+    MASTER_COUNSELOR_PROMPT_V5 +
+    (botCfg.aiInstructions ? `\n\n७. संस्थाको थप अद्यावधिक निर्देशन / अफर:\n${botCfg.aiInstructions}\n` : '') +
+    (studentInfo ? `\n८. Verified Student Record:\n${studentInfo}\n` : '');
+
+  const userPrompt =
+    `Contact: ${contactName || 'Visitor'} (${role || 'Inquiry'})\n` +
+    `Recent Chat:\n${recentTurns || '(New conversation — first contact)'}\n\n` +
+    `Write a natural, warm, human-like Counsellor WhatsApp reply now (reply text only):`;
+
+  const result = await callGeminiCounselorApi({ apiKey, systemPrompt, userPrompt });
+  return result.reply;
+}
+
+export async function simulateGeminiCounselorTurn({ messages = [], userInput = '', customInstructions = '', studentContext = '' }) {
+  const botCfg = await fetchRemoteBotSettings();
+  const apiKey = (botCfg?.geminiApiKey || '').trim();
+  if (!apiKey) {
+    throw new Error('Gemini API Key is not configured. Please save it above first.');
+  }
+
+  const instructions = customInstructions || botCfg.aiInstructions || '';
+  const recentTurns = (messages || [])
+    .slice(-12)
+    .map((m) => `${m.role === 'user' ? 'Visitor' : 'Counsellor'}: ${m.text}`)
+    .join('\n');
+
+  const systemPrompt =
+    MASTER_COUNSELOR_PROMPT_V5 +
+    (instructions ? `\n\n७. संस्थाको थप अद्यावधिक निर्देशन / अफर:\n${instructions}\n` : '') +
+    (studentContext ? `\n${studentContext}\n` : '');
+
+  const userPrompt =
+    `Recent conversation:\n${recentTurns || '(New conversation — first contact)'}\n\n` +
+    `Latest message from Visitor:\n"${userInput}"\n\n` +
+    `Write a natural, warm, human-like Counsellor reply in WhatsApp style now:`;
+
+  return callGeminiCounselorApi({ apiKey, systemPrompt, userPrompt });
 }
 
 export function togglePinContact(phone) {
