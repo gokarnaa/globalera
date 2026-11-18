@@ -1000,21 +1000,30 @@ export default function WhatsAppWorkspace({
               <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A' }} noWrap>
                 {activeThread.name}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontVariantNumeric: 'tabular-nums' }}>
+              <Typography
+                variant="caption"
+                noWrap
+                title={activeThread.phone}
+                sx={{ color: '#64748B', display: 'block', fontVariantNumeric: 'tabular-nums' }}
+              >
                 {activeThread.phone}
               </Typography>
             </Box>
-            <StatusBadge
-              label={activeThread.role}
-              tone={activeThread.role === 'Student' ? 'success' : activeThread.role === 'Lead' ? 'warning' : 'primary'}
-            />
+            <Box sx={{ flexShrink: 0 }}>
+              <StatusBadge
+                label={activeThread.role}
+                tone={activeThread.role === 'Student' ? 'success' : activeThread.role === 'Lead' ? 'warning' : 'primary'}
+              />
+            </Box>
           </Box>
           <TextField
             select
+            fullWidth
             size="small"
             label="Assigned Team / Desk"
             value={activeThread.assignedTo || ''}
             onChange={(e) => assignThreadStaff(activeThread.phone, e.target.value)}
+            InputLabelProps={{ shrink: true }}
             SelectProps={{ native: true }}
           >
             <option value="">Unassigned</option>
