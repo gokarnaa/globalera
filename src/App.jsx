@@ -38,7 +38,7 @@ const OjtManager = lazy(() => import('./components/ojt/OjtManager'));
 const PlacementManager = lazy(() => import('./components/placements/PlacementManager'));
 const ReportsManager = lazy(() => import('./components/reports/ReportsManager'));
 const CertificateManager = lazy(() => import('./components/certificates/CertificateManager'));
-const CertificateStudioManager = lazy(() => import('./components/settings/CertificateStudioManager'));
+const CertificateStudioManager = lazy(() => import('./components/settings/DesignStudioHub'));
 const PublicCertificateVerify = lazy(() => import('./components/certificates/PublicCertificateVerify'));
 const A4LandscapeCertificateModal = lazy(() => import('./components/certificates/A4LandscapeCertificateModal'));
 const HolidayManager = lazy(() => import('./components/holidays/HolidayManager'));

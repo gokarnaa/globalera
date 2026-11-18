@@ -44,6 +44,7 @@ import SyncIcon from '@mui/icons-material/Sync';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ContactsIcon from '@mui/icons-material/Contacts';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
@@ -52,6 +53,7 @@ import { ResponsiveDataView, StatusBadge } from '../common';
 import NewAdmissionModal from './NewAdmissionModal';
 import AdmissionAgreementPrintModal from './AdmissionAgreementPrintModal';
 import StudentIdCardModal from './StudentIdCardModal';
+import AgreementStudioManager from '../settings/AgreementStudioManager';
 
 export default function AdmissionManager({ pendingLead = null, onClearPendingLead }) {
   const theme = useTheme();
@@ -71,6 +73,7 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
 
   const [printModalOpen, setPrintModalOpen] = useState(false);
   const [selectedAdmission, setSelectedAdmission] = useState(null);
+  const [studioOpen, setStudioOpen] = useState(false);
   const [idCardModalOpen, setIdCardModalOpen] = useState(false);
   const [selectedForIdCard, setSelectedForIdCard] = useState(null);
 
@@ -378,6 +381,25 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
           </Grid>
           <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
             <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<ColorLensIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => setStudioOpen(true)}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Agreement Studio
+              </Button>
               <Button
                 variant="outlined"
                 size="small"
@@ -1358,6 +1380,27 @@ export default function AdmissionManager({ pendingLead = null, onClearPendingLea
             Yes, Cancel Agreement
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* Dynamic Agreement Studio Modal */}
+      <Dialog
+        open={studioOpen}
+        onClose={() => setStudioOpen(false)}
+        maxWidth="xl"
+        fullWidth
+        fullScreen={isMobile}
+      >
+        <DialogTitle sx={{ bgcolor: '#0f2e5a', color: '#ffffff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: 1.5 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+            Agreement Studio & Clause Customizer
+          </Typography>
+          <Button size="small" onClick={() => setStudioOpen(false)} sx={{ color: '#ffffff', fontWeight: 700 }}>
+            Close
+          </Button>
+        </DialogTitle>
+        <DialogContent sx={{ p: { xs: 1.5, sm: 2.5 }, bgcolor: '#F8FAFC' }}>
+          <AgreementStudioManager onSaveSuccess={() => setDb(loadDB())} />
+        </DialogContent>
       </Dialog>
     </Box>
   );

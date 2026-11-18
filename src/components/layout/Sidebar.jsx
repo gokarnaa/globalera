@@ -78,7 +78,7 @@ const NAV_ITEMS = [
   // --- 4. Placements & Certificates ---
   { section: '4. PLACEMENTS & CERTIFICATES' },
   { id: 'certificates', label: 'Official Certificates', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4 QR' },
-  { id: 'certificate_studio', label: 'Certificate Design Studio', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
+  { id: 'certificate_studio', label: 'Design Studio', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
   { id: 'employers', label: 'Partner Employers', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'ojt', label: 'Industry OJT Records', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'placements', label: 'Placements & EPP', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
