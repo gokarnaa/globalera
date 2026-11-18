@@ -59,19 +59,29 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   const [db, setDb] = useState(() => loadDB());
   const [remoteData, setRemoteData] = useState({ logs: [], inbound: [] });
   const [refreshing, setRefreshing] = useState(false);
+  const syncInFlightRef = useRef(false);
+  const realtimeDebounceRef = useRef(null);
 
-  const syncHub = useCallback(async () => {
-    setRefreshing(true);
+  const syncHub = useCallback(async ({ silent = false, includeBotSettings = true } = {}) => {
+    if (syncInFlightRef.current) return;
+    syncInFlightRef.current = true;
+    if (!silent) setRefreshing(true);
     try {
       setDb(loadDB());
-      const [remote, remoteBot] = await Promise.all([
-        fetchRemoteWhatsAppData(),
-        fetchRemoteBotSettings()
-      ]);
-      setRemoteData(remote);
-      setBotCfg(remoteBot);
+      if (includeBotSettings) {
+        const [remote, remoteBot] = await Promise.all([
+          fetchRemoteWhatsAppData(),
+          fetchRemoteBotSettings()
+        ]);
+        setRemoteData(remote);
+        setBotCfg(remoteBot);
+      } else {
+        const remote = await fetchRemoteWhatsAppData();
+        setRemoteData(remote);
+      }
     } finally {
-      setRefreshing(false);
+      syncInFlightRef.current = false;
+      if (!silent) setRefreshing(false);
     }
   }, []);
 
@@ -96,7 +106,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   };
 
   useEffect(() => {
-    syncHub();
+    syncHub({ silent: true, includeBotSettings: true });
     const onDbUpdate = () => setDb(loadDB());
     const onOpenForContact = (e) => {
       const detail = e?.detail || {};
@@ -104,24 +114,30 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
         setTargetContact({ phone: detail.phone, draft: detail.initialDraft || '', nonce: Date.now() });
       }
       setWindowMode('normal');
-      syncHub();
+      syncHub({ silent: true, includeBotSettings: false });
     };
     window.addEventListener('kite_db_updated', onDbUpdate);
     window.addEventListener('kite_open_whatsapp_hub', onOpenForContact);
-    // Real-time WebSocket subscription (<0.5s instant message & AI reply updates)
+    // Real-time WebSocket subscription (<0.5s instant message & AI reply updates, debounced & silent)
     const unsubscribeRealtime = subscribeWhatsAppRealtime(() => {
-      syncHub();
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
+      realtimeDebounceRef.current = setTimeout(() => {
+        syncHub({ silent: true, includeBotSettings: false });
+      }, 350);
     });
     return () => {
       window.removeEventListener('kite_db_updated', onDbUpdate);
       window.removeEventListener('kite_open_whatsapp_hub', onOpenForContact);
       unsubscribeRealtime();
+      if (realtimeDebounceRef.current) clearTimeout(realtimeDebounceRef.current);
     };
   }, [syncHub]);
 
-  // Fallback sync every 5s when open, 15s when minimized/closed
+  // Silent fallback sync every 20s (Realtime WebSocket handles instant updates)
   useEffect(() => {
-    const timer = setInterval(syncHub, isDialogOpen ? 5000 : 15000);
+    const timer = setInterval(() => {
+      syncHub({ silent: true, includeBotSettings: false });
+    }, isDialogOpen ? 20000 : 30000);
     return () => clearInterval(timer);
   }, [syncHub, isDialogOpen]);
 
