@@ -164,7 +164,7 @@ function ReceiptSlip({
   const instituteEnglish = settings?.instituteName || 'Global Era Multi Service Pvt. Ltd.';
   const address = settings?.location || 'Gokarneshwor-05, Jorpati, Kathmandu';
   const phone = settings?.contactPhone || '01-4910715 / 9705147147';
-  const email = settings?.email || 'info@globalera.edu.np';
+  const email = settings?.email || 'info@globalera.com.np';
 
   const originalFee = Number(payment.originalFee || course?.price || 30000) || 0;
   const discountAmount = Number(payment.discountAmount) || 0;

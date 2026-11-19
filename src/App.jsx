@@ -256,10 +256,14 @@ export default function App() {
   }, [verifyParam, remoteVerifyData]);
 
   const [globalLeadAlert, setGlobalLeadAlert] = useState(null);
+  const [cloudSyncVersion, setCloudSyncVersion] = useState(0);
 
-  // Auto-sync with Supabase on app mount
+  // Auto-sync with Supabase on app mount & refresh active view when cloud data arrives
   React.useEffect(() => {
+    const onCloudHydrated = () => setCloudSyncVersion((v) => v + 1);
+    window.addEventListener('kite_cloud_hydrated', onCloudHydrated);
     syncWithCloud();
+    return () => window.removeEventListener('kite_cloud_hydrated', onCloudHydrated);
   }, []);
 
   // Global Real-time Lead Listener across all tabs and routes
@@ -667,7 +671,7 @@ export default function App() {
             }}
           >
             <Box sx={{ width: '100%', maxWidth: '1520px', mx: 'auto' }}>
-              <ErrorBoundary key={currentTab} onReset={() => setCurrentTab('dashboard')}>
+              <ErrorBoundary key={`${currentTab}-${cloudSyncVersion}`} onReset={() => setCurrentTab('dashboard')}>
                 <Suspense fallback={<PageLoader />}>
                   {renderContent()}
                 </Suspense>

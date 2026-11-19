@@ -36,6 +36,33 @@
       ::-webkit-scrollbar-track {
         background: #F1F5F9;
       }
+      @media print {
+        html, body {
+          height: auto !important;
+          overflow: visible !important;
+          background: #ffffff !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .MuiDialog-root,
+        .MuiDialog-container,
+        .MuiDialog-paper,
+        .MuiDialogContent-root {
+          position: static !important;
+          display: block !important;
+          overflow: visible !important;
+          height: auto !important;
+          max-height: none !important;
+          max-width: 100% !important;
+          margin: 0 !important;
+          box-shadow: none !important;
+          background: #ffffff !important;
+        }
+        .MuiBackdrop-root,
+        .no-print {
+          display: none !important;
+        }
+      }
       ::-webkit-scrollbar-thumb {
         background: #CBD5E1;
         border-radius: 4px;

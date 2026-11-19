@@ -726,6 +726,7 @@ export async function syncWithCloud(forcePush = false) {
       writeLocalStorageSafe(merged);
       writeToIndexedDB(merged);
       window.dispatchEvent(new Event('kite_db_updated'));
+      window.dispatchEvent(new Event('kite_cloud_hydrated'));
       console.log('[Cloud Sync] Hydrated local DB from Supabase Cloud successfully.');
       return { ok: true, action: 'pulled', data: merged };
     } else {

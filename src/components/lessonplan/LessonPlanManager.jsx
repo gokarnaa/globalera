@@ -1248,7 +1248,7 @@ export default function LessonPlanManager() {
                 KITE CAREGIVER TRAINING CENTER • Jorpati, Gokarneshwor, Kathmandu
               </Typography>
               <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.5 }}>
-                Phone: +977-1-4481234 | Email: info@globalera.edu.np | Reg No: 184920/078/079
+                Phone: +977-1-4481234 | Email: info@globalera.com.np | Reg No: 184920/078/079
               </Typography>
             </Box>
 
