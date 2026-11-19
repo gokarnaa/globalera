@@ -458,11 +458,12 @@ export default function WhatsAppWorkspace({
   const studentLedgerData = useMemo(() => {
     if (!activeThread || activeThread.role !== 'Student' || !activeThread.entity) return null;
     const std = activeThread.entity;
-    const course = (liveDb.courses || []).find((c) => c.id === std.courseId);
-    const totalFee = Number(std.totalFee ?? course?.fee ?? 0);
+    const grp = (liveDb.trainingGroups || []).find((g) => g.id === std.groupId);
+    const course = (liveDb.courses || []).find((c) => c.id === (std.courseId || grp?.courseId));
+    const totalFee = Number(std.totalFee ?? std.feeAmount ?? course?.price ?? course?.fee ?? 0);
     const studentPayments = (liveDb.payments || []).filter((p) => p.studentId === std.id);
     const paidFromPayments = studentPayments.reduce((s, p) => s + Number(p.amount || 0), 0);
-    const paid = studentPayments.length > 0 ? paidFromPayments : Number(std.paidFee || 0);
+    const paid = studentPayments.length > 0 ? paidFromPayments : Number(std.paidFee ?? std.feePaid ?? 0);
     const due = Math.max(0, totalFee - paid);
     const stage =
       due <= 0 && totalFee > 0

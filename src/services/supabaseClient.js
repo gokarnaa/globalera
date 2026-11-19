@@ -411,10 +411,10 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       email: l.email,
       address: l.address,
       source: l.source || 'Walk-in',
-      status: l.status || 'New',
+      status: l.stage || l.status || 'New Lead',
       priority: l.priority || 'Medium',
       counselor: l.counselor,
-      follow_up_date: l.followUpDate,
+      follow_up_date: l.nextFollowUp || l.followUpDate,
       notes: l.notes
     })));
   }
@@ -1030,36 +1030,46 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       isDelivered: lb.is_delivered,
       trainerNotes: lb.trainer_notes
     })),
-    students: students.map(s => ({
-      id: s.id,
-      groupId: s.group_id,
-      tgid: s.tgid,
-      name: s.name,
-      phone: s.phone,
-      secondaryPhone: s.secondary_phone,
-      email: s.email,
-      pin: s.pin,
-      biometricId: s.biometric_id,
-      gender: s.gender,
-      dateOfBirth: s.date_of_birth,
-      citizenshipNumber: s.citizenship_number,
-      citizenshipDistrict: s.citizenship_district,
-      municipality: s.municipality,
-      wardNo: s.ward_no,
-      permanentAddress: s.permanent_address,
-      currentAddress: s.current_address,
-      fatherName: s.father_name,
-      motherName: s.mother_name,
-      guardianContact: s.guardian_contact,
-      educationLevel: s.education_level,
-      fundingType: s.funding_type,
-      feeAmount: s.fee_amount,
-      feePaid: s.fee_paid,
-      admissionDate: s.admission_date,
-      expectedEndDate: s.expected_end_date,
-      photoUrl: s.photo_url,
-      status: s.status
-    })),
+    students: students.map(s => {
+      const grp = groups.find(g => g.id === s.group_id);
+      const total = Number(s.fee_amount || 0);
+      const paid = Number(s.fee_paid || 0);
+      const due = Math.max(0, total - paid);
+      return {
+        id: s.id,
+        groupId: s.group_id,
+        courseId: grp?.course_id || null,
+        tgid: s.tgid,
+        name: s.name,
+        phone: s.phone,
+        secondaryPhone: s.secondary_phone,
+        email: s.email,
+        pin: s.pin,
+        biometricId: s.biometric_id,
+        gender: s.gender,
+        dateOfBirth: s.date_of_birth,
+        citizenshipNumber: s.citizenship_number,
+        citizenshipDistrict: s.citizenship_district,
+        municipality: s.municipality,
+        wardNo: s.ward_no,
+        permanentAddress: s.permanent_address,
+        currentAddress: s.current_address,
+        fatherName: s.father_name,
+        motherName: s.mother_name,
+        guardianContact: s.guardian_contact,
+        educationLevel: s.education_level,
+        fundingType: s.funding_type,
+        feeAmount: total,
+        feePaid: paid,
+        totalFee: total,
+        paidFee: paid,
+        dueFee: due,
+        admissionDate: s.admission_date,
+        expectedEndDate: s.expected_end_date,
+        photoUrl: s.photo_url,
+        status: s.status
+      };
+    }),
     attendances: attendances.map(a => ({
       id: a.id,
       groupId: a.group_id,
@@ -1080,21 +1090,26 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       verifyMode: b.verify_mode,
       deviceSerial: b.device_serial
     })),
-    leads: leads.map(l => ({
-      id: l.id,
-      courseId: l.course_id,
-      agentId: l.agent_id,
-      name: l.name,
-      phone: l.phone,
-      email: l.email,
-      address: l.address,
-      source: l.source,
-      status: l.status,
-      priority: l.priority,
-      counselor: l.counselor,
-      followUpDate: l.follow_up_date,
-      notes: l.notes
-    })),
+    leads: leads.map(l => {
+      const normalizedStage = !l.status || l.status === 'New' ? 'New Lead' : l.status;
+      return {
+        id: l.id,
+        courseId: l.course_id,
+        agentId: l.agent_id,
+        name: l.name,
+        phone: l.phone,
+        email: l.email,
+        address: l.address,
+        source: l.source,
+        status: l.status || normalizedStage,
+        stage: normalizedStage,
+        priority: l.priority,
+        counselor: l.counselor,
+        followUpDate: l.follow_up_date,
+        nextFollowUp: l.follow_up_date,
+        notes: l.notes
+      };
+    }),
     agents: agents.map(ag => ({
       id: ag.id,
       code: ag.code,

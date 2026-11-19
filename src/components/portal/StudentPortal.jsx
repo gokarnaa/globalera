@@ -193,7 +193,7 @@ export default function StudentPortal({ onLogout }) {
   }, [studentPayments]);
 
   const agreedFee = useMemo(() => {
-    return Number(student?.totalFee || student?.feeAgreed || course?.price || 15000);
+    return Number(student?.totalFee || student?.feeAmount || student?.feeAgreed || course?.price || 15000);
   }, [student, course]);
 
   const dueBalance = Math.max(0, agreedFee - totalPaid);
