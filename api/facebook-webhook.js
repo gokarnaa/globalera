@@ -79,9 +79,12 @@ function cleanPlainText(text) {
 
 const FB_COUNSELOR_PROMPT = `तपाईं "ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी" (Global Era Multi Service Pvt. Ltd.) को आधिकारिक AI Admission & Career Counsellor हुनुहुन्छ।
 शैली:
-- रोबोट वा लामो ब्रोशर नपठाई, जोरपाटी अफिसको वास्तविक, नम्र मानव काउन्सिलरले Messenger मा च्याट गरे जस्तो २-४ लाइनमा सटिक उत्तर दिनुहोस्।
+- रोबोट वा लामो ब्रोशर नपठाई, जोरपाटी अफिसको वास्तविक, नम्र र आत्मीय मानव काउन्सिलरले Messenger मा च्याट गरे जस्तो २-४ लाइनमा सटिक उत्तर दिनुहोस्।
 - सोधिएको मात्र उत्तर दिनुहोस् — नसोधी अन्य कोर्स, लामो सिलेबस वा ठेगाना नथप्नुहोस्।
+- नेपाली युनिकोड, रोमन नेपाली र अंग्रेजी सबै बुझ्नुहोस्, तर उत्तर सधैँ प्राकृतिक, मिठो नेपाली देवनागरीमा दिनुहोस् (अंग्रेजी मागे मात्र अंग्रेजीमा दिनुहोस्)।
+- Recent chat राम्रोसँग पढ्नुहोस् — पहिले नै नमस्कार वा संस्थाको पूरा परिचय दिइसकेको भए फेरि नदोहोर्‍याउनुहोस्।
 - "हजुर" वा "तपाईं" भन्नुहोस्। अन्त्यमा केवल एउटा छोटो सान्दर्भिक प्रश्न सोध्नुहोस्।
+- Smart Lead Capture: पहिलो "Hi/नमस्ते" मै नम्बर नमाग्नुहोस्, तर ग्राहकले २–३ मेसेजपछि शुल्क वा समयबारे चासो देखाएमा नम्र शैलीमा नाम र WhatsApp/फोन नम्बर माग्नुहोस् ("नयाँ ब्याचको सिट र समय मिलाउन हजुरको नाम र WhatsApp/फोन नम्बर दिनुभए हाम्रो काउन्सिलरले कल गर्नुहुन्छ नि।")।
 
 तथ्य (संस्करण ५.०):
 - ठेगाना: गोकर्णेश्वर–५, जोरपाटी (चामुण्डा गेट विपरीत, कुमार गहना पसलसँगैको गल्लीभित्र, T-Mart को दोस्रो तला)। फोन: 01-4910715 / 9803614574।
@@ -93,6 +96,18 @@ const FB_COUNSELOR_PROMPT = `तपाईं "ग्लोबल एरा म�
 - कमर्सियल बेकरी: २ महिना, रु. 30,000, दैनिक ५ घण्टा (बिहान 11–4 बजे), लक्षित १०० आइटम।
 - सिफ्ट: बिहान 7–9, 10–12, दिउँसो 12–2, 2–4, साँझ 4–6 बजे र जागिरदारका लागि Holiday Special Class।
 - प्रमाणपत्र: संस्थाद्वारा जारी तालिम प्रमाणपत्र + Digital Profile + Skill Dossier (पुष्टि नभई CTEVT/सरकारी नभन्नुहोस्)। OJT र Job Placement Support छ (तर १००% जागिर ग्यारेन्टी नभन्नुहोस्)।`;
+
+function needsFbHumanHandoff(text = '') {
+  const lower = String(text || '').toLowerCase();
+  const triggers = [
+    'kista', 'installment', 'किस्ता',
+    'ajhai chhut', 'extra discount', 'discount milchha', 'discount milcha', 'थप छुट', 'अझै छुट', 'kam garnu', 'कम गर्नु',
+    'gunaso', 'complain', 'complaint', 'गुनासो',
+    'call garnu', 'call me', 'कल गर्नु', 'फोन गर्नु',
+    'office audai', 'अफिस आउँदै', 'bhetna audai', 'भेट्न आउँदै'
+  ];
+  return triggers.some((t) => lower.includes(t));
+}
 
 async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history = [] }) {
   if (!geminiKey) return null;
@@ -120,7 +135,7 @@ async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history 
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: 'user', parts: [{ text: contentsText }] }],
-            generationConfig: { temperature: 0.25, maxOutputTokens: 800 }
+            generationConfig: { temperature: 0.42, maxOutputTokens: 800 }
           })
         }
       );
@@ -163,7 +178,7 @@ async function logFbMessage({ channel, recipientId, recipientName, message, stat
 }
 
 async function autoCaptureFbLead({ senderName, senderId, messageText, source }) {
-  const phoneMatch = String(messageText || '').match(/(?:\+?977[-\s]?)?(9[78]\d{8})\b/);
+  const phoneMatch = String(messageText || '').match(/(?:\+?977[-\s]?)?(9[678]\d{8})\b/);
   const lower = String(messageText || '').toLowerCase();
   const hasIntent =
     Boolean(phoneMatch) ||
@@ -226,10 +241,14 @@ export default async function handler(req, res) {
           const msgText = (event.message?.text || event.postback?.title || '').trim();
           if (!senderPsid || !msgText) continue;
 
-          const [senderName, history] = await Promise.all([
+          const [senderName, history, pauseRows] = await Promise.all([
             fetchFbProfileName(senderPsid, pageToken),
             supabaseRest(
               `communication_logs?recipient_phone=eq.${encodeURIComponent(senderPsid)}&channel=ilike.FB_Messenger_*&order=sent_at.desc&limit=10`,
+              'GET'
+            ),
+            supabaseRest(
+              `communication_logs?recipient_phone=eq.${encodeURIComponent(`messenger:${senderPsid}`)}&channel=in.(WhatsApp_Bot_Pause,WhatsApp_Bot_Resume)&order=sent_at.desc&limit=1`,
               'GET'
             )
           ]);
@@ -245,16 +264,29 @@ export default async function handler(req, res) {
             autoCaptureFbLead({ senderName, senderId: senderPsid, messageText: msgText, source: 'Facebook Messenger' })
           ]);
 
-          // Check human takeover pause (last 30 mins manual outbound)
+          // Check explicit pause state or human takeover (last 30 mins manual outbound)
+          const explicitlyPaused = Array.isArray(pauseRows) && pauseRows[0]?.channel === 'WhatsApp_Bot_Pause';
           const thirtyMinAgo = Date.now() - 30 * 60 * 1000;
           const recentHuman = Array.isArray(history)
             ? history.find((h) => h.channel === 'FB_Messenger_Outbound' && new Date(h.sent_at).getTime() > thirtyMinAgo)
             : null;
 
-          if (!botConfig.autoBotEnabled || recentHuman) continue;
+          if (!botConfig.autoBotEnabled || explicitlyPaused || recentHuman) continue;
 
           let replyText = null;
-          if (botConfig.aiCounselorEnabled && botConfig.geminiApiKey) {
+          if (needsFbHumanHandoff(msgText)) {
+            replyText = 'एकछिन है हजुर, यो विषयमा हाम्रो जोरपाटी अफिसको सर/म्यामले नै हजुरलाई प्रत्यक्ष बुझाएर मिलाइदिनुहुन्छ — एकैछिनमा सम्पर्क गर्छौं है। 🙏';
+            await supabaseRest('communication_logs', 'POST', {
+              id: `WABOT-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+              organization_id: 'ORG-GLOBALERA-01',
+              channel: 'WhatsApp_Bot_Pause',
+              recipient_name: senderName || 'FB Visitor',
+              recipient_phone: `messenger:${senderPsid}`,
+              message: `[Smart Human Handoff triggered by: ${msgText.slice(0, 80)}]`,
+              status: 'paused',
+              sent_at: new Date().toISOString()
+            });
+          } else if (botConfig.aiCounselorEnabled && botConfig.geminiApiKey) {
             replyText = await askGeminiFb({
               geminiKey: botConfig.geminiApiKey,
               userPrompt: `Latest Messenger message from ${senderName}: "${msgText}"\nReply naturally:`,
@@ -262,6 +294,8 @@ export default async function handler(req, res) {
               history: Array.isArray(history) ? history : []
             });
           }
+          // Natural 2-second human-like pause before sending reply
+          await new Promise((r) => setTimeout(r, 2000));
           if (!replyText) {
             replyText =
               'नमस्कार हजुर! ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटीमा स्वागत छ। हजुरलाई सिलाई, ब्युटिसियन, नेल आर्ट, आइल्यास वा बेकरीमध्ये कुन तालिमबारे जानकारी चाहिएको हो?';

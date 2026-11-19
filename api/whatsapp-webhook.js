@@ -241,13 +241,29 @@ async function getStudentSelfServiceContext(senderPhone) {
   );
 }
 
+function needsHumanHandoff(text = '') {
+  const lower = String(text || '').toLowerCase();
+  const triggers = [
+    'kista', 'installment', 'किस्ता',
+    'ajhai chhut', 'extra discount', 'discount milchha', 'discount milcha', 'थप छुट', 'अझै छुट', 'kam garnu', 'कम गर्नु',
+    'gunaso', 'complain', 'complaint', 'गुनासो',
+    'call garnu', 'call me', 'कल गर्नु', 'फोन गर्नु',
+    'office audai', 'अफिस आउँदै', 'bhetna audai', 'भेट्न आउँदै'
+  ];
+  return triggers.some((t) => lower.includes(t));
+}
+
 async function autoCaptureLeadIfNeeded(senderPhone, senderName, messageText, referral) {
-  const lower = messageText.toLowerCase();
+  const lower = String(messageText || '').toLowerCase();
+  const hasNepalPhone = /(?:\+?977[-\s]?)?(9[678]\d{8})\b/.test(String(messageText || ''));
   const isLeadIntent =
+    hasNepalPhone ||
     lower === '4' ||
     lower.includes('apply') ||
     lower.includes('admission') ||
     lower.includes('भर्ना') ||
+    lower.includes('fee') ||
+    lower.includes('शुल्क') ||
     Boolean(referral);
   if (!isLeadIntent) return;
 
@@ -326,7 +342,7 @@ const MASTER_COUNSELOR_PROMPT_V5 = `तपाईं "ग्लोबल एर�
 - पुरानो शुल्क रु. 11,865 कहिल्यै प्रयोग नगर्नुहोस्। "पूर्ण निःशुल्क तालिम" नभन्नुहोस्।
 - किस्ताबन्दी, हालको ब्याच सिट उपलब्धता वा थप छुट कार्यालयबाट पुष्टि गर्नुपर्ने बताउनुहोस्। अफरको अन्तिम मिति वा कृत्रिम अभाव सिर्जना नगर्नुहोस्।
 - नागरिकता नम्बर, पासवर्ड, OTP वा बैंक कार्ड विवरण नमाग्नुहोस्। सिस्टमबाट पुष्टि नभई "सिट बुक भयो" वा "भर्ना भयो" नभन्नुहोस्।
-- भर्ना हुन इच्छुक भए सहमति लिएर पूरा नाम, मोबाइल नम्बर, कोर्स र मनपर्ने समय सोध्नुहोस्।`;
+- भर्ना हुन इच्छुक भए वा २–३ मेसेजपछि शुल्क/समयबारे चासो देखाएमा स्वाभाविक र नम्र शैलीमा नाम र WhatsApp/फोन नम्बर माग्नुहोस् (जस्तै: "नयाँ ब्याचको सिट र समय मिलाउन हजुरको नाम र सम्पर्क नम्बर दिनुभए हाम्रो काउन्सिलरले कल गर्नुहुन्छ नि।") — तर पहिलो "Hi/नमस्ते" मै जबरजस्ती नम्बर नमाग्नुहोस्।`;
 
 async function askGeminiCounselor({ geminiKey, messageText, senderName, history, studentContext, referral, customInstructions }) {
   if (!geminiKey) return null;
@@ -360,7 +376,7 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.25, maxOutputTokens: 1200 }
+            generationConfig: { temperature: 0.42, maxOutputTokens: 1200 }
           })
         }
       );
@@ -545,9 +561,26 @@ export default async function handler(req, res) {
         return res.status(200).json({ status: 'skipped_human_takeover_or_disabled', replyMode: botConfig.replyMode });
       }
 
-      // Generate smart reply: AI Counselor when in 'ai' mode, or Keyword Fallback in 'bot' mode
+      // Smart Human Handoff: auto-pause bot for discount negotiation, installments, complaints, or urgent call/visit requests
       let botReply = null;
-      if (botConfig.aiCounselorEnabled && botConfig.geminiApiKey) {
+      let triggeredHandoff = false;
+      if (needsHumanHandoff(messageText)) {
+        triggeredHandoff = true;
+        botReply = 'एकछिन है हजुर, यो विषयमा हाम्रो जोरपाटी अफिसको सर/म्यामले नै हजुरलाई प्रत्यक्ष बुझाएर मिलाइदिनुहुन्छ — एकैछिनमा सम्पर्क गर्छौं है। 🙏';
+        await supabaseRest('communication_logs', 'POST', {
+          id: `WABOT-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          organization_id: 'ORG-GLOBALERA-01',
+          channel: 'WhatsApp_Bot_Pause',
+          recipient_name: senderName || 'Visitor',
+          recipient_phone: last10(senderPhone) || senderPhone,
+          message: `[Smart Human Handoff triggered by: ${messageText.slice(0, 80)}]`,
+          status: 'paused',
+          sent_at: new Date().toISOString()
+        });
+      }
+
+      // Generate smart reply: AI Counselor when in 'ai' mode, or Keyword Fallback in 'bot' mode
+      if (!botReply && botConfig.aiCounselorEnabled && botConfig.geminiApiKey) {
         botReply = await askGeminiCounselor({
           geminiKey: botConfig.geminiApiKey,
           messageText,
@@ -563,6 +596,9 @@ export default async function handler(req, res) {
         botReply = buildKeywordFallbackReply(messageText, referral);
       }
       botReply = cleanWhatsAppMarkdown(botReply);
+
+      // Natural 2-second human-like pause before sending reply
+      await new Promise((r) => setTimeout(r, 2000));
 
       if (currentPhoneId && META_ACCESS_TOKEN) {
         try {
