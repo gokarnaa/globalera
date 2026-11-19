@@ -53,7 +53,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import confetti from 'canvas-confetti';
-import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, getActiveGroupTrainees, logAudit } from '../../services/storage';
+import { loadDB, saveDB, SHIFT_DEFINITIONS, calculateExpectedEndDate, getActiveGroupTrainees, getNextSequentialId, logAudit } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
@@ -64,6 +64,18 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   const [db, setDb] = useState(loadDB());
   const { currentUser, isTrainer } = useAuth();
   const { confirm, alert } = useDialog();
+
+  useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('kite_cloud_hydrated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('kite_cloud_hydrated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   // View, Search, Filter & Sort States
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
@@ -276,11 +288,11 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
     let updatedList = [...(db.trainingGroups || [])];
     if (editingItem) {
       updatedList = updatedList.map((x) =>
-        x.id === editingItem.id ? { ...x, ...formData } : x
+        x.id === editingItem.id ? { ...x, ...formData, shift: formData.shift || 'A' } : x
       );
     } else {
-      const newId = `GRP-${String(updatedList.length + 1).padStart(2, '0')}`;
-      updatedList.push({ id: newId, ...formData });
+      const newId = getNextSequentialId(updatedList, 'GRP-', 2, 'id', 1);
+      updatedList.push({ id: newId, ...formData, shift: formData.shift || 'A' });
     }
 
     let nextDb = { ...db, trainingGroups: updatedList };

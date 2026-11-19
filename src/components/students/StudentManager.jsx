@@ -30,11 +30,13 @@ import {
   ToggleButtonGroup,
   InputAdornment,
   TablePagination,
+  Checkbox,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
+import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import QrCode2Icon from '@mui/icons-material/QrCode2';
@@ -73,15 +75,22 @@ export default function StudentManager() {
   React.useEffect(() => {
     const refreshDb = () => setDb(loadDB());
     window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('kite_cloud_hydrated', refreshDb);
     window.addEventListener('storage', refreshDb);
     return () => {
       window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('kite_cloud_hydrated', refreshDb);
       window.removeEventListener('storage', refreshDb);
     };
   }, []);
 
   const [openAddDialog, setOpenAddDialog] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
+  const [openBulkTransfer, setOpenBulkTransfer] = useState(false);
+  const [bulkSelectedIds, setBulkSelectedIds] = useState([]);
+  const [bulkTargetGroupId, setBulkTargetGroupId] = useState('');
+  const [bulkSearch, setBulkSearch] = useState('');
+  const [bulkSourceGroup, setBulkSourceGroup] = useState('ALL');
   const [profileStudent, setProfileStudent] = useState(null);
   const [idCardStudent, setIdCardStudent] = useState(null);
   const [timelineStudent, setTimelineStudent] = useState(null);
@@ -190,8 +199,52 @@ export default function StudentManager() {
     setFormData((prev) => ({
       ...prev,
       groupId: grpId,
+      courseId: grp?.courseId || prev.courseId,
       expectedEndDate: grp ? grp.expectedEndDate || grp.endDate : prev.expectedEndDate
     }));
+  };
+
+  const handleBulkTransferSave = () => {
+    if (!bulkSelectedIds.length) {
+      alert('Please select at least one student to transfer.');
+      return;
+    }
+    if (!bulkTargetGroupId) {
+      alert('Please select a destination Training Group.');
+      return;
+    }
+    const targetGrp = (db.trainingGroups || []).find((g) => g.id === bulkTargetGroupId);
+    const idSet = new Set(bulkSelectedIds);
+    const nowIso = new Date().toISOString();
+    const updatedTimeline = [...(db.studentTimelines || [])];
+    const updatedList = (db.students || []).map((s) => {
+      if (!idSet.has(s.id)) return s;
+      if (s.groupId !== bulkTargetGroupId) {
+        const oldGrp = (db.trainingGroups || []).find((g) => g.id === s.groupId);
+        updatedTimeline.push({
+          id: `TL-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          studentId: s.id,
+          eventType: 'Group Transfer',
+          title: 'Training Group Changed',
+          description: `Moved from ${oldGrp?.groupCode || s.groupId || 'Unassigned'} to ${targetGrp?.groupCode || bulkTargetGroupId}`,
+          createdAt: nowIso
+        });
+      }
+      return {
+        ...s,
+        groupId: bulkTargetGroupId,
+        courseId: targetGrp?.courseId || s.courseId,
+        expectedEndDate: targetGrp?.expectedEndDate || targetGrp?.endDate || s.expectedEndDate
+      };
+    });
+    const nextDb = { ...db, students: updatedList, studentTimelines: updatedTimeline };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setOpenBulkTransfer(false);
+    setBulkSelectedIds([]);
+    setBulkTargetGroupId('');
+    setBulkSearch('');
+    setBulkSourceGroup('ALL');
   };
 
   const handleSave = () => {
@@ -204,6 +257,18 @@ export default function StudentManager() {
     let updatedTimeline = [...(db.studentTimelines || [])];
 
     if (editingItem) {
+      if (editingItem.groupId !== formData.groupId) {
+        const oldGrp = (db.trainingGroups || []).find((g) => g.id === editingItem.groupId);
+        const newGrp = (db.trainingGroups || []).find((g) => g.id === formData.groupId);
+        updatedTimeline.push({
+          id: `TL-${Date.now()}`,
+          studentId: editingItem.id,
+          eventType: 'Group Transfer',
+          title: 'Training Group Changed',
+          description: `Moved from ${oldGrp?.groupCode || editingItem.groupId || 'Unassigned'} to ${newGrp?.groupCode || formData.groupId}`,
+          createdAt: new Date().toISOString()
+        });
+      }
       updatedList = updatedList.map((x) =>
         x.id === editingItem.id ? { ...x, ...formData } : x
       );
@@ -382,6 +447,31 @@ export default function StudentManager() {
 
           <Grid item xs={12} md={5} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
             <Stack direction="row" spacing={1} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<SwapHorizIcon sx={{ fontSize: '16px !important' }} />}
+                onClick={() => {
+                  setBulkSelectedIds([]);
+                  setBulkTargetGroupId('');
+                  setBulkSearch('');
+                  setBulkSourceGroup(filterGroup !== 'ALL' ? filterGroup : 'ALL');
+                  setOpenBulkTransfer(true);
+                }}
+                sx={{
+                  bgcolor: 'rgba(255, 255, 255, 0.1)',
+                  color: '#ffffff',
+                  borderColor: 'rgba(255, 255, 255, 0.3)',
+                  fontWeight: 700,
+                  fontSize: '0.76rem',
+                  whiteSpace: 'nowrap',
+                  px: 1.4,
+                  py: 0.65,
+                  '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.2)', borderColor: '#ffffff' }
+                }}
+              >
+                Move Group
+              </Button>
               <Button
                 variant="outlined"
                 size="small"
@@ -1461,6 +1551,191 @@ export default function StudentManager() {
           />
         );
       })()}
+
+      {/* Bulk Move Students to Another Training Group Dialog */}
+      <Dialog
+        open={openBulkTransfer}
+        onClose={() => setOpenBulkTransfer(false)}
+        maxWidth="sm"
+        fullWidth
+        fullScreen={isMobile}
+        PaperProps={{ sx: { borderRadius: isMobile ? 0 : 2.5 } }}
+      >
+        <DialogTitle sx={{ bgcolor: '#0F2E5A', color: '#FFFFFF', py: 1.5, px: 2.2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <SwapHorizIcon sx={{ color: '#FBBF24' }} />
+            <Box>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, lineHeight: 1.2 }}>
+                Bulk Move Students to Training Group
+              </Typography>
+              <Typography variant="caption" sx={{ color: '#CBD5E1', display: 'block' }}>
+                Select multiple students and transfer them to another batch in one click
+              </Typography>
+            </Box>
+          </Stack>
+          <IconButton size="small" onClick={() => setOpenBulkTransfer(false)} sx={{ color: '#FFFFFF' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2.2, bgcolor: '#F8FAFC' }}>
+          <Stack spacing={1.8} sx={{ mt: 0.5 }}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="Destination Training Group *"
+              value={bulkTargetGroupId}
+              onChange={(e) => setBulkTargetGroupId(e.target.value)}
+              helperText={myGroups.length <= 1 ? 'Add another Training Group in Training Groups menu first.' : 'Selected students will be moved to this group.'}
+              sx={{ bgcolor: '#FFFFFF' }}
+            >
+              <MenuItem value="">-- Select Destination Group --</MenuItem>
+              {myGroups.map((grp) => {
+                const crs = (db.courses || []).find((c) => c.id === grp.courseId);
+                return (
+                  <MenuItem key={grp.id} value={grp.id}>
+                    {grp.groupCode} — {crs?.title || 'Course'} (Shift {grp.shift || 'A'})
+                  </MenuItem>
+                );
+              })}
+            </TextField>
+
+            <Grid container spacing={1.2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  select
+                  fullWidth
+                  size="small"
+                  label="Filter Current Group"
+                  value={bulkSourceGroup}
+                  onChange={(e) => setBulkSourceGroup(e.target.value)}
+                  sx={{ bgcolor: '#FFFFFF' }}
+                >
+                  <MenuItem value="ALL">All Groups</MenuItem>
+                  {myGroups.map((grp) => (
+                    <MenuItem key={grp.id} value={grp.id}>
+                      {grp.groupCode}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  size="small"
+                  placeholder="Search student name / TGID..."
+                  value={bulkSearch}
+                  onChange={(e) => setBulkSearch(e.target.value)}
+                  sx={{ bgcolor: '#FFFFFF' }}
+                />
+              </Grid>
+            </Grid>
+
+            {(() => {
+              const q = bulkSearch.toLowerCase().trim();
+              const candidates = (db.students || []).filter((s) => {
+                if (isTrainer && !myGroups.some((g) => g.id === s.groupId)) return false;
+                if (bulkSourceGroup !== 'ALL' && s.groupId !== bulkSourceGroup) return false;
+                if (q && !(s.name || '').toLowerCase().includes(q) && !(s.tgid || '').toLowerCase().includes(q) && !(s.phone || '').includes(q)) {
+                  return false;
+                }
+                return true;
+              });
+              const allVisibleSelected = candidates.length > 0 && candidates.every((c) => bulkSelectedIds.includes(c.id));
+              return (
+                <Paper elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2, overflow: 'hidden', bgcolor: '#FFFFFF' }}>
+                  <Box sx={{ px: 1.5, py: 0.9, bgcolor: '#F1F5F9', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                      <Checkbox
+                        size="small"
+                        checked={allVisibleSelected}
+                        indeterminate={!allVisibleSelected && candidates.some((c) => bulkSelectedIds.includes(c.id))}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setBulkSelectedIds(Array.from(new Set([...bulkSelectedIds, ...candidates.map((c) => c.id)])));
+                          } else {
+                            const visibleSet = new Set(candidates.map((c) => c.id));
+                            setBulkSelectedIds(bulkSelectedIds.filter((id) => !visibleSet.has(id)));
+                          }
+                        }}
+                      />
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#334155' }}>
+                        Select All Visible ({candidates.length})
+                      </Typography>
+                    </Stack>
+                    <Chip size="small" label={`${bulkSelectedIds.length} Selected`} color={bulkSelectedIds.length ? 'primary' : 'default'} sx={{ fontWeight: 700, height: 22 }} />
+                  </Box>
+                  <Box sx={{ maxHeight: 280, overflowY: 'auto' }}>
+                    {candidates.length === 0 ? (
+                      <Typography variant="caption" sx={{ display: 'block', p: 2, textAlign: 'center', color: '#64748B' }}>
+                        No students match this filter.
+                      </Typography>
+                    ) : (
+                      candidates.map((s) => {
+                        const checked = bulkSelectedIds.includes(s.id);
+                        const curGrp = (db.trainingGroups || []).find((g) => g.id === s.groupId);
+                        return (
+                          <Box
+                            key={s.id}
+                            onClick={() => {
+                              setBulkSelectedIds((prev) =>
+                                prev.includes(s.id) ? prev.filter((id) => id !== s.id) : [...prev, s.id]
+                              );
+                            }}
+                            sx={{
+                              px: 1.5,
+                              py: 0.75,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              borderBottom: '1px solid #F1F5F9',
+                              cursor: 'pointer',
+                              bgcolor: checked ? '#EFF6FF' : 'transparent',
+                              '&:hover': { bgcolor: checked ? '#DBEAFE' : '#F8FAFC' }
+                            }}
+                          >
+                            <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0 }}>
+                              <Checkbox size="small" checked={checked} sx={{ p: 0.3 }} />
+                              <Box sx={{ minWidth: 0 }}>
+                                <Typography variant="body2" noWrap sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.82rem' }}>
+                                  {s.name}
+                                </Typography>
+                                <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem' }}>
+                                  {s.tgid} • {s.phone || '—'}
+                                </Typography>
+                              </Box>
+                            </Stack>
+                            <Chip
+                              size="small"
+                              label={curGrp?.groupCode || 'Unassigned'}
+                              variant="outlined"
+                              sx={{ fontSize: '0.68rem', height: 20, maxWidth: 150 }}
+                            />
+                          </Box>
+                        );
+                      })
+                    )}
+                  </Box>
+                </Paper>
+              );
+            })()}
+          </Stack>
+        </DialogContent>
+        <DialogActions sx={{ px: 2.2, py: 1.4, borderTop: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+          <Button onClick={() => setOpenBulkTransfer(false)} color="inherit" sx={{ fontWeight: 700 }}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={!bulkSelectedIds.length || !bulkTargetGroupId}
+            onClick={handleBulkTransferSave}
+            startIcon={<SwapHorizIcon />}
+            sx={{ bgcolor: '#0F2E5A', fontWeight: 800, '&:hover': { bgcolor: '#1E3A8A' } }}
+          >
+            Transfer {bulkSelectedIds.length || ''} Student{bulkSelectedIds.length === 1 ? '' : 's'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }

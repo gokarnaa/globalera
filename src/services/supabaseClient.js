@@ -111,19 +111,43 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
   const results = {};
 
   // Helper for chunked batch upserts (handles 500+ students & 45,000+ attendance rows safely)
+  // Self-heals PGRST204 schema-cache mismatches by auto-stripping columns not yet migrated in Supabase
   const safeUpsert = async (table, payload, conflictKey) => {
     if (!payload || !payload.length) return 0;
     const CHUNK_SIZE = 500;
     let totalSaved = 0;
     const opts = conflictKey ? { onConflict: conflictKey } : undefined;
+    const droppedCols = new Set();
     try {
       for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
-        const chunk = payload.slice(i, i + CHUNK_SIZE);
-        const { error } = await client.from(table).upsert(chunk, opts);
-        if (error) {
+        let chunk = payload.slice(i, i + CHUNK_SIZE).map((row) => {
+          if (!droppedCols.size) return row;
+          const copy = { ...row };
+          droppedCols.forEach((c) => delete copy[c]);
+          return copy;
+        });
+        let attempts = 0;
+        while (attempts < 6) {
+          attempts += 1;
+          const { error } = await client.from(table).upsert(chunk, opts);
+          if (!error) {
+            totalSaved += chunk.length;
+            break;
+          }
+          const missingColMatch = String(error.message || '').match(/Could not find the '([^']+)' column/i);
+          if (missingColMatch && missingColMatch[1]) {
+            const badCol = missingColMatch[1];
+            droppedCols.add(badCol);
+            console.warn(`[Supabase Push] ${table}: auto-stripping missing cloud column '${badCol}' and retrying...`);
+            chunk = chunk.map((row) => {
+              const copy = { ...row };
+              delete copy[badCol];
+              return copy;
+            });
+            continue;
+          }
           console.warn(`[Supabase Push] ${table} chunk warning:`, error.message);
-        } else {
-          totalSaved += chunk.length;
+          break;
         }
       }
       return totalSaved;
@@ -260,10 +284,8 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       end_time: g.endTime || '09:00',
       start_date: g.startDate || new Date().toISOString().slice(0, 10),
       expected_end_date: g.expectedEndDate || new Date().toISOString().slice(0, 10),
-      classroom_lab: g.classroomLab || g.room,
+      classroom_lab: g.classroomLab || g.room || null,
       max_capacity: Number(g.maxCapacity ?? g.capacity) || 25,
-      batch_mode: g.batchMode || 'ROLLING',
-      schedule_mode: g.scheduleMode || 'REGULAR',
       status: g.status || 'Running'
     })));
   }
@@ -293,7 +315,6 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       syllabus_id: w.syllabusId,
       plan_date: w.planDate,
       day_name: w.dayName || 'Day',
-      cycle_day: w.cycleDay != null ? Number(w.cycleDay) : null,
       theory_aspect: w.theoryAspect,
       practical_aspect: w.practicalAspect,
       planned_hours: Number(w.plannedHours) || 2,
