@@ -450,16 +450,26 @@ function writeLocalStorageSafe(reconciled) {
 /**
  * Helper to generate safe collision-free sequential IDs (e.g. STD-09, TRN-05, TGID-108)
  */
-export function getNextSequentialId(list = [], prefix = 'STD-', padDigits = 2, startNum = 1, field = 'id') {
+export function getNextSequentialId(list = [], prefix = 'STD-', padDigits = 2, arg4 = 1, arg5 = 'id') {
+  // Support both (list, prefix, padDigits, startNum, field) and (list, prefix, padDigits, field, startNum)
+  const field = typeof arg4 === 'string' ? arg4 : (typeof arg5 === 'string' ? arg5 : 'id');
+  const startNum = typeof arg4 === 'number' ? arg4 : (typeof arg5 === 'number' ? arg5 : 1);
+
+  const existingVals = new Set((list || []).map((item) => String(item?.[field] || '')));
   const nums = (list || [])
     .map((item) => {
       const val = String(item?.[field] || '');
-      const match = val.match(/\d+/);
-      return match ? parseInt(match[0], 10) : 0;
+      const match = val.match(/\d+/g);
+      return match ? parseInt(match[match.length - 1], 10) : 0;
     })
     .filter((n) => !isNaN(n) && n > 0);
-  const nextNum = nums.length > 0 ? Math.max(...nums) + 1 : startNum;
-  return `${prefix}${String(nextNum).padStart(padDigits, '0')}`;
+  let nextNum = nums.length > 0 ? Math.max(...nums) + 1 : startNum;
+  let candidate = `${prefix}${String(nextNum).padStart(padDigits, '0')}`;
+  while (existingVals.has(candidate)) {
+    nextNum += 1;
+    candidate = `${prefix}${String(nextNum).padStart(padDigits, '0')}`;
+  }
+  return candidate;
 }
 
 /**
