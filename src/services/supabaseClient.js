@@ -111,7 +111,25 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
   const results = {};
 
   // Helper for chunked batch upserts (handles 500+ students & 45,000+ attendance rows safely)
-  // Self-heals PGRST204 schema-cache mismatches by auto-stripping columns not yet migrated in Supabase
+  // 1) Converts empty-string foreign keys (*_id) and date columns (*_date / date / deadline) to null
+  //    so PostgreSQL never rejects them with 23503 (FK violation) or 22007 (invalid date syntax)
+  // 2) Self-heals PGRST204 schema-cache mismatches by auto-stripping columns not yet migrated in Supabase
+  const sanitizeRowForPg = (row) => {
+    const clean = {};
+    for (const [k, v] of Object.entries(row || {})) {
+      if (typeof v === 'string' && v.trim() === '') {
+        const isFkCol = k.endsWith('_id') && k !== 'organization_id';
+        const isDateCol = k.endsWith('_date') || k === 'date' || k === 'deadline' || k === 'date_of_birth';
+        if (isFkCol || isDateCol) {
+          clean[k] = null;
+          continue;
+        }
+      }
+      clean[k] = v;
+    }
+    return clean;
+  };
+
   const safeUpsert = async (table, payload, conflictKey) => {
     if (!payload || !payload.length) return 0;
     const CHUNK_SIZE = 500;
@@ -121,9 +139,10 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     try {
       for (let i = 0; i < payload.length; i += CHUNK_SIZE) {
         let chunk = payload.slice(i, i + CHUNK_SIZE).map((row) => {
-          if (!droppedCols.size) return row;
-          const copy = { ...row };
-          droppedCols.forEach((c) => delete copy[c]);
+          const copy = sanitizeRowForPg(row);
+          if (droppedCols.size) {
+            droppedCols.forEach((c) => delete copy[c]);
+          }
           return copy;
         });
         let attempts = 0;

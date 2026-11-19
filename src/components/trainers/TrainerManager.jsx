@@ -60,9 +60,11 @@ export default function TrainerManager() {
   React.useEffect(() => {
     const refreshDb = () => setDb(loadDB());
     window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('kite_cloud_hydrated', refreshDb);
     window.addEventListener('storage', refreshDb);
     return () => {
       window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('kite_cloud_hydrated', refreshDb);
       window.removeEventListener('storage', refreshDb);
     };
   }, []);
@@ -121,7 +123,12 @@ export default function TrainerManager() {
     } else {
       const newId = getNextSequentialId(updatedList, 'TRN-', 2, 'id', 1);
       const nextBioId = (formData.biometricId || '').toString().trim() || getNextBiometricId(updatedList, 2001);
-      updatedList.push({ ...formData, id: newId, biometricId: nextBioId });
+      updatedList.push({
+        ...formData,
+        occupationId: formData.occupationId || null,
+        id: newId,
+        biometricId: nextBioId
+      });
     }
 
     const nextDb = { ...db, trainers: updatedList };
