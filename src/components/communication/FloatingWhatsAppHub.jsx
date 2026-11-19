@@ -29,8 +29,10 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PersonIcon from '@mui/icons-material/Person';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import WhatsAppWorkspace from './WhatsAppWorkspace';
 import AiCounselorSandbox from './AiCounselorSandbox';
+import FacebookCatchUpModal from './FacebookCatchUpModal';
 import { loadDB } from '../../services/storage';
 import { playLeadChime } from '../../services/soundUtils';
 import {
@@ -56,6 +58,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
   const [soundMuted, setSoundMuted] = useState(false);
   const [targetContact, setTargetContact] = useState({ phone: null, draft: '' });
   const [aiSandboxOpen, setAiSandboxOpen] = useState(false);
+  const [fbCatchUpOpen, setFbCatchUpOpen] = useState(false);
   const [botCfg, setBotCfg] = useState(() => getBotSettings());
   const [db, setDb] = useState(() => loadDB());
   const [remoteData, setRemoteData] = useState({ logs: [], inbound: [] });
@@ -481,27 +484,60 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               </ToggleButton>
             </ToggleButtonGroup>
 
-            {!isMobile && (
-              <Button
-                size="small"
-                variant="contained"
-                startIcon={<SmartToyIcon sx={{ fontSize: 15 }} />}
-                onClick={() => setAiSandboxOpen(true)}
-                sx={{
-                  bgcolor: '#4F46E5',
-                  color: '#FFFFFF',
-                  fontWeight: 800,
-                  '&:hover': { bgcolor: '#4338CA' },
-                  fontSize: '0.75rem',
-                  py: 0.45,
-                  px: 1.25,
-                  borderRadius: 2,
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-              >
-                AI Sandbox
-              </Button>
+            {isMobile ? (
+              <Tooltip title="FB Backlog Catch-Up Mode">
+                <IconButton
+                  size="small"
+                  aria-label="Open FB Catch-Up Mode"
+                  onClick={() => setFbCatchUpOpen(true)}
+                  sx={{ color: '#93C5FD', bgcolor: 'rgba(24,119,242,0.28)', flexShrink: 0 }}
+                >
+                  <FacebookIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<FacebookIcon sx={{ fontSize: 15 }} />}
+                  onClick={() => setFbCatchUpOpen(true)}
+                  sx={{
+                    bgcolor: '#1877F2',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    '&:hover': { bgcolor: '#1565C0' },
+                    fontSize: '0.75rem',
+                    py: 0.45,
+                    px: 1.25,
+                    borderRadius: 2,
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  FB Catch-Up
+                </Button>
+                <Button
+                  size="small"
+                  variant="contained"
+                  startIcon={<SmartToyIcon sx={{ fontSize: 15 }} />}
+                  onClick={() => setAiSandboxOpen(true)}
+                  sx={{
+                    bgcolor: '#4F46E5',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    '&:hover': { bgcolor: '#4338CA' },
+                    fontSize: '0.75rem',
+                    py: 0.45,
+                    px: 1.25,
+                    borderRadius: 2,
+                    whiteSpace: 'nowrap',
+                    flexShrink: 0
+                  }}
+                >
+                  AI Sandbox
+                </Button>
+              </>
             )}
 
             {onOpenFullModule && (
@@ -636,6 +672,13 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
           <AiCounselorSandbox inDialog />
         </DialogContent>
       </Dialog>
+
+      {/* Separate FB Backlog / Unreplied Catch-Up Mode */}
+      <FacebookCatchUpModal
+        open={fbCatchUpOpen}
+        onClose={() => setFbCatchUpOpen(false)}
+        onRefreshHub={() => syncHub({ silent: true, includeBotSettings: false })}
+      />
     </>
   );
 }
