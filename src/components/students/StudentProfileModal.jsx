@@ -50,6 +50,7 @@ import RecordPaymentModal from '../accounts/RecordPaymentModal';
 import FeeClearanceReceiptModal from '../accounts/FeeClearanceReceiptModal';
 import StudentPaymentTimelineModal from '../accounts/StudentPaymentTimelineModal';
 import { saveDB, logAudit, postDoubleEntryJournal } from '../../services/storage';
+import { getStudentWorkflowSummary } from '../../services/tvetWorkflow';
 import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 
 export default function StudentProfileModal({
@@ -589,6 +590,82 @@ export default function StudentProfileModal({
             />
           </Box>
         </Card>
+
+        {/* 1B. End-to-End 6-Stage TVET Lifecycle Tracker */}
+        {(() => {
+          const wf = getStudentWorkflowSummary(db, student);
+          if (!wf) return null;
+          return (
+            <Card
+              elevation={0}
+              sx={{
+                mt: 1.5,
+                p: 1.6,
+                borderRadius: 3,
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0'
+              }}
+            >
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.74rem', letterSpacing: 0.3 }}>
+                  TVET LIFECYCLE PIPELINE (ADMISSION → EPP JOB)
+                </Typography>
+                <Chip
+                  size="small"
+                  label={`${wf.completionPct}% Complete`}
+                  sx={{
+                    height: 20,
+                    fontSize: '0.68rem',
+                    fontWeight: 800,
+                    bgcolor: wf.completionPct >= 80 ? '#ECFDF5' : '#EFF6FF',
+                    color: wf.completionPct >= 80 ? '#059669' : '#1D4ED8'
+                  }}
+                />
+              </Box>
+              <Grid container spacing={0.8}>
+                {wf.stages.map((st, idx) => (
+                  <Grid item xs={6} sm={4} md={2} key={st.key}>
+                    <Box
+                      sx={{
+                        p: 0.85,
+                        borderRadius: 2,
+                        border: '1px solid',
+                        borderColor: st.done ? '#A7F3D0' : st.inProgress ? '#FDE68A' : '#E2E8F0',
+                        bgcolor: st.done ? '#ECFDF5' : st.inProgress ? '#FFFBEB' : '#F8FAFC',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          display: 'block',
+                          fontWeight: 800,
+                          fontSize: '0.68rem',
+                          color: st.done ? '#047857' : st.inProgress ? '#B45309' : '#64748B'
+                        }}
+                      >
+                        {st.done ? '✓ ' : `${idx + 1}. `}{st.label}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        noWrap
+                        sx={{
+                          display: 'block',
+                          fontSize: '0.63rem',
+                          color: st.done ? '#065F46' : st.inProgress ? '#92400E' : '#94A3B8',
+                          fontWeight: 600
+                        }}
+                      >
+                        {st.detail}
+                      </Typography>
+                    </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </Card>
+          );
+        })()}
 
         {/* 2. Course Progress Card */}
         <Card

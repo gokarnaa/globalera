@@ -47,6 +47,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loadDB, saveDB } from '../../services/storage';
+import { getStudentWorkflowSummary } from '../../services/tvetWorkflow';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
@@ -185,9 +186,44 @@ export default function OjtManager() {
     const updatedList = (db.ojts || []).map((x) =>
       x.id === item.id ? { ...x, status: 'Completed' } : x
     );
-    const nextDb = { ...db, ojts: updatedList };
+    const updatedStudents = (db.students || []).map((s) =>
+      s.id === item.studentId && s.status !== 'Dropout' ? { ...s, status: 'Completed' } : s
+    );
+    const nextDb = { ...db, ojts: updatedList, students: updatedStudents };
     saveDB(nextDb);
     setDb(nextDb);
+  };
+
+  const handlePromoteToPlacement = (ojt) => {
+    const existingPlc = (db.placements || []).find((p) => p.studentId === ojt.studentId);
+    if (existingPlc) {
+      alert('This student already has an EPP Job Placement record.');
+      return;
+    }
+    const std = (db.students || []).find((s) => s.id === ojt.studentId);
+    const emp = (db.employers || []).find((e) => e.id === ojt.employerId);
+    const grp = (db.trainingGroups || []).find((g) => g.id === std?.groupId);
+    const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+    const newPlc = {
+      id: `PLC-${Date.now()}`,
+      studentId: ojt.studentId,
+      employerId: ojt.employerId,
+      targetJob: `${crs?.title || 'Vocational'} Specialist`,
+      preferredLocation: emp?.location || 'Kathmandu',
+      expectedSalary: 'NPR 22,000 / month',
+      employmentType: 'Full-Time Employee',
+      workSchedule: 'Day Shift',
+      paymentType: 'Monthly Salary',
+      status: 'Placed',
+      remarks: `Converted directly from Completed OJT at ${emp?.name || 'Host Employer'}`
+    };
+    const nextDb = {
+      ...db,
+      placements: [newPlc, ...(db.placements || [])]
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    alert(`🎉 ${std?.name || 'Trainee'} promoted from OJT to EPP Job Placement at ${emp?.name || 'Employer'}!`);
   };
 
   const totalOjts = (db.ojts || []).length;
@@ -604,6 +640,29 @@ export default function OjtManager() {
                         />
                       </TableCell>
                       <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                        {ojt.status === 'Completed' && !(db.placements || []).some((p) => p.studentId === ojt.studentId) && (
+                          <Tooltip title="Convert Completed OJT directly to Job Placement (EPP)">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              onClick={() => handlePromoteToPlacement(ojt)}
+                              sx={{
+                                mr: 0.75,
+                                py: 0.2,
+                                px: 0.8,
+                                fontSize: '0.67rem',
+                                fontWeight: 800,
+                                textTransform: 'none',
+                                color: '#059669',
+                                borderColor: '#6EE7B7',
+                                bgcolor: '#ECFDF5',
+                                '&:hover': { bgcolor: '#D1FAE5', borderColor: '#10B981' }
+                              }}
+                            >
+                              → EPP Job
+                            </Button>
+                          </Tooltip>
+                        )}
                         <IconButton size="small" onClick={() => handleOpenEdit(ojt)} sx={{ color: '#1a56b0', p: 0.4, mr: 0.25 }}>
                           <EditIcon fontSize="small" />
                         </IconButton>
@@ -991,6 +1050,40 @@ export default function OjtManager() {
                       ⛔ OJT Deployment Blocked: Trainee has an unpaid 2nd installment balance of <b>NPR {selectedFee.due.toLocaleString()}</b>. Institutional rules mandate 100% fee clearance before clinical or hospital placement.
                     </Alert>
                   )}
+
+                  {formData.studentId && (() => {
+                    const selStd = (db.students || []).find((s) => s.id === formData.studentId);
+                    const wf = getStudentWorkflowSummary(db, selStd);
+                    if (!wf) return null;
+                    return (
+                      <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ pt: 0.25 }}>
+                        <Chip
+                          size="small"
+                          label={wf.attendance.totalDays > 0 ? `Attendance: ${wf.attendance.pct}%` : 'Attendance: No records yet'}
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.7rem',
+                            bgcolor: wf.attendance.eligible ? '#ECFDF5' : '#FEF3C7',
+                            color: wf.attendance.eligible ? '#047857' : '#B45309'
+                          }}
+                        />
+                        <Chip
+                          size="small"
+                          label={
+                            wf.evaluation.evaluatedUnits > 0
+                              ? `Skill Eval: ${wf.evaluation.masteredUnits}/${wf.evaluation.totalUnits} Units (${wf.evaluation.pct}%)`
+                              : 'Skill Eval: Pending'
+                          }
+                          sx={{
+                            fontWeight: 700,
+                            fontSize: '0.7rem',
+                            bgcolor: wf.evaluation.passed ? '#EFF6FF' : '#FEF3C7',
+                            color: wf.evaluation.passed ? '#1D4ED8' : '#B45309'
+                          }}
+                        />
+                      </Stack>
+                    );
+                  })()}
                 </>
               );
             })()}

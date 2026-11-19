@@ -46,6 +46,7 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CloseIcon from '@mui/icons-material/Close';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { loadDB, saveDB } from '../../services/storage';
+import { getStudentWorkflowSummary } from '../../services/tvetWorkflow';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
 
@@ -381,44 +382,58 @@ export default function PlacementManager() {
         </Grid>
       </Grid>
 
-      {/* Ready / Graduating Trainees Smart EPP Queue */}
+      {/* Ready / OJT-Completed & Graduating Trainees Smart EPP Queue */}
       {(() => {
         const placedIds = new Set((db.placements || []).map((p) => p.studentId));
+        const ojtByStudent = new Map((db.ojts || []).map((o) => [o.studentId, o]));
         const inSevenDays = new Date(Date.now() + 7 * 86400000).toISOString().slice(0, 10);
         const readyTrainees = (db.students || [])
           .filter((s) => {
             if (placedIds.has(s.id) || s.status === 'Dropout') return false;
-            return s.status === 'Completed' || s.status === 'OJT' || (s.expectedEndDate && s.expectedEndDate <= inSevenDays);
+            const ojt = ojtByStudent.get(s.id);
+            return (
+              ojt?.status === 'Completed' ||
+              ojt?.status === 'Ongoing' ||
+              s.status === 'Completed' ||
+              s.status === 'OJT' ||
+              (s.expectedEndDate && s.expectedEndDate <= inSevenDays)
+            );
           })
-          .slice(0, 6);
+          .slice(0, 8);
         if (readyTrainees.length === 0) return null;
         return (
           <Card elevation={0} sx={{ p: 1.25, mb: 1.75, bgcolor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 2 }}>
             <Typography variant="caption" sx={{ fontWeight: 900, color: '#166534', display: 'block', mb: 0.75, fontSize: '0.73rem' }}>
-              Ready / Graduating Trainees for Placement ({readyTrainees.length})
+              OJT-Completed &amp; Graduating Trainees Ready for EPP Placement ({readyTrainees.length})
             </Typography>
             <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
               {readyTrainees.map((st) => {
-                const grp = (db.trainingGroups || []).find((g) => g.id === st.groupId);
-                const crs = (db.courses || []).find((c) => c.id === grp?.courseId);
+                const wf = getStudentWorkflowSummary(db, st);
+                const ojt = ojtByStudent.get(st.id);
+                const ojtEmp = ojt ? (db.employers || []).find((e) => e.id === ojt.employerId) : null;
+                const badgeSuffix = ojt?.status === 'Completed'
+                  ? `OJT Done${ojtEmp ? ` @ ${ojtEmp.name}` : ''}`
+                  : (wf?.evaluation?.evaluatedUnits > 0 ? `Eval ${wf.evaluation.pct}%` : `End: ${st.expectedEndDate || 'Ready'}`);
                 return (
                   <Chip
                     key={st.id}
                     size="small"
-                    label={`${st.name} (${crs?.title || st.tgid}) • End: ${st.expectedEndDate || 'Ready'}`}
+                    label={`${st.name} (${wf?.course?.title || st.tgid}) • ${badgeSuffix}`}
                     onClick={() => {
                       setEditingItem(null);
                       setFormData({
                         studentId: st.id,
-                        employerId: db.employers?.[0]?.id || '',
-                        targetJob: `${crs?.title || 'Vocational'} Specialist`,
-                        preferredLocation: 'Kathmandu',
+                        employerId: ojt?.employerId || db.employers?.[0]?.id || '',
+                        targetJob: `${wf?.course?.title || 'Vocational'} Specialist`,
+                        preferredLocation: ojtEmp?.location || 'Kathmandu',
                         expectedSalary: 'NPR 22,000 / month',
                         employmentType: 'Full-Time Employee',
                         workSchedule: 'Day Shift',
                         paymentType: 'Monthly Salary',
-                        status: 'Planned',
-                        remarks: 'Matched from Graduating EPP Queue'
+                        status: ojt?.status === 'Completed' ? 'Placed' : 'Planned',
+                        remarks: ojt?.status === 'Completed'
+                          ? `Converted from Completed OJT at ${ojtEmp?.name || 'Host Employer'}`
+                          : 'Matched from Graduating EPP Queue'
                       });
                       setOpenDialog(true);
                     }}

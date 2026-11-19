@@ -108,9 +108,14 @@ export default function LogBookManager() {
       trainerNotes: `Quick-logged by ${currentUser?.name || trainer.name} on ${today}`
     };
 
+    const updatedWorkPlans = linkedWp
+      ? (db.workPlans || []).map((wp) => (wp.id === linkedWp.id ? { ...wp, status: 'Completed' } : wp))
+      : (db.workPlans || []);
+
     const nextDb = {
       ...db,
-      logBooks: [newEntry, ...(db.logBooks || [])]
+      logBooks: [newEntry, ...(db.logBooks || [])],
+      workPlans: updatedWorkPlans
     };
     saveDB(nextDb);
     setDb(nextDb);
@@ -201,7 +206,18 @@ export default function LogBookManager() {
       updatedList.push({ id: newId, ...formData });
     }
 
-    const nextDb = { ...db, logBooks: updatedList };
+    // Auto-sync linked WorkPlan status to 'Completed' when LogBook session is delivered
+    let updatedWorkPlans = db.workPlans || [];
+    if (formData.isDelivered && formData.lessonPlanId) {
+      const linkedLp = (db.lessonPlans || []).find((lp) => lp.id === formData.lessonPlanId);
+      if (linkedLp?.workPlanId) {
+        updatedWorkPlans = updatedWorkPlans.map((wp) =>
+          wp.id === linkedLp.workPlanId ? { ...wp, status: 'Completed' } : wp
+        );
+      }
+    }
+
+    const nextDb = { ...db, logBooks: updatedList, workPlans: updatedWorkPlans };
     saveDB(nextDb);
     setDb(nextDb);
     setOpenDialog(false);
@@ -654,18 +670,40 @@ export default function LogBookManager() {
                       {lb.actualHours} hrs
                     </TableCell>
                     <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      <Chip
-                        icon={lb.isDelivered ? <CheckCircleOutlineIcon sx={{ fontSize: '12px !important' }} /> : <HourglassEmptyIcon sx={{ fontSize: '12px !important' }} />}
-                        label={lb.isDelivered ? 'Delivered' : 'Pending'}
-                        size="small"
-                        sx={{
-                          height: 20,
-                          fontSize: '0.68rem',
-                          bgcolor: lb.isDelivered ? '#e5f8ee' : '#fef3c7',
-                          color: lb.isDelivered ? '#16834b' : '#b45309',
-                          fontWeight: 700
-                        }}
-                      />
+                      <Stack direction="row" spacing={0.5} alignItems="center">
+                        <Chip
+                          icon={lb.isDelivered ? <CheckCircleOutlineIcon sx={{ fontSize: '12px !important' }} /> : <HourglassEmptyIcon sx={{ fontSize: '12px !important' }} />}
+                          label={lb.isDelivered ? 'Delivered' : 'Pending'}
+                          size="small"
+                          sx={{
+                            height: 20,
+                            fontSize: '0.68rem',
+                            bgcolor: lb.isDelivered ? '#e5f8ee' : '#fef3c7',
+                            color: lb.isDelivered ? '#16834b' : '#b45309',
+                            fontWeight: 700
+                          }}
+                        />
+                        {(() => {
+                          const dayAtt = (db.attendances || []).filter(
+                            (a) => a.groupId === lb.groupId && a.date === lb.deliveryDate
+                          );
+                          if (!dayAtt.length) return null;
+                          const present = dayAtt.filter((a) => ['present', 'p', 'late', 'l'].includes(String(a.status || '').toLowerCase())).length;
+                          return (
+                            <Chip
+                              label={`${present}/${dayAtt.length} Att`}
+                              size="small"
+                              sx={{
+                                height: 20,
+                                fontSize: '0.65rem',
+                                bgcolor: '#EFF6FF',
+                                color: '#1D4ED8',
+                                fontWeight: 700
+                              }}
+                            />
+                          );
+                        })()}
+                      </Stack>
                     </TableCell>
                     <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                       <Stack direction="row" spacing={0.4} justifyContent="flex-end" alignItems="center">

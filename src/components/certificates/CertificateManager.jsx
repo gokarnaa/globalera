@@ -42,6 +42,7 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
 import { loadDB, saveDB } from '../../services/storage';
+import { getStudentWorkflowSummary } from '../../services/tvetWorkflow';
 import { useAuth } from '../../context/AuthContext';
 import { ResponsiveDataView, EntityCard } from '../common';
 import A4LandscapeCertificateModal from './A4LandscapeCertificateModal';
@@ -99,15 +100,19 @@ export default function CertificateManager() {
       const studentAtts = (db.attendances || []).filter(
         (a) => a.groupId === selectedGroupId && a.studentId === student.id
       );
-      const pCount = studentAtts.filter((a) => a.status === 'present' || a.status === 'P').length;
-      const lCount = studentAtts.filter((a) => a.status === 'late' || a.status === 'L').length;
+      const pCount = studentAtts.filter((a) => ['present', 'p'].includes(String(a.status || '').toLowerCase())).length;
+      const lCount = studentAtts.filter((a) => ['late', 'l'].includes(String(a.status || '').toLowerCase())).length;
       const totalDays = studentAtts.length;
       const attPercent = totalDays > 0 ? Math.round(((pCount + lCount * 0.5) / totalDays) * 100) : 100;
 
       // Calculate fee due (2nd installment rule)
-      const lockedFee = Number(student.lockedCourseFee) || Number(selectedCourse?.price) || 15000;
+      const wf = getStudentWorkflowSummary(db, student);
+      const lockedFee = Number(student.lockedCourseFee ?? selectedCourse?.price ?? wf?.fees?.lockedFee ?? 0);
       const studentPayments = (db.payments || []).filter((p) => p.studentId === student.id);
-      const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+      const totalPaid = Math.max(
+        studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0),
+        Number(student.feePaid || 0)
+      );
       const feeDue = Math.max(0, lockedFee - totalPaid);
       const isFeeCleared = feeDue <= 0;
 
@@ -126,10 +131,12 @@ export default function CertificateManager() {
         isFeeCleared,
         isIssued,
         isEligible,
+        evaluation: wf?.evaluation || null,
+        ojt: wf?.ojt || null,
         certificate: cert || null
       };
     });
-  }, [groupStudents, selectedGroupId, selectedCourse, db.attendances, db.payments, existingCertificates]);
+  }, [groupStudents, selectedGroupId, selectedCourse, db, existingCertificates]);
 
   // KPI Metrics
   const totalCount = studentCertificateData.length;
@@ -156,9 +163,13 @@ export default function CertificateManager() {
   // Issue Certificate for single student
   const handleIssueCertificate = (student) => {
     // Strict Institutional Rule: Block certificate generation if 2nd installment is unpaid
-    const lockedFee = Number(student.lockedCourseFee) || Number(selectedCourse?.price) || 15000;
+    const wf = getStudentWorkflowSummary(db, student);
+    const lockedFee = Number(student.lockedCourseFee ?? selectedCourse?.price ?? wf?.fees?.lockedFee ?? 0);
     const studentPayments = (db.payments || []).filter((p) => p.studentId === student.id);
-    const totalPaid = studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+    const totalPaid = Math.max(
+      studentPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0),
+      Number(student.feePaid || 0)
+    );
     const feeDue = Math.max(0, lockedFee - totalPaid);
 
     if (feeDue > 0) {
@@ -169,8 +180,8 @@ export default function CertificateManager() {
     const studentAtts = (db.attendances || []).filter(
       (a) => a.groupId === selectedGroupId && a.studentId === student.id
     );
-    const pCount = studentAtts.filter((a) => a.status === 'present' || a.status === 'P').length;
-    const lCount = studentAtts.filter((a) => a.status === 'late' || a.status === 'L').length;
+    const pCount = studentAtts.filter((a) => ['present', 'p'].includes(String(a.status || '').toLowerCase())).length;
+    const lCount = studentAtts.filter((a) => ['late', 'l'].includes(String(a.status || '').toLowerCase())).length;
     const totalDays = studentAtts.length;
     const attPercent = totalDays > 0 ? Math.round(((pCount + lCount * 0.5) / totalDays) * 100) : 100;
 
@@ -192,6 +203,7 @@ export default function CertificateManager() {
       groupId: selectedGroupId,
       courseId: selectedCourse?.id,
       issueDate: new Date().toISOString().slice(0, 10),
+      grade: wf?.evaluation?.suggestedGrade || 'Competent (Pass)',
       status: 'Active',
       createdAt: new Date().toISOString()
     };
@@ -867,6 +879,30 @@ export default function CertificateManager() {
                                 sx={{ height: 20, fontSize: '0.68rem', fontWeight: 700 }}
                               />
                             )}
+                            <Stack direction="row" spacing={0.4} sx={{ mt: 0.4, flexWrap: 'wrap' }} useFlexGap>
+                              <Chip
+                                size="small"
+                                label={item.evaluation?.evaluatedUnits > 0 ? `Eval: ${item.evaluation.suggestedGrade}` : 'Eval: Pending'}
+                                sx={{
+                                  height: 17,
+                                  fontSize: '0.6rem',
+                                  fontWeight: 700,
+                                  bgcolor: item.evaluation?.passed ? '#EFF6FF' : '#F1F5F9',
+                                  color: item.evaluation?.passed ? '#1D4ED8' : '#64748B'
+                                }}
+                              />
+                              <Chip
+                                size="small"
+                                label={item.ojt?.completed ? 'OJT: Done' : `OJT: ${item.ojt?.status || 'Pending'}`}
+                                sx={{
+                                  height: 17,
+                                  fontSize: '0.6rem',
+                                  fontWeight: 700,
+                                  bgcolor: item.ojt?.completed ? '#ECFDF5' : '#F1F5F9',
+                                  color: item.ojt?.completed ? '#047857' : '#64748B'
+                                }}
+                              />
+                            </Stack>
                           </TableCell>
                           <TableCell sx={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                             {isIssued ? (
