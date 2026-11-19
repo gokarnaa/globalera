@@ -124,18 +124,18 @@ async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history 
   const contentsText =
     `Recent chat:\n${recent || '(New conversation)'}\n\n${userPrompt}`;
 
-  const models = ['gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-2.0-flash'];
+  const models = ['gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-3-flash-preview', 'gemini-3.8-flash'];
   for (const model of models) {
     try {
       const genConfig = { temperature: 0.42, maxOutputTokens: 600 };
-      if (model === 'gemini-2.5-flash') {
-        genConfig.thinkingConfig = { thinkingBudget: 0 };
-      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5500);
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: 'user', parts: [{ text: contentsText }] }],
@@ -143,6 +143,7 @@ async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history 
           })
         }
       );
+      clearTimeout(timeoutId);
       if (!res.ok) continue;
       const data = await res.json();
       const text = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();

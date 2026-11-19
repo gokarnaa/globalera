@@ -365,18 +365,18 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
     `Latest message from ${senderName}:\n"${messageText}"\n\n` +
     `Write a natural, warm, human-like Counsellor reply in WhatsApp style now:`;
 
-  const models = ['gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-2.0-flash'];
+  const models = ['gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-3-flash-preview', 'gemini-3.8-flash'];
   for (const model of models) {
     try {
       const genConfig = { temperature: 0.42, maxOutputTokens: 600 };
-      if (model === 'gemini-2.5-flash') {
-        genConfig.thinkingConfig = { thinkingBudget: 0 };
-      }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5500);
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          signal: controller.signal,
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
@@ -384,6 +384,7 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
           })
         }
       );
+      clearTimeout(timeoutId);
       if (!res.ok) continue;
       const data = await res.json();
       const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
@@ -405,7 +406,7 @@ function buildKeywordFallbackReply(messageText, referral, replyMode = 'bot') {
       `• *स्पेसल सिलाई (१ महिना):* रु. 10,000 (७ डिजाइन आइटम)\n\n` +
       `हजुरले पहिले सिलाई सिक्नुभएको छ कि सुरुदेखि सिक्न चाहनुहुन्छ?`;
   }
-  if (lower === '2' || lower.includes('beauty') || lower.includes('beautician') || lower.includes('parlor') || lower.includes('पार्लर') || lower.includes('ब्युटिसियन')) {
+  if (lower === '2' || lower.includes('beauty') || lower.includes('beuty') || lower.includes('beautician') || lower.includes('parlor') || lower.includes('parlar') || lower.includes('parlour') || lower.includes('पार्लर') || lower.includes('ब्युटिसियन')) {
     return `नमस्कार हजुर! *ब्युटिसियन तथा पार्लर तालिम* को विवरण:\n` +
       `• *बेसिक ब्युटिसियन (१ महिना):* रु. 2,000 (७ आइटम)\n` +
       `• *फुल ब्युटिसियन (३ महिना):* नियमित रु. 30,000, हाल ५०% छुटमा रु. 15,000 (४८ आइटम)\n` +
