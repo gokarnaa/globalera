@@ -581,7 +581,7 @@ export default function WhatsAppWorkspace({
   const handleSelectThread = (thread) => {
     setSelectedKey(thread.key);
     setOptimisticReadSet((prev) => new Set(prev).add(thread.key));
-    markThreadRead(thread.phone);
+    markThreadRead(thread.key || thread.phone);
     if (isMobile) setMobileView('chat');
   };
 
@@ -609,14 +609,19 @@ export default function WhatsAppWorkspace({
       [activeThread.key]: [...(prev[activeThread.key] || []), optimisticMsg]
     }));
     setOptimisticReadSet((prev) => new Set(prev).add(activeThread.key));
-    markThreadRead(activeThread.phone);
+    markThreadRead(activeThread.key || activeThread.phone);
 
     setSending(true);
     setSendFeedback(null);
     try {
       const currentDb = loadDB();
       if (effectiveChannel === 'Note' && (!customText || opts.forceChannel === 'Note')) {
-        addInternalStaffNote({ phone: activeThread.phone, note: textToSend, author: 'Staff' });
+        addInternalStaffNote({
+          phone: activeThread.phone,
+          note: textToSend,
+          author: 'Staff',
+          channelPlatform: activeThread.channelPlatform || 'whatsapp'
+        });
         if (onRefresh) onRefresh();
         return;
       }
@@ -1199,7 +1204,7 @@ export default function WhatsAppWorkspace({
                 <IconButton
                   size="small"
                   aria-label={activeThread.pinned ? 'Unpin contact' : 'Pin contact'}
-                  onClick={() => togglePinContact(activeThread.phone)}
+                  onClick={() => togglePinContact(activeThread.key || activeThread.phone)}
                   sx={{
                     bgcolor: activeThread.pinned ? '#FFFBEB' : '#F1F5F9',
                     color: activeThread.pinned ? '#D97706' : '#64748B'
@@ -1220,7 +1225,7 @@ export default function WhatsAppWorkspace({
             size="small"
             label="Assigned Team / Desk"
             value={activeThread.assignedTo || ''}
-            onChange={(e) => assignThreadStaff(activeThread.phone, e.target.value)}
+            onChange={(e) => assignThreadStaff(activeThread.key || activeThread.phone, e.target.value)}
             InputLabelProps={{ shrink: true }}
             SelectProps={{ native: true }}
           >
@@ -1635,7 +1640,7 @@ export default function WhatsAppWorkspace({
             <Tooltip title={activeThread.pinned ? 'Unpin contact' : 'Pin priority contact'}>
               <IconButton
                 size="small"
-                onClick={() => togglePinContact(activeThread.phone)}
+                onClick={() => togglePinContact(activeThread.key || activeThread.phone)}
                 sx={{
                   display: { xs: 'none', sm: 'inline-flex' },
                   bgcolor: activeThread.pinned ? '#FFFBEB' : '#F1F5F9',
@@ -1679,7 +1684,7 @@ export default function WhatsAppWorkspace({
                 onClick={async () => {
                   const nextPaused = !activeThread.botPaused;
                   setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: nextPaused } }));
-                  await toggleBotPause(activeThread.phone, nextPaused);
+                  await toggleBotPause(activeThread.key || activeThread.phone, nextPaused);
                   setSendFeedback({
                     type: nextPaused ? 'warning' : 'success',
                     text: nextPaused
@@ -1727,7 +1732,7 @@ export default function WhatsAppWorkspace({
                   await handleChangeWorkspaceReplyMode(nextMode);
                   if (nextMode !== 'manual' && activeThread.botPaused) {
                     setBotModesMap((prev) => ({ ...prev, [activeThread.key]: { paused: false } }));
-                    await toggleBotPause(activeThread.phone, false);
+                    await toggleBotPause(activeThread.key || activeThread.phone, false);
                     onRefresh?.();
                   }
                 }}
@@ -2118,7 +2123,12 @@ export default function WhatsAppWorkspace({
                         messageType: 'auto_bot'
                       });
                     }
-                    setSendFeedback({ type: 'success', text: 'AI Counselor reply sent directly to WhatsApp!' });
+                    const platformLabel = activeThread.channelPlatform === 'messenger'
+                      ? 'Facebook Messenger'
+                      : activeThread.channelPlatform === 'fb_comment'
+                        ? 'Facebook Comment'
+                        : 'WhatsApp';
+                    setSendFeedback({ type: 'success', text: `AI Counselor reply sent directly to ${platformLabel}!` });
                     onRefresh?.();
                   } catch (err) {
                     setSendFeedback({ type: 'error', text: err?.message || 'AI Auto-Send failed.' });

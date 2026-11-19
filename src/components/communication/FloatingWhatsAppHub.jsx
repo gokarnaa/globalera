@@ -157,13 +157,21 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
 
   const hubState = useMemo(() => buildWhatsAppHubState(db, remoteData), [db, remoteData]);
   const prevUnreadRef = useRef(0);
+  const unreadInitializedRef = useRef(false);
 
   useEffect(() => {
-    if (!soundMuted && hubState.totalUnread > prevUnreadRef.current && prevUnreadRef.current !== 0) {
+    if (!unreadInitializedRef.current) {
+      prevUnreadRef.current = hubState.totalUnread;
+      if (hubState.totalUnread > 0 || (remoteData.inbound?.length || 0) > 0 || (remoteData.logs?.length || 0) > 0) {
+        unreadInitializedRef.current = true;
+      }
+      return;
+    }
+    if (!soundMuted && hubState.totalUnread > prevUnreadRef.current) {
       playLeadChime();
     }
     prevUnreadRef.current = hubState.totalUnread;
-  }, [hubState.totalUnread, soundMuted]);
+  }, [hubState.totalUnread, soundMuted, remoteData.inbound?.length, remoteData.logs?.length]);
 
   return (
     <>
@@ -197,7 +205,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
               aria-label="Open WhatsApp Hub"
               onClick={() => {
                 setWindowMode('normal');
-                syncHub();
+                syncHub({ silent: true, includeBotSettings: true });
               }}
               sx={{
                 bgcolor: '#16A34A',
@@ -570,7 +578,7 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
         <DialogContent sx={{ p: { xs: 0, sm: isMaximized ? 1 : 1.25 }, bgcolor: '#F8FAFC', flex: 1, minHeight: 0, overflow: 'hidden' }}>
           <WhatsAppWorkspace
             threads={hubState.threads}
-            onRefresh={syncHub}
+            onRefresh={() => syncHub({ silent: false, includeBotSettings: true })}
             refreshing={refreshing}
             height="100%"
             initialPhone={targetContact.phone}

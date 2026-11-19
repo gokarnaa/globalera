@@ -587,8 +587,15 @@ export function normalizePhoneKey(phone) {
   return digits.length > 10 ? digits.slice(-10) : digits;
 }
 
-export function markThreadRead(phone) {
-  const key = normalizePhoneKey(phone);
+function resolveMetaKey(phoneOrKey) {
+  const str = String(phoneOrKey || '').trim();
+  if (!str) return '';
+  if (str.includes(':')) return str;
+  return normalizePhoneKey(str);
+}
+
+export function markThreadRead(phoneOrKey) {
+  const key = resolveMetaKey(phoneOrKey);
   if (!key) return;
   const map = getThreadMetaMap();
   map[key] = {
@@ -598,8 +605,8 @@ export function markThreadRead(phone) {
   saveThreadMetaMap(map);
 }
 
-export async function toggleBotPause(phone, paused) {
-  const key = normalizePhoneKey(phone);
+export async function toggleBotPause(phoneOrKey, paused) {
+  const key = resolveMetaKey(phoneOrKey);
   if (!key) return;
   const map = getThreadMetaMap();
   map[key] = {
@@ -608,12 +615,16 @@ export async function toggleBotPause(phone, paused) {
   };
   saveThreadMetaMap(map);
 
+  const rawTarget = String(phoneOrKey || '').includes(':')
+    ? String(phoneOrKey).split(':').slice(1).join(':')
+    : phoneOrKey;
+
   // Sync explicit pause/resume state to Supabase so Vercel Webhook respects Human Takeover
   try {
     const supabase = getSupabaseClient();
     if (supabase) {
       const { error } = await supabase.from('whatsapp_logs').insert({
-        phone: formatToWhatsAppRecipient(phone) || key,
+        phone: String(phoneOrKey || '').includes(':') ? key : (formatToWhatsAppRecipient(rawTarget) || key),
         direction: 'outbound',
         message_type: paused ? 'bot_pause_state' : 'bot_resume_state',
         status: paused ? 'paused' : 'resumed',
@@ -1020,8 +1031,8 @@ export async function simulateGeminiCounselorTurn({ messages = [], userInput = '
   return callGeminiCounselorApi({ apiKey, systemPrompt, userPrompt });
 }
 
-export function togglePinContact(phone) {
-  const key = normalizePhoneKey(phone);
+export function togglePinContact(phoneOrKey) {
+  const key = resolveMetaKey(phoneOrKey);
   if (!key) return false;
   const map = getThreadMetaMap();
   const nextPinned = !Boolean(map[key]?.pinned);
@@ -1033,8 +1044,8 @@ export function togglePinContact(phone) {
   return nextPinned;
 }
 
-export function assignThreadStaff(phone, staffName) {
-  const key = normalizePhoneKey(phone);
+export function assignThreadStaff(phoneOrKey, staffName) {
+  const key = resolveMetaKey(phoneOrKey);
   if (!key) return;
   const map = getThreadMetaMap();
   map[key] = {
@@ -1044,7 +1055,7 @@ export function assignThreadStaff(phone, staffName) {
   saveThreadMetaMap(map);
 }
 
-export function addInternalStaffNote({ phone, note, author = 'Staff' }) {
+export function addInternalStaffNote({ phone, note, author = 'Staff', channelPlatform = 'whatsapp' }) {
   const cleanNote = String(note || '').trim();
   if (!phone || !cleanNote) return;
   const db = loadDB();
@@ -1052,6 +1063,7 @@ export function addInternalStaffNote({ phone, note, author = 'Staff' }) {
     id: `NOTE-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
     createdAt: new Date().toISOString(),
     phone,
+    channelPlatform: channelPlatform || 'whatsapp',
     direction: 'internal_note',
     messageType: 'internal_note',
     status: 'internal',
@@ -1272,10 +1284,12 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
 
   // 3. Local whatsappLogs
   (db.whatsappLogs || []).forEach((lg) => {
+    const platform = lg.channelPlatform || 'whatsapp';
     pushMessage({
       id: lg.id,
-      key: normalizePhoneKey(lg.phone),
+      key: platform === 'whatsapp' ? normalizePhoneKey(lg.phone) : `${platform}:${lg.phone}`,
       phone: lg.phone,
+      channelPlatform: platform,
       senderName: lg.recipientName || 'Contact',
       direction: lg.direction || 'outbound',
       messageType: lg.messageType || 'text',
