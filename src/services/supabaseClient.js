@@ -536,7 +536,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       entry_date: je.entryDate || je.date,
       entry_type: je.entryType || 'GENERAL',
       voucher_no: je.voucherNo,
-      description: je.description,
+      description: je.narration || je.description || '',
       total_debit: Number(je.totalDebit) || 0,
       total_credit: Number(je.totalCredit) || 0,
       lines: je.lines || [],
@@ -1192,12 +1192,14 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
     journalEntries: journals.map(je => ({
       id: je.id,
       entryDate: je.entry_date,
+      date: je.entry_date,
       entryType: je.entry_type,
       voucherNo: je.voucher_no,
       description: je.description,
+      narration: je.description || '',
       totalDebit: je.total_debit,
       totalCredit: je.total_credit,
-      lines: je.lines,
+      lines: je.lines || [],
       isBalanced: je.is_balanced
     })),
     expenses: expenses.map(ex => ({

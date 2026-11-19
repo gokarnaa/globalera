@@ -338,7 +338,7 @@ export default function AccountsManager({ initialTab = 0 }) {
     const cashAcc = (db.chartOfAccounts || []).find((a) => a.code === '1010');
     const bankBalance = bankAcc?.balance || 1425000;
     const cashInHand = cashAcc?.balance || 44000;
-    const journalCount = (db.journalEntries || []).length || 8;
+    const journalCount = (db.journalEntries || []).length;
     const projectTotal = (db.projectContracts || []).reduce((sum, c) => sum + (Number(c.contractValue) || 0), 0) || 450000;
 
     return { totalExpenses, bankBalance, cashInHand, journalCount, projectTotal };
