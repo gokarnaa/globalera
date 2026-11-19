@@ -1327,16 +1327,20 @@ export function buildWhatsAppHubState(db, remoteData = { logs: [], inbound: [] }
     return {
       ...t,
       lastMessage: lastMsg?.content || '',
-      lastTimestamp: lastMsg?.createdAt || null
+      lastTimestamp: lastMsg?.createdAt || null,
+      lastMessageDirection: lastMsg?.direction || null,
+      lastMessageStatus: lastMsg?.status || null,
+      needsReply: lastMsg?.direction === 'inbound'
     };
   });
 
+  // WhatsApp-style Latest-First sorting: Pinned first, then strictly newest message at #1
   threads.sort((a, b) => {
     if (a.pinned !== b.pinned) return a.pinned ? -1 : 1;
-    if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
     if (a.lastTimestamp && b.lastTimestamp) return new Date(b.lastTimestamp) - new Date(a.lastTimestamp);
     if (a.lastTimestamp) return -1;
     if (b.lastTimestamp) return 1;
+    if (a.unreadCount !== b.unreadCount) return b.unreadCount - a.unreadCount;
     return (a.name || '').localeCompare(b.name || '');
   });
 

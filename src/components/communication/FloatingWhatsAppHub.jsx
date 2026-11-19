@@ -172,9 +172,32 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
     }
     if (!soundMuted && hubState.totalUnread > prevUnreadRef.current) {
       playLeadChime();
+      // Native Browser Pop-up Notification when tab is hidden or hub is minimized/closed
+      if (
+        typeof window !== 'undefined' &&
+        'Notification' in window &&
+        Notification.permission === 'granted' &&
+        (document.hidden || windowMode === 'closed' || windowMode === 'minimized')
+      ) {
+        const latestUnread = (hubState.threads || []).find((t) => t.unreadCount > 0) || hubState.threads?.[0];
+        if (latestUnread) {
+          try {
+            const notif = new Notification(`💬 ${latestUnread.name || 'New Inquiry'}`, {
+              body: String(latestUnread.lastMessage || 'New message received').slice(0, 110),
+              tag: `kite-msg-${latestUnread.key}`
+            });
+            notif.onclick = () => {
+              window.focus();
+              setTargetContact({ phone: latestUnread.phone, draft: '', nonce: Date.now() });
+              setWindowMode('normal');
+              notif.close();
+            };
+          } catch {}
+        }
+      }
     }
     prevUnreadRef.current = hubState.totalUnread;
-  }, [hubState.totalUnread, soundMuted, remoteData.inbound?.length, remoteData.logs?.length]);
+  }, [hubState.totalUnread, hubState.threads, soundMuted, windowMode, remoteData.inbound?.length, remoteData.logs?.length]);
 
   return (
     <>
@@ -207,6 +230,9 @@ export default function FloatingWhatsAppHub({ onOpenFullModule }) {
             <Fab
               aria-label="Open WhatsApp Hub"
               onClick={() => {
+                if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
+                  Notification.requestPermission().catch(() => {});
+                }
                 setWindowMode('normal');
                 syncHub({ silent: true, includeBotSettings: true });
               }}

@@ -142,6 +142,9 @@ function formatTimeShort(iso) {
   try {
     const d = new Date(iso);
     const now = new Date();
+    const diffMin = Math.floor((now.getTime() - d.getTime()) / 60000);
+    if (diffMin >= 0 && diffMin < 1) return 'Just now';
+    if (diffMin >= 1 && diffMin < 60) return `${diffMin}m ago`;
     if (d.toDateString() === now.toDateString()) {
       return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
@@ -150,6 +153,29 @@ function formatTimeShort(iso) {
     return '';
   }
 }
+
+const INSTANT_QUICK_REPLIES = [
+  {
+    key: 'addr',
+    label: '📍 ठेगाना',
+    text: 'हाम्रो तालिम केन्द्र *गोकर्णेश्वर–५, जोरपाटी, काठमाडौं* मा छ (चामुण्डा गेट विपरीत, कुमार गहना पसलसँगैको गल्लीभित्र, T-Mart को दोस्रो तला)। 📞 01-4910715 / 9803614574'
+  },
+  {
+    key: 'fees',
+    label: '💰 शुल्क सूची',
+    text: 'हजुर, हाम्रो हालको तालिम शुल्क:\n• *बेसिक सिलाई / ब्युटिसियन (१ महिना):* रु. 2,000\n• *फुल सिलाई / ब्युटिसियन (३ महिना):* ५०% छुटमा रु. 15,000\n• *नेल आर्ट / आइल्यास:* बेसिक रु. 10,000 | प्रोफेसनल रु. 20,000\n• *कमर्सियल बेकरी (२ महिना):* रु. 30,000\nहजुरलाई कुन कोर्स गर्न मन छ?'
+  },
+  {
+    key: 'shifts',
+    label: '⏰ सिफ्ट समय',
+    text: 'हजुर, हाम्रोमा दैनिक २ घण्टे सिफ्टहरू: बिहान 7–9, 10–12, दिउँसो 12–2, 2–4 र साँझ 4–6 बजे छन्। जागिरदारका लागि *Holiday Special Class* को व्यवस्था पनि छ। हजुरलाई कुन समय मिल्छ?'
+  },
+  {
+    key: 'contact',
+    label: '📞 सम्पर्क',
+    text: 'हजुर, हाम्रो जोरपाटी अफिसको सम्पर्क नम्बर *01-4910715* र *9803614574* हो। हजुरको नम्बर दिनुभए हामी पनि कल गर्न सक्छौँ है! 🙏'
+  }
+];
 
 function formatDateDivider(iso) {
   if (!iso) return '';
@@ -419,6 +445,8 @@ export default function WhatsAppWorkspace({
     const qDigits = searchQuery.replace(/\D/g, '');
     const todayStr = new Date().toISOString().slice(0, 10);
     return computedThreads.filter((t) => {
+      if (roleFilter === 'Needs Reply' && !t.needsReply) return false;
+      if (roleFilter === 'Needs Human' && !t.botPaused) return false;
       if (roleFilter === 'Unread' && t.unreadCount === 0) return false;
       if (roleFilter === 'Pinned' && !t.pinned) return false;
       if (roleFilter === 'Due / Today') {
@@ -922,20 +950,36 @@ export default function WhatsAppWorkspace({
               '&::-webkit-scrollbar': { display: 'none' }
             }}
           >
-            {['All', 'Unread', 'WhatsApp', 'Messenger', 'FB Comments', 'FB Ads', 'Pinned', 'Due / Today', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
+            {['All', 'Needs Reply', 'Needs Human', 'Unread', 'WhatsApp', 'Messenger', 'FB Comments', 'FB Ads', 'Pinned', 'Due / Today', 'Lead', 'Student', 'Trainer', 'Employer'].map((tab) => {
               const active = roleFilter === tab;
+              const needsReplyCount = tab === 'Needs Reply' ? computedThreads.filter((x) => x.needsReply).length : 0;
+              const needsHumanCount = tab === 'Needs Human' ? computedThreads.filter((x) => x.botPaused).length : 0;
+              const unreadTabCount = tab === 'Unread' ? computedThreads.filter((x) => x.unreadCount > 0).length : 0;
+              const tabLabel =
+                tab === 'Lead' ? 'Leads'
+                : tab === 'Student' ? 'Students'
+                : tab === 'Trainer' ? 'Trainers'
+                : tab === 'Employer' ? 'Employers'
+                : tab === 'Needs Reply' && needsReplyCount > 0 ? `Needs Reply (${needsReplyCount})`
+                : tab === 'Needs Human' && needsHumanCount > 0 ? `Needs Human (${needsHumanCount})`
+                : tab === 'Unread' && unreadTabCount > 0 ? `Unread (${unreadTabCount})`
+                : tab;
               return (
                 <Chip
                   key={tab}
                   size="small"
-                  label={tab === 'Lead' ? 'Leads' : tab === 'Student' ? 'Students' : tab === 'Trainer' ? 'Trainers' : tab === 'Employer' ? 'Employers' : tab}
+                  label={tabLabel}
                   onClick={() => setRoleFilter(tab)}
                   sx={{
                     cursor: 'pointer',
                     flexShrink: 0,
                     fontWeight: 700,
-                    bgcolor: active ? '#0F2C59' : '#F1F5F9',
-                    color: active ? '#FFFFFF' : '#475569',
+                    bgcolor: active
+                      ? (tab === 'Needs Human' ? '#DC2626' : tab === 'Needs Reply' ? '#D97706' : '#0F2C59')
+                      : (tab === 'Needs Human' && needsHumanCount > 0 ? '#FEF2F2' : tab === 'Needs Reply' && needsReplyCount > 0 ? '#FFFBEB' : '#F1F5F9'),
+                    color: active
+                      ? '#FFFFFF'
+                      : (tab === 'Needs Human' && needsHumanCount > 0 ? '#DC2626' : tab === 'Needs Reply' && needsReplyCount > 0 ? '#B45309' : '#475569'),
                     '&:hover': { bgcolor: active ? '#0F2C59' : '#E2E8F0' }
                   }}
                 />
@@ -1093,6 +1137,42 @@ export default function WhatsAppWorkspace({
                     >
                       {t.role}
                     </Box>
+                    {t.botPaused && (
+                      <Box
+                        component="span"
+                        sx={{
+                          px: 0.6,
+                          py: 0.1,
+                          borderRadius: 1,
+                          fontSize: '0.6rem',
+                          fontWeight: 800,
+                          bgcolor: '#FEF2F2',
+                          color: '#DC2626',
+                          border: '1px solid #FECACA',
+                          flexShrink: 0
+                        }}
+                      >
+                        Human
+                      </Box>
+                    )}
+                    {!t.botPaused && t.needsReply && (
+                      <Box
+                        component="span"
+                        sx={{
+                          px: 0.55,
+                          py: 0.1,
+                          borderRadius: 1,
+                          fontSize: '0.6rem',
+                          fontWeight: 800,
+                          bgcolor: '#FFFBEB',
+                          color: '#B45309',
+                          border: '1px solid #FDE68A',
+                          flexShrink: 0
+                        }}
+                      >
+                        Reply
+                      </Box>
+                    )}
                     {hasAd && (
                       <Box
                         component="span"
@@ -2146,6 +2226,65 @@ export default function WhatsAppWorkspace({
                 }}
               />
             </Tooltip>
+
+            {INSTANT_QUICK_REPLIES.map((qr) => (
+              <Chip
+                key={qr.key}
+                size="small"
+                label={qr.label}
+                onClick={() => setDraft(qr.text)}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 700,
+                  fontSize: '0.7rem',
+                  bgcolor: '#F8FAFC',
+                  color: '#334155',
+                  border: '1px solid #CBD5E1',
+                  flexShrink: 0,
+                  '&:hover': { bgcolor: '#EFF6FF', borderColor: '#93C5FD', color: '#1D4ED8' }
+                }}
+              />
+            ))}
+
+            {activeThread && !['Student', 'Lead', 'Trainer', 'Employer'].includes(activeThread.role) && (
+              <Chip
+                size="small"
+                label="+ Save Lead"
+                onClick={() => {
+                  const currentDb = loadDB();
+                  const cleanPhone = String(activeThread.phone || '').trim();
+                  const existing = (currentDb.leads || []).find((l) => l.phone === cleanPhone);
+                  if (existing) {
+                    setSendFeedback({ type: 'info', text: `${activeThread.name} is already saved in CRM Leads.` });
+                    return;
+                  }
+                  const newLead = {
+                    id: `LD-CHAT-${Date.now().toString().slice(-6)}`,
+                    name: activeThread.name || 'Chat Inquiry',
+                    phone: cleanPhone,
+                    source: activeThread.channelPlatform === 'messenger' ? 'Facebook Messenger' : 'WhatsApp Hub',
+                    stage: 'Contacted',
+                    status: 'Contacted',
+                    notes: `Saved directly from chat: ${activeThread.lastMessage || ''}`,
+                    nextFollowUp: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
+                    createdAt: new Date().toISOString()
+                  };
+                  saveDB({ ...currentDb, leads: [newLead, ...(currentDb.leads || [])] });
+                  setSendFeedback({ type: 'success', text: `Saved ${activeThread.name} to CRM Leads with tomorrow's Follow-Up!` });
+                  onRefresh?.();
+                }}
+                sx={{
+                  cursor: 'pointer',
+                  fontWeight: 800,
+                  fontSize: '0.7rem',
+                  bgcolor: '#FEF3C7',
+                  color: '#92400E',
+                  border: '1px solid #FCD34D',
+                  flexShrink: 0,
+                  '&:hover': { bgcolor: '#FDE68A' }
+                }}
+              />
+            )}
           </Box>
         </Box>
 
