@@ -132,9 +132,14 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
   // Form Cascading Helpers
   const selectedCourseInForm = (db.courses || []).find((c) => c.id === formData.courseId);
   const selectedOccupationInForm = (db.occupations || []).find((o) => o.id === selectedCourseInForm?.occupationId);
-  const matchingTrainersInForm = (db.trainers || []).filter(
+  const allTrainers = db.trainers || [];
+  const primaryMatchingTrainers = allTrainers.filter(
     (t) => !selectedCourseInForm || t.occupationId === selectedCourseInForm.occupationId
   );
+  const otherTrainersInForm = selectedCourseInForm
+    ? allTrainers.filter((t) => t.occupationId !== selectedCourseInForm.occupationId)
+    : [];
+  const matchingTrainersInForm = [...primaryMatchingTrainers, ...otherTrainersInForm];
 
   // Filtered and Sorted Training Groups
   const filteredAndSortedGroups = useMemo(() => {
@@ -1363,11 +1368,20 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                     <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                       -- Select Course --
                     </MenuItem>
-                    {(db.courses || []).map((crs) => (
-                      <MenuItem key={crs.id} value={crs.id}>
-                        <b>{crs.title}</b> ({crs.durationValue} {crs.durationUnit} • {crs.totalHours || 390} hrs)
-                      </MenuItem>
-                    ))}
+                    {(db.courses || []).map((crs) => {
+                      const occ = (db.occupations || []).find((o) => o.id === crs.occupationId);
+                      return (
+                        <MenuItem key={crs.id} value={crs.id} sx={{ display: 'flex', justifyContent: 'space-between', gap: 1, whiteSpace: 'normal' }}>
+                          <Box component="span" sx={{ fontWeight: 700, color: '#0F172A' }}>
+                            {crs.title}
+                            {occ?.name ? ` · ${occ.name}` : ''}
+                          </Box>
+                          <Box component="span" sx={{ color: '#64748B', fontSize: '0.78rem', ml: 0.75, flexShrink: 0 }}>
+                            ({crs.durationValue || 3} {crs.durationUnit || 'Months'} • {crs.totalHours || 390} hrs)
+                          </Box>
+                        </MenuItem>
+                      );
+                    })}
                   </TextField>
                 </Grid>
 
@@ -1397,11 +1411,17 @@ export default function TrainingGroupManager({ onNavigateToAttendance, onNavigat
                     <MenuItem value="" sx={{ color: '#94A3B8', fontStyle: 'italic' }}>
                       -- Select Lead Trainer --
                     </MenuItem>
-                    {matchingTrainersInForm.map((trn) => (
-                      <MenuItem key={trn.id} value={trn.id}>
-                        <b>{trn.name}</b> ({trn.specialization || 'Trainer'})
-                      </MenuItem>
-                    ))}
+                    {matchingTrainersInForm.map((trn) => {
+                      const isOtherTrade = selectedCourseInForm && trn.occupationId !== selectedCourseInForm.occupationId;
+                      return (
+                        <MenuItem key={trn.id} value={trn.id}>
+                          <Box component="span" sx={{ fontWeight: 700, mr: 0.75 }}>{trn.name}</Box>
+                          <Box component="span" sx={{ color: '#64748B', fontSize: '0.8rem' }}>
+                            ({trn.specialization || 'Trainer'}{isOtherTrade ? ' • Other Trade' : ''})
+                          </Box>
+                        </MenuItem>
+                      );
+                    })}
                   </TextField>
                 </Grid>
 

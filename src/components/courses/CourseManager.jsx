@@ -51,7 +51,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
 import confetti from 'canvas-confetti';
-import { loadDB, saveDB, logAudit, COURSE_TIERS, DURATION_PRESETS } from '../../services/storage';
+import { loadDB, saveDB, logAudit, getNextSequentialId, COURSE_TIERS, DURATION_PRESETS } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
 import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
@@ -102,6 +102,18 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
   const [db, setDb] = useState(loadDB());
   const { currentUser } = useAuth();
   const { confirm, alert } = useDialog();
+
+  React.useEffect(() => {
+    const refreshDb = () => setDb(loadDB());
+    window.addEventListener('kite_db_updated', refreshDb);
+    window.addEventListener('kite_cloud_hydrated', refreshDb);
+    window.addEventListener('storage', refreshDb);
+    return () => {
+      window.removeEventListener('kite_db_updated', refreshDb);
+      window.removeEventListener('kite_cloud_hydrated', refreshDb);
+      window.removeEventListener('storage', refreshDb);
+    };
+  }, []);
 
   // View & Filter States
   const [viewMode, setViewMode] = useState('cards'); // 'cards' | 'table'
@@ -232,7 +244,7 @@ export default function CourseManager({ onNavigateToSyllabus, onNavigateToGroups
         x.id === editingItem.id ? { ...x, ...formData } : x
       );
     } else {
-      const newId = `CRS-${String(updatedList.length + 1).padStart(2, '0')}`;
+      const newId = getNextSequentialId(updatedList, 'CRS-', 2, 'id', 1);
       updatedList.push({ id: newId, ...formData });
     }
 

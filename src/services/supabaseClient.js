@@ -2425,11 +2425,12 @@ DO $$
 DECLARE
   ops_tbl text;
   ops_tables text[] := ARRAY[
-    'organizations', 'users', 'training_groups', 'trainers', 'students',
-    'work_plans', 'lesson_plans', 'log_books', 'evaluations', 'holidays', 'leads',
-    'agents', 'admissions', 'employers', 'job_openings', 'job_applications', 'ojts',
-    'placements', 'system_settings', 'biometric_logs',
-    'student_timelines', 'student_notes', 'communication_logs', 'audit_logs'
+    'organizations', 'users', 'occupations', 'courses', 'training_groups', 'trainers',
+    'syllabi', 'students', 'attendances', 'work_plans', 'lesson_plans', 'log_books',
+    'evaluations', 'certificates', 'holidays', 'notices', 'leads', 'agents', 'admissions',
+    'parties', 'employers', 'job_openings', 'job_applications', 'ojts', 'placements',
+    'system_settings', 'biometric_logs', 'student_timelines', 'student_notes',
+    'communication_logs', 'audit_logs'
   ];
 BEGIN
   FOREACH ops_tbl IN ARRAY ops_tables LOOP
