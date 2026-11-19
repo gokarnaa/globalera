@@ -834,6 +834,33 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
 }
 
 /**
+ * DELETE specific explicitly-removed IDs from Supabase tables (surgical delete sync)
+ */
+export async function deleteRemoteRecordsFromSupabase(deletesByTable = {}, settings = {}) {
+  const entries = Object.entries(deletesByTable || {}).filter(([, ids]) => Array.isArray(ids) && ids.length > 0);
+  if (!entries.length) return {};
+  const client = getSupabaseClient(settings?.supabaseUrl, settings?.supabaseAnonKey);
+  if (!client) return {};
+
+  const results = {};
+  for (const [table, ids] of entries) {
+    try {
+      const uniqueIds = Array.from(new Set(ids.filter(Boolean)));
+      if (!uniqueIds.length) continue;
+      const { error } = await client.from(table).delete().in('id', uniqueIds);
+      if (error) {
+        console.warn(`[Supabase Delete] ${table} warning:`, error.message);
+      } else {
+        results[table] = uniqueIds.length;
+      }
+    } catch (e) {
+      console.warn(`[Supabase Delete] ${table} exception:`, e.message);
+    }
+  }
+  return results;
+}
+
+/**
  * PULL ALL data from Supabase Cloud and hydrate local state
  */
 export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
@@ -849,12 +876,25 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
 
   const fetchTable = async (tableName) => {
     try {
-      const { data, error } = await client.from(tableName).select('*');
-      if (error) {
-        console.warn(`Fetch ${tableName} failed:`, error.message);
-        return [];
+      const PAGE_SIZE = 1000;
+      const allRows = [];
+      let from = 0;
+      // Paginate up to 20 pages (20,000 rows) so large tables never truncate at Supabase's 1,000-row cap
+      for (let page = 0; page < 20; page += 1) {
+        const { data, error } = await client
+          .from(tableName)
+          .select('*')
+          .range(from, from + PAGE_SIZE - 1);
+        if (error) {
+          console.warn(`Fetch ${tableName} failed:`, error.message);
+          return allRows;
+        }
+        if (!data || !data.length) break;
+        allRows.push(...data);
+        if (data.length < PAGE_SIZE) break;
+        from += PAGE_SIZE;
       }
-      return data || [];
+      return allRows;
     } catch (e) {
       return [];
     }
@@ -1435,9 +1475,40 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       details: al.details,
       timestamp: al.timestamp
     })),
-    ...(systemSettingsRows?.[0]?.company_profile?.aakashSmsToken
-      ? { settings: { aakashSmsToken: systemSettingsRows[0].company_profile.aakashSmsToken } }
-      : {})
+    settings: (() => {
+      const orgSettings = (orgData?.[0]?.settings && typeof orgData[0].settings === 'object') ? orgData[0].settings : {};
+      const globalRow = (systemSettingsRows || []).find((r) => r.id === 'GLOBAL_CONFIG') || systemSettingsRows?.[0] || {};
+      const smsRow = (systemSettingsRows || []).find((r) => r.id === 'AAKASH_SMS_CONFIG') || {};
+      const resolvedCompanyProfile = {
+        ...(orgSettings.companyProfile || {}),
+        ...(globalRow.company_profile || {})
+      };
+      const resolvedSmsToken =
+        smsRow.company_profile?.aakashSmsToken ||
+        globalRow.company_profile?.aakashSmsToken ||
+        orgSettings.aakashSmsToken ||
+        '';
+      const resolvedWhatsappBot =
+        globalRow.company_profile?.whatsappBot ||
+        orgSettings.whatsappBot;
+      return {
+        ...orgSettings,
+        ...(globalRow.institute_name ? { instituteName: globalRow.institute_name } : {}),
+        ...(globalRow.institute_sub ? { instituteSub: globalRow.institute_sub } : {}),
+        ...(globalRow.location ? { location: globalRow.location } : {}),
+        ...(globalRow.contact_phone ? { contactPhone: globalRow.contact_phone } : {}),
+        ...(globalRow.email ? { email: globalRow.email } : {}),
+        ...(Object.keys(resolvedCompanyProfile).length ? { companyProfile: resolvedCompanyProfile } : {}),
+        ...(globalRow.biometric_settings && Object.keys(globalRow.biometric_settings).length
+          ? { biometricSettings: { ...(orgSettings.biometricSettings || {}), ...globalRow.biometric_settings } }
+          : {}),
+        ...(globalRow.certificate_format && Object.keys(globalRow.certificate_format).length
+          ? { certificateNumberFormat: { ...(orgSettings.certificateNumberFormat || {}), ...globalRow.certificate_format } }
+          : {}),
+        ...(resolvedWhatsappBot ? { whatsappBot: resolvedWhatsappBot } : {}),
+        ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
+      };
+    })()
   };
 
   return cloudDb;

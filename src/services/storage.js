@@ -1,5 +1,5 @@
 // Local-first TVET Database with Automatic Cascading & Realistic Seed Data
-import { pushLocalDBToSupabase, pullRemoteDBFromSupabase } from './supabaseClient.js';
+import { pushLocalDBToSupabase, pullRemoteDBFromSupabase, deleteRemoteRecordsFromSupabase } from './supabaseClient.js';
 import { generateSimulation105Dataset } from './simulationData.js';
 
 export const SHIFT_DEFINITIONS = [
@@ -685,25 +685,127 @@ export function loadDB() {
   }
 }
 
+const SYNCED_COLLECTION_TABLES = {
+  occupations: 'occupations',
+  courses: 'courses',
+  trainers: 'trainers',
+  trainingGroups: 'training_groups',
+  syllabi: 'syllabi',
+  workPlans: 'work_plans',
+  lessonPlans: 'lesson_plans',
+  logBooks: 'log_books',
+  students: 'students',
+  attendances: 'attendances',
+  biometricLogs: 'biometric_logs',
+  leads: 'leads',
+  agents: 'agents',
+  admissions: 'admissions',
+  chartOfAccounts: 'chart_of_accounts',
+  parties: 'parties',
+  payments: 'payments',
+  trainerPayouts: 'trainer_payouts',
+  journalEntries: 'journal_entries',
+  expenses: 'expenses',
+  projectContracts: 'project_contracts',
+  cashClosings: 'cash_closings',
+  employers: 'employers',
+  jobOpenings: 'job_openings',
+  jobApplications: 'job_applications',
+  ojts: 'ojts',
+  placements: 'placements',
+  evaluations: 'evaluations',
+  certificates: 'certificates',
+  holidays: 'holidays',
+  notices: 'notices',
+  studentTimelines: 'student_timelines',
+  studentNotes: 'student_notes',
+  communicationLogs: 'communication_logs',
+  users: 'users'
+};
+
 let cloudSyncDebounceTimer = null;
+let pendingCloudPushData = null;
+let pendingCloudDeletes = {};
+
+function queueDeletedIdsFromDiff(prevDb, nextDb) {
+  if (!prevDb || !nextDb) return;
+  for (const [dbKey, tableName] of Object.entries(SYNCED_COLLECTION_TABLES)) {
+    const prevArr = Array.isArray(prevDb[dbKey]) ? prevDb[dbKey] : [];
+    const nextArr = Array.isArray(nextDb[dbKey]) ? nextDb[dbKey] : [];
+    if (!prevArr.length) continue;
+    const nextIds = new Set(nextArr.map((item) => item?.id).filter(Boolean));
+    const removedIds = prevArr
+      .map((item) => item?.id)
+      .filter((id) => id && !nextIds.has(id));
+    if (removedIds.length) {
+      const existing = pendingCloudDeletes[tableName] || [];
+      pendingCloudDeletes[tableName] = Array.from(new Set([...existing, ...removedIds]));
+    }
+  }
+}
+
+async function flushPendingCloudPush() {
+  if (cloudSyncDebounceTimer) {
+    clearTimeout(cloudSyncDebounceTimer);
+    cloudSyncDebounceTimer = null;
+  }
+  const dataToPush = pendingCloudPushData;
+  const deletesToRun = { ...pendingCloudDeletes };
+  const hasDeletes = Object.values(deletesToRun).some((ids) => Array.isArray(ids) && ids.length > 0);
+  if (!dataToPush && !hasDeletes) return;
+
+  pendingCloudPushData = null;
+  pendingCloudDeletes = {};
+
+  try {
+    if (hasDeletes) {
+      await deleteRemoteRecordsFromSupabase(deletesToRun, dataToPush?.settings || memoryDBCache?.settings);
+    }
+    if (dataToPush) {
+      await pushLocalDBToSupabase(dataToPush);
+    }
+    console.log('[Cloud Sync] Background sync to Supabase completed.');
+  } catch (e) {
+    // Re-queue deletes on network failure so they retry on next sync
+    if (hasDeletes) {
+      for (const [tbl, ids] of Object.entries(deletesToRun)) {
+        pendingCloudDeletes[tbl] = Array.from(new Set([...(pendingCloudDeletes[tbl] || []), ...ids]));
+      }
+    }
+    console.debug('[Cloud Sync] Background push notice:', e.message);
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', () => {
+    if (pendingCloudPushData || Object.keys(pendingCloudDeletes).length) {
+      flushPendingCloudPush();
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden' && (pendingCloudPushData || Object.keys(pendingCloudDeletes).length)) {
+      flushPendingCloudPush();
+    }
+  });
+}
 
 export function triggerBackgroundCloudPush(data) {
   if (typeof window === 'undefined') return;
+  pendingCloudPushData = data;
   if (cloudSyncDebounceTimer) clearTimeout(cloudSyncDebounceTimer);
-  cloudSyncDebounceTimer = setTimeout(async () => {
-    try {
-      await pushLocalDBToSupabase(data);
-      console.log('[Cloud Sync] Background sync to Supabase completed.');
-    } catch (e) {
-      // Offline or network error - fail silently to preserve offline UX
-      console.debug('[Cloud Sync] Background push notice:', e.message);
-    }
-  }, 2500);
+  cloudSyncDebounceTimer = setTimeout(() => {
+    flushPendingCloudPush();
+  }, 600);
 }
 
 export async function syncWithCloud(forcePush = false) {
   if (typeof window === 'undefined') return { ok: false };
   try {
+    // Always flush unsaved local edits & deletes BEFORE pulling so cloud never overwrites fresh local changes
+    if (pendingCloudPushData || Object.keys(pendingCloudDeletes).length) {
+      await flushPendingCloudPush();
+    }
+
     const local = loadDB();
 
     if (forcePush) {
@@ -718,7 +820,19 @@ export async function syncWithCloud(forcePush = false) {
         ...cloudData,
         settings: {
           ...local.settings,
-          ...(cloudData.settings || {})
+          ...(cloudData.settings || {}),
+          companyProfile: {
+            ...(local.settings?.companyProfile || {}),
+            ...(cloudData.settings?.companyProfile || {})
+          },
+          biometricSettings: {
+            ...(local.settings?.biometricSettings || {}),
+            ...(cloudData.settings?.biometricSettings || {})
+          },
+          certificateNumberFormat: {
+            ...(local.settings?.certificateNumberFormat || {}),
+            ...(cloudData.settings?.certificateNumberFormat || {})
+          }
         }
       }));
       cloudHydrated = true;
@@ -742,7 +856,9 @@ export async function syncWithCloud(forcePush = false) {
 
 export function saveDB(data) {
   try {
+    const prevDb = memoryDBCache;
     const reconciled = stripLegacyDemoEntities(reconcileUsersWithEntities(data));
+    queueDeletedIdsFromDiff(prevDb, reconciled);
     memoryDBCache = reconciled;
     writeLocalStorageSafe(reconciled);
     writeToIndexedDB(reconciled);
