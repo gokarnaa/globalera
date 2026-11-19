@@ -40,8 +40,10 @@ import ShieldIcon from '@mui/icons-material/Shield';
 import BoltIcon from '@mui/icons-material/Bolt';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
-import CertificateStudioManager from './CertificateStudioManager';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import ChannelsSettingsPanel from './ChannelsSettingsPanel';
 import CompanyProfileSettings from './CompanyProfileSettings';
+import UserManager from '../users/UserManager';
 import { loadDB, saveDB, resetDB, loadSimulationDB, syncWithCloud } from '../../services/storage';
 import {
   generateSupabaseSQLSchema,
@@ -64,6 +66,7 @@ export default function SettingsManager() {
   const [copiedSecuritySql, setCopiedSecuritySql] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState(0);
+  const [hardwareSubTab, setHardwareSubTab] = useState(0);
   const [showKey, setShowKey] = useState(false);
 
   // Supabase test and sync state
@@ -473,39 +476,42 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
           <Tab
             icon={<BusinessIcon sx={{ mr: 0.75, fontSize: 18 }} />}
             iconPosition="start"
-            label="Company Profile & Numbering"
+            label="Institute & Branding"
           />
           <Tab
-            icon={<WorkspacePremiumIcon sx={{ mr: 0.75, fontSize: 18 }} />}
+            icon={<WhatsAppIcon sx={{ mr: 0.75, fontSize: 18, color: '#16A34A' }} />}
             iconPosition="start"
-            label="Certificate Studio & Templates"
+            label="Channels, AI & SMS"
+          />
+          <Tab
+            icon={<PeopleAltIcon sx={{ mr: 0.75, fontSize: 18, color: '#2563EB' }} />}
+            iconPosition="start"
+            label="Users & Access"
           />
           <Tab
             icon={<CloudUploadIcon sx={{ mr: 0.75, fontSize: 18 }} />}
             iconPosition="start"
-            label="Cloud & System Integrations"
-          />
-          <Tab
-            icon={<BoltIcon sx={{ mr: 0.75, fontSize: 18, color: '#D97706' }} />}
-            iconPosition="start"
-            label="GraphQL API Studio"
+            label="Cloud Sync & Backup"
           />
           <Tab
             icon={<FingerprintIcon sx={{ mr: 0.75, fontSize: 18, color: '#059669' }} />}
             iconPosition="start"
-            label="Biometric & Gate Hardware"
+            label="Hardware & APIs"
           />
         </Tabs>
       </Paper>
 
-      {/* TAB 0: COMPANY PROFILE & CERTIFICATE NUMBERING */}
+      {/* TAB 0: INSTITUTE & BRANDING */}
       {activeTab === 0 && <CompanyProfileSettings onSaveSuccess={() => setDb(loadDB())} />}
 
-      {/* TAB 1: CERTIFICATE STUDIO & TEMPLATE DESIGNER */}
-      {activeTab === 1 && <CertificateStudioManager onSaveSuccess={() => setDb(loadDB())} />}
+      {/* TAB 1: CHANNELS, AI & SMS (WhatsApp, Gemini AI, Facebook, Aakash SMS) */}
+      {activeTab === 1 && <ChannelsSettingsPanel onSaveSuccess={() => setDb(loadDB())} />}
 
-      {/* TAB 2: CLOUD & INTEGRATION SETTINGS */}
-      {activeTab === 2 && (
+      {/* TAB 2: USERS & ACCESS CONTROL */}
+      {activeTab === 2 && <UserManager />}
+
+      {/* TAB 3: CLOUD SYNC & BACKUP */}
+      {activeTab === 3 && (
         <Grid container spacing={3}>
         {/* 1. Supabase PostgreSQL Card */}
         <Grid item xs={12} md={7}>
@@ -954,8 +960,17 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
       </Grid>
       )}
 
-      {/* TAB 3: GRAPHQL API STUDIO & PG_GRAPHQL ARCHITECTURE */}
-      {activeTab === 3 && (
+      {/* TAB 4: HARDWARE & APIS (Biometric + GraphQL Studio) */}
+      {activeTab === 4 && (
+        <Box>
+          <Paper elevation={0} sx={{ mb: 2, borderRadius: 2.5, border: '1px solid #E2E8F0', px: 1.5 }}>
+            <Tabs value={hardwareSubTab} onChange={(_, v) => setHardwareSubTab(v)} variant="scrollable" scrollButtons="auto">
+              <Tab icon={<FingerprintIcon sx={{ fontSize: 18, color: '#059669' }} />} iconPosition="start" label="Biometric & Gate Hardware" sx={{ textTransform: 'none', fontWeight: 700 }} />
+              <Tab icon={<BoltIcon sx={{ fontSize: 18, color: '#D97706' }} />} iconPosition="start" label="GraphQL API Studio" sx={{ textTransform: 'none', fontWeight: 700 }} />
+            </Tabs>
+          </Paper>
+
+          {hardwareSubTab === 1 && (
         <Box>
           {/* Executive Architecture Banner */}
           <Card
@@ -1159,10 +1174,9 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
             </Grid>
           </Grid>
         </Box>
-      )}
+          )}
 
-      {/* TAB 4: BIOMETRIC & GATE HARDWARE SETTINGS */}
-      {activeTab === 4 && (
+          {hardwareSubTab === 0 && (
         <Grid container spacing={3}>
           <Grid item xs={12} md={7}>
             <Card variant="outlined" sx={{ p: 3, borderRadius: 3 }}>
@@ -1367,6 +1381,8 @@ CREATE POLICY "Full access to whatsapp_inbound_events" ON public.whatsapp_inboun
             </Card>
           </Grid>
         </Grid>
+          )}
+        </Box>
       )}
     </Box>
   );

@@ -91,7 +91,7 @@ const NAV_ITEMS = [
   // --- 6. System & Settings ---
   { section: '6. SYSTEM & SETTINGS' },
   { id: 'users', label: 'User Access & Portals', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
-  { id: 'settings', label: 'Institute Profile & Sync', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Cloud' },
+  { id: 'settings', label: 'System Settings', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Central' },
   { id: 'whatsapp_hub', label: 'WhatsApp', icon: <WhatsAppIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'Live' },
   { id: 'communication', label: 'SMS / WhatsApp Hub', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'notices', label: 'Notice Board', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
