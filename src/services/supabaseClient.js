@@ -261,7 +261,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
       start_date: g.startDate || new Date().toISOString().slice(0, 10),
       expected_end_date: g.expectedEndDate || new Date().toISOString().slice(0, 10),
       classroom_lab: g.classroomLab || g.room,
-      max_capacity: Number(g.maxCapacity) || 25,
+      max_capacity: Number(g.maxCapacity ?? g.capacity) || 25,
       batch_mode: g.batchMode || 'ROLLING',
       schedule_mode: g.scheduleMode || 'REGULAR',
       status: g.status || 'Running'
@@ -301,20 +301,33 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     })));
   }
 
-  // 10. Lesson Plans
+  // 10. Lesson Plans (pack CTEVT 4-step teaching fields cleanly into methodology JSON)
   if (db.lessonPlans?.length) {
-    results.lesson_plans = await safeUpsert('lesson_plans', db.lessonPlans.map(l => ({
-      id: l.id,
-      organization_id: orgId,
-      work_plan_id: l.workPlanId,
-      group_id: l.groupId,
-      objectives: l.objectives || 'Objectives',
-      materials_needed: l.materialsNeeded,
-      methodology: l.methodology,
-      assessment_method: l.assessmentMethod,
-      homework: l.homework,
-      notes: l.notes
-    })));
+    results.lesson_plans = await safeUpsert('lesson_plans', db.lessonPlans.map(l => {
+      const hasSteps = Boolean(l.introStep || l.demoStep || l.practiceStep || l.evalStep);
+      const packedMethodology = hasSteps
+        ? JSON.stringify({
+            _ctevtSteps: true,
+            methodology: l.methodology || '',
+            introStep: l.introStep || '',
+            demoStep: l.demoStep || '',
+            practiceStep: l.practiceStep || '',
+            evalStep: l.evalStep || ''
+          })
+        : (l.methodology || '');
+      return {
+        id: l.id,
+        organization_id: orgId,
+        work_plan_id: l.workPlanId,
+        group_id: l.groupId,
+        objectives: l.objectives || 'Objectives',
+        materials_needed: l.materialsNeeded,
+        methodology: packedMethodology,
+        assessment_method: l.assessmentMethod,
+        homework: l.homework,
+        notes: l.notes
+      };
+    }));
   }
 
   // 11. Log Books
@@ -980,6 +993,7 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       expectedEndDate: g.expected_end_date,
       classroomLab: g.classroom_lab,
       maxCapacity: g.max_capacity,
+      capacity: g.max_capacity,
       batchMode: g.batch_mode || 'ROLLING',
       scheduleMode: g.schedule_mode || 'REGULAR',
       status: g.status
@@ -1007,17 +1021,42 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       plannedHours: w.planned_hours,
       status: w.status
     })),
-    lessonPlans: lessonPlans.map(l => ({
-      id: l.id,
-      workPlanId: l.work_plan_id,
-      groupId: l.group_id,
-      objectives: l.objectives,
-      materialsNeeded: l.materials_needed,
-      methodology: l.methodology,
-      assessmentMethod: l.assessment_method,
-      homework: l.homework,
-      notes: l.notes
-    })),
+    lessonPlans: lessonPlans.map(l => {
+      let methodology = l.methodology || '';
+      let introStep = '';
+      let demoStep = '';
+      let practiceStep = '';
+      let evalStep = '';
+      if (typeof l.methodology === 'string' && l.methodology.trim().startsWith('{')) {
+        try {
+          const parsed = JSON.parse(l.methodology);
+          if (parsed && parsed._ctevtSteps) {
+            methodology = parsed.methodology || '';
+            introStep = parsed.introStep || '';
+            demoStep = parsed.demoStep || '';
+            practiceStep = parsed.practiceStep || '';
+            evalStep = parsed.evalStep || '';
+          }
+        } catch {
+          // keep plain text methodology
+        }
+      }
+      return {
+        id: l.id,
+        workPlanId: l.work_plan_id,
+        groupId: l.group_id,
+        objectives: l.objectives,
+        materialsNeeded: l.materials_needed,
+        methodology,
+        introStep,
+        demoStep,
+        practiceStep,
+        evalStep,
+        assessmentMethod: l.assessment_method,
+        homework: l.homework,
+        notes: l.notes
+      };
+    }),
     logBooks: logBooks.map(lb => ({
       id: lb.id,
       lessonPlanId: lb.lesson_plan_id,
