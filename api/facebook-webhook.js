@@ -124,9 +124,13 @@ async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history 
   const contentsText =
     `Recent chat:\n${recent || '(New conversation)'}\n\n${userPrompt}`;
 
-  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash'];
+  const models = ['gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-2.0-flash'];
   for (const model of models) {
     try {
+      const genConfig = { temperature: 0.42, maxOutputTokens: 600 };
+      if (model === 'gemini-2.5-flash') {
+        genConfig.thinkingConfig = { thinkingBudget: 0 };
+      }
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`,
         {
@@ -135,7 +139,7 @@ async function askGeminiFb({ geminiKey, userPrompt, customInstructions, history 
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemInstruction }] },
             contents: [{ role: 'user', parts: [{ text: contentsText }] }],
-            generationConfig: { temperature: 0.42, maxOutputTokens: 800 }
+            generationConfig: genConfig
           })
         }
       );

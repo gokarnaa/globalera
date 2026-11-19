@@ -52,7 +52,7 @@ function cleanWhatsAppMarkdown(text) {
 
 async function getRemoteBotConfig() {
   const [rows, orgRows, cfgLogs] = await Promise.all([
-    supabaseRest('system_settings?select=*&limit=1', 'GET'),
+    supabaseRest('system_settings?id=eq.GLOBAL_CONFIG&select=*&limit=1', 'GET'),
     supabaseRest('organizations?select=settings&limit=1', 'GET'),
     supabaseRest('communication_logs?channel=eq.WA_Config_Sync&order=sent_at.desc&limit=1', 'GET')
   ]);
@@ -365,9 +365,13 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
     `Latest message from ${senderName}:\n"${messageText}"\n\n` +
     `Write a natural, warm, human-like Counsellor reply in WhatsApp style now:`;
 
-  const models = ['gemini-3-flash-preview', 'gemini-flash-latest', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  const models = ['gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-2.0-flash'];
   for (const model of models) {
     try {
+      const genConfig = { temperature: 0.42, maxOutputTokens: 600 };
+      if (model === 'gemini-2.5-flash') {
+        genConfig.thinkingConfig = { thinkingBudget: 0 };
+      }
       const res = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiKey)}`,
         {
@@ -376,7 +380,7 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
             contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
-            generationConfig: { temperature: 0.42, maxOutputTokens: 1200 }
+            generationConfig: genConfig
           })
         }
       );
@@ -391,7 +395,7 @@ async function askGeminiCounselor({ geminiKey, messageText, senderName, history,
   return null;
 }
 
-function buildKeywordFallbackReply(messageText, referral) {
+function buildKeywordFallbackReply(messageText, referral, replyMode = 'bot') {
   const lower = `${messageText} ${referral?.headline || ''}`.toLowerCase();
 
   if (lower === '1' || lower.includes('tailor') || lower.includes('silai') || lower.includes('सिलाई') || lower.includes('सिलाइ')) {
@@ -439,6 +443,10 @@ function buildKeywordFallbackReply(messageText, referral) {
   }
   if (lower.includes('time') || lower.includes('shift') || lower.includes('baje') || lower.includes('समय')) {
     return `हजुर, हाम्रोमा बिहान 7–9, 10–12, दिउँसो 12–2, 2–4 र साँझ 4–6 बजेको २ घण्टे कक्षा विकल्प छन्। जागिर वा व्यवसायमा व्यस्त व्यक्तिका लागि *Holiday Special Class* को व्यवस्था पनि छ।\nहजुरलाई कुन समय उपयुक्त हुन्छ?`;
+  }
+
+  if (replyMode === 'ai') {
+    return `नमस्कार हजुर! *ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी* मा स्वागत छ। 🙏\nहजुरलाई कुन तालिमबारे जानकारी चाहिएको हो?`;
   }
 
   return `नमस्कार हजुर! *ग्लोबल एरा मल्टी सर्भिसको प्राविधिक स्कुल, जोरपाटी* मा स्वागत छ। 🙏\n\n` +
@@ -593,7 +601,7 @@ export default async function handler(req, res) {
       }
 
       if (!botReply) {
-        botReply = buildKeywordFallbackReply(messageText, referral);
+        botReply = buildKeywordFallbackReply(messageText, referral, botConfig.replyMode);
       }
       botReply = cleanWhatsAppMarkdown(botReply);
 
