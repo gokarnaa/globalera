@@ -104,11 +104,13 @@ export async function testSupabaseConnection(url, key) {
 /**
  * PUSH ALL local database tables to Supabase Cloud
  */
-export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
+export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01', onlyTables = null) {
   const client = getSupabaseClient(db.settings?.supabaseUrl, db.settings?.supabaseAnonKey);
   if (!client) throw new Error('Supabase client not initialized. Check your credentials in Settings.');
 
   const results = {};
+  const allowSet = Array.isArray(onlyTables) && onlyTables.length > 0 ? new Set(onlyTables) : null;
+  const shouldSync = (tbl) => !allowSet || allowSet.has(tbl);
 
   // Helper for chunked batch upserts (handles 500+ students & 45,000+ attendance rows safely)
   // 1) Converts empty-string foreign keys (*_id) and date columns (*_date / date / deadline) to null
@@ -131,6 +133,7 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
   };
 
   const safeUpsert = async (table, payload, conflictKey) => {
+    if (!shouldSync(table)) return 0;
     if (!payload || !payload.length) return 0;
     const CHUNK_SIZE = 500;
     let totalSaved = 0;
@@ -176,44 +179,46 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01') {
     }
   };
 
-  // 1. Organization
-  await client.from('organizations').upsert({
-    id: orgId,
-    name: db.settings?.instituteName || 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
-    sub_name: db.settings?.instituteSub || 'Global Era Technical School',
-    code: 'GETS',
-    contact_phone: db.settings?.contactPhone || '+977-1-4915678 / 9851234567',
-    contact_email: db.settings?.email || 'info@globalera.edu.np',
-    address: db.settings?.location || 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
-    settings: db.settings || {}
-  });
-  results.organizations = 1;
+  // 1. Organization & 2. System Settings (only push when settings changed or full sync)
+  if (shouldSync('settings') || shouldSync('organizations') || shouldSync('system_settings')) {
+    await client.from('organizations').upsert({
+      id: orgId,
+      name: db.settings?.instituteName || 'GLOBAL ERA MULTI SERVICE PVT. LTD. / GLOBAL ERA TECHNICAL SCHOOL',
+      sub_name: db.settings?.instituteSub || 'Global Era Technical School',
+      code: 'GETS',
+      contact_phone: db.settings?.contactPhone || '+977-1-4915678 / 9851234567',
+      contact_email: db.settings?.email || 'info@globalera.edu.np',
+      address: db.settings?.location || 'Jorpati, Gokarneshwor-05, Kathmandu, Nepal',
+      settings: db.settings || {}
+    });
+    results.organizations = 1;
 
-  // 2. System Settings (preserve existing cloud secrets like aakashSmsToken & whatsappBot if absent locally)
-  const { data: existingSys } = await client.from('system_settings').select('company_profile').eq('id', 'GLOBAL_CONFIG').maybeSingle();
-  const existingProfile = existingSys?.company_profile || {};
-  const resolvedBot = db.settings?.whatsappBot || existingProfile.whatsappBot;
-  const resolvedSmsToken = db.settings?.aakashSmsToken || existingProfile.aakashSmsToken;
+    // 2. System Settings (preserve existing cloud secrets like aakashSmsToken & whatsappBot if absent locally)
+    const { data: existingSys } = await client.from('system_settings').select('company_profile').eq('id', 'GLOBAL_CONFIG').maybeSingle();
+    const existingProfile = existingSys?.company_profile || {};
+    const resolvedBot = db.settings?.whatsappBot || existingProfile.whatsappBot;
+    const resolvedSmsToken = db.settings?.aakashSmsToken || existingProfile.aakashSmsToken;
 
-  await client.from('system_settings').upsert({
-    id: 'GLOBAL_CONFIG',
-    organization_id: orgId,
-    institute_name: db.settings?.instituteName || 'Global Era Technical School',
-    institute_sub: db.settings?.instituteSub,
-    location: db.settings?.location,
-    contact_phone: db.settings?.contactPhone,
-    email: db.settings?.email,
-    company_profile: {
-      ...existingProfile,
-      ...(db.settings?.companyProfile || {}),
-      ...(resolvedBot ? { whatsappBot: resolvedBot } : {}),
-      ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
-    },
-    biometric_settings: db.settings?.biometricSettings || {},
-    certificate_format: db.settings?.certificateNumberFormat || {},
-    updated_at: new Date().toISOString()
-  });
-  results.system_settings = 1;
+    await client.from('system_settings').upsert({
+      id: 'GLOBAL_CONFIG',
+      organization_id: orgId,
+      institute_name: db.settings?.instituteName || 'Global Era Technical School',
+      institute_sub: db.settings?.instituteSub,
+      location: db.settings?.location,
+      contact_phone: db.settings?.contactPhone,
+      email: db.settings?.email,
+      company_profile: {
+        ...existingProfile,
+        ...(db.settings?.companyProfile || {}),
+        ...(resolvedBot ? { whatsappBot: resolvedBot } : {}),
+        ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
+      },
+      biometric_settings: db.settings?.biometricSettings || {},
+      certificate_format: db.settings?.certificateNumberFormat || {},
+      updated_at: new Date().toISOString()
+    });
+    results.system_settings = 1;
+  }
 
   // 3. Users
   if (db.users?.length) {

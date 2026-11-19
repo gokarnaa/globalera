@@ -83,6 +83,20 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught error:', error, errorInfo);
+    const msg = String(error?.message || error || '');
+    if (
+      typeof window !== 'undefined' &&
+      (msg.includes('Failed to fetch dynamically imported module') ||
+        msg.includes('Importing a module script failed') ||
+        msg.includes('Loading chunk'))
+    ) {
+      const key = 'kite_chunk_reload_ts';
+      const last = Number(sessionStorage.getItem(key) || 0);
+      if (Date.now() - last > 15000) {
+        sessionStorage.setItem(key, String(Date.now()));
+        window.location.reload();
+      }
+    }
   }
 
   render() {

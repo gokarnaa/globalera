@@ -6,6 +6,18 @@ import { AuthProvider } from './context/AuthContext';
 import { DialogProvider } from './context/DialogContext';
 import App from './App';
 
+// Auto-recover seamlessly when a new Vercel deployment replaces old hashed JS chunks
+if (typeof window !== 'undefined') {
+  window.addEventListener('vite:preloadError', () => {
+    const key = 'kite_chunk_reload_ts';
+    const last = Number(sessionStorage.getItem(key) || 0);
+    if (Date.now() - last > 15000) {
+      sessionStorage.setItem(key, String(Date.now()));
+      window.location.reload();
+    }
+  });
+}
+
 class GlobalRootErrorBoundary extends React.Component {
   constructor(props) {
     super(props);

@@ -736,12 +736,17 @@ const SYNCED_COLLECTION_TABLES = {
 let cloudSyncDebounceTimer = null;
 let pendingCloudPushData = null;
 let pendingCloudDeletes = {};
+let pendingDirtyTables = new Set();
 
 function queueDeletedIdsFromDiff(prevDb, nextDb) {
   if (!prevDb || !nextDb) return;
   for (const [dbKey, tableName] of Object.entries(SYNCED_COLLECTION_TABLES)) {
     const prevArr = Array.isArray(prevDb[dbKey]) ? prevDb[dbKey] : [];
     const nextArr = Array.isArray(nextDb[dbKey]) ? nextDb[dbKey] : [];
+    // Track ONLY tables that actually changed so stale tabs never overwrite untouched tables in Supabase
+    if (prevArr !== nextArr && JSON.stringify(prevArr) !== JSON.stringify(nextArr)) {
+      pendingDirtyTables.add(tableName);
+    }
     if (!prevArr.length) continue;
     const nextIds = new Set(nextArr.map((item) => item?.id).filter(Boolean));
     const removedIds = prevArr
@@ -752,6 +757,12 @@ function queueDeletedIdsFromDiff(prevDb, nextDb) {
       pendingCloudDeletes[tableName] = Array.from(new Set([...existing, ...removedIds]));
     }
   }
+  if (JSON.stringify(prevDb.auditLogs || []) !== JSON.stringify(nextDb.auditLogs || [])) {
+    pendingDirtyTables.add('audit_logs');
+  }
+  if (JSON.stringify(prevDb.settings || {}) !== JSON.stringify(nextDb.settings || {})) {
+    pendingDirtyTables.add('settings');
+  }
 }
 
 async function flushPendingCloudPush() {
@@ -761,27 +772,30 @@ async function flushPendingCloudPush() {
   }
   const dataToPush = pendingCloudPushData;
   const deletesToRun = { ...pendingCloudDeletes };
+  const dirtyList = Array.from(pendingDirtyTables);
   const hasDeletes = Object.values(deletesToRun).some((ids) => Array.isArray(ids) && ids.length > 0);
   if (!dataToPush && !hasDeletes) return;
 
   pendingCloudPushData = null;
   pendingCloudDeletes = {};
+  pendingDirtyTables = new Set();
 
   try {
     if (hasDeletes) {
       await deleteRemoteRecordsFromSupabase(deletesToRun, dataToPush?.settings || memoryDBCache?.settings);
     }
-    if (dataToPush) {
-      await pushLocalDBToSupabase(dataToPush);
+    if (dataToPush && dirtyList.length > 0) {
+      await pushLocalDBToSupabase(dataToPush, 'ORG-GLOBALERA-01', dirtyList);
     }
-    console.log('[Cloud Sync] Background sync to Supabase completed.');
+    console.log(`[Cloud Sync] Background sync completed (${dirtyList.length} modified table(s)).`);
   } catch (e) {
-    // Re-queue deletes on network failure so they retry on next sync
+    // Re-queue deletes & dirty tables on network failure so they retry on next sync
     if (hasDeletes) {
       for (const [tbl, ids] of Object.entries(deletesToRun)) {
         pendingCloudDeletes[tbl] = Array.from(new Set([...(pendingCloudDeletes[tbl] || []), ...ids]));
       }
     }
+    dirtyList.forEach((t) => pendingDirtyTables.add(t));
     console.debug('[Cloud Sync] Background push notice:', e.message);
   }
 }
