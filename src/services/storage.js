@@ -95,11 +95,11 @@ export function getActiveGroupTrainees(students = [], groupId, asOfDate = new Da
 export function generateDefaultUsers(trainers = [], students = [], agents = []) {
   const adminUser = {
     id: 'USR-ADMIN',
-    username: 'admin',
+    username: 'durgamiss',
     phone: '9851000000',
     name: 'Super Admin',
     role: 'ADMIN',
-    pin: 'admin123',
+    pin: 'globalera4462',
     status: 'Active',
     title: 'Institute Administrator',
     createdAt: '2026-01-01'
@@ -524,7 +524,13 @@ export function reconcileUsersWithEntities(data) {
   });
 
   const userMap = new Map();
-  baseUsers.forEach((u) => userMap.set(u.id, { ...u }));
+  baseUsers.forEach((u) => {
+    if (u.id === 'USR-ADMIN' && (u.username === 'admin' || u.pin === 'admin123')) {
+      userMap.set(u.id, { ...u, username: 'durgamiss', pin: 'globalera4462' });
+    } else {
+      userMap.set(u.id, { ...u });
+    }
+  });
 
   // Sync Trainers -> Users
   trainers.forEach((t, idx) => {

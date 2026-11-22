@@ -150,7 +150,7 @@ export function AuthProvider({ children }) {
       const userPin = matchedUser.pin || '1234';
       const isPinMatch =
         cleanPin === userPin ||
-        (matchedUser.role === 'ADMIN' && (cleanPin === 'admin123' || cleanPin === '1111'));
+        (matchedUser.role === 'ADMIN' && cleanId === 'durgamiss' && cleanPin === 'globalera4462');
 
       if (isPinMatch) {
         let userObj = { ...matchedUser };
@@ -320,11 +320,11 @@ export function AuthProvider({ children }) {
       return handlePinFailure();
     }
 
-    // 5. Quick PIN check for direct 4-digit code (e.g. admin/admin123, 1111 Admin, 2222 Staff)
-    if (cleanId === '1111' || (cleanId === 'admin' && (cleanPin === 'admin123' || cleanPin === '1111'))) {
+    // 5. Direct Super Admin & Staff fallback check
+    if (cleanId === 'durgamiss' && cleanPin === 'globalera4462') {
       const user = {
         id: 'USR-ADMIN',
-        username: 'admin',
+        username: 'durgamiss',
         name: 'Super Admin',
         role: 'ADMIN',
         title: 'Institute Administrator'
