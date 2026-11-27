@@ -407,7 +407,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const [savedAlert, setSavedAlert] = useState(false);
   const [previewScale, setPreviewScale] = useState(0.58);
   const [autoFitMode, setAutoFitMode] = useState(true);
+  const studioContainerRef = useRef(null);
   const canvasViewportRef = useRef(null);
+  const [studioSize, setStudioSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth - 48 : 1240,
+    height: typeof window !== 'undefined' ? Math.max(620, window.innerHeight - 165) : 740
+  });
 
   // Left Tools Active Category Tab: 0=Header, 1=Background, 2=Borders, 3=Stamp/Signatures, 4=Calibration, 5=Layers
   const [activeLeftTab, setActiveLeftTab] = useState(0);
@@ -439,46 +444,67 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const baseCanvasWidth = isPortrait ? 760 : 1040;
   const baseCanvasHeight = isPortrait ? 1060 : 740;
 
+  // Observe ONLY the outer 3-column Studio container (never the dynamic center panel) -> 0% flicker
+  useEffect(() => {
+    const measureOuter = () => {
+      const el = studioContainerRef.current;
+      if (!el) return;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      setStudioSize((prev) =>
+        Math.abs(prev.width - w) >= 4 || Math.abs(prev.height - h) >= 4
+          ? { width: w, height: h }
+          : prev
+      );
+    };
+    measureOuter();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measureOuter) : null;
+    if (ro && studioContainerRef.current) ro.observe(studioContainerRef.current);
+    window.addEventListener('resize', measureOuter);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', measureOuter);
+    };
+  }, []);
+
   const computeFitScale = React.useCallback(() => {
-    const vp = canvasViewportRef.current;
-    const isNarrow = typeof window !== 'undefined' && window.innerWidth < 900;
-    // Use offsetWidth/offsetHeight (invariant to scrollbar appearance) + generous margin to prevent ResizeObserver oscillation
-    const rawW = vp?.offsetWidth || (isNarrow ? window.innerWidth - 32 : 640);
-    const rawH = vp?.offsetHeight || 0;
-    const availW = Math.max(240, rawW - 44);
+    const isNarrow = typeof window !== 'undefined' && window.innerWidth < 1200;
+    const reservedLeft = !isNarrow && showLeftPanel ? 310 : 0;
+    const reservedRight = !isNarrow && showRightPanel ? 290 : 0;
+    const gaps = (!isNarrow ? ((showLeftPanel ? 12 : 0) + (showRightPanel ? 12 : 0)) : 0);
+    const availW = Math.max(240, studioSize.width - reservedLeft - reservedRight - gaps - 48);
     const availH = isNarrow
-      ? Math.max(240, Math.min(window.innerHeight * 0.56, 600))
-      : Math.max(340, (rawH > 200 ? rawH : Math.min(window.innerHeight - 230, 660)) - 44);
+      ? Math.max(240, Math.min((typeof window !== 'undefined' ? window.innerHeight : 760) * 0.56, 600))
+      : Math.max(360, studioSize.height - 96);
     const fit = Math.min(availW / baseCanvasWidth, availH / baseCanvasHeight, 0.92);
     return Math.max(0.25, Math.floor(fit * 100) / 100);
-  }, [baseCanvasWidth, baseCanvasHeight]);
+  }, [baseCanvasWidth, baseCanvasHeight, studioSize.width, studioSize.height, showLeftPanel, showRightPanel]);
 
-  // Auto-fit preview whenever viewport resizes, orientation flips, or side panels toggle
+  // Auto-fit preview whenever outer studio container resizes, orientation flips, or side panels toggle
   useEffect(() => {
     if (!autoFitMode) return;
-    let rafId = null;
-    const applyFit = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        const next = computeFitScale();
-        setPreviewScale((prev) => (Math.abs(next - prev) >= 0.02 ? next : prev));
-      });
-    };
-    applyFit();
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(applyFit) : null;
-    if (ro && canvasViewportRef.current) ro.observe(canvasViewportRef.current);
-    window.addEventListener('resize', applyFit);
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      if (ro) ro.disconnect();
-      window.removeEventListener('resize', applyFit);
-    };
-  }, [autoFitMode, computeFitScale, showLeftPanel, showRightPanel, isPortrait]);
+    const next = computeFitScale();
+    setPreviewScale((prev) => (Math.abs(next - prev) >= 0.01 ? next : prev));
+  }, [autoFitMode, computeFitScale]);
 
   // Re-engage auto-fit cleanly when user switches between Portrait and Landscape
   useEffect(() => {
     setAutoFitMode(true);
   }, [isPortrait]);
+
+  // Dynamic Center Preview Window width that hugs the zoomed certificate (zero wasted dark side space)
+  const scaledCanvasWidth = Math.round(baseCanvasWidth * previewScale);
+  const scaledCanvasHeight = Math.round(baseCanvasHeight * previewScale);
+  const minSidePanelsWidth =
+    (showLeftPanel ? 260 : 0) +
+    (showRightPanel ? 250 : 0) +
+    (showLeftPanel ? 12 : 0) +
+    (showRightPanel ? 12 : 0);
+  const maxCenterWindowWidth = Math.max(360, studioSize.width - minSidePanelsWidth);
+  const dynamicCenterWindowWidth = Math.min(
+    maxCenterWindowWidth,
+    Math.max(320, scaledCanvasWidth + 36)
+  );
 
   const handleUpdate = (field, value) => {
     setDesign((prev) => ({
@@ -1030,29 +1056,33 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       {/* 2. 3-COLUMN STUDIO LAYOUT (LEFT: TOOLS | CENTER: CANVAS | RIGHT: INSPECTOR) */}
       {/* ============================================================== */}
       <Box
+        ref={studioContainerRef}
         sx={{
           display: 'flex',
           flexDirection: { xs: 'column', lg: 'row' },
+          justifyContent: !showLeftPanel && !showRightPanel ? 'center' : 'flex-start',
           gap: 1.5,
           height: { xs: 'auto', lg: 'calc(100dvh - 165px)' },
           minHeight: { xs: 'auto', lg: '740px' }
         }}
       >
         {/* ========================================================== */}
-        {/* COLUMN 1: LEFT TOOLS & SETTINGS PANEL (~330px)             */}
+        {/* COLUMN 1: LEFT TOOLS & SETTINGS PANEL (Responsive Flex)    */}
         {/* ========================================================== */}
         {showLeftPanel && (
           <Paper
             elevation={1}
             sx={{
-              width: { xs: '100%', lg: 330 },
-              flexShrink: 0,
+              width: { xs: '100%', lg: 'auto' },
+              flex: { xs: 'none', lg: '1 1 290px' },
+              minWidth: { xs: '100%', lg: 260 },
               display: 'flex',
               flexDirection: 'column',
               borderRadius: 2.5,
               border: '1px solid #E2E8F0',
               bgcolor: '#FFFFFF',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              transition: 'flex-basis 180ms ease-out'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1752,17 +1782,19 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         )}
 
         {/* ========================================================== */}
-        {/* COLUMN 2: CENTER LIVE CANVAS WORKSPACE (Interactive)        */}
+        {/* COLUMN 2: CENTER LIVE CANVAS WORKSPACE (Dynamic Zoom Width) */}
         {/* ========================================================== */}
         <Box
           sx={{
-            flex: 1,
+            width: { xs: '100%', lg: `${dynamicCenterWindowWidth}px` },
+            flexShrink: 0,
             minWidth: 0,
             display: 'flex',
             flexDirection: 'column',
             bgcolor: '#1E293B',
             borderRadius: 2.5,
             overflow: 'hidden',
+            transition: isDragging ? 'none' : 'width 180ms ease-out',
             boxShadow: 'inset 0 2px 14px rgba(0,0,0,0.4)',
             position: 'relative'
           }}
@@ -1909,8 +1941,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               overflow: autoFitMode ? 'hidden' : 'auto',
               p: { xs: 1.5, sm: 2 },
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              justifyContent: !autoFitMode && scaledCanvasWidth > dynamicCenterWindowWidth - 28 ? 'flex-start' : 'center',
+              alignItems: !autoFitMode && scaledCanvasHeight > studioSize.height - 96 ? 'flex-start' : 'center',
               userSelect: isDragging ? 'none' : 'auto'
             }}
           >
@@ -2610,17 +2642,19 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
         </Box>
 
         {/* ========================================================== */}
-        {/* COLUMN 3: RIGHT INSPECTOR & PRESETS PANEL (~310px)         */}
+        {/* COLUMN 3: RIGHT INSPECTOR & PRESETS PANEL (Responsive Flex) */}
         {/* ========================================================== */}
         {showRightPanel && (
           <Box
             sx={{
-              width: { xs: '100%', lg: 310 },
-              flexShrink: 0,
+              width: { xs: '100%', lg: 'auto' },
+              flex: { xs: 'none', lg: '1 1 280px' },
+              minWidth: { xs: '100%', lg: 250 },
               display: 'flex',
               flexDirection: 'column',
               gap: 1.5,
-              overflowY: 'auto'
+              overflowY: 'auto',
+              transition: 'flex-basis 180ms ease-out'
             }}
             onClick={(e) => e.stopPropagation()}
           >
