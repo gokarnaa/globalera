@@ -442,26 +442,34 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const computeFitScale = React.useCallback(() => {
     const vp = canvasViewportRef.current;
     const isNarrow = typeof window !== 'undefined' && window.innerWidth < 900;
-    const availW = Math.max(240, (vp?.clientWidth || (isNarrow ? window.innerWidth - 32 : 640)) - 28);
-    const rawH = vp?.clientHeight || 0;
+    // Use offsetWidth/offsetHeight (invariant to scrollbar appearance) + generous margin to prevent ResizeObserver oscillation
+    const rawW = vp?.offsetWidth || (isNarrow ? window.innerWidth - 32 : 640);
+    const rawH = vp?.offsetHeight || 0;
+    const availW = Math.max(240, rawW - 44);
     const availH = isNarrow
-      ? Math.max(240, Math.min(window.innerHeight * 0.58, 620))
-      : Math.max(360, (rawH > 200 ? rawH : Math.min(window.innerHeight - 220, 680)) - 28);
+      ? Math.max(240, Math.min(window.innerHeight * 0.56, 600))
+      : Math.max(340, (rawH > 200 ? rawH : Math.min(window.innerHeight - 230, 660)) - 44);
     const fit = Math.min(availW / baseCanvasWidth, availH / baseCanvasHeight, 0.92);
-    return Math.max(0.25, Math.round(fit * 100) / 100);
+    return Math.max(0.25, Math.floor(fit * 100) / 100);
   }, [baseCanvasWidth, baseCanvasHeight]);
 
   // Auto-fit preview whenever viewport resizes, orientation flips, or side panels toggle
   useEffect(() => {
     if (!autoFitMode) return;
-    const applyFit = () => setPreviewScale(computeFitScale());
+    let rafId = null;
+    const applyFit = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        const next = computeFitScale();
+        setPreviewScale((prev) => (Math.abs(next - prev) >= 0.02 ? next : prev));
+      });
+    };
     applyFit();
-    const raf = requestAnimationFrame(applyFit);
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(applyFit) : null;
     if (ro && canvasViewportRef.current) ro.observe(canvasViewportRef.current);
     window.addEventListener('resize', applyFit);
     return () => {
-      cancelAnimationFrame(raf);
+      if (rafId) cancelAnimationFrame(rafId);
       if (ro) ro.disconnect();
       window.removeEventListener('resize', applyFit);
     };
@@ -1898,7 +1906,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             ref={canvasViewportRef}
             sx={{
               flex: 1,
-              overflow: 'auto',
+              overflow: autoFitMode ? 'hidden' : 'auto',
               p: { xs: 1.5, sm: 2 },
               display: 'flex',
               justifyContent: 'center',
