@@ -204,6 +204,8 @@ export default function A4LandscapeCertificateModal({
   const showStudentPhoto = design.showStudentPhoto !== undefined ? design.showStudentPhoto : true;
   const showCompetencyBadge = design.showCompetencyBadge !== undefined ? design.showCompetencyBadge : true;
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
+  const showHeaderTitle = design.showHeaderTitle !== undefined ? design.showHeaderTitle : true;
+  const showHeaderDivider = design.showHeaderDivider !== undefined ? design.showHeaderDivider : true;
   const showTitle = design.showTitle !== undefined ? design.showTitle : true;
   const showRefBar = design.showRefBar !== undefined ? design.showRefBar : true;
   const showRefCertNo = design.showRefCertNo !== undefined ? design.showRefCertNo : true;
@@ -951,7 +953,14 @@ export default function A4LandscapeCertificateModal({
 
           {/* 1. Institutional Letterhead Header: Individual Movable Layers */}
           {showHeader && (
-            <Box sx={{ position: 'relative', zIndex: 3, pb: 1, borderBottom: `1.5px solid ${accentColor}` }}>
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 3,
+                pb: 1,
+                borderBottom: showHeaderDivider && backgroundType !== 'custom' ? `1.5px solid ${accentColor}` : 'none'
+              }}
+            >
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', px: 2 }}>
                 {/* Left Logo / Emblem (Independently Movable) */}
                 <Box
@@ -974,6 +983,7 @@ export default function A4LandscapeCertificateModal({
                 {/* Center Institutional Name Lines (Independently Movable) */}
                 <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
                   {/* Line 1: Main Title */}
+                  {showHeaderTitle && (
                   <Box sx={{ transform: `translate(${elStyles.headerTitle?.x || 0}px, ${elStyles.headerTitle?.y || 0}px)` }}>
                     <Typography
                       variant="h5"
@@ -990,6 +1000,7 @@ export default function A4LandscapeCertificateModal({
                       {instituteName}
                     </Typography>
                   </Box>
+                  )}
 
                   {/* Line 2: Accreditation */}
                   {design.showAccreditation !== false && (

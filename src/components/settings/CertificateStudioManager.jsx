@@ -118,6 +118,8 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   affiliationCodeText: 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • Jorpati, Gokarneshwor, Kathmandu, Nepal',
 
   // 6. Title & Body Typography
+  showHeaderTitle: true,
+  showHeaderDivider: true,
   showTitle: true,
   showRefBar: true,
   showRefCertNo: true,
@@ -1471,6 +1473,34 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       control={<Switch checked={design.showHeader !== false} onChange={(e) => handleUpdate('showHeader', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Institutional Header</Typography>}
                     />
+                    {design.showHeader !== false && (
+                      <Stack spacing={0.2} sx={{ pl: 2.2, borderLeft: '2px solid #E2E8F0', my: 0.2 }}>
+                        <FormControlLabel
+                          control={<Switch checked={design.showHeaderTitle !== false} onChange={(e) => handleUpdate('showHeaderTitle', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Main Institute Name</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showAccreditation !== false} onChange={(e) => handleUpdate('showAccreditation', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Accreditation Sub-title</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showAffiliation !== false} onChange={(e) => handleUpdate('showAffiliation', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Regd. No / CTEVT / Address</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showLeftLogo !== false} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Left Logo</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showRightLogo !== false} onChange={(e) => handleUpdate('showRightLogo', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Right Badge / Logo</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showHeaderDivider !== false && design.backgroundType !== 'custom'} onChange={(e) => handleUpdate('showHeaderDivider', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Header Bottom Divider Line</Typography>}
+                        />
+                      </Stack>
+                    )}
                     <FormControlLabel
                       control={<Switch checked={design.showTitle !== false} onChange={(e) => handleUpdate('showTitle', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Main Certificate Title</Typography>}
@@ -1532,14 +1562,6 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     <FormControlLabel
                       control={<Switch checked={design.showSignatories !== false} onChange={(e) => handleUpdate('showSignatories', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Signatories</Typography>}
-                    />
-                    <FormControlLabel
-                      control={<Switch checked={design.showLeftLogo} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
-                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Left Logo</Typography>}
-                    />
-                    <FormControlLabel
-                      control={<Switch checked={design.showRightLogo} onChange={(e) => handleUpdate('showRightLogo', e.target.checked)} size="small" />}
-                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Right Badge</Typography>}
                     />
                     <FormControlLabel
                       control={
@@ -2659,8 +2681,18 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               {/* ============================================================== */}
               {/* 1. INSTITUTIONAL LETTERHEAD: INDIVIDUAL MOVABLE LAYERS        */}
               {/* ============================================================== */}
-              {design.showHeader && (
-                <Box sx={{ position: 'relative', zIndex: 3, pb: 1, borderBottom: `1.5px solid ${design.accentColor}` }}>
+              {design.showHeader !== false && (
+                <Box
+                  sx={{
+                    position: 'relative',
+                    zIndex: 3,
+                    pb: 1,
+                    borderBottom:
+                      design.showHeaderDivider !== false && design.backgroundType !== 'custom'
+                        ? `1.5px solid ${design.accentColor}`
+                        : 'none'
+                  }}
+                >
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', px: 2 }}>
                     {/* Left Logo (Independently Movable) */}
                     <Box
@@ -2689,6 +2721,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     {/* Center Lines: Main Title, Sub-heading, Address */}
                     <Box sx={{ textAlign: 'center', flexGrow: 1, px: 2 }}>
                       {/* Line 1: Main Institution Title */}
+                      {design.showHeaderTitle !== false && (
                       <Box
                         onClick={(e) => { e.stopPropagation(); setSelectedElement('headerTitle'); }}
                         onMouseDown={(e) => handleMouseDownOnElement(e, 'headerTitle')}
@@ -2717,6 +2750,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           {design.instituteName}
                         </Typography>
                       </Box>
+                      )}
 
                       {/* Line 2: Accreditation / Sub-heading */}
                       {design.showAccreditation && (
