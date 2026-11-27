@@ -205,6 +205,11 @@ export default function A4LandscapeCertificateModal({
   const showCompetencyBadge = design.showCompetencyBadge !== undefined ? design.showCompetencyBadge : true;
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
   const showTitle = design.showTitle !== undefined ? design.showTitle : true;
+  const showRefBar = design.showRefBar !== undefined ? design.showRefBar : true;
+  const transparentRefBar = Boolean(design.transparentRefBar) || backgroundType === 'custom';
+  const showNepaliNameSubtitle = Boolean(design.showNepaliNameSubtitle);
+  const showCourseLine = design.showCourseLine !== undefined ? design.showCourseLine : true;
+  const showBodyText = design.showBodyText !== undefined ? design.showBodyText : true;
   const showSignatories = design.showSignatories !== undefined ? design.showSignatories : true;
   const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
@@ -1081,33 +1086,36 @@ export default function A4LandscapeCertificateModal({
           </Box>
           )}
 
-          {/* 3. Reference Tracking Bar */}
-          <Box
-            sx={{
-              position: 'relative',
-              zIndex: 1,
-              display: 'flex',
-              justifyContent: 'space-between',
-              px: 3,
-              py: 0.5,
-              bgcolor: '#f8fafc',
-              borderTop: '1px solid #e2e8f0',
-              borderBottom: '1px solid #e2e8f0',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              color: '#334155'
-            }}
-          >
-            <Box>
-              Certificate No: <b style={{ color: primaryColor }}>{certificate.certificateNo}</b>
+          {/* 3. Reference Tracking Bar (Movable, Toggleable & Transparent on Custom Backgrounds) */}
+          {showRefBar && (
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 2,
+                display: 'flex',
+                justifyContent: 'space-between',
+                px: 3,
+                py: 0.5,
+                bgcolor: transparentRefBar ? 'transparent' : '#f8fafc',
+                borderTop: transparentRefBar ? 'none' : '1px solid #e2e8f0',
+                borderBottom: transparentRefBar ? 'none' : '1px solid #e2e8f0',
+                fontSize: elStyles.refBar?.fontSize ? `${elStyles.refBar.fontSize}px` : '0.78rem',
+                fontWeight: 700,
+                color: elStyles.refBar?.color || '#334155',
+                transform: `translate(${elStyles.refBar?.x || 0}px, ${elStyles.refBar?.y || 0}px)`
+              }}
+            >
+              <Box>
+                Certificate No: <b style={{ color: primaryColor }}>{certificate.certificateNo}</b>
+              </Box>
+              <Box>
+                Registration / TGID: <b style={{ color: primaryColor }}>{student.tgid}</b>
+              </Box>
+              <Box>
+                Issue Date: <b>{certificate.issueDate}</b>
+              </Box>
             </Box>
-            <Box>
-              Registration / TGID: <b style={{ color: primaryColor }}>{student.tgid}</b>
-            </Box>
-            <Box>
-              Issue Date: <b>{certificate.issueDate}</b>
-            </Box>
-          </Box>
+          )}
 
           {/* 4. Trainee Centerpiece & Photo Frame (Movable) */}
           <Box
@@ -1123,7 +1131,7 @@ export default function A4LandscapeCertificateModal({
             }}
           >
             {/* Photo if placed on LEFT */}
-            {elStyles.photo?.preset === 'left' && (
+            {elStyles.photo?.preset === 'left' && showStudentPhoto && (
               <Box
                 sx={{
                   width: `${elStyles.photo?.width || 92}px`,
@@ -1211,7 +1219,7 @@ export default function A4LandscapeCertificateModal({
               >
                 {student.name}
               </Typography>
-              {student.nameNepali && (
+              {showNepaliNameSubtitle && student.nameNepali && (
                 <Typography
                   variant="subtitle1"
                   sx={{
@@ -1225,18 +1233,20 @@ export default function A4LandscapeCertificateModal({
                   ({student.nameNepali})
                 </Typography>
               )}
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 800,
-                  color: '#059669',
-                  fontSize: '0.94rem',
-                  letterSpacing: '0.05em',
-                  mt: 0.3
-                }}
-              >
-                COURSE: {(course?.title || 'Vocational Training').toUpperCase()} ({course?.totalHours || 390} HOURS)
-              </Typography>
+              {showCourseLine && (
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 800,
+                    color: '#059669',
+                    fontSize: '0.94rem',
+                    letterSpacing: '0.05em',
+                    mt: 0.3
+                  }}
+                >
+                  COURSE: {(course?.title || 'Vocational Training').toUpperCase()} ({bodyData.durationEn.toUpperCase()})
+                </Typography>
+              )}
             </Box>
 
             {/* Photo if placed on RIGHT (Default) */}
@@ -1286,7 +1296,8 @@ export default function A4LandscapeCertificateModal({
             )}
           </Box>
 
-          {/* 5. English & Nepali Wording Paragraphs (Movable) */}
+          {/* 5. English & Nepali Wording Paragraphs (Movable & Toggleable) */}
+          {showBodyText && (
           <Box
             sx={{
               position: 'relative',
@@ -1348,6 +1359,7 @@ export default function A4LandscapeCertificateModal({
               </Typography>
             )}
           </Box>
+          )}
 
           {/* 6. Footer: Dynamic QR + Official Seal (4 Modes) + Dynamic Signatories (Movable) */}
           <Box
@@ -1356,7 +1368,7 @@ export default function A4LandscapeCertificateModal({
               zIndex: 2,
               mt: isPortrait ? 2.5 : 1.2,
               pt: 1.2,
-              borderTop: '1px solid #cbd5e1',
+              borderTop: backgroundType === 'custom' ? 'none' : '1px solid #cbd5e1',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-end',

@@ -119,6 +119,11 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
 
   // 6. Title & Body Typography
   showTitle: true,
+  showRefBar: true,
+  transparentRefBar: false,
+  showNepaliNameSubtitle: false,
+  showCourseLine: true,
+  showBodyText: true,
   showSignatories: true,
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
   certificateTitleNp: '(VOCATIONAL TRAINING COMPLETION CERTIFICATE)',
@@ -168,6 +173,7 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
     headerSub: { x: 0, y: 0, fontSize: 11.5, fontWeight: '600', fontStyle: 'normal', color: '#475569', align: 'center' },
     headerAddress: { x: 0, y: 0, fontSize: 10.5, fontWeight: 'normal', fontStyle: 'normal', color: '#64748B', align: 'center' },
     title: { x: 0, y: 0, fontSize: 20, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman', align: 'center' },
+    refBar: { x: 0, y: 0, fontSize: 12, fontWeight: '700', color: '#334155' },
     student: { x: 0, y: 0, fontSize: 28, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman', align: 'center' },
     photo: { x: 0, y: 0, width: 88, height: 108, borderRadius: 4, borderColor: '', preset: 'right' },
     body: { x: 0, y: 0, fontSize: 13.5, lineHeight: 1.5, align: 'justify', color: '', fontFamily: 'Times New Roman' },
@@ -1452,9 +1458,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    Section, Logo &amp; Badge Visibility:
+                    All Sections &amp; Elements Visibility (ON / OFF):
                   </Typography>
-                  <Stack spacing={0.5}>
+                  <Stack spacing={0.35}>
                     <FormControlLabel
                       control={<Switch checked={design.showHeader !== false} onChange={(e) => handleUpdate('showHeader', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Institutional Header</Typography>}
@@ -1462,6 +1468,44 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     <FormControlLabel
                       control={<Switch checked={design.showTitle !== false} onChange={(e) => handleUpdate('showTitle', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Main Certificate Title</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showRefBar !== false} onChange={(e) => handleUpdate('showRefBar', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Reference Bar (Cert No / Date)</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.transparentRefBar || design.backgroundType === 'custom'} onChange={(e) => handleUpdate('transparentRefBar', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Transparent Reference Bar (No White Box)</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showStudentPhoto !== false} onChange={(e) => handleUpdate('showStudentPhoto', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Student Photo (PP Photo)</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={Boolean(design.showNepaliNameSubtitle)} onChange={(e) => handleUpdate('showNepaliNameSubtitle', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Nepali Name Subtitle</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showCourseLine !== false} onChange={(e) => handleUpdate('showCourseLine', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Course Highlight Line</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showBodyText !== false} onChange={(e) => handleUpdate('showBodyText', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Body Paragraph</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showQrVerification !== false} onChange={(e) => handleUpdate('showQrVerification', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show QR Code Verification</Typography>}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={design.sealMode !== 'none'}
+                          onChange={(e) => handleUpdate('sealMode', e.target.checked ? 'blank' : 'none')}
+                          size="small"
+                        />
+                      }
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Official Seal / Stamp Space</Typography>}
                     />
                     <FormControlLabel
                       control={<Switch checked={design.showSignatories !== false} onChange={(e) => handleUpdate('showSignatories', e.target.checked)} size="small" />}
@@ -2791,27 +2835,36 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </Box>
               )}
 
-              {/* 3. Reference Tracking Bar */}
-              <Box
-                sx={{
-                  position: 'relative',
-                  zIndex: 1,
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  px: 3,
-                  py: 0.5,
-                  bgcolor: '#F8FAFC',
-                  borderTop: '1px solid #E2E8F0',
-                  borderBottom: '1px solid #E2E8F0',
-                  fontSize: '0.76rem',
-                  fontWeight: 700,
-                  color: '#334155'
-                }}
-              >
-                <Box>Certificate No: <b style={{ color: design.primaryColor }}>{currentSample.certNo}</b></Box>
-                <Box>Registration / TGID: <b style={{ color: design.primaryColor }}>{currentSample.tgid}</b></Box>
-                <Box>Issue Date: <b>{currentSample.issueDate}</b></Box>
-              </Box>
+              {/* 3. Reference Tracking Bar (Movable, Toggleable & Transparent on Custom Backgrounds) */}
+              {design.showRefBar !== false && (
+                <Box
+                  onClick={(e) => { e.stopPropagation(); setSelectedElement('refBar'); }}
+                  onMouseDown={(e) => handleMouseDownOnElement(e, 'refBar')}
+                  sx={{
+                    position: 'relative',
+                    zIndex: selectedElement === 'refBar' ? 10 : 2,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    px: 3,
+                    py: 0.5,
+                    bgcolor: (design.transparentRefBar || design.backgroundType === 'custom') ? 'transparent' : '#F8FAFC',
+                    borderTop: (design.transparentRefBar || design.backgroundType === 'custom') ? 'none' : '1px solid #E2E8F0',
+                    borderBottom: (design.transparentRefBar || design.backgroundType === 'custom') ? 'none' : '1px solid #E2E8F0',
+                    fontSize: `${design.elementStyles?.refBar?.fontSize || 12}px`,
+                    fontWeight: 700,
+                    color: design.elementStyles?.refBar?.color || '#334155',
+                    transform: `translate(${design.elementStyles?.refBar?.x || 0}px, ${design.elementStyles?.refBar?.y || 0}px)`,
+                    cursor: isDragging && selectedElement === 'refBar' ? 'grabbing' : 'grab',
+                    outline: selectedElement === 'refBar' ? '2px dashed #0284c7' : '1px dashed transparent',
+                    outlineOffset: '3px',
+                    borderRadius: '4px'
+                  }}
+                >
+                  <Box>Certificate No: <b style={{ color: design.primaryColor }}>{currentSample.certNo}</b></Box>
+                  <Box>Registration / TGID: <b style={{ color: design.primaryColor }}>{currentSample.tgid}</b></Box>
+                  <Box>Issue Date: <b>{currentSample.issueDate}</b></Box>
+                </Box>
+              )}
 
               {/* ============================================================== */}
               {/* 4. TRAINEE CENTERPIECE & PHOTO FRAME (MOVABLE)                 */}
@@ -2829,7 +2882,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 }}
               >
                 {/* Photo if placed on LEFT */}
-                {design.elementStyles?.photo?.preset === 'left' && (
+                {design.elementStyles?.photo?.preset === 'left' && design.showStudentPhoto !== false && (
                   <Box
                     onClick={(e) => { e.stopPropagation(); setSelectedElement('photo'); }}
                     onMouseDown={(e) => handleMouseDownOnElement(e, 'photo')}
@@ -2917,30 +2970,34 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   >
                     {currentSample.nameEn}
                   </Typography>
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontFamily: "'Noto Sans Devanagari', sans-serif",
-                      fontWeight: 800,
-                      color: design.accentColor,
-                      fontSize: '1.05rem',
-                      mt: 0.2
-                    }}
-                  >
-                    ({currentSample.nameNp})
-                  </Typography>
-                  <Typography
-                    variant="subtitle2"
-                    sx={{
-                      fontWeight: 800,
-                      color: '#059669',
-                      fontSize: '0.92rem',
-                      mt: 0.3,
-                      letterSpacing: '0.04em'
-                    }}
-                  >
-                    COURSE: {currentSample.courseEn.toUpperCase()} ({currentSample.hoursBadge.toUpperCase()})
-                  </Typography>
+                  {Boolean(design.showNepaliNameSubtitle) && (
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontFamily: "'Noto Sans Devanagari', sans-serif",
+                        fontWeight: 800,
+                        color: design.accentColor,
+                        fontSize: '1.05rem',
+                        mt: 0.2
+                      }}
+                    >
+                      ({currentSample.nameNp})
+                    </Typography>
+                  )}
+                  {design.showCourseLine !== false && (
+                    <Typography
+                      variant="subtitle2"
+                      sx={{
+                        fontWeight: 800,
+                        color: '#059669',
+                        fontSize: '0.92rem',
+                        mt: 0.3,
+                        letterSpacing: '0.04em'
+                      }}
+                    >
+                      COURSE: {currentSample.courseEn.toUpperCase()} ({currentSample.hoursBadge.toUpperCase()})
+                    </Typography>
+                  )}
                 </Box>
 
                 {/* Photo if placed on RIGHT (Default) */}
@@ -2986,8 +3043,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </Box>
 
               {/* ============================================================== */}
-              {/* 5. ENGLISH & NEPALI WORDING PARAGRAPHS (MOVABLE)               */}
+              {/* 5. ENGLISH & NEPALI WORDING PARAGRAPHS (MOVABLE & TOGGLEABLE)  */}
               {/* ============================================================== */}
+              {design.showBodyText !== false && (
               <Box
                 onClick={(e) => { e.stopPropagation(); setSelectedElement('body'); }}
                 onMouseDown={(e) => handleMouseDownOnElement(e, 'body')}
@@ -3046,6 +3104,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 )}
               </Box>
 
+              )}
+
               {/* ============================================================== */}
               {/* 6. FOOTER: DYNAMIC QR + OFFICIAL SEAL (4 MODES) + SIGNATORIES  */}
               {/* ============================================================== */}
@@ -3055,7 +3115,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   zIndex: 2,
                   mt: isPortrait ? 2.5 : 1.2,
                   pt: 1.2,
-                  borderTop: '1px solid #CBD5E1',
+                  borderTop: design.backgroundType === 'custom' ? 'none' : '1px solid #CBD5E1',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-end',
