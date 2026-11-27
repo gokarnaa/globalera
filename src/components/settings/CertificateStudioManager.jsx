@@ -71,7 +71,10 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   // 2. 10 Background Presets & Custom Backgrounds
   backgroundType: 'clean-white',
   customBackgroundUrl: '',
+  customBgMode: 'plain', // 'plain' | 'predesigned'
   customBackgrounds: [],
+  customTemplatePresets: [],
+  activePresetId: '',
   customBgOpacity: 100,
   customBgFit: 'cover',
   watermarkType: 'school-crest',
@@ -107,6 +110,8 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   affiliationCodeText: 'Government Regd. No: 184920/078/079 • CTEVT Affiliation Code: 4208 • Jorpati, Gokarneshwor, Kathmandu, Nepal',
 
   // 6. Title & Body Typography
+  showTitle: true,
+  showSignatories: true,
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
   certificateTitleNp: '(VOCATIONAL TRAINING COMPLETION CERTIFICATE)',
   bodyLayoutMode: 'english-only', // 'english-only' | 'bilingual' | 'nepali-only'
@@ -406,6 +411,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   });
 
   const [savedAlert, setSavedAlert] = useState(false);
+  const [presetNameInput, setPresetNameInput] = useState('');
   const [previewScale, setPreviewScale] = useState(0.58);
   const [autoFitMode, setAutoFitMode] = useState(true);
   const studioContainerRef = useRef(null);
@@ -663,12 +669,38 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     reader.readAsDataURL(file);
   };
 
+  // Apply Plain vs Pre-Designed (Heading Included) mode cleanly
+  const handleApplyBgMode = (mode) => {
+    setDesign((prev) => {
+      if (mode === 'predesigned') {
+        return {
+          ...prev,
+          customBgMode: 'predesigned',
+          showHeader: false,
+          showTitle: false,
+          borderStyle: 'none',
+          cornerStyle: 'none',
+          watermarkOpacity: 0,
+          customBgFit: '100% 100%'
+        };
+      }
+      return {
+        ...prev,
+        customBgMode: 'plain',
+        showHeader: true,
+        showTitle: true,
+        borderStyle: prev.borderStyle === 'none' ? 'royal-double' : prev.borderStyle,
+        cornerStyle: prev.cornerStyle === 'none' ? 'victorian-flourish' : prev.cornerStyle
+      };
+    });
+  };
+
   const handleUploadCustomBg = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Background image size must be smaller than 5MB.');
+    if (file.size > 6 * 1024 * 1024) {
+      alert('Background image size must be smaller than 6MB.');
       return;
     }
 
@@ -678,21 +710,34 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       const cleanFileName = file.name
         ? file.name.replace(/\.[^/.]+$/, '')
         : `Custom Background ${((design.customBackgrounds || []).length + 1)}`;
-      const newPreset = {
+      const bgMode = design.customBgMode || 'plain';
+      const newBg = {
         id: `custom-bg-${Date.now()}`,
         name: cleanFileName.slice(0, 24),
         url: dataUrl,
+        bgMode,
         createdAt: new Date().toLocaleDateString('en-US')
       };
 
       const existingList = design.customBackgrounds || [];
-      const updatedList = [newPreset, ...existingList];
+      const updatedList = [newBg, ...existingList];
 
       setDesign((prev) => ({
         ...prev,
         backgroundType: 'custom',
         customBackgroundUrl: dataUrl,
-        customBackgrounds: updatedList
+        customBgMode: bgMode,
+        customBackgrounds: updatedList,
+        ...(bgMode === 'predesigned'
+          ? {
+              showHeader: false,
+              showTitle: false,
+              borderStyle: 'none',
+              cornerStyle: 'none',
+              watermarkOpacity: 0,
+              customBgFit: '100% 100%'
+            }
+          : {})
       }));
     };
     reader.readAsDataURL(file);
@@ -700,11 +745,131 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   };
 
   const handleSelectCustomBg = (bgItem) => {
+    const bgMode = bgItem.bgMode || design.customBgMode || 'plain';
     setDesign((prev) => ({
       ...prev,
       backgroundType: 'custom',
-      customBackgroundUrl: bgItem.url
+      customBackgroundUrl: bgItem.url,
+      customBgMode: bgMode,
+      ...(bgMode === 'predesigned'
+        ? {
+            showHeader: false,
+            showTitle: false,
+            borderStyle: 'none',
+            cornerStyle: 'none',
+            watermarkOpacity: 0,
+            customBgFit: '100% 100%'
+          }
+        : {})
     }));
+  };
+
+  // Extract clean snapshot config without recursive preset/bg arrays
+  const extractPresetSnapshot = (currentDesign) => {
+    const { customTemplatePresets, customBackgrounds, activePresetId, ...rest } = currentDesign;
+    return JSON.parse(JSON.stringify(rest));
+  };
+
+  const handleSaveNewTemplatePreset = () => {
+    const trimmed = String(presetNameInput || '').trim();
+    const name = trimmed || `Template ${((design.customTemplatePresets || []).length + 1)}`;
+    const newPreset = {
+      id: `tpl-${Date.now()}`,
+      name: name.slice(0, 32),
+      bgMode: design.customBgMode || 'plain',
+      orientation: design.orientation || 'landscape',
+      thumbnail: design.backgroundType === 'custom' ? design.customBackgroundUrl : '',
+      primaryColor: design.primaryColor || '#0B2545',
+      accentColor: design.accentColor || '#C59B27',
+      createdAt: new Date().toLocaleDateString('en-US'),
+      config: extractPresetSnapshot(design)
+    };
+    const nextPresets = [newPreset, ...(design.customTemplatePresets || [])];
+    const nextDesign = {
+      ...design,
+      customTemplatePresets: nextPresets,
+      activePresetId: newPreset.id
+    };
+    setDesign(nextDesign);
+    setPresetNameInput('');
+    const nextDb = {
+      ...db,
+      settings: {
+        ...(db.settings || {}),
+        certificateDesign: nextDesign
+      }
+    };
+    saveDB(nextDb, { onlyTables: ['settings'] });
+    setDb(nextDb);
+    setSavedAlert(true);
+    setTimeout(() => setSavedAlert(false), 3000);
+  };
+
+  const handleUpdateActiveTemplatePreset = () => {
+    if (!design.activePresetId) return;
+    const nextPresets = (design.customTemplatePresets || []).map((p) =>
+      p.id === design.activePresetId
+        ? {
+            ...p,
+            bgMode: design.customBgMode || 'plain',
+            orientation: design.orientation || 'landscape',
+            thumbnail: design.backgroundType === 'custom' ? design.customBackgroundUrl : '',
+            primaryColor: design.primaryColor || '#0B2545',
+            accentColor: design.accentColor || '#C59B27',
+            updatedAt: new Date().toLocaleDateString('en-US'),
+            config: extractPresetSnapshot(design)
+          }
+        : p
+    );
+    const nextDesign = { ...design, customTemplatePresets: nextPresets };
+    setDesign(nextDesign);
+    const nextDb = {
+      ...db,
+      settings: {
+        ...(db.settings || {}),
+        certificateDesign: nextDesign
+      }
+    };
+    saveDB(nextDb, { onlyTables: ['settings'] });
+    setDb(nextDb);
+    setSavedAlert(true);
+    setTimeout(() => setSavedAlert(false), 3000);
+  };
+
+  const handleApplyTemplatePreset = (preset) => {
+    if (!preset?.config) return;
+    setDesign((prev) => ({
+      ...DEFAULT_CERTIFICATE_DESIGN,
+      ...preset.config,
+      elementStyles: {
+        ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
+        ...(preset.config.elementStyles || {})
+      },
+      customBackgrounds: prev.customBackgrounds || [],
+      customTemplatePresets: prev.customTemplatePresets || [],
+      activePresetId: preset.id
+    }));
+    setAutoFitMode(true);
+  };
+
+  const handleDeleteTemplatePreset = (presetId, e) => {
+    if (e) e.stopPropagation();
+    const nextPresets = (design.customTemplatePresets || []).filter((p) => p.id !== presetId);
+    const nextDesign = {
+      ...design,
+      customTemplatePresets: nextPresets,
+      activePresetId: design.activePresetId === presetId ? '' : design.activePresetId
+    };
+    setDesign(nextDesign);
+    const nextDb = {
+      ...db,
+      settings: {
+        ...(db.settings || {}),
+        certificateDesign: nextDesign
+      }
+    };
+    saveDB(nextDb, { onlyTables: ['settings'] });
+    setDb(nextDb);
   };
 
   const handleDeleteCustomBg = (bgId, e) => {
@@ -1189,9 +1354,21 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Box sx={{ p: 1.2, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
-                    Logo & Badge Display:
+                    Section, Logo &amp; Badge Visibility:
                   </Typography>
-                  <Stack spacing={0.6}>
+                  <Stack spacing={0.5}>
+                    <FormControlLabel
+                      control={<Switch checked={design.showHeader !== false} onChange={(e) => handleUpdate('showHeader', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Institutional Header</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showTitle !== false} onChange={(e) => handleUpdate('showTitle', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Main Certificate Title</Typography>}
+                    />
+                    <FormControlLabel
+                      control={<Switch checked={design.showSignatories !== false} onChange={(e) => handleUpdate('showSignatories', e.target.checked)} size="small" />}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Signatories</Typography>}
+                    />
                     <FormControlLabel
                       control={<Switch checked={design.showLeftLogo} onChange={(e) => handleUpdate('showLeftLogo', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Left Logo</Typography>}
@@ -1336,6 +1513,143 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Divider sx={{ my: 0.5 }} />
 
+                {/* 3. FULL CUSTOM TEMPLATE PRESETS GALLERY (Save, 1-Click Apply, Update, Delete) */}
+                <Box sx={{ p: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #BFDBFE' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.73rem' }}>
+                      ⭐ My Saved Custom Presets ({(design.customTemplatePresets || []).length})
+                    </Typography>
+                    {design.activePresetId && (
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={handleUpdateActiveTemplatePreset}
+                        sx={{
+                          fontSize: '0.62rem',
+                          fontWeight: 800,
+                          py: 0.2,
+                          px: 0.8,
+                          minWidth: 0,
+                          borderColor: '#0284C7',
+                          color: '#0369A1',
+                          bgcolor: '#FFFFFF',
+                          textTransform: 'none'
+                        }}
+                      >
+                        Update Active
+                      </Button>
+                    )}
+                  </Box>
+
+                  <Stack direction="row" spacing={0.75} sx={{ mb: 1.25 }}>
+                    <TextField
+                      size="small"
+                      fullWidth
+                      placeholder="Preset name (e.g. Canva Portrait)"
+                      value={presetNameInput}
+                      onChange={(e) => setPresetNameInput(e.target.value)}
+                      InputProps={{ sx: { bgcolor: '#FFFFFF', fontSize: '0.74rem', height: 32 } }}
+                    />
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleSaveNewTemplatePreset}
+                      sx={{
+                        bgcolor: '#0F2E5A',
+                        fontWeight: 800,
+                        fontSize: '0.68rem',
+                        px: 1.4,
+                        whiteSpace: 'nowrap',
+                        textTransform: 'none',
+                        '&:hover': { bgcolor: '#1E3A8A' }
+                      }}
+                    >
+                      + Save
+                    </Button>
+                  </Stack>
+
+                  {(design.customTemplatePresets || []).length > 0 ? (
+                    <Grid container spacing={0.9}>
+                      {(design.customTemplatePresets || []).map((preset) => {
+                        const isActive = design.activePresetId === preset.id;
+                        return (
+                          <Grid item xs={6} key={preset.id}>
+                            <Paper
+                              onClick={() => handleApplyTemplatePreset(preset)}
+                              elevation={isActive ? 2 : 0}
+                              sx={{
+                                p: 0.75,
+                                cursor: 'pointer',
+                                borderRadius: 1.8,
+                                border: isActive ? '2px solid #0284C7' : '1px solid #CBD5E1',
+                                bgcolor: isActive ? '#FFFFFF' : '#F8FAFC',
+                                '&:hover': { borderColor: '#0284C7', bgcolor: '#FFFFFF' }
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  height: 46,
+                                  borderRadius: 1,
+                                  backgroundImage: preset.thumbnail ? `url(${preset.thumbnail})` : 'none',
+                                  backgroundSize: 'cover',
+                                  backgroundPosition: 'center',
+                                  bgcolor: preset.primaryColor || '#0F2E5A',
+                                  border: `2px solid ${preset.accentColor || '#C59B27'}`,
+                                  position: 'relative',
+                                  display: 'flex',
+                                  alignItems: 'flex-end',
+                                  justifyContent: 'space-between',
+                                  p: 0.4
+                                }}
+                              >
+                                <Chip
+                                  size="small"
+                                  label={preset.orientation === 'portrait' ? 'Portrait' : 'Landscape'}
+                                  sx={{ height: 15, fontSize: '0.54rem', fontWeight: 800, bgcolor: 'rgba(15,23,42,0.82)', color: '#FFFFFF' }}
+                                />
+                                <Chip
+                                  size="small"
+                                  label={preset.bgMode === 'predesigned' ? 'Heading' : 'Plain'}
+                                  sx={{
+                                    height: 15,
+                                    fontSize: '0.54rem',
+                                    fontWeight: 800,
+                                    bgcolor: preset.bgMode === 'predesigned' ? '#F59E0B' : '#059669',
+                                    color: preset.bgMode === 'predesigned' ? '#0F172A' : '#FFFFFF'
+                                  }}
+                                />
+                              </Box>
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
+                                <Typography
+                                  variant="caption"
+                                  noWrap
+                                  sx={{ fontWeight: isActive ? 900 : 700, color: '#0F172A', fontSize: '0.65rem', maxWidth: 92 }}
+                                  title={preset.name}
+                                >
+                                  {preset.name}
+                                </Typography>
+                                <Tooltip title="Delete preset">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => handleDeleteTemplatePreset(preset.id, e)}
+                                    sx={{ p: 0.15, color: '#DC2626' }}
+                                  >
+                                    <CloseIcon sx={{ fontSize: 13 }} />
+                                  </IconButton>
+                                </Tooltip>
+                              </Box>
+                            </Paper>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  ) : (
+                    <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.66rem', display: 'block', lineHeight: 1.35 }}>
+                      आफ्नो ब्याकग्राउन्ड, पोजिसन र लेआउट मिलाएर माथि नाम लेखी <b>+ Save</b> थिच्नुहोस् — पछि १ क्लिकमै यो पूरा डिजाइन लोड गर्न मिल्छ।
+                    </Typography>
+                  )}
+                </Box>
+
                 {/* 2. Custom Uploaded Presets Library */}
                 <Box sx={{ p: 1.5, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.2 }}>
@@ -1349,6 +1663,59 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                         sx={{ bgcolor: '#FEF3C7', color: '#92400E', fontWeight: 900, fontSize: '0.65rem', height: 20 }}
                       />
                     )}
+                  </Box>
+
+                  {/* Background Mode Selector: Plain Frame vs Pre-Designed (Heading Included) */}
+                  <Box sx={{ mb: 1.25 }}>
+                    <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 0.6, fontSize: '0.68rem' }}>
+                      Background Type (अपलोड गर्नुअघि छान्नुहोस्):
+                    </Typography>
+                    <Grid container spacing={0.8}>
+                      <Grid item xs={6}>
+                        <Button
+                          fullWidth
+                          size="small"
+                          variant={(design.customBgMode || 'plain') === 'plain' ? 'contained' : 'outlined'}
+                          onClick={() => handleApplyBgMode('plain')}
+                          sx={{
+                            fontSize: '0.66rem',
+                            fontWeight: 800,
+                            py: 0.65,
+                            textTransform: 'none',
+                            bgcolor: (design.customBgMode || 'plain') === 'plain' ? '#0F2E5A' : '#FFFFFF',
+                            color: (design.customBgMode || 'plain') === 'plain' ? '#FFFFFF' : '#334155',
+                            borderColor: '#CBD5E1'
+                          }}
+                        >
+                          Plain / Frame
+                        </Button>
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Button
+                          fullWidth
+                          size="small"
+                          variant={design.customBgMode === 'predesigned' ? 'contained' : 'outlined'}
+                          onClick={() => handleApplyBgMode('predesigned')}
+                          sx={{
+                            fontSize: '0.66rem',
+                            fontWeight: 800,
+                            py: 0.65,
+                            textTransform: 'none',
+                            bgcolor: design.customBgMode === 'predesigned' ? '#D97706' : '#FFFFFF',
+                            color: design.customBgMode === 'predesigned' ? '#FFFFFF' : '#334155',
+                            borderColor: '#CBD5E1',
+                            '&:hover': { bgcolor: design.customBgMode === 'predesigned' ? '#B45309' : '#FFFBEB' }
+                          }}
+                        >
+                          Heading Included
+                        </Button>
+                      </Grid>
+                    </Grid>
+                    <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.64rem', display: 'block', mt: 0.5, lineHeight: 1.3 }}>
+                      {design.customBgMode === 'predesigned'
+                        ? 'Pre-Designed: सिस्टमको Header, Title र Border स्वतः OFF हुन्छ — केवल विद्यार्थीको विवरण मात्र देखिन्छ।'
+                        : 'Plain / Frame: सिस्टमको Header, Logos, Title र Border सामान्य रूपमा ON रहन्छ।'}
+                    </Typography>
                   </Box>
 
                   {/* Upload New Background Button */}
@@ -1370,7 +1737,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       }
                     }}
                   >
-                    + Upload New Background Image (PNG / JPEG)
+                    + Upload Background ({design.customBgMode === 'predesigned' ? 'Heading Included' : 'Plain'})
                     <input type="file" hidden accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleUploadCustomBg} />
                   </Button>
 
@@ -2216,6 +2583,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               {/* ============================================================== */}
               {/* 2. CERTIFICATE TITLE BANNER (MOVABLE)                          */}
               {/* ============================================================== */}
+              {design.showTitle !== false && (
               <Box
                 onClick={(e) => { e.stopPropagation(); setSelectedElement('title'); }}
                 onMouseDown={(e) => handleMouseDownOnElement(e, 'title')}
@@ -2259,6 +2627,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   {design.certificateTitleNp}
                 </Typography>
               </Box>
+              )}
 
               {/* 3. Reference Tracking Bar */}
               <Box
@@ -2638,6 +3007,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 )}
 
                 {/* Right: Dynamic Signatories List (Independently Movable) */}
+                {design.showSignatories !== false && (
                 <Box
                   onClick={(e) => { e.stopPropagation(); setSelectedElement('signatories'); }}
                   onMouseDown={(e) => handleMouseDownOnElement(e, 'signatories')}
@@ -2672,6 +3042,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     </Box>
                   ))}
                 </Box>
+                )}
               </Box>
               </Box>
             </Box>

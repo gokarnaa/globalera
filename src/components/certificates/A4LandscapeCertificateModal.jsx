@@ -204,6 +204,8 @@ export default function A4LandscapeCertificateModal({
   const showStudentPhoto = design.showStudentPhoto !== undefined ? design.showStudentPhoto : true;
   const showCompetencyBadge = design.showCompetencyBadge !== undefined ? design.showCompetencyBadge : true;
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
+  const showTitle = design.showTitle !== undefined ? design.showTitle : true;
+  const showSignatories = design.showSignatories !== undefined ? design.showSignatories : true;
   const showLeftLogo = design.showLeftLogo !== undefined ? design.showLeftLogo : true;
   const showRightLogo = design.showRightLogo !== undefined ? design.showRightLogo : true;
 
@@ -1039,7 +1041,8 @@ export default function A4LandscapeCertificateModal({
             </Box>
           )}
 
-          {/* 2. Certificate Title Banner (Movable) */}
+          {/* 2. Certificate Title Banner (Movable & Toggleable) */}
+          {showTitle && (
           <Box
             sx={{
               position: 'relative',
@@ -1076,6 +1079,7 @@ export default function A4LandscapeCertificateModal({
               {certificateTitleNp}
             </Typography>
           </Box>
+          )}
 
           {/* 3. Reference Tracking Bar */}
           <Box
@@ -1452,7 +1456,8 @@ export default function A4LandscapeCertificateModal({
               </Box>
             )}
 
-            {/* Right: Dynamic Signatories List (Independently Movable) */}
+            {/* Right: Dynamic Signatories List (Independently Movable & Toggleable) */}
+            {showSignatories && (
             <Box
               sx={{
                 display: 'flex',
@@ -1480,6 +1485,7 @@ export default function A4LandscapeCertificateModal({
                 </Box>
               ))}
             </Box>
+            )}
           </Box>
           </Box>
         </Box>
