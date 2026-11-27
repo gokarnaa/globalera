@@ -206,6 +206,9 @@ export default function A4LandscapeCertificateModal({
   const showHeader = design.showHeader !== undefined ? design.showHeader : true;
   const showTitle = design.showTitle !== undefined ? design.showTitle : true;
   const showRefBar = design.showRefBar !== undefined ? design.showRefBar : true;
+  const showRefCertNo = design.showRefCertNo !== undefined ? design.showRefCertNo : true;
+  const showRefTgid = design.showRefTgid !== undefined ? design.showRefTgid : true;
+  const showRefIssueDate = design.showRefIssueDate !== undefined ? design.showRefIssueDate : true;
   const transparentRefBar = Boolean(design.transparentRefBar) || backgroundType === 'custom';
   const showNepaliNameSubtitle = Boolean(design.showNepaliNameSubtitle);
   const showCourseLine = design.showCourseLine !== undefined ? design.showCourseLine : true;
@@ -1086,7 +1089,7 @@ export default function A4LandscapeCertificateModal({
           </Box>
           )}
 
-          {/* 3. Reference Tracking Bar (Movable, Toggleable & Transparent on Custom Backgrounds) */}
+          {/* 3. Reference Tracking Bar — Each of the 3 values is independently positioned & toggleable */}
           {showRefBar && (
             <Box
               sx={{
@@ -1094,26 +1097,53 @@ export default function A4LandscapeCertificateModal({
                 zIndex: 2,
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'center',
                 px: 3,
                 py: 0.5,
                 bgcolor: transparentRefBar ? 'transparent' : '#f8fafc',
                 borderTop: transparentRefBar ? 'none' : '1px solid #e2e8f0',
                 borderBottom: transparentRefBar ? 'none' : '1px solid #e2e8f0',
-                fontSize: elStyles.refBar?.fontSize ? `${elStyles.refBar.fontSize}px` : '0.78rem',
-                fontWeight: 700,
-                color: elStyles.refBar?.color || '#334155',
                 transform: `translate(${elStyles.refBar?.x || 0}px, ${elStyles.refBar?.y || 0}px)`
               }}
             >
-              <Box>
-                Certificate No: <b style={{ color: primaryColor }}>{certificate.certificateNo}</b>
-              </Box>
-              <Box>
-                Registration / TGID: <b style={{ color: primaryColor }}>{student.tgid}</b>
-              </Box>
-              <Box>
-                Issue Date: <b>{certificate.issueDate}</b>
-              </Box>
+              {showRefCertNo ? (
+                <Box
+                  sx={{
+                    fontSize: elStyles.refCertNo?.fontSize ? `${elStyles.refCertNo.fontSize}px` : '0.78rem',
+                    fontWeight: elStyles.refCertNo?.fontWeight || 700,
+                    color: elStyles.refCertNo?.color || '#334155',
+                    transform: `translate(${elStyles.refCertNo?.x || 0}px, ${elStyles.refCertNo?.y || 0}px)`
+                  }}
+                >
+                  Certificate No: <b style={{ color: primaryColor }}>{certificate.certificateNo}</b>
+                </Box>
+              ) : <Box />}
+
+              {showRefTgid ? (
+                <Box
+                  sx={{
+                    fontSize: elStyles.refTgid?.fontSize ? `${elStyles.refTgid.fontSize}px` : '0.78rem',
+                    fontWeight: elStyles.refTgid?.fontWeight || 700,
+                    color: elStyles.refTgid?.color || '#334155',
+                    transform: `translate(${elStyles.refTgid?.x || 0}px, ${elStyles.refTgid?.y || 0}px)`
+                  }}
+                >
+                  Registration / TGID: <b style={{ color: primaryColor }}>{student.tgid}</b>
+                </Box>
+              ) : <Box />}
+
+              {showRefIssueDate ? (
+                <Box
+                  sx={{
+                    fontSize: elStyles.refIssueDate?.fontSize ? `${elStyles.refIssueDate.fontSize}px` : '0.78rem',
+                    fontWeight: elStyles.refIssueDate?.fontWeight || 700,
+                    color: elStyles.refIssueDate?.color || '#334155',
+                    transform: `translate(${elStyles.refIssueDate?.x || 0}px, ${elStyles.refIssueDate?.y || 0}px)`
+                  }}
+                >
+                  Issue Date: <b>{certificate.issueDate}</b>
+                </Box>
+              ) : <Box />}
             </Box>
           )}
 

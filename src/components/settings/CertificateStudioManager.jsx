@@ -120,6 +120,9 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   // 6. Title & Body Typography
   showTitle: true,
   showRefBar: true,
+  showRefCertNo: true,
+  showRefTgid: true,
+  showRefIssueDate: true,
   transparentRefBar: false,
   showNepaliNameSubtitle: false,
   showCourseLine: true,
@@ -174,6 +177,9 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
     headerAddress: { x: 0, y: 0, fontSize: 10.5, fontWeight: 'normal', fontStyle: 'normal', color: '#64748B', align: 'center' },
     title: { x: 0, y: 0, fontSize: 20, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman', align: 'center' },
     refBar: { x: 0, y: 0, fontSize: 12, fontWeight: '700', color: '#334155' },
+    refCertNo: { x: 0, y: 0, fontSize: 12, fontWeight: '700', color: '#334155' },
+    refTgid: { x: 0, y: 0, fontSize: 12, fontWeight: '700', color: '#334155' },
+    refIssueDate: { x: 0, y: 0, fontSize: 12, fontWeight: '700', color: '#334155' },
     student: { x: 0, y: 0, fontSize: 28, fontWeight: '900', fontStyle: 'normal', color: '', fontFamily: 'Times New Roman', align: 'center' },
     photo: { x: 0, y: 0, width: 88, height: 108, borderRadius: 4, borderColor: '', preset: 'right' },
     body: { x: 0, y: 0, fontSize: 13.5, lineHeight: 1.5, align: 'justify', color: '', fontFamily: 'Times New Roman' },
@@ -1471,8 +1477,24 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     />
                     <FormControlLabel
                       control={<Switch checked={design.showRefBar !== false} onChange={(e) => handleUpdate('showRefBar', e.target.checked)} size="small" />}
-                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Reference Bar (Cert No / Date)</Typography>}
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Reference Bar</Typography>}
                     />
+                    {design.showRefBar !== false && (
+                      <Stack spacing={0.2} sx={{ pl: 2.2, borderLeft: '2px solid #E2E8F0', my: 0.2 }}>
+                        <FormControlLabel
+                          control={<Switch checked={design.showRefCertNo !== false} onChange={(e) => handleUpdate('showRefCertNo', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Certificate No (Independent Drag)</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showRefTgid !== false} onChange={(e) => handleUpdate('showRefTgid', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Registration / TGID (Independent Drag)</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch checked={design.showRefIssueDate !== false} onChange={(e) => handleUpdate('showRefIssueDate', e.target.checked)} size="small" />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 600, fontSize: '0.7rem' }}>Issue Date (Independent Drag)</Typography>}
+                        />
+                      </Stack>
+                    )}
                     <FormControlLabel
                       control={<Switch checked={design.transparentRefBar || design.backgroundType === 'custom'} onChange={(e) => handleUpdate('transparentRefBar', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Transparent Reference Bar (No White Box)</Typography>}
@@ -2835,34 +2857,88 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               </Box>
               )}
 
-              {/* 3. Reference Tracking Bar (Movable, Toggleable & Transparent on Custom Backgrounds) */}
+              {/* 3. Reference Tracking Bar — Each of the 3 values is independently draggable & toggleable */}
               {design.showRefBar !== false && (
                 <Box
-                  onClick={(e) => { e.stopPropagation(); setSelectedElement('refBar'); }}
-                  onMouseDown={(e) => handleMouseDownOnElement(e, 'refBar')}
                   sx={{
                     position: 'relative',
-                    zIndex: selectedElement === 'refBar' ? 10 : 2,
+                    zIndex: 3,
                     display: 'flex',
                     justifyContent: 'space-between',
+                    alignItems: 'center',
                     px: 3,
                     py: 0.5,
                     bgcolor: (design.transparentRefBar || design.backgroundType === 'custom') ? 'transparent' : '#F8FAFC',
                     borderTop: (design.transparentRefBar || design.backgroundType === 'custom') ? 'none' : '1px solid #E2E8F0',
                     borderBottom: (design.transparentRefBar || design.backgroundType === 'custom') ? 'none' : '1px solid #E2E8F0',
-                    fontSize: `${design.elementStyles?.refBar?.fontSize || 12}px`,
-                    fontWeight: 700,
-                    color: design.elementStyles?.refBar?.color || '#334155',
-                    transform: `translate(${design.elementStyles?.refBar?.x || 0}px, ${design.elementStyles?.refBar?.y || 0}px)`,
-                    cursor: isDragging && selectedElement === 'refBar' ? 'grabbing' : 'grab',
-                    outline: selectedElement === 'refBar' ? '2px dashed #0284c7' : '1px dashed transparent',
-                    outlineOffset: '3px',
-                    borderRadius: '4px'
+                    transform: `translate(${design.elementStyles?.refBar?.x || 0}px, ${design.elementStyles?.refBar?.y || 0}px)`
                   }}
                 >
-                  <Box>Certificate No: <b style={{ color: design.primaryColor }}>{currentSample.certNo}</b></Box>
-                  <Box>Registration / TGID: <b style={{ color: design.primaryColor }}>{currentSample.tgid}</b></Box>
-                  <Box>Issue Date: <b>{currentSample.issueDate}</b></Box>
+                  {design.showRefCertNo !== false ? (
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('refCertNo'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'refCertNo')}
+                      sx={{
+                        position: 'relative',
+                        zIndex: selectedElement === 'refCertNo' ? 12 : 3,
+                        fontSize: `${design.elementStyles?.refCertNo?.fontSize || 12}px`,
+                        fontWeight: design.elementStyles?.refCertNo?.fontWeight || 700,
+                        color: design.elementStyles?.refCertNo?.color || '#334155',
+                        transform: `translate(${design.elementStyles?.refCertNo?.x || 0}px, ${design.elementStyles?.refCertNo?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'refCertNo' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'refCertNo' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '3px',
+                        borderRadius: '4px',
+                        px: 0.5
+                      }}
+                    >
+                      Certificate No: <b style={{ color: design.primaryColor }}>{currentSample.certNo}</b>
+                    </Box>
+                  ) : <Box />}
+
+                  {design.showRefTgid !== false ? (
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('refTgid'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'refTgid')}
+                      sx={{
+                        position: 'relative',
+                        zIndex: selectedElement === 'refTgid' ? 12 : 3,
+                        fontSize: `${design.elementStyles?.refTgid?.fontSize || 12}px`,
+                        fontWeight: design.elementStyles?.refTgid?.fontWeight || 700,
+                        color: design.elementStyles?.refTgid?.color || '#334155',
+                        transform: `translate(${design.elementStyles?.refTgid?.x || 0}px, ${design.elementStyles?.refTgid?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'refTgid' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'refTgid' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '3px',
+                        borderRadius: '4px',
+                        px: 0.5
+                      }}
+                    >
+                      Registration / TGID: <b style={{ color: design.primaryColor }}>{currentSample.tgid}</b>
+                    </Box>
+                  ) : <Box />}
+
+                  {design.showRefIssueDate !== false ? (
+                    <Box
+                      onClick={(e) => { e.stopPropagation(); setSelectedElement('refIssueDate'); }}
+                      onMouseDown={(e) => handleMouseDownOnElement(e, 'refIssueDate')}
+                      sx={{
+                        position: 'relative',
+                        zIndex: selectedElement === 'refIssueDate' ? 12 : 3,
+                        fontSize: `${design.elementStyles?.refIssueDate?.fontSize || 12}px`,
+                        fontWeight: design.elementStyles?.refIssueDate?.fontWeight || 700,
+                        color: design.elementStyles?.refIssueDate?.color || '#334155',
+                        transform: `translate(${design.elementStyles?.refIssueDate?.x || 0}px, ${design.elementStyles?.refIssueDate?.y || 0}px)`,
+                        cursor: isDragging && selectedElement === 'refIssueDate' ? 'grabbing' : 'grab',
+                        outline: selectedElement === 'refIssueDate' ? '2px dashed #0284c7' : '1px dashed transparent',
+                        outlineOffset: '3px',
+                        borderRadius: '4px',
+                        px: 0.5
+                      }}
+                    >
+                      Issue Date: <b>{currentSample.issueDate}</b>
+                    </Box>
+                  ) : <Box />}
                 </Box>
               )}
 
