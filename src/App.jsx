@@ -132,6 +132,7 @@ class ErrorBoundary extends React.Component {
 export default function App() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isWideDesktop = useMediaQuery('(min-width:1440px)');
   const { isLocked, currentUser, isStudent, isEmployer, logout } = useAuth();
 
   // Multi-Portal Route detection supporting pathname (/trainer, /student, /ge-admin, /admin, /verify) and query (?portal=trainer, etc.)
@@ -203,12 +204,14 @@ export default function App() {
       );
     }
   }, [currentUser?.role, currentUser?.id]);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 1440 : false
+  );
 
-  // Close overlay drawer cleanly when switching viewport breakpoint
+  // Smart Hybrid: dock open on wide monitors (>=1440px), overlay-closed on laptops/tablets/mobile
   React.useEffect(() => {
-    setSidebarOpen(false);
-  }, [isMobile]);
+    setSidebarOpen(isWideDesktop);
+  }, [isWideDesktop]);
 
   const [pinModalOpen, setPinModalOpen] = useState(false);
   const [attendanceGroupId, setAttendanceGroupId] = useState(null);
@@ -309,7 +312,9 @@ export default function App() {
 
   const handleSelectTab = (tabId) => {
     setCurrentTab(tabId);
-    setSidebarOpen(false);
+    if (!isWideDesktop) {
+      setSidebarOpen(false);
+    }
   };
 
   const renderContent = () => {
@@ -661,6 +666,7 @@ export default function App() {
             open={sidebarOpen}
             onClose={() => setSidebarOpen(false)}
             isMobile={isMobile}
+            isDocked={isWideDesktop}
           />
 
           {/* Main Content Area */}

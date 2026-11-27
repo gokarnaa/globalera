@@ -101,7 +101,7 @@ const NAV_ITEMS = [
 
 import { testSupabaseConnection } from '../../services/supabaseClient';
 
-export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobile }) {
+export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobile, isDocked = false }) {
   const { currentUser, isTrainer, isAdmin, isStudent, isEmployer } = useAuth();
   const [db, setDb] = React.useState(() => loadDB());
   const [cloudStatus, setCloudStatus] = React.useState('checking');
@@ -154,26 +154,30 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
     return item.roles.includes(currentUser?.role);
   });
 
+  const drawerWidth = isDocked ? 240 : 256;
+
   const drawerContent = (
-    <Box sx={{ width: 256, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      <Box
-        sx={{
-          px: 1.75,
-          py: 1.1,
-          borderBottom: '1px solid #E2E8F0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          bgcolor: '#F8FAFC'
-        }}
-      >
-        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.82rem' }}>
-          Navigation Menu
-        </Typography>
-        <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
-          <CloseIcon fontSize="small" />
-        </IconButton>
-      </Box>
+    <Box sx={{ width: drawerWidth, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {!isDocked && (
+        <Box
+          sx={{
+            px: 1.75,
+            py: 1.1,
+            borderBottom: '1px solid #E2E8F0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#F8FAFC'
+          }}
+        >
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.82rem' }}>
+            Navigation Menu
+          </Typography>
+          <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      )}
 
       {/* Navigation Links List */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.1, py: 0.5 }}>
@@ -209,7 +213,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   selected={isSelected}
                   onClick={() => {
                     onSelectTab(item.id);
-                    if (onClose) onClose();
+                    if (!isDocked && onClose) onClose();
                   }}
                   sx={{
                     borderRadius: 2,
@@ -375,38 +379,63 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
     <Box
       component="nav"
       sx={{
-        width: 0,
-        flexShrink: 0
+        width: isDocked ? (open ? drawerWidth : 0) : 0,
+        flexShrink: 0,
+        transition: 'width 180ms ease-out'
       }}
     >
-      {/* Overlay Slide-Over Drawer on both Desktop & Mobile so Data Tables always keep 100% full width */}
-      <Drawer
-        variant="temporary"
-        anchor="left"
-        open={Boolean(open)}
-        onClose={onClose}
-        ModalProps={{ keepMounted: false }}
-        slotProps={{
-          backdrop: {
-            sx: {
-              bgcolor: 'rgba(15, 23, 42, 0.25)',
-              backdropFilter: 'blur(1px)'
+      {isDocked ? (
+        /* Wide Desktop (>=1440px): Persistent docked sidebar while keeping ample width for tables */
+        <Drawer
+          variant="persistent"
+          anchor="left"
+          open={Boolean(open)}
+          sx={{
+            width: open ? drawerWidth : 0,
+            flexShrink: 0,
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              bgcolor: '#FFFFFF',
+              borderRight: '1px solid #E2E8F0',
+              top: '70px',
+              height: 'calc(100dvh - 70px)',
+              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
             }
-          }
-        }}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 2,
-          '& .MuiDrawer-paper': {
-            boxSizing: 'border-box',
-            width: 256,
-            bgcolor: '#FFFFFF',
-            borderRight: '1px solid #E2E8F0',
-            boxShadow: '8px 0 32px rgba(15, 23, 42, 0.16)'
-          }
-        }}
-      >
-        {drawerContent}
-      </Drawer>
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      ) : (
+        /* Laptops, Tablets & Mobile (<1440px): Overlay slide-over drawer so Data Tables never squish */
+        <Drawer
+          variant="temporary"
+          anchor="left"
+          open={Boolean(open)}
+          onClose={onClose}
+          ModalProps={{ keepMounted: false }}
+          slotProps={{
+            backdrop: {
+              sx: {
+                bgcolor: 'rgba(15, 23, 42, 0.25)',
+                backdropFilter: 'blur(1px)'
+              }
+            }
+          }}
+          sx={{
+            zIndex: (theme) => theme.zIndex.drawer + 2,
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: drawerWidth,
+              bgcolor: '#FFFFFF',
+              borderRight: '1px solid #E2E8F0',
+              boxShadow: '8px 0 32px rgba(15, 23, 42, 0.16)'
+            }
+          }}
+        >
+          {drawerContent}
+        </Drawer>
+      )}
     </Box>
   );
 }

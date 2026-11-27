@@ -313,6 +313,16 @@ export const theme = createTheme({
         root: {
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#CBD5E1 #F8FAFC',
+        },
+      },
+    },
+    MuiTable: {
+      styleOverrides: {
+        root: {
+          borderCollapse: 'separate',
+          borderSpacing: 0,
         },
       },
     },
