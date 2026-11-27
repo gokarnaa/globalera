@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Dialog,
   DialogContent,
   Box,
   Typography,
   Button,
-  Chip
+  Chip,
+  CircularProgress
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import CloseIcon from '@mui/icons-material/Close';
 import SchoolIcon from '@mui/icons-material/School';
@@ -313,8 +316,91 @@ export default function A4LandscapeCertificateModal({
     return { border: 'none' };
   };
 
+  const [exportingType, setExportingType] = useState(null); // 'pdf' | 'png' | null
+
   const handlePrint = () => {
     window.print();
+  };
+
+  const captureCertificateCanvas = async () => {
+    const el = document.getElementById('printableLandscapeCertificate');
+    if (!el) throw new Error('Certificate preview element not found.');
+    const prevShadow = el.style.boxShadow;
+    el.style.boxShadow = 'none';
+    try {
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+      const { default: html2canvas } = await import('html2canvas');
+      return await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: el.scrollWidth,
+        windowHeight: el.scrollHeight
+      });
+    } finally {
+      el.style.boxShadow = prevShadow;
+    }
+  };
+
+  const buildSafeFilename = (ext) => {
+    const safeName = String(student.name || 'Trainee').replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+    const safeCert = String(certificate.certificateNo || 'CERT').replace(/[^a-zA-Z0-9-]+/g, '_');
+    return `Certificate_${safeName}_${safeCert}.${ext}`;
+  };
+
+  const handleDownloadPdf = async () => {
+    setExportingType('pdf');
+    try {
+      const [canvas, { jsPDF }] = await Promise.all([
+        captureCertificateCanvas(),
+        import('jspdf')
+      ]);
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const orientation = isPortrait ? 'portrait' : 'landscape';
+      const pdf = new jsPDF({
+        orientation,
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+      const pageW = pdf.internal.pageSize.getWidth();   // 297mm landscape / 210mm portrait
+      const pageH = pdf.internal.pageSize.getHeight();  // 210mm landscape / 297mm portrait
+
+      // Fit proportionally into exact A4 page with zero distortion
+      const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+      const drawW = canvas.width * ratio;
+      const drawH = canvas.height * ratio;
+      const offsetX = (pageW - drawW) / 2;
+      const offsetY = (pageH - drawH) / 2;
+
+      pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+      pdf.save(buildSafeFilename('pdf'));
+    } catch (err) {
+      console.error('Certificate PDF export failed:', err);
+      alert('PDF download failed. You can also use Print -> Save as PDF.');
+    } finally {
+      setExportingType(null);
+    }
+  };
+
+  const handleDownloadPng = async () => {
+    setExportingType('png');
+    try {
+      const canvas = await captureCertificateCanvas();
+      const link = document.createElement('a');
+      link.download = buildSafeFilename('png');
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    } catch (err) {
+      console.error('Certificate PNG export failed:', err);
+      alert('PNG export failed.');
+    } finally {
+      setExportingType(null);
+    }
   };
 
   const verificationUrl = `${window.location.origin}${window.location.pathname}?verify=${encodeURIComponent(
@@ -371,7 +457,42 @@ export default function A4LandscapeCertificateModal({
           </Typography>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1 }}>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+          <Button
+            variant="contained"
+            size="small"
+            disabled={Boolean(exportingType)}
+            startIcon={exportingType === 'pdf' ? <CircularProgress size={14} color="inherit" /> : <PictureAsPdfIcon />}
+            onClick={handleDownloadPdf}
+            sx={{
+              bgcolor: '#DC2626',
+              fontWeight: 800,
+              px: 2,
+              textTransform: 'none',
+              '&:hover': { bgcolor: '#B91C1C' }
+            }}
+          >
+            {exportingType === 'pdf' ? 'Generating A4 PDF...' : 'Download A4 PDF'}
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            disabled={Boolean(exportingType)}
+            startIcon={exportingType === 'png' ? <CircularProgress size={14} color="inherit" /> : <ImageIcon />}
+            onClick={handleDownloadPng}
+            sx={{
+              borderColor: '#38BDF8',
+              color: '#38BDF8',
+              fontWeight: 800,
+              textTransform: 'none',
+              bgcolor: 'rgba(56, 189, 248, 0.1)',
+              '&:hover': { borderColor: '#7DD3FC', bgcolor: 'rgba(56, 189, 248, 0.2)' }
+            }}
+          >
+            {exportingType === 'png' ? 'Saving...' : 'Save PNG'}
+          </Button>
+
           <Button
             variant="contained"
             size="small"
@@ -380,7 +501,8 @@ export default function A4LandscapeCertificateModal({
             sx={{
               bgcolor: '#1a56b0',
               fontWeight: 800,
-              px: 2.5,
+              px: 2,
+              textTransform: 'none',
               '&:hover': { bgcolor: '#123e80' }
             }}
           >
