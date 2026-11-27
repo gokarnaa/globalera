@@ -67,8 +67,11 @@ export function compressImageFile(file, { maxDim = 480, quality = 0.82 } = {}) {
  * Upload compressed photo to Supabase Storage bucket ('media-uploads').
  * Automatically falls back to compact compressed JPEG dataUrl if bucket isn't created yet or offline.
  */
-export async function uploadPhotoToSupabase(file, { folder = 'students', entityId = '' } = {}) {
-  const { blob, dataUrl, sizeKb } = await compressImageFile(file, { maxDim: 480, quality: 0.82 });
+export async function uploadPhotoToSupabase(
+  file,
+  { folder = 'students', entityId = '', maxDim = 480, quality = 0.82 } = {}
+) {
+  const { blob, dataUrl, sizeKb } = await compressImageFile(file, { maxDim, quality });
 
   const safeFolder = String(folder || 'uploads').replace(/[^a-z0-9_-]/gi, '');
   const safeId = String(entityId || 'photo').replace(/[^a-z0-9_-]/gi, '').slice(0, 32) || 'photo';
@@ -108,4 +111,17 @@ export async function uploadPhotoToSupabase(file, { folder = 'students', entityI
     storage: 'inline',
     sizeKb
   };
+}
+
+/**
+ * High-resolution A4 certificate background upload (1600px JPEG -> Supabase Storage 'media-uploads/certificates')
+ * Keeps database settings JSON tiny (~90 bytes URL instead of multi-MB base64).
+ */
+export async function uploadCertificateBgToSupabase(file, nameHint = 'cert-bg') {
+  return uploadPhotoToSupabase(file, {
+    folder: 'certificates',
+    entityId: nameHint,
+    maxDim: 1600,
+    quality: 0.86
+  });
 }

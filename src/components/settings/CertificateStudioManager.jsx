@@ -61,6 +61,14 @@ import PaletteIcon from '@mui/icons-material/Palette';
 import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB } from '../../services/storage';
+import { pushLocalDBToSupabase } from '../../services/supabaseClient';
+import { uploadCertificateBgToSupabase } from '../../services/mediaUpload';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import EditIcon from '@mui/icons-material/Edit';
+import CloudDoneIcon from '@mui/icons-material/CloudDone';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // Default Design Configuration
 export const DEFAULT_CERTIFICATE_DESIGN = {
@@ -412,7 +420,38 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
   const [savedAlert, setSavedAlert] = useState(false);
   const [presetNameInput, setPresetNameInput] = useState('');
+  const [bgUploading, setBgUploading] = useState(false);
+  const [cloudSyncState, setCloudSyncState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'local'
   const [previewScale, setPreviewScale] = useState(0.58);
+
+  // Sync saved Custom Presets & Backgrounds when cloud hydration finishes on page refresh
+  useEffect(() => {
+    const onCloudHydrated = () => {
+      const freshDb = loadDB();
+      setDb(freshDb);
+      const cloudDesign = freshDb.settings?.certificateDesign;
+      if (cloudDesign) {
+        setDesign((prev) => ({
+          ...DEFAULT_CERTIFICATE_DESIGN,
+          ...cloudDesign,
+          elementStyles: {
+            ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
+            ...(cloudDesign.elementStyles || {})
+          },
+          customTemplatePresets:
+            (cloudDesign.customTemplatePresets && cloudDesign.customTemplatePresets.length > 0)
+              ? cloudDesign.customTemplatePresets
+              : (prev.customTemplatePresets || []),
+          customBackgrounds:
+            (cloudDesign.customBackgrounds && cloudDesign.customBackgrounds.length > 0)
+              ? cloudDesign.customBackgrounds
+              : (prev.customBackgrounds || [])
+        }));
+      }
+    };
+    window.addEventListener('kite_cloud_hydrated', onCloudHydrated);
+    return () => window.removeEventListener('kite_cloud_hydrated', onCloudHydrated);
+  }, []);
   const [autoFitMode, setAutoFitMode] = useState(true);
   const studioContainerRef = useRef(null);
   const canvasViewportRef = useRef(null);
@@ -695,37 +734,61 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     });
   };
 
-  const handleUploadCustomBg = (e) => {
+  // Persist design immediately to localStorage + IndexedDB + Supabase Cloud (prevents losing presets on refresh)
+  const persistDesignToCloud = async (nextDesign) => {
+    const freshDb = loadDB();
+    const nextDb = {
+      ...freshDb,
+      settings: {
+        ...(freshDb.settings || {}),
+        certificateDesign: nextDesign
+      }
+    };
+    saveDB(nextDb);
+    setDb(nextDb);
+    setCloudSyncState('saving');
+    try {
+      await pushLocalDBToSupabase(nextDb, undefined, ['settings']);
+      setCloudSyncState('saved');
+    } catch (err) {
+      console.warn('[CertificateStudio] Immediate cloud push fallback:', err?.message);
+      setCloudSyncState('local');
+    }
+  };
+
+  const handleUploadCustomBg = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 6 * 1024 * 1024) {
-      alert('Background image size must be smaller than 6MB.');
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Background image size must be smaller than 10MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result;
+    setBgUploading(true);
+    try {
       const cleanFileName = file.name
         ? file.name.replace(/\.[^/.]+$/, '')
         : `Custom Background ${((design.customBackgrounds || []).length + 1)}`;
+      const uploaded = await uploadCertificateBgToSupabase(file, cleanFileName);
+      const imageUrl = uploaded.url;
       const bgMode = design.customBgMode || 'plain';
       const newBg = {
         id: `custom-bg-${Date.now()}`,
         name: cleanFileName.slice(0, 24),
-        url: dataUrl,
+        url: imageUrl,
         bgMode,
+        storage: uploaded.storage,
         createdAt: new Date().toLocaleDateString('en-US')
       };
 
       const existingList = design.customBackgrounds || [];
       const updatedList = [newBg, ...existingList];
 
-      setDesign((prev) => ({
-        ...prev,
+      const nextDesign = {
+        ...design,
         backgroundType: 'custom',
-        customBackgroundUrl: dataUrl,
+        customBackgroundUrl: imageUrl,
         customBgMode: bgMode,
         customBackgrounds: updatedList,
         ...(bgMode === 'predesigned'
@@ -738,10 +801,16 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               customBgFit: '100% 100%'
             }
           : {})
-      }));
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      };
+      setDesign(nextDesign);
+      await persistDesignToCloud(nextDesign);
+    } catch (err) {
+      console.error('Background upload failed:', err);
+      alert('Failed to process background image. Please try another PNG/JPEG.');
+    } finally {
+      setBgUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleSelectCustomBg = (bgItem) => {
@@ -766,19 +835,20 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
   // Extract clean snapshot config without recursive preset/bg arrays
   const extractPresetSnapshot = (currentDesign) => {
-    const { customTemplatePresets, customBackgrounds, activePresetId, ...rest } = currentDesign;
+    const { customTemplatePresets, customBackgrounds, activePresetId, defaultPresetId, ...rest } = currentDesign;
     return JSON.parse(JSON.stringify(rest));
   };
 
-  const handleSaveNewTemplatePreset = () => {
+  const handleSaveNewTemplatePreset = async () => {
     const trimmed = String(presetNameInput || '').trim();
     const name = trimmed || `Template ${((design.customTemplatePresets || []).length + 1)}`;
+    const bgUrl = design.backgroundType === 'custom' ? design.customBackgroundUrl : '';
     const newPreset = {
       id: `tpl-${Date.now()}`,
       name: name.slice(0, 32),
       bgMode: design.customBgMode || 'plain',
       orientation: design.orientation || 'landscape',
-      thumbnail: design.backgroundType === 'custom' ? design.customBackgroundUrl : '',
+      thumbnail: bgUrl && bgUrl.length < 150000 ? bgUrl : '',
       primaryColor: design.primaryColor || '#0B2545',
       accentColor: design.accentColor || '#C59B27',
       createdAt: new Date().toLocaleDateString('en-US'),
@@ -788,32 +858,26 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     const nextDesign = {
       ...design,
       customTemplatePresets: nextPresets,
-      activePresetId: newPreset.id
+      activePresetId: newPreset.id,
+      defaultPresetId: design.defaultPresetId || newPreset.id
     };
     setDesign(nextDesign);
     setPresetNameInput('');
-    const nextDb = {
-      ...db,
-      settings: {
-        ...(db.settings || {}),
-        certificateDesign: nextDesign
-      }
-    };
-    saveDB(nextDb, { onlyTables: ['settings'] });
-    setDb(nextDb);
+    await persistDesignToCloud(nextDesign);
     setSavedAlert(true);
     setTimeout(() => setSavedAlert(false), 3000);
   };
 
-  const handleUpdateActiveTemplatePreset = () => {
+  const handleUpdateActiveTemplatePreset = async () => {
     if (!design.activePresetId) return;
+    const bgUrl = design.backgroundType === 'custom' ? design.customBackgroundUrl : '';
     const nextPresets = (design.customTemplatePresets || []).map((p) =>
       p.id === design.activePresetId
         ? {
             ...p,
             bgMode: design.customBgMode || 'plain',
             orientation: design.orientation || 'landscape',
-            thumbnail: design.backgroundType === 'custom' ? design.customBackgroundUrl : '',
+            thumbnail: bgUrl && bgUrl.length < 150000 ? bgUrl : '',
             primaryColor: design.primaryColor || '#0B2545',
             accentColor: design.accentColor || '#C59B27',
             updatedAt: new Date().toLocaleDateString('en-US'),
@@ -823,53 +887,95 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     );
     const nextDesign = { ...design, customTemplatePresets: nextPresets };
     setDesign(nextDesign);
-    const nextDb = {
-      ...db,
-      settings: {
-        ...(db.settings || {}),
-        certificateDesign: nextDesign
-      }
-    };
-    saveDB(nextDb, { onlyTables: ['settings'] });
-    setDb(nextDb);
+    await persistDesignToCloud(nextDesign);
     setSavedAlert(true);
     setTimeout(() => setSavedAlert(false), 3000);
   };
 
-  const handleApplyTemplatePreset = (preset) => {
+  const handleApplyTemplatePreset = async (preset) => {
     if (!preset?.config) return;
-    setDesign((prev) => ({
+    const nextDesign = {
       ...DEFAULT_CERTIFICATE_DESIGN,
       ...preset.config,
       elementStyles: {
         ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
         ...(preset.config.elementStyles || {})
       },
-      customBackgrounds: prev.customBackgrounds || [],
-      customTemplatePresets: prev.customTemplatePresets || [],
+      customBackgrounds: design.customBackgrounds || [],
+      customTemplatePresets: design.customTemplatePresets || [],
+      defaultPresetId: design.defaultPresetId || '',
       activePresetId: preset.id
-    }));
+    };
+    setDesign(nextDesign);
     setAutoFitMode(true);
+    await persistDesignToCloud(nextDesign);
   };
 
-  const handleDeleteTemplatePreset = (presetId, e) => {
+  const handleSetDefaultPreset = async (preset, e) => {
     if (e) e.stopPropagation();
+    if (!preset?.config) return;
+    const nextDesign = {
+      ...DEFAULT_CERTIFICATE_DESIGN,
+      ...preset.config,
+      elementStyles: {
+        ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
+        ...(preset.config.elementStyles || {})
+      },
+      customBackgrounds: design.customBackgrounds || [],
+      customTemplatePresets: design.customTemplatePresets || [],
+      defaultPresetId: preset.id,
+      activePresetId: preset.id
+    };
+    setDesign(nextDesign);
+    setAutoFitMode(true);
+    await persistDesignToCloud(nextDesign);
+    setSavedAlert(true);
+    setTimeout(() => setSavedAlert(false), 2500);
+  };
+
+  const handleRenameTemplatePreset = async (preset, e) => {
+    if (e) e.stopPropagation();
+    const nextName = window.prompt('Rename Custom Preset:', preset.name);
+    if (!nextName || !nextName.trim()) return;
+    const nextPresets = (design.customTemplatePresets || []).map((p) =>
+      p.id === preset.id ? { ...p, name: nextName.trim().slice(0, 32) } : p
+    );
+    const nextDesign = { ...design, customTemplatePresets: nextPresets };
+    setDesign(nextDesign);
+    await persistDesignToCloud(nextDesign);
+  };
+
+  const handleDuplicateTemplatePreset = async (preset, e) => {
+    if (e) e.stopPropagation();
+    const copyName = `${preset.name} (Copy)`.slice(0, 32);
+    const cloned = {
+      ...JSON.parse(JSON.stringify(preset)),
+      id: `tpl-${Date.now()}`,
+      name: copyName,
+      createdAt: new Date().toLocaleDateString('en-US')
+    };
+    const nextPresets = [cloned, ...(design.customTemplatePresets || [])];
+    const nextDesign = {
+      ...design,
+      customTemplatePresets: nextPresets,
+      activePresetId: cloned.id
+    };
+    setDesign(nextDesign);
+    await persistDesignToCloud(nextDesign);
+  };
+
+  const handleDeleteTemplatePreset = async (presetId, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Delete this saved custom preset?')) return;
     const nextPresets = (design.customTemplatePresets || []).filter((p) => p.id !== presetId);
     const nextDesign = {
       ...design,
       customTemplatePresets: nextPresets,
-      activePresetId: design.activePresetId === presetId ? '' : design.activePresetId
+      activePresetId: design.activePresetId === presetId ? '' : design.activePresetId,
+      defaultPresetId: design.defaultPresetId === presetId ? '' : design.defaultPresetId
     };
     setDesign(nextDesign);
-    const nextDb = {
-      ...db,
-      settings: {
-        ...(db.settings || {}),
-        certificateDesign: nextDesign
-      }
-    };
-    saveDB(nextDb, { onlyTables: ['settings'] });
-    setDb(nextDb);
+    await persistDesignToCloud(nextDesign);
   };
 
   const handleDeleteCustomBg = (bgId, e) => {
@@ -897,16 +1003,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     }));
   };
 
-  const handleSaveDesign = () => {
-    const nextDb = {
-      ...db,
-      settings: {
-        ...(db.settings || {}),
-        certificateDesign: design
-      }
-    };
-    saveDB(nextDb);
-    setDb(nextDb);
+  const handleSaveDesign = async () => {
+    await persistDesignToCloud(design);
     setSavedAlert(true);
     setTimeout(() => setSavedAlert(false), 3500);
 
@@ -1515,10 +1613,23 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 {/* 3. FULL CUSTOM TEMPLATE PRESETS GALLERY (Save, 1-Click Apply, Update, Delete) */}
                 <Box sx={{ p: 1.5, bgcolor: '#EFF6FF', borderRadius: 2, border: '1px solid #BFDBFE' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.73rem' }}>
-                      ⭐ My Saved Custom Presets ({(design.customTemplatePresets || []).length})
-                    </Typography>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexWrap: 'wrap', gap: 0.5 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', fontSize: '0.73rem' }}>
+                        ⭐ My Saved Custom Presets ({(design.customTemplatePresets || []).length})
+                      </Typography>
+                      {cloudSyncState === 'saving' && (
+                        <CircularProgress size={12} />
+                      )}
+                      {cloudSyncState === 'saved' && (
+                        <Chip
+                          size="small"
+                          icon={<CloudDoneIcon sx={{ fontSize: '12px !important', color: '#059669 !important' }} />}
+                          label="Cloud Saved"
+                          sx={{ height: 17, fontSize: '0.58rem', fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
+                        />
+                      )}
+                    </Box>
                     {design.activePresetId && (
                       <Button
                         size="small"
@@ -1572,6 +1683,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     <Grid container spacing={0.9}>
                       {(design.customTemplatePresets || []).map((preset) => {
                         const isActive = design.activePresetId === preset.id;
+                        const isDefault = design.defaultPresetId === preset.id;
+                        const thumbUrl = preset.thumbnail || preset.config?.customBackgroundUrl || '';
                         return (
                           <Grid item xs={6} key={preset.id}>
                             <Paper
@@ -1581,16 +1694,16 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                                 p: 0.75,
                                 cursor: 'pointer',
                                 borderRadius: 1.8,
-                                border: isActive ? '2px solid #0284C7' : '1px solid #CBD5E1',
+                                border: isActive ? '2px solid #0284C7' : isDefault ? '1.5px solid #F59E0B' : '1px solid #CBD5E1',
                                 bgcolor: isActive ? '#FFFFFF' : '#F8FAFC',
                                 '&:hover': { borderColor: '#0284C7', bgcolor: '#FFFFFF' }
                               }}
                             >
                               <Box
                                 sx={{
-                                  height: 46,
+                                  height: 48,
                                   borderRadius: 1,
-                                  backgroundImage: preset.thumbnail ? `url(${preset.thumbnail})` : 'none',
+                                  backgroundImage: thumbUrl ? `url(${thumbUrl})` : 'none',
                                   backgroundSize: 'cover',
                                   backgroundPosition: 'center',
                                   bgcolor: preset.primaryColor || '#0F2E5A',
@@ -1602,37 +1715,83 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                                   p: 0.4
                                 }}
                               >
+                                {isDefault && (
+                                  <Chip
+                                    size="small"
+                                    label="★ Default"
+                                    sx={{
+                                      position: 'absolute',
+                                      top: 3,
+                                      left: 3,
+                                      height: 15,
+                                      fontSize: '0.52rem',
+                                      fontWeight: 900,
+                                      bgcolor: '#F59E0B',
+                                      color: '#0F172A'
+                                    }}
+                                  />
+                                )}
                                 <Chip
                                   size="small"
                                   label={preset.orientation === 'portrait' ? 'Portrait' : 'Landscape'}
-                                  sx={{ height: 15, fontSize: '0.54rem', fontWeight: 800, bgcolor: 'rgba(15,23,42,0.82)', color: '#FFFFFF' }}
+                                  sx={{ height: 15, fontSize: '0.52rem', fontWeight: 800, bgcolor: 'rgba(15,23,42,0.82)', color: '#FFFFFF' }}
                                 />
                                 <Chip
                                   size="small"
                                   label={preset.bgMode === 'predesigned' ? 'Heading' : 'Plain'}
                                   sx={{
                                     height: 15,
-                                    fontSize: '0.54rem',
+                                    fontSize: '0.52rem',
                                     fontWeight: 800,
                                     bgcolor: preset.bgMode === 'predesigned' ? '#F59E0B' : '#059669',
                                     color: preset.bgMode === 'predesigned' ? '#0F172A' : '#FFFFFF'
                                   }}
                                 />
                               </Box>
-                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.5 }}>
-                                <Typography
-                                  variant="caption"
-                                  noWrap
-                                  sx={{ fontWeight: isActive ? 900 : 700, color: '#0F172A', fontSize: '0.65rem', maxWidth: 92 }}
-                                  title={preset.name}
-                                >
-                                  {preset.name}
-                                </Typography>
-                                <Tooltip title="Delete preset">
+
+                              <Typography
+                                variant="caption"
+                                noWrap
+                                sx={{ fontWeight: isActive ? 900 : 700, color: '#0F172A', fontSize: '0.66rem', display: 'block', mt: 0.5 }}
+                                title={preset.name}
+                              >
+                                {preset.name}
+                              </Typography>
+
+                              {/* Quick Actions Row: Set Default ★ | Rename | Duplicate | Delete */}
+                              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 0.35, pt: 0.35, borderTop: '1px solid #E2E8F0' }}>
+                                <Tooltip title={isDefault ? 'Default Preset' : 'Set as Default ★'}>
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => handleSetDefaultPreset(preset, e)}
+                                    sx={{ p: 0.2, color: isDefault ? '#D97706' : '#94A3B8', '&:hover': { color: '#D97706' } }}
+                                  >
+                                    {isDefault ? <StarIcon sx={{ fontSize: 14 }} /> : <StarBorderIcon sx={{ fontSize: 14 }} />}
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Rename Preset">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => handleRenameTemplatePreset(preset, e)}
+                                    sx={{ p: 0.2, color: '#475569', '&:hover': { color: '#0F2C59' } }}
+                                  >
+                                    <EditIcon sx={{ fontSize: 13 }} />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Duplicate / Copy Preset">
+                                  <IconButton
+                                    size="small"
+                                    onClick={(e) => handleDuplicateTemplatePreset(preset, e)}
+                                    sx={{ p: 0.2, color: '#0284C7', '&:hover': { color: '#0369A1' } }}
+                                  >
+                                    <ContentCopyIcon sx={{ fontSize: 13 }} />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title="Delete Preset">
                                   <IconButton
                                     size="small"
                                     onClick={(e) => handleDeleteTemplatePreset(preset.id, e)}
-                                    sx={{ p: 0.15, color: '#DC2626' }}
+                                    sx={{ p: 0.2, color: '#DC2626' }}
                                   >
                                     <CloseIcon sx={{ fontSize: 13 }} />
                                   </IconButton>
@@ -1645,7 +1804,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     </Grid>
                   ) : (
                     <Typography variant="caption" sx={{ color: '#475569', fontSize: '0.66rem', display: 'block', lineHeight: 1.35 }}>
-                      आफ्नो ब्याकग्राउन्ड, पोजिसन र लेआउट मिलाएर माथि नाम लेखी <b>+ Save</b> थिच्नुहोस् — पछि १ क्लिकमै यो पूरा डिजाइन लोड गर्न मिल्छ।
+                      आफ्नो ब्याकग्राउन्ड, पोजिसन र लेआउट मिलाएर माथि नाम लेखी <b>+ Save</b> थिच्नुहोस् — Supabase Cloud मा सुरक्षित सेभ हुन्छ।
                     </Typography>
                   )}
                 </Box>
@@ -1718,13 +1877,14 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     </Typography>
                   </Box>
 
-                  {/* Upload New Background Button */}
+                  {/* Upload New Background Button (Uploads to Supabase Storage) */}
                   <Button
                     fullWidth
                     variant="contained"
                     size="small"
                     component="label"
-                    startIcon={<UploadFileIcon />}
+                    disabled={bgUploading}
+                    startIcon={bgUploading ? <CircularProgress size={14} color="inherit" /> : <UploadFileIcon />}
                     sx={{
                       background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
                       fontWeight: 800,
@@ -1737,7 +1897,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       }
                     }}
                   >
-                    + Upload Background ({design.customBgMode === 'predesigned' ? 'Heading Included' : 'Plain'})
+                    {bgUploading
+                      ? 'Uploading to Cloud Storage...'
+                      : `+ Upload Background (${design.customBgMode === 'predesigned' ? 'Heading Included' : 'Plain'})`}
                     <input type="file" hidden accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleUploadCustomBg} />
                   </Button>
 
