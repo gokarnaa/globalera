@@ -1,14 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
+  DialogTitle,
   DialogContent,
+  DialogActions,
   Box,
   Typography,
   Button,
   Chip,
   CircularProgress,
   IconButton,
-  Tooltip
+  Tooltip,
+  TextField,
+  MenuItem,
+  Stack,
+  Alert
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -20,9 +26,18 @@ import VerifiedIcon from '@mui/icons-material/Verified';
 import PersonIcon from '@mui/icons-material/Person';
 import ZoomInIcon from '@mui/icons-material/ZoomIn';
 import FitScreenIcon from '@mui/icons-material/FitScreen';
+import TranslateIcon from '@mui/icons-material/Translate';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { QRCodeSVG } from 'qrcode.react';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { loadDB } from '../../services/storage';
+import {
+  buildCertificateBodyData,
+  buildDefaultNepaliBody,
+  getSavedNepaliBody,
+  saveNepaliBody,
+  generateNepaliCertificateBodyWithGemini
+} from '../../services/certificateFormatter';
 
 // Corner Ornament SVG Helper
 function CornerSvg({ style, size = 32, color = '#C59B27', position = 'top-left' }) {
@@ -124,6 +139,27 @@ export default function A4LandscapeCertificateModal({
   const [previewWidth, setPreviewWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1024));
   const [viewportHeight, setViewportHeight] = useState(() => (typeof window !== 'undefined' ? window.innerHeight : 800));
   const previewWrapRef = useRef(null);
+
+  // Per-certificate Nepali AI Generator & Language Override state
+  const [nepaliDialogOpen, setNepaliDialogOpen] = useState(false);
+  const [nepaliDraft, setNepaliDraft] = useState('');
+  const [savedNepaliText, setSavedNepaliText] = useState('');
+  const [bodyModeOverride, setBodyModeOverride] = useState(null); // null = use Studio setting
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiNotice, setAiNotice] = useState('');
+
+  useEffect(() => {
+    if (!open) {
+      setZoomed(false);
+      setNepaliDialogOpen(false);
+      setBodyModeOverride(null);
+      setAiNotice('');
+      return;
+    }
+    const existing = getSavedNepaliBody(certificate);
+    setSavedNepaliText(existing);
+    setNepaliDraft(existing);
+  }, [open, certificate?.certificateNo, certificate?.id]);
 
   useEffect(() => {
     if (!open) {
@@ -486,6 +522,54 @@ export default function A4LandscapeCertificateModal({
     `_Official skill completion certificate issued by a CTEVT-affiliated institution._`;
 
   const isFemale = (student.gender || '').toLowerCase() === 'female';
+  const activeBodyMode = bodyModeOverride || design.bodyLayoutMode || 'english-only';
+  const durationDisplayMode = design.durationDisplayMode || 'hours';
+  const bodyData = buildCertificateBodyData({
+    student,
+    course,
+    group,
+    certificate,
+    durationDisplayMode
+  });
+  const effectiveNepaliBody = savedNepaliText || buildDefaultNepaliBody(bodyData);
+
+  const handleOpenNepaliDialog = () => {
+    setNepaliDraft(savedNepaliText || buildDefaultNepaliBody(bodyData));
+    setAiNotice('');
+    setNepaliDialogOpen(true);
+  };
+
+  const handleGenerateNepaliAI = async () => {
+    setAiGenerating(true);
+    setAiNotice('');
+    try {
+      const res = await generateNepaliCertificateBodyWithGemini({
+        student,
+        course,
+        group,
+        certificate,
+        durationDisplayMode
+      });
+      setNepaliDraft(res.text);
+      if (res.ok) {
+        setAiNotice('Gemini AI बाट शुद्ध नेपाली अनुच्छेद तयार भयो। आवश्यक परे एडिट गरेर Save & Apply थिच्नुहोस्।');
+      } else {
+        setAiNotice(res.message || 'Default Nepali template loaded.');
+      }
+    } finally {
+      setAiGenerating(false);
+    }
+  };
+
+  const handleSaveNepaliDraft = () => {
+    const cleaned = String(nepaliDraft || '').trim();
+    saveNepaliBody(certificate, cleaned);
+    setSavedNepaliText(cleaned);
+    if (activeBodyMode === 'english-only') {
+      setBodyModeOverride('bilingual');
+    }
+    setNepaliDialogOpen(false);
+  };
 
   return (
     <Dialog
@@ -538,8 +622,16 @@ export default function A4LandscapeCertificateModal({
             </Typography>
           </Box>
 
-          {/* Mobile-only Zoom & Close right next to title */}
+          {/* Mobile-only Nepali AI, Zoom & Close right next to title */}
           <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center', gap: 0.5 }}>
+            <IconButton
+              size="small"
+              onClick={handleOpenNepaliDialog}
+              aria-label="Nepali AI"
+              sx={{ color: '#FDE047', border: '1px solid rgba(253,224,71,0.4)', borderRadius: 1.5, p: 0.5 }}
+            >
+              <TranslateIcon sx={{ fontSize: 16 }} />
+            </IconButton>
             {isCompactViewport && (
               <IconButton
                 size="small"
@@ -571,6 +663,26 @@ export default function A4LandscapeCertificateModal({
             alignItems: 'center'
           }}
         >
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<TranslateIcon sx={{ fontSize: '15px !important' }} />}
+            onClick={handleOpenNepaliDialog}
+            sx={{
+              display: { xs: 'none', sm: 'inline-flex' },
+              borderColor: 'rgba(253, 224, 71, 0.5)',
+              color: '#FDE047',
+              fontWeight: 800,
+              px: 1.4,
+              py: 0.6,
+              fontSize: '0.76rem',
+              textTransform: 'none',
+              bgcolor: 'rgba(250, 204, 21, 0.1)',
+              '&:hover': { borderColor: '#FDE047', bgcolor: 'rgba(250, 204, 21, 0.2)' }
+            }}
+          >
+            नेपाली AI
+          </Button>
           <Button
             variant="contained"
             size="small"
@@ -1163,40 +1275,56 @@ export default function A4LandscapeCertificateModal({
               transform: `translate(${elStyles.body?.x || 0}px, ${elStyles.body?.y || 0}px)`
             }}
           >
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: elStyles.body?.fontFamily || "'Times New Roman', serif",
-                fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.88rem' : '0.86rem'),
-                lineHeight: elStyles.body?.lineHeight || 1.45,
-                color: elStyles.body?.color || '#1e293b',
-                fontWeight: elStyles.body?.fontWeight || 'normal',
-                fontStyle: elStyles.body?.fontStyle || 'normal',
-                mb: 0.8
-              }}
-            >
-              This is to certify that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.name}</b>, {isFemale ? 'Daughter' : 'Son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, permanent resident of <b>{student.permanentAddress || student.address || 'Kathmandu, Nepal'}</b>, has successfully completed the <b>{course?.totalHours || 390} Hours</b> vocational skills training course in <b>"{course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || group?.admissionDate || certificate.issueDate}</b> to <b>{group?.endDate || group?.expectedEndDate || certificate.issueDate}</b> in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
-            </Typography>
+            {(activeBodyMode === 'english-only' || activeBodyMode === 'bilingual') && (
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: elStyles.body?.fontFamily || "'Times New Roman', serif",
+                  fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.92rem' : '0.9rem'),
+                  lineHeight: elStyles.body?.lineHeight || 1.55,
+                  color: elStyles.body?.color || '#1e293b',
+                  fontWeight: elStyles.body?.fontWeight || 'normal',
+                  fontStyle: elStyles.body?.fontStyle || 'normal',
+                  mb: activeBodyMode === 'bilingual' ? 0.8 : 0
+                }}
+              >
+                This is to certify that {bodyData.salutationEn} <b>{bodyData.studentName}</b>
+                {bodyData.dob ? (
+                  <>
+                    , born on <b>{bodyData.dob}</b>
+                  </>
+                ) : null}
+                , {bodyData.relationEn} of Mr./Mrs. <b>{bodyData.guardianName}</b> and inhabitant of{' '}
+                <b>{bodyData.address}</b>, has successfully completed <b>{bodyData.durationEn}</b> skills training on{' '}
+                <b>{bodyData.courseTitle}</b> provided by this institute from <b>{bodyData.startDate}</b> to{' '}
+                <b>{bodyData.endDate}</b>. During the training period {bodyData.pronounEn} performance was{' '}
+                <b>{bodyData.performanceEn}</b>.
+              </Typography>
+            )}
 
-            <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-              <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
-              <Box sx={{ color: accentColor, fontSize: '0.75rem' }}>❖</Box>
-              <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
-            </Box>
+            {activeBodyMode === 'bilingual' && (
+              <Box sx={{ my: 0.6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+                <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
+                <Box sx={{ color: accentColor, fontSize: '0.75rem' }}>❖</Box>
+                <Box sx={{ flexGrow: 1, height: '1px', bgcolor: '#e2e8f0' }} />
+              </Box>
+            )}
 
-            <Typography
-              variant="body2"
-              sx={{
-                fontFamily: "'Noto Sans Devanagari', sans-serif",
-                fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.88rem' : '0.86rem'),
-                lineHeight: elStyles.body?.lineHeight || 1.5,
-                color: elStyles.body?.color || '#1e293b',
-                fontWeight: elStyles.body?.fontWeight || 'normal',
-                fontStyle: elStyles.body?.fontStyle || 'normal'
-              }}
-            >
-              This credential certifies that {isFemale ? 'Ms.' : 'Mr.'} <b>{student.nameNepali || student.name}</b>, {isFemale ? 'daughter' : 'son'} of Mr./Mrs. <b>{student.guardianName || student.fatherName || 'Guardian'}</b>, resident of <b>{student.permanentAddress || student.address || 'Kathmandu'}</b>, has successfully completed the <b>{course?.totalHours || 390}-Hour</b> training program in <b>"{course?.titleNepali || course?.title || 'Vocational Training'}"</b> conducted from <b>{group?.startDate || group?.admissionDate || certificate.issueDate}</b> to <b>{group?.endDate || group?.expectedEndDate || certificate.issueDate}</b> and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
-            </Typography>
+            {(activeBodyMode === 'bilingual' || activeBodyMode === 'nepali-only') && (
+              <Typography
+                variant="body2"
+                sx={{
+                  fontFamily: "'Noto Sans Devanagari', sans-serif",
+                  fontSize: elStyles.body?.fontSize ? `${elStyles.body.fontSize}px` : (isPortrait ? '0.88rem' : '0.86rem'),
+                  lineHeight: elStyles.body?.lineHeight || 1.55,
+                  color: elStyles.body?.color || '#1e293b',
+                  fontWeight: elStyles.body?.fontWeight || 'normal',
+                  fontStyle: elStyles.body?.fontStyle || 'normal'
+                }}
+              >
+                {effectiveNepaliBody}
+              </Typography>
+            )}
           </Box>
 
           {/* 6. Footer: Dynamic QR + Official Seal (4 Modes) + Dynamic Signatories (Movable) */}
@@ -1380,6 +1508,87 @@ export default function A4LandscapeCertificateModal({
           }
         }
       `}</style>
+
+      {/* 1-Click Gemini AI Nepali Generator & Language Override Dialog */}
+      <Dialog
+        open={nepaliDialogOpen}
+        onClose={() => setNepaliDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        className="no-print"
+      >
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <TranslateIcon fontSize="small" />
+            <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+              नेपाली सर्टिफिकेट अनुच्छेद (Gemini AI)
+            </Typography>
+          </Box>
+          <IconButton size="small" onClick={() => setNepaliDialogOpen(false)} sx={{ color: '#ffffff' }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <Stack spacing={2} sx={{ mt: 1 }}>
+            <TextField
+              select
+              fullWidth
+              size="small"
+              label="यो सर्टिफिकेटको भाषा (Language Mode)"
+              value={activeBodyMode}
+              onChange={(e) => setBodyModeOverride(e.target.value)}
+            >
+              <MenuItem value="english-only">English Only (अङ्ग्रेजी मात्र)</MenuItem>
+              <MenuItem value="bilingual">Bilingual (English + नेपाली)</MenuItem>
+              <MenuItem value="nepali-only">Nepali Only (नेपाली मात्र)</MenuItem>
+            </TextField>
+
+            <Button
+              variant="contained"
+              disabled={aiGenerating}
+              startIcon={aiGenerating ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon />}
+              onClick={handleGenerateNepaliAI}
+              sx={{
+                bgcolor: '#0F2C59',
+                fontWeight: 800,
+                py: 1,
+                textTransform: 'none',
+                '&:hover': { bgcolor: '#163A70' }
+              }}
+            >
+              {aiGenerating ? 'Gemini AI ले शुद्ध नेपाली बनाउँदैछ...' : 'Gemini AI बाट १-क्लिकमा शुद्ध नेपाली बनाउनुहोस्'}
+            </Button>
+
+            {aiNotice && (
+              <Alert severity="info" sx={{ fontSize: '0.78rem', py: 0.5 }}>
+                {aiNotice}
+              </Alert>
+            )}
+
+            <TextField
+              multiline
+              rows={5}
+              fullWidth
+              label="नेपाली अनुच्छेद (चाहिएमा यहाँ सिधै एडिट गर्न मिल्छ)"
+              value={nepaliDraft}
+              onChange={(e) => setNepaliDraft(e.target.value)}
+              InputProps={{
+                sx: { fontFamily: "'Noto Sans Devanagari', sans-serif", fontSize: '0.9rem', lineHeight: 1.6 }
+              }}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setNepaliDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={handleSaveNepaliDraft}
+            sx={{ bgcolor: '#059669', fontWeight: 800, '&:hover': { bgcolor: '#047857' } }}
+          >
+            Save &amp; Apply
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Dialog>
   );
 }

@@ -109,7 +109,8 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   // 6. Title & Body Typography
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
   certificateTitleNp: '(VOCATIONAL TRAINING COMPLETION CERTIFICATE)',
-  bodyLayoutMode: 'bilingual',
+  bodyLayoutMode: 'english-only', // 'english-only' | 'bilingual' | 'nepali-only'
+  durationDisplayMode: 'hours', // 'hours' | 'unit' | 'both'
   showStudentPhoto: true,
   showCompetencyBadge: true,
   competencyBadgeTitle: 'CTEVT LEVEL 1',
@@ -1248,6 +1249,42 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       Right Logo
                       <input type="file" hidden accept="image/*" onChange={(e) => handleImageUploadGeneric('rightLogoUrl', e)} />
                     </Button>
+                  </Stack>
+                </Box>
+
+                {/* Body Language & Duration Format Controls */}
+                <Box sx={{ p: 1.25, bgcolor: '#F8FAFC', borderRadius: 2, border: '1px solid #E2E8F0' }}>
+                  <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                    🌐 Body Language &amp; Duration Format
+                  </Typography>
+                  <Stack spacing={1.2}>
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="Certificate Body Language"
+                      value={design.bodyLayoutMode || 'english-only'}
+                      onChange={(e) => handleUpdate('bodyLayoutMode', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <MenuItem value="english-only">English Only (Official Default)</MenuItem>
+                      <MenuItem value="bilingual">Bilingual (English + नेपाली)</MenuItem>
+                      <MenuItem value="nepali-only">Nepali Only (नेपाली मात्र)</MenuItem>
+                    </TextField>
+
+                    <TextField
+                      select
+                      fullWidth
+                      size="small"
+                      label="Course Duration Display"
+                      value={design.durationDisplayMode || 'hours'}
+                      onChange={(e) => handleUpdate('durationDisplayMode', e.target.value)}
+                      InputLabelProps={{ shrink: true }}
+                    >
+                      <MenuItem value="hours">Hours Only (e.g. 390 Hours / 178 Hours)</MenuItem>
+                      <MenuItem value="unit">Course Unit (e.g. 15 Days / 3 Months / 6 Weeks)</MenuItem>
+                      <MenuItem value="both">Both (e.g. 3 Months (390 Hours))</MenuItem>
+                    </TextField>
                   </Stack>
                 </Box>
 
@@ -2436,7 +2473,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   borderRadius: '4px'
                 }}
               >
-                {(design.bodyLayoutMode === 'bilingual' || design.bodyLayoutMode === 'english-only') && (
+                {((design.bodyLayoutMode || 'english-only') === 'bilingual' || (design.bodyLayoutMode || 'english-only') === 'english-only') && (
                   <Typography
                     variant="body2"
                     sx={{
@@ -2444,12 +2481,12 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
                       fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
                       fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
-                      lineHeight: design.elementStyles?.body?.lineHeight || 1.45,
+                      lineHeight: design.elementStyles?.body?.lineHeight || 1.5,
                       color: design.elementStyles?.body?.color || '#1E293B',
-                      mb: 0.8
+                      mb: (design.bodyLayoutMode || 'english-only') === 'bilingual' ? 0.8 : 0
                     }}
                   >
-                    This is to certify that Ms./Mr. <b>{currentSample.nameEn}</b>, Child of <b>{currentSample.parentEn}</b>, permanent resident of <b>{currentSample.addressEn}</b>, has successfully completed the <b>{currentSample.hoursNp}</b> vocational skills training course in <b>"{currentSample.courseEn}"</b> conducted in accordance with the curriculum standards prescribed by the Council for Technical Education and Vocational Training (CTEVT), Nepal.
+                    This is to certify that Mr./Ms. <b>{currentSample.nameEn}</b>, born on <b>2000-05-03</b>, Son/Daughter of Mr./Mrs. <b>{currentSample.parentEn}</b> and inhabitant of <b>{currentSample.addressEn}</b>, has successfully completed <b>{design.durationDisplayMode === 'unit' ? '3 Months' : design.durationDisplayMode === 'both' ? '3 Months (390 Hours)' : '390 Hours'}</b> skills training on <b>{currentSample.courseEn}</b> provided by this institute from <b>2026-01-10</b> to <b>2026-04-10</b>. During the training period his/her performance was <b>Very Good</b>.
                   </Typography>
                 )}
 
@@ -2469,11 +2506,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       fontWeight: design.elementStyles?.body?.fontWeight || 'normal',
                       fontStyle: design.elementStyles?.body?.fontStyle || 'normal',
                       fontSize: `${design.elementStyles?.body?.fontSize || (isPortrait ? 14 : 13.5)}px`,
-                      lineHeight: design.elementStyles?.body?.lineHeight || 1.5,
+                      lineHeight: design.elementStyles?.body?.lineHeight || 1.55,
                       color: design.elementStyles?.body?.color || '#1E293B'
                     }}
                   >
-                    This is to officially certify that Ms./Mr. <b>{currentSample.nameNp}</b>, child of {currentSample.parentNp} and resident of {currentSample.addressNp}, has successfully completed the <b>{currentSample.hoursNp}</b> <b>"{currentSample.courseNp}"</b> conducted by this institution and is hereby awarded this <b>Vocational Training Completion Certificate</b>.
+                    <b>जोरपाटी-०५, काठमाडौँ</b> निवासी श्री/श्रीमती <b>हरि शर्मा</b> का सुपुत्र/सुपुत्री (जन्म मिति: <b>२०००-०५-०३</b>) श्री/सुश्री <b>प्रशिक्षार्थीको नाम</b> ले यस संस्थाद्वारा मिति <b>२०२६-०१-१०</b> देखि <b>२०२६-०४-१०</b> सम्म सञ्चालित <b>{design.durationDisplayMode === 'unit' ? '३ महिना' : design.durationDisplayMode === 'both' ? '३ महिना (३९० घण्टा)' : '३९० घण्टा'}</b>को <b>"{currentSample.courseEn}"</b> सीपमूलक तालीम सफलतापूर्वक सम्पन्न गर्नुभएकोमा यो <b>प्रमाण-पत्र</b> प्रदान गरिएको छ। तालीम अवधिमा उहाँको कार्यसम्पादन <b>अति उत्तम</b> रहेको थियो।
                   </Typography>
                 )}
               </Box>
