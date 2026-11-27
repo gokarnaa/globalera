@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,9 @@ import {
   Typography,
   Button,
   Chip,
-  CircularProgress
+  CircularProgress,
+  IconButton,
+  Tooltip
 } from '@mui/material';
 import PrintIcon from '@mui/icons-material/Print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -16,6 +18,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import SchoolIcon from '@mui/icons-material/School';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import PersonIcon from '@mui/icons-material/Person';
+import ZoomInIcon from '@mui/icons-material/ZoomIn';
+import FitScreenIcon from '@mui/icons-material/FitScreen';
 import { QRCodeSVG } from 'qrcode.react';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { loadDB } from '../../services/storage';
@@ -115,6 +119,32 @@ export default function A4LandscapeCertificateModal({
   group,
   trainer
 }) {
+  const [exportingType, setExportingType] = useState(null); // 'pdf' | 'png' | null
+  const [zoomed, setZoomed] = useState(false);
+  const [previewWidth, setPreviewWidth] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1024));
+  const [viewportHeight, setViewportHeight] = useState(() => (typeof window !== 'undefined' ? window.innerHeight : 800));
+  const previewWrapRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) {
+      setZoomed(false);
+      return;
+    }
+    const updateSize = () => {
+      const wrapW = previewWrapRef.current?.clientWidth || window.innerWidth;
+      setPreviewWidth(wrapW);
+      setViewportHeight(window.innerHeight);
+    };
+    updateSize();
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateSize) : null;
+    if (ro && previewWrapRef.current) ro.observe(previewWrapRef.current);
+    window.addEventListener('resize', updateSize);
+    return () => {
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
+  }, [open]);
+
   if (!open || !certificate || !student) return null;
 
   const db = loadDB();
@@ -316,7 +346,20 @@ export default function A4LandscapeCertificateModal({
     return { border: 'none' };
   };
 
-  const [exportingType, setExportingType] = useState(null); // 'pdf' | 'png' | null
+  const baseWidth = isPortrait ? 760 : 1040;
+  const baseHeight = isPortrait ? 1060 : 740;
+  const isCompactViewport = previewWidth < baseWidth + 24;
+  const isMobileViewport = previewWidth < 600;
+
+  // Auto-fit scale so both Portrait & Landscape fit cleanly like a neat card on mobile
+  const widthScale = Math.min(1, Math.max(0.24, (previewWidth - (isMobileViewport ? 20 : 40)) / baseWidth));
+  const heightCapScale = isMobileViewport
+    ? Math.min(1, Math.max(0.24, (viewportHeight * 0.56) / baseHeight))
+    : 1;
+  const fitScale = Math.min(widthScale, heightCapScale);
+  const activeScale = zoomed ? 1 : fitScale;
+  const scaledWidth = Math.round(baseWidth * activeScale);
+  const scaledHeight = Math.round(baseHeight * activeScale);
 
   const handlePrint = () => {
     window.print();
@@ -324,25 +367,47 @@ export default function A4LandscapeCertificateModal({
 
   const captureCertificateCanvas = async () => {
     const el = document.getElementById('printableLandscapeCertificate');
+    const frame = document.getElementById('certificateScaleFrame');
     if (!el) throw new Error('Certificate preview element not found.');
     const prevShadow = el.style.boxShadow;
+    const prevTransform = el.style.transform;
+    const prevFrameOverflow = frame ? frame.style.overflow : '';
+    const prevFrameWidth = frame ? frame.style.width : '';
+    const prevFrameHeight = frame ? frame.style.height : '';
+
+    // Temporarily render at exact 1:1 full A4 resolution so mobile exports are 100% HD & unclipped
     el.style.boxShadow = 'none';
+    el.style.transform = 'none';
+    if (frame) {
+      frame.style.overflow = 'visible';
+      frame.style.width = `${baseWidth}px`;
+      frame.style.height = `${el.scrollHeight || baseHeight}px`;
+    }
     try {
       if (document.fonts?.ready) {
         await document.fonts.ready;
       }
       const { default: html2canvas } = await import('html2canvas');
+      const captureScale = isMobileViewport ? 2.5 : 3;
       return await html2canvas(el, {
-        scale: 3,
+        scale: captureScale,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         logging: false,
-        windowWidth: el.scrollWidth,
-        windowHeight: el.scrollHeight
+        width: baseWidth,
+        height: el.scrollHeight || baseHeight,
+        windowWidth: baseWidth,
+        windowHeight: el.scrollHeight || baseHeight
       });
     } finally {
       el.style.boxShadow = prevShadow;
+      el.style.transform = prevTransform;
+      if (frame) {
+        frame.style.overflow = prevFrameOverflow;
+        frame.style.width = prevFrameWidth;
+        frame.style.height = prevFrameHeight;
+      }
     }
   };
 
@@ -435,84 +500,157 @@ export default function A4LandscapeCertificateModal({
         }
       }}
     >
-      {/* Top Action Toolbar (Hidden in Print) */}
+      {/* Top Action Toolbar (Hidden in Print) — Compact on Mobile */}
       <Box
         className="no-print"
         sx={{
-          p: 2,
+          px: { xs: 1.25, sm: 2 },
+          py: { xs: 1, sm: 1.5 },
           bgcolor: '#0f172a',
           color: '#ffffff',
           display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: { xs: 'stretch', sm: 'center' },
+          gap: { xs: 1, sm: 1.5 }
         }}
       >
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-          <Chip
-            label={isPortrait ? 'A4 Portrait Official Format' : 'A4 Landscape Official CTEVT Format'}
-            sx={{ bgcolor: '#c59b27', color: '#0f172a', fontWeight: 900, fontSize: '0.78rem' }}
-          />
-          <Typography variant="body2" sx={{ color: '#cbd5e1', fontWeight: 700, display: { xs: 'none', sm: 'block' } }}>
-            Cert No: <b>{certificate.certificateNo}</b>
-          </Typography>
+        {/* Row 1 on mobile: Compact Format Badge + Cert No + Zoom + Close */}
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+            <Chip
+              size="small"
+              label={isPortrait ? 'A4 Portrait' : 'A4 Landscape'}
+              sx={{
+                bgcolor: '#c59b27',
+                color: '#0f172a',
+                fontWeight: 900,
+                fontSize: { xs: '0.68rem', sm: '0.76rem' },
+                height: { xs: 22, sm: 26 }
+              }}
+            />
+            <Typography
+              variant="body2"
+              noWrap
+              sx={{ color: '#cbd5e1', fontWeight: 700, fontSize: { xs: '0.72rem', sm: '0.82rem' } }}
+            >
+              {certificate.certificateNo}
+            </Typography>
+          </Box>
+
+          {/* Mobile-only Zoom & Close right next to title */}
+          <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center', gap: 0.5 }}>
+            {isCompactViewport && (
+              <IconButton
+                size="small"
+                onClick={() => setZoomed((z) => !z)}
+                aria-label={zoomed ? 'Fit to screen' : 'Zoom full size'}
+                sx={{ color: '#e2e8f0', border: '1px solid #334155', borderRadius: 1.5, p: 0.5 }}
+              >
+                {zoomed ? <FitScreenIcon sx={{ fontSize: 16 }} /> : <ZoomInIcon sx={{ fontSize: 16 }} />}
+              </IconButton>
+            )}
+            <IconButton
+              size="small"
+              onClick={onClose}
+              aria-label="Close"
+              sx={{ color: '#ffffff', border: '1px solid #475569', borderRadius: 1.5, p: 0.5 }}
+            >
+              <CloseIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Box>
         </Box>
 
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' }}>
+        {/* Action Buttons — 4-column compact grid on mobile, inline flex on desktop */}
+        <Box
+          sx={{
+            display: { xs: 'grid', sm: 'flex' },
+            gridTemplateColumns: { xs: 'repeat(4, 1fr)', sm: 'none' },
+            gap: { xs: 0.6, sm: 1 },
+            flexWrap: { sm: 'wrap' },
+            alignItems: 'center'
+          }}
+        >
           <Button
             variant="contained"
             size="small"
             disabled={Boolean(exportingType)}
-            startIcon={exportingType === 'pdf' ? <CircularProgress size={14} color="inherit" /> : <PictureAsPdfIcon />}
+            startIcon={exportingType === 'pdf' ? <CircularProgress size={12} color="inherit" /> : <PictureAsPdfIcon sx={{ fontSize: { xs: '14px !important', sm: '16px !important' } }} />}
             onClick={handleDownloadPdf}
             sx={{
               bgcolor: '#DC2626',
               fontWeight: 800,
-              px: 2,
+              px: { xs: 0.75, sm: 1.75 },
+              py: { xs: 0.55, sm: 0.6 },
+              fontSize: { xs: '0.68rem', sm: '0.78rem' },
+              minWidth: 0,
               textTransform: 'none',
               '&:hover': { bgcolor: '#B91C1C' }
             }}
           >
-            {exportingType === 'pdf' ? 'Generating A4 PDF...' : 'Download A4 PDF'}
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              {exportingType === 'pdf' ? 'Generating A4 PDF...' : 'Download A4 PDF'}
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              {exportingType === 'pdf' ? '...' : 'PDF'}
+            </Box>
           </Button>
 
           <Button
             variant="outlined"
             size="small"
             disabled={Boolean(exportingType)}
-            startIcon={exportingType === 'png' ? <CircularProgress size={14} color="inherit" /> : <ImageIcon />}
+            startIcon={exportingType === 'png' ? <CircularProgress size={12} color="inherit" /> : <ImageIcon sx={{ fontSize: { xs: '14px !important', sm: '16px !important' } }} />}
             onClick={handleDownloadPng}
             sx={{
               borderColor: '#38BDF8',
               color: '#38BDF8',
               fontWeight: 800,
+              px: { xs: 0.75, sm: 1.5 },
+              py: { xs: 0.55, sm: 0.6 },
+              fontSize: { xs: '0.68rem', sm: '0.78rem' },
+              minWidth: 0,
               textTransform: 'none',
               bgcolor: 'rgba(56, 189, 248, 0.1)',
               '&:hover': { borderColor: '#7DD3FC', bgcolor: 'rgba(56, 189, 248, 0.2)' }
             }}
           >
-            {exportingType === 'png' ? 'Saving...' : 'Save PNG'}
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              {exportingType === 'png' ? 'Saving...' : 'Save PNG'}
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              {exportingType === 'png' ? '...' : 'PNG'}
+            </Box>
           </Button>
 
           <Button
             variant="contained"
             size="small"
-            startIcon={<PrintIcon />}
+            startIcon={<PrintIcon sx={{ fontSize: { xs: '14px !important', sm: '16px !important' } }} />}
             onClick={handlePrint}
             sx={{
               bgcolor: '#1a56b0',
               fontWeight: 800,
-              px: 2,
+              px: { xs: 0.75, sm: 1.75 },
+              py: { xs: 0.55, sm: 0.6 },
+              fontSize: { xs: '0.68rem', sm: '0.78rem' },
+              minWidth: 0,
               textTransform: 'none',
               '&:hover': { bgcolor: '#123e80' }
             }}
           >
-            Print (A4 {isPortrait ? 'Portrait' : 'Landscape'})
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              Print (A4 {isPortrait ? 'Portrait' : 'Landscape'})
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              Print
+            </Box>
           </Button>
 
           <Button
             variant="outlined"
             size="small"
-            startIcon={<WhatsAppIcon />}
+            startIcon={<WhatsAppIcon sx={{ fontSize: { xs: '14px !important', sm: '16px !important' } }} />}
             component="a"
             href={getWhatsAppUrl(student.phone || '', shareText)}
             target="_blank"
@@ -520,44 +658,113 @@ export default function A4LandscapeCertificateModal({
               borderColor: '#25D366',
               color: '#25D366',
               fontWeight: 800,
+              px: { xs: 0.75, sm: 1.5 },
+              py: { xs: 0.55, sm: 0.6 },
+              fontSize: { xs: '0.68rem', sm: '0.78rem' },
+              minWidth: 0,
+              textTransform: 'none',
               bgcolor: 'rgba(37, 211, 102, 0.1)',
               '&:hover': { borderColor: '#25D366', bgcolor: 'rgba(37, 211, 102, 0.2)' }
             }}
           >
-            WhatsApp
+            <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>
+              WhatsApp
+            </Box>
+            <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>
+              Share
+            </Box>
           </Button>
+
+          {isCompactViewport && (
+            <Tooltip title={zoomed ? 'Fit to screen' : 'Zoom 100%'}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => setZoomed((z) => !z)}
+                sx={{ display: { xs: 'none', sm: 'inline-flex' }, color: '#e2e8f0', borderColor: '#475569', minWidth: 36, px: 1 }}
+              >
+                {zoomed ? <FitScreenIcon fontSize="small" /> : <ZoomInIcon fontSize="small" />}
+              </Button>
+            </Tooltip>
+          )}
 
           <Button
             variant="outlined"
             size="small"
             onClick={onClose}
-            sx={{ color: '#ffffff', borderColor: '#475569', minWidth: 40, px: 1 }}
+            sx={{ display: { xs: 'none', sm: 'inline-flex' }, color: '#ffffff', borderColor: '#475569', minWidth: 38, px: 1 }}
           >
             <CloseIcon fontSize="small" />
           </Button>
         </Box>
       </Box>
 
-      {/* Printable Certificate Canvas */}
-      <DialogContent sx={{ p: { xs: 1.5, sm: 3 }, bgcolor: '#e2e8f0', display: 'flex', justifyContent: 'center' }}>
+      {/* Printable Certificate Canvas — Auto-scaled neat card preview on Mobile/Small Screens */}
+      <DialogContent
+        ref={previewWrapRef}
+        sx={{
+          p: { xs: 1.25, sm: 2.5 },
+          bgcolor: '#e2e8f0',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: zoomed && isCompactViewport ? 'flex-start' : 'center',
+          justifyContent: 'flex-start',
+          overflowX: zoomed && isCompactViewport ? 'auto' : 'hidden',
+          overflowY: 'auto'
+        }}
+      >
+        {isCompactViewport && (
+          <Typography
+            className="no-print"
+            variant="caption"
+            sx={{
+              mb: 1,
+              color: '#475569',
+              fontWeight: 700,
+              fontSize: '0.68rem',
+              textAlign: 'center',
+              alignSelf: 'center'
+            }}
+          >
+            {zoomed
+              ? 'Full 100% view (swipe to scroll) • Download always saves exact A4 HD'
+              : `Compact Preview (${Math.round(activeScale * 100)}%) • Tap PDF for full A4 HD`}
+          </Typography>
+        )}
+
         <Box
-          id="printableLandscapeCertificate"
+          id="certificateScaleFrame"
           sx={{
-            width: isPortrait ? '760px' : '1040px',
-            minHeight: isPortrait ? '1060px' : '740px',
-            p: `${borderMargin}mm`,
-            boxSizing: 'border-box',
-            fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
-            color: '#111827',
+            width: `${scaledWidth}px`,
+            height: `${scaledHeight}px`,
             position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
-            ...getBorderStyle(),
-            ...getBackgroundStyle()
+            flexShrink: 0,
+            borderRadius: activeScale < 1 ? '6px' : 0,
+            boxShadow: activeScale < 1 ? '0 6px 20px rgba(15, 23, 42, 0.18)' : 'none',
+            overflow: 'hidden',
+            bgcolor: '#ffffff'
           }}
         >
+          <Box
+            id="printableLandscapeCertificate"
+            sx={{
+              width: `${baseWidth}px`,
+              minHeight: `${baseHeight}px`,
+              p: `${borderMargin}mm`,
+              boxSizing: 'border-box',
+              fontFamily: "'Noto Sans Devanagari', 'Cinzel', 'Times New Roman', serif",
+              color: '#111827',
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              boxShadow: activeScale < 1 ? 'none' : '0 10px 30px rgba(0,0,0,0.15)',
+              transform: activeScale < 1 ? `scale(${activeScale})` : 'none',
+              transformOrigin: 'top left',
+              ...getBorderStyle(),
+              ...getBackgroundStyle()
+            }}
+          >
           {/* Custom Uploaded Background Layer with Opacity & Fit */}
           {!design.preprintedTextOnly && backgroundType === 'custom' && customBackgroundUrl && (
             <Box
@@ -1128,6 +1335,7 @@ export default function A4LandscapeCertificateModal({
               ))}
             </Box>
           </Box>
+          </Box>
         </Box>
       </DialogContent>
 
@@ -1151,6 +1359,12 @@ export default function A4LandscapeCertificateModal({
           #printableLandscapeCertificate, #printableLandscapeCertificate * {
             visibility: visible !important;
           }
+          #certificateScaleFrame {
+            width: auto !important;
+            height: auto !important;
+            overflow: visible !important;
+            box-shadow: none !important;
+          }
           #printableLandscapeCertificate {
             position: absolute !important;
             left: 0 !important;
@@ -1158,6 +1372,7 @@ export default function A4LandscapeCertificateModal({
             width: 100% !important;
             height: 98vh !important;
             margin: 0 !important;
+            transform: none !important;
             box-shadow: none !important;
           }
           .no-print {
