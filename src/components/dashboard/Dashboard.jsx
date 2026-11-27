@@ -55,6 +55,11 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import FingerprintIcon from '@mui/icons-material/Fingerprint';
+import CategoryIcon from '@mui/icons-material/Category';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import WorkIcon from '@mui/icons-material/Work';
+import DescriptionIcon from '@mui/icons-material/Description';
 import { loadDB, saveDB } from '../../services/storage';
 import { useAuth } from '../../context/AuthContext';
 import { getWhatsAppUrl } from '../../services/exportUtils';
@@ -191,286 +196,169 @@ export default function Dashboard({ onNavigate }) {
   };
 
   const workflowSteps = [
-    { id: 'occupations', step: '01', title: 'Occupations', sub: 'Sector Setup', icon: '🛠️' },
-    { id: 'courses', step: '02', title: 'Courses', sub: 'Curriculum', icon: '📚' },
-    { id: 'syllabus', step: '03', title: 'Syllabus', sub: 'Course Units', icon: '📝' },
-    { id: 'workplan', step: '04', title: 'Work Plan', sub: 'Schedule', icon: '🗓️' },
-    { id: 'lessonplan', step: '05', title: 'Lesson Plan', sub: 'Session Prep', icon: '📑' },
-    { id: 'attendance', step: '06', title: 'Attendance', sub: 'Daily Roll Call', icon: '✅', highlight: true },
-    { id: 'logbook', step: '07', title: 'Log Book', sub: 'Delivery Log', icon: '📖' },
-    { id: 'evaluations', step: '08', title: 'Evaluations', sub: 'Skill Matrix', icon: '🎯' },
-    { id: 'ojt', step: '09', title: 'OJT & Jobs', sub: 'Industry Internship', icon: '🏢' },
-    { id: 'certificates', step: '10', title: 'Certificate', sub: 'CTEVT Certificate', icon: '🏆', highlight: true }
+    { id: 'occupations', step: '01', title: 'Occupations', sub: 'Sector setup', icon: <CategoryIcon sx={{ fontSize: 16 }} /> },
+    { id: 'courses', step: '02', title: 'Courses', sub: 'Curriculum', icon: <MenuBookIcon sx={{ fontSize: 16 }} /> },
+    { id: 'syllabus', step: '03', title: 'Syllabus', sub: 'Course units', icon: <FormatListBulletedIcon sx={{ fontSize: 16 }} /> },
+    { id: 'workplan', step: '04', title: 'Work Plan', sub: 'Schedule', icon: <EventNoteIcon sx={{ fontSize: 16 }} /> },
+    { id: 'lessonplan', step: '05', title: 'Lesson Plan', sub: 'Session prep', icon: <AssignmentIcon sx={{ fontSize: 16 }} /> },
+    { id: 'attendance', step: '06', title: 'Attendance', sub: 'Daily roll call', icon: <FactCheckIcon sx={{ fontSize: 16 }} /> },
+    { id: 'logbook', step: '07', title: 'Log Book', sub: 'Delivery log', icon: <DescriptionIcon sx={{ fontSize: 16 }} /> },
+    { id: 'evaluations', step: '08', title: 'Evaluations', sub: 'Skill matrix', icon: <AssessmentIcon sx={{ fontSize: 16 }} /> },
+    { id: 'ojt', step: '09', title: 'OJT & Jobs', sub: 'Internship', icon: <WorkIcon sx={{ fontSize: 16 }} /> },
+    { id: 'certificates', step: '10', title: 'Certificates', sub: 'CTEVT A4', icon: <WorkspacePremiumIcon sx={{ fontSize: 16 }} /> }
   ];
 
   return (
-    <Box sx={{ p: { xs: 1.5, sm: 2.2 }, pb: 4 }}>
-      {/* Slim 1-Row Executive Header Bar */}
-      <Card
-        elevation={0}
+    <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1520, mx: 'auto', pb: 5 }}>
+      {/* 1. Clean Institutional Page Header */}
+      <Box
         sx={{
-          py: { xs: 1.25, sm: 1.5 },
-          px: { xs: 1.75, sm: 2.25 },
-          mb: 1.75,
-          borderRadius: 2.5,
-          background: 'linear-gradient(135deg, #0f2e5a 0%, #1e3a8a 100%)',
-          color: '#ffffff',
-          boxShadow: '0 4px 14px rgba(15, 46, 90, 0.16)'
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          alignItems: { xs: 'flex-start', md: 'center' },
+          justifyContent: 'space-between',
+          gap: 2,
+          mb: 3
         }}
       >
-        <Grid container spacing={1.5} alignItems="center">
-          <Grid item xs={12} md={5}>
-            <Stack direction="row" spacing={1.2} alignItems="center">
-              <Box
-                sx={{
-                  width: 34,
-                  height: 34,
-                  borderRadius: 1.8,
-                  bgcolor: 'rgba(245, 158, 11, 0.16)',
-                  border: '1px solid rgba(245, 158, 11, 0.35)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}
-              >
-                <ShieldIcon sx={{ fontSize: 20, color: '#fbbf24' }} />
-              </Box>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography
-                  variant="subtitle1"
-                  noWrap
-                  sx={{ fontWeight: 800, color: '#ffffff', fontSize: { xs: '0.96rem', sm: '1.06rem' }, lineHeight: 1.2 }}
-                >
-                  Welcome, {currentUser?.name}! • Prabidhik School, Jorpati
-                </Typography>
-                <Typography
-                  variant="caption"
-                  noWrap
-                  sx={{ color: '#cbd5e1', display: 'block', fontSize: '0.73rem', mt: 0.15 }}
-                >
-                  {isTrainer
-                    ? 'Manage daily attendance for your training batches, lesson plans & competency evaluations'
-                    : `CTEVT Accredited TVET ERP • Shift ${activeShiftCode} Live (${activeShiftTime}) • ${currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}`}
-                </Typography>
-              </Box>
-            </Stack>
-          </Grid>
-
-          <Grid item xs={12} md={7} sx={{ textAlign: { xs: 'left', md: 'right' } }}>
-            <Stack direction="row" spacing={0.8} justifyContent={{ xs: 'flex-start', md: 'flex-end' }} flexWrap="wrap" useFlexGap>
-              <Button
-                variant="contained"
-                size="small"
-                onClick={() => onNavigate('attendance')}
-                startIcon={<FactCheckIcon sx={{ fontSize: '15px !important' }} />}
-                sx={{
-                  bgcolor: '#059669 !important',
-                  color: '#FFFFFF !important',
-                  fontWeight: 800,
-                  fontSize: '0.76rem',
-                  py: 0.65,
-                  px: 1.4,
-                  borderRadius: 1.8,
-                  whiteSpace: 'nowrap',
-                  boxShadow: 'none',
-                  '&:hover': { bgcolor: '#047857 !important' }
-                }}
-              >
-                Take Attendance
-              </Button>
-
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => onNavigate('lessonplan')}
-                startIcon={<AssignmentIcon sx={{ fontSize: '15px !important', color: '#93C5FD' }} />}
-                sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.3) !important',
-                  color: '#F8FAFC !important',
-                  fontWeight: 700,
-                  fontSize: '0.76rem',
-                  py: 0.65,
-                  px: 1.4,
-                  borderRadius: 1.8,
-                  whiteSpace: 'nowrap',
-                  bgcolor: 'rgba(255, 255, 255, 0.1)',
-                  '&:hover': { borderColor: '#ffffff !important', bgcolor: 'rgba(255, 255, 255, 0.2)' }
-                }}
-              >
-                Lesson Plan
-              </Button>
-
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => onNavigate('leads')}
-                startIcon={<ContactPhoneIcon sx={{ fontSize: '15px !important', color: '#7DD3FC' }} />}
-                sx={{
-                  borderColor: 'rgba(125, 211, 252, 0.35) !important',
-                  color: '#F8FAFC !important',
-                  fontWeight: 700,
-                  fontSize: '0.76rem',
-                  py: 0.65,
-                  px: 1.4,
-                  borderRadius: 1.8,
-                  whiteSpace: 'nowrap',
-                  bgcolor: 'rgba(30, 64, 175, 0.28)',
-                  '&:hover': { borderColor: '#7DD3FC !important', bgcolor: 'rgba(30, 64, 175, 0.45)' }
-                }}
-              >
-                Inquiry CRM ({db.leads?.length || 0})
-              </Button>
-
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => onNavigate('students')}
-                startIcon={<PersonAddAlt1Icon sx={{ fontSize: '15px !important', color: '#E2E8F0' }} />}
-                sx={{
-                  borderColor: 'rgba(255, 255, 255, 0.3) !important',
-                  color: '#F8FAFC !important',
-                  fontWeight: 700,
-                  fontSize: '0.76rem',
-                  py: 0.65,
-                  px: 1.4,
-                  borderRadius: 1.8,
-                  whiteSpace: 'nowrap',
-                  bgcolor: 'rgba(255, 255, 255, 0.08)',
-                  '&:hover': { borderColor: '#ffffff !important', bgcolor: 'rgba(255, 255, 255, 0.18)' }
-                }}
-              >
-                Add Student
-              </Button>
-
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => onNavigate('certificates')}
-                startIcon={<WorkspacePremiumIcon sx={{ fontSize: '15px !important', color: '#FBBF24' }} />}
-                sx={{
-                  borderColor: 'rgba(251, 191, 36, 0.45) !important',
-                  color: '#FEF3C7 !important',
-                  fontWeight: 800,
-                  fontSize: '0.76rem',
-                  py: 0.65,
-                  px: 1.4,
-                  borderRadius: 1.8,
-                  whiteSpace: 'nowrap',
-                  bgcolor: 'rgba(245, 158, 11, 0.16)',
-                  '&:hover': { borderColor: '#FBBF24 !important', bgcolor: 'rgba(245, 158, 11, 0.26)' }
-                }}
-              >
-                Certificates (A4)
-              </Button>
-            </Stack>
-          </Grid>
-        </Grid>
-      </Card>
-
-      {/* 2. OPERATIONAL DELIVERY CHAIN - Compact Stepped Workflow Track */}
-      <Card
-        elevation={0}
-        sx={{
-          p: 1.5,
-          mb: 1.75,
-          bgcolor: '#FFFFFF',
-          borderRadius: 2,
-          border: '1px solid #E2E8F0'
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.2, flexWrap: 'wrap', gap: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-            <BoltIcon sx={{ color: '#D97706', fontSize: 18 }} />
-            <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.82rem', letterSpacing: '0.02em' }}>
-              TVET OPERATIONAL WORKFLOW CHAIN
-            </Typography>
-          </Box>
-          <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
-            All 10 stages are interconnected • Click any stage to open directly
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 600,
+              color: '#111827',
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              lineHeight: 1.2,
+              letterSpacing: '-0.02em'
+            }}
+          >
+            Operations overview
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: '#6B7487',
+              fontSize: '0.8125rem',
+              mt: 0.5,
+              fontVariantNumeric: 'tabular-nums'
+            }}
+          >
+            {isTrainer
+              ? `${currentUser?.name || 'Trainer'} · Daily attendance, lesson plans and competency records`
+              : `Prabidhik School, Jorpati · Shift ${activeShiftCode} (${activeShiftTime}) · ${currentTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}`}
           </Typography>
         </Box>
 
-        <Grid container spacing={1}>
-          {workflowSteps.map((step) => (
-            <Grid item xs={6} sm={4} md={2.4} key={step.id}>
-              <Paper
-                elevation={0}
-                onClick={() => onNavigate(step.id)}
-                sx={{
-                  p: 1,
-                  borderRadius: 1.8,
-                  bgcolor: step.highlight ? '#EFF6FF' : '#F8FAFC',
-                  border: step.highlight ? '1px solid #93C5FD' : '1px solid #E2E8F0',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  '&:hover': {
-                    bgcolor: '#FFFFFF',
-                    borderColor: '#2563EB',
-                    boxShadow: '0 4px 12px rgba(37, 99, 235, 0.1)'
-                  }
-                }}
-              >
-                <Avatar
-                  sx={{
-                    width: 30,
-                    height: 30,
-                    bgcolor: step.highlight ? '#1D4ED8' : '#FFFFFF',
-                    color: step.highlight ? '#FFFFFF' : '#0F2C59',
-                    fontSize: '0.85rem',
-                    border: '1px solid #E2E8F0'
-                  }}
-                >
-                  {step.icon}
-                </Avatar>
-                <Box sx={{ overflow: 'hidden', minWidth: 0 }}>
-                  <Typography variant="caption" noWrap sx={{ color: '#64748B', fontWeight: 800, fontSize: '0.6rem', display: 'block', lineHeight: 1.1 }}>
-                    STEP {step.step}
-                  </Typography>
-                  <Typography variant="subtitle2" noWrap sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.76rem', lineHeight: 1.2 }}>
-                    {step.title}
-                  </Typography>
-                  <Typography variant="caption" noWrap sx={{ color: '#64748B', fontSize: '0.64rem', fontWeight: 600, display: 'block', lineHeight: 1.1 }}>
-                    {step.sub}
-                  </Typography>
-                </Box>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Card>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+          <Button
+            variant="contained"
+            size="small"
+            onClick={() => onNavigate('attendance')}
+            startIcon={<FactCheckIcon sx={{ fontSize: '16px !important' }} />}
+            sx={{
+              bgcolor: '#0F2C59',
+              color: '#FFFFFF',
+              fontWeight: 500,
+              fontSize: '0.8125rem',
+              height: 36,
+              px: 2,
+              borderRadius: '8px',
+              '&:hover': { bgcolor: '#163A70' }
+            }}
+          >
+            Take attendance
+          </Button>
 
-      {/* 3. 4 COMPACT SINGLE-ROW KPI CARDS */}
-      <Grid container spacing={1.5} sx={{ mb: 1.75 }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onNavigate('leads')}
+            startIcon={<ContactPhoneIcon sx={{ fontSize: '16px !important', color: '#4B5565' }} />}
+            sx={{
+              borderColor: '#E5E7EB',
+              color: '#111827',
+              bgcolor: '#FFFFFF',
+              fontWeight: 500,
+              fontSize: '0.8125rem',
+              height: 36,
+              px: 1.75,
+              borderRadius: '8px',
+              '&:hover': { borderColor: '#D1D5DB', bgcolor: '#F7F8FA' }
+            }}
+          >
+            Leads ({db.leads?.length || 0})
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onNavigate('students')}
+            startIcon={<PersonAddAlt1Icon sx={{ fontSize: '16px !important', color: '#4B5565' }} />}
+            sx={{
+              borderColor: '#E5E7EB',
+              color: '#111827',
+              bgcolor: '#FFFFFF',
+              fontWeight: 500,
+              fontSize: '0.8125rem',
+              height: 36,
+              px: 1.75,
+              borderRadius: '8px',
+              '&:hover': { borderColor: '#D1D5DB', bgcolor: '#F7F8FA' }
+            }}
+          >
+            Add student
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => onNavigate('certificates')}
+            startIcon={<WorkspacePremiumIcon sx={{ fontSize: '16px !important', color: '#4B5565' }} />}
+            sx={{
+              borderColor: '#E5E7EB',
+              color: '#111827',
+              bgcolor: '#FFFFFF',
+              fontWeight: 500,
+              fontSize: '0.8125rem',
+              height: 36,
+              px: 1.75,
+              borderRadius: '8px',
+              '&:hover': { borderColor: '#D1D5DB', bgcolor: '#F7F8FA' }
+            }}
+          >
+            Certificates
+          </Button>
+        </Stack>
+      </Box>
+
+      {/* 2. 4 Compact Single-Row KPI Cards */}
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         {/* Trainees Card */}
         <Grid item xs={6} md={3}>
           <Card
             elevation={0}
             sx={{
-              p: 1.4,
-              borderRadius: 2,
-              border: '1px solid #e2e8f0',
-              borderLeft: '3.5px solid #1e40af',
-              bgcolor: '#ffffff'
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid #E5E7EB',
+              bgcolor: '#FFFFFF',
+              height: '100%'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
-                  Total Trainees
+                <Typography variant="caption" noWrap sx={{ fontWeight: 500, color: '#6B7487', fontSize: '0.75rem', display: 'block' }}>
+                  Total trainees
                 </Typography>
-                <Typography sx={{ fontWeight: 800, color: '#0f2e5a', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                <Typography sx={{ fontWeight: 600, color: '#111827', fontSize: '1.625rem', lineHeight: 1.15, mt: 0.75, fontVariantNumeric: 'tabular-nums' }}>
                   {totalStudents}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#1d4ed8', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
-                  Female {femalePct}% ({femaleCount}/{totalStudents})
+                <Typography variant="caption" noWrap sx={{ color: '#6B7487', fontWeight: 400, fontSize: '0.75rem', display: 'block', mt: 0.5 }}>
+                  {femaleCount} female ({femalePct}%)
                 </Typography>
               </Box>
-              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#eff6ff', borderRadius: 1.5, color: '#1e40af', flexShrink: 0 }}>
-                <SchoolIcon sx={{ fontSize: 18 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F7F8FA', borderRadius: '8px', color: '#4B5565', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+                <SchoolIcon sx={{ fontSize: 17 }} />
               </Box>
             </Stack>
           </Card>
@@ -481,27 +369,27 @@ export default function Dashboard({ onNavigate }) {
           <Card
             elevation={0}
             sx={{
-              p: 1.4,
-              borderRadius: 2,
-              border: '1px solid #e2e8f0',
-              borderLeft: '3.5px solid #059669',
-              bgcolor: '#ffffff'
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid #E5E7EB',
+              bgcolor: '#FFFFFF',
+              height: '100%'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
-                  Active Batches
+                <Typography variant="caption" noWrap sx={{ fontWeight: 500, color: '#6B7487', fontSize: '0.75rem', display: 'block' }}>
+                  Active batches
                 </Typography>
-                <Typography sx={{ fontWeight: 800, color: '#059669', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                <Typography sx={{ fontWeight: 600, color: '#111827', fontSize: '1.625rem', lineHeight: 1.15, mt: 0.75, fontVariantNumeric: 'tabular-nums' }}>
                   {groups.length}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#059669', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
-                  {activeGroups || groups.length} Running • Shift {activeShiftCode} Live
+                <Typography variant="caption" noWrap sx={{ color: '#6B7487', fontWeight: 400, fontSize: '0.75rem', display: 'block', mt: 0.5 }}>
+                  {activeGroups || groups.length} running · Shift {activeShiftCode}
                 </Typography>
               </Box>
-              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#ecfdf5', borderRadius: 1.5, color: '#059669', flexShrink: 0 }}>
-                <GroupWorkIcon sx={{ fontSize: 18 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F7F8FA', borderRadius: '8px', color: '#4B5565', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+                <GroupWorkIcon sx={{ fontSize: 17 }} />
               </Box>
             </Stack>
           </Card>
@@ -512,27 +400,27 @@ export default function Dashboard({ onNavigate }) {
           <Card
             elevation={0}
             sx={{
-              p: 1.4,
-              borderRadius: 2,
-              border: '1px solid #e2e8f0',
-              borderLeft: `3.5px solid ${overallAttRate >= 80 ? '#059669' : '#d97706'}`,
-              bgcolor: '#ffffff'
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid #E5E7EB',
+              bgcolor: '#FFFFFF',
+              height: '100%'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
-                  TVET Attendance
+                <Typography variant="caption" noWrap sx={{ fontWeight: 500, color: '#6B7487', fontSize: '0.75rem', display: 'block' }}>
+                  Attendance rate
                 </Typography>
-                <Typography sx={{ fontWeight: 800, color: overallAttRate >= 80 ? '#059669' : '#d97706', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                <Typography sx={{ fontWeight: 600, color: '#111827', fontSize: '1.625rem', lineHeight: 1.15, mt: 0.75, fontVariantNumeric: 'tabular-nums' }}>
                   {overallAttRate}%
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: overallAttRate >= 80 ? '#059669' : '#d97706', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
-                  {atRiskStudents.length === 0 ? 'CTEVT Compliant (≥80%)' : `${atRiskStudents.length} Needs Attention`}
+                <Typography variant="caption" noWrap sx={{ color: overallAttRate >= 80 ? '#16A34A' : '#D97706', fontWeight: 500, fontSize: '0.75rem', display: 'block', mt: 0.5 }}>
+                  {atRiskStudents.length === 0 ? 'CTEVT compliant (≥80%)' : `${atRiskStudents.length} below 80%`}
                 </Typography>
               </Box>
-              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: overallAttRate >= 80 ? '#ecfdf5' : '#fffbeb', borderRadius: 1.5, color: overallAttRate >= 80 ? '#059669' : '#d97706', flexShrink: 0 }}>
-                <FactCheckIcon sx={{ fontSize: 18 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F7F8FA', borderRadius: '8px', color: '#4B5565', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+                <FactCheckIcon sx={{ fontSize: 17 }} />
               </Box>
             </Stack>
           </Card>
@@ -543,42 +431,42 @@ export default function Dashboard({ onNavigate }) {
           <Card
             elevation={0}
             sx={{
-              p: 1.4,
-              borderRadius: 2,
-              border: '1px solid #e2e8f0',
-              borderLeft: '3.5px solid #7c3aed',
-              bgcolor: '#ffffff'
+              p: 2,
+              borderRadius: '12px',
+              border: '1px solid #E5E7EB',
+              bgcolor: '#FFFFFF',
+              height: '100%'
             }}
           >
-            <Stack direction="row" justifyContent="space-between" alignItems="center" spacing={1}>
+            <Stack direction="row" justifyContent="space-between" alignItems="flex-start" spacing={1}>
               <Box sx={{ minWidth: 0 }}>
-                <Typography variant="caption" noWrap sx={{ fontWeight: 700, color: '#64748b', textTransform: 'uppercase', fontSize: '0.66rem', letterSpacing: '0.03em', display: 'block' }}>
-                  OJT &amp; Placements
+                <Typography variant="caption" noWrap sx={{ fontWeight: 500, color: '#6B7487', fontSize: '0.75rem', display: 'block' }}>
+                  OJT &amp; placements
                 </Typography>
-                <Typography sx={{ fontWeight: 800, color: '#7c3aed', fontSize: '1.22rem', lineHeight: 1.2, mt: 0.2 }}>
+                <Typography sx={{ fontWeight: 600, color: '#111827', fontSize: '1.625rem', lineHeight: 1.15, mt: 0.75, fontVariantNumeric: 'tabular-nums' }}>
                   {totalStudents > 0 ? `${Math.round((placedCount / totalStudents) * 100)}%` : '0%'}
                 </Typography>
-                <Typography variant="caption" noWrap sx={{ color: '#64748b', fontWeight: 600, fontSize: '0.68rem', display: 'block' }}>
-                  {placedCount} Placed • {employerCount} Employers
+                <Typography variant="caption" noWrap sx={{ color: '#6B7487', fontWeight: 400, fontSize: '0.75rem', display: 'block', mt: 0.5 }}>
+                  {placedCount} placed · {employerCount} employers
                 </Typography>
               </Box>
-              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f5f3ff', borderRadius: 1.5, color: '#7c3aed', flexShrink: 0 }}>
-                <RocketLaunchIcon sx={{ fontSize: 18 }} />
+              <Box sx={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#F7F8FA', borderRadius: '8px', color: '#4B5565', border: '1px solid #E5E7EB', flexShrink: 0 }}>
+                <RocketLaunchIcon sx={{ fontSize: 17 }} />
               </Box>
             </Stack>
           </Card>
         </Grid>
       </Grid>
 
-      {/* 4. Dropout Risk Warning Alert Banner */}
+      {/* 3. Dropout Risk Warning Alert Banner */}
       {atRiskStudents.length > 0 && (
         <Alert
           severity="warning"
           icon={<WarningAmberIcon fontSize="small" />}
           sx={{
-            mb: 1.75,
-            py: 0.5,
-            borderRadius: 2,
+            mb: 3,
+            py: 0.75,
+            borderRadius: '10px',
             border: '1px solid #FDE68A',
             bgcolor: '#FFFBEB',
             alignItems: 'center'
@@ -586,60 +474,133 @@ export default function Dashboard({ onNavigate }) {
           action={
             <Button
               color="warning"
-              variant="contained"
+              variant="outlined"
               size="small"
               onClick={() => onNavigate('attendance')}
               sx={{
-                fontWeight: 800,
-                bgcolor: '#D97706',
-                color: '#FFFFFF',
-                borderRadius: 1.5,
-                fontSize: '0.74rem',
-                px: 1.4,
-                py: 0.4,
+                fontWeight: 500,
+                borderColor: '#D97706',
+                color: '#92400E',
+                bgcolor: '#FFFFFF',
+                borderRadius: '6px',
+                fontSize: '0.75rem',
+                px: 1.5,
                 whiteSpace: 'nowrap',
-                '&:hover': { bgcolor: '#B45309' }
+                '&:hover': { bgcolor: '#FEF3C7', borderColor: '#B45309' }
               }}
             >
-              Open Attendance Register
+              Review attendance
             </Button>
           }
         >
-          <Typography variant="caption" sx={{ fontWeight: 700, color: '#92400E', fontSize: '0.78rem' }}>
-            <b>Dropout Early Warning: {atRiskStudents[0]?.name}</b> has attendance below 80% (minimum mandatory for CTEVT exams).
+          <Typography variant="body2" sx={{ fontWeight: 500, color: '#92400E', fontSize: '0.8125rem' }}>
+            Attendance alert: {atRiskStudents[0]?.name} is below the 80% CTEVT exam threshold.
           </Typography>
         </Alert>
       )}
 
-      {/* 4.5 REAL-TIME LIVE ATTENDANCE COMMAND CARD */}
+      {/* 4. TVET Delivery Workflow Track */}
       <Card
         elevation={0}
         sx={{
-          mb: 1.75,
-          p: 1.5,
-          borderRadius: 2,
+          p: 2,
+          mb: 3,
           bgcolor: '#FFFFFF',
-          border: '1px solid #BBF7D0'
+          borderRadius: '12px',
+          border: '1px solid #E5E7EB'
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25, flexWrap: 'wrap', gap: 1 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Box sx={{ bgcolor: '#DCFCE7', color: '#15803D', width: 32, height: 32, borderRadius: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #86EFAC' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
+          <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
+            TVET delivery workflow
+          </Typography>
+          <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.75rem' }}>
+            10 connected stages · Select any stage to open
+          </Typography>
+        </Box>
+
+        <Grid container spacing={1}>
+          {workflowSteps.map((step) => (
+            <Grid item xs={6} sm={4} md={2.4} key={step.id}>
+              <Paper
+                elevation={0}
+                onClick={() => onNavigate(step.id)}
+                sx={{
+                  p: 1.25,
+                  borderRadius: '8px',
+                  bgcolor: '#F7F8FA',
+                  border: '1px solid #E5E7EB',
+                  cursor: 'pointer',
+                  transition: 'background-color 150ms cubic-bezier(0.22, 1, 0.36, 1), border-color 150ms cubic-bezier(0.22, 1, 0.36, 1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 1.25,
+                  '&:hover': {
+                    bgcolor: '#FFFFFF',
+                    borderColor: '#0F2C59'
+                  }
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 30,
+                    height: 30,
+                    borderRadius: '6px',
+                    bgcolor: '#FFFFFF',
+                    color: '#4B5565',
+                    border: '1px solid #E5E7EB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                >
+                  {step.icon}
+                </Box>
+                <Box sx={{ overflow: 'hidden', minWidth: 0 }}>
+                  <Typography variant="caption" noWrap sx={{ color: '#6B7487', fontWeight: 500, fontSize: '0.68rem', display: 'block', lineHeight: 1.15, fontVariantNumeric: 'tabular-nums' }}>
+                    {step.step} · {step.sub}
+                  </Typography>
+                  <Typography variant="subtitle2" noWrap sx={{ fontWeight: 500, color: '#111827', fontSize: '0.8125rem', lineHeight: 1.25 }}>
+                    {step.title}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          ))}
+        </Grid>
+      </Card>
+
+      {/* 4.5 Live Biometric Attendance */}
+      <Card
+        elevation={0}
+        sx={{
+          mb: 3,
+          p: 2,
+          borderRadius: '12px',
+          bgcolor: '#FFFFFF',
+          border: '1px solid #E5E7EB'
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+            <Box sx={{ bgcolor: '#F7F8FA', color: '#4B5565', width: 34, height: 34, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #E5E7EB' }}>
               <FingerprintIcon sx={{ fontSize: 18 }} />
             </Box>
             <Box>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8, flexWrap: 'wrap' }}>
-                <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.86rem' }}>
-                  Real-Time Live Attendance Hub
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.9rem' }}>
+                  Live attendance monitor
                 </Typography>
-                <Chip
-                  label="WiFi ZKTeco K40 (Online)"
-                  size="small"
-                  sx={{ height: 19, bgcolor: '#DCFCE7', color: '#15803D', fontWeight: 800, fontSize: '0.66rem' }}
-                />
+                <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.6 }}>
+                  <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#16A34A' }} />
+                  <Typography variant="caption" sx={{ color: '#4B5565', fontWeight: 500, fontSize: '0.75rem' }}>
+                    ZKTeco K40 online
+                  </Typography>
+                </Box>
               </Box>
-              <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
-                Instant biometric thumb &amp; RFID scans • Last Sync: {db.settings?.biometricSettings?.lastSyncTime || 'Standby'}
+              <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.75rem' }}>
+                Biometric and RFID scans · Last sync: {db.settings?.biometricSettings?.lastSyncTime || 'Standby'}
               </Typography>
             </Box>
           </Box>
@@ -653,62 +614,60 @@ export default function Dashboard({ onNavigate }) {
                 const today = new Date().toISOString().slice(0, 10);
                 const res = syncBiometricAttendance(today);
                 setDb(loadDB());
-                alert(`Biometric Sync Complete! (${res.syncedCount} new logs updated)`);
+                alert(`Biometric sync complete (${res.syncedCount} new logs updated).`);
               }}
-              sx={{ fontWeight: 700, color: '#15803D', borderColor: '#86EFAC', borderRadius: 1.8, fontSize: '0.75rem', px: 1.2, py: 0.5, whiteSpace: 'nowrap' }}
+              sx={{ fontWeight: 500, color: '#111827', borderColor: '#E5E7EB', bgcolor: '#FFFFFF', borderRadius: '8px', fontSize: '0.78rem', px: 1.5, height: 34, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#F7F8FA', borderColor: '#D1D5DB' } }}
             >
-              Sync Machine
+              Sync device
             </Button>
             <Button
-              variant="contained"
+              variant="outlined"
               size="small"
               onClick={() => onNavigate('live_attendance')}
               endIcon={<ArrowForwardIcon sx={{ fontSize: '15px !important' }} />}
-              sx={{ fontWeight: 800, bgcolor: '#0F2E5A', '&:hover': { bgcolor: '#0B2545' }, borderRadius: 1.8, fontSize: '0.75rem', px: 1.4, py: 0.5, whiteSpace: 'nowrap' }}
+              sx={{ fontWeight: 500, color: '#0F2C59', borderColor: '#CBD5E1', bgcolor: '#FFFFFF', borderRadius: '8px', fontSize: '0.78rem', px: 1.5, height: 34, whiteSpace: 'nowrap', '&:hover': { bgcolor: '#F7F8FA', borderColor: '#0F2C59' } }}
             >
-              Open Live Monitor
+              Open monitor
             </Button>
           </Box>
         </Box>
 
         {/* 4 Latest Punches Ticker Grid */}
-        <Grid container spacing={1}>
+        <Grid container spacing={1.25}>
           {(db.biometricLogs || []).slice(0, 4).map((log, idx) => (
             <Grid item xs={12} sm={6} md={3} key={log.id || idx}>
               <Paper
-                variant="outlined"
+                elevation={0}
                 sx={{
-                  p: 1,
-                  borderRadius: 1.8,
-                  bgcolor: '#F8FAFC',
-                  borderColor: '#E2E8F0',
+                  p: 1.25,
+                  borderRadius: '8px',
+                  bgcolor: '#F7F8FA',
+                  border: '1px solid #E5E7EB',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 1
+                  gap: 1.25
                 }}
               >
-                <Avatar sx={{ bgcolor: log.role === 'STUDENT' ? '#DCFCE7' : '#FEF3C7', color: log.role === 'STUDENT' ? '#15803D' : '#92400E', width: 30, height: 30, fontWeight: 800, fontSize: '0.78rem' }}>
+                <Avatar sx={{ bgcolor: '#E5E7EB', color: '#111827', width: 28, height: 28, fontWeight: 600, fontSize: '0.75rem' }}>
                   {log.name?.[0] || 'U'}
                 </Avatar>
                 <Box sx={{ minWidth: 0, flex: 1 }}>
-                  <Typography variant="subtitle2" noWrap sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.78rem' }}>
+                  <Typography variant="body2" noWrap sx={{ fontWeight: 500, color: '#111827', fontSize: '0.8125rem' }}>
                     {log.name}
                   </Typography>
-                  <Typography variant="caption" noWrap sx={{ color: '#0F2E5A', fontWeight: 700, fontSize: '0.66rem', display: 'block' }}>
-                    {log.timestamp} • #{log.biometricId}
+                  <Typography variant="caption" noWrap sx={{ color: '#6B7487', fontSize: '0.72rem', display: 'block', fontVariantNumeric: 'tabular-nums' }}>
+                    {log.timestamp} · #{log.biometricId}
                   </Typography>
                 </Box>
-                <Chip
-                  label="Verified"
-                  size="small"
-                  sx={{ height: 18, fontSize: '0.62rem', fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
-                />
+                <Typography variant="caption" sx={{ fontSize: '0.7rem', fontWeight: 500, color: '#16A34A' }}>
+                  Verified
+                </Typography>
               </Paper>
             </Grid>
           ))}
           {(db.biometricLogs || []).length === 0 && (
             <Grid item xs={12}>
-              <Typography variant="caption" sx={{ color: '#94A3B8', textAlign: 'center', display: 'block', py: 0.5 }}>
+              <Typography variant="caption" sx={{ color: '#6B7487', textAlign: 'center', display: 'block', py: 1 }}>
                 No biometric or RFID scans recorded today yet.
               </Typography>
             </Grid>
@@ -717,17 +676,17 @@ export default function Dashboard({ onNavigate }) {
       </Card>
 
       {/* 5. Schedule & Batches Table + Notices */}
-      <Grid container spacing={1.75}>
+      <Grid container spacing={2}>
         {/* Active Batches Workspace */}
         <Grid item xs={12} lg={8}>
-          <Card elevation={0} sx={{ p: 1.75, borderRadius: 2, height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25, flexWrap: 'wrap', gap: 1 }}>
+          <Card elevation={0} sx={{ p: 2, borderRadius: '12px', height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.92rem' }}>
-                  Active Training Batches
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.9375rem' }}>
+                  Active training batches
                 </Typography>
-                <Typography variant="caption" sx={{ color: '#64748B', fontWeight: 600, fontSize: '0.7rem' }}>
-                  Daily shifts, assigned trainers, and trainee enrollment details
+                <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.75rem' }}>
+                  Daily shifts, assigned trainers and trainee counts
                 </Typography>
               </Box>
               <Button
@@ -735,74 +694,60 @@ export default function Dashboard({ onNavigate }) {
                 size="small"
                 onClick={() => onNavigate('groups')}
                 endIcon={<ArrowForwardIcon sx={{ fontSize: '14px !important' }} />}
-                sx={{ fontWeight: 800, fontSize: '0.74rem', px: 1.2, py: 0.4, whiteSpace: 'nowrap' }}
+                sx={{ fontWeight: 500, fontSize: '0.78rem', px: 1.5, height: 32, borderColor: '#E5E7EB', color: '#111827', whiteSpace: 'nowrap', '&:hover': { bgcolor: '#F7F8FA', borderColor: '#D1D5DB' } }}
               >
-                All Batches ({groups.length})
+                All batches ({groups.length})
               </Button>
             </Box>
 
             {/* Shift Filter Tabs & Search Bar */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25, flexWrap: 'wrap', gap: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5, flexWrap: 'wrap', gap: 1 }}>
               <Tabs
                 value={shiftFilter}
                 onChange={(_, val) => setShiftFilter(val)}
                 sx={{
-                  minHeight: 32,
+                  minHeight: 34,
                   '& .MuiTab-root': {
-                    minHeight: 32,
-                    py: 0.4,
-                    px: 1.2,
-                    fontSize: '0.72rem',
-                    fontWeight: 800,
+                    minHeight: 34,
+                    py: 0.5,
+                    px: 1.25,
+                    fontSize: '0.78rem',
+                    fontWeight: 500,
                     textTransform: 'none'
                   }
                 }}
               >
-                <Tab value="ALL" label="All Shifts" />
-                <Tab value="A" label="Shift A (07-09)" />
-                <Tab value="B" label="Shift B (10-12)" />
-                <Tab value="C" label="Shift C (12-02)" />
-                <Tab value="D" label="Shift D (02-04)" />
-                <Tab value="E" label="Shift E (04-06)" />
+                <Tab value="ALL" label="All" />
+                <Tab value="A" label="Shift A" />
+                <Tab value="B" label="Shift B" />
+                <Tab value="C" label="Shift C" />
+                <Tab value="D" label="Shift D" />
+                <Tab value="E" label="Shift E" />
               </Tabs>
 
               <TextField
                 size="small"
-                placeholder="Search batch or trainer..."
+                placeholder="Search"
                 value={searchBatch}
                 onChange={(e) => setSearchBatch(e.target.value)}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon fontSize="small" sx={{ color: '#94A3B8', fontSize: 16 }} />
+                      <SearchIcon sx={{ color: '#6B7487', fontSize: 16 }} />
                     </InputAdornment>
                   ),
-                  sx: { height: 32, fontSize: '0.76rem', borderRadius: 1.5 }
+                  sx: { height: 34, fontSize: '0.8125rem', borderRadius: '8px' }
                 }}
               />
             </Box>
 
-            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E2E8F0', borderRadius: 2 }}>
+            <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #E5E7EB', borderRadius: '8px' }}>
               <Table size="small">
-                <TableHead
-                  sx={{
-                    bgcolor: '#0F2E5A',
-                    '& .MuiTableCell-head': {
-                      bgcolor: '#0F2E5A !important',
-                      color: '#FFFFFF !important',
-                      fontWeight: 800,
-                      fontSize: '0.72rem',
-                      py: 1,
-                      px: 1.25,
-                      borderBottom: '2px solid #F59E0B',
-                      whiteSpace: 'nowrap'
-                    }
-                  }}
-                >
+                <TableHead>
                   <TableRow>
-                    <TableCell>Batch Code</TableCell>
+                    <TableCell>Batch</TableCell>
                     <TableCell>Course</TableCell>
-                    <TableCell>Shift &amp; Time</TableCell>
+                    <TableCell>Shift</TableCell>
                     <TableCell>Trainer</TableCell>
                     <TableCell align="right">Action</TableCell>
                   </TableRow>
@@ -822,65 +767,60 @@ export default function Dashboard({ onNavigate }) {
                         onClick={() => setSelectedBatchDetails({ ...grp, course, trainer, students: batchStudents })}
                       >
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                            <Chip
-                              label={grp.groupCode}
-                              size="small"
-                              sx={{ height: 20, fontWeight: 800, bgcolor: '#0F2C59', color: '#fff', fontSize: '0.69rem' }}
-                            />
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.8125rem', fontVariantNumeric: 'tabular-nums' }}>
+                              {grp.groupCode}
+                            </Typography>
                             {isShiftLive && (
-                              <Chip
-                                label="Live Now"
-                                size="small"
-                                sx={{
-                                  height: 18,
-                                  fontSize: '0.62rem',
-                                  fontWeight: 800,
-                                  bgcolor: '#DCFCE7',
-                                  color: '#15803D'
-                                }}
-                              />
+                              <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+                                <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#16A34A' }} />
+                                <Typography variant="caption" sx={{ color: '#16A34A', fontWeight: 500, fontSize: '0.72rem' }}>
+                                  Live
+                                </Typography>
+                              </Box>
                             )}
                           </Box>
                         </TableCell>
                         <TableCell>
-                          <Typography sx={{ fontWeight: 700, color: '#0F172A', fontSize: '0.79rem', lineHeight: 1.2 }}>
+                          <Typography sx={{ fontWeight: 500, color: '#111827', fontSize: '0.8125rem', lineHeight: 1.25 }}>
                             {course?.title || 'Vocational Training'}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
-                            {course?.durationValue || 3} Months • {batchStudents.length} Trainees
+                          <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.72rem' }}>
+                            {course?.durationValue || 3} months · {batchStudents.length} trainees
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          <Typography sx={{ fontWeight: 700, color: '#1D4ED8', fontSize: '0.78rem' }}>
+                          <Typography sx={{ fontWeight: 500, color: '#111827', fontSize: '0.8125rem' }}>
                             Shift {grp.shift}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                          <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.72rem', fontVariantNumeric: 'tabular-nums' }}>
                             {grp.startTime} – {grp.endTime}
                           </Typography>
                         </TableCell>
                         <TableCell>
-                          <Typography sx={{ fontWeight: 700, fontSize: '0.78rem' }}>
+                          <Typography sx={{ fontWeight: 500, color: '#111827', fontSize: '0.8125rem' }}>
                             {trainer?.name || 'Assigned Instructor'}
                           </Typography>
-                          <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.68rem' }}>
+                          <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.72rem', fontVariantNumeric: 'tabular-nums' }}>
                             {trainer?.phone || ''}
                           </Typography>
                         </TableCell>
                         <TableCell align="right" onClick={(e) => e.stopPropagation()} sx={{ whiteSpace: 'nowrap' }}>
                           <Button
                             size="small"
-                            variant="contained"
+                            variant="outlined"
                             onClick={() => onNavigate('attendance')}
                             sx={{
-                              bgcolor: '#0F2C59',
-                              fontWeight: 800,
-                              fontSize: '0.7rem',
-                              py: 0.3,
-                              px: 0.9,
+                              borderColor: '#E5E7EB',
+                              color: '#0F2C59',
+                              fontWeight: 500,
+                              fontSize: '0.75rem',
+                              py: 0.4,
+                              px: 1.25,
                               minWidth: 0,
                               whiteSpace: 'nowrap',
-                              borderRadius: 1.5
+                              borderRadius: '6px',
+                              '&:hover': { bgcolor: '#F7F8FA', borderColor: '#0F2C59' }
                             }}
                           >
                             Attendance
@@ -891,7 +831,7 @@ export default function Dashboard({ onNavigate }) {
                   })}
                   {filteredGroups.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ py: 3, color: '#64748B', fontSize: '0.8rem' }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 4, color: '#6B7487', fontSize: '0.8125rem' }}>
                         No training batches found.
                       </TableCell>
                     </TableRow>
@@ -904,21 +844,22 @@ export default function Dashboard({ onNavigate }) {
 
         {/* Notices & Quick Hub */}
         <Grid item xs={12} lg={4}>
-          <Card elevation={0} sx={{ p: 1.75, borderRadius: 2, height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E2E8F0' }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.25 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.8 }}>
-                <CampaignIcon sx={{ color: '#D97706', fontSize: 20 }} />
-                <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0F2C59', fontSize: '0.92rem' }}>
-                  Notice Board
+          <Card elevation={0} sx={{ p: 2, borderRadius: '12px', height: '100%', bgcolor: '#FFFFFF', border: '1px solid #E5E7EB' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <CampaignIcon sx={{ color: '#4B5565', fontSize: 18 }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.9375rem' }}>
+                  Notice board
                 </Typography>
               </Box>
               <Button
                 size="small"
-                startIcon={<AddIcon sx={{ fontSize: '14px !important' }} />}
+                variant="outlined"
+                startIcon={<AddIcon sx={{ fontSize: '15px !important' }} />}
                 onClick={() => setOpenAddNoticeModal(true)}
-                sx={{ fontWeight: 800, fontSize: '0.73rem', px: 1, py: 0.3, whiteSpace: 'nowrap' }}
+                sx={{ fontWeight: 500, fontSize: '0.75rem', px: 1.25, height: 30, borderColor: '#E5E7EB', color: '#111827', whiteSpace: 'nowrap', '&:hover': { bgcolor: '#F7F8FA', borderColor: '#D1D5DB' } }}
               >
-                New Notice
+                New notice
               </Button>
             </Box>
 
@@ -926,48 +867,48 @@ export default function Dashboard({ onNavigate }) {
               {(db.notices || []).slice(0, 3).map((notice) => (
                 <Paper
                   key={notice.id}
-                  variant="outlined"
+                  elevation={0}
                   sx={{
-                    p: 1.25,
-                    borderRadius: 2,
-                    borderColor: notice.priority === 'Urgent' ? '#FCA5A5' : '#E2E8F0',
-                    bgcolor: notice.priority === 'Urgent' ? '#FEF2F2' : '#F8FAFC'
+                    p: 1.5,
+                    borderRadius: '8px',
+                    border: notice.priority === 'Urgent' ? '1px solid #FECACA' : '1px solid #E5E7EB',
+                    bgcolor: notice.priority === 'Urgent' ? '#FEF2F2' : '#F7F8FA'
                   }}
                 >
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 0.3 }}>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.8rem' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1, mb: 0.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.8125rem' }}>
                       {notice.title}
                     </Typography>
-                    <Chip
-                      label={notice.priority}
-                      size="small"
+                    <Typography
+                      variant="caption"
                       sx={{
-                        height: 18,
-                        fontSize: '0.62rem',
-                        fontWeight: 800,
-                        bgcolor: notice.priority === 'Urgent' ? '#FEE2E2' : '#EFF6FF',
-                        color: notice.priority === 'Urgent' ? '#DC2626' : '#1D4ED8'
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                        flexShrink: 0,
+                        color: notice.priority === 'Urgent' ? '#DC2626' : '#6B7487'
                       }}
-                    />
+                    >
+                      {notice.priority}
+                    </Typography>
                   </Box>
-                  <Typography variant="caption" sx={{ color: '#475569', display: 'block', mb: 0.5, fontSize: '0.72rem' }}>
+                  <Typography variant="caption" sx={{ color: '#4B5565', display: 'block', mb: 0.75, fontSize: '0.75rem', lineHeight: 1.45 }}>
                     {notice.content}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.66rem', fontWeight: 600 }}>
-                    Published: {notice.publishDate}
+                  <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.7rem', fontVariantNumeric: 'tabular-nums' }}>
+                    {notice.publishDate}
                   </Typography>
                 </Paper>
               ))}
             </Stack>
 
-            <Divider sx={{ my: 1.75 }} />
+            <Divider sx={{ my: 2 }} />
 
-            <Box sx={{ bgcolor: '#EFF6FF', p: 1.4, borderRadius: 2, border: '1px solid #BFDBFE' }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1E40AF', mb: 0.3, fontSize: '0.78rem' }}>
-                CTEVT Standard Training Delivery
+            <Box sx={{ bgcolor: '#F7F8FA', p: 1.5, borderRadius: '8px', border: '1px solid #E5E7EB' }}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#111827', mb: 0.5, fontSize: '0.8125rem' }}>
+                CTEVT delivery checklist
               </Typography>
-              <Typography variant="caption" sx={{ color: '#3B82F6', display: 'block', fontSize: '0.7rem' }}>
-                Complete the Work Plan, Lesson Plan, Daily Attendance, and Competency Evaluations for each batch before issuing official certificates.
+              <Typography variant="caption" sx={{ color: '#4B5565', display: 'block', fontSize: '0.75rem', lineHeight: 1.45 }}>
+                Complete the Work Plan, Lesson Plan, Daily Attendance, and Competency Evaluations for each batch before issuing certificates.
               </Typography>
             </Box>
           </Card>
