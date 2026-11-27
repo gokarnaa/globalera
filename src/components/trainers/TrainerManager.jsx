@@ -48,7 +48,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import { loadDB, saveDB, getNextSequentialId, getNextBiometricId } from '../../services/storage';
 import { getWhatsAppUrl } from '../../services/exportUtils';
 import { useDialog } from '../../context/DialogContext';
-import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard, PhotoUploadField } from '../common';
 
 export default function TrainerManager() {
   const theme = useTheme();
@@ -691,17 +691,17 @@ export default function TrainerManager() {
                 3. Profile & Status
               </Typography>
               <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    label="Photo URL (Optional)"
-                    fullWidth
-                    size="small"
-                    placeholder="https://example.com/trainer-photo.jpg"
+                <Grid item xs={12} sm={8}>
+                  <PhotoUploadField
+                    label="Trainer Profile Photo"
                     value={formData.photo}
-                    onChange={(e) => setFormData({ ...formData, photo: e.target.value })}
+                    onChange={(url) => setFormData({ ...formData, photo: url })}
+                    folder="trainers"
+                    entityId={editingItem?.id || formData.name || 'trainer'}
+                    name={formData.name}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                   <TextField
                     select
                     label="Status"

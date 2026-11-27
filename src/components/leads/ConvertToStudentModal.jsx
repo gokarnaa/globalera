@@ -31,6 +31,7 @@ import {
   getNextBiometricId,
   postDoubleEntryJournal
 } from '../../services/storage';
+import { PhotoUploadField } from '../common';
 
 export default function ConvertToStudentModal({
   open,
@@ -54,6 +55,7 @@ export default function ConvertToStudentModal({
   const [totalCourseFee, setTotalCourseFee] = useState(15000);
   const [advancePaid, setAdvancePaid] = useState(7500);
   const [paymentMethod, setPaymentMethod] = useState('Cash');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
   // Auto-generate TGID, fee and suggest matching training group
@@ -169,7 +171,7 @@ export default function ConvertToStudentModal({
           selectedGroup.scheduleMode || 'REGULAR'
         ),
       status: 'Active',
-      photoUrl: '',
+      photoUrl: photoUrl || '',
       convertedFromLeadId: lead.id,
       originalFee: Number(totalCourseFee) || 15000,
       lockedCourseFee: Number(totalCourseFee) || 15000,
@@ -213,7 +215,7 @@ export default function ConvertToStudentModal({
       secondaryPhone: '',
       gender: gender || 'Female',
       bloodGroup: 'O+ve',
-      photoUrl: '',
+      photoUrl: photoUrl || '',
       expectedEndDate: expectedEndDate || '',
       citizenshipNumber: '',
       currentAddress: lead.address || '',
@@ -445,6 +447,17 @@ export default function ConvertToStudentModal({
               {errorMsg}
             </Alert>
           )}
+
+          <Box sx={{ mb: 2 }}>
+            <PhotoUploadField
+              label="Trainee Passport Photo (Optional)"
+              value={photoUrl}
+              onChange={setPhotoUrl}
+              folder="students"
+              entityId={tgid || lead?.id || 'lead'}
+              name={lead?.name || ''}
+            />
+          </Box>
 
           {/* Section 1: Lead Summary Info */}
           <Paper

@@ -39,6 +39,7 @@ import {
   getNextSequentialId,
   getNextBiometricId
 } from '../../services/storage';
+import { PhotoUploadField } from '../common';
 
 export default function NewAdmissionModal({ open, onClose, db, setDb, showToast, onAdmissionCreated, initialLead = null }) {
   const theme = useTheme();
@@ -50,7 +51,7 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
   const [secondaryPhone, setSecondaryPhone] = useState('');
   const [gender, setGender] = useState('Female');
   const [bloodGroup, setBloodGroup] = useState('O+ve');
-  const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&auto=format&fit=crop&q=80');
+  const [photoUrl, setPhotoUrl] = useState('');
   const [citizenshipNumber, setCitizenshipNumber] = useState('');
   const [currentAddress, setCurrentAddress] = useState('Gokarneshwor, Kathmandu');
   const [permanentAddress, setPermanentAddress] = useState('');
@@ -555,6 +556,16 @@ export default function NewAdmissionModal({ open, onClose, db, setDb, showToast,
 
           {/* Section 1: Student Personal Details */}
           <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2 }, mb: 2, border: '1px solid #E2E8F0', borderRadius: 2, bgcolor: '#FFFFFF' }}>
+            <Box sx={{ mb: 1.5 }}>
+              <PhotoUploadField
+                label="Student Passport Photo (Used on ID Card & Certificate)"
+                value={photoUrl}
+                onChange={setPhotoUrl}
+                folder="students"
+                entityId={phone || name || 'admission'}
+                name={name}
+              />
+            </Box>
             <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1.5 }}>
               <SchoolIcon sx={{ color: '#0F2C59', fontSize: 18 }} />
               <Typography

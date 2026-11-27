@@ -59,7 +59,7 @@ import { exportToExcel } from '../../services/exportUtils';
 import { openWhatsAppHubForContact } from '../../services/whatsappCloudApi';
 import { useAuth } from '../../context/AuthContext';
 import { useDialog } from '../../context/DialogContext';
-import { ResponsiveDataView, StatusBadge, EntityCard } from '../common';
+import { ResponsiveDataView, StatusBadge, EntityCard, PhotoUploadField } from '../common';
 import StudentPaymentTimelineModal from '../accounts/StudentPaymentTimelineModal';
 import StudentProfileModal from './StudentProfileModal';
 import StudentIdCardModal from '../admission/StudentIdCardModal';
@@ -1427,14 +1427,14 @@ export default function StudentManager() {
                     <MenuItem value="Dropout">Dropout</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    label="Photo URL (Optional)"
-                    fullWidth
-                    size="small"
-                    placeholder="https://example.com/photo.jpg"
+                <Grid item xs={12}>
+                  <PhotoUploadField
+                    label="Trainee Passport Photo (ID Card & Certificate)"
                     value={formData.photoUrl}
-                    onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
+                    onChange={(url) => setFormData({ ...formData, photoUrl: url })}
+                    folder="students"
+                    entityId={editingItem?.id || formData.tgid || 'student'}
+                    name={formData.name}
                   />
                 </Grid>
               </Grid>
