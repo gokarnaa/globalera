@@ -712,10 +712,10 @@ export default function A4LandscapeCertificateModal({
                     }}
                   >
                     <Typography variant="caption" sx={{ fontSize: '0.64rem', fontWeight: 900, color: primaryColor, display: 'block' }}>
-                      CTEVT LEVEL 1
+                      {(design.competencyBadgeTitle || '').trim() || course?.level || 'SKILL CERTIFIED'}
                     </Typography>
                     <Typography variant="caption" sx={{ fontSize: '0.58rem', color: '#64748b', display: 'block' }}>
-                      {course?.totalHours || 390} HRS
+                      {(design.hoursBadgeText || '').trim() || `${course?.totalHours || 390} HRS`}
                     </Typography>
                   </Box>
                 )}

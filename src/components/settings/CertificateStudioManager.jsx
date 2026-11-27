@@ -112,7 +112,8 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   bodyLayoutMode: 'bilingual',
   showStudentPhoto: true,
   showCompetencyBadge: true,
-  hoursBadgeText: '390 HRS • LEVEL 1',
+  competencyBadgeTitle: 'CTEVT LEVEL 1',
+  hoursBadgeText: '',
 
   // 7. Dynamic Official Seal 4-in-1 Modes
   sealMode: 'blank', // 'blank' | 'scanned' | 'digital' | 'none'
@@ -1137,7 +1138,42 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       control={<Switch checked={design.showRightLogo} onChange={(e) => handleUpdate('showRightLogo', e.target.checked)} size="small" />}
                       label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Right Badge</Typography>}
                     />
+                    <FormControlLabel
+                      control={
+                        <Switch
+                          checked={design.showCompetencyBadge !== false}
+                          onChange={(e) => handleUpdate('showCompetencyBadge', e.target.checked)}
+                          size="small"
+                        />
+                      }
+                      label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Show Level / Hours Badge</Typography>}
+                    />
                   </Stack>
+
+                  {design.showCompetencyBadge !== false && (
+                    <Stack spacing={1} sx={{ mt: 1, pt: 1, borderTop: '1px dashed #CBD5E1' }}>
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Badge Title (leave blank for Course Level)"
+                        placeholder="e.g. SKILL CERTIFIED / CTEVT LEVEL 1"
+                        value={design.competencyBadgeTitle ?? ''}
+                        onChange={(e) => handleUpdate('competencyBadgeTitle', e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ bgcolor: '#FFFFFF', '& .MuiInputBase-input': { fontSize: '0.74rem', py: 0.6 } }}
+                      />
+                      <TextField
+                        fullWidth
+                        size="small"
+                        label="Hours Text (leave blank for Course Hours)"
+                        placeholder="e.g. 390 HRS"
+                        value={design.hoursBadgeText ?? ''}
+                        onChange={(e) => handleUpdate('hoursBadgeText', e.target.value)}
+                        InputLabelProps={{ shrink: true }}
+                        sx={{ bgcolor: '#FFFFFF', '& .MuiInputBase-input': { fontSize: '0.74rem', py: 0.6 } }}
+                      />
+                    </Stack>
+                  )}
 
                   <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mt: 1.2, mb: 0.6 }}>
                     Upload Custom Logo (PNG):
@@ -2177,10 +2213,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     {design.showCompetencyBadge && (
                       <Box sx={{ border: `1.5px dashed ${design.accentColor}`, borderRadius: 1, p: '4px 8px', textAlign: 'center', bgcolor: '#FFFBF0' }}>
                         <Typography variant="caption" sx={{ fontSize: '0.62rem', fontWeight: 900, color: design.primaryColor, display: 'block' }}>
-                          CTEVT LEVEL 1
+                          {(design.competencyBadgeTitle || '').trim() || 'SKILL CERTIFIED'}
                         </Typography>
                         <Typography variant="caption" sx={{ fontSize: '0.56rem', color: '#64748B', display: 'block' }}>
-                          {design.hoursBadgeText || currentSample.hoursBadge}
+                          {(design.hoursBadgeText || '').trim() || currentSample.hoursBadge}
                         </Typography>
                       </Box>
                     )}
