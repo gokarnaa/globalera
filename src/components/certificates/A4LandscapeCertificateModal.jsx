@@ -132,7 +132,9 @@ export default function A4LandscapeCertificateModal({
   student,
   course,
   group,
-  trainer
+  trainer,
+  inlineRender = false,
+  canvasId = 'printableLandscapeCertificate'
 }) {
   const [exportingType, setExportingType] = useState(null); // 'pdf' | 'png' | null
   const [zoomed, setZoomed] = useState(false);
@@ -571,20 +573,30 @@ export default function A4LandscapeCertificateModal({
     setNepaliDialogOpen(false);
   };
 
-  return (
-    <Dialog
-      open={open}
-      onClose={onClose}
-      maxWidth="lg"
-      fullWidth
-      sx={{
-        '& .MuiDialog-paper': {
-          maxWidth: isPortrait ? '840px' : '1160px',
-          bgcolor: '#f8fafc'
-        }
-      }}
-    >
-      {/* Top Action Toolbar (Hidden in Print) — Compact on Mobile */}
+  const renderOuter = (children) =>
+    inlineRender ? (
+      <Box>{children}</Box>
+    ) : (
+      <Dialog
+        open={open}
+        onClose={onClose}
+        maxWidth="lg"
+        fullWidth
+        sx={{
+          '& .MuiDialog-paper': {
+            maxWidth: isPortrait ? '840px' : '1160px',
+            bgcolor: '#f8fafc'
+          }
+        }}
+      >
+        {children}
+      </Dialog>
+    );
+
+  return renderOuter(
+    <>
+      {/* Top Action Toolbar (Hidden in Print & inlineRender) — Compact on Mobile */}
+      {!inlineRender && (
       <Box
         className="no-print"
         sx={{
@@ -810,22 +822,28 @@ export default function A4LandscapeCertificateModal({
           </Button>
         </Box>
       </Box>
+      )}
 
       {/* Printable Certificate Canvas — Auto-scaled neat card preview on Mobile/Small Screens */}
-      <DialogContent
+      <Box
         ref={previewWrapRef}
-        sx={{
-          p: { xs: 1.25, sm: 2.5 },
-          bgcolor: '#e2e8f0',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: zoomed && isCompactViewport ? 'flex-start' : 'center',
-          justifyContent: 'flex-start',
-          overflowX: zoomed && isCompactViewport ? 'auto' : 'hidden',
-          overflowY: 'auto'
-        }}
+        sx={
+          inlineRender
+            ? { p: 0, bgcolor: '#ffffff' }
+            : {
+                p: { xs: 1.25, sm: 2.5 },
+                bgcolor: '#e2e8f0',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: zoomed && isCompactViewport ? 'flex-start' : 'center',
+                justifyContent: 'flex-start',
+                overflowX: zoomed && isCompactViewport ? 'auto' : 'hidden',
+                overflowY: 'auto',
+                maxHeight: 'calc(92dvh - 76px)'
+              }
+        }
       >
-        {isCompactViewport && (
+        {!inlineRender && isCompactViewport && (
           <Typography
             className="no-print"
             variant="caption"
@@ -845,20 +863,20 @@ export default function A4LandscapeCertificateModal({
         )}
 
         <Box
-          id="certificateScaleFrame"
+          id={inlineRender ? undefined : 'certificateScaleFrame'}
           sx={{
-            width: `${scaledWidth}px`,
-            height: `${scaledHeight}px`,
+            width: inlineRender ? `${baseWidth}px` : `${scaledWidth}px`,
+            height: inlineRender ? 'auto' : `${scaledHeight}px`,
             position: 'relative',
             flexShrink: 0,
-            borderRadius: activeScale < 1 ? '6px' : 0,
-            boxShadow: activeScale < 1 ? '0 6px 20px rgba(15, 23, 42, 0.18)' : 'none',
-            overflow: 'hidden',
+            borderRadius: !inlineRender && activeScale < 1 ? '6px' : 0,
+            boxShadow: !inlineRender && activeScale < 1 ? '0 6px 20px rgba(15, 23, 42, 0.18)' : 'none',
+            overflow: inlineRender ? 'visible' : 'hidden',
             bgcolor: '#ffffff'
           }}
         >
           <Box
-            id="printableLandscapeCertificate"
+            id={canvasId}
             sx={{
               width: `${baseWidth}px`,
               minHeight: `${baseHeight}px`,
@@ -870,8 +888,8 @@ export default function A4LandscapeCertificateModal({
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',
-              boxShadow: activeScale < 1 ? 'none' : '0 10px 30px rgba(0,0,0,0.15)',
-              transform: activeScale < 1 ? `scale(${activeScale})` : 'none',
+              boxShadow: inlineRender || activeScale < 1 ? 'none' : '0 10px 30px rgba(0,0,0,0.15)',
+              transform: !inlineRender && activeScale < 1 ? `scale(${activeScale})` : 'none',
               transformOrigin: 'top left',
               ...getBorderStyle(),
               ...getBackgroundStyle()
@@ -1465,9 +1483,10 @@ export default function A4LandscapeCertificateModal({
           </Box>
           </Box>
         </Box>
-      </DialogContent>
+      </Box>
 
       {/* Printable CSS Helper injected for exact A4 Orientation Output */}
+      {!inlineRender && (
       <style>{`
         @page {
           size: A4 ${isPortrait ? 'portrait' : 'landscape'};
@@ -1508,8 +1527,10 @@ export default function A4LandscapeCertificateModal({
           }
         }
       `}</style>
+      )}
 
       {/* 1-Click Gemini AI Nepali Generator & Language Override Dialog */}
+      {!inlineRender && (
       <Dialog
         open={nepaliDialogOpen}
         onClose={() => setNepaliDialogOpen(false)}
@@ -1589,6 +1610,7 @@ export default function A4LandscapeCertificateModal({
           </Button>
         </DialogActions>
       </Dialog>
-    </Dialog>
+      )}
+    </>
   );
 }

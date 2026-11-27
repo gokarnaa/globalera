@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Box,
   Card,
@@ -24,11 +24,16 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  DialogActions,
+  Checkbox,
+  LinearProgress,
+  CircularProgress,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import PrintIcon from '@mui/icons-material/Print';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import SearchIcon from '@mui/icons-material/Search';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -84,6 +89,23 @@ export default function CertificateManager() {
   // Online verification test modal
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
   const [verifyTargetItem, setVerifyTargetItem] = useState(null);
+
+  // Bulk Multi-Page A4 PDF Download state
+  const [selectedCertIds, setSelectedCertIds] = useState([]);
+  const [bulkExport, setBulkExport] = useState({
+    active: false,
+    total: 0,
+    done: 0,
+    currentName: '',
+    currentCertNo: '',
+    currentItem: null
+  });
+  const bulkCancelRef = useRef(false);
+
+  // Reset row selection when batch changes
+  useEffect(() => {
+    setSelectedCertIds([]);
+  }, [selectedGroupId]);
 
   const selectedGroup = allGroups.find((g) => g.id === selectedGroupId);
   const selectedCourse = (db.courses || []).find((c) => c.id === selectedGroup?.courseId);
@@ -302,6 +324,167 @@ export default function CertificateManager() {
     }
   };
 
+  // Issued items available in current filtered list
+  const issuedFilteredItems = filteredData.filter((item) => item.isIssued && item.certificate);
+  const allIssuedSelected =
+    issuedFilteredItems.length > 0 &&
+    issuedFilteredItems.every((item) => selectedCertIds.includes(item.certificate.id));
+  const someIssuedSelected =
+    issuedFilteredItems.some((item) => selectedCertIds.includes(item.certificate.id)) && !allIssuedSelected;
+
+  const toggleSelectCert = (certId) => {
+    setSelectedCertIds((prev) =>
+      prev.includes(certId) ? prev.filter((id) => id !== certId) : [...prev, certId]
+    );
+  };
+
+  const toggleSelectAllIssued = () => {
+    if (allIssuedSelected) {
+      setSelectedCertIds([]);
+    } else {
+      setSelectedCertIds(issuedFilteredItems.map((item) => item.certificate.id));
+    }
+  };
+
+  const bulkTargetItems =
+    selectedCertIds.length > 0
+      ? studentCertificateData.filter((item) => item.isIssued && item.certificate && selectedCertIds.includes(item.certificate.id))
+      : issuedFilteredItems;
+
+  // Bulk Multi-Page A4 HD PDF Export
+  const handleBulkDownloadPdf = async () => {
+    const targets = bulkTargetItems;
+    if (targets.length === 0) {
+      alert('No issued certificates available to download in this batch.');
+      return;
+    }
+
+    bulkCancelRef.current = false;
+    setBulkExport({
+      active: true,
+      total: targets.length,
+      done: 0,
+      currentName: targets[0].student?.name || '',
+      currentCertNo: targets[0].certificate?.certificateNo || '',
+      currentItem: null
+    });
+
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf')
+      ]);
+
+      const design = db.settings?.certificateDesign || {};
+      const isPortrait = design.orientation === 'portrait';
+      const baseWidth = isPortrait ? 760 : 1040;
+      const baseHeight = isPortrait ? 1060 : 740;
+
+      const pdf = new jsPDF({
+        orientation: isPortrait ? 'portrait' : 'landscape',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
+      let addedPages = 0;
+
+      for (let i = 0; i < targets.length; i++) {
+        if (bulkCancelRef.current) break;
+        const item = targets[i];
+
+        setBulkExport({
+          active: true,
+          total: targets.length,
+          done: i,
+          currentName: item.student?.name || 'Trainee',
+          currentCertNo: item.certificate?.certificateNo || '',
+          currentItem: {
+            certificate: item.certificate,
+            student: item.student,
+            course: selectedCourse,
+            group: selectedGroup,
+            trainer
+          }
+        });
+
+        // Wait for React to commit offscreen certificate + images/QR to paint
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 120))));
+
+        const el = document.getElementById('bulkCertificateRenderCanvas');
+        if (!el) continue;
+
+        // Wait for any <img> inside offscreen certificate to finish loading
+        const imgs = Array.from(el.querySelectorAll('img'));
+        await Promise.all(
+          imgs.map(
+            (img) =>
+              img.complete
+                ? Promise.resolve()
+                : new Promise((res) => {
+                    img.onload = res;
+                    img.onerror = res;
+                    setTimeout(res, 1500);
+                  })
+          )
+        );
+
+        if (bulkCancelRef.current) break;
+
+        const canvas = await html2canvas(el, {
+          scale: 2.2,
+          useCORS: true,
+          allowTaint: false,
+          backgroundColor: '#ffffff',
+          logging: false,
+          width: baseWidth,
+          height: el.scrollHeight || baseHeight,
+          windowWidth: baseWidth,
+          windowHeight: el.scrollHeight || baseHeight
+        });
+
+        if (addedPages > 0) {
+          pdf.addPage('a4', isPortrait ? 'portrait' : 'landscape');
+        }
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+        const drawW = canvas.width * ratio;
+        const drawH = canvas.height * ratio;
+        const offsetX = (pageW - drawW) / 2;
+        const offsetY = (pageH - drawH) / 2;
+
+        pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+        addedPages += 1;
+
+        setBulkExport((prev) => ({ ...prev, done: i + 1 }));
+      }
+
+      if (!bulkCancelRef.current && addedPages > 0) {
+        const batchSlug = String(selectedGroup?.groupCode || 'Batch').replace(/[^a-zA-Z0-9-]+/g, '_');
+        pdf.save(`Certificates_${batchSlug}_${addedPages}_Pages_A4.pdf`);
+      }
+    } catch (err) {
+      console.error('Bulk Certificate PDF export failed:', err);
+      alert('Bulk PDF download failed. Please try again with fewer certificates.');
+    } finally {
+      setBulkExport({
+        active: false,
+        total: 0,
+        done: 0,
+        currentName: '',
+        currentCertNo: '',
+        currentItem: null
+      });
+    }
+  };
+
   return (
     <Box sx={{ p: { xs: 1.5, sm: 2.2 }, maxWidth: '1440px', mx: 'auto' }}>
       {/* Slim 1-Row Executive Header Bar */}
@@ -374,6 +557,31 @@ export default function CertificateManager() {
               >
                 Certificate Studio &amp; Design
               </Button>
+
+              {bulkTargetItems.length > 0 && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={bulkExport.active}
+                  startIcon={<PictureAsPdfIcon sx={{ fontSize: '16px !important' }} />}
+                  onClick={handleBulkDownloadPdf}
+                  sx={{
+                    bgcolor: '#DC2626',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.76rem',
+                    whiteSpace: 'nowrap',
+                    px: 1.5,
+                    py: 0.65,
+                    boxShadow: 'none',
+                    '&:hover': { bgcolor: '#B91C1C' }
+                  }}
+                >
+                  {selectedCertIds.length > 0
+                    ? `Bulk A4 PDF (${selectedCertIds.length} Selected)`
+                    : `Bulk A4 PDF (${bulkTargetItems.length})`}
+                </Button>
+              )}
 
               {eligiblePendingCount > 0 && (
                 <Button
@@ -782,6 +990,16 @@ export default function CertificateManager() {
                     }}
                   >
                     <TableRow>
+                      <TableCell padding="checkbox" sx={{ width: 40, textAlign: 'center' }}>
+                        <Checkbox
+                          size="small"
+                          checked={allIssuedSelected}
+                          indeterminate={someIssuedSelected}
+                          disabled={issuedFilteredItems.length === 0}
+                          onChange={toggleSelectAllIssued}
+                          sx={{ color: 'rgba(255,255,255,0.75)', '&.Mui-checked, &.MuiCheckbox-indeterminate': { color: '#FBBF24' }, p: 0.25 }}
+                        />
+                      </TableCell>
                       <TableCell sx={{ color: '#FFFFFF !important', fontWeight: 800, width: 48, textAlign: 'center' }}>
                         S.N.
                       </TableCell>
@@ -797,9 +1015,19 @@ export default function CertificateManager() {
                   <TableBody>
                     {filteredData.map((item, idx) => {
                       const { student, attPercent, isIssued, isEligible, certificate } = item;
+                      const isChecked = isIssued && certificate && selectedCertIds.includes(certificate.id);
 
                       return (
-                        <TableRow key={student.id} hover>
+                        <TableRow key={student.id} hover selected={Boolean(isChecked)}>
+                          <TableCell padding="checkbox" sx={{ width: 40, textAlign: 'center' }}>
+                            <Checkbox
+                              size="small"
+                              disabled={!isIssued || !certificate}
+                              checked={Boolean(isChecked)}
+                              onChange={() => certificate && toggleSelectCert(certificate.id)}
+                              sx={{ p: 0.25 }}
+                            />
+                          </TableCell>
                           <TableCell sx={{ textAlign: 'center', fontWeight: 700, color: '#64748B', width: 48, fontSize: '0.75rem' }}>
                             {idx + 1}
                           </TableCell>
@@ -1189,6 +1417,78 @@ export default function CertificateManager() {
           trainer={activeCertificateItem.trainer}
         />
       )}
+
+      {/* Offscreen 1:1 A4 Certificate Renderer for Bulk Multi-Page PDF Export */}
+      {bulkExport.active && bulkExport.currentItem && (
+        <Box
+          sx={{
+            position: 'fixed',
+            left: '-12000px',
+            top: 0,
+            pointerEvents: 'none',
+            zIndex: -1,
+            bgcolor: '#ffffff'
+          }}
+        >
+          <A4LandscapeCertificateModal
+            open={true}
+            inlineRender={true}
+            canvasId="bulkCertificateRenderCanvas"
+            certificate={bulkExport.currentItem.certificate}
+            student={bulkExport.currentItem.student}
+            course={bulkExport.currentItem.course}
+            group={bulkExport.currentItem.group}
+            trainer={bulkExport.currentItem.trainer}
+          />
+        </Box>
+      )}
+
+      {/* Bulk A4 PDF Progress Dialog */}
+      <Dialog open={bulkExport.active} maxWidth="xs" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.2, py: 1.5 }}>
+          <CircularProgress size={18} color="inherit" />
+          <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
+            Generating Bulk A4 PDF...
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2.5 }}>
+          <Stack spacing={1.5} sx={{ mt: 1 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Typography variant="body2" sx={{ fontWeight: 700, color: '#0F172A' }}>
+                {bulkExport.currentName || 'Preparing...'}
+              </Typography>
+              <Chip
+                size="small"
+                label={`${bulkExport.done} / ${bulkExport.total}`}
+                sx={{ fontWeight: 800, bgcolor: '#EFF6FF', color: '#0F2C59' }}
+              />
+            </Box>
+            {bulkExport.currentCertNo && (
+              <Typography variant="caption" sx={{ color: '#64748B', fontFamily: 'monospace' }}>
+                Cert No: {bulkExport.currentCertNo}
+              </Typography>
+            )}
+            <LinearProgress
+              variant="determinate"
+              value={bulkExport.total > 0 ? Math.round((bulkExport.done / bulkExport.total) * 100) : 0}
+              sx={{ height: 8, borderRadius: 4 }}
+            />
+            <Typography variant="caption" sx={{ color: '#64748B' }}>
+              All selected certificates are being merged into one exact A4 print-ready PDF file.
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            color="error"
+            onClick={() => {
+              bulkCancelRef.current = true;
+            }}
+          >
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Online Public Verification Preview Modal */}
       {verifyTargetItem && (
