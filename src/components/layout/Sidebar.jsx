@@ -51,51 +51,51 @@ import { loadDB } from '../../services/storage';
 
 const NAV_ITEMS = [
   // --- 1. Core Operations & Programs ---
-  { section: 'Core operations' },
-  { id: 'dashboard', label: 'Dashboard', icon: <DashboardIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'groups', label: 'Training Batches', icon: <GroupWorkIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'occupations', label: 'Occupations', icon: <CategoryIcon />, roles: ['ADMIN'] },
-  { id: 'courses', label: 'Courses & Curriculum', icon: <MenuBookIcon />, roles: ['ADMIN'] },
-  { id: 'trainers', label: 'Trainers', icon: <PeopleAltIcon />, roles: ['ADMIN'] },
-  { id: 'holidays', label: 'Academic Calendar', icon: <EventBusyIcon />, roles: ['ADMIN', 'STAFF'] },
+  { section: '1. CORE OPERATIONS' },
+  { id: 'dashboard', label: 'Executive Dashboard', icon: <DashboardIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'groups', label: 'Training Batches', icon: <GroupWorkIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Batches' },
+  { id: 'occupations', label: 'Occupations Master', icon: <CategoryIcon />, roles: ['ADMIN'], badge: 'Master' },
+  { id: 'courses', label: 'Courses & Curriculum', icon: <MenuBookIcon />, roles: ['ADMIN'], badge: 'CTEVT' },
+  { id: 'trainers', label: 'Certified Trainers', icon: <PeopleAltIcon />, roles: ['ADMIN'], badge: 'ToT' },
+  { id: 'holidays', label: 'Academic Calendar & Holidays', icon: <EventBusyIcon />, roles: ['ADMIN', 'STAFF'] },
 
   // --- 2. Trainees & Admissions Management ---
-  { section: 'Trainees & CRM' },
-  { id: 'leads', label: 'Inquiries & Leads', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'admission', label: 'Admissions', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'] },
+  { section: '2. TRAINEES & CRM' },
+  { id: 'leads', label: 'Inquiries & Leads CRM', icon: <ContactPhoneIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'CRM' },
+  { id: 'admission', label: 'Admissions & Agreements', icon: <HowToRegIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4' },
   { id: 'students', label: 'Trainees Directory', icon: <SchoolIcon />, roles: ['ADMIN', 'STAFF'] },
 
   // --- 3. Training & Classroom Operations ---
-  { section: 'Academics & attendance' },
-  { id: 'live_attendance', label: 'Live Attendance', icon: <FingerprintIcon />, roles: ['ADMIN', 'STAFF'], liveDot: true },
+  { section: '3. ACADEMICS & ATTENDANCE' },
+  { id: 'live_attendance', label: '📡 Live Attendance Monitor', icon: <FingerprintIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'LIVE' },
   { id: 'attendance', label: 'Daily Attendance', icon: <FactCheckIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'workplan', label: 'Work Plan', icon: <EventNoteIcon />, roles: ['ADMIN'] },
   { id: 'lessonplan', label: 'Lesson Plan', icon: <AssignmentIcon />, roles: ['ADMIN'] },
-  { id: 'logbook', label: 'CTEVT Log Book', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
+  { id: 'logbook', label: 'CTEVT Daily Log Book', icon: <MenuBookTwoToneIcon />, roles: ['ADMIN'] },
   { id: 'evaluations', label: 'Competency Matrix', icon: <AssessmentIcon />, roles: ['ADMIN'] },
-  { id: 'syllabus', label: 'Syllabus Studio', icon: <FormatListBulletedIcon />, roles: ['ADMIN'] },
+  { id: 'syllabus', label: 'Syllabus Studio', icon: <FormatListBulletedIcon />, roles: ['ADMIN'], badge: 'Studio' },
 
   // --- 4. Placements & Certificates ---
-  { section: 'Placements & certificates' },
-  { id: 'certificates', label: 'Certificates', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'certificate_studio', label: 'Certificate Studio', icon: <ColorLensIcon />, roles: ['ADMIN'] },
+  { section: '4. PLACEMENTS & CERTIFICATES' },
+  { id: 'certificates', label: 'Official Certificates', icon: <WorkspacePremiumIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'A4 QR' },
+  { id: 'certificate_studio', label: 'Design Studio', icon: <ColorLensIcon />, roles: ['ADMIN'], highlight: true, badge: 'Studio' },
   { id: 'employers', label: 'Partner Employers', icon: <BusinessIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'ojt', label: 'Industry OJT', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'ojt', label: 'Industry OJT Records', icon: <WorkIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'placements', label: 'Placements & EPP', icon: <RocketLaunchIcon />, roles: ['ADMIN', 'STAFF'] },
 
   // --- 5. Finance & Accounts ---
-  { section: 'Finance' },
-  { id: 'accounts', label: 'Finance & Billing', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'course_fees', label: 'Course Fee Setup', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'] },
+  { section: '5. FINANCE & ACCOUNTS' },
+  { id: 'accounts', label: 'Finance & Billing', icon: <AccountBalanceWalletIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'Rs' },
+  { id: 'course_fees', label: 'Course Fee Setup', icon: <PointOfSaleIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, countBadge: 'VAT' },
 
   // --- 6. System & Settings ---
-  { section: 'System' },
-  { id: 'users', label: 'Users & Portals', icon: <PeopleAltIcon />, roles: ['ADMIN'] },
-  { id: 'settings', label: 'System Settings', icon: <SettingsIcon />, roles: ['ADMIN'] },
-  { id: 'whatsapp_hub', label: 'WhatsApp Inbox', icon: <WhatsAppIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'communication', label: 'SMS & Broadcast', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
+  { section: '6. SYSTEM & SETTINGS' },
+  { id: 'users', label: 'User Access & Portals', icon: <PeopleAltIcon />, roles: ['ADMIN'], highlight: true, badge: 'Portals' },
+  { id: 'settings', label: 'System Settings', icon: <SettingsIcon />, roles: ['ADMIN'], badge: 'Central' },
+  { id: 'whatsapp_hub', label: 'WhatsApp', icon: <WhatsAppIcon />, roles: ['ADMIN', 'STAFF'], highlight: true, badge: 'Live' },
+  { id: 'communication', label: 'SMS / WhatsApp Hub', icon: <ForumIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'notices', label: 'Notice Board', icon: <CampaignIcon />, roles: ['ADMIN', 'STAFF'] },
-  { id: 'snapshots', label: 'Audit Snapshots', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
+  { id: 'snapshots', label: 'Audit Trail & Snapshots', icon: <SecurityIcon />, roles: ['ADMIN', 'STAFF'] },
   { id: 'reports', label: 'Reports & Analytics', icon: <BarChartIcon />, roles: ['ADMIN', 'STAFF'] }
 ];
 
@@ -142,12 +142,11 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
 
   const filteredItems = NAV_ITEMS.filter((item) => {
     if (item.section) {
-      const sec = item.section.toLowerCase();
       if (isStudent) {
-        return sec.includes('portal') || sec.includes('certificate');
+        return item.section.includes('PORTALS') || item.section.includes('CERTIFICATES');
       }
       if (isEmployer) {
-        return sec.includes('portal') || sec.includes('placement');
+        return item.section.includes('PORTALS') || item.section.includes('OJT');
       }
       return true;
     }
@@ -156,21 +155,21 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
   });
 
   const drawerContent = (
-    <Box sx={{ width: 252, display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <Box sx={{ width: 248, display: 'flex', flexDirection: 'column', height: '100%' }}>
       {isMobile && (
         <Box
           sx={{
-            px: 2,
-            py: 1.25,
-            borderBottom: '1px solid #E5E7EB',
+            px: 1.75,
+            py: 0.9,
+            borderBottom: '1px solid #E2E8F0',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            bgcolor: '#FFFFFF'
+            bgcolor: '#F8FAFC'
           }}
         >
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#111827', fontSize: '0.875rem' }}>
-            Navigation
+          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.8rem' }}>
+            Menu
           </Typography>
           <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
             <CloseIcon fontSize="small" />
@@ -179,7 +178,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       )}
 
       {/* Navigation Links List */}
-      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.5, py: 1 }}>
+      <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.1, py: 0.5 }}>
         <List disablePadding>
           {filteredItems.map((item, idx) => {
             if (item.section) {
@@ -189,13 +188,14 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   variant="caption"
                   sx={{
                     display: 'block',
-                    px: 1.25,
-                    pt: idx === 0 ? 1 : 2.5,
-                    pb: 0.75,
-                    fontWeight: 500,
-                    color: '#6B7487',
-                    fontSize: '0.72rem',
-                    letterSpacing: '0.01em'
+                    px: 1.2,
+                    pt: 1.4,
+                    pb: 0.4,
+                    fontWeight: 800,
+                    color: '#94A3B8',
+                    letterSpacing: '0.06em',
+                    fontSize: '0.64rem',
+                    textTransform: 'uppercase'
                   }}
                 >
                   {item.section}
@@ -206,7 +206,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             const isSelected = currentTab === item.id;
 
             return (
-              <ListItem key={item.id} disablePadding sx={{ mb: 0.25 }}>
+              <ListItem key={item.id} disablePadding sx={{ mb: 0.2 }}>
                 <ListItemButton
                   selected={isSelected}
                   onClick={() => {
@@ -214,24 +214,39 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                     if (isMobile && onClose) onClose();
                   }}
                   sx={{
-                    borderRadius: '8px',
-                    minHeight: 34,
-                    py: 0.5,
-                    px: 1.25,
-                    bgcolor: isSelected ? '#EEF2F6 !important' : 'transparent',
-                    color: isSelected ? '#0F2C59' : '#4B5565',
-                    transition: 'background-color 150ms cubic-bezier(0.22, 1, 0.36, 1), color 150ms cubic-bezier(0.22, 1, 0.36, 1)',
+                    borderRadius: 2,
+                    py: 0.65,
+                    px: 1.2,
+                    bgcolor: isSelected ? '#EFF6FF !important' : 'transparent',
+                    border: isSelected ? '1px solid #BFDBFE' : '1px solid transparent',
+                    color: isSelected ? '#1E40AF' : '#334155',
+                    position: 'relative',
+                    transition: 'transform 150ms ease-out, background-color 150ms ease-out',
                     '&:hover': {
-                      bgcolor: isSelected ? '#EEF2F6' : '#F7F8FA',
-                      color: '#111827'
+                      bgcolor: isSelected ? '#DBEAFE' : '#F1F5F9',
+                      transform: 'translateX(2px)'
                     }
                   }}
                 >
+                  {isSelected && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        left: 0,
+                        top: '16%',
+                        bottom: '16%',
+                        width: 3.5,
+                        borderRadius: '0 4px 4px 0',
+                        bgcolor: '#1D4ED8'
+                      }}
+                    />
+                  )}
+
                   <ListItemIcon
                     sx={{
-                      color: isSelected ? '#0F2C59' : '#6B7487',
+                      color: isSelected ? '#1D4ED8' : '#64748B',
                       minWidth: 28,
-                      '& svg': { fontSize: '1.05rem' }
+                      '& svg': { fontSize: '1.08rem' }
                     }}
                   >
                     {item.icon}
@@ -240,24 +255,39 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   <ListItemText
                     primary={item.label}
                     primaryTypographyProps={{
-                      fontSize: '0.8125rem',
-                      fontWeight: isSelected ? 600 : 400,
-                      color: isSelected ? '#0F2C59' : '#1F2937',
+                      fontSize: '0.78rem',
+                      fontWeight: isSelected ? 800 : 600,
+                      color: isSelected ? '#1E40AF' : '#1E293B',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis'
                     }}
                   />
 
-                  {item.liveDot && (
-                    <Box
+                  {item.countBadge && (
+                    <Chip
+                      size="small"
+                      label={item.countBadge}
                       sx={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: '50%',
-                        bgcolor: '#16A34A',
-                        flexShrink: 0,
-                        ml: 1
+                        height: 17,
+                        fontSize: '0.6rem',
+                        fontWeight: 800,
+                        bgcolor: item.highlight ? '#10B981' : '#E2E8F0',
+                        color: item.highlight ? '#FFFFFF' : '#475569'
+                      }}
+                    />
+                  )}
+
+                  {item.badge && !item.countBadge && (
+                    <Chip
+                      size="small"
+                      label={item.badge}
+                      sx={{
+                        height: 17,
+                        fontSize: '0.6rem',
+                        fontWeight: 800,
+                        bgcolor: isSelected ? '#DBEAFE' : '#F1F5F9',
+                        color: isSelected ? '#1D4ED8' : '#64748B'
                       }}
                     />
                   )}
@@ -269,7 +299,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
       </Box>
 
       {/* Footer System Status Card */}
-      <Box sx={{ p: 1.5, borderTop: '1px solid #E5E7EB', bgcolor: '#FFFFFF' }}>
+      <Box sx={{ p: 1.25, borderTop: '1px solid #E2E8F0', bgcolor: '#F8FAFC' }}>
         <ButtonBase
           onClick={() => onSelectTab && onSelectTab('settings')}
           aria-label={`Cloud status ${cloudStatus}, ${(db.trainingGroups || []).length} active batches. Open settings`}
@@ -277,57 +307,66 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             width: '100%',
             display: 'block',
             textAlign: 'left',
-            p: 1.25,
-            borderRadius: '8px',
-            bgcolor: '#F7F8FA',
-            border: '1px solid #E5E7EB',
+            p: 1,
+            borderRadius: 2,
+            bgcolor: '#FFFFFF',
+            border: '1px solid #E2E8F0',
+            boxShadow: '0 1px 2px rgba(15,23,42,0.03)',
             cursor: 'pointer',
-            transition: 'background-color 150ms cubic-bezier(0.22, 1, 0.36, 1), border-color 150ms cubic-bezier(0.22, 1, 0.36, 1)',
+            transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
             '&:hover': {
-              borderColor: '#D1D5DB',
+              borderColor: '#CBD5E1',
               bgcolor: '#F1F5F9'
             }
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.35 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6 }}>
               {cloudStatus === 'connected' ? (
-                <CloudDoneIcon sx={{ fontSize: 15, color: '#16A34A' }} />
+                <CloudDoneIcon sx={{ fontSize: 15, color: '#059669' }} />
               ) : cloudStatus === 'setup_needed' ? (
                 <CloudSyncIcon sx={{ fontSize: 15, color: '#D97706' }} />
               ) : (
                 <ErrorOutlineIcon sx={{ fontSize: 15, color: '#DC2626' }} />
               )}
-              <Typography variant="caption" sx={{ fontWeight: 500, color: '#111827', fontSize: '0.75rem' }}>
+              <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F172A', fontSize: '0.69rem' }}>
                 {cloudStatus === 'connected'
-                  ? 'Cloud synced'
+                  ? 'Supabase Connected'
                   : cloudStatus === 'setup_needed'
-                  ? 'Setup needed'
-                  : 'Local mode'}
+                  ? 'Supabase Setup Needed'
+                  : 'Supabase Offline'}
               </Typography>
             </Box>
-            <Typography
-              variant="caption"
+            <Chip
+              label={
+                cloudStatus === 'connected'
+                  ? 'Live'
+                  : cloudStatus === 'setup_needed'
+                  ? 'Setup'
+                  : 'Local Only'
+              }
+              size="small"
               sx={{
-                fontSize: '0.7rem',
-                fontWeight: 500,
+                height: 15,
+                fontSize: '0.58rem',
+                bgcolor:
+                  cloudStatus === 'connected'
+                    ? '#ECFDF5'
+                    : cloudStatus === 'setup_needed'
+                    ? '#FEF3C7'
+                    : '#FEE2E2',
                 color:
                   cloudStatus === 'connected'
-                    ? '#16A34A'
+                    ? '#059669'
                     : cloudStatus === 'setup_needed'
-                    ? '#D97706'
-                    : '#DC2626'
+                    ? '#92400E'
+                    : '#DC2626',
+                fontWeight: 900
               }}
-            >
-              {cloudStatus === 'connected'
-                ? 'Live'
-                : cloudStatus === 'setup_needed'
-                ? 'Setup'
-                : 'Offline'}
-            </Typography>
+            />
           </Box>
-          <Typography variant="caption" sx={{ color: '#6B7487', display: 'block', fontSize: '0.72rem' }}>
-            {(db.trainingGroups || []).length} active batches · Jorpati
+          <Typography variant="caption" sx={{ color: '#64748B', display: 'block', fontSize: '0.65rem' }}>
+            Active Batches: <b>{(db.trainingGroups || []).length} Groups</b> • Jorpati Campus
           </Typography>
         </ButtonBase>
       </Box>
@@ -338,7 +377,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
     <Box
       component="nav"
       sx={{
-        width: isMobile ? 0 : (open ? 252 : 0),
+        width: isMobile ? 0 : (open ? 248 : 0),
         flexShrink: 0
       }}
     >
@@ -354,9 +393,9 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
             zIndex: (theme) => theme.zIndex.drawer + 2,
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: 252,
+              width: 248,
               bgcolor: '#FFFFFF',
-              boxShadow: '0 8px 24px rgba(15, 23, 42, 0.12)'
+              boxShadow: '4px 0 24px rgba(15, 23, 42, 0.2)'
             }
           }}
         >
@@ -369,16 +408,16 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
           anchor="left"
           open={Boolean(open)}
           sx={{
-            width: open ? 252 : 0,
+            width: open ? 248 : 0,
             flexShrink: 0,
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
-              width: 252,
+              width: 248,
               bgcolor: '#FFFFFF',
-              borderRight: '1px solid #E5E7EB',
-              top: '64px',
-              height: 'calc(100dvh - 64px)',
-              boxShadow: 'none'
+              borderRight: '1px solid #E2E8F0',
+              top: '70px',
+              height: 'calc(100dvh - 70px)',
+              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
             }
           }}
         >

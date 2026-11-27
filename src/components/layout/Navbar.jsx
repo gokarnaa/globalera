@@ -151,141 +151,174 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
       position="sticky"
       elevation={0}
       sx={{
-        backgroundColor: '#FFFFFF',
-        color: '#111827',
-        borderBottom: '1px solid #E5E7EB',
+        backdropFilter: 'blur(16px)',
+        backgroundColor: 'rgba(255, 255, 255, 0.94)',
+        color: '#0F172A',
+        borderBottom: '1px solid #E2E8F0',
         zIndex: (theme) => theme.zIndex.drawer + 1
       }}
     >
-      <Toolbar sx={{ minHeight: { xs: 56, sm: 64 }, px: { xs: 1.5, sm: 2.5 }, gap: 1.5 }}>
+      <Toolbar sx={{ minHeight: { xs: 56, sm: 68 }, px: { xs: 1, sm: 2.5 }, gap: { xs: 0.75, sm: 1.2 } }}>
         <IconButton
           color="inherit"
           edge="start"
           aria-label="Open navigation menu"
           onClick={onToggleSidebar}
           sx={{
-            p: 1,
-            bgcolor: '#F7F8FA',
-            border: '1px solid #E5E7EB',
-            borderRadius: '8px',
+            mr: { xs: 0.25, sm: 1.5 },
+            p: { xs: 0.9, sm: 1 },
+            bgcolor: '#F1F5F9',
+            border: '1px solid #E2E8F0',
+            borderRadius: 2.5,
             flexShrink: 0,
-            color: '#4B5565',
-            '&:hover': { bgcolor: '#F1F5F9', color: '#111827' }
+            '&:hover': { bgcolor: '#E2E8F0' }
           }}
         >
-          <MenuIcon fontSize="small" />
+          <MenuIcon />
         </IconButton>
 
         {/* Institution Brand Identity */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexGrow: 1, minWidth: 0 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 1, sm: 1.8 }, flexGrow: 1, minWidth: 0 }}>
           <Box
             sx={{
-              width: 36,
-              height: 36,
-              borderRadius: '8px',
-              bgcolor: '#0F2C59',
-              color: '#FFFFFF',
+              width: { xs: 34, sm: 44 },
+              height: { xs: 34, sm: 44 },
+              borderRadius: { xs: '10px', sm: '12px' },
+              background: 'linear-gradient(135deg, #0F2C59 0%, #1A56B0 100%)',
+              color: '#ffffff',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              flexShrink: 0
+              flexShrink: 0,
+              boxShadow: '0 4px 14px rgba(15, 44, 89, 0.25)',
+              border: '2px solid rgba(255,255,255,0.8)'
             }}
           >
-            <SchoolIcon sx={{ fontSize: 20 }} />
+            <Typography aria-hidden="true" sx={{ fontSize: { xs: '1.05rem', sm: '1.45rem' }, lineHeight: 1 }}>
+              🎓
+            </Typography>
           </Box>
           <Box sx={{ minWidth: 0 }}>
-            <Typography
-              variant="subtitle1"
-              noWrap
-              sx={{
-                fontWeight: 600,
-                lineHeight: 1.2,
-                fontSize: { xs: '0.9375rem', sm: '1rem' },
-                color: '#111827',
-                letterSpacing: '-0.01em'
-              }}
-            >
-              Prabidhik School
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{
+                  fontWeight: 900,
+                  lineHeight: 1.2,
+                  fontSize: { xs: '0.92rem', sm: '1.12rem' },
+                  color: '#0F2C59',
+                  letterSpacing: '-0.02em'
+                }}
+              >
+                Prabidhik School
+              </Typography>
+            </Box>
             <Typography
               variant="caption"
               noWrap
               sx={{
-                color: '#6B7487',
+                color: '#64748B',
                 display: { xs: 'none', sm: 'block' },
-                fontWeight: 400,
-                fontSize: '0.75rem'
+                fontWeight: 600,
+                fontSize: '0.73rem',
+                letterSpacing: '0.01em'
               }}
             >
-              Global Era Multi Service Pvt. Ltd. · Jorpati, Kathmandu
+              Global Era Multi Service Pvt. Ltd. • Jorpati, Kathmandu
             </Typography>
           </Box>
         </Box>
 
-        {/* Operational Status Indicator */}
-        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center' }}>
-          <Tooltip title={`${cloudStatus.message} · Active: ${activeShift} · Click for Settings`}>
+        {/* Live Operational Status Pill (Compact SaaS Indicator) */}
+        <Box sx={{ display: { xs: 'none', lg: 'flex' }, alignItems: 'center', mr: 2 }}>
+          <Tooltip title={`${cloudStatus.message} • Active: ${activeShift} • Click for Settings`}>
             <ButtonBase
               onClick={() => onSelectTab && onSelectTab('settings')}
               aria-label={`Cloud status ${cloudStatus.status}, active ${activeShift}. Open settings`}
               sx={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 1,
-                px: 1.5,
-                py: 0.75,
-                borderRadius: '8px',
+                gap: 0.9,
+                px: 1.4,
+                py: 0.55,
+                borderRadius: 99,
                 cursor: 'pointer',
-                bgcolor: '#F7F8FA',
-                border: '1px solid #E5E7EB',
-                transition: 'background-color 150ms cubic-bezier(0.22, 1, 0.36, 1), border-color 150ms cubic-bezier(0.22, 1, 0.36, 1)',
+                transition: 'transform 150ms ease-out, opacity 150ms ease-out',
+                bgcolor:
+                  cloudStatus.status === 'connected'
+                    ? '#F0FDF4'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FFFBEB'
+                    : cloudStatus.status === 'checking'
+                    ? '#F8FAFC'
+                    : '#FEF2F2',
+                border:
+                  cloudStatus.status === 'connected'
+                    ? '1px solid #BBF7D0'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '1px solid #FDE68A'
+                    : cloudStatus.status === 'checking'
+                    ? '1px solid #E2E8F0'
+                    : '1px solid #FECACA',
                 '&:hover': {
-                  bgcolor: '#F1F5F9',
-                  borderColor: '#D1D5DB'
+                  boxShadow: '0 2px 8px rgba(15, 44, 89, 0.08)',
+                  transform: 'translateY(-0.5px)'
                 }
               }}
             >
               <Box
                 sx={{
-                  width: 6,
-                  height: 6,
+                  width: 7,
+                  height: 7,
                   borderRadius: '50%',
                   flexShrink: 0,
                   bgcolor:
                     cloudStatus.status === 'connected'
-                      ? '#16A34A'
+                      ? '#10B981'
                       : cloudStatus.status === 'setup_needed'
-                      ? '#D97706'
+                      ? '#F59E0B'
                       : cloudStatus.status === 'checking'
                       ? '#94A3B8'
-                      : '#DC2626'
+                      : '#EF4444',
+                  boxShadow:
+                    cloudStatus.status === 'connected'
+                      ? '0 0 0 3px rgba(16, 185, 129, 0.18)'
+                      : 'none'
                 }}
               />
               <Typography
                 variant="caption"
                 noWrap
                 sx={{
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
-                  color: '#4B5565'
+                  fontWeight: 700,
+                  fontSize: '0.73rem',
+                  color:
+                    cloudStatus.status === 'connected'
+                      ? '#065F46'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#92400E'
+                      : cloudStatus.status === 'checking'
+                      ? '#475569'
+                      : '#991B1B'
                 }}
               >
                 {cloudStatus.status === 'connected'
-                  ? 'Cloud online'
+                  ? 'Cloud Online'
                   : cloudStatus.status === 'setup_needed'
-                  ? 'Setup needed'
+                  ? 'Setup Needed'
                   : cloudStatus.status === 'checking'
-                  ? 'Syncing'
+                  ? 'Syncing...'
                   : 'Offline'}
               </Typography>
-              <Box sx={{ width: '1px', height: 12, bgcolor: '#E5E7EB' }} />
+              <Box sx={{ width: '1px', height: 12, bgcolor: 'rgba(100, 116, 139, 0.25)' }} />
               <Typography
                 variant="caption"
                 noWrap
                 sx={{
-                  fontWeight: 500,
-                  fontSize: '0.75rem',
-                  color: '#111827'
+                  fontWeight: 700,
+                  fontSize: '0.73rem',
+                  color: '#1E40AF'
                 }}
               >
                 {String(activeShift || '').replace(/\s*\(.*?\)/, '')}
@@ -294,8 +327,8 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
           </Tooltip>
         </Box>
 
-        {/* User Account & Controls */}
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+        {/* User Account Pill & Controls */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.2 }, flexShrink: 0 }}>
           {/* Compact Mobile Sync Status Dot */}
           <Tooltip title={cloudStatus.message}>
             <ButtonBase
@@ -305,25 +338,36 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                 display: { xs: 'inline-flex', lg: 'none' },
                 alignItems: 'center',
                 justifyContent: 'center',
-                width: 32,
-                height: 32,
-                borderRadius: '8px',
-                bgcolor: '#F7F8FA',
-                border: '1px solid #E5E7EB',
+                width: 30,
+                height: 30,
+                borderRadius: '50%',
+                bgcolor:
+                  cloudStatus.status === 'connected'
+                    ? '#F0FDF4'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FEF3C7'
+                    : '#FEF2F2',
+                border: '1px solid',
+                borderColor:
+                  cloudStatus.status === 'connected'
+                    ? '#BBF7D0'
+                    : cloudStatus.status === 'setup_needed'
+                    ? '#FDE68A'
+                    : '#FECACA',
                 cursor: isAdmin ? 'pointer' : 'default'
               }}
             >
               <Box
                 sx={{
-                  width: 8,
-                  height: 8,
+                  width: 9,
+                  height: 9,
                   borderRadius: '50%',
                   bgcolor:
                     cloudStatus.status === 'connected'
-                      ? '#16A34A'
+                      ? '#10B981'
                       : cloudStatus.status === 'setup_needed'
-                      ? '#D97706'
-                      : '#DC2626'
+                      ? '#F59E0B'
+                      : '#EF4444'
                 }}
               />
             </ButtonBase>
@@ -337,45 +381,59 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             sx={{
               display: 'flex',
               alignItems: 'center',
-              gap: 1.25,
-              p: { xs: '4px', sm: '4px 12px 4px 6px' },
-              borderRadius: '8px',
-              bgcolor: '#FFFFFF',
-              border: '1px solid #E5E7EB',
+              gap: 1.2,
+              p: { xs: '2px', sm: '5px 12px 5px 6px' },
+              borderRadius: { xs: '50%', sm: 3 },
+              bgcolor: '#F8FAFC',
+              border: '1px solid #E2E8F0',
               cursor: 'pointer',
-              transition: 'background-color 150ms cubic-bezier(0.22, 1, 0.36, 1), border-color 150ms cubic-bezier(0.22, 1, 0.36, 1)',
+              transition: 'background-color 150ms ease-out, border-color 150ms ease-out',
               '&:hover': {
-                bgcolor: '#F7F8FA',
-                borderColor: '#D1D5DB'
+                bgcolor: '#F1F5F9',
+                borderColor: '#CBD5E1',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.05)'
               }
             }}
           >
-            <Avatar
+            <Badge
+              overlap="circular"
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              variant="dot"
               sx={{
-                bgcolor: '#0F2C59',
-                color: '#FFFFFF',
-                width: 28,
-                height: 28,
-                fontSize: '0.78rem',
-                fontWeight: 600
+                '& .MuiBadge-badge': {
+                  bgcolor: '#10B981',
+                  color: '#10B981',
+                  boxShadow: '0 0 0 2px #fff'
+                }
               }}
             >
-              {currentUser?.name?.[0] || 'U'}
-            </Avatar>
+              <Avatar
+                sx={{
+                  bgcolor: isStudent ? '#0D9488' : isEmployer ? '#7C3AED' : isTrainer ? '#059669' : '#0F2C59',
+                  color: '#ffffff',
+                  width: 32,
+                  height: 32,
+                  fontSize: '0.85rem',
+                  fontWeight: 800
+                }}
+              >
+                {currentUser?.name?.[0] || 'U'}
+              </Avatar>
+            </Badge>
 
             <Box sx={{ textAlign: 'left', display: { xs: 'none', sm: 'block' } }}>
-              <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827', lineHeight: 1.2, fontSize: '0.8125rem' }}>
+              <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F172A', lineHeight: 1.2 }}>
                 {currentUser?.name}
               </Typography>
-              <Typography variant="caption" sx={{ color: '#6B7487', fontSize: '0.72rem', fontWeight: 400, display: 'block', lineHeight: 1.2 }}>
+              <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem', fontWeight: 600 }}>
                 {currentUser?.role === 'ADMIN'
                   ? 'Administrator'
                   : currentUser?.role === 'TRAINER'
-                  ? 'Trainer'
+                  ? 'Certified Trainer'
                   : currentUser?.role === 'STUDENT'
                   ? 'Trainee'
                   : currentUser?.role === 'EMPLOYER'
-                  ? 'Employer'
+                  ? 'Partner Employer'
                   : 'Officer'}
               </Typography>
             </Box>
@@ -389,15 +447,13 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                 onClick={onGoHome}
                 startIcon={<PublicIcon sx={{ fontSize: 16 }} />}
                 sx={{
-                  color: '#4B5565',
-                  borderColor: '#E5E7EB',
-                  fontWeight: 500,
-                  fontSize: '0.78rem',
+                  color: '#0F2E5A',
+                  borderColor: '#CBD5E1',
+                  fontWeight: 800,
+                  fontSize: '0.74rem',
                   display: { xs: 'none', md: 'inline-flex' },
                   bgcolor: '#FFFFFF',
-                  height: 36,
-                  px: 1.5,
-                  '&:hover': { bgcolor: '#F7F8FA', borderColor: '#D1D5DB', color: '#111827' }
+                  '&:hover': { bgcolor: '#F8FAFC', borderColor: '#0F2E5A' }
                 }}
               >
                 Website
@@ -411,16 +467,14 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
               size="small"
               aria-label="Quick Lock Screen"
               sx={{
-                bgcolor: '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                width: 36,
-                height: 36,
-                color: '#4B5565',
-                '&:hover': { bgcolor: '#F7F8FA', borderColor: '#D1D5DB', color: '#111827' }
+                bgcolor: '#F8FAFC',
+                border: '1px solid #E2E8F0',
+                borderRadius: 2.5,
+                p: { xs: 0.85, sm: 1 },
+                '&:hover': { bgcolor: '#F1F5F9', borderColor: '#CBD5E1' }
               }}
             >
-              <LockIcon sx={{ fontSize: 18 }} />
+              <LockIcon fontSize="small" sx={{ color: '#475569' }} />
             </IconButton>
           </Tooltip>
         </Box>
@@ -432,68 +486,76 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
           onClose={handleCloseUser}
           PaperProps={{
             sx: {
-              width: 300,
-              borderRadius: '12px',
+              width: 320,
+              borderRadius: 3.5,
               p: 1,
-              mt: 1,
-              boxShadow: '0 8px 24px rgba(15, 23, 42, 0.08)',
-              border: '1px solid #E5E7EB'
+              mt: 1.5,
+              boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.18)',
+              border: '1px solid #E2E8F0'
             }
           }}
         >
-          <Box sx={{ px: 1.5, py: 1.25, bgcolor: '#F7F8FA', borderRadius: '8px', mb: 1, border: '1px solid #E5E7EB' }}>
-            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#111827' }}>
+          <Box sx={{ px: 2, py: 1.5, bgcolor: '#F8FAFC', borderRadius: 2.5, mb: 1, border: '1px solid #E2E8F0' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59' }}>
               {currentUser?.name || 'Administrator'}
             </Typography>
-            <Typography variant="caption" sx={{ color: '#6B7487', display: 'block' }}>
-              {currentUser?.role || 'ADMIN'} · Global Era TVET
+            <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+              Role: <b>{currentUser?.role || 'ADMIN'}</b> • Global Era TVET
             </Typography>
-            <Box sx={{ mt: 1, pt: 1, borderTop: '1px solid #E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 400, color: '#6B7487' }}>
-                Cloud database
+            <Box sx={{ mt: 1, pt: 1, borderTop: '1px dashed #CBD5E1', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 700, color: '#64748B' }}>
+                Cloud Database:
               </Typography>
-              <Typography
-                variant="caption"
+              <Chip
+                size="small"
+                label={
+                  cloudStatus.status === 'connected'
+                    ? 'Connected'
+                    : cloudStatus.status === 'setup_needed'
+                    ? 'Setup Needed'
+                    : 'Local Only'
+                }
                 sx={{
-                  fontSize: '0.72rem',
-                  fontWeight: 500,
+                  height: 18,
+                  fontSize: '0.62rem',
+                  fontWeight: 800,
+                  bgcolor:
+                    cloudStatus.status === 'connected'
+                      ? '#DCFCE7'
+                      : cloudStatus.status === 'setup_needed'
+                      ? '#FEF3C7'
+                      : '#FEE2E2',
                   color:
                     cloudStatus.status === 'connected'
-                      ? '#16A34A'
+                      ? '#166534'
                       : cloudStatus.status === 'setup_needed'
-                      ? '#D97706'
-                      : '#DC2626'
+                      ? '#92400E'
+                      : '#991B1B'
                 }}
-              >
-                {cloudStatus.status === 'connected'
-                  ? 'Connected'
-                  : cloudStatus.status === 'setup_needed'
-                  ? 'Setup needed'
-                  : 'Local only'}
-              </Typography>
+              />
             </Box>
           </Box>
 
-          <Typography variant="caption" sx={{ px: 1.5, py: 0.5, display: 'block', color: '#6B7487', fontWeight: 500, fontSize: '0.72rem' }}>
-            Switch account
+          <Typography variant="overline" sx={{ px: 2, color: '#94A3B8', fontWeight: 800, fontSize: '0.68rem' }}>
+            ACTIVE SYSTEM ACCOUNTS
           </Typography>
 
-          <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }} sx={{ borderRadius: '8px', mb: 0.25 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#0F2C59', width: 28, height: 28, fontSize: 12, fontWeight: 600 }}>A</Avatar>
+          <MenuItem onClick={() => { switchUser('ADMIN'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+              <Avatar sx={{ bgcolor: '#0F2C59', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>A</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827' }}>Super Admin</Typography>
-                <Typography variant="caption" sx={{ color: '#6B7487' }}>Full TVET management & cloud sync</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Super Admin (PIN: 1111)</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Full TVET management & cloud sync</Typography>
               </Box>
             </Box>
           </MenuItem>
 
-          <MenuItem onClick={() => { switchUser('STAFF'); handleCloseUser(); }} sx={{ borderRadius: '8px', mb: 0.25 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-              <Avatar sx={{ bgcolor: '#334155', width: 28, height: 28, fontSize: 12, fontWeight: 600 }}>S</Avatar>
+          <MenuItem onClick={() => { switchUser('STAFF'); handleCloseUser(); }} sx={{ borderRadius: 2, mb: 0.5 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+              <Avatar sx={{ bgcolor: '#1E40AF', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>S</Avatar>
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827' }}>Front Desk Officer</Typography>
-                <Typography variant="caption" sx={{ color: '#6B7487' }}>Admissions, inquiries & billing</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>Front Desk Officer (PIN: 2222)</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Admissions, inquiries & billing</Typography>
               </Box>
             </Box>
           </MenuItem>
@@ -503,18 +565,18 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             <MenuItem
               key={trainer.id}
               onClick={() => { switchUser('TRAINER', trainer.id); handleCloseUser(); }}
-              sx={{ borderRadius: '8px', mb: 0.25 }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-                <Avatar sx={{ bgcolor: '#475569', width: 28, height: 28, fontSize: 12, fontWeight: 600 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#059669', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
                   {trainer.name?.[0] || 'T'}
                 </Avatar>
                 <Box sx={{ overflow: 'hidden' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                    {trainer.name}
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Trainer: {trainer.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#6B7487', display: 'block' }}>
-                    Trainer · {trainer.specialization || 'TVET Instructor'}
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    {trainer.specialization || 'TVET Instructor'} {trainer.pin ? `(PIN: ${trainer.pin})` : ''}
                   </Typography>
                 </Box>
               </Box>
@@ -526,18 +588,18 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             <MenuItem
               key={student.id}
               onClick={() => { switchUser('STUDENT', student.id); handleCloseUser(); }}
-              sx={{ borderRadius: '8px', mb: 0.25 }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-                <Avatar sx={{ bgcolor: '#64748B', width: 28, height: 28, fontSize: 12, fontWeight: 600 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#0D9488', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
                   {student.name?.[0] || 'S'}
                 </Avatar>
                 <Box sx={{ overflow: 'hidden' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                    {student.name}
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Student: {student.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#6B7487', display: 'block' }}>
-                    Trainee · {student.rollNo || student.id}
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    Roll: {student.rollNo || student.id} • {student.phone || 'Active'}
                   </Typography>
                 </Box>
               </Box>
@@ -549,18 +611,18 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
             <MenuItem
               key={employer.id}
               onClick={() => { switchUser('EMPLOYER', employer.id); handleCloseUser(); }}
-              sx={{ borderRadius: '8px', mb: 0.25 }}
+              sx={{ borderRadius: 2, mb: 0.5 }}
             >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-                <Avatar sx={{ bgcolor: '#334155', width: 28, height: 28, fontSize: 12, fontWeight: 600 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+                <Avatar sx={{ bgcolor: '#7C3AED', width: 32, height: 32, fontSize: 13, fontWeight: 800 }}>
                   {employer.name?.[0] || 'E'}
                 </Avatar>
                 <Box sx={{ overflow: 'hidden' }}>
-                  <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                    {employer.name}
+                  <Typography variant="body2" sx={{ fontWeight: 800, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                    Employer: {employer.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: '#6B7487', display: 'block' }}>
-                    Employer · {employer.industry || employer.contactPerson || 'Partner'}
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block' }}>
+                    {employer.industry || employer.contactPerson || 'TVET Partner'}
                   </Typography>
                 </Box>
               </Box>
@@ -573,32 +635,32 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
               if (onSelectTab) onSelectTab('users');
             }}
             sx={{
-              borderRadius: '8px',
-              mt: 0.5,
-              bgcolor: '#F7F8FA',
-              border: '1px solid #E5E7EB',
-              '&:hover': { bgcolor: '#F1F5F9' }
+              borderRadius: 2,
+              mt: 1,
+              bgcolor: '#F1F5F9',
+              border: '1px dashed #CBD5E1',
+              '&:hover': { bgcolor: '#E2E8F0' }
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, width: '100%' }}>
-              <ManageAccountsIcon fontSize="small" sx={{ color: '#4B5565' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, width: '100%' }}>
+              <ManageAccountsIcon fontSize="small" sx={{ color: '#0F2C59' }} />
               <Box>
-                <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827' }}>Manage users & roles</Typography>
-                <Typography variant="caption" sx={{ color: '#6B7487' }}>Staff, trainers & portal access</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 800, color: '#0F2C59' }}>Manage Users & Roles</Typography>
+                <Typography variant="caption" sx={{ color: '#64748B' }}>Add real staff, trainers & accounts</Typography>
               </Box>
             </Box>
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />
 
-          <MenuItem onClick={handleExportContacts} sx={{ borderRadius: '8px' }}>
-            <DownloadIcon fontSize="small" sx={{ mr: 1.25, color: '#4B5565' }} />
-            <Typography variant="body2" sx={{ fontWeight: 500, color: '#111827' }}>Export contacts (.vcf)</Typography>
+          <MenuItem onClick={handleExportContacts} sx={{ borderRadius: 2 }}>
+            <DownloadIcon fontSize="small" sx={{ mr: 1.5, color: '#0284C7' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>Export Contacts (.vcf)</Typography>
           </MenuItem>
 
-          <MenuItem onClick={handleResetData} sx={{ borderRadius: '8px' }}>
-            <RestartAltIcon fontSize="small" sx={{ mr: 1.25, color: '#DC2626' }} />
-            <Typography variant="body2" sx={{ fontWeight: 500, color: '#DC2626' }}>Reset local data</Typography>
+          <MenuItem onClick={handleResetData} sx={{ borderRadius: 2 }}>
+            <RestartAltIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#DC2626' }}>Reset Database</Typography>
           </MenuItem>
 
           <Divider sx={{ my: 1 }} />
@@ -613,16 +675,16 @@ export default function Navbar({ onToggleSidebar, onOpenPinModal, onGoHome, onSe
                 detail: 'Your session will end securely and you will need your PIN to sign in again.',
                 confirmText: 'Yes, Logout',
                 cancelText: 'Cancel',
-                confirmColor: '#DC2626'
+                confirmColor: '#EF4444'
               });
               if (ok) {
                 logout();
               }
             }}
-            sx={{ borderRadius: '8px', color: '#DC2626' }}
+            sx={{ borderRadius: 2, color: '#DC2626' }}
           >
-            <LogoutIcon fontSize="small" sx={{ mr: 1.25, color: '#DC2626' }} />
-            <Typography variant="body2" sx={{ fontWeight: 500, color: '#DC2626' }}>Sign out</Typography>
+            <LogoutIcon fontSize="small" sx={{ mr: 1.5, color: '#DC2626' }} />
+            <Typography variant="body2" sx={{ fontWeight: 800, color: '#DC2626' }}>Logout</Typography>
           </MenuItem>
         </Menu>
       </Toolbar>

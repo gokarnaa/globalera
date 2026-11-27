@@ -155,7 +155,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     setOpenRegisterModal(false);
     setIdentifier(newCode);
     setPin(newAgent.pin);
-    setRegSuccessMsg(`Agent code ${newCode} created. Sign in to continue.`);
+    setRegSuccessMsg(`Congratulations! Your Agent Code ${newCode} is ready. Click Sign In to continue.`);
   };
 
   const handleQuickDemo = (quickId, quickPin) => {
@@ -170,15 +170,6 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
     }
   };
 
-  const portalLabel =
-    portalMode === 'agent'
-      ? 'Referral partner portal'
-      : portalMode === 'trainer'
-      ? 'Trainer portal'
-      : portalMode === 'student'
-      ? 'Student portal'
-      : 'Administration portal';
-
   return (
     <Box
       sx={{
@@ -186,106 +177,150 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        bgcolor: '#F7F8FA',
-        p: { xs: 2, sm: 3 }
+        background:
+          portalMode === 'agent'
+            ? 'linear-gradient(135deg, #431407 0%, #7c2d12 50%, #1e1b4b 100%)'
+            : portalMode === 'trainer'
+            ? 'linear-gradient(135deg, #064e3b 0%, #065f46 50%, #022c22 100%)'
+            : portalMode === 'student'
+            ? 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0f172a 100%)'
+            : 'linear-gradient(135deg, #0b2545 0%, #133e68 50%, #081a30 100%)',
+        p: { xs: 2, sm: 3 },
+        transition: 'background 0.3s ease'
       }}
     >
       <Card
-        elevation={0}
         sx={{
           width: '100%',
-          maxWidth: 440,
-          borderRadius: '16px',
-          border: '1px solid #E5E7EB',
-          boxShadow: '0 8px 24px rgba(15, 23, 42, 0.06)',
+          maxWidth: 480,
+          borderRadius: 4,
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.45)',
           overflow: 'hidden',
           bgcolor: '#FFFFFF'
         }}
       >
-        {/* Institutional Header */}
+        {/* Institutional Header Banner */}
         <Box
           sx={{
-            px: { xs: 3, sm: 4 },
-            pt: { xs: 3, sm: 4 },
-            pb: 2.5,
-            borderBottom: '1px solid #E5E7EB'
+            bgcolor:
+              portalMode === 'agent'
+                ? '#7C2D12'
+                : portalMode === 'trainer'
+                ? '#064E3B'
+                : portalMode === 'student'
+                ? '#1E3A8A'
+                : '#0F2E5A',
+            color: '#FFFFFF',
+            p: 3,
+            textAlign: 'center',
+            position: 'relative',
+            borderBottom: `3px solid ${portalMode === 'agent' ? '#F59E0B' : portalMode === 'trainer' ? '#10B981' : portalMode === 'student' ? '#38BDF8' : '#F59E0B'}`
           }}
         >
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                bgcolor: '#0F2C59',
-                color: '#FFFFFF',
-                borderRadius: '10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
-              {portalMode === 'agent' ? (
-                <HandshakeIcon sx={{ fontSize: 20 }} />
-              ) : portalMode === 'trainer' ? (
-                <PeopleAltIcon sx={{ fontSize: 20 }} />
-              ) : portalMode === 'student' ? (
-                <SchoolIcon sx={{ fontSize: 20 }} />
-              ) : (
-                <AdminPanelSettingsIcon sx={{ fontSize: 20 }} />
-              )}
-            </Box>
-            <Box sx={{ minWidth: 0 }}>
-              <Typography variant="h6" noWrap sx={{ fontWeight: 600, color: '#111827', lineHeight: 1.2, fontSize: '1.0625rem' }}>
-                {company.companyNameEnglish || 'Prabidhik School, Jorpati'}
-              </Typography>
-              <Typography variant="caption" noWrap sx={{ color: '#6B7487', display: 'block', mt: 0.25, fontSize: '0.75rem' }}>
-                {company.companyNameNepali || 'Global Era Multi Service Pvt. Ltd.'} · CTEVT {company.ctevtCode || '4208'}
-              </Typography>
-            </Box>
+          <Box
+            sx={{
+              width: 62,
+              height: 62,
+              bgcolor: 'rgba(255,255,255,0.12)',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mx: 'auto',
+              mb: 1.2,
+              border: `2px solid ${portalMode === 'agent' ? '#F59E0B' : portalMode === 'trainer' ? '#10B981' : portalMode === 'student' ? '#38BDF8' : '#F59E0B'}`
+            }}
+          >
+            {portalMode === 'agent' ? (
+              <HandshakeIcon sx={{ fontSize: 34, color: '#FCD34D' }} />
+            ) : portalMode === 'trainer' ? (
+              <PeopleAltIcon sx={{ fontSize: 34, color: '#10B981' }} />
+            ) : portalMode === 'student' ? (
+              <SchoolIcon sx={{ fontSize: 34, color: '#38BDF8' }} />
+            ) : (
+              <AdminPanelSettingsIcon sx={{ fontSize: 36, color: '#F59E0B' }} />
+            )}
           </Box>
 
-          <Typography variant="body2" sx={{ color: '#0F2C59', fontWeight: 500, fontSize: '0.8125rem' }}>
-            {portalLabel}
+          <Typography variant="h6" sx={{ fontWeight: 900, letterSpacing: '0.02em', lineHeight: 1.2 }}>
+            {company.companyNameEnglish || 'Prabidhik School, Jorpati'}
           </Typography>
+          <Typography variant="caption" sx={{ color: '#E2E8F0', display: 'block', mt: 0.4, fontWeight: 600 }}>
+            {company.companyNameNepali || 'Global Era Multi Service Pvt. Ltd.'} • CTEVT Code: {company.ctevtCode || '4208'}
+          </Typography>
+
+          {/* Gateway Title Badge */}
+          <Chip
+            label={
+              portalMode === 'agent'
+                ? '🤝 Referral Partner / Agent Gateway'
+                : portalMode === 'trainer'
+                ? '👨‍🏫 Trainer Portal Gateway'
+                : portalMode === 'student'
+                ? '🎓 Student Portal Gateway'
+                : '🛡️ Main Administration Gateway'
+            }
+            size="small"
+            sx={{
+              mt: 1.5,
+              bgcolor:
+                portalMode === 'agent'
+                  ? 'rgba(245, 158, 11, 0.25)'
+                  : portalMode === 'trainer'
+                  ? 'rgba(16, 185, 129, 0.25)'
+                  : portalMode === 'student'
+                  ? 'rgba(56, 189, 248, 0.25)'
+                  : 'rgba(245, 158, 11, 0.25)',
+              color:
+                portalMode === 'agent'
+                  ? '#FDE68A'
+                  : portalMode === 'trainer'
+                  ? '#6EE7B7'
+                  : portalMode === 'student'
+                  ? '#BAE6FD'
+                  : '#FDE68A',
+              fontWeight: 800,
+              fontSize: '0.75rem'
+            }}
+          />
         </Box>
 
-        <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+        <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
           {regSuccessMsg && (
-            <Alert severity="success" sx={{ mb: 2.5, borderRadius: '8px', fontWeight: 500 }}>
+            <Alert severity="success" sx={{ mb: 2.5, borderRadius: 2, fontWeight: 700 }}>
               {regSuccessMsg}
             </Alert>
           )}
 
           {error && (
-            <Alert severity="error" sx={{ mb: 2.5, borderRadius: '8px', fontWeight: 500 }}>
+            <Alert severity="error" sx={{ mb: 2.5, borderRadius: 2, fontWeight: 700 }}>
               {error}
             </Alert>
           )}
 
           <form onSubmit={handleSubmit}>
-            <Stack spacing={2.25}>
+            <Stack spacing={2.2}>
               {/* Field 1: Identifier */}
               <Box>
-                <Typography variant="caption" sx={{ fontWeight: 500, color: '#111827', mb: 0.75, display: 'block', fontSize: '0.8125rem' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', mb: 0.6, display: 'block' }}>
                   {portalMode === 'admin'
-                    ? 'Username'
+                    ? 'Admin Username:'
                     : portalMode === 'agent'
-                    ? 'Agent code or phone number'
+                    ? 'Agent Code or Phone Number:'
                     : portalMode === 'trainer'
-                    ? 'Trainer phone or ID'
-                    : 'Student phone or registration ID'}
+                    ? 'Trainer Phone or ID:'
+                    : 'Student Phone or Registration ID (TGID):'}
                 </Typography>
                 <TextField
                   fullWidth
                   placeholder={
                     portalMode === 'admin'
-                      ? 'Enter username'
+                      ? 'admin'
                       : portalMode === 'agent'
-                      ? '9841234567 or AGE-101'
+                      ? 'e.g. 9841234567 or AGE-101'
                       : portalMode === 'trainer'
-                      ? '9841234567 or TRN-01'
-                      : '9860000001 or TGID-101'
+                      ? 'e.g. 9841234567 or TRN-01'
+                      : 'e.g. 9860000001 or TGID-101'
                   }
                   value={identifier}
                   onChange={(e) => {
@@ -297,29 +332,30 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                     startAdornment: (
                       <InputAdornment position="start">
                         {portalMode === 'admin' ? (
-                          <AdminPanelSettingsIcon sx={{ color: '#6B7487', fontSize: 18 }} />
+                          <AdminPanelSettingsIcon sx={{ color: '#0F2E5A' }} />
                         ) : portalMode === 'agent' ? (
-                          <HandshakeIcon sx={{ color: '#6B7487', fontSize: 18 }} />
+                          <HandshakeIcon sx={{ color: '#C2410C' }} />
                         ) : (
-                          <PhoneIphoneIcon sx={{ color: '#6B7487', fontSize: 18 }} />
+                          <PhoneIphoneIcon sx={{ color: portalMode === 'trainer' ? '#065F46' : '#1E40AF' }} />
                         )}
                       </InputAdornment>
                     )
                   }}
+                  sx={{ bgcolor: '#F8FAFC' }}
                 />
               </Box>
 
               {/* Field 2: Password / PIN */}
               <Box>
-                <Typography variant="caption" sx={{ fontWeight: 500, color: '#111827', mb: 0.75, display: 'block', fontSize: '0.8125rem' }}>
+                <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', mb: 0.6, display: 'block' }}>
                   {portalMode === 'admin'
-                    ? 'Password'
-                    : '4-digit PIN'}
+                    ? 'Admin Password:'
+                    : '4-Digit Access PIN:'}
                 </Typography>
                 <TextField
                   fullWidth
                   type={showPin ? 'text' : 'password'}
-                  placeholder={portalMode === 'admin' ? 'Enter password' : '••••'}
+                  placeholder={portalMode === 'admin' ? 'admin123' : '••••'}
                   value={pin}
                   onChange={(e) => {
                     setPin(e.target.value);
@@ -328,22 +364,34 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <LockOutlinedIcon sx={{ color: '#6B7487', fontSize: 18 }} />
+                        <LockOutlinedIcon
+                          sx={{
+                            color:
+                              portalMode === 'agent'
+                                ? '#C2410C'
+                                : portalMode === 'trainer'
+                                ? '#065F46'
+                                : portalMode === 'student'
+                                ? '#1E40AF'
+                                : '#0F2E5A'
+                          }}
+                        />
                       </InputAdornment>
                     ),
                     endAdornment: (
                       <InputAdornment position="end">
-                        <IconButton onClick={() => setShowPin(!showPin)} edge="end" size="small" aria-label="Toggle password visibility">
-                          {showPin ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                        <IconButton onClick={() => setShowPin(!showPin)} edge="end" size="small">
+                          {showPin ? <VisibilityOff /> : <Visibility />}
                         </IconButton>
                       </InputAdornment>
                     )
                   }}
+                  sx={{ bgcolor: '#F8FAFC' }}
                 />
 
                 {portalMode === 'admin' && (
-                  <Typography variant="caption" sx={{ color: '#6B7487', display: 'block', mt: 0.75, fontSize: '0.75rem' }}>
-                    Use your authorized administrative credentials.
+                  <Typography variant="caption" sx={{ color: '#64748B', display: 'block', mt: 0.6 }}>
+                    Enter your authorized administrative username and password.
                   </Typography>
                 )}
               </Box>
@@ -354,114 +402,131 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                 variant="contained"
                 size="large"
                 disabled={loading}
-                startIcon={<LoginIcon sx={{ fontSize: 18 }} />}
+                startIcon={<LoginIcon />}
                 sx={{
-                  height: 44,
-                  bgcolor: '#0F2C59',
+                  py: 1.3,
+                  bgcolor:
+                    portalMode === 'agent'
+                      ? '#7C2D12'
+                      : portalMode === 'trainer'
+                      ? '#065F46'
+                      : portalMode === 'student'
+                      ? '#1E40AF'
+                      : '#0F2E5A',
                   color: '#FFFFFF',
-                  fontWeight: 500,
-                  fontSize: '0.875rem',
-                  borderRadius: '8px',
+                  fontWeight: 900,
+                  fontSize: '0.98rem',
+                  borderRadius: 2.5,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
                   '&:hover': {
-                    bgcolor: '#163A70'
+                    bgcolor:
+                      portalMode === 'agent'
+                        ? '#9A3412'
+                        : portalMode === 'trainer'
+                        ? '#047857'
+                        : portalMode === 'student'
+                        ? '#1D4ED8'
+                        : '#133E68'
                   }
                 }}
               >
                 {loading
-                  ? 'Signing in...'
+                  ? 'Authenticating...'
                   : portalMode === 'agent'
-                  ? 'Sign in to agent portal'
+                  ? 'Enter Agent Portal'
                   : portalMode === 'trainer'
-                  ? 'Sign in to trainer portal'
+                  ? 'Enter Trainer Portal'
                   : portalMode === 'student'
-                  ? 'Sign in to student portal'
-                  : 'Sign in'}
+                  ? 'Enter Student Portal'
+                  : 'Sign In to ERP'}
               </Button>
 
               {/* Agent Sign Up */}
               {portalMode === 'agent' && (
-                <Button
-                  size="small"
-                  variant="outlined"
-                  startIcon={<HowToRegIcon sx={{ fontSize: 16 }} />}
-                  onClick={() => setOpenRegisterModal(true)}
-                  sx={{
-                    height: 38,
-                    fontWeight: 500,
-                    borderRadius: '8px',
-                    color: '#111827',
-                    borderColor: '#E5E7EB',
-                    bgcolor: '#F7F8FA',
-                    '&:hover': { bgcolor: '#F1F5F9', borderColor: '#D1D5DB' }
-                  }}
-                >
-                  Register as referral partner
-                </Button>
+                <Stack spacing={1} sx={{ pt: 1 }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<HowToRegIcon />}
+                    onClick={() => setOpenRegisterModal(true)}
+                    sx={{
+                      fontWeight: 800,
+                      borderRadius: 2,
+                      color: '#7C2D12',
+                      borderColor: '#FDBA74',
+                      bgcolor: '#FFF7ED',
+                      '&:hover': { bgcolor: '#FFEDD5', borderColor: '#EA580C' }
+                    }}
+                  >
+                    ✨ Register as New Referral Partner / Agent (Sign Up)
+                  </Button>
+                </Stack>
               )}
             </Stack>
           </form>
 
           {/* Bottom Navigation */}
-          <Box sx={{ mt: 3, pt: 2.5, borderTop: '1px solid #E5E7EB', textAlign: 'center' }}>
+          <Box sx={{ mt: 3, pt: 2, borderTop: '1px solid #E2E8F0', textAlign: 'center' }}>
             <Stack spacing={1.5} alignItems="center">
               {onBackHome && (
                 <Button
                   size="small"
-                  variant="text"
-                  startIcon={<ArrowBackIcon sx={{ fontSize: 15 }} />}
+                  variant="outlined"
                   onClick={onBackHome}
                   sx={{
-                    fontWeight: 500,
+                    fontWeight: 800,
                     fontSize: '0.78rem',
-                    color: '#4B5565',
-                    '&:hover': { color: '#111827', bgcolor: '#F7F8FA' }
+                    color: '#0F2E5A',
+                    borderColor: '#CBD5E1',
+                    borderRadius: 2,
+                    px: 2
                   }}
                 >
-                  Return to main website
+                  ← Return to Main Website (Home)
                 </Button>
               )}
 
               {/* Show role switcher only if allowed */}
               {(!allowedModes || allowedModes.length > 1) && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
+                <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, flexWrap: 'wrap', pt: 0.5 }}>
                   {portalMode !== 'agent' && (!allowedModes || allowedModes.includes('agent')) && (
                     <Button
                       size="small"
-                      startIcon={<HandshakeIcon sx={{ fontSize: 15 }} />}
+                      startIcon={<HandshakeIcon />}
                       onClick={() => handleSwitchMode('agent')}
-                      sx={{ fontWeight: 500, color: '#4B5565', fontSize: '0.78rem', '&:hover': { color: '#111827', bgcolor: '#F7F8FA' } }}
+                      sx={{ fontWeight: 800, color: '#C2410C', fontSize: '0.78rem' }}
                     >
-                      Agent
+                      Agent Portal
                     </Button>
                   )}
                   {portalMode !== 'trainer' && (!allowedModes || allowedModes.includes('trainer')) && (
                     <Button
                       size="small"
-                      startIcon={<PeopleAltIcon sx={{ fontSize: 15 }} />}
+                      startIcon={<PeopleAltIcon />}
                       onClick={() => handleSwitchMode('trainer')}
-                      sx={{ fontWeight: 500, color: '#4B5565', fontSize: '0.78rem', '&:hover': { color: '#111827', bgcolor: '#F7F8FA' } }}
+                      sx={{ fontWeight: 800, color: '#059669', fontSize: '0.78rem' }}
                     >
-                      Trainer
+                      Trainer Portal
                     </Button>
                   )}
                   {portalMode !== 'student' && (!allowedModes || allowedModes.includes('student')) && (
                     <Button
                       size="small"
-                      startIcon={<SchoolIcon sx={{ fontSize: 15 }} />}
+                      startIcon={<SchoolIcon />}
                       onClick={() => handleSwitchMode('student')}
-                      sx={{ fontWeight: 500, color: '#4B5565', fontSize: '0.78rem', '&:hover': { color: '#111827', bgcolor: '#F7F8FA' } }}
+                      sx={{ fontWeight: 800, color: '#2563EB', fontSize: '0.78rem' }}
                     >
-                      Student
+                      Student Portal
                     </Button>
                   )}
                   {portalMode !== 'admin' && allowedModes && allowedModes.includes('admin') && (
                     <Button
                       size="small"
-                      startIcon={<AdminPanelSettingsIcon sx={{ fontSize: 15 }} />}
+                      startIcon={<ArrowBackIcon />}
                       onClick={() => handleSwitchMode('admin')}
-                      sx={{ fontWeight: 500, color: '#4B5565', fontSize: '0.78rem', '&:hover': { color: '#111827', bgcolor: '#F7F8FA' } }}
+                      sx={{ fontWeight: 800, color: '#0F2E5A', fontSize: '0.78rem' }}
                     >
-                      Admin
+                      Admin Login
                     </Button>
                   )}
                 </Box>
@@ -477,22 +542,23 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
         onClose={() => setOpenRegisterModal(false)}
         maxWidth="xs"
         fullWidth
+        PaperProps={{ sx: { borderRadius: 3.5, p: 1 } }}
       >
         <form onSubmit={handleRegisterAgent}>
-          <DialogTitle sx={{ fontWeight: 600 }}>
-            New referral partner registration
+          <DialogTitle sx={{ fontWeight: 900, color: '#7C2D12', pb: 1 }}>
+            ✨ New Agent / Referral Partner Registration
           </DialogTitle>
           <DialogContent dividers>
             <Stack spacing={2} sx={{ pt: 1 }}>
-              <Alert severity="info" sx={{ borderRadius: '8px', fontWeight: 400 }}>
-                Upon registration, you will receive a unique agent code and referral link.
+              <Alert severity="info" sx={{ borderRadius: 2, fontWeight: 600 }}>
+                Upon registration, you will immediately receive a <b>Unique Agent Code</b> and <b>Referral Link</b>.
               </Alert>
 
               <TextField
                 required
                 fullWidth
                 label="Full Name"
-                placeholder="Ramesh Sharma"
+                placeholder="e.g. Ramesh Sharma"
                 value={regForm.name}
                 onChange={(e) => setRegForm({ ...regForm, name: e.target.value })}
               />
@@ -501,7 +567,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
                 required
                 fullWidth
                 label="Mobile Number"
-                placeholder="9841234567"
+                placeholder="e.g. 9841234567"
                 value={regForm.phone}
                 onChange={(e) => setRegForm({ ...regForm, phone: e.target.value })}
               />
@@ -516,7 +582,7 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               <TextField
                 fullWidth
                 label="eSewa or Bank Details for Commission"
-                placeholder="eSewa: 9841234567 or Nabil Bank"
+                placeholder="e.g. eSewa: 9841234567 or Nabil Bank"
                 value={regForm.paymentInfo}
                 onChange={(e) => setRegForm({ ...regForm, paymentInfo: e.target.value })}
               />
@@ -532,14 +598,14 @@ export default function UnifiedLoginScreen({ onLoginSuccess, initialMode, allowe
               />
             </Stack>
           </DialogContent>
-          <DialogActions>
-            <Button onClick={() => setOpenRegisterModal(false)}>
+          <DialogActions sx={{ p: 2 }}>
+            <Button onClick={() => setOpenRegisterModal(false)} sx={{ fontWeight: 700 }}>
               Cancel
             </Button>
             <Button
               type="submit"
               variant="contained"
-              sx={{ bgcolor: '#0F2C59', color: '#FFFFFF', px: 2.5, '&:hover': { bgcolor: '#163A70' } }}
+              sx={{ bgcolor: '#7C2D12', color: '#FFFFFF', fontWeight: 800, px: 3, '&:hover': { bgcolor: '#9A3412' } }}
             >
               Register
             </Button>
