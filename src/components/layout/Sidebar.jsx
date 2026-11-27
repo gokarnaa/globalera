@@ -155,27 +155,25 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
   });
 
   const drawerContent = (
-    <Box sx={{ width: 248, display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {isMobile && (
-        <Box
-          sx={{
-            px: 1.75,
-            py: 0.9,
-            borderBottom: '1px solid #E2E8F0',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            bgcolor: '#F8FAFC'
-          }}
-        >
-          <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.8rem' }}>
-            Menu
-          </Typography>
-          <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      )}
+    <Box sx={{ width: 256, display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Box
+        sx={{
+          px: 1.75,
+          py: 1.1,
+          borderBottom: '1px solid #E2E8F0',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          bgcolor: '#F8FAFC'
+        }}
+      >
+        <Typography variant="subtitle2" sx={{ fontWeight: 900, color: '#0F2C59', letterSpacing: '0.02em', fontSize: '0.82rem' }}>
+          Navigation Menu
+        </Typography>
+        <IconButton size="small" aria-label="Close navigation menu" onClick={onClose}>
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </Box>
 
       {/* Navigation Links List */}
       <Box sx={{ flexGrow: 1, overflowY: 'auto', px: 1.1, py: 0.5 }}>
@@ -211,7 +209,7 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
                   selected={isSelected}
                   onClick={() => {
                     onSelectTab(item.id);
-                    if (isMobile && onClose) onClose();
+                    if (onClose) onClose();
                   }}
                   sx={{
                     borderRadius: 2,
@@ -377,53 +375,38 @@ export default function Sidebar({ currentTab, onSelectTab, open, onClose, isMobi
     <Box
       component="nav"
       sx={{
-        width: isMobile ? 0 : (open ? 248 : 0),
+        width: 0,
         flexShrink: 0
       }}
     >
-      {isMobile ? (
-        /* Mobile Drawer: Only rendered when on mobile breakpoint */
-        <Drawer
-          variant="temporary"
-          anchor="left"
-          open={Boolean(open)}
-          onClose={onClose}
-          ModalProps={{ keepMounted: false }}
-          sx={{
-            zIndex: (theme) => theme.zIndex.drawer + 2,
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: 248,
-              bgcolor: '#FFFFFF',
-              boxShadow: '4px 0 24px rgba(15, 23, 42, 0.2)'
+      {/* Overlay Slide-Over Drawer on both Desktop & Mobile so Data Tables always keep 100% full width */}
+      <Drawer
+        variant="temporary"
+        anchor="left"
+        open={Boolean(open)}
+        onClose={onClose}
+        ModalProps={{ keepMounted: false }}
+        slotProps={{
+          backdrop: {
+            sx: {
+              bgcolor: 'rgba(15, 23, 42, 0.25)',
+              backdropFilter: 'blur(1px)'
             }
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      ) : (
-        /* Desktop Persistent Drawer: Only rendered on desktop */
-        <Drawer
-          variant="persistent"
-          anchor="left"
-          open={Boolean(open)}
-          sx={{
-            width: open ? 248 : 0,
-            flexShrink: 0,
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: 248,
-              bgcolor: '#FFFFFF',
-              borderRight: '1px solid #E2E8F0',
-              top: '70px',
-              height: 'calc(100dvh - 70px)',
-              boxShadow: '2px 0 12px rgba(15, 23, 42, 0.03)'
-            }
-          }}
-        >
-          {drawerContent}
-        </Drawer>
-      )}
+          }
+        }}
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 2,
+          '& .MuiDrawer-paper': {
+            boxSizing: 'border-box',
+            width: 256,
+            bgcolor: '#FFFFFF',
+            borderRight: '1px solid #E2E8F0',
+            boxShadow: '8px 0 32px rgba(15, 23, 42, 0.16)'
+          }
+        }}
+      >
+        {drawerContent}
+      </Drawer>
     </Box>
   );
 }

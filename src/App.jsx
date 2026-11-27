@@ -203,15 +203,11 @@ export default function App() {
       );
     }
   }, [currentUser?.role, currentUser?.id]);
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Keep sidebar state in sync with device screen size changes (e.g. mobile toggle mode)
+  // Close overlay drawer cleanly when switching viewport breakpoint
   React.useEffect(() => {
-    if (isMobile) {
-      setSidebarOpen(false);
-    } else {
-      setSidebarOpen(true);
-    }
+    setSidebarOpen(false);
   }, [isMobile]);
 
   const [pinModalOpen, setPinModalOpen] = useState(false);
@@ -313,9 +309,7 @@ export default function App() {
 
   const handleSelectTab = (tabId) => {
     setCurrentTab(tabId);
-    if (isMobile) {
-      setSidebarOpen(false);
-    }
+    setSidebarOpen(false);
   };
 
   const renderContent = () => {
