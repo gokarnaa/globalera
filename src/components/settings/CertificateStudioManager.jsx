@@ -405,7 +405,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   });
 
   const [savedAlert, setSavedAlert] = useState(false);
-  const [previewScale, setPreviewScale] = useState(0.75);
+  const [previewScale, setPreviewScale] = useState(0.58);
+  const [autoFitMode, setAutoFitMode] = useState(true);
+  const canvasViewportRef = useRef(null);
 
   // Left Tools Active Category Tab: 0=Header, 1=Background, 2=Borders, 3=Stamp/Signatures, 4=Calibration, 5=Layers
   const [activeLeftTab, setActiveLeftTab] = useState(0);
@@ -415,27 +417,13 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const [showRightPanel, setShowRightPanel] = useState(true);
 
   const handleToggleLeftPanel = () => {
-    setShowLeftPanel((prev) => {
-      const next = !prev;
-      if (!next && !showRightPanel) {
-        setPreviewScale(0.95);
-      } else if (next && previewScale > 0.8) {
-        setPreviewScale(0.75);
-      }
-      return next;
-    });
+    setShowLeftPanel((prev) => !prev);
+    setAutoFitMode(true);
   };
 
   const handleToggleRightPanel = () => {
-    setShowRightPanel((prev) => {
-      const next = !prev;
-      if (!showLeftPanel && !next) {
-        setPreviewScale(0.95);
-      } else if (next && previewScale > 0.8) {
-        setPreviewScale(0.75);
-      }
-      return next;
-    });
+    setShowRightPanel((prev) => !prev);
+    setAutoFitMode(true);
   };
 
   // Sample Student Switcher
@@ -448,6 +436,41 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const dragRef = useRef({ startX: 0, startY: 0, initElX: 0, initElY: 0, elKey: null });
 
   const isPortrait = design.orientation === 'portrait';
+  const baseCanvasWidth = isPortrait ? 760 : 1040;
+  const baseCanvasHeight = isPortrait ? 1060 : 740;
+
+  const computeFitScale = React.useCallback(() => {
+    const vp = canvasViewportRef.current;
+    const isNarrow = typeof window !== 'undefined' && window.innerWidth < 900;
+    const availW = Math.max(240, (vp?.clientWidth || (isNarrow ? window.innerWidth - 32 : 640)) - 28);
+    const rawH = vp?.clientHeight || 0;
+    const availH = isNarrow
+      ? Math.max(240, Math.min(window.innerHeight * 0.58, 620))
+      : Math.max(360, (rawH > 200 ? rawH : Math.min(window.innerHeight - 220, 680)) - 28);
+    const fit = Math.min(availW / baseCanvasWidth, availH / baseCanvasHeight, 0.92);
+    return Math.max(0.25, Math.round(fit * 100) / 100);
+  }, [baseCanvasWidth, baseCanvasHeight]);
+
+  // Auto-fit preview whenever viewport resizes, orientation flips, or side panels toggle
+  useEffect(() => {
+    if (!autoFitMode) return;
+    const applyFit = () => setPreviewScale(computeFitScale());
+    applyFit();
+    const raf = requestAnimationFrame(applyFit);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(applyFit) : null;
+    if (ro && canvasViewportRef.current) ro.observe(canvasViewportRef.current);
+    window.addEventListener('resize', applyFit);
+    return () => {
+      cancelAnimationFrame(raf);
+      if (ro) ro.disconnect();
+      window.removeEventListener('resize', applyFit);
+    };
+  }, [autoFitMode, computeFitScale, showLeftPanel, showRightPanel, isPortrait]);
+
+  // Re-engage auto-fit cleanly when user switches between Portrait and Landscape
+  useEffect(() => {
+    setAutoFitMode(true);
+  }, [isPortrait]);
 
   const handleUpdate = (field, value) => {
     setDesign((prev) => ({
@@ -1813,7 +1836,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Tooltip title="Zoom Out">
                 <IconButton
                   size="small"
-                  onClick={() => setPreviewScale((p) => Math.max(0.45, Math.round((p - 0.05) * 100) / 100))}
+                  onClick={() => {
+                    setAutoFitMode(false);
+                    setPreviewScale((p) => Math.max(0.25, Math.round((p - 0.05) * 100) / 100));
+                  }}
                   sx={{ color: '#E2E8F0', bgcolor: '#1E293B' }}
                 >
                   <ZoomOutIcon fontSize="small" />
@@ -1827,18 +1853,28 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
               <Tooltip title="Zoom In">
                 <IconButton
                   size="small"
-                  onClick={() => setPreviewScale((p) => Math.min(1.2, Math.round((p + 0.05) * 100) / 100))}
+                  onClick={() => {
+                    setAutoFitMode(false);
+                    setPreviewScale((p) => Math.min(1.2, Math.round((p + 0.05) * 100) / 100));
+                  }}
                   sx={{ color: '#E2E8F0', bgcolor: '#1E293B' }}
                 >
                   <ZoomInIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="Fit to View (~72%)">
+              <Tooltip title="Auto-Fit to View (Landscape & Portrait)">
                 <IconButton
                   size="small"
-                  onClick={() => setPreviewScale(0.72)}
-                  sx={{ color: '#38BDF8', bgcolor: '#1E293B' }}
+                  onClick={() => {
+                    setAutoFitMode(true);
+                    setPreviewScale(computeFitScale());
+                  }}
+                  sx={{
+                    color: autoFitMode ? '#0F172A' : '#38BDF8',
+                    bgcolor: autoFitMode ? '#38BDF8' : '#1E293B',
+                    '&:hover': { bgcolor: autoFitMode ? '#7DD3FC' : '#334155' }
+                  }}
                 >
                   <FitScreenIcon fontSize="small" />
                 </IconButton>
@@ -1846,7 +1882,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
               <Button
                 size="small"
-                onClick={() => setPreviewScale(1.0)}
+                onClick={() => {
+                  setAutoFitMode(false);
+                  setPreviewScale(1.0);
+                }}
                 sx={{ color: '#CBD5E1', fontSize: '0.68rem', fontWeight: 800, minWidth: 32 }}
               >
                 100%
@@ -1856,38 +1895,51 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
           {/* Scrollable Viewport containing the True A4 Certificate Canvas */}
           <Box
+            ref={canvasViewportRef}
             sx={{
               flex: 1,
               overflow: 'auto',
-              p: { xs: 1.5, sm: 2.5 },
+              p: { xs: 1.5, sm: 2 },
               display: 'flex',
               justifyContent: 'center',
-              alignItems: 'flex-start',
+              alignItems: 'center',
               userSelect: isDragging ? 'none' : 'auto'
             }}
           >
-            {/* The Live Certificate Canvas with Proportional True A4 Aspect Ratio */}
+            {/* Exact Scaled Bounding Frame — eliminates ghost scrollbars in both Landscape & Portrait */}
             <Box
-              id="liveCertificateStudioCanvas"
+              id="studioCanvasScaleFrame"
               sx={{
-                width: isPortrait ? '760px' : '1040px',
-                minHeight: isPortrait ? '1060px' : '740px',
-                p: `${design.borderMargin}mm`,
-                boxSizing: 'border-box',
-                fontFamily: "'Times New Roman', serif",
-                color: '#0F172A',
+                width: `${Math.round(baseCanvasWidth * previewScale)}px`,
+                height: `${Math.round(baseCanvasHeight * previewScale)}px`,
                 position: 'relative',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
-                transformOrigin: 'top center',
-                transition: isDragging ? 'none' : 'all 0.15s ease',
-                boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
-                ...getBorderStyle(),
-                ...getBackgroundStyle()
+                flexShrink: 0,
+                boxShadow: '0 14px 36px rgba(0,0,0,0.42)',
+                borderRadius: '4px',
+                overflow: 'visible'
               }}
             >
+              {/* The Live Certificate Canvas with Proportional True A4 Aspect Ratio */}
+              <Box
+                id="liveCertificateStudioCanvas"
+                sx={{
+                  width: `${baseCanvasWidth}px`,
+                  minHeight: `${baseCanvasHeight}px`,
+                  p: `${design.borderMargin}mm`,
+                  boxSizing: 'border-box',
+                  fontFamily: "'Times New Roman', serif",
+                  color: '#0F172A',
+                  position: 'relative',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  transform: `scale(${previewScale}) translate(${design.offsetX}px, ${design.offsetY}px)`,
+                  transformOrigin: 'top left',
+                  transition: isDragging ? 'none' : 'transform 0.15s ease',
+                  ...getBorderStyle(),
+                  ...getBackgroundStyle()
+                }}
+              >
               {/* Custom Uploaded Background Layer with Opacity & Fit */}
               {!design.preprintedTextOnly && design.backgroundType === 'custom' && design.customBackgroundUrl && (
                 <Box
@@ -2544,6 +2596,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                   ))}
                 </Box>
               </Box>
+              </Box>
             </Box>
           </Box>
         </Box>
@@ -2945,6 +2998,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           }
           #liveCertificateStudioCanvas, #liveCertificateStudioCanvas * {
             visibility: visible !important;
+          }
+          #studioCanvasScaleFrame {
+            width: auto !important;
+            height: auto !important;
+            box-shadow: none !important;
           }
           #liveCertificateStudioCanvas {
             position: absolute !important;
