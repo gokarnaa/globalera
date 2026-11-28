@@ -147,6 +147,7 @@ export default function A4LandscapeCertificateModal({
   const [nepaliDraft, setNepaliDraft] = useState('');
   const [savedNepaliText, setSavedNepaliText] = useState('');
   const [bodyModeOverride, setBodyModeOverride] = useState(null); // null = use Studio setting
+  const [selectedPresetId, setSelectedPresetId] = useState(''); // '' = active Studio design
   const [aiGenerating, setAiGenerating] = useState(false);
   const [aiNotice, setAiNotice] = useState('');
 
@@ -155,6 +156,7 @@ export default function A4LandscapeCertificateModal({
       setZoomed(false);
       setNepaliDialogOpen(false);
       setBodyModeOverride(null);
+      setSelectedPresetId('');
       setAiNotice('');
       return;
     }
@@ -186,7 +188,19 @@ export default function A4LandscapeCertificateModal({
   if (!open || !certificate || !student) return null;
 
   const db = loadDB();
-  const design = db.settings?.certificateDesign || {};
+  const baseDesign = db.settings?.certificateDesign || {};
+  const savedPresets = baseDesign.customTemplatePresets || [];
+  const activePresetObj = selectedPresetId ? savedPresets.find((p) => p.id === selectedPresetId) : null;
+  const design = activePresetObj?.config
+    ? {
+        ...baseDesign,
+        ...activePresetObj.config,
+        elementStyles: {
+          ...(baseDesign.elementStyles || {}),
+          ...(activePresetObj.config.elementStyles || {})
+        }
+      }
+    : baseDesign;
   const elStyles = design.elementStyles || {};
 
   const isPortrait = design.orientation === 'portrait';
@@ -687,6 +701,39 @@ export default function A4LandscapeCertificateModal({
             alignItems: 'center'
           }}
         >
+          {savedPresets.length > 0 && (
+            <TextField
+              select
+              size="small"
+              value={selectedPresetId}
+              onChange={(e) => setSelectedPresetId(e.target.value)}
+              sx={{
+                display: { xs: 'none', md: 'inline-flex' },
+                minWidth: 148,
+                '& .MuiOutlinedInput-root': {
+                  height: 30,
+                  fontSize: '0.73rem',
+                  fontWeight: 700,
+                  color: '#F8FAFC',
+                  bgcolor: '#1E293B',
+                  '& fieldset': { borderColor: '#475569' },
+                  '&:hover fieldset': { borderColor: '#94A3B8' }
+                },
+                '& .MuiSvgIcon-root': { color: '#CBD5E1' }
+              }}
+            >
+              <MenuItem value="" sx={{ fontSize: '0.78rem' }}>
+                Default Studio Design
+              </MenuItem>
+              {savedPresets.map((p) => (
+                <MenuItem key={p.id} value={p.id} sx={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                  {baseDesign.defaultPresetId === p.id ? '★ ' : ''}
+                  {p.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+
           <Button
             variant="outlined"
             size="small"

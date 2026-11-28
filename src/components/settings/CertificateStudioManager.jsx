@@ -1232,7 +1232,120 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
             </ToggleButtonGroup>
 
             {/* Option 3: Top Bar Simple Panel Toggles (Tools & Inspector) */}
-            <Stack direction="row" spacing={0.8} alignItems="center">
+            <Stack direction="row" spacing={0.8} alignItems="center" flexWrap="wrap" useFlexGap>
+              {/* Always-Visible Top Bar Custom Preset Switcher + Quick Save */}
+              <TextField
+                select
+                size="small"
+                label="Custom Preset"
+                value={design.activePresetId || ''}
+                onChange={(e) => {
+                  const found = (design.customTemplatePresets || []).find((p) => p.id === e.target.value);
+                  if (found) handleApplyTemplatePreset(found);
+                }}
+                sx={{ minWidth: 165, bgcolor: '#F8FAFC' }}
+                InputProps={{ sx: { height: 32, fontSize: '0.74rem', fontWeight: 700 } }}
+                InputLabelProps={{ shrink: true }}
+              >
+                <MenuItem value="">
+                  <em>Active Draft (Unsaved)</em>
+                </MenuItem>
+                {(design.customTemplatePresets || []).map((p) => (
+                  <MenuItem key={p.id} value={p.id} sx={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                    {design.defaultPresetId === p.id ? '★ ' : ''}
+                    {p.name} ({p.orientation === 'portrait' ? 'P' : 'L'})
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <Tooltip title="Save current design as a new Custom Preset in Supabase Cloud">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={() => {
+                    const name = window.prompt(
+                      'New Custom Preset Name (e.g. Beautician Portrait / CTEVT Gold):',
+                      `Preset ${((design.customTemplatePresets || []).length + 1)}`
+                    );
+                    if (!name || !name.trim()) return;
+                    setPresetNameInput(name.trim());
+                    setTimeout(() => {
+                      const bgUrl = design.backgroundType === 'custom' ? design.customBackgroundUrl : '';
+                      const newPreset = {
+                        id: `tpl-${Date.now()}`,
+                        name: name.trim().slice(0, 32),
+                        bgMode: design.customBgMode || 'plain',
+                        orientation: design.orientation || 'landscape',
+                        thumbnail: bgUrl && bgUrl.length < 150000 ? bgUrl : '',
+                        primaryColor: design.primaryColor || '#0B2545',
+                        accentColor: design.accentColor || '#C59B27',
+                        createdAt: new Date().toLocaleDateString('en-US'),
+                        config: extractPresetSnapshot(design)
+                      };
+                      const nextDesign = {
+                        ...design,
+                        customTemplatePresets: [newPreset, ...(design.customTemplatePresets || [])],
+                        activePresetId: newPreset.id,
+                        defaultPresetId: design.defaultPresetId || newPreset.id
+                      };
+                      setDesign(nextDesign);
+                      setPresetNameInput('');
+                      persistDesignToCloud(nextDesign);
+                      setSavedAlert(true);
+                      setTimeout(() => setSavedAlert(false), 3000);
+                    }, 0);
+                  }}
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    borderRadius: 2,
+                    py: 0.45,
+                    px: 1.1,
+                    borderColor: '#0284C7',
+                    color: '#0369A1',
+                    bgcolor: '#F0F9FF',
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: '#E0F2FE', borderColor: '#0369A1' }
+                  }}
+                >
+                  + Save Preset
+                </Button>
+              </Tooltip>
+
+              {design.activePresetId && (
+                <Tooltip title="Update currently selected Custom Preset in Supabase Cloud">
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={handleUpdateActiveTemplatePreset}
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: '0.72rem',
+                      borderRadius: 2,
+                      py: 0.45,
+                      px: 1,
+                      borderColor: '#059669',
+                      color: '#047857',
+                      bgcolor: '#ECFDF5',
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: '#D1FAE5' }
+                    }}
+                  >
+                    Update
+                  </Button>
+                </Tooltip>
+              )}
+
+              {cloudSyncState === 'saving' && <CircularProgress size={16} />}
+              {cloudSyncState === 'saved' && (
+                <Chip
+                  size="small"
+                  icon={<CloudDoneIcon sx={{ fontSize: '14px !important', color: '#059669 !important' }} />}
+                  label="Saved to Supabase"
+                  sx={{ height: 22, fontSize: '0.65rem', fontWeight: 800, bgcolor: '#DCFCE7', color: '#15803D' }}
+                />
+              )}
+
               <Tooltip title={showLeftPanel ? 'Hide Left Tools Panel' : 'Show Left Tools Panel'}>
                 <Button
                   size="small"
@@ -3492,19 +3605,30 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     />
                   </Stack>
 
-                  <Button
-                    fullWidth
-                    size="small"
-                    color="inherit"
-                    onClick={() => handleResetElement(selectedElement)}
-                    sx={{ mt: 0.8, fontSize: '0.68rem', fontWeight: 700, bgcolor: '#F8FAFC' }}
-                  >
-                    Reset to Default Position
-                  </Button>
+                  <Stack direction="row" spacing={0.8} sx={{ mt: 0.8 }}>
+                    <Button
+                      fullWidth
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleElementStyleUpdate(selectedElement, 'x', 0)}
+                      sx={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'none', borderColor: '#0284C7', color: '#0369A1' }}
+                    >
+                      Center X (0)
+                    </Button>
+                    <Button
+                      fullWidth
+                      size="small"
+                      color="inherit"
+                      onClick={() => handleResetElement(selectedElement)}
+                      sx={{ fontSize: '0.68rem', fontWeight: 700, bgcolor: '#F8FAFC', textTransform: 'none' }}
+                    >
+                      Reset X &amp; Y
+                    </Button>
+                  </Stack>
                 </Box>
 
                 {/* Typography Controls for Selected Text */}
-                {['headerTitle', 'headerSub', 'headerAddress', 'title', 'student', 'body'].includes(selectedElement) && (
+                {['headerTitle', 'headerSub', 'headerAddress', 'title', 'refCertNo', 'refTgid', 'refIssueDate', 'student', 'body'].includes(selectedElement) && (
                   <Box sx={{ p: 1, bgcolor: '#FFFFFF', borderRadius: 2, border: '1px solid #CBD5E1' }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A', display: 'block', mb: 0.8 }}>
                       Typography & Font Style:

@@ -193,13 +193,20 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01', only
     });
     results.organizations = 1;
 
-    // 2. System Settings (preserve existing cloud secrets like aakashSmsToken & whatsappBot if absent locally)
-    const { data: existingSys } = await client.from('system_settings').select('company_profile').eq('id', 'GLOBAL_CONFIG').maybeSingle();
+    // 2. System Settings (preserve existing cloud secrets + persist certificateDesign & nepali texts reliably in certificate_format JSONB)
+    const { data: existingSys } = await client
+      .from('system_settings')
+      .select('company_profile, certificate_format')
+      .eq('id', 'GLOBAL_CONFIG')
+      .maybeSingle();
     const existingProfile = existingSys?.company_profile || {};
+    const existingCertFmt = existingSys?.certificate_format || {};
     const resolvedBot = db.settings?.whatsappBot || existingProfile.whatsappBot;
     const resolvedSmsToken = db.settings?.aakashSmsToken || existingProfile.aakashSmsToken;
+    const resolvedCertDesign = db.settings?.certificateDesign || existingCertFmt.__certificateDesign;
+    const resolvedNepaliTexts = db.settings?.certificateNepaliTexts || existingCertFmt.__certificateNepaliTexts;
 
-    await client.from('system_settings').upsert({
+    const { error: sysErr } = await client.from('system_settings').upsert({
       id: 'GLOBAL_CONFIG',
       organization_id: orgId,
       institute_name: db.settings?.instituteName || 'Global Era Technical School',
@@ -214,9 +221,16 @@ export async function pushLocalDBToSupabase(db, orgId = 'ORG-GLOBALERA-01', only
         ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
       },
       biometric_settings: db.settings?.biometricSettings || {},
-      certificate_format: db.settings?.certificateNumberFormat || {},
+      certificate_format: {
+        ...(db.settings?.certificateNumberFormat || {}),
+        ...(resolvedCertDesign ? { __certificateDesign: resolvedCertDesign } : {}),
+        ...(resolvedNepaliTexts ? { __certificateNepaliTexts: resolvedNepaliTexts } : {})
+      },
       updated_at: new Date().toISOString()
     });
+    if (sysErr) {
+      throw new Error(`Supabase system_settings save failed: ${sysErr.message}`);
+    }
     results.system_settings = 1;
   }
 
@@ -1515,6 +1529,17 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
       const resolvedWhatsappBot =
         globalRow.company_profile?.whatsappBot ||
         orgSettings.whatsappBot;
+      const rawCertFmt = (globalRow.certificate_format && typeof globalRow.certificate_format === 'object')
+        ? globalRow.certificate_format
+        : {};
+      const {
+        __certificateDesign: cloudCertDesign,
+        __certificateNepaliTexts: cloudNepaliTexts,
+        ...cleanCertNumberFormat
+      } = rawCertFmt;
+      const resolvedCertDesign = cloudCertDesign || orgSettings.certificateDesign;
+      const resolvedNepaliTexts = cloudNepaliTexts || orgSettings.certificateNepaliTexts;
+
       return {
         ...orgSettings,
         ...(globalRow.institute_name ? { instituteName: globalRow.institute_name } : {}),
@@ -1526,9 +1551,11 @@ export async function pullRemoteDBFromSupabase(orgId = 'ORG-GLOBALERA-01') {
         ...(globalRow.biometric_settings && Object.keys(globalRow.biometric_settings).length
           ? { biometricSettings: { ...(orgSettings.biometricSettings || {}), ...globalRow.biometric_settings } }
           : {}),
-        ...(globalRow.certificate_format && Object.keys(globalRow.certificate_format).length
-          ? { certificateNumberFormat: { ...(orgSettings.certificateNumberFormat || {}), ...globalRow.certificate_format } }
+        ...(Object.keys(cleanCertNumberFormat).length
+          ? { certificateNumberFormat: { ...(orgSettings.certificateNumberFormat || {}), ...cleanCertNumberFormat } }
           : {}),
+        ...(resolvedCertDesign ? { certificateDesign: resolvedCertDesign } : {}),
+        ...(resolvedNepaliTexts ? { certificateNepaliTexts: resolvedNepaliTexts } : {}),
         ...(resolvedWhatsappBot ? { whatsappBot: resolvedWhatsappBot } : {}),
         ...(resolvedSmsToken ? { aakashSmsToken: resolvedSmsToken } : {})
       };
