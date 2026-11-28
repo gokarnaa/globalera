@@ -20,7 +20,11 @@ import {
   MenuItem,
   Select,
   FormControl,
-  InputLabel
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions
 } from '@mui/material';
 import WallpaperIcon from '@mui/icons-material/Wallpaper';
 import BorderStyleIcon from '@mui/icons-material/BorderStyle';
@@ -436,6 +440,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const [presetNameInput, setPresetNameInput] = useState('');
   const [bgUploading, setBgUploading] = useState(false);
   const [cloudSyncState, setCloudSyncState] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'local'
+  const [presetModalOpen, setPresetModalOpen] = useState(false);
+  const [editingPresetId, setEditingPresetId] = useState(null);
+  const [presetModalUploading, setPresetModalUploading] = useState(false);
+  const [presetForm, setPresetForm] = useState(null);
   const [previewScale, setPreviewScale] = useState(0.58);
 
   // Sync saved Custom Presets & Backgrounds when cloud hydration finishes on page refresh
@@ -992,6 +1000,235 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     await persistDesignToCloud(nextDesign);
   };
 
+  // Open Dedicated "+ Add Custom Preset" Builder Modal
+  const openAddCustomPresetModal = () => {
+    setEditingPresetId(null);
+    setPresetForm({
+      name: `Custom Preset ${((design.customTemplatePresets || []).length + 1)}`,
+      orientation: design.orientation || 'landscape',
+      backgroundType: design.backgroundType || 'clean-white',
+      customBackgroundUrl: design.customBackgroundUrl || '',
+      customBgMode: design.customBgMode || 'plain',
+      customBgFit: design.customBgFit || '100% 100%',
+      customBgOpacity: design.customBgOpacity !== undefined ? design.customBgOpacity : 100,
+      borderStyle: design.borderStyle || 'royal-double',
+      cornerStyle: design.cornerStyle || 'victorian-flourish',
+      watermarkOpacity: design.watermarkOpacity !== undefined ? design.watermarkOpacity : 4,
+      bodyLayoutMode: design.bodyLayoutMode || 'english-only',
+      durationDisplayMode: design.durationDisplayMode || 'hours',
+      showHeader: design.showHeader !== false,
+      showHeaderTitle: design.showHeaderTitle !== false,
+      showAccreditation: design.showAccreditation !== false,
+      showAffiliation: design.showAffiliation !== false,
+      showLeftLogo: design.showLeftLogo !== false,
+      showRightLogo: design.showRightLogo !== false,
+      showHeaderDivider: design.showHeaderDivider !== false,
+      showTitle: design.showTitle !== false,
+      showRefBar: design.showRefBar !== false,
+      showRefCertNo: design.showRefCertNo !== false,
+      showRefTgid: design.showRefTgid !== false,
+      showRefIssueDate: design.showRefIssueDate !== false,
+      transparentRefBar: Boolean(design.transparentRefBar) || design.backgroundType === 'custom',
+      showStudentPhoto: design.showStudentPhoto !== false,
+      showNepaliNameSubtitle: Boolean(design.showNepaliNameSubtitle),
+      showCourseLine: design.showCourseLine !== false,
+      showCompetencyBadge: design.showCompetencyBadge !== false,
+      showBodyText: design.showBodyText !== false,
+      showQrVerification: design.showQrVerification !== false,
+      sealMode: design.sealMode || 'blank',
+      showSignatories: design.showSignatories !== false,
+      setAsDefault: (design.customTemplatePresets || []).length === 0
+    });
+    setPresetModalOpen(true);
+  };
+
+  const openEditCustomPresetModal = (preset, e) => {
+    if (e) e.stopPropagation();
+    const cfg = preset?.config || {};
+    setEditingPresetId(preset.id);
+    setPresetForm({
+      name: preset.name || 'Custom Preset',
+      orientation: cfg.orientation || preset.orientation || 'landscape',
+      backgroundType: cfg.backgroundType || 'clean-white',
+      customBackgroundUrl: cfg.customBackgroundUrl || preset.thumbnail || '',
+      customBgMode: cfg.customBgMode || preset.bgMode || 'plain',
+      customBgFit: cfg.customBgFit || '100% 100%',
+      customBgOpacity: cfg.customBgOpacity !== undefined ? cfg.customBgOpacity : 100,
+      borderStyle: cfg.borderStyle || 'royal-double',
+      cornerStyle: cfg.cornerStyle || 'victorian-flourish',
+      watermarkOpacity: cfg.watermarkOpacity !== undefined ? cfg.watermarkOpacity : 4,
+      bodyLayoutMode: cfg.bodyLayoutMode || 'english-only',
+      durationDisplayMode: cfg.durationDisplayMode || 'hours',
+      showHeader: cfg.showHeader !== false,
+      showHeaderTitle: cfg.showHeaderTitle !== false,
+      showAccreditation: cfg.showAccreditation !== false,
+      showAffiliation: cfg.showAffiliation !== false,
+      showLeftLogo: cfg.showLeftLogo !== false,
+      showRightLogo: cfg.showRightLogo !== false,
+      showHeaderDivider: cfg.showHeaderDivider !== false,
+      showTitle: cfg.showTitle !== false,
+      showRefBar: cfg.showRefBar !== false,
+      showRefCertNo: cfg.showRefCertNo !== false,
+      showRefTgid: cfg.showRefTgid !== false,
+      showRefIssueDate: cfg.showRefIssueDate !== false,
+      transparentRefBar: Boolean(cfg.transparentRefBar) || cfg.backgroundType === 'custom',
+      showStudentPhoto: cfg.showStudentPhoto !== false,
+      showNepaliNameSubtitle: Boolean(cfg.showNepaliNameSubtitle),
+      showCourseLine: cfg.showCourseLine !== false,
+      showCompetencyBadge: cfg.showCompetencyBadge !== false,
+      showBodyText: cfg.showBodyText !== false,
+      showQrVerification: cfg.showQrVerification !== false,
+      sealMode: cfg.sealMode || 'blank',
+      showSignatories: cfg.showSignatories !== false,
+      setAsDefault: design.defaultPresetId === preset.id
+    });
+    setPresetModalOpen(true);
+  };
+
+  const handlePresetFormBgModeChange = (mode) => {
+    setPresetForm((prev) => {
+      if (!prev) return prev;
+      if (mode === 'predesigned') {
+        return {
+          ...prev,
+          customBgMode: 'predesigned',
+          showHeader: false,
+          showTitle: false,
+          borderStyle: 'none',
+          cornerStyle: 'none',
+          watermarkOpacity: 0,
+          transparentRefBar: true,
+          showHeaderDivider: false,
+          customBgFit: '100% 100%'
+        };
+      }
+      return {
+        ...prev,
+        customBgMode: 'plain',
+        showHeader: true,
+        showTitle: true,
+        borderStyle: prev.borderStyle === 'none' ? 'royal-double' : prev.borderStyle,
+        cornerStyle: prev.cornerStyle === 'none' ? 'victorian-flourish' : prev.cornerStyle
+      };
+    });
+  };
+
+  const handlePresetFormUploadBg = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      alert('Background image size must be smaller than 10MB.');
+      return;
+    }
+    setPresetModalUploading(true);
+    try {
+      const cleanName = file.name ? file.name.replace(/\.[^/.]+$/, '') : 'preset-bg';
+      const uploaded = await uploadCertificateBgToSupabase(file, cleanName);
+      setPresetForm((prev) => ({
+        ...prev,
+        backgroundType: 'custom',
+        customBackgroundUrl: uploaded.url,
+        transparentRefBar: true
+      }));
+      // Also record in customBackgrounds gallery so it is reusable
+      const newBg = {
+        id: `custom-bg-${Date.now()}`,
+        name: cleanName.slice(0, 24),
+        url: uploaded.url,
+        bgMode: presetForm?.customBgMode || 'plain',
+        storage: uploaded.storage,
+        createdAt: new Date().toLocaleDateString('en-US')
+      };
+      setDesign((prev) => ({
+        ...prev,
+        customBackgrounds: [newBg, ...(prev.customBackgrounds || [])]
+      }));
+    } catch (err) {
+      console.error('Preset modal bg upload failed:', err);
+      alert('Failed to upload background image.');
+    } finally {
+      setPresetModalUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleSavePresetModal = async () => {
+    if (!presetForm) return;
+    const cleanName = String(presetForm.name || '').trim() || `Custom Preset ${((design.customTemplatePresets || []).length + 1)}`;
+    const { name, setAsDefault, ...formConfigFields } = presetForm;
+
+    // Base config: if editing existing preset, preserve its elementStyles; if new, start from current design snapshot
+    const existingPreset = editingPresetId
+      ? (design.customTemplatePresets || []).find((p) => p.id === editingPresetId)
+      : null;
+    const baseSnapshot = existingPreset?.config
+      ? JSON.parse(JSON.stringify(existingPreset.config))
+      : extractPresetSnapshot(design);
+
+    const mergedConfig = {
+      ...baseSnapshot,
+      ...formConfigFields
+    };
+
+    const bgUrl = mergedConfig.backgroundType === 'custom' ? mergedConfig.customBackgroundUrl : '';
+    const thumb = bgUrl && bgUrl.length < 150000 ? bgUrl : '';
+
+    let nextPresets;
+    let savedId;
+    if (editingPresetId && existingPreset) {
+      savedId = editingPresetId;
+      nextPresets = (design.customTemplatePresets || []).map((p) =>
+        p.id === editingPresetId
+          ? {
+              ...p,
+              name: cleanName.slice(0, 32),
+              bgMode: mergedConfig.customBgMode || 'plain',
+              orientation: mergedConfig.orientation || 'landscape',
+              thumbnail: thumb,
+              primaryColor: mergedConfig.primaryColor || '#0B2545',
+              accentColor: mergedConfig.accentColor || '#C59B27',
+              updatedAt: new Date().toLocaleDateString('en-US'),
+              config: mergedConfig
+            }
+          : p
+      );
+    } else {
+      savedId = `tpl-${Date.now()}`;
+      const newPreset = {
+        id: savedId,
+        name: cleanName.slice(0, 32),
+        bgMode: mergedConfig.customBgMode || 'plain',
+        orientation: mergedConfig.orientation || 'landscape',
+        thumbnail: thumb,
+        primaryColor: mergedConfig.primaryColor || '#0B2545',
+        accentColor: mergedConfig.accentColor || '#C59B27',
+        createdAt: new Date().toLocaleDateString('en-US'),
+        config: mergedConfig
+      };
+      nextPresets = [newPreset, ...(design.customTemplatePresets || [])];
+    }
+
+    const nextDesign = {
+      ...DEFAULT_CERTIFICATE_DESIGN,
+      ...mergedConfig,
+      elementStyles: {
+        ...DEFAULT_CERTIFICATE_DESIGN.elementStyles,
+        ...(mergedConfig.elementStyles || {})
+      },
+      customBackgrounds: design.customBackgrounds || [],
+      customTemplatePresets: nextPresets,
+      activePresetId: savedId,
+      defaultPresetId: setAsDefault ? savedId : (design.defaultPresetId || savedId)
+    };
+
+    setDesign(nextDesign);
+    setPresetModalOpen(false);
+    setAutoFitMode(true);
+    await persistDesignToCloud(nextDesign);
+    setSavedAlert(true);
+    setTimeout(() => setSavedAlert(false), 3000);
+  };
+
   const handleDeleteCustomBg = (bgId, e) => {
     if (e) e.stopPropagation();
     const existingList = design.customBackgrounds || [];
@@ -1258,43 +1495,11 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 ))}
               </TextField>
 
-              <Tooltip title="Save current design as a new Custom Preset in Supabase Cloud">
+              <Tooltip title="Open Custom Preset Builder (Background, Mode, Orientation & All Toggles)">
                 <Button
                   size="small"
                   variant="outlined"
-                  onClick={() => {
-                    const name = window.prompt(
-                      'New Custom Preset Name (e.g. Beautician Portrait / CTEVT Gold):',
-                      `Preset ${((design.customTemplatePresets || []).length + 1)}`
-                    );
-                    if (!name || !name.trim()) return;
-                    setPresetNameInput(name.trim());
-                    setTimeout(() => {
-                      const bgUrl = design.backgroundType === 'custom' ? design.customBackgroundUrl : '';
-                      const newPreset = {
-                        id: `tpl-${Date.now()}`,
-                        name: name.trim().slice(0, 32),
-                        bgMode: design.customBgMode || 'plain',
-                        orientation: design.orientation || 'landscape',
-                        thumbnail: bgUrl && bgUrl.length < 150000 ? bgUrl : '',
-                        primaryColor: design.primaryColor || '#0B2545',
-                        accentColor: design.accentColor || '#C59B27',
-                        createdAt: new Date().toLocaleDateString('en-US'),
-                        config: extractPresetSnapshot(design)
-                      };
-                      const nextDesign = {
-                        ...design,
-                        customTemplatePresets: [newPreset, ...(design.customTemplatePresets || [])],
-                        activePresetId: newPreset.id,
-                        defaultPresetId: design.defaultPresetId || newPreset.id
-                      };
-                      setDesign(nextDesign);
-                      setPresetNameInput('');
-                      persistDesignToCloud(nextDesign);
-                      setSavedAlert(true);
-                      setTimeout(() => setSavedAlert(false), 3000);
-                    }, 0);
-                  }}
+                  onClick={openAddCustomPresetModal}
                   sx={{
                     fontWeight: 800,
                     fontSize: '0.72rem',
@@ -1308,7 +1513,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     '&:hover': { bgcolor: '#E0F2FE', borderColor: '#0369A1' }
                   }}
                 >
-                  + Save Preset
+                  + Add Preset
                 </Button>
               </Tooltip>
 
@@ -1853,32 +2058,27 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                     )}
                   </Box>
 
-                  <Stack direction="row" spacing={0.75} sx={{ mb: 1.25 }}>
-                    <TextField
-                      size="small"
-                      fullWidth
-                      placeholder="Preset name (e.g. Canva Portrait)"
-                      value={presetNameInput}
-                      onChange={(e) => setPresetNameInput(e.target.value)}
-                      InputProps={{ sx: { bgcolor: '#FFFFFF', fontSize: '0.74rem', height: 32 } }}
-                    />
-                    <Button
-                      variant="contained"
-                      size="small"
-                      onClick={handleSaveNewTemplatePreset}
-                      sx={{
-                        bgcolor: '#0F2E5A',
-                        fontWeight: 800,
-                        fontSize: '0.68rem',
-                        px: 1.4,
-                        whiteSpace: 'nowrap',
-                        textTransform: 'none',
-                        '&:hover': { bgcolor: '#1E3A8A' }
-                      }}
-                    >
-                      + Save
-                    </Button>
-                  </Stack>
+                  {/* Primary "+ Add Custom Preset" Button right below Default Presets */}
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    size="small"
+                    startIcon={<AddCircleOutlineIcon />}
+                    onClick={openAddCustomPresetModal}
+                    sx={{
+                      mb: 1.25,
+                      bgcolor: '#0F2E5A',
+                      color: '#FFFFFF',
+                      fontWeight: 800,
+                      fontSize: '0.74rem',
+                      py: 0.85,
+                      textTransform: 'none',
+                      borderRadius: 1.8,
+                      '&:hover': { bgcolor: '#1E3A8A' }
+                    }}
+                  >
+                    + Add Custom Preset (All Options)
+                  </Button>
 
                   {(design.customTemplatePresets || []).length > 0 ? (
                     <Grid container spacing={0.9}>
@@ -1970,10 +2170,10 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                                     {isDefault ? <StarIcon sx={{ fontSize: 14 }} /> : <StarBorderIcon sx={{ fontSize: 14 }} />}
                                   </IconButton>
                                 </Tooltip>
-                                <Tooltip title="Rename Preset">
+                                <Tooltip title="Edit All Options of this Preset">
                                   <IconButton
                                     size="small"
-                                    onClick={(e) => handleRenameTemplatePreset(preset, e)}
+                                    onClick={(e) => openEditCustomPresetModal(preset, e)}
                                     sx={{ p: 0.2, color: '#475569', '&:hover': { color: '#0F2C59' } }}
                                   >
                                     <EditIcon sx={{ fontSize: 13 }} />
@@ -3922,6 +4122,351 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           }
         }
       `}</style>
+
+      {/* ==================================================================== */}
+      {/* DEDICATED CUSTOM PRESET BUILDER MODAL (All Options in One Place)     */}
+      {/* ==================================================================== */}
+      <Dialog
+        open={presetModalOpen && Boolean(presetForm)}
+        onClose={() => setPresetModalOpen(false)}
+        maxWidth="md"
+        fullWidth
+        onClick={(e) => e.stopPropagation()}
+      >
+        {presetForm && (
+          <>
+            <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', py: 1.5 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <WorkspacePremiumIcon sx={{ color: '#FBBF24' }} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 900 }}>
+                  {editingPresetId ? 'Edit Custom Preset' : 'Add New Custom Preset (All Options)'}
+                </Typography>
+              </Box>
+              <IconButton size="small" onClick={() => setPresetModalOpen(false)} sx={{ color: '#FFFFFF' }}>
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent dividers sx={{ bgcolor: '#F8FAFC', p: { xs: 2, sm: 2.5 } }}>
+              <Grid container spacing={2.2}>
+                {/* LEFT COLUMN: Name, Orientation, Background Mode & Upload, Language & Duration */}
+                <Grid item xs={12} md={6}>
+                  <Stack spacing={1.8}>
+                    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                        1. Preset Name &amp; Orientation
+                      </Typography>
+                      <Stack spacing={1.2}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="Custom Preset Name"
+                          placeholder="e.g. Canva Beautician Portrait / CTEVT Gold"
+                          value={presetForm.name}
+                          onChange={(e) => setPresetForm((p) => ({ ...p, name: e.target.value }))}
+                        />
+                        <ToggleButtonGroup
+                          fullWidth
+                          size="small"
+                          exclusive
+                          value={presetForm.orientation}
+                          onChange={(e, next) => next && setPresetForm((p) => ({ ...p, orientation: next }))}
+                        >
+                          <ToggleButton value="landscape" sx={{ fontWeight: 800, fontSize: '0.75rem', gap: 0.6 }}>
+                            <CropLandscapeIcon fontSize="small" /> A4 Landscape
+                          </ToggleButton>
+                          <ToggleButton value="portrait" sx={{ fontWeight: 800, fontSize: '0.75rem', gap: 0.6 }}>
+                            <CropPortraitIcon fontSize="small" /> A4 Portrait
+                          </ToggleButton>
+                        </ToggleButtonGroup>
+                      </Stack>
+                    </Paper>
+
+                    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                        2. Background Type &amp; Upload (Cloud Storage)
+                      </Typography>
+                      <Stack spacing={1.2}>
+                        <Grid container spacing={1}>
+                          <Grid item xs={6}>
+                            <Button
+                              fullWidth
+                              size="small"
+                              variant={presetForm.customBgMode !== 'predesigned' ? 'contained' : 'outlined'}
+                              onClick={() => handlePresetFormBgModeChange('plain')}
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.72rem',
+                                textTransform: 'none',
+                                bgcolor: presetForm.customBgMode !== 'predesigned' ? '#0F2E5A' : '#FFFFFF'
+                              }}
+                            >
+                              Plain / Frame Only
+                            </Button>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Button
+                              fullWidth
+                              size="small"
+                              variant={presetForm.customBgMode === 'predesigned' ? 'contained' : 'outlined'}
+                              onClick={() => handlePresetFormBgModeChange('predesigned')}
+                              sx={{
+                                fontWeight: 800,
+                                fontSize: '0.72rem',
+                                textTransform: 'none',
+                                bgcolor: presetForm.customBgMode === 'predesigned' ? '#D97706' : '#FFFFFF',
+                                color: presetForm.customBgMode === 'predesigned' ? '#FFFFFF' : '#334155',
+                                borderColor: '#CBD5E1',
+                                '&:hover': { bgcolor: presetForm.customBgMode === 'predesigned' ? '#B45309' : '#FFFBEB' }
+                              }}
+                            >
+                              Heading Included
+                            </Button>
+                          </Grid>
+                        </Grid>
+
+                        <Button
+                          fullWidth
+                          variant="contained"
+                          size="small"
+                          component="label"
+                          disabled={presetModalUploading}
+                          startIcon={presetModalUploading ? <CircularProgress size={14} color="inherit" /> : <UploadFileIcon />}
+                          sx={{ bgcolor: '#059669', fontWeight: 800, textTransform: 'none', '&:hover': { bgcolor: '#047857' } }}
+                        >
+                          {presetModalUploading ? 'Uploading to Supabase Cloud...' : 'Upload Background Image (PNG / JPG)'}
+                          <input type="file" hidden accept="image/png,image/jpeg,image/webp" onChange={handlePresetFormUploadBg} />
+                        </Button>
+
+                        {presetForm.backgroundType === 'custom' && presetForm.customBackgroundUrl && (
+                          <Box
+                            sx={{
+                              height: 92,
+                              borderRadius: 1.5,
+                              border: '1px solid #CBD5E1',
+                              backgroundImage: `url(${presetForm.customBackgroundUrl})`,
+                              backgroundSize: 'contain',
+                              backgroundRepeat: 'no-repeat',
+                              backgroundPosition: 'center',
+                              bgcolor: '#F1F5F9',
+                              position: 'relative'
+                            }}
+                          >
+                            <IconButton
+                              size="small"
+                              onClick={() => setPresetForm((p) => ({ ...p, backgroundType: 'clean-white', customBackgroundUrl: '' }))}
+                              sx={{ position: 'absolute', top: 4, right: 4, bgcolor: 'rgba(255,255,255,0.9)', color: '#DC2626', p: 0.3 }}
+                            >
+                              <CloseIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Box>
+                        )}
+
+                        <Grid container spacing={1}>
+                          <Grid item xs={6}>
+                            <TextField
+                              select
+                              fullWidth
+                              size="small"
+                              label="Background Fit"
+                              value={presetForm.customBgFit}
+                              onChange={(e) => setPresetForm((p) => ({ ...p, customBgFit: e.target.value }))}
+                            >
+                              <MenuItem value="100% 100%">Exact A4 Fill (100%)</MenuItem>
+                              <MenuItem value="cover">Cover (Crop)</MenuItem>
+                              <MenuItem value="contain">Contain (Fit)</MenuItem>
+                            </TextField>
+                          </Grid>
+                          <Grid item xs={6}>
+                            <TextField
+                              fullWidth
+                              size="small"
+                              type="number"
+                              label="Opacity (%)"
+                              inputProps={{ min: 10, max: 100 }}
+                              value={presetForm.customBgOpacity}
+                              onChange={(e) => setPresetForm((p) => ({ ...p, customBgOpacity: Math.min(100, Math.max(10, Number(e.target.value) || 100)) }))}
+                            />
+                          </Grid>
+                        </Grid>
+                      </Stack>
+                    </Paper>
+
+                    <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                        3. Body Language &amp; Course Duration
+                      </Typography>
+                      <Stack spacing={1.2}>
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          label="Certificate Body Language"
+                          value={presetForm.bodyLayoutMode}
+                          onChange={(e) => setPresetForm((p) => ({ ...p, bodyLayoutMode: e.target.value }))}
+                        >
+                          <MenuItem value="english-only">English Only (Official Default)</MenuItem>
+                          <MenuItem value="bilingual">Bilingual (English + नेपाली)</MenuItem>
+                          <MenuItem value="nepali-only">Nepali Only (नेपाली मात्र)</MenuItem>
+                        </TextField>
+                        <TextField
+                          select
+                          fullWidth
+                          size="small"
+                          label="Course Duration Display"
+                          value={presetForm.durationDisplayMode}
+                          onChange={(e) => setPresetForm((p) => ({ ...p, durationDisplayMode: e.target.value }))}
+                        >
+                          <MenuItem value="hours">Hours Only (390 Hours / 178 Hours)</MenuItem>
+                          <MenuItem value="unit">Course Unit (15 Days / 3 Months / 6 Weeks)</MenuItem>
+                          <MenuItem value="both">Both (3 Months (390 Hours))</MenuItem>
+                        </TextField>
+                      </Stack>
+                    </Paper>
+                  </Stack>
+                </Grid>
+
+                {/* RIGHT COLUMN: Complete Dynamic Content Visibility (ON / OFF) */}
+                <Grid item xs={12} md={6}>
+                  <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF', height: '100%' }}>
+                    <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 1 }}>
+                      4. Dynamic Sections Visibility (ON / OFF)
+                    </Typography>
+                    <Stack spacing={0.2}>
+                      <FormControlLabel
+                        control={<Switch size="small" checked={presetForm.showHeader} onChange={(e) => setPresetForm((p) => ({ ...p, showHeader: e.target.checked }))} />}
+                        label={<Typography variant="caption" sx={{ fontWeight: 800 }}>Institutional Header</Typography>}
+                      />
+                      {presetForm.showHeader && (
+                        <Box sx={{ pl: 2.2, borderLeft: '2px solid #E2E8F0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.2, mb: 0.5 }}>
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showHeaderTitle} onChange={(e) => setPresetForm((p) => ({ ...p, showHeaderTitle: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Institute Name</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showAccreditation} onChange={(e) => setPresetForm((p) => ({ ...p, showAccreditation: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Accreditation</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showAffiliation} onChange={(e) => setPresetForm((p) => ({ ...p, showAffiliation: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Regd / Address</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showHeaderDivider} onChange={(e) => setPresetForm((p) => ({ ...p, showHeaderDivider: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Divider Line</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showLeftLogo} onChange={(e) => setPresetForm((p) => ({ ...p, showLeftLogo: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Left Logo</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showRightLogo} onChange={(e) => setPresetForm((p) => ({ ...p, showRightLogo: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Right Badge</Typography>}
+                          />
+                        </Box>
+                      )}
+
+                      <FormControlLabel
+                        control={<Switch size="small" checked={presetForm.showTitle} onChange={(e) => setPresetForm((p) => ({ ...p, showTitle: e.target.checked }))} />}
+                        label={<Typography variant="caption" sx={{ fontWeight: 800 }}>Main Certificate Title</Typography>}
+                      />
+
+                      <FormControlLabel
+                        control={<Switch size="small" checked={presetForm.showRefBar} onChange={(e) => setPresetForm((p) => ({ ...p, showRefBar: e.target.checked }))} />}
+                        label={<Typography variant="caption" sx={{ fontWeight: 800 }}>Reference Bar (Cert No / TGID / Date)</Typography>}
+                      />
+                      {presetForm.showRefBar && (
+                        <Box sx={{ pl: 2.2, borderLeft: '2px solid #E2E8F0', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.2, mb: 0.5 }}>
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showRefCertNo} onChange={(e) => setPresetForm((p) => ({ ...p, showRefCertNo: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Cert No</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showRefTgid} onChange={(e) => setPresetForm((p) => ({ ...p, showRefTgid: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>TGID</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.showRefIssueDate} onChange={(e) => setPresetForm((p) => ({ ...p, showRefIssueDate: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Issue Date</Typography>}
+                          />
+                          <FormControlLabel
+                            control={<Switch size="small" checked={presetForm.transparentRefBar} onChange={(e) => setPresetForm((p) => ({ ...p, transparentRefBar: e.target.checked }))} />}
+                            label={<Typography variant="caption" sx={{ fontSize: '0.68rem', fontWeight: 600 }}>Transparent</Typography>}
+                          />
+                        </Box>
+                      )}
+
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 0.2 }}>
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showStudentPhoto} onChange={(e) => setPresetForm((p) => ({ ...p, showStudentPhoto: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Student Photo</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showCompetencyBadge} onChange={(e) => setPresetForm((p) => ({ ...p, showCompetencyBadge: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Level / Hours Badge</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showNepaliNameSubtitle} onChange={(e) => setPresetForm((p) => ({ ...p, showNepaliNameSubtitle: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Nepali Name Sub</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showCourseLine} onChange={(e) => setPresetForm((p) => ({ ...p, showCourseLine: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Course Highlight</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showBodyText} onChange={(e) => setPresetForm((p) => ({ ...p, showBodyText: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Body Paragraph</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showQrVerification} onChange={(e) => setPresetForm((p) => ({ ...p, showQrVerification: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>QR Verification</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.sealMode !== 'none'} onChange={(e) => setPresetForm((p) => ({ ...p, sealMode: e.target.checked ? 'blank' : 'none' }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Seal / Stamp</Typography>}
+                        />
+                        <FormControlLabel
+                          control={<Switch size="small" checked={presetForm.showSignatories} onChange={(e) => setPresetForm((p) => ({ ...p, showSignatories: e.target.checked }))} />}
+                          label={<Typography variant="caption" sx={{ fontWeight: 700 }}>Signatories</Typography>}
+                        />
+                      </Box>
+
+                      <Divider sx={{ my: 1 }} />
+                      <Typography variant="caption" sx={{ color: '#64748B', fontSize: '0.7rem' }}>
+                        💡 सेभ गरेपछि Canvas मा कुनै पनि अक्षर/लोगो माउसले तानेर मिलाउन र <b>Update Active</b> थिच्न मिल्छ।
+                      </Typography>
+                    </Stack>
+                  </Paper>
+                </Grid>
+              </Grid>
+            </DialogContent>
+
+            <DialogActions sx={{ justifyContent: 'space-between', px: 2.5, py: 1.5 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    size="small"
+                    checked={Boolean(presetForm.setAsDefault)}
+                    onChange={(e) => setPresetForm((p) => ({ ...p, setAsDefault: e.target.checked }))}
+                  />
+                }
+                label={<Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>Set as Default Preset (★)</Typography>}
+              />
+              <Stack direction="row" spacing={1}>
+                <Button onClick={() => setPresetModalOpen(false)}>Cancel</Button>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  onClick={handleSavePresetModal}
+                  sx={{ bgcolor: '#059669', fontWeight: 800, px: 2.5, textTransform: 'none', '&:hover': { bgcolor: '#047857' } }}
+                >
+                  {editingPresetId ? 'Save Preset Changes' : 'Save Custom Preset (Cloud)'}
+                </Button>
+              </Stack>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }
