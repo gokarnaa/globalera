@@ -34,6 +34,7 @@ import {
 import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium';
 import PrintIcon from '@mui/icons-material/Print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
 import SearchIcon from '@mui/icons-material/Search';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import ViewModuleIcon from '@mui/icons-material/ViewModule';
@@ -90,10 +91,12 @@ export default function CertificateManager() {
   const [verifyModalOpen, setVerifyModalOpen] = useState(false);
   const [verifyTargetItem, setVerifyTargetItem] = useState(null);
 
-  // Bulk Multi-Page A4 PDF Download state
+  // Bulk Multi-Page A4 PDF & Individual ZIP Download state
   const [selectedCertIds, setSelectedCertIds] = useState([]);
+  const [bulkPresetId, setBulkPresetId] = useState(''); // '' = Auto (Course-linked or Studio Default)
   const [bulkExport, setBulkExport] = useState({
     active: false,
+    mode: 'pdf', // 'pdf' | 'zip'
     total: 0,
     done: 0,
     currentName: '',
@@ -351,8 +354,14 @@ export default function CertificateManager() {
       ? studentCertificateData.filter((item) => item.isIssued && item.certificate && selectedCertIds.includes(item.certificate.id))
       : issuedFilteredItems;
 
-  // Bulk Multi-Page A4 HD PDF Export
-  const handleBulkDownloadPdf = async () => {
+  const savedCustomPresets = db.settings?.certificateDesign?.customTemplatePresets || [];
+  const autoMatchedBatchPreset =
+    savedCustomPresets.find(
+      (p) => Array.isArray(p.linkedCourseIds) && selectedCourse?.id && p.linkedCourseIds.includes(selectedCourse.id)
+    ) || null;
+
+  // Bulk Multi-Page A4 HD PDF or Individual PDFs ZIP Export
+  const handleBulkExport = async (mode = 'pdf') => {
     const targets = bulkTargetItems;
     if (targets.length === 0) {
       alert('No issued certificates available to download in this batch.');
@@ -362,6 +371,7 @@ export default function CertificateManager() {
     bulkCancelRef.current = false;
     setBulkExport({
       active: true,
+      mode,
       total: targets.length,
       done: 0,
       currentName: targets[0].student?.name || '',
@@ -370,30 +380,40 @@ export default function CertificateManager() {
     });
 
     try {
-      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+      const [{ default: html2canvas }, { jsPDF }, jszipMod] = await Promise.all([
         import('html2canvas'),
-        import('jspdf')
+        import('jspdf'),
+        mode === 'zip' ? import('jszip') : Promise.resolve(null)
       ]);
 
-      const design = db.settings?.certificateDesign || {};
-      const isPortrait = design.orientation === 'portrait';
+      const baseDesign = db.settings?.certificateDesign || {};
+      const resolvedPreset =
+        bulkPresetId === '__studio__'
+          ? null
+          : bulkPresetId
+            ? savedCustomPresets.find((p) => p.id === bulkPresetId)
+            : autoMatchedBatchPreset;
+      const effectiveDesign = resolvedPreset?.config ? { ...baseDesign, ...resolvedPreset.config } : baseDesign;
+      const isPortrait = effectiveDesign.orientation === 'portrait';
       const baseWidth = isPortrait ? 760 : 1040;
       const baseHeight = isPortrait ? 1060 : 740;
 
-      const pdf = new jsPDF({
-        orientation: isPortrait ? 'portrait' : 'landscape',
-        unit: 'mm',
-        format: 'a4',
-        compress: true
-      });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
+      const combinedPdf =
+        mode === 'pdf'
+          ? new jsPDF({
+              orientation: isPortrait ? 'portrait' : 'landscape',
+              unit: 'mm',
+              format: 'a4',
+              compress: true
+            })
+          : null;
+      const zip = mode === 'zip' ? new jszipMod.default() : null;
 
       if (document.fonts?.ready) {
         await document.fonts.ready;
       }
 
-      let addedPages = 0;
+      let addedCount = 0;
 
       for (let i = 0; i < targets.length; i++) {
         if (bulkCancelRef.current) break;
@@ -401,6 +421,7 @@ export default function CertificateManager() {
 
         setBulkExport({
           active: true,
+          mode,
           total: targets.length,
           done: i,
           currentName: item.student?.name || 'Trainee',
@@ -449,33 +470,68 @@ export default function CertificateManager() {
           windowHeight: el.scrollHeight || baseHeight
         });
 
-        if (addedPages > 0) {
-          pdf.addPage('a4', isPortrait ? 'portrait' : 'landscape');
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+
+        if (mode === 'pdf') {
+          const pageW = combinedPdf.internal.pageSize.getWidth();
+          const pageH = combinedPdf.internal.pageSize.getHeight();
+          if (addedCount > 0) {
+            combinedPdf.addPage('a4', isPortrait ? 'portrait' : 'landscape');
+          }
+          const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+          const drawW = canvas.width * ratio;
+          const drawH = canvas.height * ratio;
+          const offsetX = (pageW - drawW) / 2;
+          const offsetY = (pageH - drawH) / 2;
+          combinedPdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+        } else {
+          const singlePdf = new jsPDF({
+            orientation: isPortrait ? 'portrait' : 'landscape',
+            unit: 'mm',
+            format: 'a4',
+            compress: true
+          });
+          const pageW = singlePdf.internal.pageSize.getWidth();
+          const pageH = singlePdf.internal.pageSize.getHeight();
+          const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
+          const drawW = canvas.width * ratio;
+          const drawH = canvas.height * ratio;
+          const offsetX = (pageW - drawW) / 2;
+          const offsetY = (pageH - drawH) / 2;
+          singlePdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+
+          const safeName = String(item.student?.name || 'Trainee').replace(/[^a-zA-Z0-9-]+/g, '_');
+          const safeCertNo = String(item.certificate?.certificateNo || i + 1).replace(/[^a-zA-Z0-9-]+/g, '_');
+          zip.file(`Certificate_${safeName}_${safeCertNo}.pdf`, singlePdf.output('arraybuffer'));
         }
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
-        const ratio = Math.min(pageW / canvas.width, pageH / canvas.height);
-        const drawW = canvas.width * ratio;
-        const drawH = canvas.height * ratio;
-        const offsetX = (pageW - drawW) / 2;
-        const offsetY = (pageH - drawH) / 2;
-
-        pdf.addImage(imgData, 'JPEG', offsetX, offsetY, drawW, drawH, undefined, 'FAST');
-        addedPages += 1;
-
+        addedCount += 1;
         setBulkExport((prev) => ({ ...prev, done: i + 1 }));
       }
 
-      if (!bulkCancelRef.current && addedPages > 0) {
+      if (!bulkCancelRef.current && addedCount > 0) {
         const batchSlug = String(selectedGroup?.groupCode || 'Batch').replace(/[^a-zA-Z0-9-]+/g, '_');
-        pdf.save(`Certificates_${batchSlug}_${addedPages}_Pages_A4.pdf`);
+        if (mode === 'pdf') {
+          combinedPdf.save(`Certificates_${batchSlug}_${addedCount}_Pages_A4.pdf`);
+        } else {
+          const zipBlob = await zip.generateAsync({ type: 'blob' });
+          const blobUrl = URL.createObjectURL(zipBlob);
+          const link = document.createElement('a');
+          link.href = blobUrl;
+          link.download = `Certificates_${batchSlug}_${addedCount}_Individual.zip`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 2000);
+        }
       }
     } catch (err) {
-      console.error('Bulk Certificate PDF export failed:', err);
-      alert('Bulk PDF download failed. Please try again with fewer certificates.');
+      console.error('Bulk Certificate export failed:', err);
+      alert(`Bulk ${mode === 'zip' ? 'ZIP' : 'PDF'} download failed. Please try again with fewer certificates.`);
     } finally {
       setBulkExport({
         active: false,
+        mode: 'pdf',
         total: 0,
         done: 0,
         currentName: '',
@@ -558,28 +614,90 @@ export default function CertificateManager() {
                 Certificate Studio &amp; Design
               </Button>
 
+              {bulkTargetItems.length > 0 && savedCustomPresets.length > 0 && (
+                <TextField
+                  select
+                  size="small"
+                  value={bulkPresetId}
+                  onChange={(e) => setBulkPresetId(e.target.value)}
+                  sx={{
+                    minWidth: 148,
+                    '& .MuiOutlinedInput-root': {
+                      height: 31,
+                      fontSize: '0.73rem',
+                      fontWeight: 700,
+                      color: '#FFFFFF',
+                      bgcolor: 'rgba(255, 255, 255, 0.12)',
+                      '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.32)' },
+                      '&:hover fieldset': { borderColor: '#FFFFFF' }
+                    },
+                    '& .MuiSvgIcon-root': { color: '#FFFFFF' }
+                  }}
+                >
+                  <MenuItem value="" sx={{ fontSize: '0.78rem' }}>
+                    {autoMatchedBatchPreset ? `Auto: ${autoMatchedBatchPreset.name}` : 'Auto (Course / Default)'}
+                  </MenuItem>
+                  {autoMatchedBatchPreset && (
+                    <MenuItem value="__studio__" sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                      Studio Base Design
+                    </MenuItem>
+                  )}
+                  {savedCustomPresets.map((p) => (
+                    <MenuItem key={p.id} value={p.id} sx={{ fontSize: '0.78rem', fontWeight: 700 }}>
+                      {db.settings?.certificateDesign?.defaultPresetId === p.id ? '★ ' : ''}
+                      {p.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+
               {bulkTargetItems.length > 0 && (
                 <Button
                   variant="contained"
                   size="small"
                   disabled={bulkExport.active}
                   startIcon={<PictureAsPdfIcon sx={{ fontSize: '16px !important' }} />}
-                  onClick={handleBulkDownloadPdf}
+                  onClick={() => handleBulkExport('pdf')}
                   sx={{
                     bgcolor: '#DC2626',
                     color: '#FFFFFF',
                     fontWeight: 800,
                     fontSize: '0.76rem',
                     whiteSpace: 'nowrap',
-                    px: 1.5,
+                    px: 1.4,
                     py: 0.65,
                     boxShadow: 'none',
                     '&:hover': { bgcolor: '#B91C1C' }
                   }}
                 >
                   {selectedCertIds.length > 0
-                    ? `Bulk A4 PDF (${selectedCertIds.length} Selected)`
+                    ? `Bulk A4 PDF (${selectedCertIds.length})`
                     : `Bulk A4 PDF (${bulkTargetItems.length})`}
+                </Button>
+              )}
+
+              {bulkTargetItems.length > 0 && (
+                <Button
+                  variant="contained"
+                  size="small"
+                  disabled={bulkExport.active}
+                  startIcon={<FolderZipIcon sx={{ fontSize: '16px !important' }} />}
+                  onClick={() => handleBulkExport('zip')}
+                  sx={{
+                    bgcolor: '#059669',
+                    color: '#FFFFFF',
+                    fontWeight: 800,
+                    fontSize: '0.76rem',
+                    whiteSpace: 'nowrap',
+                    px: 1.4,
+                    py: 0.65,
+                    boxShadow: 'none',
+                    '&:hover': { bgcolor: '#047857' }
+                  }}
+                >
+                  {selectedCertIds.length > 0
+                    ? `Bulk ZIP (${selectedCertIds.length})`
+                    : `Bulk ZIP (${bulkTargetItems.length})`}
                 </Button>
               )}
 
@@ -1434,6 +1552,7 @@ export default function CertificateManager() {
             open={true}
             inlineRender={true}
             canvasId="bulkCertificateRenderCanvas"
+            presetIdOverride={bulkPresetId}
             certificate={bulkExport.currentItem.certificate}
             student={bulkExport.currentItem.student}
             course={bulkExport.currentItem.course}
@@ -1443,12 +1562,12 @@ export default function CertificateManager() {
         </Box>
       )}
 
-      {/* Bulk A4 PDF Progress Dialog */}
+      {/* Bulk A4 PDF / ZIP Progress Dialog */}
       <Dialog open={bulkExport.active} maxWidth="xs" fullWidth>
         <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.2, py: 1.5 }}>
           <CircularProgress size={18} color="inherit" />
           <Typography variant="subtitle1" sx={{ fontWeight: 800 }}>
-            Generating Bulk A4 PDF...
+            {bulkExport.mode === 'zip' ? 'Generating Bulk Individual ZIP...' : 'Generating Bulk A4 PDF...'}
           </Typography>
         </DialogTitle>
         <DialogContent sx={{ pt: 2.5 }}>
@@ -1474,7 +1593,9 @@ export default function CertificateManager() {
               sx={{ height: 8, borderRadius: 4 }}
             />
             <Typography variant="caption" sx={{ color: '#64748B' }}>
-              All selected certificates are being merged into one exact A4 print-ready PDF file.
+              {bulkExport.mode === 'zip'
+                ? 'Each trainee is getting an individual named A4 HD PDF packed into one ZIP archive.'
+                : 'All selected certificates are being merged into one exact A4 print-ready PDF file.'}
             </Typography>
           </Stack>
         </DialogContent>

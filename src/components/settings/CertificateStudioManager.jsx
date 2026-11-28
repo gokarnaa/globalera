@@ -66,7 +66,7 @@ import { QRCodeSVG } from 'qrcode.react';
 
 import { loadDB, saveDB } from '../../services/storage';
 import { pushLocalDBToSupabase } from '../../services/supabaseClient';
-import { uploadCertificateBgToSupabase } from '../../services/mediaUpload';
+import { uploadCertificateBgToSupabase, uploadTransparentPngToSupabase } from '../../services/mediaUpload';
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
@@ -134,6 +134,7 @@ export const DEFAULT_CERTIFICATE_DESIGN = {
   showCourseLine: true,
   showBodyText: true,
   showSignatories: true,
+  showDigitalSignatures: true,
   certificateTitleEn: 'CERTIFICATE OF VOCATIONAL TRAINING COMPLETION',
   certificateTitleNp: '(VOCATIONAL TRAINING COMPLETION CERTIFICATE)',
   bodyLayoutMode: 'english-only', // 'english-only' | 'bilingual' | 'nepali-only'
@@ -1000,11 +1001,30 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     await persistDesignToCloud(nextDesign);
   };
 
+  const handleUploadSignatorySignature = async (sigId, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      alert('Signature PNG must be smaller than 4MB.');
+      return;
+    }
+    try {
+      const uploaded = await uploadTransparentPngToSupabase(file, { folder: 'signatures', entityId: sigId, maxDim: 500 });
+      handleUpdateSignatory(sigId, 'signatureUrl', uploaded.url);
+    } catch (err) {
+      console.error('Signature upload failed:', err);
+      alert('Failed to upload signature image.');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   // Open Dedicated "+ Add Custom Preset" Builder Modal
   const openAddCustomPresetModal = () => {
     setEditingPresetId(null);
     setPresetForm({
       name: `Custom Preset ${((design.customTemplatePresets || []).length + 1)}`,
+      linkedCourseIds: [],
       orientation: design.orientation || 'landscape',
       backgroundType: design.backgroundType || 'clean-white',
       customBackgroundUrl: design.customBackgroundUrl || '',
@@ -1048,6 +1068,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
     setEditingPresetId(preset.id);
     setPresetForm({
       name: preset.name || 'Custom Preset',
+      linkedCourseIds: Array.isArray(preset.linkedCourseIds) ? preset.linkedCourseIds : [],
       orientation: cfg.orientation || preset.orientation || 'landscape',
       backgroundType: cfg.backgroundType || 'clean-white',
       customBackgroundUrl: cfg.customBackgroundUrl || preset.thumbnail || '',
@@ -1155,7 +1176,8 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
   const handleSavePresetModal = async () => {
     if (!presetForm) return;
     const cleanName = String(presetForm.name || '').trim() || `Custom Preset ${((design.customTemplatePresets || []).length + 1)}`;
-    const { name, setAsDefault, ...formConfigFields } = presetForm;
+    const { name, setAsDefault, linkedCourseIds, ...formConfigFields } = presetForm;
+    const cleanLinkedCourses = Array.isArray(linkedCourseIds) ? linkedCourseIds : [];
 
     // Base config: if editing existing preset, preserve its elementStyles; if new, start from current design snapshot
     const existingPreset = editingPresetId
@@ -1182,6 +1204,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
           ? {
               ...p,
               name: cleanName.slice(0, 32),
+              linkedCourseIds: cleanLinkedCourses,
               bgMode: mergedConfig.customBgMode || 'plain',
               orientation: mergedConfig.orientation || 'landscape',
               thumbnail: thumb,
@@ -1197,6 +1220,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
       const newPreset = {
         id: savedId,
         name: cleanName.slice(0, 32),
+        linkedCourseIds: cleanLinkedCourses,
         bgMode: mergedConfig.customBgMode || 'plain',
         orientation: mergedConfig.orientation || 'landscape',
         thumbnail: thumb,
@@ -2537,9 +2561,9 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                 <Divider sx={{ my: 0.5 }} />
 
-                {/* Dynamic Signatories List */}
+                {/* Dynamic Signatories List + Digital Signature PNG Upload */}
                 <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 0.75 }}>
                     <Typography variant="caption" sx={{ fontWeight: 800, color: '#0F2E5A' }}>
                       Signatories ({design.signatories?.length || 0}):
                     </Typography>
@@ -2553,6 +2577,18 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                       + Add
                     </Button>
                   </Box>
+
+                  <FormControlLabel
+                    sx={{ mb: 0.8 }}
+                    control={
+                      <Switch
+                        size="small"
+                        checked={design.showDigitalSignatures !== false}
+                        onChange={(e) => handleUpdate('showDigitalSignatures', e.target.checked)}
+                      />
+                    }
+                    label={<Typography variant="caption" sx={{ fontWeight: 700, color: '#334155' }}>Show Digital Signatures (PNG)</Typography>}
+                  />
 
                   <Stack spacing={1}>
                     {(design.signatories || []).map((sig, idx) => (
@@ -2579,8 +2615,57 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           label="Title"
                           value={sig.title}
                           onChange={(e) => handleUpdateSignatory(sig.id, 'title', e.target.value)}
-                          sx={{ bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
+                          sx={{ mb: 0.8, bgcolor: '#FFFFFF', '& input': { py: 0.5, fontSize: '0.72rem' } }}
                         />
+
+                        {/* Digital Signature PNG Upload & Size Control */}
+                        <Box sx={{ p: 0.8, bgcolor: '#FFFFFF', borderRadius: 1, border: '1px dashed #CBD5E1' }}>
+                          <Stack direction="row" spacing={0.75} alignItems="center" justifyContent="space-between">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              component="label"
+                              startIcon={<UploadFileIcon sx={{ fontSize: 14 }} />}
+                              sx={{ fontSize: '0.64rem', fontWeight: 800, textTransform: 'none', py: 0.25, px: 0.9 }}
+                            >
+                              {sig.signatureUrl ? 'Change Sign PNG' : 'Upload Sign PNG'}
+                              <input type="file" hidden accept="image/png,image/webp,image/jpeg" onChange={(e) => handleUploadSignatorySignature(sig.id, e)} />
+                            </Button>
+                            {sig.signatureUrl && (
+                              <Button
+                                size="small"
+                                color="error"
+                                onClick={() => handleUpdateSignatory(sig.id, 'signatureUrl', '')}
+                                sx={{ fontSize: '0.62rem', fontWeight: 700, minWidth: 0, px: 0.6, textTransform: 'none' }}
+                              >
+                                Remove
+                              </Button>
+                            )}
+                          </Stack>
+
+                          {sig.signatureUrl && (
+                            <Box sx={{ mt: 0.75 }}>
+                              <Box sx={{ display: 'flex', justifyContent: 'center', p: 0.5, bgcolor: '#F8FAFC', borderRadius: 1, mb: 0.5 }}>
+                                <img
+                                  src={sig.signatureUrl}
+                                  alt={`${sig.name} signature`}
+                                  style={{ height: `${Math.min(40, sig.signatureHeight || 34)}px`, maxWidth: '100%', objectFit: 'contain' }}
+                                />
+                              </Box>
+                              <Typography variant="caption" sx={{ fontSize: '0.62rem', color: '#64748B', fontWeight: 700 }}>
+                                Sign Height: {sig.signatureHeight || 34}px
+                              </Typography>
+                              <Slider
+                                size="small"
+                                min={20}
+                                max={68}
+                                value={sig.signatureHeight || 34}
+                                onChange={(e, val) => handleUpdateSignatory(sig.id, 'signatureHeight', val)}
+                                sx={{ py: 0.3, color: '#0F2E5A' }}
+                              />
+                            </Box>
+                          )}
+                        </Box>
                       </Paper>
                     ))}
                   </Stack>
@@ -3599,14 +3684,32 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                 >
                   {(design.signatories || []).map((sig) => (
                     <Box key={sig.id} sx={{ textAlign: 'center', minWidth: '110px' }}>
-                      {/* Signature Line */}
+                      {/* Signature Image (PNG) + Line */}
                       <Box
                         sx={{
-                          height: 28,
+                          minHeight: 32,
+                          display: 'flex',
+                          alignItems: 'flex-end',
+                          justifyContent: 'center',
                           borderBottom: sig.lineStyle === 'dashed' ? '1px dashed #64748B' : sig.lineStyle === 'none' ? 'none' : `1.5px solid ${design.primaryColor}`,
-                          mb: 0.5
+                          mb: 0.5,
+                          pb: 0.25
                         }}
-                      />
+                      >
+                        {design.showDigitalSignatures !== false && sig.signatureUrl && (
+                          <img
+                            src={sig.signatureUrl}
+                            alt={sig.name}
+                            style={{
+                              height: `${sig.signatureHeight || 34}px`,
+                              maxWidth: '130px',
+                              objectFit: 'contain',
+                              display: 'block',
+                              pointerEvents: 'none'
+                            }}
+                          />
+                        )}
+                      </Box>
                       <Typography variant="subtitle2" sx={{ fontWeight: 800, color: design.primaryColor, fontSize: '0.74rem' }}>
                         {sig.name}
                       </Typography>
@@ -4223,7 +4326,7 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
 
                     <Paper elevation={0} sx={{ p: 1.5, borderRadius: 2, border: '1px solid #E2E8F0', bgcolor: '#FFFFFF' }}>
                       <Typography variant="caption" sx={{ fontWeight: 900, color: '#0F2E5A', display: 'block', mb: 1 }}>
-                        3. Body Language &amp; Course Duration
+                        3. Body Language, Duration &amp; Auto-Course Binding
                       </Typography>
                       <Stack spacing={1.2}>
                         <TextField
@@ -4250,6 +4353,47 @@ export default function CertificateStudioManager({ onSaveSuccess }) {
                           <MenuItem value="unit">Course Unit (15 Days / 3 Months / 6 Weeks)</MenuItem>
                           <MenuItem value="both">Both (3 Months (390 Hours))</MenuItem>
                         </TextField>
+
+                        <Box>
+                          <Typography variant="caption" sx={{ fontWeight: 800, color: '#334155', display: 'block', mb: 0.5, fontSize: '0.68rem' }}>
+                            Auto-Apply for Specific Courses (कुन कोर्समा स्वतः लागू हुने?):
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6 }}>
+                            {(db.courses || []).map((c) => {
+                              const selected = (presetForm.linkedCourseIds || []).includes(c.id);
+                              return (
+                                <Chip
+                                  key={c.id}
+                                  size="small"
+                                  label={c.title}
+                                  onClick={() =>
+                                    setPresetForm((p) => {
+                                      const cur = p.linkedCourseIds || [];
+                                      return {
+                                        ...p,
+                                        linkedCourseIds: cur.includes(c.id)
+                                          ? cur.filter((id) => id !== c.id)
+                                          : [...cur, c.id]
+                                      };
+                                    })
+                                  }
+                                  sx={{
+                                    fontSize: '0.66rem',
+                                    fontWeight: 700,
+                                    bgcolor: selected ? '#0F2E5A' : '#F1F5F9',
+                                    color: selected ? '#FFFFFF' : '#334155',
+                                    '&:hover': { bgcolor: selected ? '#1E3A8A' : '#E2E8F0' }
+                                  }}
+                                />
+                              );
+                            })}
+                            {(db.courses || []).length === 0 && (
+                              <Typography variant="caption" sx={{ color: '#94A3B8', fontSize: '0.66rem' }}>
+                                No courses configured yet.
+                              </Typography>
+                            )}
+                          </Box>
+                        </Box>
                       </Stack>
                     </Paper>
                   </Stack>

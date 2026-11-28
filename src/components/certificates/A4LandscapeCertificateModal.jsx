@@ -134,7 +134,8 @@ export default function A4LandscapeCertificateModal({
   group,
   trainer,
   inlineRender = false,
-  canvasId = 'printableLandscapeCertificate'
+  canvasId = 'printableLandscapeCertificate',
+  presetIdOverride = ''
 }) {
   const [exportingType, setExportingType] = useState(null); // 'pdf' | 'png' | null
   const [zoomed, setZoomed] = useState(false);
@@ -190,7 +191,17 @@ export default function A4LandscapeCertificateModal({
   const db = loadDB();
   const baseDesign = db.settings?.certificateDesign || {};
   const savedPresets = baseDesign.customTemplatePresets || [];
-  const activePresetObj = selectedPresetId ? savedPresets.find((p) => p.id === selectedPresetId) : null;
+  const autoMatchedPreset =
+    savedPresets.find(
+      (p) => Array.isArray(p.linkedCourseIds) && course?.id && p.linkedCourseIds.includes(course.id)
+    ) || null;
+  const chosenPresetId = selectedPresetId || presetIdOverride;
+  const activePresetObj =
+    chosenPresetId === '__studio__'
+      ? null
+      : chosenPresetId
+        ? savedPresets.find((p) => p.id === chosenPresetId)
+        : autoMatchedPreset;
   const design = activePresetObj?.config
     ? {
         ...baseDesign,
@@ -723,8 +734,13 @@ export default function A4LandscapeCertificateModal({
               }}
             >
               <MenuItem value="" sx={{ fontSize: '0.78rem' }}>
-                Default Studio Design
+                {autoMatchedPreset ? `Auto: ${autoMatchedPreset.name}` : 'Default Studio Design'}
               </MenuItem>
+              {autoMatchedPreset && (
+                <MenuItem value="__studio__" sx={{ fontSize: '0.78rem', color: '#475569' }}>
+                  Studio Base Design
+                </MenuItem>
+              )}
               {savedPresets.map((p) => (
                 <MenuItem key={p.id} value={p.id} sx={{ fontSize: '0.78rem', fontWeight: 700 }}>
                   {baseDesign.defaultPresetId === p.id ? '★ ' : ''}
@@ -1571,11 +1587,30 @@ export default function A4LandscapeCertificateModal({
                 <Box key={sig.id} sx={{ textAlign: 'center', minWidth: '110px' }}>
                   <Box
                     sx={{
-                      height: 32,
+                      minHeight: 34,
+                      display: 'flex',
+                      alignItems: 'flex-end',
+                      justifyContent: 'center',
                       borderBottom: sig.lineStyle === 'dashed' ? '1px dashed #64748b' : sig.lineStyle === 'none' ? 'none' : `1.5px solid ${primaryColor}`,
-                      mb: 0.5
+                      mb: 0.5,
+                      pb: 0.3
                     }}
-                  />
+                  >
+                    {design.showDigitalSignatures !== false && sig.signatureUrl && (
+                      <Box
+                        component="img"
+                        src={sig.signatureUrl}
+                        alt={`${sig.name} Signature`}
+                        crossOrigin="anonymous"
+                        sx={{
+                          height: `${sig.signatureHeight || 34}px`,
+                          maxWidth: '125px',
+                          objectFit: 'contain',
+                          display: 'block'
+                        }}
+                      />
+                    )}
+                  </Box>
                   <Typography variant="subtitle2" sx={{ fontWeight: 800, color: primaryColor, fontSize: '0.78rem' }}>
                     {sig.name}
                   </Typography>

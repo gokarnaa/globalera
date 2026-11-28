@@ -125,3 +125,78 @@ export async function uploadCertificateBgToSupabase(file, nameHint = 'cert-bg') 
     quality: 0.86
   });
 }
+
+/**
+ * Transparent PNG upload (preserves alpha transparency for Digital Signatures & Stamps)
+ * Uploads to Supabase Storage 'media-uploads/signatures' with compact PNG inline fallback.
+ */
+export async function uploadTransparentPngToSupabase(
+  file,
+  { folder = 'signatures', entityId = 'sig', maxDim = 600 } = {}
+) {
+  const { blob, dataUrl, sizeKb } = await new Promise((resolve, reject) => {
+    if (!file) return reject(new Error('No file selected.'));
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Failed to read image file.'));
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onerror = () => reject(new Error('Invalid image file.'));
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width >= height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        const pngDataUrl = canvas.toDataURL('image/png');
+        canvas.toBlob(
+          (b) => {
+            resolve({
+              blob: b,
+              dataUrl: pngDataUrl,
+              sizeKb: b ? Math.max(1, Math.round(b.size / 1024)) : Math.round((pngDataUrl.length * 0.75) / 1024)
+            });
+          },
+          'image/png'
+        );
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  const safeFolder = String(folder || 'signatures').replace(/[^a-z0-9_-]/gi, '');
+  const safeId = String(entityId || 'sig').replace(/[^a-z0-9_-]/gi, '').slice(0, 32) || 'sig';
+  const objectPath = `${safeFolder}/${safeId}-${Date.now()}.png`;
+
+  try {
+    const client = getSupabaseClient();
+    if (client && blob) {
+      const { error } = await client.storage.from(MEDIA_BUCKET).upload(objectPath, blob, {
+        contentType: 'image/png',
+        cacheControl: '31536000',
+        upsert: true
+      });
+      if (!error) {
+        const { data: pub } = client.storage.from(MEDIA_BUCKET).getPublicUrl(objectPath);
+        if (pub?.publicUrl) {
+          return { ok: true, url: pub.publicUrl, storage: 'supabase', sizeKb };
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[MediaUpload] Transparent PNG fallback to inline:', err?.message);
+  }
+
+  return { ok: true, url: dataUrl, storage: 'inline', sizeKb };
+}
